@@ -1,0 +1,5 @@
+-keep class java.lang.Object {
+  java.lang.String toString();
+}
+
+-keep class com.android.jack.shrob.test002.jack.B

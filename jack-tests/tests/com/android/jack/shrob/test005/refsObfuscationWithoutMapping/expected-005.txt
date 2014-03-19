@@ -1,0 +1,18 @@
+com.android.jack.shrob.test005.jack.Annot -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.Nbbch:
+    int intValue() -> vbhJnyir__
+com.android.jack.shrob.test005.jack.E -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.R:
+    com.android.jack.shrob.test005.jack.E A -> N:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
+    com.android.jack.shrob.test005.jack.E B -> O:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
+    com.android.jack.shrob.test005.jack.E C -> P:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
+    com.android.jack.shrob.test005.jack.E[] $VALUES -> $JNYIRG:[Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
+    void <clinit>() -> <clinit>
+    com.android.jack.shrob.test005.jack.E valueOf(java.lang.String) -> jnyirCs_Ywnjn/ynbt/Ghfvbt;_
+    com.android.jack.shrob.test005.jack.E[] values() -> jnyirg__
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test005.jack.A -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.N:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.B -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.O:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.C -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.P:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot2 -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.Nbbch2:

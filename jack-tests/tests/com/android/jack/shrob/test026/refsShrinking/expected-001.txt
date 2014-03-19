@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test026/jack/Enum;:
+[Lcom/android/jack/shrob/test026/jack/Enum; $VALUES
+<clinit>()V
+valueOf(Ljava/lang/String;)Lcom/android/jack/shrob/test026/jack/Enum;
+values()[Lcom/android/jack/shrob/test026/jack/Enum;

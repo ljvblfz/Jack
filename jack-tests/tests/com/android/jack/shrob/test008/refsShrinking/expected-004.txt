@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test008/jack/A;:
+<init>()V
+keep4()V
+Lcom/android/jack/shrob/test008/jack/MyException;:
+<init>()V

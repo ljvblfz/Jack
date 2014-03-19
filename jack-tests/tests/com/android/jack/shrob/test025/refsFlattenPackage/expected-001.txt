@@ -1,0 +1,8 @@
+com.android.jack.shrob.test025.jack.Keep -> com.android.jack.shrob.test025.jack.Keep:
+    void <init>() -> <init>
+    java.lang.String keep() -> keep
+    java.lang.String m(java.lang.String) -> m
+com.android.jack.shrob.test025.jack.A$I -> com.android.jack.shrob.test025.jack.A$I:
+com.android.jack.shrob.test025.jack.A$I2 -> com.android.jack.shrob.test025.jack.A$I2:
+    java.lang.String s -> s
+    void <clinit>() -> <clinit>

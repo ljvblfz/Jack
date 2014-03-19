@@ -1,0 +1,10 @@
+Lcom/android/jack/shrob/test001/jack/K;:
+I i
+I h
+I i2
+I j
+Ljava/lang/Object; o
+Ljava/lang/String; TAG2
+<clinit>()V
+<init>()V
+keep()V

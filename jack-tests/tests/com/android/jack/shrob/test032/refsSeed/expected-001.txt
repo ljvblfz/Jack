@@ -1,0 +1,6 @@
+com.android.jack.shrob.test032.jack.C
+com.android.jack.shrob.test032.jack.Kept
+com.android.jack.shrob.test032.jack.Kept: Kept()
+com.android.jack.shrob.test032.jack.Kept: int kept(com.android.jack.shrob.test032.jack.I)
+com.android.jack.shrob.test032.jack.Kept: void <clinit>()
+com.android.jack.shrob.test032.jack.Kept: void $init()

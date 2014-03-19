@@ -1,0 +1,4 @@
+-keep class * extends java.io.Serializable {
+    static final long serialVersionUID;
+    java.lang.Object o;
+}

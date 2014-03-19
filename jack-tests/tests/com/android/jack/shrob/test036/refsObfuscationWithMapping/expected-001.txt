@@ -1,0 +1,13 @@
+com.android.jack.shrob.test036.jack.E -> com.android.jack.shrob.test036.jack.a:
+    com.android.jack.shrob.test036.jack.E A -> a
+    com.android.jack.shrob.test036.jack.E B -> b
+    com.android.jack.shrob.test036.jack.E C -> c
+    com.android.jack.shrob.test036.jack.E[] $VALUES -> d
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test036.jack.E[] values() -> a
+    void <clinit>() -> <clinit>
+com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
+    int[] -ESwitchesValues -> -ESwitchesValues
+    void <init>() -> <init>
+    int kept(com.android.jack.shrob.test036.jack.E) -> kept
+    int[] -getESwitchesValues() -> -getESwitchesValues

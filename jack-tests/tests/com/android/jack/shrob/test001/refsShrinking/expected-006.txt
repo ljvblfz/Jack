@@ -1,0 +1,7 @@
+Lcom/android/jack/shrob/test001/jack/I;:
+m()V
+Lcom/android/jack/shrob/test001/jack/H;:
+Lcom/android/jack/shrob/test001/jack/G;:
+<init>()V
+m()V
+main([Ljava/lang/String;)V

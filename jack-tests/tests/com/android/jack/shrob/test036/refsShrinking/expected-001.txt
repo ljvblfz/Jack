@@ -1,0 +1,13 @@
+Lcom/android/jack/shrob/test036/jack/E;:
+Lcom/android/jack/shrob/test036/jack/E; A
+Lcom/android/jack/shrob/test036/jack/E; B
+Lcom/android/jack/shrob/test036/jack/E; C
+[Lcom/android/jack/shrob/test036/jack/E; $VALUES
+<init>(Ljava/lang/String;I)V
+values()[Lcom/android/jack/shrob/test036/jack/E;
+<clinit>()V
+Lcom/android/jack/shrob/test036/jack/Kept;:
+[I -ESwitchesValues
+<init>()V
+kept(Lcom/android/jack/shrob/test036/jack/E;)I
+-getESwitchesValues()[I

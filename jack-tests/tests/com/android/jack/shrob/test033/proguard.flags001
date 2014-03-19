@@ -1,0 +1,5 @@
+-applymapping mapping.flags
+
+-keep,allowobfuscation class * {
+  *;
+}

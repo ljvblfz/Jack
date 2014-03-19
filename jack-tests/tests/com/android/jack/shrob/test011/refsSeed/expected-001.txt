@@ -1,0 +1,2 @@
+com.android.jack.shrob.test011.jack.A
+com.android.jack.shrob.test011.jack.A: java.lang.Object keep1()

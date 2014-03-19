@@ -1,0 +1,7 @@
+-applymapping mapping.flags
+
+-repackageclasses 'p2'
+
+-keep,allowobfuscation class * {
+  *;
+}

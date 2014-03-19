@@ -1,0 +1,84 @@
+com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.R:
+    void <init>() -> <init>
+    void keep() -> xrrd__
+com.android.jack.shrob.test001.jack.I -> com.android.jack.shrob.test001.jack.V:
+    void m() -> z__
+com.android.jack.shrob.test001.jack.H -> com.android.jack.shrob.test001.jack.U:
+com.android.jack.shrob.test001.jack.J -> com.android.jack.shrob.test001.jack.W:
+    void <init>() -> <init>
+    int[][][] m() -> z__
+    int m0() -> z0__
+    int[] m1() -> z1__
+    int[][] m2() -> z2__
+    int[][][] m3() -> z3__
+    int[][][] m5(int,boolean,long) -> z5_VNW_
+com.android.jack.shrob.test001.jack.F -> com.android.jack.shrob.test001.jack.S:
+    void <init>() -> <init>
+    void keep() -> xrrd__
+com.android.jack.shrob.test001.jack.B -> com.android.jack.shrob.test001.jack.O:
+    void <init>() -> <init>
+com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.Q:
+    void <init>() -> <init>
+    void keep() -> xrrd__
+    void main(java.lang.String[]) -> znvb_[Ywnjn/ynbt/Ghfvbt;_
+    void main2(java.lang.String[]) -> znvb2_[Ywnjn/ynbt/Ghfvbt;_
+com.android.jack.shrob.test001.jack.G -> com.android.jack.shrob.test001.jack.T:
+    void <init>() -> <init>
+    void m() -> z__
+    void main(java.lang.String[]) -> znvb_[Ywnjn/ynbt/Ghfvbt;_
+com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Frsyrph:
+    void <init>() -> <init>
+    void keep() -> xrrd__
+    void keep2() -> xrrd2__
+    void keep3() -> xrrd3__
+    void keep4() -> xrrd4__
+    void keep5() -> xrrd5__
+    void keep6() -> xrrd6__
+    void keep7() -> xrrd7__
+    void keep8() -> xrrd8__
+com.android.jack.shrob.test001.jack.C -> com.android.jack.shrob.test001.jack.P:
+    void <init>() -> <init>
+    void f() -> s__
+    void m() -> z__
+com.android.jack.shrob.test001.jack.A -> com.android.jack.shrob.test001.jack.N:
+    void <init>() -> <init>
+    void <init>(int) -> <init>
+    void m() -> z__
+    void privateFunc() -> dfvjnhrSibp__
+    void <clinit>() -> <clinit>
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Reflect2:
+    com.android.jack.shrob.test001.jack.Reflect2$A a -> a
+    com.android.jack.shrob.test001.jack.Reflect2$B b -> b
+    java.lang.Object c -> c
+    long fieldLong -> fieldLong
+    long fieldLong2 -> fieldLong2
+    long fieldLong3 -> fieldLong3
+    long fieldLong4 -> fieldLong4
+    int fieldPrivate -> fieldPrivate
+    int fieldPublic -> fieldPublic
+    void <init>() -> <init>
+    void calledMethod() -> calledMethod
+    void m(com.android.jack.shrob.test001.jack.Reflect2$A) -> m
+    void privateMethod(com.android.jack.shrob.test001.jack.Reflect2$B) -> privateMethod
+com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Reflect2$A:
+    com.android.jack.shrob.test001.jack.Reflect2 this$0 -> this$0
+    void <init>(com.android.jack.shrob.test001.jack.Reflect2) -> <init>
+com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Reflect2$B:
+    com.android.jack.shrob.test001.jack.Reflect2 this$0 -> this$0
+    void <init>(com.android.jack.shrob.test001.jack.Reflect2) -> <init>
+com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
+    java.lang.String TAG -> TAG
+    void <init>() -> <init>
+    void onReceive() -> onReceive
+com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
+    java.lang.String TAG -> TAG
+    java.lang.String TAG2 -> TAG2
+    int h -> h
+    int i -> i
+    int i2 -> i2
+    int i3 -> i3
+    int j -> j
+    java.lang.Object o -> o
+    void <init>() -> <init>
+    void keep() -> keep
+    void <clinit>() -> <clinit>

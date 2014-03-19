@@ -1,0 +1,2 @@
+This test creates a class with a method m() and its subclass which implements an interface that defines a method m as well.
+Both m() methods should be kept.

@@ -1,0 +1,5 @@
+com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
+    void keep6() -> keep6
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.a:
+    int fieldPublic -> a
+    long fieldLong -> b

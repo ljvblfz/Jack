@@ -1,0 +1,8 @@
+Lcom/android/jack/shrob/test025/jack/A$I;:
+Lcom/android/jack/shrob/test025/jack/A$I2;:
+Ljava/lang/String; s
+<clinit>()V
+Lcom/android/jack/shrob/test025/jack/Keep;:
+<init>()V
+m(Ljava/lang/String;)Ljava/lang/String;
+keep()Ljava/lang/String;

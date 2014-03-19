@@ -1,0 +1,2 @@
+com.android.jack.shrob.test001.jack.D
+com.android.jack.shrob.test001.jack.D: void main(java.lang.String[])

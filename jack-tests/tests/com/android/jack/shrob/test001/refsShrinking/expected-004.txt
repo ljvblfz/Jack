@@ -1,0 +1,4 @@
+Lcom/android/jack/shrob/test001/jack/D;:
+<init>()V
+keep()V
+main2([Ljava/lang/String;)V

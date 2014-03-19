@@ -1,0 +1,31 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Unit Tests" verbose="1" >
+
+  <test name="Evolution Framework" >
+    <packages>
+      <package name="org.uncommons.watchmaker.framework.*" />
+    </packages>
+  </test>
+
+  <test name="Swing Module" >
+    <packages>
+      <package name="org.uncommons.swing.*" />
+      <package name="org.uncommons.watchmaker.swing.*" />
+    </packages>
+  </test>
+
+  <test name="Examples" >
+    <packages>
+      <package name="org.uncommons.watchmaker.examples.*" />
+    </packages>
+  </test>
+
+  <test name="Utilities Module" >
+    <packages>
+      <package name="org.uncommons.util.*" />
+    </packages>
+  </test>
+
+</suite>
+        

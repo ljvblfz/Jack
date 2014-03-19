@@ -1,0 +1,4 @@
+com.android.jack.shrob.test007.jack.A
+com.android.jack.shrob.test007.jack.A: java.lang.Object getObject()
+com.android.jack.shrob.test007.jack.A: float getFloat()
+com.android.jack.shrob.test007.jack.A: java.lang.Object[] getObjects()

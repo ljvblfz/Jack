@@ -1,0 +1,5 @@
+com.android.jack.shrob.test017.jack.Reflect
+com.android.jack.shrob.test017.jack.Reflect: void keep2()
+com.android.jack.shrob.test017.jack.Reflect: void keep3()
+com.android.jack.shrob.test017.jack.Reflect: void keep4()
+com.android.jack.shrob.test017.jack.Reflect: void keep5()

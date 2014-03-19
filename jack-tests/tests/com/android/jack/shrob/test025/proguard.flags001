@@ -1,0 +1,4 @@
+-dontobfuscate
+-keep class **.Keep {
+  java.lang.String keep();
+}

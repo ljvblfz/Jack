@@ -1,0 +1,6 @@
+Lcom/android/jack/shrob/test001/jack/Reflect2;:
+J fieldLong
+<init>()V
+Lcom/android/jack/shrob/test001/jack/Reflect;:
+<init>()V
+keep7()V

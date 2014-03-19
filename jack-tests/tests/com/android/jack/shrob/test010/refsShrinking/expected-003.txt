@@ -1,0 +1,6 @@
+Lcom/android/jack/shrob/test010/jack/C;:
+<init>()V
+Lcom/android/jack/shrob/test010/jack/A;:
+<init>()V
+get()Ljava/lang/Object;
+set(Lcom/android/jack/shrob/test010/jack/C;)V

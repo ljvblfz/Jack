@@ -1,0 +1,1 @@
+This tests contains an enum and a switch statement.

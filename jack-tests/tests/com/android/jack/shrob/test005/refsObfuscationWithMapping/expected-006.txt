@@ -1,0 +1,16 @@
+com.android.jack.shrob.test005.jack.Annot -> com.android.jack.shrob.test005.jack.Annot:
+com.android.jack.shrob.test005.jack.E -> com.android.jack.shrob.test005.jack.E:
+    com.android.jack.shrob.test005.jack.E A -> a
+    com.android.jack.shrob.test005.jack.E B -> b
+    com.android.jack.shrob.test005.jack.E C -> c
+    com.android.jack.shrob.test005.jack.E[] $VALUES -> e
+    com.android.jack.shrob.test005.jack.E[] values() -> a
+    void <clinit>() -> <clinit>
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test005.jack.A -> com.android.jack.shrob.test005.jack.A:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.B -> com.android.jack.shrob.test005.jack.B:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.C -> com.android.jack.shrob.test005.jack.C:
+    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot2 -> com.android.jack.shrob.test005.jack.Annot2:

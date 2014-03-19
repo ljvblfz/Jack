@@ -1,0 +1,10 @@
+com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
+    java.lang.String TAG2 -> HNT2:Ywnjn/ynbt/Ghfvbt;
+    int h -> u:V
+    int i -> v:V
+    int i2 -> v2:V
+    int j -> w:V
+    java.lang.Object o -> c:Ywnjn/ynbt/Cowrph;
+    void <init>() -> <init>
+    void keep() -> keep
+    void <clinit>() -> <clinit>

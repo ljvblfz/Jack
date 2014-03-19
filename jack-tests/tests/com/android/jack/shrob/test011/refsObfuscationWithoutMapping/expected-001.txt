@@ -1,0 +1,7 @@
+com.android.jack.shrob.test011.jack.B -> com.android.jack.shrob.test011.jack.O:
+    void <init>() -> <init>
+com.android.jack.shrob.test011.jack.C -> com.android.jack.shrob.test011.jack.P:
+    void <init>() -> <init>
+com.android.jack.shrob.test011.jack.A -> com.android.jack.shrob.test011.jack.A:
+    void <init>() -> <init>
+    java.lang.Object keep1() -> keep1

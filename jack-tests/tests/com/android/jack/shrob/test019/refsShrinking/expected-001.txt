@@ -1,0 +1,11 @@
+Lcom/android/jack/shrob/test019/jack/A$Inner;:
+Lcom/android/jack/shrob/test019/jack/B$Inner2;:
+<init>()V
+Lcom/android/jack/shrob/test019/jack/B$Inner2$Inner3;:
+<init>()V
+Lcom/android/jack/shrob/test019/jack/B$C$Inner4;:
+<init>()V
+Lcom/android/jack/shrob/test019/jack/B$E;:
+<init>()V
+Lcom/android/jack/shrob/test019/jack/B$E$1;:
+<init>()V

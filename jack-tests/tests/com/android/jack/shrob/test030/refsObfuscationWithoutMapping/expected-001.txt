@@ -1,0 +1,10 @@
+com.android.jack.shrob.test030.jack.Kept -> com.android.jack.shrob.test030.jack.Kept:
+    void <init>() -> <init>
+    int kept(com.android.jack.shrob.test030.jack.I) -> kept
+com.android.jack.shrob.test030.jack.I -> com.android.jack.shrob.test030.jack.V:
+    int m() -> z__
+com.android.jack.shrob.test030.jack.B -> com.android.jack.shrob.test030.jack.B:
+    void <init>() -> <init>
+com.android.jack.shrob.test030.jack.A -> com.android.jack.shrob.test030.jack.N:
+    void <init>() -> <init>
+    int m() -> z__

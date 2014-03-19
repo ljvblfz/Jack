@@ -1,0 +1,6 @@
+-keepclasseswithmembers class * {
+  *;
+}
+
+-dontshrink
+

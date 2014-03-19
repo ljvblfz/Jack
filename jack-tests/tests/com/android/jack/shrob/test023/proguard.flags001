@@ -1,0 +1,3 @@
+-keep class com.android.jack.shrob.test023.jack.Outer$Inner {
+  Outer$Inner(int);
+}

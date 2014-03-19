@@ -1,0 +1,5 @@
+com.android.jack.shrob.test023.jack.Outer$Inner -> com.android.jack.shrob.test023.jack.Outer$Inner:
+    void <init>() -> <init>
+    void <init>(int) -> <init>
+    void m() -> a
+    void m2() -> b

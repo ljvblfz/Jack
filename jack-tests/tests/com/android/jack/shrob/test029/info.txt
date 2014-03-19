@@ -1,0 +1,3 @@
+This test creates a complicated inheritance with generics to check that
+shrink and obfuscation detect overriding methods with generics.
+The goal is to check that the method get(I) in B will be kept.

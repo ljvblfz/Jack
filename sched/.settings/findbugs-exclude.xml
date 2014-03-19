@@ -1,0 +1,47 @@
+<FindBugsFilter>
+<!-- Nonnull field is actually initialized during construction, in a private method -->
+<Match>
+    <Class name="com.android.sched.scheduler.ManagedRunnable"/>
+    <Method name="&lt;init&gt;"/>
+    <Bug pattern="NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+</Match>
+<!-- Nonnull field is actually initialized during construction, in a private method -->
+<Match>
+    <Class name="com.android.sched.marker.ManagedMarker"/>
+    <Method name="&lt;init&gt;"/>
+    <Bug pattern="NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+</Match>
+<!-- We want to call System.gc() for memory measurement purposes -->
+<Match>
+    <Class name="com.android.sched.util.log.tracer.probe.HeapMemoryProbe"/>
+    <Bug pattern="DM_GC"/>
+</Match>
+<!-- See inlined comment in source file -->
+<Match>
+    <Class name="com.android.sched.scheduler.MultiWorkersScheduleInstance$Worker"/>
+    <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+</Match>
+<!-- See inlined comment in source file -->
+<Match>
+    <Class name="com.android.sched.util.table.AbstractTable"/>
+    <Bug pattern="EI_EXPOSE_REP"/>
+</Match>
+<!-- Unused public fields only for test -->
+<Match>
+    <Class name="com.android.sched.config.OptionBoolean"/>
+    <Bug code="UrF"/>
+</Match>
+<Match>
+    <Class name="com.android.sched.config.OptionModule1"/>
+    <Bug code="UrF"/>
+</Match>
+<Match>
+    <Class name="com.android.sched.config.OptionReference"/>
+    <Bug code="UrF"/>
+</Match>
+<Match>
+    <Class name="com.android.sched.config.CommonModule"/>
+    <Bug code="UuF"/>
+</Match>
+</FindBugsFilter>
+

@@ -1,0 +1,7 @@
+URL: https://github.com/antlr/antlr3/tree/antlr-3.4
+Tag: antlr-3.4
+License: BSD
+Description: Runtime libraries for ANTLR (ANother Tool for Language Recognition), powerful parser generator for reading, processing, executing, or translating structured text or binary files.
+Local Modifications: None.
+
+Latest commit: fb4eb0e43212f4a7e841f4117b88c4b674b87698

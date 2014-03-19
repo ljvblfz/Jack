@@ -1,0 +1,20 @@
+Lcom/android/jack/shrob/test014/jack/A;:
+I a
+I m
+Z b
+<init>()V
+m()V
+f()V
+m(I)V
+g()V
+keep()V
+Lcom/android/jack/shrob/test014/jack/B;:
+C c
+Z m
+<init>()V
+a()V
+r()V
+m()V
+l()V
+m(I)V
+keep()V

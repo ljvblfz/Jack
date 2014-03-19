@@ -1,0 +1,8 @@
+com.android.jack.shrob.test015.jack.B -> flatpackage.wnpx.O:
+    void <init>() -> <init>
+com.android.jack.shrob.test015.jack.A -> flatpackage.wnpx.N:
+    void <init>() -> <init>
+    com.android.jack.shrob.test015.jack.B m() -> z__
+    void m(com.android.jack.shrob.test015.jack.A) -> z_Ypcz/nbqfcvq/wnpx/tispc/uftu015/kbdl/B;_
+com.android.jack.shrob.test015.jack.A$I -> flatpackage.wnpx.N$V:
+com.android.jack.shrob.test015.jack.A$J -> flatpackage.wnpx.N$W:

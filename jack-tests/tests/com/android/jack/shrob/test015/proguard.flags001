@@ -1,0 +1,4 @@
+-keep,allowobfuscation class ** {
+  <fields>;
+  <methods>;
+}

@@ -1,0 +1,3 @@
+-keep class com.android.jack.shrob.test020.jack.Shrob020  {
+int test();
+}

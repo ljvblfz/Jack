@@ -1,0 +1,6 @@
+com.android.jack.shrob.test015.jack.A -> a.a.a.a.a.a.a:
+    23:23:com.android.jack.shrob.test015.jack.B m() -> a
+    28:28:void m(com.android.jack.shrob.test015.jack.A) -> a
+com.android.jack.shrob.test015.jack.A$I -> a.a.a.a.a.a.a$a:
+com.android.jack.shrob.test015.jack.A$J -> a.a.a.a.a.a.a$b:
+com.android.jack.shrob.test015.jack.B -> a.a.a.a.a.a.b:

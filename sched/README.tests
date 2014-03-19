@@ -1,0 +1,11 @@
+CAUTION : environment MUST be correctly set, i.e. required environment variables
+such as ANDROID_BUILD_TOP MUST be defined.
+
+To run tests, a phony target has been added to Android.mk. So you can invoke it like this:
+
+  mm test-sched
+
+from the project directory. It invokes the run-sched-tests script.
+This test invokes the AllTests test suite but can easily be modified to add/remove test cases.
+To do so, one only has to pass the fully qualified name of the test class 
+he wishes to run to the junit runner.

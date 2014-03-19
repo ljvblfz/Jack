@@ -1,0 +1,6 @@
+com.android.jack.shrob.test008.jack.A -> com.android.jack.shrob.test008.jack.A:
+    void <init>() -> <init>
+    void m() -> z__
+    void keep() -> keep
+com.android.jack.shrob.test008.jack.MyException -> ZmRlprdhvcb:
+    void <init>() -> <init>

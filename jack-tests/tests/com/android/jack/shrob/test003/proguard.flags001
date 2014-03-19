@@ -1,0 +1,6 @@
+-keep class com.android.jack.shrob.test003.lib.Test {
+   void keep();
+}
+
+# to avoid empty result
+-keep class com.android.jack.shrob.test003.jack.B

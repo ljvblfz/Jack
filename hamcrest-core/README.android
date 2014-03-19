@@ -1,0 +1,13 @@
+URL: http://code.google.com/p/hamcrest/
+Tag: hamcrest-java-1.1/hamcrest-core
+License: BSD 2
+Description: Provides a library of matcher objects (also known as constraints or predicates) allowing 'match' rules to be defined declaratively, to be used in other frameworks. Typical scenarios include testing frameworks, mocking libraries and UI validation rules.
+Local Modifications: No.
+
+SVN: http://hamcrest.googlecode.com/svn/tags/
+
+Note: hamcrest is ported to github, and hamcrest 1.1 can be retrieved by checkouting
+commit 7fabb5cd0a17ec1a0f5112ace91e7a23ad79032a
+from repository https://github.com/hamcrest/JavaHamcrest.
+Oddly though, differences between this version and the SVN one are present in the source files.
+This current project share the same sources than the SVN version.

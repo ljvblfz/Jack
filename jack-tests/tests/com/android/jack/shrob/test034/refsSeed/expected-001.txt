@@ -1,0 +1,10 @@
+com.android.jack.shrob.test034.jack.A
+com.android.jack.shrob.test034.jack.A: int f
+com.android.jack.shrob.test034.jack.A: A()
+com.android.jack.shrob.test034.jack.A: void <clinit>()
+com.android.jack.shrob.test034.jack.A: void $init()
+com.android.jack.shrob.test034.jack.B
+com.android.jack.shrob.test034.jack.B: B()
+com.android.jack.shrob.test034.jack.B: int m()
+com.android.jack.shrob.test034.jack.B: void <clinit>()
+com.android.jack.shrob.test034.jack.B: void $init()

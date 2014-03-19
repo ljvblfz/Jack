@@ -1,0 +1,4 @@
+com.android.jack.shrob.test006.jack.A -> com.android.jack.shrob.test006.jack.A:
+    void m() -> m
+    void m2() -> m2
+    int m8() -> m8

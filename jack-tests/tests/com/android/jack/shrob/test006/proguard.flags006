@@ -1,0 +1,3 @@
+-keep class com.android.jack.shrob.test006.jack.* {
+  public !private *;
+}

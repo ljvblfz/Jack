@@ -1,0 +1,3 @@
+-keep class com.android.jack.shrob.test017.jack.Reflect {
+  void keep?();
+}

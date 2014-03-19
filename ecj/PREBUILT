@@ -1,0 +1,8 @@
+The objects in this prebuilt directory can be rebuilt
+using the source archive
+
+jdt-3.4.2-src.zip
+
+From http://google-web-toolkit.googlecode.com/svn/tools, revions 5108
+
+This is a subset of ecj 3.4.2 specific to GWT.

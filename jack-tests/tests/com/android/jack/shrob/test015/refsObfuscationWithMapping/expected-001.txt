@@ -1,0 +1,8 @@
+com.android.jack.shrob.test015.jack.B -> a.a.a.a.a.a.b:
+    void <init>() -> <init>
+com.android.jack.shrob.test015.jack.A -> a.a.a.a.a.a.a:
+    void <init>() -> <init>
+    com.android.jack.shrob.test015.jack.B m() -> a
+    void m(com.android.jack.shrob.test015.jack.A) -> a
+com.android.jack.shrob.test015.jack.A$I -> a.a.a.a.a.a.a$a:
+com.android.jack.shrob.test015.jack.A$J -> a.a.a.a.a.a.a$b:

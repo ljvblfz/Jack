@@ -1,0 +1,9 @@
+-keep class ** {
+  void keep();
+}
+
+-keepclassmembernames class com.android.jack.shrob.test014.jack.B {
+  void a();
+}
+
+-useuniqueclassmembernames

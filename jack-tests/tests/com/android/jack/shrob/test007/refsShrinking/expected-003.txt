@@ -1,0 +1,3 @@
+Lcom/android/jack/shrob/test007/jack/A;:
+<init>()V
+getFloat()F

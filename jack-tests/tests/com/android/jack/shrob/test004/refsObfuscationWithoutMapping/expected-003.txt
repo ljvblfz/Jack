@@ -1,0 +1,5 @@
+com.android.jack.shrob.test004.jack.A -> com.android.jack.shrob.test004.jack.A:
+    void <init>() -> <init>
+    void <init>(int) -> <init>
+    void m() -> z__
+    void m2() -> z2__

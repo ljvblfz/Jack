@@ -1,0 +1,513 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.transformations.ast;
+
+import com.android.jack.Jack;
+import com.android.jack.Options;
+import com.android.jack.ir.SideEffectOperation;
+import com.android.jack.ir.ast.JAbsentArrayDimension;
+import com.android.jack.ir.ast.JArrayRef;
+import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JConditionalExpression;
+import com.android.jack.ir.ast.JDoStatement;
+import com.android.jack.ir.ast.JDynamicCastOperation;
+import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JFieldInitializer;
+import com.android.jack.ir.ast.JForStatement;
+import com.android.jack.ir.ast.JIfStatement;
+import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JPrimitiveType;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JUnaryOperation;
+import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JWhileStatement;
+import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.types.JIntegralType32;
+import com.android.jack.ir.types.JNumericType;
+import com.android.jack.lookup.CommonTypes;
+import com.android.jack.lookup.CommonTypes.CommonType;
+import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.jack.transformations.request.Replace;
+import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.filter.Filter;
+import com.android.sched.item.Description;
+import com.android.sched.item.Name;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
+import com.android.sched.util.collect.Lists;
+import com.android.sched.util.config.ThreadConfig;
+
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+/**
+ * Make implicit casting, boxing and unboxing become explicit.
+ */
+@Description("Make implicit casting, boxing and unboxing become explicit.")
+@Name("TypeLegalizer")
+@Constraint(
+    no = {SideEffectOperation.class, InitInNewArray.class, JSwitchStatement.SwitchWithEnum.class},
+    need = OriginalNames.class)
+@Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
+    remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
+public class TypeLegalizer implements RunnableSchedulable<JMethod> {
+
+  @Nonnull
+  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+
+  static class TypeLegalizerVisitor extends JVisitor {
+
+    @Nonnull
+    private final TransformationRequest tr;
+
+    TypeLegalizerVisitor(@Nonnull TransformationRequest tr) {
+      this.tr = tr;
+    }
+
+    @Override
+    public void endVisit(@Nonnull JReturnStatement returnStatement) {
+      JExpression returnExpr = returnStatement.getExpr();
+
+      if (returnExpr != null) {
+        JType expectedType = returnStatement.getParent(JMethod.class).getType();
+        castIfNeeded(maybeBoxOrUnbox(returnExpr, expectedType), expectedType);
+      }
+
+      super.endVisit(returnStatement);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JForStatement forStmt) {
+      maybeUnbox(forStmt.getTestExpr());
+      super.endVisit(forStmt);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JWhileStatement whileStmt) {
+      maybeUnbox(whileStmt.getTestExpr());
+      super.endVisit(whileStmt);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JDoStatement doStmt) {
+      maybeUnbox(doStmt.getTestExpr());
+      super.endVisit(doStmt);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JConditionalExpression conditional) {
+      maybeUnbox(conditional.getIfTest());
+
+      JType conditionalType = conditional.getType();
+
+      castIfNeeded(maybeBoxOrUnbox(conditional.getThenExpr(), conditionalType), conditionalType);
+
+      castIfNeeded(maybeBoxOrUnbox(conditional.getElseExpr(), conditionalType), conditionalType);
+
+      super.endVisit(conditional);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JIfStatement ifStmt) {
+      maybeUnbox(ifStmt.getIfExpr());
+      super.endVisit(ifStmt);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JSwitchStatement switchStmt) {
+      maybeUnbox(switchStmt.getExpr());
+      super.endVisit(switchStmt);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JDynamicCastOperation cast) {
+      maybeBoxOrUnbox(cast.getExpr(), cast.getCastType());
+      super.endVisit(cast);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JBinaryOperation binary) {
+      JExpression rhs = binary.getRhs();
+      JType rhsType = rhs.getType();
+      JExpression lhs = binary.getLhs();
+      JType lhsType = lhs.getType();
+
+      switch (binary.getOp()) {
+        case CONCAT:
+        case ASG_CONCAT:
+        case ASG_ADD:
+        case ASG_DIV:
+        case ASG_MOD:
+        case ASG_MUL:
+        case ASG_SUB:
+        case ASG_BIT_AND:
+        case ASG_BIT_OR:
+        case ASG_BIT_XOR:
+        case ASG_SHL:
+        case ASG_SHR:
+        case ASG_SHRU: {
+          // not concerned
+          break;
+        }
+        case ASG: {
+          JExpression castTo = maybeBoxOrUnbox(rhs, lhsType);
+
+          if (lhsType instanceof JNumericType) {
+            castIfNeeded(castTo, lhsType);
+          }
+          break;
+        }
+        case SHL:
+        case SHR:
+        case SHRU: {
+          castIfNeeded(maybeUnbox(lhs), binary.getType());
+          castIfNeeded(maybeUnbox(rhs), JPrimitiveTypeEnum.INT.getType());
+          break;
+        }
+        case BIT_AND:
+        case BIT_OR:
+        case BIT_XOR:
+        case AND:
+        case OR:
+        case ADD:
+        case DIV:
+        case MOD:
+        case MUL:
+        case SUB: {
+          JType expectedType = binary.getType();
+          castIfNeeded(maybeUnbox(lhs), expectedType);
+          castIfNeeded(maybeUnbox(rhs), expectedType);
+          break;
+        }
+        case GT:
+        case GTE:
+        case LT:
+        case LTE: {
+           JType expectedType = JPrimitiveType.getBinaryPromotionType(lhsType, rhsType);
+           castIfNeeded(maybeUnbox(lhs), expectedType);
+           castIfNeeded(maybeUnbox(rhs), expectedType);
+          break;
+        }
+        case EQ:
+        case NEQ: {
+        if (lhsType instanceof JNumericType || rhsType instanceof JNumericType) {
+          JType expectedType = JPrimitiveType.getBinaryPromotionType(lhsType, rhsType);
+          castIfNeeded(maybeUnbox(lhs), expectedType);
+          castIfNeeded(maybeUnbox(rhs), expectedType);
+        } else if (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
+            || lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()) {
+          maybeUnbox(lhs);
+          maybeUnbox(rhs);
+        }
+          break;
+        }
+      }
+
+      super.endVisit(binary);
+   }
+
+    @Override
+    public void endVisit(@Nonnull JFieldInitializer init) {
+      JExpression initializer = init.getInitializer();
+
+      JType expectedType = init.getFieldRef().getType();
+      castIfNeeded(maybeBoxOrUnbox(initializer, expectedType), expectedType);
+
+      super.endVisit(init);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JMethodCall call) {
+      List<JExpression> args = call.getArgs();
+      List<JType> parameterTypes = call.getMethodId().getParamTypes();
+      assert args.size() == parameterTypes.size();
+      Iterator<JType> paramTypeIterator = parameterTypes.iterator();
+      for (JExpression jExpression : args) {
+        JType expectedType = paramTypeIterator.next();
+        castIfNeeded(maybeBoxOrUnbox(jExpression, expectedType), expectedType);
+      }
+      super.endVisit(call);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JNewArray newArray) {
+
+      for (JExpression dimension : newArray.getDims()) {
+        if (!(dimension instanceof JAbsentArrayDimension)) {
+          JExpression newDimension = dimension;
+          if (!(dimension.getType() instanceof JPrimitiveType)) {
+            newDimension = unbox(dimension);
+            assert newDimension.getType() instanceof JIntegralType32;
+          }
+          castIfNeeded(newDimension, JPrimitiveTypeEnum.INT.getType());
+        }
+      }
+
+      assert newArray.getInitializers().isEmpty() || newArray.hasConstantInitializer();
+
+      super.endVisit(newArray);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JArrayRef arrayRef) {
+      JExpression indexExpr = arrayRef.getIndexExpr();
+
+      JExpression unboxedExpr = maybeUnbox(indexExpr);
+
+      assert unboxedExpr.getType() instanceof JIntegralType32;
+
+      castIfNeeded(unboxedExpr, JPrimitiveTypeEnum.INT.getType());
+
+      super.endVisit(arrayRef);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JUnaryOperation unary) {
+      switch (unary.getOp()) {
+        case DEC:
+        case INC:
+        case NOT:
+        case BIT_NOT:
+        case NEG: {
+          castIfNeeded(maybeUnbox(unary.getArg()), unary.getType());
+          break;
+        }
+      }
+
+      super.endVisit(unary);
+    }
+
+    @Nonnull
+    private JExpression maybeUnbox(@Nonnull JExpression expr) {
+      JExpression unboxedExpr = expr;
+
+      if (!(expr.getType() instanceof JPrimitiveType)) {
+        unboxedExpr = unbox(expr);
+      }
+
+      return unboxedExpr;
+    }
+
+    @Nonnull
+    private JExpression maybeBoxOrUnbox(@Nonnull JExpression expr, @Nonnull JType expectedType) {
+      JExpression boxUnboxExpr = expr;
+      JType type = expr.getType();
+      if (!(expectedType instanceof JPrimitiveType) && (type instanceof JPrimitiveType)) {
+        assert expectedType instanceof JClassOrInterface;
+        boxUnboxExpr = box(expr, (JClassOrInterface) expectedType);
+      } else if ((expectedType instanceof JPrimitiveType) && !(type instanceof JPrimitiveType)) {
+        boxUnboxExpr = unbox(expr);
+      }
+
+      return boxUnboxExpr;
+    }
+
+    @Nonnull
+    private JExpression box(@Nonnull JExpression exprToBox,
+        @Nonnull JClassOrInterface expectedType) {
+      assert exprToBox.getType() instanceof JPrimitiveType;
+
+      JMethodCall boxMethodCall = getBoxingCall(exprToBox, expectedType,
+          (JPrimitiveType) exprToBox.getType());
+
+      tr.append(new Replace(exprToBox, boxMethodCall));
+
+      return boxMethodCall;
+    }
+
+
+    @Nonnull
+    private JExpression unbox(@Nonnull JExpression exprToUnbox) {
+      JType typeToUnbox = exprToUnbox.getType();
+      assert !(typeToUnbox instanceof JPrimitiveType);
+      assert typeToUnbox instanceof JClassOrInterface;
+      JClassOrInterface wrapper = (JClassOrInterface) typeToUnbox;
+
+      String methodName;
+      JType returnType;
+
+      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+
+      if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_BOOLEAN)) {
+        methodName = "booleanValue";
+        returnType = JPrimitiveTypeEnum.BOOLEAN.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_BYTE)) {
+        methodName = "byteValue";
+        returnType = JPrimitiveTypeEnum.BYTE.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_CHAR)) {
+        methodName = "charValue";
+        returnType = JPrimitiveTypeEnum.CHAR.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_SHORT)) {
+        methodName = "shortValue";
+        returnType = JPrimitiveTypeEnum.SHORT.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_INTEGER)) {
+        methodName = "intValue";
+        returnType = JPrimitiveTypeEnum.INT.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_FLOAT)) {
+        methodName = "floatValue";
+        returnType = JPrimitiveTypeEnum.FLOAT.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_DOUBLE)) {
+        methodName = "doubleValue";
+        returnType = JPrimitiveTypeEnum.DOUBLE.getType();
+      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_LONG)) {
+        methodName = "longValue";
+        returnType = JPrimitiveTypeEnum.LONG.getType();
+      } else {
+        throw new AssertionError();
+      }
+
+
+      JMethodId unboxMethod = wrapper.getOrCreateMethodId(methodName, Lists.<JType>create(),
+      MethodKind.INSTANCE_VIRTUAL);
+      JMethodCall unboxMethodCall = new JMethodCall(
+          exprToUnbox.getSourceInfo(), exprToUnbox, wrapper,
+          unboxMethod, returnType, unboxMethod.canBeVirtual());
+
+      tr.append(new Replace(exprToUnbox, unboxMethodCall));
+
+      return unboxMethodCall;
+    }
+
+    private boolean isBoxingType(@Nonnull JLookup lookup, @Nonnull JType type,
+        @Nonnull CommonType boxingType) {
+      return (type == lookup.getType(boxingType)) || (type == lookup.getClass(boxingType));
+    }
+
+    // TODO(mikaelpeltier): Put it into JPrimitiveType
+    @Nonnull
+    private JMethodCall getBoxingCall(
+        @Nonnull JExpression exprToBox,
+        @Nonnull JClassOrInterface type,
+        @Nonnull JPrimitiveType pType) {
+      JClassOrInterface wrapperType = type;
+      JType argType;
+      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+      if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BOOLEAN)) {
+        argType = JPrimitiveTypeEnum.BOOLEAN.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BYTE)) {
+        argType = JPrimitiveTypeEnum.BYTE.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_CHAR)) {
+        argType = JPrimitiveTypeEnum.CHAR.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_SHORT)) {
+        argType = JPrimitiveTypeEnum.SHORT.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_INTEGER)) {
+        argType = JPrimitiveTypeEnum.INT.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_FLOAT)) {
+        argType = JPrimitiveTypeEnum.FLOAT.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_DOUBLE)) {
+        argType = JPrimitiveTypeEnum.DOUBLE.getType();
+      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_LONG)) {
+        argType = JPrimitiveTypeEnum.LONG.getType();
+      } else {
+        argType = pType;
+        switch (pType.getPrimitiveTypeEnum()) {
+          case BOOLEAN: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+            break;
+          }
+          case BYTE: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_BYTE);
+            break;
+          }
+          case CHAR: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_CHAR);
+            break;
+          }
+          case SHORT: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_SHORT);
+            break;
+          }
+          case INT: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_INTEGER);
+            break;
+          }
+          case FLOAT: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_FLOAT);
+            break;
+          }
+          case DOUBLE: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_DOUBLE);
+            break;
+          }
+          case LONG: {
+            wrapperType = lookup.getClass(CommonTypes.JAVA_LANG_LONG);
+            break;
+          }
+          default: {
+            throw new AssertionError();
+          }
+        }
+      }
+
+
+      JMethodId methodId = wrapperType.getOrCreateMethodId("valueOf", Lists.create(argType),
+          MethodKind.STATIC);
+      JMethodCall boxMethodCall = new JMethodCall(
+          exprToBox.getSourceInfo(), null, wrapperType, methodId, wrapperType,
+          methodId.canBeVirtual());
+      List<JType> paramTypes = methodId.getParamTypes();
+      assert paramTypes.size() == 1;
+      JType paramType = paramTypes.get(0);
+      JType exprToBoxType = exprToBox.getType();
+      JExpression arg;
+      if (exprToBoxType instanceof JNumericType && paramType != exprToBoxType) {
+        assert paramType instanceof JNumericType;
+        arg = new JDynamicCastOperation(exprToBox.getSourceInfo(), paramType, exprToBox);
+      } else {
+        arg = exprToBox;
+      }
+      boxMethodCall.addArg(arg);
+
+      return boxMethodCall;
+    }
+
+    private void castIfNeeded(@Nonnull JExpression exprToCast, @Nonnull JType expectedType) {
+      if (expectedType instanceof JNumericType && exprToCast.getType() != expectedType) {
+        tr.append(new Replace(exprToCast, new JDynamicCastOperation(
+            exprToCast.getSourceInfo(), expectedType, exprToCast)));
+      }
+    }
+  }
+
+  @Override
+  public void run(@Nonnull JMethod method) throws Exception {
+    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
+        || !filter.accept(this.getClass(), method)) {
+      return;
+    }
+
+    TransformationRequest tr = new TransformationRequest(method);
+    TypeLegalizerVisitor rca =
+        new TypeLegalizerVisitor(tr);
+    rca.accept(method);
+    tr.commit();
+  }
+
+}

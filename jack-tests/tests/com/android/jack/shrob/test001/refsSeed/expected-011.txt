@@ -1,0 +1,2 @@
+com.android.jack.shrob.test001.jack.Reflect
+com.android.jack.shrob.test001.jack.Reflect: void keep4()

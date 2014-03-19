@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test010/jack/A;:
+<init>()V
+Lcom/android/jack/shrob/test010/jack/B;:
+<init>()V
+keep()V

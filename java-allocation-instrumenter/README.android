@@ -1,0 +1,4 @@
+URL: https://code.google.com/p/java-allocation-instrumenter/
+Version: 2.1r30
+License: Apache 2.O
+Description: "The Allocation Instrumenter is a Java agent written using the java.lang.instrument API and ASM. Each allocation in your Java program is instrumented; a user-defined callback is invoked on each allocation."

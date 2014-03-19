@@ -1,0 +1,6 @@
+com.android.jack.shrob.test035.jack.A -> p.C:
+    int f -> a
+com.android.jack.shrob.test035.jack.B -> p.O:
+    int m() -> a
+com.android.jack.shrob.test035.jack.Kept -> p.Xrcg:
+    int kept() -> a

@@ -1,0 +1,5 @@
+com.android.jack.shrob.test029.jack.I -> com.android.jack.shrob.test029.jack.a:
+com.android.jack.shrob.test029.jack.B -> com.android.jack.shrob.test029.jack.b:
+    com.android.jack.shrob.test029.jack.B get(com.android.jack.shrob.test029.jack.I) -> a
+com.android.jack.shrob.test029.jack.C -> com.android.jack.shrob.test029.jack.c:
+com.android.jack.shrob.test029.jack.A -> com.android.jack.shrob.test029.jack.d:

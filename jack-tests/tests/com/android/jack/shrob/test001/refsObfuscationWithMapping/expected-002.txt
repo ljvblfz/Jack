@@ -1,0 +1,7 @@
+com.android.jack.shrob.test001.jack.C -> com.android.jack.shrob.test001.jack.a:
+    void <init>() -> <init>
+    void m() -> a
+com.android.jack.shrob.test001.jack.A -> com.android.jack.shrob.test001.jack.A:
+    void <clinit>() -> <clinit>
+    void <init>() -> <init>
+    void privateFunc() -> privateFunc

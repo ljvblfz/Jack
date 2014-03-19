@@ -1,0 +1,4 @@
+This tests contains two classes with the same enclosing package.
+In test 001, one has a mapping entry, the other has not.
+They have to stay in the same package for the test to pass.
+In test 002, they are mapped to two different packages.

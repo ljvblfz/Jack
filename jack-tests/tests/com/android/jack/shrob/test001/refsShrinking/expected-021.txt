@@ -1,0 +1,84 @@
+Lcom/android/jack/shrob/test001/jack/L;:
+Ljava/lang/String; TAG
+<init>()V
+onReceive()V
+Lcom/android/jack/shrob/test001/jack/D;:
+<init>()V
+keep()V
+main([Ljava/lang/String;)V
+main2([Ljava/lang/String;)V
+Lcom/android/jack/shrob/test001/jack/C;:
+<init>()V
+f()V
+m()V
+Lcom/android/jack/shrob/test001/jack/K;:
+I i
+I h
+I i2
+I j
+I i3
+Ljava/lang/Object; o
+Ljava/lang/String; TAG
+Ljava/lang/String; TAG2
+<clinit>()V
+<init>()V
+keep()V
+Lcom/android/jack/shrob/test001/jack/Reflect2;:
+I fieldPublic
+I fieldPrivate
+J fieldLong
+J fieldLong2
+J fieldLong3
+J fieldLong4
+Lcom/android/jack/shrob/test001/jack/Reflect2$A; a
+Lcom/android/jack/shrob/test001/jack/Reflect2$B; b
+Ljava/lang/Object; c
+<init>()V
+calledMethod()V
+m(Lcom/android/jack/shrob/test001/jack/Reflect2$A;)V
+privateMethod(Lcom/android/jack/shrob/test001/jack/Reflect2$B;)V
+Lcom/android/jack/shrob/test001/jack/Reflect2$A;:
+Lcom/android/jack/shrob/test001/jack/Reflect2; this$0
+<init>(Lcom/android/jack/shrob/test001/jack/Reflect2;)V
+Lcom/android/jack/shrob/test001/jack/Reflect2$B;:
+Lcom/android/jack/shrob/test001/jack/Reflect2; this$0
+<init>(Lcom/android/jack/shrob/test001/jack/Reflect2;)V
+Lcom/android/jack/shrob/test001/jack/J;:
+<init>()V
+m5(IZJ)[[[I
+m3()[[[I
+m2()[[I
+m1()[I
+m0()I
+m()[[[I
+Lcom/android/jack/shrob/test001/jack/I;:
+m()V
+Lcom/android/jack/shrob/test001/jack/A;:
+<clinit>()V
+<init>()V
+<init>(I)V
+m()V
+privateFunc()V
+Lcom/android/jack/shrob/test001/jack/H;:
+Lcom/android/jack/shrob/test001/jack/Reflect;:
+<init>()V
+keep()V
+keep2()V
+keep3()V
+keep4()V
+keep5()V
+keep6()V
+keep7()V
+keep8()V
+Lcom/android/jack/shrob/test001/jack/G;:
+<init>()V
+m()V
+main([Ljava/lang/String;)V
+Lcom/android/jack/shrob/test001/jack/E;:
+<init>()V
+keep()V
+Lcom/android/jack/shrob/test001/jack/B;:
+<init>()V
+Lcom/android/jack/shrob/test001/jack/F;:
+<init>()V
+keep()V

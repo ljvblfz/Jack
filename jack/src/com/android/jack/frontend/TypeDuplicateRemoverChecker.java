@@ -1,0 +1,163 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.frontend;
+
+import com.android.jack.Jack;
+import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JArrayType;
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JEnum;
+import com.android.jack.ir.ast.JFieldId;
+import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.lookup.JLookup;
+import com.android.jack.transformations.SanityChecks;
+import com.android.sched.item.Description;
+import com.android.sched.item.Name;
+import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.annotation.Nonnull;
+/**
+ * This {@link RunnableSchedulable} checks that external instances of JType
+ * have been replaced by their resolved counterparts in IR.
+ */
+@Description("checks that external instances of JType have been replaced by their resolved " +
+    "counterparts in IR.")
+@Name("TypeDuplicatesRemoverChecker")
+@Support(SanityChecks.class)
+public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JProgram> {
+
+  private static class Visitor extends JVisitor {
+
+    @Nonnull
+    private final JProgram program;
+
+    public Visitor(@Nonnull JProgram  program) {
+      this.program = program;
+    }
+
+    @Override
+    public void endVisit(@Nonnull JNode x) {
+      checkFieldsOf(x.getClass(), x, program);
+    }
+  }
+
+  @Override
+  public void run(@Nonnull JProgram program) throws Exception {
+    TypeDuplicateRemoverChecker.checkFieldsOf(Jack.getProgram().getPhantomLookup().getClass(),
+        Jack.getProgram().getPhantomLookup(), program);
+
+    Visitor visitor = new Visitor(program);
+    for (JDefinedClassOrInterface declaredType : program.getTypesToEmit()) {
+      visitor.accept(declaredType);
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  public static void checkFieldsOf(@Nonnull Class<?> type, @Nonnull Object node, JProgram program) {
+      JLookup lookup = program.getPhantomLookup();
+      for (Field f : type.getDeclaredFields()) {
+        boolean fieldAccess = f.isAccessible();
+        try {
+          f.setAccessible(true);
+          Object fieldObject = f.get(node);
+          if (fieldObject instanceof JType) {
+            JType typeField = (JType) fieldObject;
+            if (typeField instanceof JClassOrInterface ||
+                typeField instanceof JArrayType) {
+              checkType(node, lookup, f, typeField);
+              if (typeField instanceof JArrayType) {
+                // break the stack overflow (JArrayType.array <=> JArrayType.elementType)
+                if (((JArrayType) typeField).getElementType() != node) {
+                  checkFieldsOf(typeField.getClass(), typeField, program);
+                }
+              }
+            }
+          } else if (fieldObject instanceof Collection){
+            Collection collection = (Collection) fieldObject;
+            Iterator it = collection.iterator();
+            while (it.hasNext()) {
+              Object object = it.next();
+              if (object instanceof JClassOrInterface ||
+                  object instanceof JArrayType) {
+                checkType(node, lookup, f, (JType) object);
+              }
+             }
+           } else if (fieldObject instanceof JType[]) {
+             JType [] types = (JType[]) fieldObject;
+             for (JType t : types) {
+               checkType(node, lookup, f, t);
+             }
+            } else if (fieldObject instanceof JFieldId) {
+              checkFieldsOf(fieldObject.getClass(), fieldObject, program);
+            }
+        } catch (IllegalArgumentException e) {
+          throw new AssertionError("Error during duplicate types checking.");
+        } catch (SecurityException e) {
+          throw new AssertionError("Error during duplicate types checking.");
+        } catch (IllegalAccessException e) {
+          throw new AssertionError("Error during duplicate types checking.");
+        } finally {
+          f.setAccessible(fieldAccess);
+        }
+      }
+      if (type.getSuperclass() != null && type.getSuperclass() != JNode.class) {
+        checkFieldsOf(type.getSuperclass(), node, program);
+      }
+      for (Class<?> interf : type.getInterfaces()) {
+        checkFieldsOf(interf, node, program);
+      }
+  }
+
+  private static void checkType(
+      @Nonnull Object node, @Nonnull JLookup lookup, @Nonnull Field f, @Nonnull JType typeToCheck)
+      throws AssertionError {
+    JType typeFoundInLookup;
+    String signature = Jack.getLookupFormatter().getName(typeToCheck);
+    if (typeToCheck instanceof JEnum) {
+      typeFoundInLookup = lookup.getEnum(signature);
+    } else if (typeToCheck instanceof JAnnotation) {
+      typeFoundInLookup = lookup.getAnnotation(signature);
+    } else if (typeToCheck instanceof JClass) {
+      typeFoundInLookup = lookup.getClass(signature);
+    } else if (typeToCheck instanceof JInterface) {
+      typeFoundInLookup = lookup.getInterface(signature);
+    } else {
+      typeFoundInLookup = lookup.getType(signature);
+    }
+    if (typeToCheck != typeFoundInLookup) {
+      throw createError(node, f);
+    }
+  }
+
+  private static AssertionError createError(Object checked, Field f) {
+    String message = "Duplicate type found in " + checked + " of class " +
+        checked.getClass().getName() + " in field " + f.getName();
+    return new AssertionError(message);
+  }
+
+}

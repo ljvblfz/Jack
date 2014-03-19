@@ -1,0 +1,7 @@
+URL: http://watchmaker.uncommons.org/
+Version: 0.7.1
+License: Apache 2.O
+Description: "Evolutionary Computation Framework."
+
+this code was taken from 9e8109d7fd84b7350a93d160690d91a9847b26a1
+(git clone git://github.com/dwdyer/watchmaker)

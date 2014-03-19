@@ -1,0 +1,7 @@
+-keep class **.Kept {
+  *;
+}
+
+-keep class **.B {
+  *;
+}

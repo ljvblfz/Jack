@@ -1,0 +1,6 @@
+com.android.jack.shrob.test005.jack.A
+com.android.jack.shrob.test005.jack.Annot
+com.android.jack.shrob.test005.jack.Annot2
+com.android.jack.shrob.test005.jack.B
+com.android.jack.shrob.test005.jack.C
+com.android.jack.shrob.test005.jack.E

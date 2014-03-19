@@ -1,0 +1,3 @@
+com.android.jack.shrob.test026.jack.Enum
+com.android.jack.shrob.test026.jack.Enum: com.android.jack.shrob.test026.jack.Enum[] values()
+com.android.jack.shrob.test026.jack.Enum: com.android.jack.shrob.test026.jack.Enum valueOf(java.lang.String)

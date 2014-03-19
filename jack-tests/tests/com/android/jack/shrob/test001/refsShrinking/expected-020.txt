@@ -1,0 +1,29 @@
+Lcom/android/jack/shrob/test001/jack/L;:
+Ljava/lang/String; TAG
+<init>()V
+Lcom/android/jack/shrob/test001/jack/K;:
+I i
+I h
+I i2
+I j
+I i3
+Ljava/lang/Object; o
+Ljava/lang/String; TAG
+Ljava/lang/String; TAG2
+<clinit>()V
+<init>()V
+Lcom/android/jack/shrob/test001/jack/Reflect2;:
+I fieldPublic
+I fieldPrivate
+J fieldLong
+J fieldLong2
+J fieldLong3
+J fieldLong4
+Lcom/android/jack/shrob/test001/jack/Reflect2$A; a
+Lcom/android/jack/shrob/test001/jack/Reflect2$B; b
+Ljava/lang/Object; c
+<init>()V
+Lcom/android/jack/shrob/test001/jack/Reflect2$A;:
+Lcom/android/jack/shrob/test001/jack/Reflect2; this$0
+Lcom/android/jack/shrob/test001/jack/Reflect2$B;:
+Lcom/android/jack/shrob/test001/jack/Reflect2; this$0

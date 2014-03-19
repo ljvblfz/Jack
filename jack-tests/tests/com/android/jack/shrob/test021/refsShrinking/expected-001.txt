@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test021/jack/Shrob021;:
+<init>()V
+toKeep()I
+Lcom/android/jack/shrob/test021/jack/Shrob021$KeptInterface;:
+interfaceMethod()V

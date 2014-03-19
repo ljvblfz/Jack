@@ -1,0 +1,3 @@
+Lcom/android/jack/shrob/test002/jack/A;:
+<init>()V
+toString()Ljava/lang/String;

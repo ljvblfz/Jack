@@ -1,0 +1,7 @@
+URL: https://code.google.com/p/smali/source/browse/?name=v1.4.2
+Tag: 1.4.2
+License: BSD, Apache 2
+Description: lib to manipulate dex format.
+
+This code was taken from 625b79928579
+(git clone https://code.google.com/p/smali/)

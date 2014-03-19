@@ -1,0 +1,2 @@
+com.android.jack.shrob.test010.jack.B
+com.android.jack.shrob.test010.jack.B: void keep()

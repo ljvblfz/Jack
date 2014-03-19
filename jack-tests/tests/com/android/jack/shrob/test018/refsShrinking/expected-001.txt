@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test018/jack/A;:
+J serialVersionUID
+<init>()V
+Lcom/android/jack/shrob/test018/jack/B;:
+<init>()V

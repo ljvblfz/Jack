@@ -1,0 +1,7 @@
+Lcom/android/jack/shrob/test033/jack/A;:
+I f
+<clinit>()V
+<init>()V
+Lcom/android/jack/shrob/test033/jack/B;:
+<init>()V
+m()I

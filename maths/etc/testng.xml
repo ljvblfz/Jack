@@ -1,0 +1,36 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Unit Tests" verbose="1" >
+
+  <test name="Random" >
+    <packages>
+      <package name="org.uncommons.maths.random" />
+    </packages>
+  </test>
+
+  <test name="Combinatorics" >
+    <packages>
+      <package name="org.uncommons.maths.combinatorics" />
+    </packages>
+  </test>
+
+  <test name="Statistics" >
+    <packages>
+      <package name="org.uncommons.maths.statistics" />
+    </packages>
+  </test>
+
+  <test name="Binary" >
+    <packages>
+      <package name="org.uncommons.maths.binary" />
+    </packages>
+  </test>
+
+  <test name="Number" >
+    <packages>
+      <package name="org.uncommons.maths" />
+      <package name="org.uncommons.maths.number" />
+    </packages>
+  </test>
+
+</suite>

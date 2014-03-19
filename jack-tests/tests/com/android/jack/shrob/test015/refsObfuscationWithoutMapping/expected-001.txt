@@ -1,0 +1,8 @@
+com.android.jack.shrob.test015.jack.B -> pcz.nbqfcvq.wnpx.gufco.hrgh015.wnpx.O:
+    void <init>() -> <init>
+com.android.jack.shrob.test015.jack.A -> pcz.nbqfcvq.wnpx.gufco.hrgh015.wnpx.N:
+    void <init>() -> <init>
+    com.android.jack.shrob.test015.jack.B m() -> z__
+    void m(com.android.jack.shrob.test015.jack.A) -> z_Ydpn/boespje/kbdl/tispc/uftu015/kbdl/B;_
+com.android.jack.shrob.test015.jack.A$I -> pcz.nbqfcvq.wnpx.gufco.hrgh015.wnpx.N$V:
+com.android.jack.shrob.test015.jack.A$J -> pcz.nbqfcvq.wnpx.gufco.hrgh015.wnpx.N$W:

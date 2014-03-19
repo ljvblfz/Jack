@@ -1,0 +1,20 @@
+com.android.jack.shrob.test014.jack.B -> com.android.jack.shrob.test014.jack.B:
+    char c -> p:P
+    boolean m -> z:N
+    void <init>() -> <init>
+    void a() -> a
+    void r() -> f__
+    void m() -> z__
+    void l() -> y__
+    void m(int) -> z_V_
+    void keep() -> keep
+com.android.jack.shrob.test014.jack.A -> com.android.jack.shrob.test014.jack.A:
+    int a -> n:V
+    int m -> z:V
+    boolean b -> o:N
+    void <init>() -> <init>
+    void m() -> z__
+    void f() -> s__
+    void m(int) -> z_V_
+    void g() -> t__
+    void keep() -> keep

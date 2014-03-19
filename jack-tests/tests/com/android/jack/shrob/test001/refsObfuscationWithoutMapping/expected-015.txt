@@ -1,0 +1,6 @@
+com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
+    void <init>() -> <init>
+    void keep7() -> keep7
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Frsyrph2:
+    long fieldLong -> svryqYcbt:W
+    void <init>() -> <init>

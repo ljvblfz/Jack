@@ -1,0 +1,3 @@
+com.android.jack.shrob.test006.jack.A -> com.android.jack.shrob.test006.jack.A:
+    void m6() -> m6
+    void m7() -> m7

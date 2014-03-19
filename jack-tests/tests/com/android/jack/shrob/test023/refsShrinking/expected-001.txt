@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test023/jack/Outer$Inner;:
+<init>()V
+<init>(I)V
+m()V
+m2()V

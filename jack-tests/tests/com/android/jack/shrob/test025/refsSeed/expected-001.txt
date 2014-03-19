@@ -1,0 +1,2 @@
+com.android.jack.shrob.test025.jack.Keep
+com.android.jack.shrob.test025.jack.Keep: java.lang.String keep()

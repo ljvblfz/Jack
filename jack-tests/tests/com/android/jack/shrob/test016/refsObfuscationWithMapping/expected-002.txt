@@ -1,0 +1,23 @@
+com.android.jack.shrob.test016.jack.Annot -> com.android.jack.shrob.test016.jack.b:
+    java.lang.String value() -> a
+com.android.jack.shrob.test016.jack.KeepClass -> com.android.jack.shrob.test016.jack.KeepClass:
+    void <init>() -> <init>
+    java.lang.String value() -> a
+    java.lang.String value2() -> b
+    java.lang.String value3() -> c
+    java.lang.String value4() -> d
+    java.lang.String value5() -> e
+    java.lang.String value6() -> f
+    java.lang.String value7() -> g
+    java.lang.String value8() -> h
+    java.lang.String value9() -> i
+com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.e:
+    java.lang.String value() -> a
+com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.f:
+    java.lang.String value() -> a
+com.android.jack.shrob.test016.jack.A -> com.android.jack.shrob.test016.jack.a:
+    void <init>() -> <init>
+com.android.jack.shrob.test016.jack.Annot2 -> com.android.jack.shrob.test016.jack.c:
+    java.lang.String value() -> a
+com.android.jack.shrob.test016.jack.Annot3 -> com.android.jack.shrob.test016.jack.d:
+    java.lang.String value() -> a

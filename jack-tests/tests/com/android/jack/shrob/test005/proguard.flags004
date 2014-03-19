@@ -1,0 +1,1 @@
+-keep interface com.android.jack.shrob.test005.jack.A?not

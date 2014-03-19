@@ -1,0 +1,13 @@
+com.android.jack.shrob.test036.jack.E -> R:
+    com.android.jack.shrob.test036.jack.E A -> N:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
+    com.android.jack.shrob.test036.jack.E B -> O:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
+    com.android.jack.shrob.test036.jack.E C -> P:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
+    com.android.jack.shrob.test036.jack.E[] $VALUES -> $JNYIRG:[Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test036.jack.E[] values() -> jnyirg__
+    void <clinit>() -> <clinit>
+com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
+    int[] -ESwitchesValues -> -ESwitchesValues
+    void <init>() -> <init>
+    int kept(com.android.jack.shrob.test036.jack.E) -> kept
+    int[] -getESwitchesValues() -> -getESwitchesValues

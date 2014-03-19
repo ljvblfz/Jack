@@ -1,0 +1,16 @@
+Lcom/android/jack/shrob/test005/jack/Annot2;:
+Lcom/android/jack/shrob/test005/jack/A;:
+<init>()V
+Lcom/android/jack/shrob/test005/jack/B;:
+<init>()V
+Lcom/android/jack/shrob/test005/jack/C;:
+<init>()V
+Lcom/android/jack/shrob/test005/jack/Annot;:
+Lcom/android/jack/shrob/test005/jack/E;:
+Lcom/android/jack/shrob/test005/jack/E; A
+Lcom/android/jack/shrob/test005/jack/E; B
+Lcom/android/jack/shrob/test005/jack/E; C
+[Lcom/android/jack/shrob/test005/jack/E; $VALUES
+values()[Lcom/android/jack/shrob/test005/jack/E;
+<clinit>()V
+<init>(Ljava/lang/String;I)V

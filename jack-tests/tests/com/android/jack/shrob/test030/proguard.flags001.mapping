@@ -1,0 +1,4 @@
+com.android.jack.shrob.test030.jack.I -> com.android.jack.shrob.test030.jack.a:
+	int m() -> a
+com.android.jack.shrob.test030.jack.A -> com.android.jack.shrob.test030.jack.b:
+	int m() -> a

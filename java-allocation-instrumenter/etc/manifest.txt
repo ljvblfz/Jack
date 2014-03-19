@@ -1,0 +1,5 @@
+Premain-Class: com.google.monitoring.runtime.instrumentation.AllocationInstrumenter
+Boot-Class-Path: ./allocation.jar
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Main-Class: NotSuitableAsMain

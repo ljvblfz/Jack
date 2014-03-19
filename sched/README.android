@@ -1,0 +1,7 @@
+
+Some files of this project come from GWT as described:
+- com.android.sched.util.collect.* come from com.google.gwt.dev.util.collect
+- com.android.sched.util.json.* come from com.google.gwt.dev.json
+- com.android.sched.util.log and com.android.sched.util.log.speedtracer:
+  Event, EvenType, Tracer, Format, SpeedTracer, SpeedTracerEventType was created with fragment
+  of com.google.gwt.dev.util.log.speedtracer.*

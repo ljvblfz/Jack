@@ -1,0 +1,11 @@
+com.android.jack.shrob.test031.jack.A: A()
+com.android.jack.shrob.test031.jack.A: int m()
+com.android.jack.shrob.test031.jack.B
+com.android.jack.shrob.test031.jack.B: B()
+com.android.jack.shrob.test031.jack.D
+com.android.jack.shrob.test031.jack.E
+com.android.jack.shrob.test031.jack.F: F()
+com.android.jack.shrob.test031.jack.F: int m()
+com.android.jack.shrob.test031.jack.Kept
+com.android.jack.shrob.test031.jack.Kept: Kept()
+com.android.jack.shrob.test031.jack.Kept: int kept(com.android.jack.shrob.test031.jack.I)

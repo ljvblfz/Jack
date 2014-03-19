@@ -1,0 +1,3 @@
+-keep class com.android.jack.shrob.test001.jack.J {
+   int[][][] m?();
+}

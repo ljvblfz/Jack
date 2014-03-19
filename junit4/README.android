@@ -1,0 +1,5 @@
+URL: http://www.junit.org/
+Tag: r4.10
+License: CPL
+Description: JUnit test framework.
+Local Modifications: the lib folder was not imported.

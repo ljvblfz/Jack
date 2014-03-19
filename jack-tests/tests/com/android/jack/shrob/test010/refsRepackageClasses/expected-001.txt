@@ -1,0 +1,5 @@
+com.android.jack.shrob.test010.jack.A -> N:
+    void <init>() -> <init>
+com.android.jack.shrob.test010.jack.B -> com.android.jack.shrob.test010.jack.B:
+    void <init>() -> <init>
+    void keep() -> keep

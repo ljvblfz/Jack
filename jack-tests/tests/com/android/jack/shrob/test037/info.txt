@@ -1,0 +1,2 @@
+This test creates a class with a static method m() and another which extends it.
+A static call is made using the second one as receiver.

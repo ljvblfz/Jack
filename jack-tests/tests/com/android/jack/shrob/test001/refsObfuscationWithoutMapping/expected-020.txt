@@ -1,0 +1,29 @@
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Reflect2:
+    int fieldPublic -> fieldPublic
+    int fieldPrivate -> fieldPrivate
+    long fieldLong -> fieldLong
+    long fieldLong2 -> fieldLong2
+    long fieldLong3 -> fieldLong3
+    long fieldLong4 -> fieldLong4
+    com.android.jack.shrob.test001.jack.Reflect2$A a -> a
+    com.android.jack.shrob.test001.jack.Reflect2$B b -> b
+    java.lang.Object c -> c
+    void <init>() -> <init>
+com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Reflect2$A:
+    com.android.jack.shrob.test001.jack.Reflect2 this$0 -> this$0
+com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Reflect2$B:
+    com.android.jack.shrob.test001.jack.Reflect2 this$0 -> this$0
+com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
+    java.lang.String TAG -> TAG
+    void <init>() -> <init>
+com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
+    int i -> i
+    int h -> h
+    int i2 -> i2
+    int j -> j
+    int i3 -> i3
+    java.lang.Object o -> o
+    java.lang.String TAG -> TAG
+    java.lang.String TAG2 -> TAG2
+    void <clinit>() -> <clinit>
+    void <init>() -> <init>

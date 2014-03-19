@@ -1,0 +1,2 @@
+-keep class com.android.jack.shrob.test028.jack.Kept
+-dontobfuscate

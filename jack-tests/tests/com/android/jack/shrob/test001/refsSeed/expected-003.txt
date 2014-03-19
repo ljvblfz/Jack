@@ -1,0 +1,5 @@
+com.android.jack.shrob.test001.jack.A
+com.android.jack.shrob.test001.jack.A: void <clinit>()
+com.android.jack.shrob.test001.jack.A: A()
+com.android.jack.shrob.test001.jack.A: A(int)
+com.android.jack.shrob.test001.jack.A: void m()

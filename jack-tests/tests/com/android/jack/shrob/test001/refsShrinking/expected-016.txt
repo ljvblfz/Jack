@@ -1,0 +1,9 @@
+Lcom/android/jack/shrob/test001/jack/Reflect2;:
+Lcom/android/jack/shrob/test001/jack/Reflect2$A; a
+Lcom/android/jack/shrob/test001/jack/Reflect2$B; b
+<init>()V
+Lcom/android/jack/shrob/test001/jack/Reflect2$A;:
+Lcom/android/jack/shrob/test001/jack/Reflect2$B;:
+Lcom/android/jack/shrob/test001/jack/Reflect;:
+<init>()V
+keep8()V

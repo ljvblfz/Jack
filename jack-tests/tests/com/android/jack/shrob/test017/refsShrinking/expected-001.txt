@@ -1,0 +1,14 @@
+Lcom/android/jack/shrob/test017/jack/Reflect2;:
+<init>()V
+Lcom/android/jack/shrob/test017/jack/Reflect2$A;:
+Lcom/android/jack/shrob/test017/jack/Reflect2$B;:
+Lcom/android/jack/shrob/test017/jack/Reflect3;:
+I fieldPublic
+<init>()V
+m(Lcom/android/jack/shrob/test017/jack/Reflect2$A;)V
+Lcom/android/jack/shrob/test017/jack/Reflect;:
+<init>()V
+keep2()V
+keep3()V
+keep4()V
+keep5()V

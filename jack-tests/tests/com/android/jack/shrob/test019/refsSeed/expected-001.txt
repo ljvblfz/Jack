@@ -1,0 +1,5 @@
+com.android.jack.shrob.test019.jack.A$Inner
+com.android.jack.shrob.test019.jack.B$C$Inner4
+com.android.jack.shrob.test019.jack.B$E$1
+com.android.jack.shrob.test019.jack.B$Inner2
+com.android.jack.shrob.test019.jack.B$Inner2$Inner3

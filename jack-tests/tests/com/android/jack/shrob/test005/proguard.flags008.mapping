@@ -1,0 +1,5 @@
+com.android.jack.shrob.test005.jack.E -> com.android.jack.shrob.test005.jack.E:
+    com.android.jack.shrob.test005.jack.E A -> a
+    com.android.jack.shrob.test005.jack.E B -> b
+    com.android.jack.shrob.test005.jack.E C -> c
+    com.android.jack.shrob.test005.jack.E[] $VALUES -> e

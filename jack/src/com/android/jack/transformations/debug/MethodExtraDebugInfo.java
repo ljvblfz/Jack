@@ -1,0 +1,65 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.transformations.debug;
+
+import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.ast.JMethod;
+import com.android.sched.item.Description;
+import com.android.sched.item.Name;
+import com.android.sched.marker.Marker;
+import com.android.sched.marker.ValidOn;
+
+import javax.annotation.Nonnull;
+
+/**
+ * Holds additional method debug info.
+ */
+@Description("Holds additional method debug info")
+@Name("MethodExtraDebugInfo")
+@ValidOn(JMethod.class)
+public class MethodExtraDebugInfo implements Marker {
+
+  @Nonnull
+  SourceInfo firstMeaningfulStatementInfo;
+  @Nonnull
+  SourceInfo lastReturnStatementInfo;
+
+  public MethodExtraDebugInfo(@Nonnull SourceInfo firstMeaningfulStatementInfo,
+      @Nonnull SourceInfo lastReturnStatementInfo) {
+    this.firstMeaningfulStatementInfo = firstMeaningfulStatementInfo;
+    this.lastReturnStatementInfo = lastReturnStatementInfo;
+  }
+
+  /**
+   * @return the debug info for the first statement that is not a block, a try or a variable
+   *         declaration without initialization.
+   */
+  @Nonnull
+  public SourceInfo getFirstMeaningfulStatementInfo() {
+    return firstMeaningfulStatementInfo;
+  }
+
+  @Nonnull
+  public SourceInfo getLastReturnStatementInfo() {
+    return lastReturnStatementInfo;
+  }
+
+  @Override
+  public MethodExtraDebugInfo cloneIfNeeded() {
+    return this;
+  }
+}

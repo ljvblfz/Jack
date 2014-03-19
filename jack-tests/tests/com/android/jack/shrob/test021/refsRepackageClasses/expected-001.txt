@@ -1,0 +1,5 @@
+com.android.jack.shrob.test021.jack.Shrob021 -> com.android.jack.shrob.test021.jack.Shrob021:
+    void <init>() -> <init>
+    int toKeep() -> toKeep
+com.android.jack.shrob.test021.jack.Shrob021$KeptInterface -> Gufco021$XrdhVbhrfsnpr:
+    void interfaceMethod() -> vbhrfsnprZrhucq__

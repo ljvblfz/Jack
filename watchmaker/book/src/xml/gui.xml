@@ -1,0 +1,22 @@
+<appendix xmlns="http://docbook.org/ns/docbook"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
+  <title>Building Graphical User Interfaces for Evolutionary Programs</title>
+  <subtitle>Using the Watchmaker Swing Module</subtitle>
+  <section>
+    <title>Evolution Controls</title>
+    <para>TODO</para>
+    <section>
+      <title>Number Generators</title>
+      <para>TODO</para>
+    </section>
+  </section>
+  <section>
+    <title>Updating the GUI from an EvolutionObserver</title>
+    <para>TODO</para>
+  </section>
+  <section>
+    <title>The Evolution Monitor</title>
+    <para>TODO</para>
+  </section>
+</appendix>

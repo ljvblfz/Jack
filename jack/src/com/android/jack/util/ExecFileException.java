@@ -1,0 +1,68 @@
+/*
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.util;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+/**
+ * Exception report during execution of an external process handle by {@link ExecuteFile}
+ */
+public class ExecFileException extends Exception {
+  private static final long serialVersionUID = 1L;
+
+  @CheckForNull
+  String errorMsg;
+
+  public ExecFileException() {
+    super();
+  }
+
+  public ExecFileException(@Nonnull String[] cmdLine, @Nonnull Exception e) {
+    super();
+
+    int i;
+
+    errorMsg = "Error during execution of ";
+
+    for (String arg : cmdLine) {
+      errorMsg += ' ' + arg;
+    }
+
+    errorMsg += ": " + e.getMessage();
+  }
+
+  public ExecFileException(@Nonnull String[] cmdLine, int value) {
+    super();
+    int i;
+
+    errorMsg = "Return value of ";
+
+    for (String arg : cmdLine) {
+      errorMsg += ' ' + arg;
+    }
+
+    errorMsg += " is " + value;
+
+  }
+
+  @Override
+  @CheckForNull
+  public String getMessage() {
+    return errorMsg;
+  }
+}

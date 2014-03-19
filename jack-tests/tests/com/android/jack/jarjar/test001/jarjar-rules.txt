@@ -1,0 +1,5 @@
+rule com.android.jack.jarjar.test001.jack.B com.android.jack.jarjar.test001.jack.relocated.B
+rule com.android.jack.jarjar.test001.jack.star.* com.android.jack.jarjar.test001.jack.star.relocated.@1
+rule com.android.jack.jarjar.test001.jack.dstar.** com.android.jack.jarjar.test001.jack.dstar.relocated.@1
+rule com.android.jack.jarjar.test001.jack.complex.*.sep.*.* com.android.jack.jarjar.test001.jack.complex.@2.sep.@1.@3
+rule com.android.jack.jarjar.test002.jack.org.commons.apache.codec.binary.* com.android.jack.jarjar.test002.jack.org.commons.apache.codec.binary.elsewhere.@1

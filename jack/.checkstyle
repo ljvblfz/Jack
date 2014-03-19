@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="false" sync-formatter="false">
+  <local-check-config name="Jack Checkstyle" location="jackstyle.xml" type="project" description="">
+    <additional-data name="protect-config-file" value="true"/>
+  </local-check-config>
+  <fileset name="Java Source Files" enabled="true" check-config-name="Jack Checkstyle" local="true">
+    <file-match-pattern match-pattern="^src.*\.java$" include-pattern="true"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/shrob/proguard/ProguardLexer\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/shrob/proguard/ProguardParser\.java$" include-pattern="false"/>
+  </fileset>
+</fileset-config>

@@ -1,0 +1,11 @@
+-keep class **.B {
+  *;
+}
+
+-keep class **.D
+
+-keep class **.E
+
+-keep class **.Kept {
+  *;
+}
