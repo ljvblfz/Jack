@@ -63,6 +63,8 @@ public class JCompositeStringLiteral extends JAbstractStringLiteral {
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
+      visitor.accept(leftStr);
+      visitor.accept(rightStr);
     }
     visitor.endVisit(this);
   }
@@ -70,11 +72,25 @@ public class JCompositeStringLiteral extends JAbstractStringLiteral {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
+    leftStr.traverse(schedule);
+    rightStr.traverse(schedule);
   }
 
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
+      throws UnsupportedOperationException {
+    if (rightStr == existingNode) {
+      rightStr = (JAbstractStringLiteral) newNode;
+    } else if (leftStr == existingNode) {
+      leftStr = (JAbstractStringLiteral) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
+    }
   }
 }
