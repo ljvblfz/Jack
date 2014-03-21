@@ -67,6 +67,15 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     ENCLOSING,
     INNERS;
 
+    private static final int ALL;
+    static {
+      int full = 0;
+      for (Scope scope : values()) {
+        full |= scope.getMask();
+      }
+      ALL = full;
+    }
+
     private final int mask;
 
     private Scope() {
@@ -141,8 +150,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     return type;
   }
 
-
-  EcjSourceTypeLoader(@Nonnull ReferenceMapper refMap, @Nonnull SourceTypeBinding binding,
+  private EcjSourceTypeLoader(@Nonnull ReferenceMapper refMap, @Nonnull SourceTypeBinding binding,
       @CheckForNull TypeDeclaration typeDeclaration, @Nonnull Location location) {
     this.refMap = new WeakReference<ReferenceMapper>(refMap);
     this.bindingRef = new WeakReference<SourceTypeBinding>(binding);
@@ -152,6 +160,9 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       this.declarationRef = null;
     }
     this.location = location;
+    if (!binding.isAnnotationType()) {
+      loadStatus |= Scope.RETENTION.getMask();
+    }
   }
 
   @Override
@@ -214,7 +225,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           loaded.addImplements(lookup.getInterface(new String(intf.signature())));
         }
       }
-      markLoaded(Scope.HIERARCHY);
+      markLoaded(Scope.HIERARCHY, loaded);
    }
   }
 
@@ -237,7 +248,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           throw new AssertionError(e);
         }
       }
-      markLoaded(Scope.ENCLOSING);
+      markLoaded(Scope.ENCLOSING, loaded);
     }
   }
 
@@ -256,7 +267,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         }
       }
       loaded.addMarker(new SimpleName(new String(binding.sourceName)));
-      markLoaded(Scope.MARKERS);
+      markLoaded(Scope.MARKERS, loaded);
     }
   }
 
@@ -302,7 +313,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           }
         }
       }
-      markLoaded(Scope.INNERS);
+      markLoaded(Scope.INNERS, loaded);
     }
   }
 
@@ -318,6 +329,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     if (loaded instanceof JDefinedAnnotation) {
       ensureRetentionPolicy((JDefinedAnnotation) loaded);
     }
+    assert loaded.getLoader() != this;
   }
 
   @Override
@@ -330,7 +342,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       for (MethodBinding methodBinding : binding.methods()) {
         load(methodBinding);
       }
-      markLoaded(Scope.METHODS);
+      markLoaded(Scope.METHODS, loaded);
     }
   }
 
@@ -350,7 +362,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       for (FieldBinding fieldBinding : binding.fields()) {
         load(fieldBinding);
       }
-      markLoaded(Scope.FIELDS);
+      markLoaded(Scope.FIELDS, loaded);
     }
   }
 
@@ -367,7 +379,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       }
       loaded.setRetentionPolicy(ReferenceMapper.getRetentionPolicy(
           getBinding().getAnnotationTagBits()));
-      markLoaded(Scope.RETENTION);
+      markLoaded(Scope.RETENTION, loaded);
     }
   }
 
@@ -396,7 +408,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         accessFlags |= JModifier.DEPRECATED;
       }
       loaded.setModifier(accessFlags);
-      markLoaded(Scope.MODIFIER);
+      markLoaded(Scope.MODIFIER, loaded);
     }
   }
 
@@ -409,7 +421,11 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     return (loadStatus & range.getMask()) != 0;
   }
 
-  private void markLoaded(@Nonnull Scope range) {
+  private void markLoaded(@Nonnull Scope range, @Nonnull JDefinedClassOrInterface loaded) {
     loadStatus |= range.getMask();
+
+    if (loadStatus == Scope.ALL) {
+      loaded.removeLoader();
+    }
   }
 }

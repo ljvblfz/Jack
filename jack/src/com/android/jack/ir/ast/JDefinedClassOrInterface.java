@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
+import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.JMethodIdLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
@@ -82,7 +83,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   protected List<JFieldId> phantomFields = new ArrayList<JFieldId>();
 
   @Nonnull
-  protected final ClassOrInterfaceLoader loader;
+  protected ClassOrInterfaceLoader loader;
 
   @Nonnull
   private final Location location;
@@ -551,4 +552,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public Location getLocation() {
     return location;
   }
+
+  public void removeLoader() {
+    loader = NopClassOrInterfaceLoader.INSTANCE;
+  }
+
 }

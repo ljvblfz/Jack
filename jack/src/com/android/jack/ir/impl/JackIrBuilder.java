@@ -1706,7 +1706,6 @@ public class JackIrBuilder {
     @Override
     public boolean visit(AnnotationMethodDeclaration x, ClassScope classScope) {
       JAnnotationMethod method = (JAnnotationMethod) getTypeMap().get(x.binding);
-      assert method.getEnclosingType().getLoader() instanceof EcjSourceTypeLoader;
       JMethodBody body = null;
       pushMethodInfo(new MethodInfo(method, body, x.scope));
 
@@ -1746,7 +1745,6 @@ public class JackIrBuilder {
     public boolean visit(ConstructorDeclaration x, ClassScope scope) {
       try {
         JConstructor method = (JConstructor) getTypeMap().get(x.binding);
-        assert method.getEnclosingType().getLoader() instanceof EcjSourceTypeLoader;
         SourceInfo sourceInfo = method.getSourceInfo();
         JMethodBody body = new JMethodBody(sourceInfo, new JBlock(sourceInfo));
         method.setBody(body);
@@ -1811,9 +1809,6 @@ public class JackIrBuilder {
     @Override
     public boolean visit(FieldDeclaration x, MethodScope scope) {
       try {
-        assert getTypeMap().get(x.binding).getEnclosingType().getLoader()
-          instanceof EcjSourceTypeLoader;
-
         pushInitializerMethodInfo(x, scope);
         return true;
       } catch (Throwable e) {
@@ -1870,7 +1865,6 @@ public class JackIrBuilder {
     public boolean visit(MethodDeclaration x, ClassScope scope) {
       try {
         JMethod method = getTypeMap().get(x.binding);
-        assert method.getEnclosingType().getLoader() instanceof EcjSourceTypeLoader;
         JMethodBody body = null;
         if (!method.isNative()) {
           SourceInfo sourceInfo = method.getSourceInfo();
@@ -2105,7 +2099,6 @@ public class JackIrBuilder {
 
     protected boolean visit(TypeDeclaration x) {
       JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(x.binding);
-      assert type.getLoader() instanceof EcjSourceTypeLoader;
       classStack.push(curClass);
       curClass = new ClassInfo(type, x);
 
@@ -3524,7 +3517,6 @@ public class JackIrBuilder {
         i++;
       }
     }
-    assert method.getEnclosingType().getLoader() instanceof EcjSourceTypeLoader;
     method.setBody(new JMethodBody(info, new JBlock(info)));
     return method;
   }
