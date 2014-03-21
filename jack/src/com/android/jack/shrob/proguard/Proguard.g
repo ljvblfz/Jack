@@ -79,6 +79,7 @@ prog [Flags flags, String baseDirectory]
     | ('-adaptclassstrings' {FilterSpecification filter = new FilterSpecification();} filter[filter] {GrammarActions.adaptClassStrings($flags, filter);})
     | ('-printseeds' seedOutputFile=NAME? {GrammarActions.printseeds($flags, baseDirectory, $seedOutputFile.text);})
     | ('-adaptresourcefilenames' {FilterSpecification file_filter = new FilterSpecification();} filter[file_filter] {GrammarActions.adaptResourceFileNames($flags, file_filter);})
+    | ('-renamesourcefileattribute' sourceFile=NAME? {GrammarActions.renameSourcefileAttribute($flags, $sourceFile.text);})
     | unFlag=unsupportedFlag {GrammarActions.printUnsupportedFlag($unFlag.text);}
   )*
   EOF
@@ -104,7 +105,6 @@ private unsupportedFlag
     | '-allowaccessmodification'
     | '-mergeinterfacesaggressively'
     | '-overloadaggressively'
-    | ('-renamesourcefileattribute' NAME?) //[string]
     | ('-adaptresourcefilecontents' {FilterSpecification file_filter = new FilterSpecification();} filter[file_filter])
     | '-dontpreverify'
     | '-microedition'

@@ -108,6 +108,8 @@ import com.android.jack.shrob.obfuscation.NameKeeper;
 import com.android.jack.shrob.obfuscation.Obfuscation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.obfuscation.Renamer;
+import com.android.jack.shrob.obfuscation.SourceFileRenamer;
+import com.android.jack.shrob.obfuscation.SourceFileRenaming;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
@@ -446,6 +448,9 @@ public abstract class Jack {
           if (!options.flags.getKeepParameterNames()) {
             request.addFeature(RemoveParameterName.class);
           }
+          if (options.flags.getRenameSourceFileAttribute() != null) {
+            request.addFeature(SourceFileRenaming.class);
+          }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
           request.addProduction(TypeAndMemberListing.class);
@@ -780,6 +785,9 @@ public abstract class Jack {
     } else {
       planBuilder.append(NameFinalizer.class);
     }
+    if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
+    }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
@@ -939,12 +947,14 @@ public abstract class Jack {
         typePlan4.append(JayceSingleTypeWriter.class);
       }
     }
+    if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
+    }
     {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(ConditionalAndOrRemover.class);
@@ -1217,6 +1227,9 @@ public abstract class Jack {
       typePlan4.append(FieldInitMethodRemover.class);
     }
     planBuilder.append(TryStatementSchedulingSeparator.class);
+    if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
+    }
 
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
@@ -1428,6 +1441,9 @@ public abstract class Jack {
       }
     }
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
+    if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
+    }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);

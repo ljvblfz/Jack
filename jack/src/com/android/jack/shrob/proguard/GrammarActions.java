@@ -559,4 +559,12 @@ public class GrammarActions {
       @Nonnull FilterSpecification filter) {
     flags.adaptResourceFileNames(filter);
   }
+
+  public static void renameSourcefileAttribute(@Nonnull Flags flags,
+      @CheckForNull String newSourceFileName) {
+    if (newSourceFileName == null) {
+      newSourceFileName = "";
+    }
+    flags.setRenameSourceFileAttribute(newSourceFileName);
+  }
 }

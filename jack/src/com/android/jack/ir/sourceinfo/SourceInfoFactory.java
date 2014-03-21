@@ -19,6 +19,7 @@ package com.android.jack.ir.sourceinfo;
 import com.android.sched.schedulable.Constraint;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -112,5 +113,10 @@ public class SourceInfoFactory {
       canonicalLineSourceInfos.put(newInstance, newInstance);
       return newInstance;
     }
+  }
+
+  @Nonnull
+  public Set<FileSourceInfo> getFileSourceInfos() {
+    return canonicalFileSourceInfos.keySet();
   }
 }

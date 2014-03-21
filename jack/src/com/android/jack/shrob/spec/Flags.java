@@ -74,6 +74,9 @@ public class Flags {
   private FilterSpecification keepAttributes;
 
   @CheckForNull
+  private String renameSourceFileAttribute;
+
+  @CheckForNull
   private FilterSpecification keepPackageNames;
 
   @CheckForNull
@@ -315,6 +318,15 @@ public class Flags {
     } else {
       return true;
     }
+  }
+
+  public void setRenameSourceFileAttribute(@CheckForNull String renameSourceFileAttribute) {
+    this.renameSourceFileAttribute = renameSourceFileAttribute;
+  }
+
+  @CheckForNull
+  public String getRenameSourceFileAttribute() {
+    return renameSourceFileAttribute;
   }
 
   @CheckForNull
