@@ -51,10 +51,6 @@ public class ObfuscationWithoutMappingTest extends AbstractTest {
     flags.setOutputMapping(candidateOutputMapping);
     flags.setPrintMapping(true);
 
-    File candidateOutputSeeds = TestTools.createTempFile("seeds", ".txt");
-    flags.setSeedsFile(candidateOutputSeeds);
-    flags.setPrintSeeds(true);
-
     Options jackOptions = new Options();
     jackOptions.nameProvider = "rot13";
     TestTools.runWithFlags(jackOptions, bootclasspath, classpath,
@@ -81,33 +77,5 @@ public class ObfuscationWithoutMappingTest extends AbstractTest {
   @Category(KnownBugs.class)
   public void test35_001() throws Exception {
     super.test35_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test19_001() throws Exception {
-    super.test19_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test22_001() throws Exception {
-    super.test22_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test30_001() throws Exception {
-    super.test30_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test31_001() throws Exception {
-    super.test31_001();
   }
 }

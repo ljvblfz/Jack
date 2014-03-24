@@ -18,12 +18,10 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
 import com.android.jack.category.SlowTests;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -58,33 +56,5 @@ public class SeedTest extends AbstractTest {
     TestTools.runWithFlags(jackOptions, bootclasspath, classpath,
         TestTools.getJackTestsWithJackFolder(testName), flags);
     SeedsComparator.compare(refOutputSeeds, candidateOutputSeeds);
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test19_001() throws Exception {
-    super.test19_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test22_001() throws Exception {
-    super.test22_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test30_001() throws Exception {
-    super.test30_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test31_001() throws Exception {
-    super.test31_001();
   }
 }
