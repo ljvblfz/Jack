@@ -81,6 +81,8 @@ public class JayceMethodLoader extends AbstractMethodLoader {
       isLoaded = true;
       enclosingClassLoader.tracer.getStatistic(BODY_LOAD_COUNT).incValue();
     }
+    loaded.removeLoader();
+    enclosingClassLoader.notifyMethodLoaded(loaded.getEnclosingType());
   }
 
   public void loadFully(@Nonnull JMethod loaded) {

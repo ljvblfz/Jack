@@ -85,6 +85,9 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   @Nonnegative
   private int loadCount = 0;
 
+  @Nonnegative
+  private int methodNotLoadedCount = Integer.MAX_VALUE;
+
   @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
@@ -203,7 +206,20 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);
         tracer.getStatistic(STRUCTURE_LOAD).incValue();
+        methodNotLoadedCount = loaded.getMethods().size();
+        if (methodNotLoadedCount == 0) {
+          loaded.removeLoader();
+        }
       }
     }
   }
+
+  synchronized void notifyMethodLoaded(@Nonnull JDefinedClassOrInterface loaded) {
+    assert structureLoaded;
+    methodNotLoadedCount--;
+    if (methodNotLoadedCount == 0) {
+      loaded.removeLoader();
+    }
+  }
+
 }
