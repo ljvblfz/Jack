@@ -132,6 +132,9 @@ import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.seed.SeedFile;
 import com.android.jack.shrob.seed.SeedFinder;
 import com.android.jack.shrob.seed.SeedPrinter;
+import com.android.jack.shrob.seed.remover.FieldSeedMarkerRemover;
+import com.android.jack.shrob.seed.remover.MethodSeedMarkerRemover;
+import com.android.jack.shrob.seed.remover.TypeSeedMarkerRemover;
 import com.android.jack.shrob.shrink.ExtendingOrImplementingClassFinder;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
@@ -740,13 +743,14 @@ public abstract class Jack {
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendStringRefiningPlan(planBuilder);
     }
-    if (productions.contains(SeedFile.class)) {
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan.append(SeedFinder.class);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
+        || productions.contains(SeedFile.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(SeedFinder.class);
+      if (productions.contains(SeedFile.class)) {
+        planBuilder.append(SeedPrinter.class);
       }
-      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
       appendShrinkingPlan(planBuilder);
@@ -815,14 +819,14 @@ public abstract class Jack {
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendStringRefiningPlan(planBuilder);
     }
-
-    if (productions.contains(SeedFile.class)) {
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan.append(SeedFinder.class);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
+        || productions.contains(SeedFile.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(SeedFinder.class);
+      if (productions.contains(SeedFile.class)) {
+        planBuilder.append(SeedPrinter.class);
       }
-      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
       appendShrinkingPlan(planBuilder);
@@ -1075,13 +1079,14 @@ public abstract class Jack {
       appendStringRefiningPlan(planBuilder);
     }
 
-    if (productions.contains(SeedFile.class)) {
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan.append(SeedFinder.class);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
+        || productions.contains(SeedFile.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(SeedFinder.class);
+      if (productions.contains(SeedFile.class)) {
+        planBuilder.append(SeedPrinter.class);
       }
-      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
       appendShrinkingPlan(planBuilder);
@@ -1234,20 +1239,23 @@ public abstract class Jack {
 
   private static void appendShrobMarkerRemoverPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan4.append(TypeShrinkMarkerRemover.class);
-      typePlan4.append(TypeKeepNameMarkerRemover.class);
-      typePlan4.append(TypeOriginalNameMarkerRemover.class);
+      typePlan.append(TypeShrinkMarkerRemover.class);
+      typePlan.append(TypeKeepNameMarkerRemover.class);
+      typePlan.append(TypeOriginalNameMarkerRemover.class);
+      typePlan.append(TypeSeedMarkerRemover.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(MethodKeepMarkerRemover.class);
         methodPlan.append(MethodKeepNameMarkerRemover.class);
+        methodPlan.append(MethodSeedMarkerRemover.class);
       }
       {
-        SubPlanBuilder<JField> fieldPlan = typePlan4.appendSubPlan(JFieldAdapter.class);
+        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldKeepMarkerRemover.class);
         fieldPlan.append(FieldKeepNameMarkerRemover.class);
+        fieldPlan.append(FieldSeedMarkerRemover.class);
       }
     }
   }
@@ -1346,13 +1354,14 @@ public abstract class Jack {
       appendStringRefiningPlan(planBuilder);
     }
 
-    if (productions.contains(SeedFile.class)) {
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan.append(SeedFinder.class);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
+        || productions.contains(SeedFile.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(SeedFinder.class);
+      if (productions.contains(SeedFile.class)) {
+        planBuilder.append(SeedPrinter.class);
       }
-      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
       appendShrinkingPlan(planBuilder);

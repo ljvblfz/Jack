@@ -14,3 +14,4 @@ Lcom/android/jack/shrob/test031/jack/B;:
 <init>()V
 Lcom/android/jack/shrob/test031/jack/F;:
 <init>()V
+m()I

@@ -7,7 +7,7 @@ com.android.jack.shrob.test036.jack.E -> R:
     com.android.jack.shrob.test036.jack.E[] values() -> jnyirg__
     void <clinit>() -> <clinit>
 com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
-    int[] -ESwitchesValues -> -ESwitchesValues
+    int[] -ESwitchesValues -> -RGkvhpurgJnyirg:[V
     void <init>() -> <init>
     int kept(com.android.jack.shrob.test036.jack.E) -> kept
-    int[] -getESwitchesValues() -> -getESwitchesValues
+    int[] -getESwitchesValues() -> -trhRGkvhpurgJnyirg__

@@ -3,3 +3,4 @@ Lcom/android/jack/shrob/test022/jack/Shrob022;:
 method()V
 Lcom/android/jack/shrob/test022/jack/AbstractClass;:
 <init>()V
+method()V

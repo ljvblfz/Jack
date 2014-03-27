@@ -28,6 +28,7 @@ import com.android.jack.shrob.shrink.NodeFinder;
 import com.android.jack.shrob.spec.ClassSpecification;
 import com.android.jack.shrob.spec.FieldSpecification;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.shrob.spec.KeepModifier;
 import com.android.jack.shrob.spec.MethodSpecification;
 import com.android.jack.shrob.spec.Specification;
 import com.android.sched.item.Description;
@@ -37,10 +38,11 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.log.TracerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -60,31 +62,62 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
   private final Flags flags = ThreadConfig.get(Options.FLAGS);
 
   @Nonnull
+  protected final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
   private final boolean searchInHierarchy =
       ThreadConfig.get(SEARCH_SEEDS_IN_HIERARCHY).booleanValue();
 
-  private synchronized void markIfNecessary(@Nonnull JNode node) {
-    if (!node.containsMarker(SeedMarker.class)) {
-      node.addMarker(SeedMarker.getInstance());
+  private synchronized void markIfNecessary(@Nonnull JNode node,
+      @CheckForNull KeepModifier modifier) {
+    SeedMarker marker = node.getMarker(SeedMarker.class);
+    if (marker == null) {
+      node.addMarker(new SeedMarker(modifier));
+    } else {
+      KeepModifier previousModifier = marker.getModifier();
+      if (previousModifier != modifier) {
+        marker.setModifier(null);
+      }
     }
   }
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    boolean matched = false;
-    List<FieldSpecification> matchedFieldSpecs = new ArrayList<FieldSpecification>();
-    List<MethodSpecification> matchedMethodSpecs = new ArrayList<MethodSpecification>();
     for (ClassSpecification classSpec : flags.getKeepClassSpecs()) {
       if (classSpec.matches(type)) {
-        markIfNecessary(type);
-        matchedFieldSpecs.addAll(classSpec.getFieldSpecs());
-        matchedMethodSpecs.addAll(classSpec.getMethodSpecs());
+        KeepModifier keepModifier = classSpec.getKeepModifier();
+        List<FieldSpecification> fieldSpecs = classSpec.getFieldSpecs();
+        List<MethodSpecification> methodSpecs = classSpec.getMethodSpecs();
+        markIfNecessary(type, keepModifier);
+        matchSpecifications(type.getFields(), fieldSpecs, keepModifier);
+        matchSpecifications(type.getMethods(), methodSpecs, keepModifier);
+        if (searchInHierarchy) {
+          JClass superclass = type.getSuperClass();
+          while (superclass instanceof JDefinedClass) {
+            JDefinedClass definedSuperclass = (JDefinedClass) superclass;
+            matchSpecifications(definedSuperclass.getFields(), fieldSpecs, keepModifier);
+            matchSpecifications(definedSuperclass.getMethods(), methodSpecs, keepModifier);
+            superclass = definedSuperclass.getSuperClass();
+          }
+        }
       }
     }
     for (ClassSpecification classSpec : flags.getKeepClassMembersSpecs()) {
       if (classSpec.matches(type)) {
-        matchedFieldSpecs.addAll(classSpec.getFieldSpecs());
-        matchedMethodSpecs.addAll(classSpec.getMethodSpecs());
+        KeepModifier keepModifier = classSpec.getKeepModifier();
+        List<FieldSpecification> fieldSpecs = classSpec.getFieldSpecs();
+        List<MethodSpecification> methodSpecs = classSpec.getMethodSpecs();
+        matchSpecifications(type.getFields(), fieldSpecs, keepModifier);
+        matchSpecifications(type.getMethods(), methodSpecs, keepModifier);
+        if (searchInHierarchy) {
+          JClass superclass = type.getSuperClass();
+          while (superclass instanceof JDefinedClass) {
+            JDefinedClass definedSuperclass = (JDefinedClass) superclass;
+            matchSpecifications(definedSuperclass.getFields(), fieldSpecs, keepModifier);
+            matchSpecifications(definedSuperclass.getMethods(), methodSpecs, keepModifier);
+            superclass = definedSuperclass.getSuperClass();
+          }
+        }
       }
     }
     for (ClassSpecification classSpec : flags.getKeepClassesWithMembersSpecs()) {
@@ -96,33 +129,25 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
         methodFinder.find(classSpec.getMethodSpecs());
 
         if (fieldFinder.allSpecificationsMatched() && methodFinder.allSpecificationsMatched()) {
-          markIfNecessary(type);
-          matchedFieldSpecs.addAll(classSpec.getFieldSpecs());
-          matchedMethodSpecs.addAll(classSpec.getMethodSpecs());
+          markIfNecessary(type, classSpec.getKeepModifier());
+          KeepModifier keepModifier = classSpec.getKeepModifier();
+          List<FieldSpecification> fieldSpecs = classSpec.getFieldSpecs();
+          List<MethodSpecification> methodSpecs = classSpec.getMethodSpecs();
+          matchSpecifications(type.getFields(), fieldSpecs, keepModifier);
+          matchSpecifications(type.getMethods(), methodSpecs, keepModifier);
         }
-      }
-    }
-
-    matchSpecifications(type.getFields(), matchedFieldSpecs);
-    matchSpecifications(type.getMethods(), matchedMethodSpecs);
-
-    if (searchInHierarchy) {
-      JClass superclass = type.getSuperClass();
-      while (superclass instanceof JDefinedClass) {
-        JDefinedClass definedSuperclass = (JDefinedClass) superclass;
-        matchSpecifications(definedSuperclass.getFields(), matchedFieldSpecs);
-        matchSpecifications(definedSuperclass.getMethods(), matchedMethodSpecs);
-        superclass = definedSuperclass.getSuperClass();
       }
     }
   }
 
+
   private <T extends JNode> void matchSpecifications(@Nonnull List<T> nodes,
-      @Nonnull List<? extends Specification<T>> specs) {
+      @Nonnull List<? extends Specification<T>> specs, KeepModifier keepModifier) {
     for (T node : nodes) {
       for (Specification<T> spec : specs) {
         if (spec.matches(node)) {
-          markIfNecessary(node);
+          markIfNecessary(node, keepModifier);
+          break;
         }
       }
     }
