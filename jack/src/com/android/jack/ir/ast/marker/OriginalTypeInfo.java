@@ -41,7 +41,7 @@ public class OriginalTypeInfo implements Marker {
   @CheckForNull
   private String sourceName;
 
-  public void setGenericSignature(@Nonnull JAbstractStringLiteral genericSignature) {
+  public void setGenericSignature(@CheckForNull JAbstractStringLiteral genericSignature) {
     this.genericSignature = genericSignature;
   }
 

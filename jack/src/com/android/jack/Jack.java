@@ -105,13 +105,17 @@ import com.android.jack.shrob.obfuscation.Obfuscation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.obfuscation.Renamer;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
+import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingTypeRemover;
+import com.android.jack.shrob.obfuscation.annotation.TypeGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.remover.FieldKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.MethodKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
@@ -390,6 +394,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("InnerClasses")) {
             request.addFeature(RemoveEnclosingType.class);
+          }
+          if (!options.flags.keepAttribute("Signature")) {
+            request.addFeature(RemoveGenericSignature.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1229,14 +1236,23 @@ public abstract class Jack {
       if (features.contains(RemoveEnclosingType.class)) {
         typePlan.append(TypeEnclosingTypeRemover.class);
       }
+      if (features.contains(RemoveGenericSignature.class)) {
+        typePlan.append(TypeGenericSignatureRemover.class);
+      }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
         fieldPlan.append(FieldAnnotationRemover.class);
+        if (features.contains(RemoveGenericSignature.class)) {
+          fieldPlan.append(FieldGenericSignatureRemover.class);
+        }
       }
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
         methodPlan.append(MethodAnnotationRemover.class);
         methodPlan.append(ParameterAnnotationRemover.class);
+        if (features.contains(RemoveGenericSignature.class)) {
+            methodPlan.append(MethodGenericSignatureRemover.class);
+        }
       }
     }
   }

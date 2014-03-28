@@ -175,10 +175,11 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         addThrows(x);
       }
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
-      if (marker != null && addAnnotationSignature) {
+      if (marker != null) {
         JAbstractStringLiteral jStrLit = marker.getGenericSignature();
-        assert jStrLit != null;
-        addSignature(x, jStrLit.getValue(), x.getSourceInfo());
+        if (jStrLit != null) {
+          addSignature(x, jStrLit.getValue(), x.getSourceInfo());
+        }
       }
     }
 
@@ -389,9 +390,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
   private final boolean addAnnotationThrows =
       ThreadConfig.get(EMIT_ANNOTATION_THROWS).booleanValue();
-
-  private final boolean addAnnotationSignature =
-      ThreadConfig.get(EMIT_ANNOTATION_SIG).booleanValue();
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {

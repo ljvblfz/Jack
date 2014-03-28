@@ -440,8 +440,6 @@ public class Options {
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
-      configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_SIG,
-          flags.keepAttribute("Signatures"));
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_THROWS,
           flags.keepAttribute("Exceptions"));
       configBuilder.set(DefaultValueAnnotationAdder.EMIT_ANNOTATION_DEFAULT,
