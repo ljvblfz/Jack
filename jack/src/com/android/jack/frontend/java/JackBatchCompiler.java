@@ -25,7 +25,9 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathSourceJar;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -41,6 +43,9 @@ public class JackBatchCompiler extends Main {
 
   @Nonnull
   public static final String JACK_LOGICAL_PATH_ENTRY = "<jack-logical-entry>";
+
+  @Nonnull
+  private static final String USE_SINGLE_THREAD_SYSPROP = "jdt.compiler.useSingleThread";
 
   @Nonnull
   private final JayceFileImporter jayceImporter;
@@ -126,4 +131,42 @@ public class JackBatchCompiler extends Main {
 
   }
 
+  @Override
+  public void performCompilation() {
+    startTime = System.currentTimeMillis();
+
+    compilerOptions = new CompilerOptions(options);
+    compilerOptions.performMethodsFullRecovery = false;
+    compilerOptions.performStatementsRecovery = false;
+    compilerOptions.produceReferenceInfo = produceRefInfo;
+    compilerOptions.verbose = verbose;
+
+    // Initialize the current instance of the JackBatchCompiler
+    FileSystem environment = getLibraryAccess();
+    batchCompiler = new JAstBuilder(environment,
+        getHandlingPolicy(),
+        compilerOptions,
+        getBatchRequestor(),
+        getProblemFactory(),
+        out,
+        progress,
+        jayceImporter,
+        program);
+    batchCompiler.remainingIterations = maxRepetition - currentRepetition;
+    batchCompiler.useSingleThread = Boolean.getBoolean(USE_SINGLE_THREAD_SYSPROP);
+
+    // Compiles every compilation units with logging support.
+    logger.startLoggingSources();
+    batchCompiler.compile(getCompilationUnits());
+    logger.endLoggingSources();
+
+    // Update compiler statistics and log them.
+    if (compilerStats != null && compilerStats.length > currentRepetition) {
+      compilerStats[currentRepetition] = batchCompiler.stats;
+    }
+    logger.printStats();
+
+    // Clean up environment
+    environment.cleanup();
+  }
 }
