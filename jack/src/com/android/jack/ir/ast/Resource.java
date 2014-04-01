@@ -14,16 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.jack.scheduling.feature;
+package com.android.jack.ir.ast;
 
 import com.android.sched.item.Description;
-import com.android.sched.item.Feature;
-import com.android.sched.item.Name;
+import com.android.sched.vfs.InputVFile;
+
+import java.io.Serializable;
+
+import javax.annotation.Nonnull;
 
 /**
- * Jack file zip output
+ * Represents a resource.
  */
-@Description("Jack file zip output")
-@Name("JackFileZipOutput")
-public class JackFileZipOutput implements Feature {
+@Description("Represents a resource")
+public class Resource implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  @Nonnull
+  private final transient InputVFile vFile;
+
+  public Resource(@Nonnull InputVFile vFile) {
+    this.vFile = vFile;
+  }
+
+  @Nonnull
+  public InputVFile getVFile() {
+    return vFile;
+  }
 }

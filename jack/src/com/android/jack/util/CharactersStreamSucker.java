@@ -17,6 +17,7 @@
 package com.android.jack.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
  * Class that continuously read an {@link InputStream} and optionally could print the input in a
  * {@link PrintStream}.
  */
-public class CharactersStreamSucker implements Runnable {
+public class CharactersStreamSucker {
 
   @Nonnull
   private final BufferedReader ir;
@@ -52,16 +53,13 @@ public class CharactersStreamSucker implements Runnable {
     this(is, new NullPrintStream(), false);
   }
 
-  @Override
-  public void run() {
+  public void suck() throws IOException {
     String line;
 
     try {
       while ((line = ir.readLine()) != null) {
         os.println(line);
       }
-    } catch (Exception e) {
-      // Best effort
     } finally {
       if (toBeClose) {
         os.close();

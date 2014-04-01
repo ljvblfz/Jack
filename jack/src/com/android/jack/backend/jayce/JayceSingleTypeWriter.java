@@ -18,14 +18,13 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackFileException;
-import com.android.jack.Options;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.jayce.JayceWriter;
-import com.android.jack.scheduling.feature.JackFileNonZipOutput;
+import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -33,11 +32,8 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.Directory;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.direct.OutputDirectDir;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -53,19 +49,17 @@ import javax.annotation.Nonnull;
 @Name("JayceSingleTypeWriter")
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
 @Produce(JackFormatProduct.class)
-@Support(JackFileNonZipOutput.class)
+@Support(JackFileOutput.class)
 @Synchronized
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
   private static final TypeFormatter formatter = new FilePathFormatter();
 
-  @Nonnull
-  private final Directory outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
-
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    OutputVDir vDir = new OutputDirectDir(outputDir);
+    OutputVDir vDir = type.getSession().getOutputVDir();
+    assert vDir != null;
     OutputVFile vFile = vDir.createOutputVFile(getFilePath(type));
 
     try {

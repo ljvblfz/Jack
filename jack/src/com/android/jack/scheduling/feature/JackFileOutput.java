@@ -21,9 +21,9 @@ import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
 
 /**
- * Jack non-zip output
+ * Jack file output
  */
-@Description("Jack non-zip output")
-@Name("JackNonZipOutput")
-public class JackFileNonZipOutput implements Feature {
+@Description("Jack file output")
+@Name("JackFileOutput")
+public class JackFileOutput implements Feature {
 }

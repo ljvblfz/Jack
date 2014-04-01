@@ -26,6 +26,7 @@ import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainRemover;
 import com.android.jack.analysis.defsuses.UseDefsChecker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
+import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileBuilder;
@@ -43,7 +44,6 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
-import com.android.jack.backend.jayce.JayceZipWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
@@ -84,8 +84,8 @@ import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.feature.DxLegacy;
-import com.android.jack.scheduling.feature.JackFileNonZipOutput;
-import com.android.jack.scheduling.feature.JackFileZipOutput;
+import com.android.jack.scheduling.feature.JackFileOutput;
+import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.scheduling.tags.DexFileProduct;
 import com.android.jack.shrob.SeedFile;
@@ -211,7 +211,9 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.direct.InputDirectDir;
+import com.android.sched.vfs.direct.OutputDirectDir;
 import com.android.sched.vfs.zip.InputZipArchive;
+import com.android.sched.vfs.zip.OutputZipRootVDir;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -339,6 +341,8 @@ public abstract class Jack {
         JSession session = buildSession(options, hooks);
         Request request = createInitialRequest();
 
+        request.addFeature(Resources.class);
+
         JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
         if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
           request.addFeature(SourceVersion7.class);
@@ -381,11 +385,7 @@ public abstract class Jack {
         }
 
         if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
-          if (config.get(Options.JACK_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
-            request.addFeature(JackFileZipOutput.class);
-          } else {
-            request.addFeature(JackFileNonZipOutput.class);
-          }
+          request.addFeature(JackFileOutput.class);
         }
 
         if (options.ecjArguments == null) {
@@ -421,12 +421,13 @@ public abstract class Jack {
           } else {
             fillJavaToJaycePlan(options, planBuilder);
           }
-          if (features.contains(DexZipOutput.class)) {
-            planBuilder.append(JayceZipWriter.class);
-          } else {
-            SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-              typePlan.append(JayceSingleTypeWriter.class);
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          typePlan.append(JayceSingleTypeWriter.class);
+
+          if (features.contains(Resources.class)) {
+            SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
+            packagePlan.append(ResourceWriter.class);
           }
         } else if (options.ecjArguments == null) {
           assert targetProduction.contains(DexFileProduct.class);
@@ -464,6 +465,35 @@ public abstract class Jack {
               || targetProduction.contains(DexFileProduct.class)
               || plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
                   JackFormatIr.class);
+        }
+
+        if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
+          Container outputContainer = config.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
+          if (outputContainer == Container.DIR) {
+            session.setOutputVDir(new OutputDirectDir(config.get(Options.JACK_FILE_OUTPUT_DIR)));
+          } else if (outputContainer == Container.ZIP) {
+            try {
+              final OutputZipRootVDir vDir =
+                  new OutputZipRootVDir(config.get(Options.JACK_FILE_OUTPUT_ZIP));
+              final File jayceOutZip = options.jayceOutZip;
+              hooks.addHook(new Runnable() {
+                @Override
+                public void run() {
+                  try {
+                    vDir.close();
+                  } catch (IOException e) {
+                    logger.log(Level.WARNING,
+                        "Failed to close zip for '" + jayceOutZip.getAbsolutePath() + "'.", e);
+                  }
+                }
+              });
+              session.setOutputVDir(vDir);
+            } catch (IOException e) {
+              throw new JackFileException(
+                  "Error initializing jack output zip: " + options.jayceOutZip.getAbsolutePath(),
+                  e);
+            }
+          }
         }
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -808,17 +838,12 @@ public abstract class Jack {
         methodPlan3.append(FieldInitMethodCallRemover.class);
 
         typePlan4.append(FieldInitMethodRemover.class);
-        if (features.contains(JackFileNonZipOutput.class)) {
+        if (features.contains(JackFileOutput.class)) {
           typePlan4.append(JayceSingleTypeWriter.class);
         }
         typePlan4.append(ReflectAnnotationsAdder.class);
       }
     }
-
-    if (features.contains(JackFileZipOutput.class)) {
-      planBuilder.append(JayceZipWriter.class);
-    }
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);

@@ -21,6 +21,7 @@ import com.android.jack.JackEventType;
 import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
@@ -85,17 +86,12 @@ public class JayceFileImporter {
   public void doImport(@Nonnull JSession session) throws JayceFormatException,
       JayceVersionException, JackFileException {
 
-    ResourceContainerMarker resourceMarker = session.getMarker(ResourceContainerMarker.class);
-    if (resourceMarker == null) {
-      resourceMarker = new ResourceContainerMarker();
-      session.addMarker(resourceMarker);
-    }
     for (InputVDir jayceContainer : jayceContainers) {
       try {
         logger.log(Level.FINE, "Importing {0}", jayceContainer.getLocation().getDescription());
         JPackage topLevelPackage = session.getTopLevelPackage();
         for (VElement subFile : jayceContainer.list()) {
-          importJayceFile(subFile, session, topLevelPackage, resourceMarker);
+          importJayceFile(subFile, session, topLevelPackage);
         }
       } catch (IOException e) {
         throw new JackFileException(
@@ -105,18 +101,17 @@ public class JayceFileImporter {
   }
 
   private void importJayceFile(@Nonnull VElement element, @Nonnull JSession session,
-      @Nonnull JPackage pack, @Nonnull ResourceContainerMarker resourceMarker) throws IOException,
-      JayceFormatException, JayceVersionException {
+      @Nonnull JPackage pack) throws IOException, JayceFormatException, JayceVersionException {
     if (element instanceof InputVDir) {
       for (VElement subFile : ((InputVDir) element).list()) {
-        importJayceFile(subFile, session, pack.getSubPackage(element.getName()), resourceMarker);
+        importJayceFile(subFile, session, pack.getSubPackage(element.getName()));
       }
     } else if (element instanceof InputVFile) {
       InputVFile file = (InputVFile) element;
       if (isJackFileName(file.getName())) {
         addImportedTypes(session, file.getName(), pack, file.getLocation());
       } else {
-        resourceMarker.addResource(file);
+        pack.addResource(new Resource(file));
       }
     } else {
       throw new AssertionError();

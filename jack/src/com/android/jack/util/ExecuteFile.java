@@ -186,8 +186,8 @@ public class ExecuteFile {
 
       InputStream localInStream = inStream;
       if (localInStream != null) {
-        suckIn =
-            new Thread(new BytesStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
+        suckIn = new Thread(
+            new ThreadBytesStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
       } else {
         proc.getOutputStream().close();
       }
@@ -195,22 +195,22 @@ public class ExecuteFile {
       OutputStream localOutStream = outStream;
       if (localOutStream != null) {
         if (localOutStream instanceof PrintStream) {
-          suckOut = new Thread(new CharactersStreamSucker(proc.getInputStream(),
+          suckOut = new Thread(new ThreadCharactersStreamSucker(proc.getInputStream(),
               (PrintStream) localOutStream, outToBeClose));
         } else {
           suckOut = new Thread(
-              new BytesStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
+              new ThreadBytesStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
         }
       }
 
       OutputStream localErrStream = errStream;
       if (localErrStream != null) {
         if (localErrStream instanceof PrintStream) {
-          suckErr = new Thread(new CharactersStreamSucker(proc.getErrorStream(),
+          suckErr = new Thread(new ThreadCharactersStreamSucker(proc.getErrorStream(),
               (PrintStream) localErrStream, errToBeClose));
         } else {
           suckErr = new Thread(
-              new BytesStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
+              new ThreadBytesStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
         }
       }
 
@@ -241,6 +241,41 @@ public class ExecuteFile {
       return ret == 0;
     } catch (Throwable e) {
       return false;
+    }
+  }
+
+  private static class ThreadBytesStreamSucker extends BytesStreamSucker implements Runnable {
+
+    public ThreadBytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os,
+        boolean toBeClose) {
+      super(is, os, toBeClose);
+    }
+
+    @Override
+    public void run() {
+      try {
+        suck();
+      } catch (IOException e) {
+        // Best effort
+      }
+    }
+  }
+
+  private static class ThreadCharactersStreamSucker extends CharactersStreamSucker implements
+      Runnable {
+
+    public ThreadCharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps,
+        boolean toBeClose) {
+      super(is, ps, toBeClose);
+    }
+
+    @Override
+    public void run() {
+      try {
+        suck();
+      } catch (IOException e) {
+        // Best effort
+      }
     }
   }
 }

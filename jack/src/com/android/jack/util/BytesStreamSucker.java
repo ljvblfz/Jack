@@ -28,9 +28,12 @@ import javax.annotation.Nonnull;
  * Class that continuously read an {@link InputStream} and optionally could write the input in a
  * {@link OutputStream}.
  */
-public class BytesStreamSucker implements Runnable {
+public class BytesStreamSucker {
+
+  private static final int BUFFER_SIZE = 4096;
+
   @Nonnull
-  private final byte[] buffer = new byte[1024];
+  private final byte[] buffer = new byte[BUFFER_SIZE];
 
   @Nonnull
   private final InputStream is;
@@ -55,23 +58,16 @@ public class BytesStreamSucker implements Runnable {
     this(is, new NullOutputStream(), false);
   }
 
-  @Override
-  public void run() {
+  public void suck() throws IOException {
     try {
       int bytesRead;
       while ((bytesRead = is.read(buffer)) >= 0) {
         os.write(buffer, 0, bytesRead);
         os.flush();
       }
-    } catch (Exception e) {
-      // Best effort
     } finally {
       if (toBeClose) {
-        try {
-          os.close();
-        } catch (IOException e) {
-          // Best effort
-        }
+        os.close();
       }
     }
   }

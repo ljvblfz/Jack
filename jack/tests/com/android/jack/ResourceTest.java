@@ -305,7 +305,7 @@ public class ResourceTest {
       try {
         fos = new FileOutputStream(copiedFile);
         BytesStreamSucker sucker = new BytesStreamSucker(fis, fos);
-        sucker.run();
+        sucker.suck();
       } finally {
         if (fos != null) {
           fos.close();
@@ -327,7 +327,7 @@ public class ResourceTest {
       ZipEntry sourceEntry = new ZipEntry(entryName);
       zos.putNextEntry(sourceEntry);
       BytesStreamSucker sucker = new BytesStreamSucker(fis, zos);
-      sucker.run();
+      sucker.suck();
     } finally {
       if (fis != null) {
         fis.close();

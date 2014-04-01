@@ -1,1 +1,2 @@
 -keep class com.android.jack.resource.test001.jack.IrrelevantForTest
+-dontobfuscate

@@ -17,8 +17,9 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.JackFileException;
-import com.android.jack.backend.jayce.ResourceContainerMarker;
 import com.android.jack.dx.dex.file.DexFile;
+import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
@@ -64,24 +65,7 @@ public class DexZipWriter extends DexFileWriter {
       zos.putNextEntry(entry);
       dexFile.writeTo(zos, null, false);
       zos.closeEntry();
-
-      ResourceContainerMarker resourceContainer = session.getMarker(ResourceContainerMarker.class);
-      if (resourceContainer != null) {
-        for (InputVFile resource : resourceContainer.getResources()) {
-          Location location = resource.getLocation();
-          String entryName;
-          if (location instanceof ZipLocation) {
-            ZipLocation zipLocation = (ZipLocation) location;
-            entryName = zipLocation.getEntryName();
-          } else {
-            entryName = resource.getName();
-          }
-          ZipEntry resourceEntry = new ZipEntry(entryName);
-          zos.putNextEntry(resourceEntry);
-          BytesStreamSucker sucker = new BytesStreamSucker(resource.openRead(), zos);
-          sucker.run();
-        }
-      }
+      writeResourcesInPackages(session.getTopLevelPackage(), zos);
     } catch (IOException e) {
       throw new JackFileException(
           "Could not write Dex archive to output '" + outputFile.getAbsolutePath() + "'", e);
@@ -90,5 +74,32 @@ public class DexZipWriter extends DexFileWriter {
         zos.close();
       }
     }
+  }
+
+  private void writeResourcesInPackages(@Nonnull JPackage pack, @Nonnull ZipOutputStream zos)
+      throws IOException {
+    for (Resource resource : pack.getResources()) {
+      writeResource(resource, zos);
+    }
+    for (JPackage subpack : pack.getSubPackages()) {
+      writeResourcesInPackages(subpack, zos);
+    }
+  }
+
+  private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
+      throws IOException {
+    InputVFile vFile = resource.getVFile();
+    Location location = vFile.getLocation();
+    String entryName;
+    if (location instanceof ZipLocation) {
+      ZipLocation zipLocation = (ZipLocation) location;
+      entryName = zipLocation.getEntryName();
+    } else {
+      entryName = vFile.getName();
+    }
+    ZipEntry resourceEntry = new ZipEntry(entryName);
+    zos.putNextEntry(resourceEntry);
+    BytesStreamSucker sucker = new BytesStreamSucker(vFile.openRead(), zos);
+    sucker.suck();
   }
 }
