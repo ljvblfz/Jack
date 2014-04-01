@@ -110,7 +110,7 @@ public class ToolchainTest {
     TestTools.compileSourceToJack(
         new Options(), JUNIT_SOURCELIST, corePath.getAbsolutePath() + File.pathSeparator +
         TestTools.getFromAndroidTree(
-            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-jack_intermediates/classes.jar"), junitJack, true);
+            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jar"), junitJack, true);
 
     File junit = TestTools.createTempFile("junit", ".dex");
     TestTools.compileJackToDex(new Options(), junitJack, junit, false);
