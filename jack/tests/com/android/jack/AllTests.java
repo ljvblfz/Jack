@@ -65,6 +65,7 @@ import org.junit.runners.Suite.SuiteClasses;
     FibonacciThreeAddressTest.class,
     FieldAccessTest.class,
     FieldTest.class,
+    FileConflictTest.class,
     FileUtilsTest.class,
     FinallyTest.class,
     FlowTest.class,

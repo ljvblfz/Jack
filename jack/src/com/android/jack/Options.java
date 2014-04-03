@@ -656,6 +656,10 @@ public class Options {
     jayceOutDir = outputDir;
   }
 
+  public void setJayceOutputZip(@Nonnull File outputZip) {
+    jayceOutZip = outputZip;
+  }
+
   public void setJayceImports(@Nonnull List<File> imports) {
     jayceImport = imports;
   }
@@ -720,6 +724,10 @@ public class Options {
 
   public void setEcjArguments(@Nonnull List<String> ecjArguments) {
     this.ecjArguments = ecjArguments;
+  }
+
+  public void setProguardFlagsFile(@Nonnull List<File> proguardFlagsFiles) {
+    this.proguardFlagsFiles = proguardFlagsFiles;
   }
 
   public void enableDxOptimizations() {
