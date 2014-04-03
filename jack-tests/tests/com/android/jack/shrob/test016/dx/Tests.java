@@ -26,13 +26,13 @@ public class Tests {
 
   @Test
   public void test() {
-    Assert.assertEquals("com.android.jack.shrob.test016.jack.a", KeepClass.value());
+    Assert.assertEquals("com.android.jack.shrob.test016.jack.RenamedA", KeepClass.value());
     Assert.assertEquals("Lcom.android.jack.shrob.test016.jack.A;", KeepClass.value2());
-    Assert.assertEquals("com/android/jack/shrob/test016/jack/a", KeepClass.value3());
+    Assert.assertEquals("com/android/jack/shrob/test016/jack/RenamedA", KeepClass.value3());
     Assert.assertEquals("Lcom/android/jack/shrob/test016/jack/A;", KeepClass.value4());
     Assert.assertEquals("A", KeepClass.value5());
     Assert.assertEquals("[com.android.jack.shrob.test016.jack.A", KeepClass.value6());
-    Assert.assertEquals("com.android.jack.shrob.test016.jack.a[]", KeepClass.value7());
+    Assert.assertEquals("com.android.jack.shrob.test016.jack.RenamedA[]", KeepClass.value7());
     Assert.assertEquals("dfgdgcom.android.jack.shrob.test016.jack.A", KeepClass.value8());
     Assert.assertEquals("com.android.jack.shrob.test016.jack.Afgdg", KeepClass.value9());
   }
