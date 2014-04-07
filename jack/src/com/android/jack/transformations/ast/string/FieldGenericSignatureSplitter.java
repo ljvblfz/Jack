@@ -44,7 +44,8 @@ public class FieldGenericSignatureSplitter implements RunnableSchedulable<JField
     if (marker != null) {
       JAbstractStringLiteral oldSignature = marker.getGenericSignature();
       if (oldSignature != null) {
-        GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
+        GenericSignatureRefiner parserActions =
+            new GenericSignatureRefiner(oldSignature.getSourceInfo());
         GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
         String strOldSignature = oldSignature.getValue();
         parser.parseFieldSignature(strOldSignature);

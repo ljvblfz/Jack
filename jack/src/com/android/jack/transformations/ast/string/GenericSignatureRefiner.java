@@ -17,7 +17,7 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JCompositeStringLiteral;
 import com.android.jack.ir.ast.JStringLiteral;
@@ -56,8 +56,12 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
   @Nonnull
   private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
-  public GenericSignatureRefiner() {
+  @Nonnull
+  private final SourceInfo sourceInfo;
+
+  public GenericSignatureRefiner(@Nonnull SourceInfo sourceInfo) {
     jlookup = Jack.getSession().getLookup();
+    this.sourceInfo = sourceInfo;
   }
 
   @Override
@@ -76,11 +80,11 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
     updateJStringLiteral(getJStringLiteralFromBuffer());
     try {
       JType type = jlookup.getType(NamingTools.getTypeSignatureName(name));
-      updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.BINARY_QN, type));
+      updateJStringLiteral(new JTypeStringLiteral(sourceInfo, Kind.BINARY_QN, type));
       return type;
     } catch (JLookupException e) {
       // Type not found, keep it as a JStringLiteral
-      updateJStringLiteral(new JStringLiteral(SourceOrigin.UNKNOWN, name));
+      updateJStringLiteral(new JStringLiteral(sourceInfo, name));
       return null;
     }
   }
@@ -93,13 +97,13 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
       try {
         JType type = jlookup.getType(NamingTools.getTypeSignatureName(
             formatter.getName(enclosingType) + '$' + name));
-        updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.SIMPLE_NAME, type));
+        updateJStringLiteral(new JTypeStringLiteral(sourceInfo, Kind.SIMPLE_NAME, type));
         return type;
       } catch (JLookupException e) {
         // Type not found, keep it as a JStringLiteral
       }
     }
-    updateJStringLiteral(new JStringLiteral(SourceOrigin.UNKNOWN, name));
+    updateJStringLiteral(new JStringLiteral(sourceInfo, name));
     return null;
   }
 
@@ -123,7 +127,7 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
   @Nonnull
   private JAbstractStringLiteral getJStringLiteralFromBuffer() {
     JAbstractStringLiteral newStringLiteral =
-        new JStringLiteral(SourceOrigin.UNKNOWN, strBuf.toString());
+        new JStringLiteral(sourceInfo, strBuf.toString());
     strBuf = new StringBuilder();
     return newStringLiteral;
   }
@@ -134,7 +138,7 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
     } else {
       assert jstringLiteral != null;
       jstringLiteral =
-          new JCompositeStringLiteral(SourceOrigin.UNKNOWN, jstringLiteral, stringLiteral);
+          new JCompositeStringLiteral(sourceInfo, jstringLiteral, stringLiteral);
     }
   }
 }
