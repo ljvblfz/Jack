@@ -38,6 +38,9 @@ public class StatisticId<T extends Statistic> {
       new ConcurrentHashMap<Class<? extends Statistic>, Class<? extends Statistic>>();
 
   @Nonnull
+  private final T dummyInstance;
+
+  @Nonnull
   private final String name;
 
   @Nonnull
@@ -57,10 +60,12 @@ public class StatisticId<T extends Statistic> {
     regularFactory = new ReflectFactory<T>(regularClass, false, StatisticId.class);
     dummyFactory   = new ReflectFactory<T>(dummyClass,   false, StatisticId.class);
 
+    dummyInstance = dummyFactory.create(this);
+
     // Followings are deprecated, to be removed
 
     if (!dummies.containsKey(dummyClass)) {
-      dummies.put(dummyClass, newDummyInstance());
+      dummies.put(dummyClass, dummyInstance);
       regulars.put(dummyClass, regularClass);
     }
   }
@@ -81,8 +86,8 @@ public class StatisticId<T extends Statistic> {
   }
 
   @Nonnull
-  public T newDummyInstance() {
-    return dummyFactory.create(this);
+  public T getDummyInstance() {
+    return dummyInstance;
   }
 
   @Nonnull
