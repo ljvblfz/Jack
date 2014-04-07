@@ -18,7 +18,6 @@ package com.android.sched.util.log.stats;
 
 import com.google.common.collect.Iterators;
 
-import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.table.DataRow;
 
 import java.util.Iterator;
@@ -64,34 +63,6 @@ public class ArrayAllocImpl extends ArrayAlloc implements DataRow {
       this.number += stat.number;
       this.size   += stat.size;
       this.element.merge(stat.element);
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized Object getValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.valueOf(number);
-      case 1:
-        return Long.valueOf(size);
-      default:
-        return element.getValue(columnIdx - 1);
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized String getHumanReadableValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.toString(number);
-      case 1:
-        return MemoryBytesProbe.formatBytes(size);
-      default:
-        return element.getHumanReadableValue(columnIdx - 1);
     }
   }
 

@@ -21,11 +21,11 @@ package com.android.jack.dx.util;
  * a complete but often hard to read) string form.
  */
 public interface ToHuman {
-    /**
-     * Return the "human" string form of this instance.  This is
-     * generally less "debuggy" than {@code toString()}.
-     *
-     * @return {@code non-null;} the human string form
-     */
-    public String toHuman();
+  /**
+   * Return the "human" string form of this instance.  This is
+   * generally less "debuggy" than {@code toString()}.
+   *
+   * @return {@code non-null;} the human string form
+   */
+  public String toHuman();
 }

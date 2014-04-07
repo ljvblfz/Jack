@@ -141,11 +141,38 @@ public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {
         }
       }
     }
+
+    @Override
+    protected boolean mustTraceOverridingMethod(@Nonnull JMethod method) {
+      if (method.getEnclosingType().isExternal()) {
+        return true;
+      } else {
+        synchronized (method) {
+          KeepMarker marker = method.getMarker(KeepMarker.class);
+          if (marker != null) {
+            return marker.mustTraceOverridingMethods();
+          }
+        }
+      }
+      return false;
+    }
+
+    @Override
+    protected void setMustTraceOverridingMethods(@Nonnull JMethod method) {
+      synchronized (method) {
+        KeepMarker marker = method.getMarker(KeepMarker.class);
+        if (marker != null) {
+          marker.setMustTraceOverridingMethods(true);
+        } else {
+          assert method.getEnclosingType().isExternal();
+        }
+      }
+    }
   }
 
   public static final BooleanPropertyId KEEP_ENCLOSING_METHOD = BooleanPropertyId.create(
       "jack.shrink.keep.enclosing.method",
-      "Keep the enclosing method of annonymous classes").addDefaultValue("false");
+      "Keep the enclosing method of annonymous classes").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   private final Flags flags = ThreadConfig.get(Options.FLAGS);

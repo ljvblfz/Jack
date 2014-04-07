@@ -21,10 +21,10 @@ package com.android.jack.dx.util;
  */
 public interface ByteInput {
 
-    /**
-     * Returns a byte.
-     *
-     * @throws IndexOutOfBoundsException if all bytes have been read.
-     */
-    byte readByte();
+  /**
+   * Returns a byte.
+   *
+   * @throws IndexOutOfBoundsException if all bytes have been read.
+   */
+  byte readByte();
 }

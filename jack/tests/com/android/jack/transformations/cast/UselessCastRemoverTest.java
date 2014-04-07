@@ -17,7 +17,6 @@
 package com.android.jack.transformations.cast;
 
 
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JCastOperation;
@@ -144,8 +143,9 @@ public class UselessCastRemoverTest {
   private static void buildMethodAndCheckUselessCastRemover(@Nonnull String classBinaryName,
       @Nonnull String methodSignature, boolean castRemoved) throws Exception {
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(
+            TestTools.getJackTestFromBinaryName(classBinaryName), "L" + classBinaryName + ";",
+            methodSignature);
     Assert.assertNotNull(m);
 
     try {

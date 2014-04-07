@@ -44,4 +44,8 @@ public class ExitStatus {
    * Virtual machine error.
    */
   public static final int FAILURE_VM = 5;
+  /**
+   * Unrecoverable exception.
+   */
+  public static final int FAILURE_UNRECOVERABLE = 6;
 }

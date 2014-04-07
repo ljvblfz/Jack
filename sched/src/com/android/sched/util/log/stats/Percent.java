@@ -40,58 +40,21 @@ public class Percent extends Statistic {
   public void add(boolean value) {
   }
 
+  public void removeTrue() {
+  }
+
+  public void removeFalse() {
+  }
+
+  public void remove(boolean value) {
+  }
+
   public double getPercent() {
     return Double.NaN;
   }
 
   @Override
   public void merge(@Nonnull Statistic statistic) {
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Percent";
-      case 1:
-        return "Number";
-      case 2:
-        return "Total";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      case 1:
-        return "number";
-      case 2:
-        return "number";
-      default:
-        throw new AssertionError();
-    }
   }
 
   @Override

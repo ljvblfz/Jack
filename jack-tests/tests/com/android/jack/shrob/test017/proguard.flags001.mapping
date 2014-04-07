@@ -1,10 +1,10 @@
-com.android.jack.shrob.test017.jack.Reflect2 -> com.android.jack.shrob.test017.jack.a:
-com.android.jack.shrob.test017.jack.Reflect2$A -> com.android.jack.shrob.test017.jack.b:
-com.android.jack.shrob.test017.jack.Reflect2$B -> com.android.jack.shrob.test017.jack.c:
-com.android.jack.shrob.test017.jack.Reflect3 -> com.android.jack.shrob.test017.jack.d:
-    int fieldPublic -> a
-    long fieldLong -> b
-    long fieldLong3 -> c
-    long fieldLong4 -> d
-    com.android.jack.shrob.test017.jack.Reflect2$A a -> e
-    47:47:void m(com.android.jack.shrob.test017.jack.Reflect2$A) -> a
+com.android.jack.shrob.test017.jack.Reflect2 -> com.android.jack.shrob.test017.jack.RenamedReflect2:
+com.android.jack.shrob.test017.jack.Reflect2$A -> com.android.jack.shrob.test017.jack.RenamedReflect2$A:
+com.android.jack.shrob.test017.jack.Reflect2$B -> com.android.jack.shrob.test017.jack.RenamedReflect2$B:
+com.android.jack.shrob.test017.jack.Reflect3 -> com.android.jack.shrob.test017.jack.RenamedReflect3:
+    int fieldPublic -> renamedFieldPublic
+    long fieldLong -> renamedFieldLong
+    long fieldLong3 -> renamedFieldLong3
+    long fieldLong4 -> renamedFieldLong4
+    com.android.jack.shrob.test017.jack.Reflect2$A a -> renamedA
+    47:47:void m(com.android.jack.shrob.test017.jack.Reflect2$A) -> renamedM

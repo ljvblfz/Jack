@@ -29,6 +29,11 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -40,9 +45,16 @@ import javax.annotation.Nonnull;
  * Jack lookup.
  */
 public class JNodeLookup extends JLookup {
+  @Nonnull
+  public static final StatisticId<Percent> SUCCESS_LOOKUP = new StatisticId<Percent>(
+      "jack.lookup.success", "Lookup requests returning a JDefinedClassOrInterface",
+      PercentImpl.class, Percent.class);
 
   @Nonnull
   private final Map<String, JType> types = new ConcurrentHashMap<String, JType>();
+
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
 
   /**
    * Initialize lookup.
@@ -73,13 +85,15 @@ public class JNodeLookup extends JLookup {
   @Override
   @Nonnull
   public JType getType(@Nonnull String typeName) throws JTypeLookupException {
+    Percent statistic = tracer.getStatistic(SUCCESS_LOOKUP);
+    statistic.addFalse();
     synchronized (types) {
       JType result = types.get(typeName);
 
       if (result == null) {
         int typeNameLength = typeName.length();
         assert typeNameLength > 1 : "Invalid signature or missing primitive type '" + typeName
-          + "'";
+        + "'";
         if (typeName.charAt(0) == '[') {
           JArrayType arrayType = getArrayType(typeName);
           types.put(typeName, arrayType);
@@ -105,7 +119,8 @@ public class JNodeLookup extends JLookup {
         result = currentPackage.getType(simpleName);
         types.put(typeName, result);
       }
-
+      statistic.removeFalse();
+      statistic.addTrue();
       return result;
     }
   }

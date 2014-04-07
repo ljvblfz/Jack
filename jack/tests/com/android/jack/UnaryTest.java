@@ -78,8 +78,8 @@ public class UnaryTest {
     String classBinaryName = "com/android/jack/unary/test005/jack/UnaryNot";
     String methodSignature = "getValue1(II)I";
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
 
     Assert.assertNotNull(m);
     CountIfStatement cis = new CountIfStatement();
@@ -88,8 +88,8 @@ public class UnaryTest {
 
     methodSignature = "getValue2(IIII)I";
     m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
 
     Assert.assertNotNull(m);
     cis = new CountIfStatement();

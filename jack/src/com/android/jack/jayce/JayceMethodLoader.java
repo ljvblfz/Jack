@@ -22,6 +22,9 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.load.AbstractMethodLoader;
 import com.android.sched.util.config.Location;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -32,6 +35,10 @@ import javax.annotation.Nonnull;
  * A loader for method loaded from a jack file.
  */
 public class JayceMethodLoader extends AbstractMethodLoader {
+  @Nonnull
+  private static final StatisticId<Counter> BODY_LOAD_COUNT = new StatisticId<Counter>(
+      "jayce.body.load", "Body loaded from a NNode in a JNode",
+          CounterImpl.class, Counter.class);
 
   @Nonnull
   private final JayceClassOrInterfaceLoader enclosingClassLoader;
@@ -59,6 +66,7 @@ public class JayceMethodLoader extends AbstractMethodLoader {
         body.updateParents(loaded);
       }
       isLoaded = true;
+      enclosingClassLoader.tracer.getStatistic(BODY_LOAD_COUNT).incValue();
     }
   }
 

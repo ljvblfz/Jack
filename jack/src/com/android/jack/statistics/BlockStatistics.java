@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.sched.item.Description;
@@ -114,11 +114,11 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    JProgram jProgram = method.getEnclosingType().getJProgram();
-    BlockCountMarker bcm = jProgram.getMarker(BlockCountMarker.class);
+    JSession session = method.getEnclosingType().getSession();
+    BlockCountMarker bcm = session.getMarker(BlockCountMarker.class);
     if (bcm == null) {
       bcm = new BlockCountMarker();
-      jProgram.addMarker(bcm);
+      session.addMarker(bcm);
     }
 
     BlockStatisticsVisitor statistics = new BlockStatisticsVisitor(bcm);

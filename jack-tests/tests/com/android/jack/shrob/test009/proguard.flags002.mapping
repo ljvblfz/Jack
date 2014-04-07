@@ -1,2 +1,0 @@
-com.android.jack.shrob.test009.jack.A -> com.android.jack.shrob.test009.jack.A:
-    void m(int,boolean,float,long) -> m

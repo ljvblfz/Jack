@@ -19,7 +19,6 @@ package com.android.jack.transformations;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.transformations.request.Remove;
@@ -47,7 +46,7 @@ public class EmptyClinitRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (JProgram.isClinit(method) && filter.accept(this.getClass(), method)) {
+    if (JMethod.isClinit(method) && filter.accept(this.getClass(), method)) {
       JMethodBody body = (JMethodBody) method.getBody();
       assert body != null;
       List<JStatement> stmts = body.getStatements();

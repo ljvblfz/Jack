@@ -1,0 +1,3 @@
+This test was written to show the different behavior between using library jars or injars.
+The class in lib contains a Class.ForName with an existing class that should be kept when the
+lib is used as a injar.

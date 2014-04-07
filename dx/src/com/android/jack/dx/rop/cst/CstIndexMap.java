@@ -15,12 +15,12 @@
  */
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.DexFile;
+import com.android.jack.dx.dex.file.IndexedItem;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.dx.dex.file.IndexedItem;
 
 /**
  * Maps {@link TypedConstant} index offsets from a dex file to those into another.
@@ -38,8 +38,7 @@ public class CstIndexMap {
       new HashMap<Integer, CstBaseMethodRef>();
 
   /** Mapping between index and {@link CstFieldRef} value of a dex file.*/
-  private final Map<Integer, CstFieldRef> fieldsIndexMap =
-      new HashMap<Integer, CstFieldRef>();
+  private final Map<Integer, CstFieldRef> fieldsIndexMap = new HashMap<Integer, CstFieldRef>();
 
   /**
    * Keeps string mapping of a dex file.
@@ -47,10 +46,9 @@ public class CstIndexMap {
    * @param cstString The string.
    */
   public void addStringMapping(int index, CstString cstString) {
-    Integer key = new Integer (index);
+    Integer key = new Integer(index);
     assert index >= 0;
-    assert stringsIndexMap.get(key) == null
-        || stringsIndexMap.get(key).compareTo(cstString) == 0;
+    assert stringsIndexMap.get(key) == null || stringsIndexMap.get(key).compareTo(cstString) == 0;
 
     if (!stringsIndexMap.containsKey(key)) {
       stringsIndexMap.put(key, cstString);
@@ -63,10 +61,9 @@ public class CstIndexMap {
    * @param cstType The type.
    */
   public void addTypeMapping(int index, CstType cstType) {
-    Integer key = new Integer (index);
+    Integer key = new Integer(index);
     assert index >= 0;
-    assert typesIndexMap.get(key) == null
-        || typesIndexMap.get(key).compareTo(cstType) == 0;
+    assert typesIndexMap.get(key) == null || typesIndexMap.get(key).compareTo(cstType) == 0;
 
     if (!typesIndexMap.containsKey(key)) {
       typesIndexMap.put(key, cstType);
@@ -79,10 +76,9 @@ public class CstIndexMap {
    * @param methodRef The method.
    */
   public void addMethodMapping(int index, CstBaseMethodRef methodRef) {
-    Integer key = new Integer (index);
+    Integer key = new Integer(index);
     assert index >= 0;
-    assert methodsIndexMap.get(key) == null
-        || methodsIndexMap.get(key).compareTo(methodRef) == 0;
+    assert methodsIndexMap.get(key) == null || methodsIndexMap.get(key).compareTo(methodRef) == 0;
 
     if (!methodsIndexMap.containsKey(key)) {
       methodsIndexMap.put(key, methodRef);
@@ -95,10 +91,9 @@ public class CstIndexMap {
    * @param fieldRef The Field.
    */
   public void addFieldMapping(int index, CstFieldRef fieldRef) {
-    Integer key = new Integer (index);
+    Integer key = new Integer(index);
     assert index >= 0;
-    assert fieldsIndexMap.get(key) == null
-        || fieldsIndexMap.get(key).compareTo(fieldRef) == 0;
+    assert fieldsIndexMap.get(key) == null || fieldsIndexMap.get(key).compareTo(fieldRef) == 0;
 
     if (!fieldsIndexMap.containsKey(key)) {
       fieldsIndexMap.put(key, fieldRef);
@@ -109,7 +104,7 @@ public class CstIndexMap {
    * Merge all {@link TypedConstant} of one dex file into another.
    * @param dex The dex file where values are merged.
    */
-  public void mergeConstantsIntoDexFile(DexFile dex)  {
+  public void mergeConstantsIntoDexFile(DexFile dex) {
     for (CstString cst : stringsIndexMap.values()) {
       dex.getStringIds().intern(cst);
     }

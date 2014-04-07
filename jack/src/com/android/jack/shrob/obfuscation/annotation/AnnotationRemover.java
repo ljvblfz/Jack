@@ -35,12 +35,12 @@ public abstract class AnnotationRemover {
   public static final
       BooleanPropertyId EMIT_RUNTIME_INVISIBLE_ANNOTATION = BooleanPropertyId.create(
           "jack.annotation.runtimeinvisible", "Emit annotations that are runtime invisible")
-          .addDefaultValue("true");
+          .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_RUNTIME_VISIBLE_ANNOTATION = BooleanPropertyId.create(
       "jack.annotation.runtimevisible", "Emit annotations that are runtime visible")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

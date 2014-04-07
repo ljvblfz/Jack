@@ -24,145 +24,143 @@ import com.android.jack.dx.util.Hex;
  * line number and original bytecode address.
  */
 public final class SourcePosition {
-    /** {@code non-null;} convenient "no information known" instance */
-    public static final SourcePosition NO_INFO =
-        new SourcePosition(null, -1, -1);
+  /** {@code non-null;} convenient "no information known" instance */
+  public static final SourcePosition NO_INFO = new SourcePosition(null, -1, -1);
 
-    /** {@code null-ok;} name of the file of origin or {@code null} if unknown */
-    private final CstString sourceFile;
+  /** {@code null-ok;} name of the file of origin or {@code null} if unknown */
+  private final CstString sourceFile;
 
-    /**
-     * {@code >= -1;} the bytecode address, or {@code -1} if that
-     * information is unknown
-     */
-    private final int address;
+  /**
+   * {@code >= -1;} the bytecode address, or {@code -1} if that
+   * information is unknown
+   */
+  private final int address;
 
-    /**
-     * {@code >= -1;} the line number, or {@code -1} if that
-     * information is unknown
-     */
-    private final int line;
+  /**
+   * {@code >= -1;} the line number, or {@code -1} if that
+   * information is unknown
+   */
+  private final int line;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param sourceFile {@code null-ok;} name of the file of origin or
-     * {@code null} if unknown
-     * @param address {@code >= -1;} original bytecode address or {@code -1}
-     * if unknown
-     * @param line {@code >= -1;} original line number or {@code -1} if
-     * unknown
-     */
-    public SourcePosition(CstString sourceFile, int address, int line) {
-        if (address < -1) {
-            throw new IllegalArgumentException("address < -1");
-        }
-
-        if (line < -1) {
-            throw new IllegalArgumentException("line < -1");
-        }
-
-        this.sourceFile = sourceFile;
-        this.address = address;
-        this.line = line;
+  /**
+   * Constructs an instance.
+   *
+   * @param sourceFile {@code null-ok;} name of the file of origin or
+   * {@code null} if unknown
+   * @param address {@code >= -1;} original bytecode address or {@code -1}
+   * if unknown
+   * @param line {@code >= -1;} original line number or {@code -1} if
+   * unknown
+   */
+  public SourcePosition(CstString sourceFile, int address, int line) {
+    if (address < -1) {
+      throw new IllegalArgumentException("address < -1");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        StringBuffer sb = new StringBuffer(50);
-
-        if (sourceFile != null) {
-            sb.append(sourceFile.toHuman());
-            sb.append(":");
-        }
-
-        if (line >= 0) {
-            sb.append(line);
-        }
-
-        sb.append('@');
-
-        if (address < 0) {
-            sb.append("????");
-        } else {
-            sb.append(Hex.u2(address));
-        }
-
-        return sb.toString();
+    if (line < -1) {
+      throw new IllegalArgumentException("line < -1");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof SourcePosition)) {
-            return false;
-        }
+    this.sourceFile = sourceFile;
+    this.address = address;
+    this.line = line;
+  }
 
-        if (this == other) {
-            return true;
-        }
+  /** {@inheritDoc} */
+  @Override
+  public String toString() {
+    StringBuffer sb = new StringBuffer(50);
 
-        SourcePosition pos = (SourcePosition) other;
-
-        return (address == pos.address) && sameLineAndFile(pos);
+    if (sourceFile != null) {
+      sb.append(sourceFile.toHuman());
+      sb.append(":");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        return sourceFile.hashCode() + address + line;
+    if (line >= 0) {
+      sb.append(line);
     }
 
-    /**
-     * Returns whether the lines match between this instance and
-     * the one given.
-     *
-     * @param other {@code non-null;} the instance to compare to
-     * @return {@code true} iff the lines match
-     */
-    public boolean sameLine(SourcePosition other) {
-        return (line == other.line);
+    sb.append('@');
+
+    if (address < 0) {
+      sb.append("????");
+    } else {
+      sb.append(Hex.u2(address));
     }
 
-    /**
-     * Returns whether the lines and files match between this instance and
-     * the one given.
-     *
-     * @param other {@code non-null;} the instance to compare to
-     * @return {@code true} iff the lines and files match
-     */
-    public boolean sameLineAndFile(SourcePosition other) {
-        return (line == other.line) &&
-            ((sourceFile == other.sourceFile) ||
-             ((sourceFile != null) && sourceFile.equals(other.sourceFile)));
+    return sb.toString();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof SourcePosition)) {
+      return false;
     }
 
-    /**
-     * Gets the source file, if known.
-     *
-     * @return {@code null-ok;} the source file or {@code null} if unknown
-     */
-    public CstString getSourceFile() {
-        return sourceFile;
+    if (this == other) {
+      return true;
     }
 
-    /**
-     * Gets the original bytecode address.
-     *
-     * @return {@code >= -1;} the address or {@code -1} if unknown
-     */
-    public int getAddress() {
-        return address;
-    }
+    SourcePosition pos = (SourcePosition) other;
 
-    /**
-     * Gets the original line number.
-     *
-     * @return {@code >= -1;} the original line number or {@code -1} if
-     * unknown
-     */
-    public int getLine() {
-        return line;
-    }
+    return (address == pos.address) && sameLineAndFile(pos);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int hashCode() {
+    return sourceFile.hashCode() + address + line;
+  }
+
+  /**
+   * Returns whether the lines match between this instance and
+   * the one given.
+   *
+   * @param other {@code non-null;} the instance to compare to
+   * @return {@code true} iff the lines match
+   */
+  public boolean sameLine(SourcePosition other) {
+    return (line == other.line);
+  }
+
+  /**
+   * Returns whether the lines and files match between this instance and
+   * the one given.
+   *
+   * @param other {@code non-null;} the instance to compare to
+   * @return {@code true} iff the lines and files match
+   */
+  public boolean sameLineAndFile(SourcePosition other) {
+    return (line == other.line) && ((sourceFile == other.sourceFile)
+        || ((sourceFile != null) && sourceFile.equals(other.sourceFile)));
+  }
+
+  /**
+   * Gets the source file, if known.
+   *
+   * @return {@code null-ok;} the source file or {@code null} if unknown
+   */
+  public CstString getSourceFile() {
+    return sourceFile;
+  }
+
+  /**
+   * Gets the original bytecode address.
+   *
+   * @return {@code >= -1;} the address or {@code -1} if unknown
+   */
+  public int getAddress() {
+    return address;
+  }
+
+  /**
+   * Gets the original line number.
+   *
+   * @return {@code >= -1;} the original line number or {@code -1} if
+   * unknown
+   */
+  public int getLine() {
+    return line;
+  }
 }

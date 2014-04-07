@@ -54,7 +54,21 @@ public class GatherConfigBuilder {
   }
 
   @Nonnull
-  public GatherConfigBuilder set(@Nonnull String name, @Nonnull String value) {
+  public GatherConfigBuilder setString(@Nonnull String name, @Nonnull String value) {
+    try {
+      builder.setString(name, value);
+    } catch (PropertyIdException e) {
+      exceptions.appendException(e);
+    } catch (UnknownPropertyNameException e) {
+      exceptions.appendException(e);
+    }
+
+    return this;
+  }
+
+
+  @Nonnull
+  public <T> GatherConfigBuilder set(@Nonnull String name, @Nonnull T value) {
     try {
       builder.set(name, value);
     } catch (PropertyIdException e) {
@@ -67,8 +81,23 @@ public class GatherConfigBuilder {
   }
 
   @Nonnull
-  public GatherConfigBuilder set(
+  public GatherConfigBuilder setString(
       @Nonnull String name, @Nonnull String value, @Nonnull Location location) {
+    try {
+      builder.setString(name, value, location);
+    } catch (UnknownPropertyNameException e) {
+      exceptions.appendException(e);
+    } catch (PropertyIdException e) {
+      exceptions.appendException(e);
+    }
+
+    return this;
+  }
+
+
+  @Nonnull
+  public <T> GatherConfigBuilder set(
+      @Nonnull String name, @Nonnull T value, @Nonnull Location location) {
     try {
       builder.set(name, value, location);
     } catch (UnknownPropertyNameException e) {
@@ -81,7 +110,20 @@ public class GatherConfigBuilder {
   }
 
   @Nonnull
-  public GatherConfigBuilder set(@Nonnull PropertyId<?> propertyId, @Nonnull String value) {
+  public GatherConfigBuilder setString(@Nonnull PropertyId<?> propertyId, @Nonnull String value) {
+    try {
+      builder.setString(propertyId, value);
+    } catch (UnknownPropertyIdException e) {
+      exceptions.appendException(e);
+    } catch (PropertyIdException e) {
+      exceptions.appendException(e);
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public <T> GatherConfigBuilder set(@Nonnull PropertyId<T> propertyId, @Nonnull T value) {
     try {
       builder.set(propertyId, value);
     } catch (UnknownPropertyIdException e) {
@@ -94,8 +136,22 @@ public class GatherConfigBuilder {
   }
 
   @Nonnull
-  public GatherConfigBuilder set(
+  public GatherConfigBuilder setString(
       @Nonnull PropertyId<?> propertyId, @Nonnull String value, @Nonnull Location location) {
+    try {
+      builder.setString(propertyId, value, location);
+    } catch (UnknownPropertyIdException e) {
+      exceptions.appendException(e);
+    } catch (PropertyIdException e) {
+      exceptions.appendException(e);
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public <T> GatherConfigBuilder set(
+      @Nonnull PropertyId<T> propertyId, @Nonnull T value, @Nonnull Location location) {
     try {
       builder.set(propertyId, value, location);
     } catch (UnknownPropertyIdException e) {
@@ -151,12 +207,18 @@ public class GatherConfigBuilder {
    */
   @Nonnull
   public Config build() throws ConfigurationException {
+    Config config;
+
     try {
-      return builder.build();
+      config = builder.build();
     } catch (ConfigurationException e) {
       exceptions.appendException(e);
       throw exceptions.getException();
     }
+
+    exceptions.throwIfNecessary();
+
+    return config;
   }
 
   @Nonnull
@@ -180,11 +242,139 @@ public class GatherConfigBuilder {
     return this;
   }
 
+  //
+  // Default location
+  //
+
   public void pushDefaultLocation(@Nonnull Location location) {
     builder.pushDefaultLocation(location);
   }
 
   public void popDefaultLocation() {
     builder.popDefaultLocation();
+  }
+
+  //
+  // Commodity helper
+  //
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Boolean> propertyId, boolean value) {
+    set(propertyId, Boolean.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Boolean> propertyId, boolean value,
+      @Nonnull Location location) {
+    set(propertyId, Boolean.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Byte> propertyId, byte value) {
+    set(propertyId, Byte.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Byte> propertyId, byte value,
+      @Nonnull Location location) {
+    set(propertyId, Byte.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Short> propertyId, short value) {
+    set(propertyId, Short.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Short> propertyId, short value,
+      @Nonnull Location location) {
+    set(propertyId, Short.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Character> propertyId, char value) {
+    set(propertyId, Character.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Character> propertyId, char value,
+      @Nonnull Location location) {
+    set(propertyId, Character.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Integer> propertyId, int value) {
+    set(propertyId, Integer.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Integer> propertyId, int value,
+      @Nonnull Location location) {
+    set(propertyId, Integer.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Long> propertyId, long value) {
+    set(propertyId, Long.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Long> propertyId, long value,
+      @Nonnull Location location) {
+    set(propertyId, Long.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Float> propertyId, float value) {
+    set(propertyId, Float.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Float> propertyId, float value,
+      @Nonnull Location location) {
+    set(propertyId, Float.valueOf(value), location);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Double> propertyId, double value) {
+    set(propertyId, Double.valueOf(value));
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder set(@Nonnull PropertyId<Double> propertyId, double value,
+      @Nonnull Location location) {
+    set(propertyId, Double.valueOf(value), location);
+
+    return this;
   }
 }

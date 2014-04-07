@@ -24,9 +24,7 @@ import com.android.sched.scheduler.ScheduleInstance;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -102,22 +100,5 @@ class AnnotationSet implements Serializable {
     for (JAnnotationLiteral annotation : annotations.values()) {
       annotation.traverse(schedule);
     }
-  }
-
-  void updateAnnotationSet() {
-    Map<JAnnotation, JAnnotationLiteral> updatedAnnotations =
-        new HashMap<JAnnotation, JAnnotationLiteral>();
-
-    Iterator<Entry<JAnnotation, JAnnotationLiteral>> it = annotations.entrySet().iterator();
-    while (it.hasNext()) {
-      Entry<JAnnotation, JAnnotationLiteral> entry = it.next();
-      JAnnotation valueType = entry.getValue().getType();
-      if (entry.getKey() != valueType) {
-        updatedAnnotations.put(valueType, entry.getValue());
-        it.remove();
-      }
-    }
-
-    annotations.putAll(updatedAnnotations);
   }
 }

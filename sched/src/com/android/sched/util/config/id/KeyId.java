@@ -21,9 +21,6 @@ import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.PropertyNotRequiredException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -38,12 +35,6 @@ public abstract class KeyId<T, S> {
   @Nonnull
   private final String name;
 
-  @CheckForNull
-  private BooleanExpression requiredIf;
-
-  @Nonnull
-  private final List<S> defaultValues = new ArrayList<S>(2);
-
   public KeyId(@Nonnull String name) {
     this.name = name;
   }
@@ -55,17 +46,8 @@ public abstract class KeyId<T, S> {
 
   public abstract boolean isPublic();
 
-  @Nonnull
-  public KeyId<T, S> addDefaultValue(@Nonnull S defaultValue) {
-    defaultValues.add(defaultValue);
-
-    return this;
-  }
-
-  @Nonnull
-  public List<S> getDefaultValues() {
-    return defaultValues;
-  }
+  @CheckForNull
+  private BooleanExpression requiredIf;
 
   @Nonnull
   public KeyId<T, S> requiredIf(@Nonnull BooleanExpression expression) {

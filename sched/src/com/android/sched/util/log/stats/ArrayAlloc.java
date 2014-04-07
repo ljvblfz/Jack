@@ -18,9 +18,9 @@ package com.android.sched.util.log.stats;
 
 import com.google.common.collect.ObjectArrays;
 
+import com.android.sched.util.codec.ByteFormatter;
 import com.android.sched.util.codec.Formatter;
 import com.android.sched.util.codec.LongCodec;
-import com.android.sched.util.codec.ByteFormatter;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -45,64 +45,6 @@ public class ArrayAlloc extends Statistic {
   @Override
   public void merge(@Nonnull Statistic statistic) {
     throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Array count";
-      case 1:
-        return "Total size";
-      case 2:
-        return "Total elements";
-      case 3:
-        return "Min elements";
-      case 4:
-        return "Average elements";
-      case 5:
-        return "max elements";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      case 1:
-        return "number";
-      case 2:
-        return "number";
-      case 3:
-        return "number";
-      case 4:
-        return "number";
-      case 5:
-        return "number";
-      default:
-        throw new AssertionError();
-    }
   }
 
   @Override

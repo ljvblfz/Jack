@@ -98,9 +98,9 @@ import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStringLiteral;
@@ -119,6 +119,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.util.NamingTools;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -239,7 +240,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Constructs a GWT Java AST from a single isolated compilation unit. The AST is
- * not associated with any {@link com.android.jack.ir.ast.JProgram} and will
+ * not associated with any {@link com.android.jack.ir.ast.JSession} and will
  * contain unresolved references.
  */
 public class GwtAstBuilder {
@@ -2248,7 +2249,8 @@ public class GwtAstBuilder {
       JNewArray newExpr = JNewArray.createWithInits(info, enumArrayType, initializers);
       JFieldRef valuesRef = new JFieldRef(info, null, valuesField.getId(), type);
       JAsgOperation assignValues = new JAsgOperation(info, valuesRef, newExpr);
-      JMethod clinit = type.getMethod(JProgram.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
+      JMethod clinit = type.getMethod(NamingTools.STATIC_INIT_NAME,
+          JPrimitiveTypeEnum.VOID.getType());
       JAbstractMethodBody body = clinit.getBody();
       assert body instanceof JMethodBody;
       JBlock clinitBlock = ((JMethodBody) body).getBlock();
@@ -2585,7 +2587,8 @@ public class GwtAstBuilder {
       JMethod initMeth;
       if (x.isStatic()) {
         initMeth =
-            curClass.type.getMethod(JProgram.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
+            curClass.type.getMethod(NamingTools.STATIC_INIT_NAME,
+                JPrimitiveTypeEnum.VOID.getType());
       } else {
         initMeth = curClass.type.getMethod(INIT_METHOD_NAME, JPrimitiveTypeEnum.VOID.getType());
       }
@@ -3185,9 +3188,9 @@ public class GwtAstBuilder {
   private final LookupEnvironment lookupEnvironment;
 
   public GwtAstBuilder(@Nonnull LookupEnvironment lookupEnvironment,
-      @Nonnull JProgram program) {
+      @Nonnull JSession session) {
     this.lookupEnvironment = lookupEnvironment;
-    typeMap = new ReferenceMapper(program.getLookup(), lookupEnvironment);
+    typeMap = new ReferenceMapper(session.getLookup(), lookupEnvironment);
   }
 
   /**
@@ -3457,7 +3460,7 @@ public class GwtAstBuilder {
     int modifier = JModifier.STATIC | JModifier.STATIC_INIT;
     JMethod method =
         new JMethod(info,
-            new JMethodId(JProgram.STATIC_INIT_NAME, MethodKind.STATIC),
+            new JMethodId(NamingTools.STATIC_INIT_NAME, MethodKind.STATIC),
             enclosingType,
             JPrimitiveTypeEnum.VOID.getType(),
             modifier);

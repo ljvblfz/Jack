@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast;
 
-import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAsgConcatOperation;
@@ -33,7 +32,7 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -42,6 +41,7 @@ import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.NamingTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -76,7 +76,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   private static final String CHAR_SEQUENCE_SIGNATURE = "Ljava/lang/CharSequence;";
 
   @Nonnull
-  private static final String STRING_BUILDER_CONSTRUCTOR_NAME = "<init>";
+  private static final String STRING_BUILDER_CONSTRUCTOR_NAME = NamingTools.INIT_NAME;
 
   @Nonnull
   private static final String TO_STRING = "toString";
@@ -84,7 +84,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   @CheckForNull
-  private JProgram program;
+  private JSession session;
   @CheckForNull
   private JClassOrInterface stringBuilder;
   @CheckForNull
@@ -130,11 +130,12 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
           JMethodId stringBuilderToString =
               stringBuilder.getOrCreateMethodId(TO_STRING, Lists.<JType>create(),
                   MethodKind.INSTANCE_VIRTUAL);
+          assert session != null;
           JMethodCall toString = new JMethodCall(sourceInfo,
               appendRhs,
               stringBuilder,
               stringBuilderToString,
-              Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING),
+              session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING),
               stringBuilderToString.canBeVirtual());
 
           tr.append(new Replace(binary, toString));
@@ -164,7 +165,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    program = enclosingType.getJProgram();
+    session = enclosingType.getSession();
 
     Visitor visitor = new Visitor(method);
     visitor.accept(method);
@@ -173,9 +174,9 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private JClassOrInterface getStringBuilder() {
     if (stringBuilder == null) {
-      assert program != null;
+      assert session != null;
       stringBuilder =
-          (JClassOrInterface) program.getPhantomLookup().getType(STRING_BUILDER_SIGNATURE);
+          (JClassOrInterface) session.getPhantomLookup().getType(STRING_BUILDER_SIGNATURE);
     }
 
     assert stringBuilder != null;
@@ -185,9 +186,9 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private JClassOrInterface getCharSequence() {
     if (charSequence == null) {
-      assert program != null;
+      assert session != null;
       charSequence =
-          (JClassOrInterface) program.getPhantomLookup().getType(CHAR_SEQUENCE_SIGNATURE);
+          (JClassOrInterface) session.getPhantomLookup().getType(CHAR_SEQUENCE_SIGNATURE);
     }
 
     assert charSequence != null;
@@ -202,6 +203,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
 
     JType appendArgType = elementType;
 
+    assert session != null;
     if (elementType instanceof JPrimitiveType) {
       JPrimitiveTypeEnum primitiveType = ((JPrimitiveType) elementType).getPrimitiveTypeEnum();
       switch (primitiveType) {
@@ -224,14 +226,15 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
           throw new AssertionError();
       }
     } else if (elementType
-        == Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING)) {
-      appendArgType = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+        == session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING)) {
+      appendArgType = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
     } else {
       JType charSequence = getCharSequence();
+      assert session != null; // FINDBUGS
       if (elementType == charSequence){
         appendArgType = charSequence;
       } else {
-        appendArgType = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        appendArgType = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       }
     }
 

@@ -374,7 +374,7 @@ public class JVisitor {
     endVisit((JType) x);
   }
 
-  public void endVisit(@Nonnull JProgram x) {
+  public void endVisit(@Nonnull JSession x) {
     endVisit((JNode) x);
   }
 
@@ -750,7 +750,7 @@ public class JVisitor {
     return visit((JType) x);
   }
 
-  public boolean visit(@Nonnull JProgram x) {
+  public boolean visit(@Nonnull JSession x) {
     return visit((JNode) x);
   }
 
@@ -1194,7 +1194,7 @@ public class JVisitor {
     visit((JType) x, transformRequest);
   }
 
-  public void visit(@Nonnull JProgram x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JSession x, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visit((JNode) x, transformRequest);
   }

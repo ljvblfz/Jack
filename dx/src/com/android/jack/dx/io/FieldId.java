@@ -18,51 +18,56 @@ package com.android.jack.dx.io;
 
 import com.android.jack.dx.util.Unsigned;
 
+/**
+ * TODO(jack team)
+ */
 public final class FieldId implements Comparable<FieldId> {
-    private final DexBuffer buffer;
-    private final int declaringClassIndex;
-    private final int typeIndex;
-    private final int nameIndex;
+  private final DexBuffer buffer;
+  private final int declaringClassIndex;
+  private final int typeIndex;
+  private final int nameIndex;
 
-    public FieldId(DexBuffer buffer, int declaringClassIndex, int typeIndex, int nameIndex) {
-        this.buffer = buffer;
-        this.declaringClassIndex = declaringClassIndex;
-        this.typeIndex = typeIndex;
-        this.nameIndex = nameIndex;
-    }
+  public FieldId(DexBuffer buffer, int declaringClassIndex, int typeIndex, int nameIndex) {
+    this.buffer = buffer;
+    this.declaringClassIndex = declaringClassIndex;
+    this.typeIndex = typeIndex;
+    this.nameIndex = nameIndex;
+  }
 
-    public int getDeclaringClassIndex() {
-        return declaringClassIndex;
-    }
+  public int getDeclaringClassIndex() {
+    return declaringClassIndex;
+  }
 
-    public int getTypeIndex() {
-        return typeIndex;
-    }
+  public int getTypeIndex() {
+    return typeIndex;
+  }
 
-    public int getNameIndex() {
-        return nameIndex;
-    }
+  public int getNameIndex() {
+    return nameIndex;
+  }
 
-    public int compareTo(FieldId other) {
-        if (declaringClassIndex != other.declaringClassIndex) {
-            return Unsigned.compare(declaringClassIndex, other.declaringClassIndex);
-        }
-        if (nameIndex != other.nameIndex) {
-            return Unsigned.compare(nameIndex, other.nameIndex);
-        }
-        return Unsigned.compare(typeIndex, other.typeIndex); // should always be 0
+  @Override
+  public int compareTo(FieldId other) {
+    if (declaringClassIndex != other.declaringClassIndex) {
+      return Unsigned.compare(declaringClassIndex, other.declaringClassIndex);
     }
+    if (nameIndex != other.nameIndex) {
+      return Unsigned.compare(nameIndex, other.nameIndex);
+    }
+    return Unsigned.compare(typeIndex, other.typeIndex); // should always be 0
+  }
 
-    public void writeTo(DexBuffer.Section out) {
-        out.writeUnsignedShort(declaringClassIndex);
-        out.writeUnsignedShort(typeIndex);
-        out.writeInt(nameIndex);
-    }
+  public void writeTo(DexBuffer.Section out) {
+    out.writeUnsignedShort(declaringClassIndex);
+    out.writeUnsignedShort(typeIndex);
+    out.writeInt(nameIndex);
+  }
 
-    @Override public String toString() {
-        if (buffer == null) {
-            return declaringClassIndex + " " + typeIndex + " " + nameIndex;
-        }
-        return buffer.typeNames().get(typeIndex) + "." + buffer.strings().get(nameIndex);
+  @Override
+  public String toString() {
+    if (buffer == null) {
+      return declaringClassIndex + " " + typeIndex + " " + nameIndex;
     }
+    return buffer.typeNames().get(typeIndex) + "." + buffer.strings().get(nameIndex);
+  }
 }

@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast;
 
-import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
@@ -30,7 +29,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -78,13 +77,13 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     @CheckForNull
     private JClassOrInterface reflectArray;
     @Nonnull
-    private final JProgram program;
+    private final JSession session;
     @CheckForNull
     private JMethodId newInstance;
 
-    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JProgram program) {
+    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JSession session) {
       this.tr = tr;
-      this.program = program;
+      this.session = session;
     }
 
     @Override
@@ -99,11 +98,11 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
           JClassOrInterface reflectArrayType = getReflectArrayType();
           JMethodId newInstanceId = getNewInstanceId(reflectArrayType);
           JMethodCall call = new JMethodCall(sourceInfo, null, reflectArrayType, newInstanceId,
-              Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT),
+              session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT),
               newInstanceId.canBeVirtual());
           call.addArg(new JClassLiteral(
               sourceInfo, getComponentTypeForNewInstance(newArray, nbPresentDimensions),
-              program.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS)));
+              session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS)));
          call.addArg(JNewArray.createWithInits(sourceInfo, getIntArrayType(), presentDimensions));
           tr.append(new Replace(newArray, new JDynamicCastOperation(sourceInfo, newArray
               .getArrayType(), call)));
@@ -116,7 +115,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     private JMethodId getNewInstanceId(JClassOrInterface reflectArrayType) {
       if (newInstance == null) {
         List<JType> argsType = new ArrayList<JType>(2);
-        argsType.add(Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS));
+        argsType.add(session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS));
         argsType.add(getIntArrayType());
         newInstance = reflectArrayType.getOrCreateMethodId("newInstance", argsType,
             MethodKind.STATIC);
@@ -163,7 +162,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     private JClassOrInterface getReflectArrayType() {
       if (reflectArray == null) {
         reflectArray =
-            (JClassOrInterface) program.getPhantomLookup().getType("Ljava/lang/reflect/Array;");
+            (JClassOrInterface) session.getPhantomLookup().getType("Ljava/lang/reflect/Array;");
       }
 
       assert reflectArray != null;
@@ -176,7 +175,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     @Nonnull
     private JArrayType getIntArrayType() {
       if (intArrayType == null) {
-        intArrayType = (JArrayType) program.getLookup().getType("[I");
+        intArrayType = (JArrayType) session.getLookup().getType("[I");
       }
 
       assert intArrayType != null;
@@ -194,7 +193,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     }
 
     TransformationRequest tr = new TransformationRequest(method);
-    Visitor visitor = new Visitor(tr, enclosingType.getJProgram());
+    Visitor visitor = new Visitor(tr, enclosingType.getSession());
     visitor.accept(method);
     tr.commit();
   }

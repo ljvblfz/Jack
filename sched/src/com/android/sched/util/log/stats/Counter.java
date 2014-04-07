@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * Represents a counter statistic when statistic is not enabled..
+ * Represents a counter statistic when statistic is not enabled.
  */
 public class Counter extends Statistic {
   protected Counter(@Nonnull StatisticId<? extends Statistic> id) {
@@ -56,45 +56,6 @@ public class Counter extends Statistic {
   @Override
   public void merge(@Nonnull Statistic statistic) {
     throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Number";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      default:
-        throw new AssertionError();
-    }
   }
 
   @Override

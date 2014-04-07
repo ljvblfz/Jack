@@ -19,17 +19,19 @@ package com.android.jack.dx.util;
 /**
  * Exception due to a mutability problem.
  */
-public class MutabilityException
-        extends ExceptionWithContext {
-    public MutabilityException(String message) {
-        super(message);
-    }
+public class MutabilityException extends ExceptionWithContext {
 
-    public MutabilityException(Throwable cause) {
-        super(cause);
-    }
+  private static final long serialVersionUID = 1L;
 
-    public MutabilityException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public MutabilityException(String message) {
+    super(message);
+  }
+
+  public MutabilityException(Throwable cause) {
+    super(cause);
+  }
+
+  public MutabilityException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

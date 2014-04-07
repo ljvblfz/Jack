@@ -17,7 +17,7 @@
 package com.android.jack.transformations.parent;
 
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 @Description("Check that parent of JNode are correctly set.")
 @Name("ParentSetterChecker")
 @Support(SanityChecks.class)
-public class ParentSetterChecker implements RunnableSchedulable<JProgram> {
+public class ParentSetterChecker implements RunnableSchedulable<JSession> {
 
   private static class ParentSetterCheckerVisitor extends JVisitor {
     @Nonnull
@@ -47,9 +47,9 @@ public class ParentSetterChecker implements RunnableSchedulable<JProgram> {
 
     @Override
     public boolean visit(@Nonnull JNode node) {
-      if (node instanceof JProgram) {
+      if (node instanceof JSession) {
         if (node.getParent() != null) {
-          throw new AssertionError("Parent of JProgram must be null.");
+          throw new AssertionError("Parent of JSession must be null.");
         }
       } else {
         if (node.getParent() != nodes.peek()) {
@@ -71,8 +71,8 @@ public class ParentSetterChecker implements RunnableSchedulable<JProgram> {
   }
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     ParentSetterCheckerVisitor checker = new ParentSetterCheckerVisitor();
-    checker.accept(program);
+    checker.accept(session);
   }
 }

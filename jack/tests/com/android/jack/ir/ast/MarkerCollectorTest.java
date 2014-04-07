@@ -38,7 +38,7 @@ public class MarkerCollectorTest {
   private final JParameter param;
 
   public MarkerCollectorTest() {
-    JPackage p = new JPackage("test", new JProgram(), null);
+    JPackage p = new JPackage("test", new JSession(), null);
     JDefinedClass classTest = new JDefinedClass(SourceOrigin.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
     JMethod method =

@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.util.TextOutput;
 
 import javax.annotation.Nonnull;
@@ -61,7 +61,7 @@ public class SourceGenerationVisitor extends ToStringGenerationVisitor {
       newline();
     }
     for (JMethod it : x.getMethods()) {
-      if (JProgram.isClinit(it)) {
+      if (JMethod.isClinit(it)) {
         // Suppress empty clinit.
         JMethodBody body = (JMethodBody) it.getBody();
         assert body != null;
@@ -100,7 +100,7 @@ public class SourceGenerationVisitor extends ToStringGenerationVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JProgram x) {
+  public boolean visit(@Nonnull JSession x) {
     for (int i = 0; i < x.getTypesToEmit().size(); ++i) {
       JDefinedClassOrInterface type = x.getTypesToEmit().get(i);
       if (!type.isExternal()) {

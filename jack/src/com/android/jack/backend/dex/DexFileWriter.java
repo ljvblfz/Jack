@@ -19,7 +19,7 @@ package com.android.jack.backend.dex;
 import com.android.jack.JackFileException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.scheduling.tags.DexFileProduct;
@@ -45,14 +45,14 @@ import javax.annotation.Nonnull;
 @Constraint(need = {DexFileMarker.Complete.class})
 @Produce(DexFileProduct.class)
 @Support(DexNonZipOutput.class)
-public class DexFileWriter implements RunnableSchedulable<JProgram> {
+public class DexFileWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   protected File outputFile = ThreadConfig.get(Options.DEX_FILE_OUTPUT);
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
-    DexFile dexFile = getDexFile(program);
+  public void run(@Nonnull JSession session) throws Exception {
+    DexFile dexFile = getDexFile(session);
 
     FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
     try {
@@ -66,8 +66,8 @@ public class DexFileWriter implements RunnableSchedulable<JProgram> {
   }
 
   @Nonnull
-  protected DexFile getDexFile(@Nonnull JProgram program) {
-    DexFileMarker dexFileMarker = program.getMarker(DexFileMarker.class);
+  protected DexFile getDexFile(@Nonnull JSession session) {
+    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
     DexFile dexFile = dexFileMarker.getDexFile();
     assert dexFile != null;

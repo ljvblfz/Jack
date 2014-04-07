@@ -21,126 +21,137 @@ import com.android.jack.dx.util.Leb128Utils;
 
 /**
  * SAX-style reader for encoded values.
- * TODO: convert this to a pull-style reader
+ * TODO(dx team): convert this to a pull-style reader
  */
 public class EncodedValueReader {
-    public static final int ENCODED_BYTE = 0x00;
-    public static final int ENCODED_SHORT = 0x02;
-    public static final int ENCODED_CHAR = 0x03;
-    public static final int ENCODED_INT = 0x04;
-    public static final int ENCODED_LONG = 0x06;
-    public static final int ENCODED_FLOAT = 0x10;
-    public static final int ENCODED_DOUBLE = 0x11;
-    public static final int ENCODED_STRING = 0x17;
-    public static final int ENCODED_TYPE = 0x18;
-    public static final int ENCODED_FIELD = 0x19;
-    public static final int ENCODED_ENUM = 0x1b;
-    public static final int ENCODED_METHOD = 0x1a;
-    public static final int ENCODED_ARRAY = 0x1c;
-    public static final int ENCODED_ANNOTATION = 0x1d;
-    public static final int ENCODED_NULL = 0x1e;
-    public static final int ENCODED_BOOLEAN = 0x1f;
+  public static final int ENCODED_BYTE = 0x00;
+  public static final int ENCODED_SHORT = 0x02;
+  public static final int ENCODED_CHAR = 0x03;
+  public static final int ENCODED_INT = 0x04;
+  public static final int ENCODED_LONG = 0x06;
+  public static final int ENCODED_FLOAT = 0x10;
+  public static final int ENCODED_DOUBLE = 0x11;
+  public static final int ENCODED_STRING = 0x17;
+  public static final int ENCODED_TYPE = 0x18;
+  public static final int ENCODED_FIELD = 0x19;
+  public static final int ENCODED_ENUM = 0x1b;
+  public static final int ENCODED_METHOD = 0x1a;
+  public static final int ENCODED_ARRAY = 0x1c;
+  public static final int ENCODED_ANNOTATION = 0x1d;
+  public static final int ENCODED_NULL = 0x1e;
+  public static final int ENCODED_BOOLEAN = 0x1f;
 
-    protected final ByteInput in;
+  protected final ByteInput in;
 
-    public EncodedValueReader(ByteInput in) {
-        this.in = in;
+  public EncodedValueReader(ByteInput in) {
+    this.in = in;
+  }
+
+  public EncodedValueReader(EncodedValue in) {
+    this(in.asByteInput());
+  }
+
+  public final void readArray() {
+    int size = Leb128Utils.readUnsignedLeb128(in);
+    visitArray(size);
+
+    for (int i = 0; i < size; i++) {
+      readValue();
     }
+  }
 
-    public EncodedValueReader(EncodedValue in) {
-        this(in.asByteInput());
+  public final void readAnnotation() {
+    int typeIndex = Leb128Utils.readUnsignedLeb128(in);
+    int size = Leb128Utils.readUnsignedLeb128(in);
+    visitAnnotation(typeIndex, size);
+
+    for (int i = 0; i < size; i++) {
+      visitAnnotationName(Leb128Utils.readUnsignedLeb128(in));
+      readValue();
     }
+  }
 
-    public final void readArray() {
-        int size = Leb128Utils.readUnsignedLeb128(in);
-        visitArray(size);
+  public final void readValue() {
+    int argAndType = in.readByte() & 0xff;
+    int type = argAndType & 0x1f;
+    int arg = (argAndType & 0xe0) >> 5;
+    int size = arg + 1;
 
-        for (int i = 0; i < size; i++) {
-            readValue();
-        }
+    switch (type) {
+      case ENCODED_BYTE:
+      case ENCODED_SHORT:
+      case ENCODED_CHAR:
+      case ENCODED_INT:
+      case ENCODED_LONG:
+      case ENCODED_FLOAT:
+      case ENCODED_DOUBLE:
+        visitPrimitive(argAndType, type, arg, size);
+        break;
+      case ENCODED_STRING:
+        visitString(type, readIndex(in, size));
+        break;
+      case ENCODED_TYPE:
+        visitType(type, readIndex(in, size));
+        break;
+      case ENCODED_FIELD:
+      case ENCODED_ENUM:
+        visitField(type, readIndex(in, size));
+        break;
+      case ENCODED_METHOD:
+        visitMethod(type, readIndex(in, size));
+        break;
+      case ENCODED_ARRAY:
+        visitArrayValue(argAndType);
+        readArray();
+        break;
+      case ENCODED_ANNOTATION:
+        visitAnnotationValue(argAndType);
+        readAnnotation();
+        break;
+      case ENCODED_NULL:
+        visitEncodedNull(argAndType);
+        break;
+      case ENCODED_BOOLEAN:
+        visitEncodedBoolean(argAndType);
+        break;
     }
+  }
 
-    public final void readAnnotation() {
-        int typeIndex = Leb128Utils.readUnsignedLeb128(in);
-        int size = Leb128Utils.readUnsignedLeb128(in);
-        visitAnnotation(typeIndex, size);
+  protected void visitArray(int size) {}
 
-        for (int i = 0; i < size; i++) {
-            visitAnnotationName(Leb128Utils.readUnsignedLeb128(in));
-            readValue();
-        }
+  protected void visitAnnotation(int typeIndex, int size) {}
+
+  protected void visitAnnotationName(int nameIndex) {}
+
+  protected void visitPrimitive(int argAndType, int type, int arg, int size) {
+    for (int i = 0; i < size; i++) {
+      in.readByte();
     }
+  }
 
-    public final void readValue() {
-        int argAndType = in.readByte() & 0xff;
-        int type = argAndType & 0x1f;
-        int arg = (argAndType & 0xe0) >> 5;
-        int size = arg + 1;
+  protected void visitString(int type, int index) {}
 
-        switch (type) {
-        case ENCODED_BYTE:
-        case ENCODED_SHORT:
-        case ENCODED_CHAR:
-        case ENCODED_INT:
-        case ENCODED_LONG:
-        case ENCODED_FLOAT:
-        case ENCODED_DOUBLE:
-            visitPrimitive(argAndType, type, arg, size);
-            break;
-        case ENCODED_STRING:
-            visitString(type, readIndex(in, size));
-            break;
-        case ENCODED_TYPE:
-            visitType(type, readIndex(in, size));
-            break;
-        case ENCODED_FIELD:
-        case ENCODED_ENUM:
-            visitField(type, readIndex(in, size));
-            break;
-        case ENCODED_METHOD:
-            visitMethod(type, readIndex(in, size));
-            break;
-        case ENCODED_ARRAY:
-            visitArrayValue(argAndType);
-            readArray();
-            break;
-        case ENCODED_ANNOTATION:
-            visitAnnotationValue(argAndType);
-            readAnnotation();
-            break;
-        case ENCODED_NULL:
-            visitEncodedNull(argAndType);
-            break;
-        case ENCODED_BOOLEAN:
-            visitEncodedBoolean(argAndType);
-            break;
-        }
+  protected void visitType(int type, int index) {}
+
+  protected void visitField(int type, int index) {}
+
+  protected void visitMethod(int type, int index) {}
+
+  protected void visitArrayValue(int argAndType) {}
+
+  protected void visitAnnotationValue(int argAndType) {}
+
+  protected void visitEncodedBoolean(int argAndType) {}
+
+  protected void visitEncodedNull(int argAndType) {}
+
+  private int readIndex(ByteInput in, int byteCount) {
+    int result = 0;
+    int shift = 0;
+    for (int i = 0; i < byteCount; i++) {
+      result += (in.readByte() & 0xff) << shift;
+      shift += 8;
     }
-
-    protected void visitArray(int size) {}
-    protected void visitAnnotation(int typeIndex, int size) {}
-    protected void visitAnnotationName(int nameIndex) {}
-    protected void visitPrimitive(int argAndType, int type, int arg, int size) {
-        for (int i = 0; i < size; i++) {
-            in.readByte();
-        }
-    }
-    protected void visitString(int type, int index) {}
-    protected void visitType(int type, int index) {}
-    protected void visitField(int type, int index) {}
-    protected void visitMethod(int type, int index) {}
-    protected void visitArrayValue(int argAndType) {}
-    protected void visitAnnotationValue(int argAndType) {}
-    protected void visitEncodedBoolean(int argAndType) {}
-    protected void visitEncodedNull(int argAndType) {}
-
-    private int readIndex(ByteInput in, int byteCount) {
-        int result = 0;
-        int shift = 0;
-        for (int i = 0; i < byteCount; i++) {
-            result += (in.readByte() & 0xff) << shift;
-            shift += 8;
-        }
-        return result;
-    }
+    return result;
+  }
 }

@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
@@ -144,8 +144,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @Override
   public JAbstractMethodBody loadBody(@Nonnull JMethod method) {
     if (body != null) {
-      JProgram program = method.getParent(JProgram.class);
-      ExportSession exportSession = new ExportSession(program.getPhantomLookup(), program,
+      JSession session = method.getParent(JSession.class);
+      ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
           NodeLevel.FULL);
       exportSession.setCurrentMethod(method);
 

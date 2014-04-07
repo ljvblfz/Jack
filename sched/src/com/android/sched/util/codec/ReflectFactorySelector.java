@@ -16,6 +16,8 @@
 
 package com.android.sched.util.codec;
 
+import com.google.common.base.Joiner;
+
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.ReflectFactory;
 
@@ -78,8 +80,9 @@ public class ReflectFactorySelector<T>
   public void checkValue(@Nonnull CodecContext context, @Nonnull ReflectFactory<T> factory)
       throws CheckingException {
     if (!checkClass(factory.getInstanciatedClass())) {
-      throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(factory) + "'");
+      throw new CheckingException("The value must be a ReflectFactory<{"
+          + Joiner.on(',').join(getClasses()) + "}> but is a ReflectFactory<"
+          + factory.getInstanciatedClass().getCanonicalName() + ">");
     }
   }
 

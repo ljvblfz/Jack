@@ -410,7 +410,7 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
     JDefinedClassOrInterface enclosingType = method.getEnclosingType();
     assert enclosingType != null;
 
-    JClass throwableType = enclosingType.getJProgram().getPhantomLookup().getClass(
+    JClass throwableType = enclosingType.getSession().getPhantomLookup().getClass(
         CommonTypes.JAVA_LANG_OBJECT);
 
     TransformationRequest trRequest = new TransformationRequest(method);

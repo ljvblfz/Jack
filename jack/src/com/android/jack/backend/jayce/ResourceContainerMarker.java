@@ -16,14 +16,14 @@
 
 package com.android.jack.backend.jayce;
 
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.vfs.InputVFile;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.annotation.Nonnull;
 
@@ -31,33 +31,31 @@ import javax.annotation.Nonnull;
  * A marker that contains resources.
  */
 @Description("A marker that contains resources.")
-@ValidOn(JProgram.class)
+@ValidOn(JSession.class)
 public final class ResourceContainerMarker implements Marker {
 
   @Nonnull
-  private final ZipFile zipFile;
-  @Nonnull
-  private final List<ZipEntry> zipEntries;
+  private final List<InputVFile> resourceFiles = new ArrayList<InputVFile>();
 
-  public ResourceContainerMarker(@Nonnull ZipFile zipFile, @Nonnull List<ZipEntry> zipEntries) {
-    this.zipFile = zipFile;
-    this.zipEntries = zipEntries;
+  public ResourceContainerMarker() {
   }
 
   @Nonnull
-  public List<ZipEntry> getZipEntries() {
-    return zipEntries;
-  }
-
-  @Nonnull
-  public ZipFile getZipFile() {
-    return zipFile;
+  public List<InputVFile> getResources() {
+    return resourceFiles;
   }
 
   @Override
   @Nonnull
   public Marker cloneIfNeeded() {
     return this;
+  }
+
+  public void addResource(@Nonnull InputVFile file) {
+    boolean res = resourceFiles.add(file);
+    if (!res) {
+      throw new AssertionError();
+    }
   }
 
 }

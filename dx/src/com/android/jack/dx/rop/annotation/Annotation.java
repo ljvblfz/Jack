@@ -31,194 +31,195 @@ import java.util.TreeMap;
  * associated type and additionally consist of a set of (name, value)
  * pairs, where the names are unique.
  */
-public final class Annotation extends MutabilityControl
-        implements Comparable<Annotation>, ToHuman {
-    /** {@code non-null;} type of the annotation */
-    private final CstType type;
+public final class Annotation extends MutabilityControl implements Comparable<Annotation>, ToHuman {
+  /** {@code non-null;} type of the annotation */
+  private final CstType type;
 
-    /** {@code non-null;} the visibility of the annotation */
-    private final AnnotationVisibility visibility;
+  /** {@code non-null;} the visibility of the annotation */
+  private final AnnotationVisibility visibility;
 
-    /** {@code non-null;} map from names to {@link NameValuePair} instances */
-    private final TreeMap<CstString, NameValuePair> elements;
+  /** {@code non-null;} map from names to {@link NameValuePair} instances */
+  private final TreeMap<CstString, NameValuePair> elements;
 
-    /**
-     * Construct an instance. It initially contains no elements.
-     *
-     * @param type {@code non-null;} type of the annotation
-     * @param visibility {@code non-null;} the visibility of the annotation
-     */
-    public Annotation(CstType type, AnnotationVisibility visibility) {
-        if (type == null) {
-            throw new NullPointerException("type == null");
-        }
-
-        if (visibility == null) {
-            throw new NullPointerException("visibility == null");
-        }
-
-        this.type = type;
-        this.visibility = visibility;
-        this.elements = new TreeMap<CstString, NameValuePair>();
+  /**
+   * Construct an instance. It initially contains no elements.
+   *
+   * @param type {@code non-null;} type of the annotation
+   * @param visibility {@code non-null;} the visibility of the annotation
+   */
+  public Annotation(CstType type, AnnotationVisibility visibility) {
+    if (type == null) {
+      throw new NullPointerException("type == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object other) {
-        if (! (other instanceof Annotation)) {
-            return false;
-        }
-
-        Annotation otherAnnotation = (Annotation) other;
-
-        if (! (type.equals(otherAnnotation.type)
-                        && (visibility == otherAnnotation.visibility))) {
-            return false;
-        }
-
-        return elements.equals(otherAnnotation.elements);
+    if (visibility == null) {
+      throw new NullPointerException("visibility == null");
     }
 
-    /** {@inheritDoc} */
-    public int hashCode() {
-        int hash = type.hashCode();
-        hash = (hash * 31) + elements.hashCode();
-        hash = (hash * 31) + visibility.hashCode();
-        return hash;
+    this.type = type;
+    this.visibility = visibility;
+    this.elements = new TreeMap<CstString, NameValuePair>();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof Annotation)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    public int compareTo(Annotation other) {
-        int result = type.compareTo(other.type);
+    Annotation otherAnnotation = (Annotation) other;
 
-        if (result != 0) {
-            return result;
-        }
-
-        result = visibility.compareTo(other.visibility);
-
-        if (result != 0) {
-            return result;
-        }
-
-        Iterator<NameValuePair> thisIter = elements.values().iterator();
-        Iterator<NameValuePair> otherIter = other.elements.values().iterator();
-
-        while (thisIter.hasNext() && otherIter.hasNext()) {
-            NameValuePair thisOne = thisIter.next();
-            NameValuePair otherOne = otherIter.next();
-
-            result = thisOne.compareTo(otherOne);
-            if (result != 0) {
-                return result;
-            }
-        }
-
-        if (thisIter.hasNext()) {
-            return 1;
-        } else if (otherIter.hasNext()) {
-            return -1;
-        }
-
-        return 0;
+    if (!(type.equals(otherAnnotation.type) && (visibility == otherAnnotation.visibility))) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return toHuman();
+    return elements.equals(otherAnnotation.elements);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int hashCode() {
+    int hash = type.hashCode();
+    hash = (hash * 31) + elements.hashCode();
+    hash = (hash * 31) + visibility.hashCode();
+    return hash;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int compareTo(Annotation other) {
+    int result = type.compareTo(other.type);
+
+    if (result != 0) {
+      return result;
     }
 
-    /** {@inheritDoc} */
-    public String toHuman() {
-        StringBuilder sb = new StringBuilder();
+    result = visibility.compareTo(other.visibility);
 
-        sb.append(visibility.toHuman());
-        sb.append("-annotation ");
-        sb.append(type.toHuman());
-        sb.append(" {");
-
-        boolean first = true;
-        for (NameValuePair pair : elements.values()) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(", ");
-            }
-            sb.append(pair.getName().toHuman());
-            sb.append(": ");
-            sb.append(pair.getValue().toHuman());
-        }
-
-        sb.append("}");
-        return sb.toString();
+    if (result != 0) {
+      return result;
     }
 
-    /**
-     * Gets the type of this instance.
-     *
-     * @return {@code non-null;} the type
-     */
-    public CstType getType() {
-        return type;
+    Iterator<NameValuePair> thisIter = elements.values().iterator();
+    Iterator<NameValuePair> otherIter = other.elements.values().iterator();
+
+    while (thisIter.hasNext() && otherIter.hasNext()) {
+      NameValuePair thisOne = thisIter.next();
+      NameValuePair otherOne = otherIter.next();
+
+      result = thisOne.compareTo(otherOne);
+      if (result != 0) {
+        return result;
+      }
     }
 
-    /**
-     * Gets the visibility of this instance.
-     *
-     * @return {@code non-null;} the visibility
-     */
-    public AnnotationVisibility getVisibility() {
-        return visibility;
+    if (thisIter.hasNext()) {
+      return 1;
+    } else if (otherIter.hasNext()) {
+      return -1;
     }
 
-    /**
-     * Put an element into the set of (name, value) pairs for this instance.
-     * If there is a preexisting element with the same name, it will be
-     * replaced by this method.
-     *
-     * @param pair {@code non-null;} the (name, value) pair to place into this instance
-     */
-    public void put(NameValuePair pair) {
-        throwIfImmutable();
+    return 0;
+  }
 
-        if (pair == null) {
-            throw new NullPointerException("pair == null");
-        }
+  /** {@inheritDoc} */
+  @Override
+  public String toString() {
+    return toHuman();
+  }
 
-        elements.put(pair.getName(), pair);
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(visibility.toHuman());
+    sb.append("-annotation ");
+    sb.append(type.toHuman());
+    sb.append(" {");
+
+    boolean first = true;
+    for (NameValuePair pair : elements.values()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(", ");
+      }
+      sb.append(pair.getName().toHuman());
+      sb.append(": ");
+      sb.append(pair.getValue().toHuman());
     }
 
-    /**
-     * Add an element to the set of (name, value) pairs for this instance.
-     * It is an error to call this method if there is a preexisting element
-     * with the same name.
-     *
-     * @param pair {@code non-null;} the (name, value) pair to add to this instance
-     */
-    public void add(NameValuePair pair) {
-        throwIfImmutable();
+    sb.append("}");
+    return sb.toString();
+  }
 
-        if (pair == null) {
-            throw new NullPointerException("pair == null");
-        }
+  /**
+   * Gets the type of this instance.
+   *
+   * @return {@code non-null;} the type
+   */
+  public CstType getType() {
+    return type;
+  }
 
-        CstString name = pair.getName();
+  /**
+   * Gets the visibility of this instance.
+   *
+   * @return {@code non-null;} the visibility
+   */
+  public AnnotationVisibility getVisibility() {
+    return visibility;
+  }
 
-        if (elements.get(name) != null) {
-            throw new IllegalArgumentException("name already added: " + name);
-        }
+  /**
+   * Put an element into the set of (name, value) pairs for this instance.
+   * If there is a preexisting element with the same name, it will be
+   * replaced by this method.
+   *
+   * @param pair {@code non-null;} the (name, value) pair to place into this instance
+   */
+  public void put(NameValuePair pair) {
+    throwIfImmutable();
 
-        elements.put(name, pair);
+    if (pair == null) {
+      throw new NullPointerException("pair == null");
     }
 
-    /**
-     * Gets the set of name-value pairs contained in this instance. The
-     * result is always unmodifiable.
-     *
-     * @return {@code non-null;} the set of name-value pairs
-     */
-    public Collection<NameValuePair> getNameValuePairs() {
-        return Collections.unmodifiableCollection(elements.values());
+    elements.put(pair.getName(), pair);
+  }
+
+  /**
+   * Add an element to the set of (name, value) pairs for this instance.
+   * It is an error to call this method if there is a preexisting element
+   * with the same name.
+   *
+   * @param pair {@code non-null;} the (name, value) pair to add to this instance
+   */
+  public void add(NameValuePair pair) {
+    throwIfImmutable();
+
+    if (pair == null) {
+      throw new NullPointerException("pair == null");
     }
+
+    CstString name = pair.getName();
+
+    if (elements.get(name) != null) {
+      throw new IllegalArgumentException("name already added: " + name);
+    }
+
+    elements.put(name, pair);
+  }
+
+  /**
+   * Gets the set of name-value pairs contained in this instance. The
+   * result is always unmodifiable.
+   *
+   * @return {@code non-null;} the set of name-value pairs
+   */
+  public Collection<NameValuePair> getNameValuePairs() {
+    return Collections.unmodifiableCollection(elements.values());
+  }
 }

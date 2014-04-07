@@ -159,7 +159,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         @Nonnull JDefinedClassOrInterface currentClass) {
       this.tr = tr;
       this.currentClass = currentClass;
-      this.lookup = Jack.getProgram().getPhantomLookup();
+      this.lookup = Jack.getSession().getPhantomLookup();
     }
 
     @Override

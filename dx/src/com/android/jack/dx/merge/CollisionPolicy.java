@@ -21,14 +21,14 @@ package com.android.jack.dx.merge;
  */
 public enum CollisionPolicy {
 
-    /**
-     * Keep the class def from the first dex file and discard the def from the
-     * second dex file. This policy is appropriate for incremental builds.
-     */
-    KEEP_FIRST,
+  /**
+   * Keep the class def from the first dex file and discard the def from the
+   * second dex file. This policy is appropriate for incremental builds.
+   */
+  KEEP_FIRST,
 
-    /**
-     * Forbid collisions. This policy is appropriate for merging libraries.
-     */
-    FAIL
+  /**
+   * Forbid collisions. This policy is appropriate for merging libraries.
+   */
+  FAIL
 }

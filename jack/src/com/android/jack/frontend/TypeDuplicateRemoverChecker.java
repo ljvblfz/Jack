@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.JLookup;
@@ -49,37 +49,37 @@ import javax.annotation.Nonnull;
     "counterparts in IR.")
 @Name("TypeDuplicatesRemoverChecker")
 @Support(SanityChecks.class)
-public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JProgram> {
+public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession> {
 
   private static class Visitor extends JVisitor {
 
     @Nonnull
-    private final JProgram program;
+    private final JSession session;
 
-    public Visitor(@Nonnull JProgram  program) {
-      this.program = program;
+    public Visitor(@Nonnull JSession session) {
+      this.session = session;
     }
 
     @Override
     public void endVisit(@Nonnull JNode x) {
-      checkFieldsOf(x.getClass(), x, program);
+      checkFieldsOf(x.getClass(), x, session);
     }
   }
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
-    TypeDuplicateRemoverChecker.checkFieldsOf(Jack.getProgram().getPhantomLookup().getClass(),
-        Jack.getProgram().getPhantomLookup(), program);
+  public void run(@Nonnull JSession session) throws Exception {
+    TypeDuplicateRemoverChecker.checkFieldsOf(Jack.getSession().getPhantomLookup().getClass(),
+        Jack.getSession().getPhantomLookup(), session);
 
-    Visitor visitor = new Visitor(program);
-    for (JDefinedClassOrInterface declaredType : program.getTypesToEmit()) {
+    Visitor visitor = new Visitor(session);
+    for (JDefinedClassOrInterface declaredType : session.getTypesToEmit()) {
       visitor.accept(declaredType);
     }
   }
 
   @SuppressWarnings("rawtypes")
-  public static void checkFieldsOf(@Nonnull Class<?> type, @Nonnull Object node, JProgram program) {
-      JLookup lookup = program.getPhantomLookup();
+  public static void checkFieldsOf(@Nonnull Class<?> type, @Nonnull Object node, JSession session) {
+      JLookup lookup = session.getPhantomLookup();
       for (Field f : type.getDeclaredFields()) {
         boolean fieldAccess = f.isAccessible();
         try {
@@ -93,7 +93,7 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JProgram
               if (typeField instanceof JArrayType) {
                 // break the stack overflow (JArrayType.array <=> JArrayType.elementType)
                 if (((JArrayType) typeField).getElementType() != node) {
-                  checkFieldsOf(typeField.getClass(), typeField, program);
+                  checkFieldsOf(typeField.getClass(), typeField, session);
                 }
               }
             }
@@ -113,7 +113,7 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JProgram
                checkType(node, lookup, f, t);
              }
             } else if (fieldObject instanceof JFieldId) {
-              checkFieldsOf(fieldObject.getClass(), fieldObject, program);
+              checkFieldsOf(fieldObject.getClass(), fieldObject, session);
             }
         } catch (IllegalArgumentException e) {
           throw new AssertionError("Error during duplicate types checking.");
@@ -126,10 +126,10 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JProgram
         }
       }
       if (type.getSuperclass() != null && type.getSuperclass() != JNode.class) {
-        checkFieldsOf(type.getSuperclass(), node, program);
+        checkFieldsOf(type.getSuperclass(), node, session);
       }
       for (Class<?> interf : type.getInterfaces()) {
-        checkFieldsOf(interf, node, program);
+        checkFieldsOf(interf, node, session);
       }
   }
 

@@ -95,7 +95,7 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
       return;
     }
 
-    DexFileMarker dexFileMarker = declaredType.getJProgram().getMarker(DexFileMarker.class);
+    DexFileMarker dexFileMarker = declaredType.getSession().getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 
     DexFile dexFile = dexFileMarker.getDexFile();
@@ -127,10 +127,10 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
     if (superClass == null) {
       if (type instanceof JDefinedInterface) {
         return RopHelper.getCstType(
-            Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
+            Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
       } else {
-        assert type == Jack.getProgram().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)
-            || type == Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        assert type == Jack.getSession().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)
+            || type == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
         return null;
       }
     }

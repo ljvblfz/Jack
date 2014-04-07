@@ -20,10 +20,8 @@ import com.google.common.collect.Iterators;
 
 import com.android.sched.util.table.DataRow;
 
-import java.text.NumberFormat;
 import java.util.Iterator;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 
@@ -59,7 +57,31 @@ public class PercentImpl extends Percent implements DataRow {
   }
 
   @Override
+  public synchronized void removeTrue() {
+    this.numTrue--;
+    this.total--;
+  }
+
+  @Override
+  public synchronized void removeFalse() {
+    this.total--;
+  }
+
+  @Override
+  public synchronized void remove(boolean value) {
+    if (value) {
+      removeTrue();
+    } else {
+      removeFalse();
+    }
+  }
+
+  @Override
   public synchronized double getPercent() {
+    if (numTrue < 0 || total < 0) {
+      return Double.NaN;
+    }
+
     return (double ) numTrue / (double) total;
   }
 
@@ -71,54 +93,6 @@ public class PercentImpl extends Percent implements DataRow {
       this.numTrue += percent.numTrue;
       this.total   += percent.total;
     }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized Object getValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Double.valueOf((double ) numTrue / (double) total);
-      case 1:
-        return Long.valueOf(numTrue);
-      case 2:
-        return Long.valueOf(total);
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized String getHumanReadableValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        if (total == 0) {
-          return notANumber;
-        } else {
-          return formatter.format((double) numTrue / (double) total);
-        }
-      case 1:
-        return Long.toString(numTrue);
-      case 2:
-        return Long.toString(total);
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Nonnull
-  @Deprecated
-  private static NumberFormat formatter = NumberFormat.getPercentInstance();
-  @Nonnull
-  @Deprecated
-  private static String       notANumber;
-
-  static {
-    formatter.setMinimumFractionDigits(2);
-    notANumber = formatter.format(0).replace('0', '-');
   }
 
   @Nonnull

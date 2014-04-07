@@ -25,23 +25,14 @@ import javax.annotation.Nonnull;
  */
 public enum ShrinkEventType implements EventType {
 
-  FINDING_SEEDS("Finding seeds", "Blue"),
-  OVERRIDING_METHODS("Searching for overridding methods", "Red");
+  FINDING_SEEDS("Finding seeds"),
+  OVERRIDING_METHODS("Searching for overridding methods");
 
-  @Nonnull
-  private final String cssColor;
   @Nonnull
   private final String name;
 
-  ShrinkEventType(@Nonnull String name, @Nonnull String cssColor) {
+  ShrinkEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

@@ -68,8 +68,8 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   protected boolean isTrivialCast(@Nonnull JReferenceType castTo) {
     if (this == castTo
-        || castTo == Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT)
-        || castTo == Jack.getProgram().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)) {
+        || castTo == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT)
+        || castTo == Jack.getSession().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)) {
       return true;
     }
 

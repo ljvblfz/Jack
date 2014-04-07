@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -85,6 +86,7 @@ public abstract class Selector<T> {
   public String getName(@Nonnull Class<? extends T> type) {
     ensureScan();
     assert propertyValues != null;
+
     for (Entry<String, Class<? extends T>> entry : propertyValues.entrySet()) {
       if (entry.getValue() == type) {
         return entry.getKey();
@@ -125,6 +127,17 @@ public abstract class Selector<T> {
     }
 
     return list;
+  }
+
+  @Nonnull
+  public Set<Class<? extends T>> getClasses() {
+    ensureScan();
+    assert propertyValues != null;
+
+    Set<Class<? extends T>> set = new HashSet<Class<? extends T>>();
+    set.addAll(propertyValues.values());
+
+    return set;
   }
 
   private synchronized void ensureScan() {

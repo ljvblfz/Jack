@@ -112,9 +112,9 @@ import com.android.jack.ir.ast.JPrefixDecOperation;
 import com.android.jack.ir.ast.JPrefixIncOperation;
 import com.android.jack.ir.ast.JPrefixNegOperation;
 import com.android.jack.ir.ast.JPrefixNotOperation;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShlOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JShrOperation;
@@ -671,7 +671,7 @@ public class NodeFactory {
     }
 
     @Override
-    public boolean visit(@Nonnull JProgram x) {
+    public boolean visit(@Nonnull JSession x) {
       newNode = new NProgram();
       return false;
     }

@@ -18,7 +18,6 @@ package com.android.jack.frontend;
 
 
 import com.android.jack.TestTools;
-import com.android.jack.util.filter.RejectAllMethods;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class ArrayTest {
   @Test
   public void arrayReuse() throws Exception {
     String binaryName = "com/android/jack/newarray/test003/jack/ArrayReuse";
-    TestTools.getJMethod(TestTools.getJackTestFromBinaryName(binaryName),
-        "L" + binaryName + ";", "arrayDimReuse()V", new RejectAllMethods());
+    TestTools.getJMethodWithRejectAllFilter(TestTools.getJackTestFromBinaryName(binaryName), "L"
+        + binaryName + ";", "arrayDimReuse()V");
   }
 }

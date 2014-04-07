@@ -1,5 +1,4 @@
 com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.D:
-    void keep() -> a
-    void main(java.lang.String[]) -> main
-com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.a:
-    void keep() -> a
+    void keep() -> renamedKeep
+com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.RenamedE:
+    void keep() -> renamedKeep

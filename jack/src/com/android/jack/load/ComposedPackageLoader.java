@@ -72,7 +72,7 @@ public class ComposedPackageLoader {
       }
     }
     if (loader != null) {
-      JPackage subPackage = new JPackage(simpleName, loading.getProgram(), loading, loader);
+      JPackage subPackage = new JPackage(simpleName, loading.getSession(), loading, loader);
       subPackage.updateParents(loading);
       return subPackage;
     } else {

@@ -25,101 +25,100 @@ import java.io.IOException;
  * Executable that prints all indices of a dex file.
  */
 public final class DexIndexPrinter {
-    private final DexBuffer dexBuffer;
-    private final TableOfContents tableOfContents;
+  private final DexBuffer dexBuffer;
+  private final TableOfContents tableOfContents;
 
-    public DexIndexPrinter(File file) throws IOException {
-        this.dexBuffer = new DexBuffer(file);
-        this.tableOfContents = dexBuffer.getTableOfContents();
-    }
+  public DexIndexPrinter(File file) throws IOException {
+    this.dexBuffer = new DexBuffer(file);
+    this.tableOfContents = dexBuffer.getTableOfContents();
+  }
 
-    private void printMap() {
-        for (TableOfContents.Section section : tableOfContents.sections) {
-            if (section.off != -1) {
-                System.out.println("section " + Integer.toHexString(section.type)
-                        + " off=" + Integer.toHexString(section.off)
-                        + " size=" + Integer.toHexString(section.size)
-                        + " byteCount=" + Integer.toHexString(section.byteCount));
-            }
-        }
+  private void printMap() {
+    for (TableOfContents.Section section : tableOfContents.sections) {
+      if (section.off != -1) {
+        System.out.println("section " + Integer.toHexString(section.type) + " off="
+            + Integer.toHexString(section.off) + " size=" + Integer.toHexString(section.size)
+            + " byteCount=" + Integer.toHexString(section.byteCount));
+      }
     }
+  }
 
-    private void printStrings() throws IOException {
-        int index = 0;
-        for (String string : dexBuffer.strings()) {
-            System.out.println("string " + index + ": " + string);
-            index++;
-        }
+  private void printStrings() throws IOException {
+    int index = 0;
+    for (String string : dexBuffer.strings()) {
+      System.out.println("string " + index + ": " + string);
+      index++;
     }
+  }
 
-    private void printTypeIds() throws IOException {
-        int index = 0;
-        for (Integer type : dexBuffer.typeIds()) {
-            System.out.println("type " + index + ": " + dexBuffer.strings().get(type));
-            index++;
-        }
+  private void printTypeIds() throws IOException {
+    int index = 0;
+    for (Integer type : dexBuffer.typeIds()) {
+      System.out.println("type " + index + ": " + dexBuffer.strings().get(type));
+      index++;
     }
+  }
 
-    private void printProtoIds() throws IOException {
-        int index = 0;
-        for (ProtoId protoId : dexBuffer.protoIds()) {
-            System.out.println("proto " + index + ": " + protoId);
-            index++;
-        }
+  private void printProtoIds() throws IOException {
+    int index = 0;
+    for (ProtoId protoId : dexBuffer.protoIds()) {
+      System.out.println("proto " + index + ": " + protoId);
+      index++;
     }
+  }
 
-    private void printFieldIds() throws IOException {
-        int index = 0;
-        for (FieldId fieldId : dexBuffer.fieldIds()) {
-            System.out.println("field " + index + ": " + fieldId);
-            index++;
-        }
+  private void printFieldIds() throws IOException {
+    int index = 0;
+    for (FieldId fieldId : dexBuffer.fieldIds()) {
+      System.out.println("field " + index + ": " + fieldId);
+      index++;
     }
+  }
 
-    private void printMethodIds() throws IOException {
-        int index = 0;
-        for (MethodId methodId : dexBuffer.methodIds()) {
-            System.out.println("methodId " + index + ": " + methodId);
-            index++;
-        }
+  private void printMethodIds() throws IOException {
+    int index = 0;
+    for (MethodId methodId : dexBuffer.methodIds()) {
+      System.out.println("methodId " + index + ": " + methodId);
+      index++;
     }
+  }
 
-    private void printTypeLists() throws IOException {
-        if (tableOfContents.typeLists.off == -1) {
-            System.out.println("No type lists");
-            return;
-        }
-        DexBuffer.Section in = dexBuffer.open(tableOfContents.typeLists.off);
-        for (int i = 0; i < tableOfContents.typeLists.size; i++) {
-            int size = in.readInt();
-            System.out.print("Type list i=" + i + ", size=" + size + ", elements=");
-            for (int t = 0; t < size; t++) {
-                System.out.print(" " + dexBuffer.typeNames().get((int) in.readShort()));
-            }
-            if (size % 2 == 1) {
-                in.readShort(); // retain alignment
-            }
-            System.out.println();
-        }
+  private void printTypeLists() throws IOException {
+    if (tableOfContents.typeLists.off == -1) {
+      System.out.println("No type lists");
+      return;
     }
+    DexBuffer.Section in = dexBuffer.open(tableOfContents.typeLists.off);
+    for (int i = 0; i < tableOfContents.typeLists.size; i++) {
+      int size = in.readInt();
+      System.out.print("Type list i=" + i + ", size=" + size + ", elements=");
+      for (int t = 0; t < size; t++) {
+        System.out.print(" " + dexBuffer.typeNames().get(in.readShort()));
+      }
+      if (size % 2 == 1) {
+        in.readShort(); // retain alignment
+      }
+      System.out.println();
+    }
+  }
 
-    private void printClassDefs() {
-        int index = 0;
-        for (ClassDef classDef : dexBuffer.classDefs()) {
-            System.out.println("class def " + index + ": " + classDef);
-            index++;
-        }
+  private void printClassDefs() {
+    int index = 0;
+    for (ClassDef classDef : dexBuffer.classDefs()) {
+      System.out.println("class def " + index + ": " + classDef);
+      index++;
     }
+  }
 
-    public static void main(String[] args) throws IOException {
-        DexIndexPrinter indexPrinter = new DexIndexPrinter(new File(args[0]));
-        indexPrinter.printMap();
-        indexPrinter.printStrings();
-        indexPrinter.printTypeIds();
-        indexPrinter.printProtoIds();
-        indexPrinter.printFieldIds();
-        indexPrinter.printMethodIds();
-        indexPrinter.printTypeLists();
-        indexPrinter.printClassDefs();
-    }
+  public static void main(String[] args) throws IOException {
+    DexIndexPrinter indexPrinter = new DexIndexPrinter(new File(args[0]));
+    indexPrinter.printMap();
+    indexPrinter.printStrings();
+    indexPrinter.printTypeIds();
+    indexPrinter.printProtoIds();
+    indexPrinter.printFieldIds();
+    indexPrinter.printMethodIds();
+    indexPrinter.printTypeLists();
+    indexPrinter.printClassDefs();
+  }
 }

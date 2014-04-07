@@ -52,7 +52,7 @@ public class StringLiteralRefinerVisitor extends JVisitor {
 
   public StringLiteralRefinerVisitor(@Nonnull TransformationRequest tr) {
     this.tr = tr;
-    lookup = Jack.getProgram().getLookup();
+    lookup = Jack.getSession().getLookup();
   }
 
   @Override

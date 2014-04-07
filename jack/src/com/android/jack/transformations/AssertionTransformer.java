@@ -39,7 +39,6 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -139,7 +138,7 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
 
       // A.$assertionsDisabled = !A.class.desiredAssertionStatus();
       JClass javaLangClass =
-          Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
+          Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
       JClassLiteral thisClass = new JClassLiteral(sourceInfo, type, javaLangClass);
       JFieldRef lhs = new JFieldRef(sourceInfo, null, assertionStatusId, type);
       JExpression rhs = new JPrefixNotOperation(sourceInfo,
@@ -175,15 +174,15 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
       List<JType> ctorDescriptor = new ArrayList<JType>();
       if (assertSt.getArg() != null) {
         ctorDescriptor.add(
-            Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
+            Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
       }
 
       JClass assertionError =
-          Jack.getProgram().getPhantomLookup()
+          Jack.getSession().getPhantomLookup()
               .getClass(CommonTypes.JAVA_LANG_ASSERTION_ERROR);
       JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(),
           assertionError,
-          assertionError.getOrCreateMethodId(JProgram.INIT_NAME, ctorDescriptor,
+          assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
               MethodKind.INSTANCE_NON_VIRTUAL));
 
       if (assertSt.getArg() != null) {

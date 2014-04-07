@@ -20,103 +20,103 @@ package com.android.jack.dx.rop.cst;
  * Constants of type {@code CONSTANT_*ref_info}.
  */
 public abstract class CstMemberRef extends TypedConstant {
-    /** {@code non-null;} the type of the defining class */
-    private final CstType definingClass;
+  /** {@code non-null;} the type of the defining class */
+  private final CstType definingClass;
 
-    /** {@code non-null;} the name-and-type */
-    private final CstNat nat;
+  /** {@code non-null;} the name-and-type */
+  private final CstNat nat;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param definingClass {@code non-null;} the type of the defining class
-     * @param nat {@code non-null;} the name-and-type
-     */
-    /*package*/ CstMemberRef(CstType definingClass, CstNat nat) {
-        if (definingClass == null) {
-            throw new NullPointerException("definingClass == null");
-        }
-
-        if (nat == null) {
-            throw new NullPointerException("nat == null");
-        }
-
-        this.definingClass = definingClass;
-        this.nat = nat;
+  /**
+   * Constructs an instance.
+   *
+   * @param definingClass {@code non-null;} the type of the defining class
+   * @param nat {@code non-null;} the name-and-type
+   */
+  /*package*/CstMemberRef(CstType definingClass, CstNat nat) {
+    if (definingClass == null) {
+      throw new NullPointerException("definingClass == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public final boolean equals(Object other) {
-        if ((other == null) || (getClass() != other.getClass())) {
-            return false;
-        }
-
-        CstMemberRef otherRef = (CstMemberRef) other;
-        return definingClass.equals(otherRef.definingClass) &&
-            nat.equals(otherRef.nat);
+    if (nat == null) {
+      throw new NullPointerException("nat == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public final int hashCode() {
-        return (definingClass.hashCode() * 31) ^ nat.hashCode();
+    this.definingClass = definingClass;
+    this.nat = nat;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p><b>Note:</b> This implementation just compares the defining
-     * class and name, and it is up to subclasses to compare the rest
-     * after calling {@code super.compareTo0()}.</p>
-     */
-    @Override
-    protected int compareTo0(Constant other) {
-        CstMemberRef otherMember = (CstMemberRef) other;
-        int cmp = definingClass.compareTo(otherMember.definingClass);
+    CstMemberRef otherRef = (CstMemberRef) other;
+    return definingClass.equals(otherRef.definingClass) && nat.equals(otherRef.nat);
+  }
 
-        if (cmp != 0) {
-            return cmp;
-        }
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return (definingClass.hashCode() * 31) ^ nat.hashCode();
+  }
 
-        CstString thisName = nat.getName();
-        CstString otherName = otherMember.nat.getName();
+  /**
+   * {@inheritDoc}
+   *
+   * <p><b>Note:</b> This implementation just compares the defining
+   * class and name, and it is up to subclasses to compare the rest
+   * after calling {@code super.compareTo0()}.</p>
+   */
+  @Override
+  protected int compareTo0(Constant other) {
+    CstMemberRef otherMember = (CstMemberRef) other;
+    int cmp = definingClass.compareTo(otherMember.definingClass);
 
-        return thisName.compareTo(otherName);
+    if (cmp != 0) {
+      return cmp;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public final String toString() {
-        return typeName() + '{' + toHuman() + '}';
-    }
+    CstString thisName = nat.getName();
+    CstString otherName = otherMember.nat.getName();
 
-    /** {@inheritDoc} */
-    @Override
-    public final boolean isCategory2() {
-        return false;
-    }
+    return thisName.compareTo(otherName);
+  }
 
-    /** {@inheritDoc} */
-    public final String toHuman() {
-        return definingClass.toHuman() + '.' + nat.toHuman();
-    }
+  /** {@inheritDoc} */
+  @Override
+  public final String toString() {
+    return typeName() + '{' + toHuman() + '}';
+  }
 
-    /**
-     * Gets the type of the defining class.
-     *
-     * @return {@code non-null;} the type of defining class
-     */
-    public final CstType getDefiningClass() {
-        return definingClass;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public final boolean isCategory2() {
+    return false;
+  }
 
-    /**
-     * Gets the defining name-and-type.
-     *
-     * @return {@code non-null;} the name-and-type
-     */
-    public final CstNat getNat() {
-        return nat;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public final String toHuman() {
+    return definingClass.toHuman() + '.' + nat.toHuman();
+  }
+
+  /**
+   * Gets the type of the defining class.
+   *
+   * @return {@code non-null;} the type of defining class
+   */
+  public final CstType getDefiningClass() {
+    return definingClass;
+  }
+
+  /**
+   * Gets the defining name-and-type.
+   *
+   * @return {@code non-null;} the name-and-type
+   */
+  public final CstNat getNat() {
+    return nat;
+  }
 }

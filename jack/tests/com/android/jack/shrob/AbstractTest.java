@@ -233,29 +233,6 @@ public abstract class AbstractTest {
   }
 
   @Test
-  public void test3_001() throws Exception {
-    String testName = "shrob/test003";
-    File[] defaultBoot = TestTools.getDefaultBootclasspath();
-    File[] bootclasspath = new File[defaultBoot.length + 1];
-    System.arraycopy(defaultBoot, 0, bootclasspath, 0, defaultBoot.length);
-    bootclasspath[defaultBoot.length] =
-        new File(TestTools.getJackTestFolder(testName).getAbsolutePath(), "test.jar");
-
-    runTest(bootclasspath, null, "003", "001", "");
-  }
-
-  @Test
-  @Category(SlowTests.class)
-  public void test3_001_bis() throws Exception {
-    String testName = "shrob/test003";
-
-    File[] classpath = new File[] {
-        new File(TestTools.getJackTestFolder(testName).getAbsolutePath(), "test.jar")
-    };
-    runTest(defaultBootclasspath, classpath, "003", "001", "");
-  }
-
-  @Test
   public void test4_001() throws Exception {
     runTest(defaultBootclasspath, null, "004", "001", "");
   }

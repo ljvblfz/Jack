@@ -19,6 +19,7 @@ package com.android.jack.shrob.spec;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.util.NamingTools;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -57,12 +58,12 @@ public class MethodSpecification implements Specification<JMethod>{
 
     String signature = GrammarActions.getSignatureFormatter().getName(t);
     if (t instanceof JConstructor) {
-      String methodName = signature.replace("<init>", t.getEnclosingType().getName());
+      String methodName = signature.replace(NamingTools.INIT_NAME, t.getEnclosingType().getName());
       if (sigPattern.matches(methodName)) {
         return true;
       }
-      methodName = signature.replace(
-          "<init>", GrammarActions.getBinaryNameFormatter().getName(t.getEnclosingType()));
+      methodName = signature.replace(NamingTools.INIT_NAME,
+          GrammarActions.getBinaryNameFormatter().getName(t.getEnclosingType()));
       if (sigPattern.matches(methodName)) {
         return true;
       }

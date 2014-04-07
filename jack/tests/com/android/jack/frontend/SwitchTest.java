@@ -17,13 +17,13 @@
 package com.android.jack.frontend;
 
 import com.android.jack.Options;
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.util.filter.SignatureMethodFilter;
 
 import junit.framework.Assert;
 
@@ -53,7 +53,9 @@ public class SwitchTest {
   public void testCompileSwitch001() throws Exception {
     final String methodSignature = "switch001(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -71,7 +73,9 @@ public class SwitchTest {
   public void testCompileSwitch002() throws Exception {
     final String methodSignature = "switch002(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -98,7 +102,9 @@ public class SwitchTest {
   public void testCompileSwitch003() throws Exception {
     final String methodSignature = "switch003(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -113,7 +119,9 @@ public class SwitchTest {
   public void testCompileSwitch004() throws Exception {
     final String methodSignature = "switch004(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);

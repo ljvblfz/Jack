@@ -27,83 +27,82 @@ import com.android.jack.dx.util.Hex;
  * Dalvik file.
  */
 public abstract class MemberIdItem extends IdItem {
-    /** {@code non-null;} the constant for the member */
-    private final CstMemberRef cst;
+  /** {@code non-null;} the constant for the member */
+  private final CstMemberRef cst;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param cst {@code non-null;} the constant for the member
-     */
-    public MemberIdItem(CstMemberRef cst) {
-        super(cst.getDefiningClass());
+  /**
+   * Constructs an instance.
+   *
+   * @param cst {@code non-null;} the constant for the member
+   */
+  public MemberIdItem(CstMemberRef cst) {
+    super(cst.getDefiningClass());
 
-        this.cst = cst;
+    this.cst = cst;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int writeSize() {
+    return SizeOf.MEMBER_ID_ITEM;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void addContents(DexFile file) {
+    super.addContents(file);
+
+    StringIdsSection stringIds = file.getStringIds();
+    stringIds.intern(getRef().getNat().getName());
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final void writeTo(DexFile file, AnnotatedOutput out) {
+    TypeIdsSection typeIds = file.getTypeIds();
+    StringIdsSection stringIds = file.getStringIds();
+    CstNat nat = cst.getNat();
+    int classIdx = typeIds.indexOf(getDefiningClass());
+    int nameIdx = stringIds.indexOf(nat.getName());
+    int typoidIdx = getTypoidIdx(file);
+
+    if (out.annotates()) {
+      out.annotate(0, indexString() + ' ' + cst.toHuman());
+      out.annotate(2, "  class_idx: " + Hex.u2(classIdx));
+      out.annotate(2, String.format("  %-10s %s", getTypoidName() + ':', Hex.u2(typoidIdx)));
+      out.annotate(4, "  name_idx:  " + Hex.u4(nameIdx));
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int writeSize() {
-        return SizeOf.MEMBER_ID_ITEM;
-    }
+    out.writeShort(classIdx);
+    out.writeShort(typoidIdx);
+    out.writeInt(nameIdx);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public void addContents(DexFile file) {
-        super.addContents(file);
+  /**
+   * Returns the index of the type-like thing associated with
+   * this item, in order that it may be written out. Subclasses must
+   * override this to get whatever it is they need to store.
+   *
+   * @param file {@code non-null;} the file being written
+   * @return the index in question
+   */
+  protected abstract int getTypoidIdx(DexFile file);
 
-        StringIdsSection stringIds = file.getStringIds();
-        stringIds.intern(getRef().getNat().getName());
-    }
+  /**
+   * Returns the field name of the type-like thing associated with
+   * this item, for listing-generating purposes. Subclasses must override
+   * this.
+   *
+   * @return {@code non-null;} the name in question
+   */
+  protected abstract String getTypoidName();
 
-    /** {@inheritDoc} */
-    @Override
-    public final void writeTo(DexFile file, AnnotatedOutput out) {
-        TypeIdsSection typeIds = file.getTypeIds();
-        StringIdsSection stringIds = file.getStringIds();
-        CstNat nat = cst.getNat();
-        int classIdx = typeIds.indexOf(getDefiningClass());
-        int nameIdx = stringIds.indexOf(nat.getName());
-        int typoidIdx = getTypoidIdx(file);
-
-        if (out.annotates()) {
-            out.annotate(0, indexString() + ' ' + cst.toHuman());
-            out.annotate(2, "  class_idx: " + Hex.u2(classIdx));
-            out.annotate(2, String.format("  %-10s %s", getTypoidName() + ':',
-                            Hex.u2(typoidIdx)));
-            out.annotate(4, "  name_idx:  " + Hex.u4(nameIdx));
-        }
-
-        out.writeShort(classIdx);
-        out.writeShort(typoidIdx);
-        out.writeInt(nameIdx);
-    }
-
-    /**
-     * Returns the index of the type-like thing associated with
-     * this item, in order that it may be written out. Subclasses must
-     * override this to get whatever it is they need to store.
-     *
-     * @param file {@code non-null;} the file being written
-     * @return the index in question
-     */
-    protected abstract int getTypoidIdx(DexFile file);
-
-    /**
-     * Returns the field name of the type-like thing associated with
-     * this item, for listing-generating purposes. Subclasses must override
-     * this.
-     *
-     * @return {@code non-null;} the name in question
-     */
-    protected abstract String getTypoidName();
-
-    /**
-     * Gets the member constant.
-     *
-     * @return {@code non-null;} the constant
-     */
-    public final CstMemberRef getRef() {
-        return cst;
-    }
+  /**
+   * Gets the member constant.
+   *
+   * @return {@code non-null;} the constant
+   */
+  public final CstMemberRef getRef() {
+    return cst;
+  }
 }

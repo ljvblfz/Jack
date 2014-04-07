@@ -31,7 +31,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.TypeFormatter;
@@ -93,11 +93,11 @@ public class ExportSession {
   private JMethod currentMethod;
 
   @Nonnull
-  private final JProgram program;
+  private final JSession session;
 
   public ExportSession(
-       @Nonnull JLookup lookup, @Nonnull JProgram program, @Nonnull NodeLevel nodeLevel) {
-    this.program = program;
+       @Nonnull JLookup lookup, @Nonnull JSession session, @Nonnull NodeLevel nodeLevel) {
+    this.session = session;
     this.lookup = lookup;
     this.nodeLevel = nodeLevel;
   }
@@ -133,8 +133,8 @@ public class ExportSession {
   }
 
   @Nonnull
-  public JProgram getProgram() {
-    return program;
+  public JSession getSession() {
+    return session;
   }
 
   @Nonnull

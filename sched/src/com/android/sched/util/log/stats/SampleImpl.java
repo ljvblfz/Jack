@@ -31,7 +31,8 @@ import javax.annotation.Nonnull;
  * Simple statistic computation on a set of values.
  */
 public class SampleImpl extends Sample implements DataRow, DataHeader {
-  private long   count;
+  @Nonnegative
+  private int    count;
 
   private double min = Double.POSITIVE_INFINITY;
   @CheckForNull
@@ -64,6 +65,46 @@ public class SampleImpl extends Sample implements DataRow, DataHeader {
     count++;
   }
 
+
+  @Override
+  @Nonnegative
+  public int getCount() {
+    return count;
+  }
+
+  @Override
+  public double getTotal() {
+    return total;
+  }
+
+  @Override
+  public double getMin() {
+    return min;
+  }
+
+  @Override
+  public synchronized double getAverage() {
+    return total / count;
+  }
+
+  @Override
+  public double getMax() {
+    return max;
+  }
+
+  @Override
+  @CheckForNull
+  public Object getMinObject() {
+    return minObject;
+
+  }
+
+  @Override
+  @CheckForNull
+  public Object getMaxObject() {
+    return maxObject;
+  }
+
   @Override
   public synchronized void merge(@Nonnull Statistic statistic) {
     SampleImpl samples = (SampleImpl) statistic;
@@ -82,94 +123,14 @@ public class SampleImpl extends Sample implements DataRow, DataHeader {
 
   @Nonnull
   @Override
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.valueOf(count);
-      case 1:
-        return Double.valueOf(total);
-      case 2:
-        if (min == Double.POSITIVE_INFINITY) {
-          return Double.valueOf(Double.MAX_VALUE);
-        } else {
-          return Double.valueOf(min);
-        }
-      case 3:
-        if (count == 0) {
-          return Long.valueOf(0);
-        } else {
-          return Double.valueOf(total / count);
-        }
-      case 4:
-        if (max == Double.NEGATIVE_INFINITY) {
-          return Double.valueOf(Double.MIN_VALUE);
-        } else {
-          return Double.valueOf(max);
-        }
-      case 5:
-        return "";
-      case 6:
-        return "";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Nonnull
-  @Override
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.toString(count);
-      case 1:
-        return Double.toString(total);
-      case 2:
-        if (min == Double.POSITIVE_INFINITY) {
-          return "--";
-        } else {
-          return Double.toString(min);
-        }
-      case 3:
-        if (count == 0) {
-          return "--";
-        } else {
-          return Double.toString(total / count);
-        }
-      case 4:
-        if (max == Double.NEGATIVE_INFINITY) {
-          return "--";
-        } else {
-            return Double.toString(max);
-        }
-      case 5:
-        if (minObject == null) {
-          return "--";
-        } else {
-          return minObject.toString();
-        }
-      case 6:
-        if (maxObject == null) {
-          return "--";
-        } else {
-          return maxObject.toString();
-        }
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Nonnull
-  @Override
-  public Iterator<Object> iterator() {
+  public synchronized Iterator<Object> iterator() {
     return Iterators.forArray(
-        Long.valueOf(count),
-        Double.valueOf(total),
-        Double.valueOf(min),
-        Double.valueOf(total / count),
-        Double.valueOf(max),
-        minObject,
-        maxObject);
+        Integer.valueOf(getCount()),
+        Double.valueOf(getTotal()),
+        Double.valueOf(getMin()),
+        Double.valueOf(getAverage()),
+        Double.valueOf(getMax()),
+        getMinObject(),
+        getMaxObject());
   }
 }

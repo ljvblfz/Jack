@@ -31,6 +31,11 @@ import com.android.jack.jayce.v0002.util.FieldRefKindIdHelper;
 import com.android.jack.jayce.v0002.util.MethodKindIdHelper;
 import com.android.jack.jayce.v0002.util.ReceiverKindIdHelper;
 import com.android.jack.jayce.v0002.util.RetentionPolicyIdHelper;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +51,14 @@ import javax.annotation.Nonnull;
  * Jayce internal reader implementation.
  */
 public class JayceInternalReaderImpl implements JayceInternalReader {
+  @Nonnull
+  public static final StatisticId<Percent> SKIPED_NDECLARED_TYPE = new StatisticId<Percent>(
+      "jayce.ndeclaredtype.skiped", "NDeclaredType loading that skiped by the reader",
+      PercentImpl.class, Percent.class);
+  @Nonnull
+  public static final StatisticId<Percent> SKIPED_BODY = new StatisticId<Percent>(
+      "jayce.body.skiped", "Body loading skiped by the reader",
+      PercentImpl.class, Percent.class);
 
   @Nonnull
   private final Tokenizer tokenizer;
@@ -64,6 +77,9 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
 
   @Nonnull
   private final List<String> currentCatchBlockList = new ArrayList<String>();
+
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
 
   public JayceInternalReaderImpl(@Nonnull InputStream in, @Nonnull Charset encoding) {
     this.tokenizer = new Tokenizer(in);
@@ -179,12 +195,20 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       return null;
     }
 
+
+
     tokenizer.readOpen();
     NNode node;
     try {
       node = token.newNode();
     } catch (InvalidTokenException e) {
       throw new ParseException("Unexpected token " + token + " while expecting node.", e);
+    }
+    Percent statistic = null;
+    if (token == Token.METHOD_BODY) {
+      statistic = tracer.getStatistic(SKIPED_BODY);
+    } else if (node instanceof NDeclaredType) {
+      statistic = tracer.getStatistic(SKIPED_NDECLARED_TYPE);
     }
 
     assert nodeClass.isAssignableFrom(node.getClass());
@@ -204,8 +228,14 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     tokenizer.readClose();
 
     if (nodeLevel.keep(token.getNodeLevel())) {
+      if (statistic != null) {
+        statistic.addFalse();
+      }
       return (T) node;
     } else {
+      if (statistic != null) {
+        statistic.addTrue();
+      }
       return null;
     }
   }

@@ -29,112 +29,112 @@ import java.util.TreeMap;
  * {@code .dex} file.
  */
 public final class ProtoIdsSection extends UniformItemSection {
-    /**
-     * {@code non-null;} map from method prototypes to {@link ProtoIdItem} instances
-     */
-    private final TreeMap<Prototype, ProtoIdItem> protoIds;
+  /**
+   * {@code non-null;} map from method prototypes to {@link ProtoIdItem} instances
+   */
+  private final TreeMap<Prototype, ProtoIdItem> protoIds;
 
-    /**
-     * Constructs an instance. The file offset is initially unknown.
-     *
-     * @param file {@code non-null;} file that this instance is part of
-     */
-    public ProtoIdsSection(DexFile file) {
-        super("proto_ids", file, 4);
+  /**
+   * Constructs an instance. The file offset is initially unknown.
+   *
+   * @param file {@code non-null;} file that this instance is part of
+   */
+  public ProtoIdsSection(DexFile file) {
+    super("proto_ids", file, 4);
 
-        protoIds = new TreeMap<Prototype, ProtoIdItem>();
+    protoIds = new TreeMap<Prototype, ProtoIdItem>();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Collection<? extends Item> items() {
+    return protoIds.values();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public IndexedItem get(Constant cst) {
+    throw new UnsupportedOperationException("unsupported");
+  }
+
+  /**
+   * Writes the portion of the file header that refers to this instance.
+   *
+   * @param out {@code non-null;} where to write
+   */
+  public void writeHeaderPart(AnnotatedOutput out) {
+    throwIfNotPrepared();
+
+    int sz = protoIds.size();
+    int offset = (sz == 0) ? 0 : getFileOffset();
+
+    if (sz > 65536) {
+      throw new UnsupportedOperationException("too many proto ids");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Collection<? extends Item> items() {
-        return protoIds.values();
+    if (out.annotates()) {
+      out.annotate(4, "proto_ids_size:  " + Hex.u4(sz));
+      out.annotate(4, "proto_ids_off:   " + Hex.u4(offset));
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public IndexedItem get(Constant cst) {
-        throw new UnsupportedOperationException("unsupported");
+    out.writeInt(sz);
+    out.writeInt(offset);
+  }
+
+  /**
+   * Interns an element into this instance.
+   *
+   * @param prototype {@code non-null;} the prototype to intern
+   * @return {@code non-null;} the interned reference
+   */
+  public ProtoIdItem intern(Prototype prototype) {
+    if (prototype == null) {
+      throw new NullPointerException("prototype == null");
     }
 
-    /**
-     * Writes the portion of the file header that refers to this instance.
-     *
-     * @param out {@code non-null;} where to write
-     */
-    public void writeHeaderPart(AnnotatedOutput out) {
-        throwIfNotPrepared();
+    throwIfPrepared();
 
-        int sz = protoIds.size();
-        int offset = (sz == 0) ? 0 : getFileOffset();
+    ProtoIdItem result = protoIds.get(prototype);
 
-        if (sz > 65536) {
-            throw new UnsupportedOperationException("too many proto ids");
-        }
-
-        if (out.annotates()) {
-            out.annotate(4, "proto_ids_size:  " + Hex.u4(sz));
-            out.annotate(4, "proto_ids_off:   " + Hex.u4(offset));
-        }
-
-        out.writeInt(sz);
-        out.writeInt(offset);
+    if (result == null) {
+      result = new ProtoIdItem(prototype);
+      protoIds.put(prototype, result);
     }
 
-    /**
-     * Interns an element into this instance.
-     *
-     * @param prototype {@code non-null;} the prototype to intern
-     * @return {@code non-null;} the interned reference
-     */
-    public ProtoIdItem intern(Prototype prototype) {
-        if (prototype == null) {
-            throw new NullPointerException("prototype == null");
-        }
+    return result;
+  }
 
-        throwIfPrepared();
-
-        ProtoIdItem result = protoIds.get(prototype);
-
-        if (result == null) {
-            result = new ProtoIdItem(prototype);
-            protoIds.put(prototype, result);
-        }
-
-        return result;
+  /**
+   * Gets the index of the given prototype, which must have
+   * been added to this instance.
+   *
+   * @param prototype {@code non-null;} the prototype to look up
+   * @return {@code >= 0;} the reference's index
+   */
+  public int indexOf(Prototype prototype) {
+    if (prototype == null) {
+      throw new NullPointerException("prototype == null");
     }
 
-    /**
-     * Gets the index of the given prototype, which must have
-     * been added to this instance.
-     *
-     * @param prototype {@code non-null;} the prototype to look up
-     * @return {@code >= 0;} the reference's index
-     */
-    public int indexOf(Prototype prototype) {
-        if (prototype == null) {
-            throw new NullPointerException("prototype == null");
-        }
+    throwIfNotPrepared();
 
-        throwIfNotPrepared();
+    ProtoIdItem item = protoIds.get(prototype);
 
-        ProtoIdItem item = protoIds.get(prototype);
-
-        if (item == null) {
-            throw new IllegalArgumentException("not found");
-        }
-
-        return item.getIndex();
+    if (item == null) {
+      throw new IllegalArgumentException("not found");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void orderItems() {
-        int idx = 0;
+    return item.getIndex();
+  }
 
-        for (Object i : items()) {
-            ((ProtoIdItem) i).setIndex(idx);
-            idx++;
-        }
+  /** {@inheritDoc} */
+  @Override
+  protected void orderItems() {
+    int idx = 0;
+
+    for (Object i : items()) {
+      ((ProtoIdItem) i).setIndex(idx);
+      idx++;
     }
+  }
 }

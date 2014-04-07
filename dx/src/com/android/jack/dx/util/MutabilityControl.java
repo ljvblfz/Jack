@@ -23,67 +23,67 @@ package com.android.jack.dx.util;
  * to the checker in all the right places.
  */
 public class MutabilityControl {
-    /** whether this instance is mutable */
-    private boolean mutable;
+  /** whether this instance is mutable */
+  private boolean mutable;
 
-    /**
-     * Constructs an instance. It is initially mutable.
-     */
-    public MutabilityControl() {
-        mutable = true;
-    }
+  /**
+   * Constructs an instance. It is initially mutable.
+   */
+  public MutabilityControl() {
+    mutable = true;
+  }
 
-    /**
-     * Constructs an instance, explicitly indicating the mutability.
-     *
-     * @param mutable {@code true} iff this instance is mutable
-     */
-    public MutabilityControl(boolean mutable) {
-        this.mutable = mutable;
-    }
+  /**
+   * Constructs an instance, explicitly indicating the mutability.
+   *
+   * @param mutable {@code true} iff this instance is mutable
+   */
+  public MutabilityControl(boolean mutable) {
+    this.mutable = mutable;
+  }
 
-    /**
-     * Makes this instance immutable.
-     */
-    public void setImmutable() {
-        mutable = false;
-    }
+  /**
+   * Makes this instance immutable.
+   */
+  public void setImmutable() {
+    mutable = false;
+  }
 
-    /**
-     * Checks to see whether or not this instance is immutable. This is the
-     * same as calling {@code !isMutable()}.
-     *
-     * @return {@code true} iff this instance is immutable
-     */
-    public final boolean isImmutable() {
-        return !mutable;
-    }
+  /**
+   * Checks to see whether or not this instance is immutable. This is the
+   * same as calling {@code !isMutable()}.
+   *
+   * @return {@code true} iff this instance is immutable
+   */
+  public final boolean isImmutable() {
+    return !mutable;
+  }
 
-    /**
-     * Checks to see whether or not this instance is mutable.
-     *
-     * @return {@code true} iff this instance is mutable
-     */
-    public final boolean isMutable() {
-        return mutable;
-    }
+  /**
+   * Checks to see whether or not this instance is mutable.
+   *
+   * @return {@code true} iff this instance is mutable
+   */
+  public final boolean isMutable() {
+    return mutable;
+  }
 
-    /**
-     * Throws {@link MutabilityException} if this instance is
-     * immutable.
-     */
-    public final void throwIfImmutable() {
-        if (!mutable) {
-            throw new MutabilityException("immutable instance");
-        }
+  /**
+   * Throws {@link MutabilityException} if this instance is
+   * immutable.
+   */
+  public final void throwIfImmutable() {
+    if (!mutable) {
+      throw new MutabilityException("immutable instance");
     }
+  }
 
-    /**
-     * Throws {@link MutabilityException} if this instance is mutable.
-     */
-    public final void throwIfMutable() {
-        if (mutable) {
-            throw new MutabilityException("mutable instance");
-        }
+  /**
+   * Throws {@link MutabilityException} if this instance is mutable.
+   */
+  public final void throwIfMutable() {
+    if (mutable) {
+      throw new MutabilityException("mutable instance");
     }
+  }
 }

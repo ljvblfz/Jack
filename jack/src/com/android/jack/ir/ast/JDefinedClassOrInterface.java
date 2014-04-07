@@ -87,6 +87,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   @Nonnull
   protected final ClassOrInterfaceLoader loader;
 
+  @Nonnull
+  private final Location location;
+
   public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage) {
     this(info, name, modifier, enclosingPackage, NopClassOrInterfaceLoader.INSTANCE);
@@ -104,6 +107,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.enclosingPackage = enclosingPackage;
     this.enclosingPackage.addType(this);
     this.loader = loader;
+    location = loader.getLocation(this);
   }
 
   public void setModifier(int modifier) {
@@ -193,8 +197,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return enclosingType;
   }
 
-  public JProgram getJProgram() {
-    return enclosingPackage.getProgram();
+  public JSession getSession() {
+    return enclosingPackage.getSession();
   }
 
   /**
@@ -404,11 +408,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     }
   }
 
-  @Override
-  public void updateAnnotations() {
-    annotations.updateAnnotationSet();
-  }
-
   @Nonnull
   @Override
   public JMethodId getMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
@@ -550,7 +549,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Nonnull
   public Location getLocation() {
-    return loader.getLocation(this);
+    return location;
   }
 
 }

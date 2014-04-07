@@ -1,8 +1,7 @@
 com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
-    int i -> a
-    int h -> b
-    int i2 -> c
-    int j -> d
-    java.lang.Object o -> e
-    java.lang.String TAG2 -> f
-    void keep() -> keep
+    int i -> renamedI
+    int h -> renamedH
+    int i2 -> renamedI2
+    int j -> renamedJ
+    java.lang.Object o -> renamedI
+    java.lang.String TAG2 -> renamedTAG2

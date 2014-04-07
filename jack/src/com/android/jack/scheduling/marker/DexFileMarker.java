@@ -17,7 +17,7 @@
 package com.android.jack.scheduling.marker;
 
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  * A marker which contains a {@code DexFile} instance.
  */
 @Description("A marker which contains a DexFile instance.")
-@ValidOn(JProgram.class)
+@ValidOn(JSession.class)
 public final class DexFileMarker implements Marker {
   @Nonnull
   private final DexFile dexFile;

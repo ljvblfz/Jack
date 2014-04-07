@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
@@ -32,10 +32,10 @@ import javax.annotation.Nonnull;
 @Description("A separation between InnerAccessorGenerator and InnerAccessorAdder")
 @Transform(remove = InnerAccessorSchedulingSeparator.SeparatorTag.class)
 @Constraint(need = InnerAccessorSchedulingSeparator.SeparatorTag.class)
-public class InnerAccessorSchedulingSeparator implements RunnableSchedulable<JProgram> {
+public class InnerAccessorSchedulingSeparator implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     // do nothing
   }
 

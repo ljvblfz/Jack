@@ -15,7 +15,7 @@
 package com.android.jack.scheduling.adapter;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
@@ -25,22 +25,22 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JProgram} onto one or several processes on each
- * {@code JDefinedClassOrInterface} declared by this program.
+ * Adapts a process on {@code JSession} onto one or several processes on each
+ * {@code JDefinedClassOrInterface} to emit during this session.
  */
-@Description("Adapts process on JProgram to one or several processes on each of its " +
+@Description("Adapts process on JSession to one or several processes on each of its " +
   "JDefinedClassOrInterface")
 public class JDefinedClassOrInterfaceAdaptor
-    implements AdapterSchedulable<JProgram, JDefinedClassOrInterface> {
+    implements AdapterSchedulable<JSession, JDefinedClassOrInterface> {
 
   /**
-   * Return every {@code JDefinedClassOrInterface} declared in the given {@code JProgram}.
+   * Return every {@code JDefinedClassOrInterface} to emit during the given {@code JSession}.
    */
   @Override
   @Nonnull
-  public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JProgram program)
+  public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JSession session)
       throws Exception {
     // Use a copy to scan types in order to support concurrent modification.
-    return new ArrayList<JDefinedClassOrInterface>(program.getTypesToEmit()).iterator();
+    return new ArrayList<JDefinedClassOrInterface>(session.getTypesToEmit()).iterator();
   }
 }

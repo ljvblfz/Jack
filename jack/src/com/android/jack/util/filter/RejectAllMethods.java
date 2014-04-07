@@ -18,12 +18,14 @@ package com.android.jack.util.filter;
 
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.codec.ImplementationName;
 
 import javax.annotation.Nonnull;
 
 /**
  * {@code RejectAllMethods} allows to reject all methods, such as no body will be generated.
  */
+@ImplementationName(iface = Filter.class, name = "reject-all-methods")
 public class RejectAllMethods implements Filter<JMethod> {
 
   @Override

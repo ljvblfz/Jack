@@ -20,7 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.HasEnclosingPackage;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.transform.TransformStep;
 
 import javax.annotation.Nonnull;
@@ -37,11 +37,11 @@ public class ChangeEnclosingPackage implements TransformationStep, TransformStep
   private final HasEnclosingPackage existingNode;
 
   @Nonnull
-  private final JProgram program = Jack.getProgram();
+  private final JSession session = Jack.getSession();
 
   public ChangeEnclosingPackage(
       @Nonnull HasEnclosingPackage existingNode, @Nonnull JPackage newEnclosingPackage) {
-    assert existingNode != program.getTopLevelPackage()
+    assert existingNode != session.getTopLevelPackage()
         : "The default package can't change its enclosing package";
     this.newEnclosingPackage = newEnclosingPackage;
     this.existingNode = existingNode;

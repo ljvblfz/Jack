@@ -30,133 +30,129 @@ import java.util.BitSet;
  * for details.
  */
 public final class Form12x extends InsnFormat {
-    /** {@code non-null;} unique instance of this class */
-    public static final InsnFormat THE_ONE = new Form12x();
+  /** {@code non-null;} unique instance of this class */
+  public static final InsnFormat THE_ONE = new Form12x();
 
-    /**
-     * Constructs an instance. This class is not publicly
-     * instantiable. Use {@link #THE_ONE}.
+  /**
+   * Constructs an instance. This class is not publicly
+   * instantiable. Use {@link #THE_ONE}.
+   */
+  private Form12x() {
+    // This space intentionally left blank.
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnArgString(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    int sz = regs.size();
+
+    /*
+     * The (sz - 2) and (sz - 1) below makes this code work for
+     * both the two- and three-register ops. (See "case 3" in
+     * isCompatible(), below.)
      */
-    private Form12x() {
-        // This space intentionally left blank.
+
+return regs.get(sz - 2).regString() + ", " + regs.get(sz - 1).regString();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnCommentString(DalvInsn insn, boolean noteIndices) {
+    // This format has no comment.
+    return "";
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int codeSize() {
+    return 1;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean isCompatible(DalvInsn insn) {
+    if (!(insn instanceof SimpleInsn)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnArgString(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        int sz = regs.size();
+    RegisterSpecList regs = insn.getRegisters();
+    RegisterSpec rs1;
+    RegisterSpec rs2;
 
+    switch (regs.size()) {
+      case 2: {
+        rs1 = regs.get(0);
+        rs2 = regs.get(1);
+        break;
+      }
+      case 3: {
         /*
-         * The (sz - 2) and (sz - 1) below makes this code work for
-         * both the two- and three-register ops. (See "case 3" in
-         * isCompatible(), below.)
+         * This format is allowed for ops that are effectively
+         * 3-arg but where the first two args are identical.
          */
-
-        return regs.get(sz - 2).regString() + ", " +
-            regs.get(sz - 1).regString();
+        rs1 = regs.get(1);
+        rs2 = regs.get(2);
+        if (rs1.getReg() != regs.get(0).getReg()) {
+          return false;
+        }
+        break;
+      }
+      default: {
+        return false;
+      }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnCommentString(DalvInsn insn, boolean noteIndices) {
-        // This format has no comment.
-        return "";
-    }
+    return unsignedFitsInNibble(rs1.getReg()) && unsignedFitsInNibble(rs2.getReg());
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public int codeSize() {
-        return 1;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public BitSet compatibleRegs(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    BitSet bits = new BitSet(2);
+    int r0 = regs.get(0).getReg();
+    int r1 = regs.get(1).getReg();
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean isCompatible(DalvInsn insn) {
-        if (!(insn instanceof SimpleInsn)) {
-            return false;
+    switch (regs.size()) {
+      case 2: {
+        bits.set(0, unsignedFitsInNibble(r0));
+        bits.set(1, unsignedFitsInNibble(r1));
+        break;
+      }
+      case 3: {
+        if (r0 != r1) {
+          bits.set(0, false);
+          bits.set(1, false);
+        } else {
+          boolean dstRegComp = unsignedFitsInNibble(r1);
+          bits.set(0, dstRegComp);
+          bits.set(1, dstRegComp);
         }
 
-        RegisterSpecList regs = insn.getRegisters();
-        RegisterSpec rs1;
-        RegisterSpec rs2;
-
-        switch (regs.size()) {
-            case 2: {
-                rs1 = regs.get(0);
-                rs2 = regs.get(1);
-                break;
-            }
-            case 3: {
-                /*
-                 * This format is allowed for ops that are effectively
-                 * 3-arg but where the first two args are identical.
-                 */
-                rs1 = regs.get(1);
-                rs2 = regs.get(2);
-                if (rs1.getReg() != regs.get(0).getReg()) {
-                    return false;
-                }
-                break;
-            }
-            default: {
-                return false;
-            }
-        }
-
-        return unsignedFitsInNibble(rs1.getReg()) &&
-            unsignedFitsInNibble(rs2.getReg());
+        bits.set(2, unsignedFitsInNibble(regs.get(2).getReg()));
+        break;
+      }
+      default: {
+        throw new AssertionError();
+      }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public BitSet compatibleRegs(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        BitSet bits = new BitSet(2);
-        int r0 = regs.get(0).getReg();
-        int r1 = regs.get(1).getReg();
+    return bits;
+  }
 
-        switch (regs.size()) {
-          case 2: {
-            bits.set(0, unsignedFitsInNibble(r0));
-            bits.set(1, unsignedFitsInNibble(r1));
-            break;
-          }
-          case 3: {
-            if (r0 != r1) {
-                bits.set(0, false);
-                bits.set(1, false);
-            } else {
-                boolean dstRegComp = unsignedFitsInNibble(r1);
-                bits.set(0, dstRegComp);
-                bits.set(1, dstRegComp);
-            }
+  /** {@inheritDoc} */
+  @Override
+  public void writeTo(AnnotatedOutput out, DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    int sz = regs.size();
 
-            bits.set(2, unsignedFitsInNibble(regs.get(2).getReg()));
-            break;
-          }
-          default: {
-            throw new AssertionError();
-          }
-        }
+    /*
+     * The (sz - 2) and (sz - 1) below makes this code work for
+     * both the two- and three-register ops. (See "case 3" in
+     * isCompatible(), above.)
+     */
 
-        return bits;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void writeTo(AnnotatedOutput out, DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        int sz = regs.size();
-
-        /*
-         * The (sz - 2) and (sz - 1) below makes this code work for
-         * both the two- and three-register ops. (See "case 3" in
-         * isCompatible(), above.)
-         */
-
-        write(out, opcodeUnit(insn,
-                              makeByte(regs.get(sz - 2).getReg(),
-                                       regs.get(sz - 1).getReg())));
-    }
+write(out, opcodeUnit(insn, makeByte(regs.get(sz - 2).getReg(), regs.get(sz - 1).getReg())));
+  }
 }

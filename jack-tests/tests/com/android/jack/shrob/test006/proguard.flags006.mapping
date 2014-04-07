@@ -1,5 +1,0 @@
-com.android.jack.shrob.test006.jack.A -> com.android.jack.shrob.test006.jack.A:
-    void m1() -> m1
-    void m3() -> m3
-    void m4() -> m4
-    void m5(java.lang.String[]) -> m5

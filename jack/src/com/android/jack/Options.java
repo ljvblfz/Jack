@@ -45,6 +45,7 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.StringLocation;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
+import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.Directory;
@@ -99,11 +100,11 @@ public class Options {
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId.create(
-      "jack.dex.generate", "Generate dex file").addDefaultValue("false");
+      "jack.dex.generate", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_FILE = BooleanPropertyId.create(
-      "jack.jackfile.generate", "Generate jack files").addDefaultValue("false");
+      "jack.jackfile.generate", "Generate jack files").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
@@ -215,7 +216,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
       "jack.sanitychecks", "enable/disable compiler sanity checks")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Option(name = "--tracer-dir", usage = "enable tracer and output into this dir (.html)",
       metaVar = "DIRECTORY")
@@ -244,24 +245,24 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_JACK_FLAG = BooleanPropertyId.create(
       "jack.internal.jackflag", "Emit jack flag into generated dex")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   protected boolean emitSyntheticDebugInfo = false;
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.lines", "Emit line number debug info into generated dex")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.source", "Emit source file debug info into generated dex")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   protected boolean keepMethodBody = false;
 
@@ -275,7 +276,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId USE_MIXED_CASE_CLASSNAME = BooleanPropertyId.create(
       "jack.obfuscation.mixedcaseclassname",
-      "Use mixed case class name when obfuscating").addDefaultValue("false");
+      "Use mixed case class name when obfuscating").addDefaultValue(Boolean.FALSE);
 
   protected File typeAndMemberListing;
 
@@ -285,10 +286,12 @@ public class Options {
   @Nonnull
   protected Filter<JMethod> filter = new AllMethods();
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   @Nonnull
-  public static final ObjectId<Filter<JMethod>> METHOD_FILTER =
-      new ObjectId("jack.methodfilter", Filter.class);
+  public static final ImplementationPropertyId<Filter<JMethod>> METHOD_FILTER =
+      (ImplementationPropertyId<Filter<JMethod>>) (Object) ImplementationPropertyId.create(
+          "jack.internal.filter.method", "Define which filter will be used for methods",
+          Filter.class).addDefaultValue("all-methods");
 
   //
   // Getter
@@ -426,158 +429,158 @@ public class Options {
     }
 
     for (Entry<String, String> entry : properties.entrySet()) {
-      configBuilder.set(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
+      configBuilder.setString(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("Options"));
 
     if (jarjarRulesFile != null) {
-      configBuilder.set(PackageRenamer.JARJAR_FILE, jarjarRulesFile.getAbsolutePath());
+      configBuilder.set(PackageRenamer.JARJAR_FILE, jarjarRulesFile);
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_SIG,
-          Boolean.toString(flags.keepAttribute("Signatures")));
+          flags.keepAttribute("Signatures"));
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_THROWS,
-          Boolean.toString(flags.keepAttribute("Exceptions")));
+          flags.keepAttribute("Exceptions"));
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_MEMBER_CLASSES,
-          Boolean.toString(flags.keepAttribute("InnerClasses")));
+          flags.keepAttribute("InnerClasses"));
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_ENCLOSING_METHOD,
-          Boolean.toString(flags.keepAttribute("EnclosingMethod")));
+          flags.keepAttribute("EnclosingMethod"));
       configBuilder.set(DefaultValueAnnotationAdder.EMIT_ANNOTATION_DEFAULT,
-          Boolean.toString(flags.keepAttribute("AnnotationDefault")));
+          flags.keepAttribute("AnnotationDefault"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
-          Boolean.toString(flags.keepAttribute("RuntimeInvisibleAnnotations")));
+          flags.keepAttribute("RuntimeInvisibleAnnotations"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
-          Boolean.toString(flags.keepAttribute("RuntimeVisibleAnnotations")));
+          flags.keepAttribute("RuntimeVisibleAnnotations"));
       configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
-          Boolean.toString(flags.keepAttribute("RuntimeVisibleParameterAnnotations")));
+          flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
       configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
-          Boolean.toString(flags.keepAttribute("RuntimeInvisibleParameterAnnotations")));
+          flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
       configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO,
-          Boolean.toString(flags.keepAttribute("LineNumberTable")));
+          flags.keepAttribute("LineNumberTable"));
       configBuilder.set(Options.FLAGS, flags);
       configBuilder.set(
-          Options.USE_MIXED_CASE_CLASSNAME, String.valueOf(flags.getUseMixedCaseClassName()));
+          Options.USE_MIXED_CASE_CLASSNAME, flags.getUseMixedCaseClassName());
       configBuilder.set(Renamer.USE_UNIQUE_CLASSMEMBERNAMES,
-          String.valueOf(flags.getUseUniqueClassMemberNames()));
+          flags.getUseUniqueClassMemberNames());
 
       File mapping = flags.getObfuscationMapping();
       if (mapping != null) {
-        configBuilder.set(Renamer.USE_MAPPING, "true");
-        configBuilder.set(Renamer.MAPPING_FILE, mapping.getAbsolutePath());
+        configBuilder.set(Renamer.USE_MAPPING, true);
+        configBuilder.setString(Renamer.MAPPING_FILE, mapping.getAbsolutePath());
       } else {
-        configBuilder.set(Renamer.USE_MAPPING, "false");
+        configBuilder.set(Renamer.USE_MAPPING, false);
       }
 
       File seeds = flags.getSeedsFile();
       if (seeds != null) {
-        configBuilder.set(SeedPrinter.SEEDS_OUTPUT_FILE, seeds.getAbsolutePath());
+        configBuilder.setString(SeedPrinter.SEEDS_OUTPUT_FILE, seeds.getAbsolutePath());
       }
 
       File dictionary = flags.getObfuscationDictionary();
       if (dictionary != null) {
-        configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, "true");
-        configBuilder.set(Renamer.OBFUSCATION_DICTIONARY, dictionary.getAbsolutePath());
+        configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, true);
+        configBuilder.setString(Renamer.OBFUSCATION_DICTIONARY, dictionary.getAbsolutePath());
       } else {
-        configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, "false");
+        configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, false);
       }
 
       File classDictionary = flags.getClassObfuscationDictionary();
       if (classDictionary != null) {
-        configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, "true");
-        configBuilder.set(Renamer.CLASS_OBFUSCATION_DICTIONARY, classDictionary.getAbsolutePath());
+        configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, true);
+        configBuilder.setString(Renamer.CLASS_OBFUSCATION_DICTIONARY,
+            classDictionary.getAbsolutePath());
       } else {
-        configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, "false");
+        configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, false);
       }
 
       File packageDictionary = flags.getPackageObfuscationDictionary();
       if (packageDictionary != null) {
-        configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, "true");
-        configBuilder.set(
+        configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, true);
+        configBuilder.setString(
             Renamer.PACKAGE_OBFUSCATION_DICTIONARY, packageDictionary.getAbsolutePath());
       } else {
-        configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, "false");
+        configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, false);
       }
       File outputmapping = flags.getOutputMapping();
       if (outputmapping != null) {
-        configBuilder.set(MappingPrinter.MAPPING_OUTPUT_FILE, outputmapping.getAbsolutePath());
+        configBuilder.setString(MappingPrinter.MAPPING_OUTPUT_FILE,
+            outputmapping.getAbsolutePath());
       }
       if (nameProvider != null) {
-        configBuilder.set(NameProviderFactory.NAMEPROVIDER, nameProvider);
+        configBuilder.setString(NameProviderFactory.NAMEPROVIDER, nameProvider);
       } else {
         if (flags.getUseMixedCaseClassName()) {
-          configBuilder.set(NameProviderFactory.NAMEPROVIDER, "mixed-case");
+          configBuilder.setString(NameProviderFactory.NAMEPROVIDER, "mixed-case");
         }
       }
 
       String packageForRenamedClasses = flags.getPackageForRenamedClasses();
       if (packageForRenamedClasses != null) {
-        configBuilder.set(Renamer.REPACKAGE_CLASSES, "true");
+        configBuilder.set(Renamer.REPACKAGE_CLASSES, true);
         configBuilder.set(Renamer.PACKAGE_FOR_RENAMED_CLASSES, packageForRenamedClasses);
         if (flags.getPackageForFlatHierarchy() != null) {
           throw new IllegalOptionsException("Flatten package and repackage classes cannot be used"
               + " simultaneously");
         }
       } else {
-        configBuilder.set(Renamer.REPACKAGE_CLASSES, "false");
+        configBuilder.set(Renamer.REPACKAGE_CLASSES, false);
       }
 
       String packageForRenamedPackages = flags.getPackageForFlatHierarchy();
       if (packageForRenamedPackages != null) {
-        configBuilder.set(Renamer.FLATTEN_PACKAGE, "true");
+        configBuilder.set(Renamer.FLATTEN_PACKAGE, true);
         configBuilder.set(Renamer.PACKAGE_FOR_RENAMED_PACKAGES, packageForRenamedPackages);
       } else {
-        configBuilder.set(Renamer.FLATTEN_PACKAGE, "false");
+        configBuilder.set(Renamer.FLATTEN_PACKAGE, false);
       }
     }
 
     configBuilder.popDefaultLocation();
 
-    configBuilder.set(EMIT_LOCAL_DEBUG_INFO, Boolean.toString(emitLocalDebugInfo));
+    configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
     configBuilder.set(
-        CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, Boolean.toString(emitSyntheticDebugInfo));
+        CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
     if (typeAndMemberListing != null) {
-      configBuilder.set(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING, "true");
-      configBuilder.set(
+      configBuilder.set(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING, true);
+      configBuilder.setString(
           TypeAndMemberLister.TYPE_AND_MEMBER_LISTING_FILE, typeAndMemberListing.getAbsolutePath());
     }
 
     if (jayceOutZip != null) {
-      configBuilder.set(JACK_FILE_OUTPUT_ZIP, jayceOutZip.getAbsolutePath());
-      configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.ZIP.toString());
-      configBuilder.set(GENERATE_JACK_FILE, "true");
+      configBuilder.setString(JACK_FILE_OUTPUT_ZIP, jayceOutZip.getAbsolutePath());
+      configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.ZIP);
+      configBuilder.set(GENERATE_JACK_FILE, true);
     } else if (jayceOutDir != null) {
-      configBuilder.set(JACK_FILE_OUTPUT_DIR, jayceOutDir.getAbsolutePath());
-      configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.DIR.toString());
-      configBuilder.set(GENERATE_JACK_FILE, "true");
+      configBuilder.setString(JACK_FILE_OUTPUT_DIR, jayceOutDir.getAbsolutePath());
+      configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.DIR);
+      configBuilder.set(GENERATE_JACK_FILE, true);
     } else if (outZip != null) {
-      configBuilder.set(DEX_FILE_OUTPUT, outZip.getAbsolutePath());
-      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP.toString());
-      configBuilder.set(GENERATE_DEX_FILE, "true");
+      configBuilder.setString(DEX_FILE_OUTPUT, outZip.getAbsolutePath());
+      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
+      configBuilder.set(GENERATE_DEX_FILE, true);
     } else {
-      configBuilder.set(DEX_FILE_OUTPUT, out.getAbsolutePath());
-      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.FILE.toString());
-      configBuilder.set(GENERATE_DEX_FILE, "true");
+      configBuilder.setString(DEX_FILE_OUTPUT, out.getAbsolutePath());
+      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.FILE);
+      configBuilder.set(GENERATE_DEX_FILE, true);
     }
-    configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, Boolean.toString(!dxLegacy));
+    configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
     configBuilder.set(
-        FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, Boolean.toString(!runtimeLegacy));
-
-    configBuilder.set(METHOD_FILTER, filter);
+        FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (tracerDir != null) {
-      configBuilder.set(TracerFactory.TRACER, "html");
-      configBuilder.set(StatsTracerFtl.TRACER_DIR, tracerDir.getAbsolutePath());
+      configBuilder.setString(TracerFactory.TRACER, "html");
+      configBuilder.setString(StatsTracerFtl.TRACER_DIR, tracerDir.getAbsolutePath());
     }
 
-    configBuilder.set(SANITY_CHECKS, Boolean.toString(sanityChecks));
+    configBuilder.set(SANITY_CHECKS, sanityChecks);
 
     if (dumpProperties) {
-      configBuilder.set(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
+      configBuilder.setString(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
     }
 
     configBuilder.popDefaultLocation();
@@ -700,10 +703,6 @@ public class Options {
 
   public void addJayceImport(@Nonnull File importFile) {
     jayceImport.add(importFile);
-  }
-
-  public void setFilter(@Nonnull Filter<JMethod> filter) {
-    this.filter = filter;
   }
 
   public void addProperty(@Nonnull String propertyName, @Nonnull String propertyValue) {

@@ -18,7 +18,7 @@ package com.android.jack.frontend.java;
 
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
@@ -55,12 +55,12 @@ public class JackBatchCompiler extends Main {
     LoggerFactory.getLogger();
 
   @Nonnull
-  private final JProgram program;
+  private final JSession session;
 
-  public JackBatchCompiler(@Nonnull JProgram program,
+  public JackBatchCompiler(@Nonnull JSession session,
       @Nonnull JayceFileImporter jayceFileImporter) {
     super(new PrintWriter(System.out), new PrintWriter(System.err), true, null, null);
-    this.program = program;
+    this.session = session;
     jayceImporter = jayceFileImporter;
   }
 
@@ -84,7 +84,7 @@ public class JackBatchCompiler extends Main {
           isSourceOnly,
           rejectDestinationPathOnJars);
     } else if (JACK_LOGICAL_PATH_ENTRY.equals(currentClasspathName)) {
-      paths.add(new JAstClasspath(currentClasspathName, program.getLookup(), null));
+      paths.add(new JAstClasspath(currentClasspathName, session.getLookup(), null));
     } else {
 
       /* Call super so that it make the required checks and prepare ClasspathDex
@@ -151,7 +151,7 @@ public class JackBatchCompiler extends Main {
         out,
         progress,
         jayceImporter,
-        program);
+        session);
     batchCompiler.remainingIterations = maxRepetition - currentRepetition;
     batchCompiler.useSingleThread = Boolean.getBoolean(USE_SINGLE_THREAD_SYSPROP);
 

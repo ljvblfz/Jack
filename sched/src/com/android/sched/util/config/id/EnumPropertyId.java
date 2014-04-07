@@ -51,6 +51,14 @@ public class EnumPropertyId<T extends Enum<T>> extends PropertyId<T> {
 
   @Override
   @Nonnull
+  public EnumPropertyId<T> addDefaultValue (@Nonnull T defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public EnumPropertyId<T> requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 

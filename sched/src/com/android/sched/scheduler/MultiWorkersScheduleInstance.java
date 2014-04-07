@@ -65,7 +65,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
       "sched.runner.thread.synchronized",
       "If scheduler manages synchronized schedulable by itself").requiredIf(
       ScheduleInstance.DEFAULT_RUNNER.getClazz().isSubClassOf(MultiWorkersScheduleInstance.class))
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private static final IntegerPropertyId CHECK_FREQUENCY = IntegerPropertyId.create(

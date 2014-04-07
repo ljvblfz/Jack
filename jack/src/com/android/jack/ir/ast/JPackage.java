@@ -23,6 +23,9 @@ import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +41,16 @@ import javax.annotation.Nonnull;
 public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosingPackage {
 
   private static final long serialVersionUID = 1L;
+
+  @Nonnull
+  public static final StatisticId<Counter> PACKAGE_CREATION = new StatisticId<Counter>(
+      "jack.package.create", "Created JPackage",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> PHANTOM_CREATION = new StatisticId<Counter>(
+      "jack.phantom.create", "Created phantom class or interface",
+      CounterImpl.class, Counter.class);
 
   @CheckForNull
   private JPackage enclosingPackage;
@@ -69,7 +82,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private String name;
 
   @Nonnull
-  private final JProgram program;
+  private final JSession session;
 
   @Nonnull
   private final transient ComposedPackageLoader loader;
@@ -77,14 +90,14 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private boolean isOnPath;
 
   public JPackage(
-      @Nonnull String name, @Nonnull JProgram program, @CheckForNull JPackage enclosingPackage) {
-    this(name, program, enclosingPackage, new ComposedPackageLoader());
+      @Nonnull String name, @Nonnull JSession session, @CheckForNull JPackage enclosingPackage) {
+    this(name, session, enclosingPackage, new ComposedPackageLoader());
   }
 
-  public JPackage(@Nonnull String name, @Nonnull JProgram program,
+  public JPackage(@Nonnull String name, @Nonnull JSession session,
       @CheckForNull JPackage enclosingPackage, @Nonnull ComposedPackageLoader loader) {
     super(SourceOrigin.UNKNOWN);
-    this.program = program;
+    this.session = session;
     this.name = name;
     this.loader = loader;
     if (enclosingPackage != null) {
@@ -93,7 +106,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       this.enclosingPackage.addPackage(this);
     }
     isOnPath = loader.isOnPath(this);
-   }
+    session.getTracer().getStatistic(PACKAGE_CREATION).incValue();
+  }
 
   public void addType(@Nonnull JDefinedClassOrInterface type) {
     declaredTypes.add(type);
@@ -158,7 +172,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       return getSubPackage(packageName);
     } catch (JPackageLookupException e) {
       assert !packageName.isEmpty();
-      JPackage newPackage = new JPackage(packageName, program, this);
+      JPackage newPackage = new JPackage(packageName, session, this);
       newPackage.updateParents(this);
       return newPackage;
     }
@@ -198,6 +212,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       }
       JPhantomClassOrInterface phantom = new JPhantomClassOrInterface(typeName, this);
       phantomTypes.add(phantom);
+      session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
       return phantom;
     }
   }
@@ -219,6 +234,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomClass phantom = new JPhantomClass(typeName, this);
     phantomClasses.add(phantom);
+    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -239,6 +255,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomEnum phantom = new JPhantomEnum(typeName, this);
     phantomEnums.add(phantom);
+    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -259,6 +276,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomInterface phantom = new JPhantomInterface(typeName, this);
     phantomInterfaces.add(phantom);
+    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -279,6 +297,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomAnnotation phantom = new JPhantomAnnotation(typeName, this);
     phantomAnnotations.add(phantom);
+    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -292,8 +311,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   @Nonnull
-  public JProgram getProgram() {
-    return program;
+  public JSession getSession() {
+    return session;
   }
 
   @Override

@@ -26,81 +26,82 @@ import java.util.Comparator;
  * preceded by its supertype and implemented interfaces.
  */
 final class SortableType {
-    public static final Comparator<SortableType> NULLS_LAST_ORDER = new Comparator<SortableType>() {
-        public int compare(SortableType a, SortableType b) {
-            if (a == b) {
-                return 0;
-            }
-            if (b == null) {
-                return -1;
-            }
-            if (a == null) {
-                return 1;
-            }
-            if (a.depth != b.depth) {
-                return a.depth - b.depth;
-            }
-            return a.getTypeIndex() - b.getTypeIndex();
-        }
-    };
+  public static final Comparator<SortableType> NULLS_LAST_ORDER = new Comparator<SortableType>() {
+    @Override
+    public int compare(SortableType a, SortableType b) {
+      if (a == b) {
+        return 0;
+      }
+      if (b == null) {
+        return -1;
+      }
+      if (a == null) {
+        return 1;
+      }
+      if (a.depth != b.depth) {
+        return a.depth - b.depth;
+      }
+      return a.getTypeIndex() - b.getTypeIndex();
+    }
+  };
 
-    private final DexBuffer buffer;
-    private ClassDef classDef;
-    private int depth = -1;
+  private final DexBuffer buffer;
+  private ClassDef classDef;
+  private int depth = -1;
 
-    public SortableType(DexBuffer buffer, ClassDef classDef) {
-        this.buffer = buffer;
-        this.classDef = classDef;
+  public SortableType(DexBuffer buffer, ClassDef classDef) {
+    this.buffer = buffer;
+    this.classDef = classDef;
+  }
+
+  public DexBuffer getBuffer() {
+    return buffer;
+  }
+
+  public ClassDef getClassDef() {
+    return classDef;
+  }
+
+  public int getTypeIndex() {
+    return classDef.getTypeIndex();
+  }
+
+  /**
+   * Assigns this type's depth if the depths of its supertype and implemented
+   * interfaces are known. Returns false if the depth couldn't be computed
+   * yet.
+   */
+  public boolean tryAssignDepth(SortableType[] types) {
+    int max;
+    if (classDef.getSupertypeIndex() == ClassDef.NO_INDEX) {
+      max = 0; // this is Object.class or an interface
+    } else {
+      SortableType sortableSupertype = types[classDef.getSupertypeIndex()];
+      if (sortableSupertype == null) {
+        max = 1; // unknown, so assume it's a root.
+      } else if (sortableSupertype.depth == -1) {
+        return false;
+      } else {
+        max = sortableSupertype.depth;
+      }
     }
 
-    public DexBuffer getBuffer() {
-        return buffer;
+    for (short interfaceIndex : classDef.getInterfaces()) {
+      SortableType implemented = types[interfaceIndex];
+      if (implemented == null) {
+        max = Math.max(max, 1); // unknown, so assume it's a root.
+      } else if (implemented.depth == -1) {
+        return false;
+      } else {
+        max = Math.max(max, implemented.depth);
+      }
     }
 
-    public ClassDef getClassDef() {
-        return classDef;
-    }
+    depth = max + 1;
+    return true;
+  }
 
-    public int getTypeIndex() {
-        return classDef.getTypeIndex();
-    }
-
-    /**
-     * Assigns this type's depth if the depths of its supertype and implemented
-     * interfaces are known. Returns false if the depth couldn't be computed
-     * yet.
-     */
-    public boolean tryAssignDepth(SortableType[] types) {
-        int max;
-        if (classDef.getSupertypeIndex() == ClassDef.NO_INDEX) {
-            max = 0; // this is Object.class or an interface
-        } else {
-            SortableType sortableSupertype = types[classDef.getSupertypeIndex()];
-            if (sortableSupertype == null) {
-                max = 1; // unknown, so assume it's a root.
-            } else if (sortableSupertype.depth == -1) {
-                return false;
-            } else {
-                max = sortableSupertype.depth;
-            }
-        }
-
-        for (short interfaceIndex : classDef.getInterfaces()) {
-            SortableType implemented = types[interfaceIndex];
-            if (implemented == null) {
-                max = Math.max(max, 1); // unknown, so assume it's a root.
-            } else if (implemented.depth == -1) {
-                return false;
-            } else {
-                max = Math.max(max, implemented.depth);
-            }
-        }
-
-        depth = max + 1;
-        return true;
-    }
-
-    public boolean isDepthAssigned() {
-        return depth != -1;
-    }
+  public boolean isDepthAssigned() {
+    return depth != -1;
+  }
 }

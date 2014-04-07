@@ -129,6 +129,11 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     @Override
+    public boolean visit(@Nonnull JMethod x) {
+      return false;
+    }
+
+    @Override
     public void endVisit(@Nonnull JDefinedClassOrInterface x) {
       JClassOrInterface enclosingType = x.getEnclosingType();
       if (enclosingType != null) {
@@ -380,21 +385,21 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
   @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_SIG = BooleanPropertyId.create(
       "jack.annotation.signature", "Emit annotation signature")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_ENCLOSING_METHOD = BooleanPropertyId.create(
       "jack.annotation.enclosingmethod", "Emit annotation enclosing method")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_THROWS = BooleanPropertyId.create(
-      "jack.annotation.throws", "Emit annotation throws").addDefaultValue("true");
+      "jack.annotation.throws", "Emit annotation throws").addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_MEMBER_CLASSES = BooleanPropertyId.create(
       "jack.annotation.memberclasses", "Emit annotation member classes")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   private final boolean addAnnotationThrows =
       ThreadConfig.get(EMIT_ANNOTATION_THROWS).booleanValue();
@@ -411,7 +416,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     TransformationRequest tr = new TransformationRequest(declaredType);
-    Visitor visitor = new Visitor(tr, declaredType.getJProgram().getPhantomLookup());
+    Visitor visitor = new Visitor(tr, declaredType.getSession().getPhantomLookup());
     visitor.accept(declaredType);
     tr.commit();
   }

@@ -19,8 +19,7 @@ package com.android.jack.frontend;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.util.filter.RejectAllMethods;
+import com.android.jack.util.NamingTools;
 
 import junit.framework.Assert;
 
@@ -37,10 +36,10 @@ public class InitTest {
   @Test
   public void searchInit() throws Exception {
     String binaryName = "com/android/jack/fibonacci/jack/Fibo";
-    JMethod init = TestTools.getJMethod(
+    JMethod init = TestTools.getJMethodWithRejectAllFilter(
         TestTools.getJackTestFromBinaryName(binaryName),
         "L" + binaryName + ";",
-        JProgram.INIT_NAME+"()V", new RejectAllMethods());
+        NamingTools.INIT_NAME+"()V");
 
     Assert.assertNotNull(init);
   }

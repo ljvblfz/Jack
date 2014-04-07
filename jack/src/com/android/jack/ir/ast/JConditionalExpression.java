@@ -104,7 +104,7 @@ public class JConditionalExpression extends JExpression {
     }
 
     // JLS-7 15.25 fourth bullet
-    JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+    JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
     if (isNumber(thenType) && isNumber(elseType)) {
       // first sub-bullet
       if ((JPrimitiveTypeEnum.BYTE.getType().isEquivalent(thenType)

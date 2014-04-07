@@ -30,11 +30,11 @@ public class ZipLocation extends Location {
   private final Location archive;
 
   @Nonnull
-  private final String pathInArchive;
+  private final String entryName;
 
   public ZipLocation(@Nonnull Location archive, @Nonnull ZipEntry entry) {
     this.archive = archive;
-    this.pathInArchive = '/' + entry.getName();
+    this.entryName = entry.getName();
   }
 
   @Override
@@ -46,7 +46,7 @@ public class ZipLocation extends Location {
       sb.append(archive.getDescription()).append(", ");
     }
 
-    return sb.append("entry '").append(pathInArchive).append('\'').toString();
+    return sb.append("entry '/").append(entryName).append('\'').toString();
   }
 
   @Nonnull
@@ -54,22 +54,20 @@ public class ZipLocation extends Location {
     return archive;
   }
 
-  /**
-   * @return the pathInArchive
-   */
-  public String getPathInArchive() {
-    return pathInArchive;
+  @Nonnull
+  public String getEntryName() {
+    return entryName;
   }
 
   @Override
   public final boolean equals(Object obj) {
     return obj instanceof ZipLocation
         && ((ZipLocation) obj).archive.equals(archive)
-        && ((ZipLocation) obj).getPathInArchive().equals(pathInArchive);
+        && ((ZipLocation) obj).entryName.equals(entryName);
   }
 
   @Override
   public final int hashCode() {
-    return archive.hashCode() ^ pathInArchive.hashCode();
+    return archive.hashCode() ^ entryName.hashCode();
   }
 }

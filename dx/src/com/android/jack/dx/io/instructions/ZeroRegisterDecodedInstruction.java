@@ -22,23 +22,32 @@ import com.android.jack.dx.io.IndexType;
  * A decoded Dalvik instruction which has no register arguments.
  */
 public final class ZeroRegisterDecodedInstruction extends DecodedInstruction {
-    /**
-     * Constructs an instance.
-     */
-    public ZeroRegisterDecodedInstruction(InstructionCodec format, int opcode,
-            int index, IndexType indexType, int target, long literal) {
-        super(format, opcode, index, indexType, target, literal);
-    }
+  /**
+   * Constructs an instance.
+   */
+  public ZeroRegisterDecodedInstruction(InstructionCodec format,
+      int opcode,
+      int index,
+      IndexType indexType,
+      int target,
+      long literal) {
+    super(format, opcode, index, indexType, target, literal);
+  }
 
-    /** @inheritDoc */
-    public int getRegisterCount() {
-        return 0;
-    }
+  /** @inheritDoc */
+  @Override
+  public int getRegisterCount() {
+    return 0;
+  }
 
-    /** @inheritDoc */
-    public DecodedInstruction withIndex(int newIndex) {
-        return new ZeroRegisterDecodedInstruction(
-                getFormat(), getOpcode(), newIndex, getIndexType(),
-                getTarget(), getLiteral());
-    }
+  /** @inheritDoc */
+  @Override
+  public DecodedInstruction withIndex(int newIndex) {
+    return new ZeroRegisterDecodedInstruction(getFormat(),
+        getOpcode(),
+        newIndex,
+        getIndexType(),
+        getTarget(),
+        getLiteral());
+  }
 }

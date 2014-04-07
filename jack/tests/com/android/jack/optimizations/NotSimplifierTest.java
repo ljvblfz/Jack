@@ -16,7 +16,6 @@
 
 package com.android.jack.optimizations;
 
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
@@ -45,8 +44,8 @@ public class NotSimplifierTest {
     String methodSignature = "test001(II)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.EQ).accept(m);
@@ -60,8 +59,8 @@ public class NotSimplifierTest {
     String methodSignature = "test002(II)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.LT).accept(m);
@@ -74,8 +73,8 @@ public class NotSimplifierTest {
     String methodSignature = "test003(IIII)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.LT).accept(m);
@@ -89,8 +88,8 @@ public class NotSimplifierTest {
     String methodSignature = "test004(IIZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.LT).accept(m);
@@ -103,8 +102,8 @@ public class NotSimplifierTest {
     String methodSignature = "test005(IIII)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.LT).accept(m);
@@ -118,8 +117,8 @@ public class NotSimplifierTest {
     String methodSignature = "test006(II)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.NEQ).accept(m);
@@ -132,8 +131,8 @@ public class NotSimplifierTest {
     String methodSignature = "test007(II)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.EQ).accept(m);
@@ -146,8 +145,8 @@ public class NotSimplifierTest {
     String methodSignature = "test008(II)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.NEQ).accept(m);
@@ -160,8 +159,8 @@ public class NotSimplifierTest {
     String methodSignature = "test009(IIII)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.NEQ).accept(m);
@@ -174,8 +173,8 @@ public class NotSimplifierTest {
     String methodSignature = "test010(Z)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     Assert
@@ -190,8 +189,8 @@ public class NotSimplifierTest {
     String methodSignature = "test011(ZZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     checkFirstStatement(m, JBinaryOperator.BIT_OR);
@@ -204,8 +203,8 @@ public class NotSimplifierTest {
     String methodSignature = "test012(ZZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     checkFirstStatement(m, JBinaryOperator.BIT_AND);
@@ -218,8 +217,8 @@ public class NotSimplifierTest {
     String methodSignature = "test013(ZZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     checkFirstStatement(m, JBinaryOperator.BIT_XOR);
@@ -232,8 +231,8 @@ public class NotSimplifierTest {
     String methodSignature = "test014(ZZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.BIT_AND).accept(m);
@@ -246,8 +245,8 @@ public class NotSimplifierTest {
     String methodSignature = "test015(ZZ)Z";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new CheckAbsenceOfBinaryOp(JBinaryOperator.BIT_OR).accept(m);

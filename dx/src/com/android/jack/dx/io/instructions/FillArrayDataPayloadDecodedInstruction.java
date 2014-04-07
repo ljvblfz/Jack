@@ -20,81 +20,78 @@ package com.android.jack.dx.io.instructions;
  * A decoded Dalvik instruction which contains the payload for
  * a {@code packed-switch} instruction.
  */
-public final class FillArrayDataPayloadDecodedInstruction
-        extends DecodedInstruction {
-    /** data array */
-    private final Object data;
+public final class FillArrayDataPayloadDecodedInstruction extends DecodedInstruction {
+  /** data array */
+  private final Object data;
 
-    /** number of elements */
-    private final int size;
+  /** number of elements */
+  private final int size;
 
-    /** element width */
-    private final int elementWidth;
+  /** element width */
+  private final int elementWidth;
 
-    /**
-     * Constructs an instance. This private instance doesn't check the
-     * type of the data array.
-     */
-    private FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-            int opcode, Object data, int size, int elementWidth) {
-        super(format, opcode, 0, null, 0, 0L);
+  /**
+   * Constructs an instance. This private instance doesn't check the
+   * type of the data array.
+   */
+  private FillArrayDataPayloadDecodedInstruction(InstructionCodec format, int opcode, Object data,
+      int size, int elementWidth) {
+    super(format, opcode, 0, null, 0, 0L);
 
-        this.data = data;
-        this.size = size;
-        this.elementWidth = elementWidth;
-    }
+    this.data = data;
+    this.size = size;
+    this.elementWidth = elementWidth;
+  }
 
-    /**
-     * Constructs an instance.
-     */
-    public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-            int opcode, byte[] data) {
-        this(format, opcode, data, data.length, 1);
-    }
+  /**
+   * Constructs an instance.
+   */
+  public FillArrayDataPayloadDecodedInstruction(InstructionCodec format, int opcode, byte[] data) {
+    this(format, opcode, data, data.length, 1);
+  }
 
-    /**
-     * Constructs an instance.
-     */
-    public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-            int opcode, short[] data) {
-        this(format, opcode, data, data.length, 2);
-    }
+  /**
+   * Constructs an instance.
+   */
+  public FillArrayDataPayloadDecodedInstruction(InstructionCodec format, int opcode, short[] data) {
+    this(format, opcode, data, data.length, 2);
+  }
 
-    /**
-     * Constructs an instance.
-     */
-    public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-            int opcode, int[] data) {
-        this(format, opcode, data, data.length, 4);
-    }
+  /**
+   * Constructs an instance.
+   */
+  public FillArrayDataPayloadDecodedInstruction(InstructionCodec format, int opcode, int[] data) {
+    this(format, opcode, data, data.length, 4);
+  }
 
-    /**
-     * Constructs an instance.
-     */
-    public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-            int opcode, long[] data) {
-        this(format, opcode, data, data.length, 8);
-    }
+  /**
+   * Constructs an instance.
+   */
+  public FillArrayDataPayloadDecodedInstruction(InstructionCodec format, int opcode, long[] data) {
+    this(format, opcode, data, data.length, 8);
+  }
 
-    /** @inheritDoc */
-    public int getRegisterCount() {
-        return 0;
-    }
+  /** @inheritDoc */
+  @Override
+  public int getRegisterCount() {
+    return 0;
+  }
 
-    public short getElementWidthUnit() {
-        return (short) elementWidth;
-    }
+  public short getElementWidthUnit() {
+    return (short) elementWidth;
+  }
 
-    public int getSize() {
-        return size;
-    }
+  public int getSize() {
+    return size;
+  }
 
-    public Object getData() {
-        return data;
-    }
+  public Object getData() {
+    return data;
+  }
 
-    /** @inheritDoc */
-    public DecodedInstruction withIndex(int newIndex) {
-        throw new UnsupportedOperationException("no index in instruction");
-    }
+  /** @inheritDoc */
+  @Override
+  public DecodedInstruction withIndex(int newIndex) {
+    throw new UnsupportedOperationException("no index in instruction");
+  }
 }

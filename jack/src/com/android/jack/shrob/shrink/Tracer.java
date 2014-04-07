@@ -52,7 +52,6 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
@@ -113,13 +112,14 @@ public abstract class Tracer extends JVisitor {
     if (superClOrI instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface definedSuperClOrI = (JDefinedClassOrInterface) superClOrI;
       for (JMethod method : definedSuperClOrI.getMethods()) {
-        if (isMarked(method)) {
+        if (isMarked(method) && mustTraceOverridingMethod(method)) {
           JMethodId methodId = method.getMethodId();
           JType returnType = method.getType();
           JMethod implementation =
               findImplementation(methodId, returnType, extendingOrImplementingClass);
           if (implementation != null) {
-            trace(methodId, implementation.getEnclosingType(), returnType);
+            trace(methodId, implementation.getEnclosingType(), returnType,
+                true /* mustTraceOverridingMethods */);
           }
         }
       }
@@ -134,11 +134,15 @@ public abstract class Tracer extends JVisitor {
     }
   }
 
+  protected abstract boolean mustTraceOverridingMethod(@Nonnull JMethod method);
+
+  protected abstract void setMustTraceOverridingMethods(@Nonnull JMethod method);
+
   protected void trace(@Nonnull JDefinedClassOrInterface t) {
     if (markIfNecessary(t)) {
       traceAnnotations(t);
       for (JMethod m : t.getMethods()) {
-        if (!isMarked(m) && (JProgram.isClinit(m) || isNullaryConstructor(m))) {
+        if (!isMarked(m) && (JMethod.isClinit(m) || isNullaryConstructor(m))) {
           trace(m);
         }
       }
@@ -205,11 +209,14 @@ public abstract class Tracer extends JVisitor {
   /**
    * Traces the methods corresponding to a method id whose enclosing type is a subclass of
    * receiverType
-   * @param mid
-   * @param receiverType
+   * @param mid the methodId of the searched method
+   * @param receiverType the type with which the methodId was used
+   * @param returnType the return type of the searched method
+   * @param mustTraceOverridingMethods indicates if the overriding methods of the traced method
+   * should be traced as well
    */
-  protected void trace(
-      @Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType, @Nonnull JType returnType) {
+  protected void trace(@Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType,
+      @Nonnull JType returnType, boolean mustTraceOverridingMethods) {
     for (JType paramType : mid.getParamTypes()) {
       trace(paramType);
     }
@@ -217,9 +224,12 @@ public abstract class Tracer extends JVisitor {
     JMethod foundMethod = findMethod(mid, receiverType, returnType);
     if (foundMethod != null) {
       trace(foundMethod);
+      if (mustTraceOverridingMethods) {
+        setMustTraceOverridingMethods(foundMethod);
+      }
     }
 
-    if (receiverType instanceof JDefinedClassOrInterface) {
+    if (receiverType instanceof JDefinedClassOrInterface && mustTraceOverridingMethods) {
       ExtendingOrImplementingClassMarker marker =
           ((LocalMarkerManager) receiverType).getMarker(ExtendingOrImplementingClassMarker.class);
       if (marker != null) {
@@ -228,12 +238,12 @@ public abstract class Tracer extends JVisitor {
             JMethod implementation = findImplementation(mid, returnType, subClass);
             if (implementation != null) {
               trace(implementation);
+              setMustTraceOverridingMethods(implementation);
             }
           }
         }
       }
     }
-
   }
 
   protected void trace(@Nonnull JMethod m) {
@@ -313,7 +323,7 @@ public abstract class Tracer extends JVisitor {
       tracingStartingPoint = receiverType;
     }
     trace(tracingStartingPoint);
-    trace(methodId, tracingStartingPoint, returnType);
+    trace(methodId, tracingStartingPoint, returnType, true /* mustTraceOverridingMethods */);
   }
 
   @Override
@@ -321,7 +331,8 @@ public abstract class Tracer extends JVisitor {
     JClass returnType = newInstance.getType();
     trace(returnType);
     JMethodId methodId = newInstance.getMethodId();
-    trace(methodId, returnType, JPrimitiveTypeEnum.VOID.getType());
+    trace(methodId, returnType, JPrimitiveTypeEnum.VOID.getType(),
+        false /* mustTraceOverridingMethods */);
   }
 
   /**

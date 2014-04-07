@@ -23,6 +23,9 @@ import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.expression.BooleanExpression;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -31,48 +34,55 @@ import javax.annotation.Nonnull;
  * @param <T> Type of the configuration property.
  */
 public class PropertyId<T> extends KeyId<T, String> {
-
   @Nonnull
   private final String description;
 
   @Nonnull
-  private final StringCodec<T> parser;
+  private final StringCodec<T> codec;
 
+  @Nonnull
+  private final List<Value> defaultValues = new ArrayList<Value>(1);
   @CheckForNull
-  private String  defaultValue = null;
-  private boolean defaultValueAvailable = false;
+  private Value    defaultValue = null;
+  private boolean  defaultValueAvailable = false;
 
   private boolean isPublic = true;
 
   public static <T> PropertyId<T> create(
-      @Nonnull String name, @Nonnull String description, @Nonnull StringCodec<T> parser) {
-    return new PropertyId<T>(name, description, parser);
+      @Nonnull String name, @Nonnull String description, @Nonnull StringCodec<T> codec) {
+    return new PropertyId<T>(name, description, codec);
   }
 
-  protected PropertyId(
-      @Nonnull String name, @Nonnull String description, @Nonnull StringCodec<T> parser) {
+  protected PropertyId(@Nonnull String name, @Nonnull String description,
+      @Nonnull StringCodec<T> codec) {
     super(name);
 
     this.description = description;
-    this.parser = parser;
+    this.codec = codec;
   }
 
-  @Override
   @Nonnull
   public PropertyId<T> addDefaultValue(@Nonnull String defaultValue) {
-    super.addDefaultValue(defaultValue);
+    defaultValues.add(new Value(defaultValue));
+
+    return this;
+  }
+
+  @Nonnull
+  public PropertyId<T> addDefaultValue(@Nonnull T defaultValue) {
+    defaultValues.add(new Value(defaultValue));
 
     return this;
   }
 
   @CheckForNull
-  public String getDefaultValue(@Nonnull CodecContext context) {
+  public Value getDefaultValue(@Nonnull CodecContext context) {
     if (!defaultValueAvailable) {
       ParsingException lastException = null;
 
-      for (String value : getDefaultValues()) {
+      for (Value value : getDefaultValues()) {
         try {
-          parser.checkString(context, value);
+          value.check(context);
           defaultValue = value;
           break;
         } catch (ParsingException e) {
@@ -91,6 +101,11 @@ public class PropertyId<T> extends KeyId<T, String> {
   }
 
   @Nonnull
+  public List<Value> getDefaultValues() {
+    return defaultValues;
+  }
+
+  @Nonnull
   public String getDescription() {
     return description;
   }
@@ -100,6 +115,7 @@ public class PropertyId<T> extends KeyId<T, String> {
     return isPublic;
   }
 
+  @Nonnull
   public PropertyId<T> makePrivate() {
     isPublic = false;
     return this;
@@ -107,7 +123,7 @@ public class PropertyId<T> extends KeyId<T, String> {
 
   @Nonnull
   public StringCodec<T> getCodec() {
-    return parser;
+    return codec;
   }
 
   @Override
@@ -118,4 +134,148 @@ public class PropertyId<T> extends KeyId<T, String> {
     return this;
   }
 
+  public class Value {
+    @Nonnull
+    private IValue<T> value;
+
+    public Value (@Nonnull T value) {
+      this.value = new IValueObject<T>(value);
+    }
+
+    public Value (@Nonnull String value) {
+      this.value = new IValueString(value);
+    }
+
+    public synchronized void check(@Nonnull CodecContext context) throws ParsingException {
+      value = value.check(context);
+    }
+
+    @Nonnull
+    public String getString() {
+      return value.getString();
+    }
+
+    @Nonnull
+    public synchronized T getObject(@Nonnull CodecContext context) {
+      value = value.getValueObject(context);
+
+      return ((IValueObject<T>) value).getObject();
+    }
+
+
+    @CheckForNull
+    public synchronized T getObjectIfAny() {
+      if (value instanceof IValueObject) {
+        return ((IValueObject<T>) value).getObject();
+      } else {
+        return null;
+      }
+    }
+  }
+
+  //
+  // Private IValue hierarchy
+  //
+
+  private static interface IValue<T> {
+    @Nonnull
+    public IValue<T> check(@Nonnull CodecContext context) throws ParsingException;
+
+    @Nonnull
+    public PropertyId<?>.IValueObject<T> getValueObject(@Nonnull CodecContext context);
+
+    @Nonnull
+    public String getString();
+  }
+
+  private class IValueString implements IValue<T> {
+    @Nonnull
+    private final String value;
+
+    public IValueString (@Nonnull String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String getString() {
+      return value;
+    }
+
+    @Override
+    @Nonnull
+    public IValue<T> check(@Nonnull CodecContext context) throws ParsingException {
+      T val = PropertyId.this.codec.checkString(context, value);
+
+      if (val != null) {
+        return new IValueObject<T>(val);
+      } else {
+        return new IValueCheckedString(value);
+      }
+    }
+
+    @Override
+    @Nonnull
+    public PropertyId<T>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
+      throw new AssertionError();
+    }
+  }
+
+  private class IValueCheckedString implements IValue<T> {
+    @Nonnull
+    private final String value;
+
+    private IValueCheckedString (@Nonnull String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String getString() {
+      return value;
+    }
+
+    @Override
+    @Nonnull
+    public IValue<T> check(@Nonnull CodecContext context) {
+      return this;
+    }
+
+    @Override
+    @Nonnull
+    public PropertyId<?>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
+      return new IValueObject<T>(PropertyId.this.codec.parseString(context, value));
+    }
+  }
+
+  private class IValueObject<T> implements IValue<T> {
+    @Nonnull
+    private final T value;
+
+    public IValueObject (@Nonnull T value) {
+      this.value = value;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Nonnull
+    public String getString() {
+      return ((PropertyId<T>) (PropertyId.this)).codec.formatValue(value);
+    }
+
+    @Override
+    @Nonnull
+    public IValue<T> check(@Nonnull CodecContext context) {
+      return this;
+    }
+
+    @Override
+    @Nonnull
+    public PropertyId<?>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
+      return this;
+    }
+
+    @Nonnull
+    public T getObject() {
+      return value;
+    }
+  }
 }

@@ -28,15 +28,19 @@ import com.android.jack.jayce.JayceWriter;
 import com.android.jack.scheduling.feature.JackFileNonZipOutput;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.Directory;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.direct.OutputDirectDir;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -50,26 +54,22 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
 @Produce(JackFormatProduct.class)
 @Support(JackFileNonZipOutput.class)
+@Synchronized
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
   private static final TypeFormatter formatter = new FilePathFormatter();
 
   @Nonnull
-  private final File outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR).getFile();
+  private final Directory outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    String filePath = getFilePath(type);
-    File typeFile = new File(outputDir, filePath);
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    OutputVDir vDir = new OutputDirectDir(outputDir);
+    OutputVFile vFile = vDir.createOutputVFile(getFilePath(type));
 
     try {
-      if (!typeFile.getParentFile().mkdirs() && !typeFile.getParentFile().isDirectory()) {
-        throw new IOException(
-            "Could not create directory: " + typeFile.getParentFile().getAbsolutePath());
-      }
-
-      OutputStream out = new BufferedOutputStream(new FileOutputStream(typeFile));
+      OutputStream out = new BufferedOutputStream(vFile.openWrite());
       try {
         // Write to file
         JayceWriter writer = new JayceWriter(out);
@@ -78,8 +78,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         out.close();
       }
     } catch (IOException e) {
-      throw new JackFileException(
-          "Could not write Jack file to output '" + typeFile.getAbsolutePath() + "'", e);
+      throw new JackFileException("Could not write Jack file to output '" + vFile + "'", e);
     }
   }
 

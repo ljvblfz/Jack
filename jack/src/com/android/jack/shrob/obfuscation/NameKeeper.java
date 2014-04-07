@@ -24,7 +24,6 @@ import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.NodeFinder;
@@ -91,7 +90,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
 
     @Override
     public boolean visit(@Nonnull JMethod m) {
-      if (JProgram.isClinit(m) || m instanceof JConstructor) {
+      if (JMethod.isClinit(m) || m instanceof JConstructor) {
         keepName(m);
       }
       return false;

@@ -30,7 +30,6 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -70,9 +69,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
 
   @Nonnull
   protected final String name;
-
-  @CheckForNull
-  private JArrayType array;
 
   private JPrimitiveType(@Nonnull String name, @Nonnull String signatureName) {
     super(SourceOrigin.UNKNOWN);
@@ -156,11 +152,11 @@ public abstract class JPrimitiveType extends JNode implements JType {
 
   @Nonnull
   public final JClass getWrapperType() {
-    return Jack.getProgram().getPhantomLookup().getClass(getWrapperCommonType());
+    return Jack.getSession().getPhantomLookup().getClass(getWrapperCommonType());
   }
 
   public boolean isWrapperType(@Nonnull JType candidate) {
-    JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+    JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
     return lookup.getClass(getWrapperCommonType()) == candidate
         || lookup.getType(getWrapperCommonType()) == candidate;
   }
@@ -187,11 +183,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Override
   @Nonnull
   public JArrayType getArray() {
-    if (array == null) {
-      array = new JArrayType(this);
-    }
-    assert array != null;
-    return array;
+    return Jack.getSession().getArrayOf(getPrimitiveTypeEnum());
   }
 
   @Nonnull
@@ -540,11 +532,12 @@ public abstract class JPrimitiveType extends JNode implements JType {
     CommonType getWrapperCommonType() {
       return CommonTypes.JAVA_LANG_VOID;
     }
-  }
 
-  static void reset() {
-    for (JPrimitiveTypeEnum typeEnum : JPrimitiveTypeEnum.values()) {
-      typeEnum.type.array = null;
+    @Override
+    @Nonnull
+    public JArrayType getArray() {
+      // Array of void does not exist.
+      throw new AssertionError();
     }
   }
 }

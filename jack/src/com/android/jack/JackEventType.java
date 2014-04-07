@@ -25,37 +25,28 @@ import javax.annotation.Nonnull;
  */
 public enum JackEventType implements EventType {
 
-  NNODE_READING_FOR_IMPORT("NNode reading for import", "Blue"),
-  NNODE_READING_FOR_CLASSPATH("NNode reading for classpath", "Teal"),
-  NNODE_TO_JNODE_CONVERSION_FOR_IMPORT("NNode to JNode conversion for import", "Purple"),
-  NNODE_TO_JNODE_CONVERSION_FOR_CLASSPATH("NNode to JNode conversion for classpath", "Green"),
-  JNODE_TO_NNODE_CONVERSION("JNode to NNode conversion", "Red"),
-  NNODE_WRITING("NNode writing", "Orange"),
-  LOOKUP_TRANSFER("Lookup transfer", "Yellow"),
-  METHOD_ID_MERGER("Method id merger", "Beige"),
-  PRELOOKUP("Pre-lookup", "Pink"),
-  ECJ_COMPILATION("ECJ compilation", "Black"),
-  GWT_AST_BUILDER("GwtAstBuilder", "LightSkyBlue"),
-  J_AST_BUILDER("JAstBuilder", "LightSeaGreen"),
-  DX_OPTIMIZATION("Dx optimizations on RopMethod", "Brown"),
-  REMOVE_DEAD_CODE("Remove dead code", "Chocolate"),
-  DOP_CREATION("Dop creation", "Cyan"),
-  JACK_RUN("Jack run", "BlueBerry");
+  NNODE_READING_FOR_IMPORT("NNode reading for import"),
+  NNODE_READING_FOR_CLASSPATH("NNode reading for classpath"),
+  NNODE_TO_JNODE_CONVERSION_FOR_IMPORT("NNode to JNode conversion for import"),
+  NNODE_TO_JNODE_CONVERSION_FOR_CLASSPATH("NNode to JNode conversion for classpath"),
+  JNODE_TO_NNODE_CONVERSION("JNode to NNode conversion"),
+  NNODE_WRITING("NNode writing"),
+  LOOKUP_TRANSFER("Lookup transfer"),
+  METHOD_ID_MERGER("Method id merger"),
+  PRELOOKUP("Pre-lookup"),
+  ECJ_COMPILATION("ECJ compilation"),
+  GWT_AST_BUILDER("GwtAstBuilder"),
+  J_AST_BUILDER("JAstBuilder"),
+  DX_OPTIMIZATION("Dx optimizations on RopMethod"),
+  REMOVE_DEAD_CODE("Remove dead code"),
+  DOP_CREATION("Dop creation"),
+  JACK_RUN("Jack run");
 
-  @Nonnull
-  private final String cssColor;
   @Nonnull
   private final String name;
 
-  JackEventType(@Nonnull String name, @Nonnull String cssColor) {
+  JackEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

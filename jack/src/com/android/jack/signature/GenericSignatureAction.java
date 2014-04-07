@@ -16,20 +16,23 @@
 
 package com.android.jack.signature;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * Actions triggered by the generic signature parser.
  */
-public interface GenericSignatureAction {
+public interface GenericSignatureAction<T> {
 
   public void parsedSymbol(char symbol);
 
   public void parsedIdentifier(@Nonnull String identifier);
 
-  public void parsedTypeName(@Nonnull String name);
+  @CheckForNull
+  public T parsedTypeName(@Nonnull String name);
 
-  public void parsedInnerTypeName(@Nonnull String name);
+  @CheckForNull
+  public T parsedInnerTypeName(@CheckForNull T enclosingType, @Nonnull String name);
 
   public void start();
 

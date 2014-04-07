@@ -22,75 +22,76 @@ import com.android.jack.dx.rop.annotation.Annotation;
  * Constant type that represents an annotation.
  */
 public final class CstAnnotation extends Constant {
-    /** {@code non-null;} the actual annotation */
-    private final Annotation annotation;
+  /** {@code non-null;} the actual annotation */
+  private final Annotation annotation;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param annotation {@code non-null;} the annotation to hold
-     */
-    public CstAnnotation(Annotation annotation) {
-        if (annotation == null) {
-            throw new NullPointerException("annotation == null");
-        }
-
-        annotation.throwIfMutable();
-
-        this.annotation = annotation;
+  /**
+   * Constructs an instance.
+   *
+   * @param annotation {@code non-null;} the annotation to hold
+   */
+  public CstAnnotation(Annotation annotation) {
+    if (annotation == null) {
+      throw new NullPointerException("annotation == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object other) {
-        if (! (other instanceof CstAnnotation)) {
-            return false;
-        }
+    annotation.throwIfMutable();
 
-        return annotation.equals(((CstAnnotation) other).annotation);
+    this.annotation = annotation;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof CstAnnotation)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        return annotation.hashCode();
-    }
+    return annotation.equals(((CstAnnotation) other).annotation);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected int compareTo0(Constant other) {
-        return annotation.compareTo(((CstAnnotation) other).annotation);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public int hashCode() {
+    return annotation.hashCode();
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return annotation.toString();
-    }
+  /** {@inheritDoc} */
+  @Override
+  protected int compareTo0(Constant other) {
+    return annotation.compareTo(((CstAnnotation) other).annotation);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public String typeName() {
-        return "annotation";
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toString() {
+    return annotation.toString();
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean isCategory2() {
-        return false;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String typeName() {
+    return "annotation";
+  }
 
-    /** {@inheritDoc} */
-    public String toHuman() {
-        return annotation.toString();
-    }
+  /** {@inheritDoc} */
+  @Override
+  public boolean isCategory2() {
+    return false;
+  }
 
-    /**
-     * Get the underlying annotation.
-     *
-     * @return {@code non-null;} the annotation
-     */
-    public Annotation getAnnotation() {
-        return annotation;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    return annotation.toString();
+  }
+
+  /**
+   * Get the underlying annotation.
+   *
+   * @return {@code non-null;} the annotation
+   */
+  public Annotation getAnnotation() {
+    return annotation;
+  }
 }

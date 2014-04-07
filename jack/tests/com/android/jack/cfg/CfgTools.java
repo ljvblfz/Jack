@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
@@ -50,8 +50,8 @@ public class CfgTools {
 
   public static JMethod buildCfg(
       String classSignature, String methodSignature, Options options) throws Exception {
-    JProgram jprogram = TestTools.buildJAst(options);
-    Assert.assertNotNull(jprogram);
+    JSession session = TestTools.buildJAst(options);
+    Assert.assertNotNull(session);
 
 
     Scheduler scheduler = Scheduler.getScheduler();
@@ -74,8 +74,8 @@ public class CfgTools {
     set.remove(JFieldInitializer.class);
     sr.addInitialTagsOrMarkers(set);
 
-    PlanBuilder<JProgram> progPlan = sr.getPlanBuilder(JProgram.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = progPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+    PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
     SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
     methodPlan.append(ImplicitBlocks.class);
     methodPlan.append(ImplicitBlocksChecker.class);
@@ -83,10 +83,10 @@ public class CfgTools {
     methodPlan.append(TryCatchRemover.class);
     methodPlan.append(CfgBuilder.class);
 
-    progPlan.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
 
     JDefinedClassOrInterface type = (JDefinedClassOrInterface)
-        jprogram.getLookup().getType(classSignature);
+        session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod foundMethod = TestTools.getMethod(type, methodSignature);

@@ -138,7 +138,7 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
         JBlock finalTryBlock = new JBlock(x.getSourceInfo());
 
         // Declare exception to throw in the end, if any, and initialize it to null;
-        JClass throwableClass = Jack.getProgram().getPhantomLookup().getClass(THROWABLE_SIGNATURE);
+        JClass throwableClass = Jack.getSession().getPhantomLookup().getClass(THROWABLE_SIGNATURE);
         JLocal exceptionToThrow =
             localVarCreator.createTempLocal(throwableClass, firstLineSourceInfos, request);
         JAsgOperation assign = new JAsgOperation(
@@ -184,7 +184,7 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
 
         // Lookup AutoCloseable.close() method
         JInterface autoCloseableInterface =
-            Jack.getProgram().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
+            Jack.getSession().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
         JMethodId closeMethodId = autoCloseableInterface.getMethodId(
             CLOSE_METHOD_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
 

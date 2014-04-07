@@ -39,7 +39,7 @@ public class JFieldRef extends JExpression {
   private JClassOrInterface receiverType;
 
   @Nonnull
-  private JFieldId fieldId;
+  private final JFieldId fieldId;
 
   /**
    * This can only be null if the referenced field is static.
@@ -84,13 +84,6 @@ public class JFieldRef extends JExpression {
   @Override
   public boolean canThrow() {
     return true;
-  }
-
-  /**
-   * Resolve an external reference during AST stitching.
-   */
-  public void resolve(@Nonnull JFieldId fieldId) {
-    this.fieldId = fieldId;
   }
 
   @Override

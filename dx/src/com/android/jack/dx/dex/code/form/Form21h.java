@@ -31,96 +31,93 @@ import java.util.BitSet;
  * for details.
  */
 public final class Form21h extends InsnFormat {
-    /** {@code non-null;} unique instance of this class */
-    public static final InsnFormat THE_ONE = new Form21h();
+  /** {@code non-null;} unique instance of this class */
+  public static final InsnFormat THE_ONE = new Form21h();
 
-    /**
-     * Constructs an instance. This class is not publicly
-     * instantiable. Use {@link #THE_ONE}.
-     */
-    private Form21h() {
-        // This space intentionally left blank.
+  /**
+   * Constructs an instance. This class is not publicly
+   * instantiable. Use {@link #THE_ONE}.
+   */
+  private Form21h() {
+    // This space intentionally left blank.
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnArgString(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    CstLiteralBits value = (CstLiteralBits) ((CstInsn) insn).getConstant();
+
+    return regs.get(0).regString() + ", " + literalBitsString(value);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnCommentString(DalvInsn insn, boolean noteIndices) {
+    RegisterSpecList regs = insn.getRegisters();
+    CstLiteralBits value = (CstLiteralBits) ((CstInsn) insn).getConstant();
+
+    return literalBitsComment(value, (regs.get(0).getCategory() == 1) ? 32 : 64);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int codeSize() {
+    return 2;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean isCompatible(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    if (!((insn instanceof CstInsn) && (regs.size() == 1)
+        && unsignedFitsInByte(regs.get(0).getReg()))) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnArgString(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        CstLiteralBits value = (CstLiteralBits) ((CstInsn) insn).getConstant();
+    CstInsn ci = (CstInsn) insn;
+    Constant cst = ci.getConstant();
 
-        return regs.get(0).regString() + ", " + literalBitsString(value);
+    if (!(cst instanceof CstLiteralBits)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnCommentString(DalvInsn insn, boolean noteIndices) {
-        RegisterSpecList regs = insn.getRegisters();
-        CstLiteralBits value = (CstLiteralBits) ((CstInsn) insn).getConstant();
+    CstLiteralBits cb = (CstLiteralBits) cst;
 
-        return
-            literalBitsComment(value,
-                    (regs.get(0).getCategory() == 1) ? 32 : 64);
+    // Where the high bits are depends on the category of the target.
+    if (regs.get(0).getCategory() == 1) {
+      int bits = cb.getIntBits();
+      return ((bits & 0xffff) == 0);
+    } else {
+      long bits = cb.getLongBits();
+      return ((bits & 0xffffffffffffL) == 0);
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public BitSet compatibleRegs(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    BitSet bits = new BitSet(1);
+
+    bits.set(0, unsignedFitsInByte(regs.get(0).getReg()));
+    return bits;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void writeTo(AnnotatedOutput out, DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    CstLiteralBits cb = (CstLiteralBits) ((CstInsn) insn).getConstant();
+    short bits;
+
+    // Where the high bits are depends on the category of the target.
+    if (regs.get(0).getCategory() == 1) {
+      bits = (short) (cb.getIntBits() >>> 16);
+    } else {
+      bits = (short) (cb.getLongBits() >>> 48);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int codeSize() {
-        return 2;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isCompatible(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        if (!((insn instanceof CstInsn) &&
-              (regs.size() == 1) &&
-              unsignedFitsInByte(regs.get(0).getReg()))) {
-            return false;
-        }
-
-        CstInsn ci = (CstInsn) insn;
-        Constant cst = ci.getConstant();
-
-        if (!(cst instanceof CstLiteralBits)) {
-            return false;
-        }
-
-        CstLiteralBits cb = (CstLiteralBits) cst;
-
-        // Where the high bits are depends on the category of the target.
-        if (regs.get(0).getCategory() == 1) {
-            int bits = cb.getIntBits();
-            return ((bits & 0xffff) == 0);
-        } else {
-            long bits = cb.getLongBits();
-            return ((bits & 0xffffffffffffL) == 0);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public BitSet compatibleRegs(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        BitSet bits = new BitSet(1);
-
-        bits.set(0, unsignedFitsInByte(regs.get(0).getReg()));
-        return bits;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void writeTo(AnnotatedOutput out, DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        CstLiteralBits cb = (CstLiteralBits) ((CstInsn) insn).getConstant();
-        short bits;
-
-        // Where the high bits are depends on the category of the target.
-        if (regs.get(0).getCategory() == 1) {
-            bits = (short) (cb.getIntBits() >>> 16);
-        } else {
-            bits = (short) (cb.getLongBits() >>> 48);
-        }
-
-        write(out, opcodeUnit(insn, regs.get(0).getReg()), bits);
-    }
+    write(out, opcodeUnit(insn, regs.get(0).getReg()), bits);
+  }
 }

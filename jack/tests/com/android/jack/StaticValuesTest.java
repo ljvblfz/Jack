@@ -23,10 +23,9 @@ import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
 import com.android.jack.scheduling.adapter.JFieldAdaptor;
-import com.android.jack.util.filter.SupportedMethods;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
@@ -104,10 +103,10 @@ public class StaticValuesTest {
 
   public static JMethod compileAndGetClinit(String classBinaryName, Options options)
       throws Exception {
-    options.setFilter(new SupportedMethods());
+    options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 
-    JProgram jprogram = TestTools.buildJAst(options);
-    Assert.assertNotNull(jprogram);
+    JSession session = TestTools.buildJAst(options);
+    Assert.assertNotNull(session);
 
 
     Scheduler scheduler = Scheduler.getScheduler();
@@ -119,16 +118,16 @@ public class StaticValuesTest {
     set.add(JFieldInitializer.class);
     sr.addInitialTagsOrMarkers(set);
 
-    PlanBuilder<JProgram> progPlan = sr.getPlanBuilder(JProgram.class);
+    PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
     SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-        progPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
     SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
     fieldPlan.append(FieldInitializerRemover.class);
 
-    progPlan.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
 
     JDefinedClassOrInterface declaredType =
-        (JDefinedClassOrInterface) jprogram.getLookup().getType("L" + classBinaryName + ";");
+        (JDefinedClassOrInterface) session.getLookup().getType("L" + classBinaryName + ";");
     return declaredType.getMethod(CLINIT, JPrimitiveTypeEnum.VOID.getType());
   }
 

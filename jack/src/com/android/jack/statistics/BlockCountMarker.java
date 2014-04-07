@@ -16,7 +16,7 @@
 
 package com.android.jack.statistics;
 
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Statistics about block and extra created block.
  */
 @Description("Statistics about block and extra created block.")
-@ValidOn(JProgram.class)
+@ValidOn(JSession.class)
 public class BlockCountMarker implements Marker {
 
   @Nonnegative

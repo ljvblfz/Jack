@@ -26,7 +26,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Simple statistic computation on a set of values.
+ * Simple statistic computation on a set of values when statistic is not enabled.
  */
 public class Sample extends Statistic {
   protected Sample(@Nonnull StatisticId<? extends Statistic> id) {
@@ -41,66 +41,36 @@ public class Sample extends Statistic {
     throw new AssertionError();
   }
 
-  @Override
-  @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
+  @Nonnegative
+  public int getCount() {
+    return 0;
   }
 
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
+  public double getTotal() {
+    return 0;
   }
 
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Count";
-      case 1:
-        return "Total";
-      case 2:
-        return "Min";
-      case 3:
-        return "Average";
-      case 4:
-        return "Max";
-      case 5:
-        return "Min Marker";
-      case 6:
-        return "Max Marker";
-      default:
-        throw new AssertionError();
-    }
+  public double getMin() {
+    return Double.NaN;
   }
 
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      case 1:
-        return "number";
-      case 2:
-        return "number";
-      case 3:
-        return "number";
-      case 4:
-        return "number";
-      case 5:
-        return "string";
-      case 6:
-        return "string";
-      default:
-        throw new AssertionError();
-    }
+  public double getAverage() {
+    return Double.NaN;
+  }
+
+  public double getMax() {
+    return Double.NaN;
+  }
+
+  @CheckForNull
+  public Object getMinObject() {
+    return null;
+
+  }
+
+  @CheckForNull
+  public Object getMaxObject() {
+    return null;
   }
 
   @Override
@@ -110,7 +80,7 @@ public class Sample extends Statistic {
   }
 
 
-  @Nonnegative
+  @Nonnull
   private static final String[] HEADER = new String[] {
     "Count",
     "Total",

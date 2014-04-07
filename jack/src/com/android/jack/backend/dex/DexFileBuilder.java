@@ -18,7 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -28,27 +28,27 @@ import com.android.sched.schedulable.Transform;
 import javax.annotation.Nonnull;
 
 /**
- * Builds a {@code DexFile} instance from a {@code JProgram}.
+ * Builds a {@code DexFile} instance from a {@code Session}.
  *
  * <p>This builder only creates an empty {@code DexFile} instance. This instance
  * is then filled with {@code ClassDefItem}s by the {@code ClassDefItemBuilder}.
  *
  * @see ClassDefItemBuilder
  */
-@Description("Builds a DexFile instance from a JProgram.")
+@Description("Builds a DexFile instance from a Session.")
 @Name("DexFileBuilder")
 @Transform(add = DexFileMarker.class)
-public class DexFileBuilder implements RunnableSchedulable<JProgram> {
+public class DexFileBuilder implements RunnableSchedulable<JSession> {
   private final DexFile dexFile = new DexFile(new DexOptions());
 
   /**
-   * Attaches the {@code DexFile} instance to build to the given {@code program}
+   * Attaches the {@code DexFile} instance to build to the given {@code session}
    * in a {@code DexFileMarker}. This {@code DexFile} instance is then accessible
    * in {@code ClassDefItemBuilder} schedulable.
    */
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     DexFileMarker dexFileMarker = new DexFileMarker(dexFile);
-    program.addMarker(dexFileMarker);
+    session.addMarker(dexFileMarker);
   }
 }

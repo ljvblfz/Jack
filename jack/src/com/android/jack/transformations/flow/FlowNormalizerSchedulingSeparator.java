@@ -40,7 +40,7 @@ public class FlowNormalizerSchedulingSeparator
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface program) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface coi) throws Exception {
     // do nothing
   }
   /**

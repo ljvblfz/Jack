@@ -36,11 +36,13 @@ import com.android.sched.util.table.ReportPrinterFactory;
 import com.android.sched.util.table.SimpleTable;
 import com.android.sched.util.table.Table;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,6 +50,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -147,7 +150,7 @@ public final class StatisticOnlyTracer implements Tracer {
     @Override
     @Nonnull
     public String toString() {
-      return "Dummy";
+      return "Singleton";
     }
 
     @Override
@@ -221,7 +224,7 @@ public final class StatisticOnlyTracer implements Tracer {
   @Override
   @Nonnull
   public EventType getCurrentEventType() {
-    return TracerEventType.NOEVENT;
+    return TracerEventType.SINGLETON;
   }
 
   @Override
@@ -246,77 +249,116 @@ public final class StatisticOnlyTracer implements Tracer {
       objects = new HashMap<
           Class<? extends ObjectWatcher<?>>, WeakHashMap<Object, ObjectWatcher<Object>>>();
 
+  // Map a class C to a list of watcher classes that watch instances of type C
   @Nonnull
-  private final Map<Class<?>, Class<? extends ObjectWatcher<?>>> watchers =
-      new HashMap<Class<?>, Class<? extends ObjectWatcher<?>>>();
+  private final Map<Class<?>, List<Class<? extends ObjectWatcher<?>>>> watchers =
+      new HashMap<Class<?>, List<Class<? extends ObjectWatcher<?>>>>();
 
+  // Set of classes not watched (speedup non watched classes)
   @Nonnull
   private final Set<Class<?>> notWatched = new HashSet<Class<?>>();
   @Nonnull
-  private final Object watcherLock = new Object();
+  private final ReentrantReadWriteLock watcherLock = new ReentrantReadWriteLock();
 
   @Override
-  public synchronized <T> void registerWatcher(@Nonnull Class<T> objectClass,
+  public synchronized <T> void registerWatcher(@Nonnull Class<T> rootWatchedClass,
       @Nonnull Class<? extends ObjectWatcher<? extends T>> watcherClass) {
     WeakHashMap<Object, ObjectWatcher<Object>> map =
         new WeakHashMap<Object, ObjectWatcher<Object>>();
 
-    synchronized (watcherLock) {
+    watcherLock.writeLock().lock();
+    try {
       objects.put(watcherClass, map);
-      watchers.put(objectClass, watcherClass);
 
-      for (Class<?> cls : notWatched) {
-        if (objectClass.isAssignableFrom(cls)) {
+      List<Class<? extends ObjectWatcher<?>>> list = watchers.get(rootWatchedClass);
+      if (list == null) {
+        list = new ArrayList<Class<? extends ObjectWatcher<?>>>(1);
+        watchers.put(rootWatchedClass, list);
+      }
+
+      list.add(watcherClass);
+
+      Iterator<Class<?>> iterNotWatched = notWatched.iterator();
+      while (iterNotWatched.hasNext()) {
+        Class<?> watchedClass = iterNotWatched.next();
+        if (rootWatchedClass.isAssignableFrom(watchedClass)) {
           logger.log(Level.INFO, "Watcher ''{0}'' missed some instances of type ''{1}''",
-              new Object[] {watcherClass.getName(), cls.getName()});
+              new Object[] {watcherClass.getName(), watchedClass.getName()});
 
-          watchers.put(cls, watcherClass);
-          notWatched.remove(objectClass);
+          list = watchers.get(watchedClass);
+          if (list == null) {
+            list = new ArrayList<Class<? extends ObjectWatcher<?>>>(1);
+            watchers.put(watchedClass, list);
+          }
+
+          list.add(watcherClass);
+          iterNotWatched.remove();
         }
       }
+    } finally {
+      watcherLock.writeLock().unlock();
     }
   }
 
   @Override
   public void registerObject(@Nonnull Object object, @Nonnegative long size, int count) {
-    Class<? extends ObjectWatcher<?>> watcherClass = null;
+    enable.set(Boolean.FALSE);
+    Class<?> objectClass = object.getClass();
+    List<Class<? extends ObjectWatcher<?>>> list = null;
 
-    synchronized (watcherLock) {
-      if (notWatched.contains(object.getClass())) {
+    watcherLock.readLock().lock();
+    try {
+      // If this object is not watched explicitly, go away
+      if (notWatched.contains(objectClass)) {
         return;
       }
 
-      watcherClass = watchers.get(object.getClass());
-      if (watcherClass == null) {
-        for (Entry<Class<?>, Class<? extends ObjectWatcher<?>>> entry : watchers.entrySet()) {
-          if (entry.getKey().isAssignableFrom(object.getClass())) {
-            watcherClass = entry.getValue();
-            break;
+      list = watchers.get(objectClass);
+    } finally {
+      watcherLock.readLock().unlock();
+    }
+
+    if (list == null) {
+      watcherLock.writeLock().lock();
+      try {
+        list = watchers.get(objectClass);
+        if (list == null) {
+          list = new ArrayList<Class<? extends ObjectWatcher<?>>>(1);
+
+          for (Entry<Class<?>, List<Class<? extends ObjectWatcher<?>>>> entry :
+              watchers.entrySet()) {
+            if (entry.getKey().isAssignableFrom(objectClass)) {
+              list.addAll(entry.getValue());
+            }
           }
         }
 
-        if (watcherClass != null) {
-          watchers.put(object.getClass(), watcherClass);
+        if (!list.isEmpty()) {
+          watchers.put(objectClass, list);
         } else {
-          notWatched.add(object.getClass());
-          return;
+          notWatched.add(objectClass);
         }
+      } finally {
+        watcherLock.writeLock().unlock();
       }
     }
 
-    try {
-      @SuppressWarnings("unchecked")
-      ObjectWatcher<Object> watcher = (ObjectWatcher<Object>) watcherClass.newInstance();
-      WeakHashMap<Object, ObjectWatcher<Object>> weak = objects.get(watcherClass);
-      assert weak != null; // If watchers contains object.getClass, then objects contains it also,
-                           // see registerWatcher
-      if (watcher.notifyInstantiation(object, size, count, getCurrentEventType())) {
-        weak.put(object, watcher);
+    for (Class<? extends ObjectWatcher<?>> watcherClass : list) {
+      try {
+        @SuppressWarnings("unchecked")
+        ObjectWatcher<Object> watcher = (ObjectWatcher<Object>) watcherClass.newInstance();
+
+        if (watcher.notifyInstantiation(object, size, count, getCurrentEventType())) {
+          WeakHashMap<Object, ObjectWatcher<Object>> weak = objects.get(watcherClass);
+          assert weak != null; // If watchers contains object.getClass, then objects contains it
+                               // also, see registerWatcher
+          weak.put(object, watcher);
+        }
+      } catch (InstantiationException e) {
+        logger.log(Level.WARNING, "Can not instantiate Watcher", e);
+      } catch (IllegalAccessException e) {
+        logger.log(Level.WARNING, "Can not instantiate Watcher", e);
       }
-    } catch (InstantiationException e) {
-      logger.log(Level.WARNING, "Can not instantiate Watcher", e);
-    } catch (IllegalAccessException e) {
-      logger.log(Level.WARNING, "Can not instantiate Watcher", e);
     }
   }
 }

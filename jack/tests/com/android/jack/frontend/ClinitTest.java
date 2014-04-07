@@ -24,9 +24,8 @@ import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.util.filter.RejectAllMethods;
+import com.android.jack.util.NamingTools;
 
 import junit.framework.Assert;
 
@@ -49,10 +48,10 @@ public class ClinitTest {
 
   @Test
   public void searchStaticInit() throws Exception {
-    JMethod clinit = TestTools.getJMethod(
+    JMethod clinit = TestTools.getJMethodWithRejectAllFilter(
         TestTools.getJackTestFromBinaryName(CLASS_WITH_VARIABLE_INIT_BINARY_NAME),
         "L" + CLASS_WITH_VARIABLE_INIT_BINARY_NAME + ";",
-        JProgram.STATIC_INIT_NAME + "()V", new RejectAllMethods());
+        NamingTools.STATIC_INIT_NAME + "()V");
 
     JMethodBody body = (JMethodBody) clinit.getBody();
     assert body != null;
@@ -75,9 +74,9 @@ public class ClinitTest {
 
   @Test
   public void searchEmptyStaticInit() throws Exception {
-    JMethod clinit = TestTools.getJMethod(
+    JMethod clinit = TestTools.getJMethodWithRejectAllFilter(
         TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME),
-        "L" + CLASS_BINARY_NAME + ";", JProgram.STATIC_INIT_NAME + "()V",new RejectAllMethods());
+        "L" + CLASS_BINARY_NAME + ";", NamingTools.STATIC_INIT_NAME + "()V");
 
     Assert.assertEquals(0, ((JMethodBody)clinit.getBody()).getStatements().size());
   }

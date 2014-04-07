@@ -1,61 +1,61 @@
-com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.e:
+com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.RenamedE:
     void <init>() -> <init>
-    void keep() -> a
-com.android.jack.shrob.test001.jack.I -> com.android.jack.shrob.test001.jack.i:
-    void m() -> a
-com.android.jack.shrob.test001.jack.H -> com.android.jack.shrob.test001.jack.h:
-com.android.jack.shrob.test001.jack.J -> com.android.jack.shrob.test001.jack.j:
+    void keep() -> renamedKeep
+com.android.jack.shrob.test001.jack.I -> com.android.jack.shrob.test001.jack.RenamedI:
+    void m() -> renamedM
+com.android.jack.shrob.test001.jack.H -> com.android.jack.shrob.test001.jack.renamedH:
+com.android.jack.shrob.test001.jack.J -> com.android.jack.shrob.test001.jack.renamedJ:
     void <init>() -> <init>
-    int[][][] m5(int,boolean,long) -> a
-    int[][][] m3() -> a
-    int[][] m2() -> b
-    int[] m1() -> c
-    int m0() -> d
-    int[][][] m() -> e
-com.android.jack.shrob.test001.jack.F -> com.android.jack.shrob.test001.jack.f:
+    int[][][] m() -> renamedM
+    int m0() -> renamedM0
+    int[] m1() -> renamedM1
+    int[][] m2() -> renamedM2
+    int[][][] m3() -> renamedM3
+    int[][][] m5(int,boolean,long) -> renamedM5
+com.android.jack.shrob.test001.jack.F -> com.android.jack.shrob.test001.jack.RenamedF:
     void <init>() -> <init>
-    void keep() -> a
-com.android.jack.shrob.test001.jack.B -> com.android.jack.shrob.test001.jack.b:
+    void keep() -> renamedKeep
+com.android.jack.shrob.test001.jack.B -> com.android.jack.shrob.test001.jack.RenamedB:
     void <init>() -> <init>
-com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.d:
+com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.RenamedD:
     void <init>() -> <init>
-    void keep() -> a
-    void main(java.lang.String[]) -> a
-    void main2(java.lang.String[]) -> b
-com.android.jack.shrob.test001.jack.G -> com.android.jack.shrob.test001.jack.g:
+    void keep() -> renamedKeep
+    void main(java.lang.String[]) -> renamedMain
+    void main2(java.lang.String[]) -> renamedMain2
+com.android.jack.shrob.test001.jack.G -> com.android.jack.shrob.test001.jack.RenamedG:
     void <init>() -> <init>
-    void m() -> a
-    void main(java.lang.String[]) -> a
-com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.k:
+    void m() -> renamedM
+    void main(java.lang.String[]) -> renamedMain
+com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.RenamedReflect:
     void <init>() -> <init>
-    void keep() -> a
-    void keep2() -> b
-    void keep3() -> c
-    void keep4() -> d
-    void keep5() -> e
-    void keep6() -> f
-    void keep7() -> g
-    void keep8() -> h
-com.android.jack.shrob.test001.jack.C -> com.android.jack.shrob.test001.jack.c:
+    void keep() -> renamedKeep
+    void keep2() -> renamedKeep2
+    void keep3() -> renamedKeep3
+    void keep4() -> renamedKeep4
+    void keep5() -> renamedKeep5
+    void keep6() -> renamedKeep6
+    void keep7() -> renamedKeep7
+    void keep8() -> renamedKeep8
+com.android.jack.shrob.test001.jack.C -> com.android.jack.shrob.test001.jack.RenamedC:
     void <init>() -> <init>
-    void f() -> a
-    void m() -> b
-com.android.jack.shrob.test001.jack.A -> com.android.jack.shrob.test001.jack.a:
-    void <clinit>() -> <clinit>
+    void f() -> renamedF
+    void m() -> renamedM
+com.android.jack.shrob.test001.jack.A -> com.android.jack.shrob.test001.jack.RenamedA:
     void <init>() -> <init>
     void <init>(int) -> <init>
-    void m() -> a
-    void privateFunc() -> b
+    void m() -> renamedM
+    void privateFunc() -> renamedPrivateFunc
+    void <clinit>() -> <clinit>
 com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Reflect2:
-    int fieldPublic -> fieldPublic
-    int fieldPrivate -> fieldPrivate
+    com.android.jack.shrob.test001.jack.Reflect2$A a -> a
+    com.android.jack.shrob.test001.jack.Reflect2$B b -> b
+    java.lang.Object c -> c
     long fieldLong -> fieldLong
     long fieldLong2 -> fieldLong2
     long fieldLong3 -> fieldLong3
     long fieldLong4 -> fieldLong4
-    com.android.jack.shrob.test001.jack.Reflect2$A a -> a
-    com.android.jack.shrob.test001.jack.Reflect2$B b -> b
-    java.lang.Object c -> c
+    int fieldPrivate -> fieldPrivate
+    int fieldPublic -> fieldPublic
     void <init>() -> <init>
     void calledMethod() -> calledMethod
     void m(com.android.jack.shrob.test001.jack.Reflect2$A) -> m
@@ -71,14 +71,14 @@ com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
     void <init>() -> <init>
     void onReceive() -> onReceive
 com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
-    int i -> i
-    int h -> h
-    int i2 -> i2
-    int j -> j
-    int i3 -> i3
-    java.lang.Object o -> o
     java.lang.String TAG -> TAG
     java.lang.String TAG2 -> TAG2
-    void <clinit>() -> <clinit>
+    int h -> h
+    int i -> i
+    int i2 -> i2
+    int i3 -> i3
+    int j -> j
+    java.lang.Object o -> o
     void <init>() -> <init>
     void keep() -> keep
+    void <clinit>() -> <clinit>

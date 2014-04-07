@@ -1,6 +1,6 @@
-com.android.jack.shrob.test005.jack.Annot -> a.a.a.a.a.a.c:
-com.android.jack.shrob.test005.jack.A -> a.a.a.a.a.a.a:
+com.android.jack.shrob.test005.jack.Annot -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedAnnot:
+com.android.jack.shrob.test005.jack.A -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedA:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.B -> a.a.a.a.a.a.b:
+com.android.jack.shrob.test005.jack.B -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedB:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.Annot2 -> a.a.a.a.a.a.d:
+com.android.jack.shrob.test005.jack.Annot2 -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedAnnot2:

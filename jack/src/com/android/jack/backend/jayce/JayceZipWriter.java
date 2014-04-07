@@ -21,7 +21,7 @@ import com.android.jack.Options;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.scheduling.feature.JackFileZipOutput;
 import com.android.jack.util.BytesStreamSucker;
@@ -31,14 +31,16 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.util.config.Location;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.ZipLocation;
+import com.android.sched.vfs.InputVFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
@@ -51,19 +53,19 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
 @Produce(JackFormatProduct.class)
 @Support(JackFileZipOutput.class)
-public class JayceZipWriter implements RunnableSchedulable<JProgram> {
+public class JayceZipWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   private final File outputZip = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
 
     try {
       ZipOutputStream zos =
           new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outputZip)));
       try {
-        for (JDefinedClassOrInterface type : program.getTypesToEmit()) {
+        for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
           String filePath = JayceSingleTypeWriter.getFilePath(type);
           ZipEntry zipEntry = new ZipEntry(filePath);
           zos.putNextEntry(zipEntry);
@@ -72,16 +74,23 @@ public class JayceZipWriter implements RunnableSchedulable<JProgram> {
         }
 
         ResourceContainerMarker resourceContainer =
-            program.getMarker(ResourceContainerMarker.class);
+            session.getMarker(ResourceContainerMarker.class);
         if (resourceContainer != null) {
-          ZipFile zipFile = resourceContainer.getZipFile();
-          for (ZipEntry resourceEntry : resourceContainer.getZipEntries()) {
+          for (InputVFile resource : resourceContainer.getResources()) {
+            Location location = resource.getLocation();
+            String entryName;
+            if (location instanceof ZipLocation) {
+              ZipLocation zipLocation = (ZipLocation) location;
+              entryName = zipLocation.getEntryName();
+            } else {
+              entryName = resource.getName();
+            }
+            ZipEntry resourceEntry = new ZipEntry(entryName);
             zos.putNextEntry(resourceEntry);
             BytesStreamSucker sucker =
-                new BytesStreamSucker(zipFile.getInputStream(resourceEntry), zos);
+                new BytesStreamSucker(resource.openRead(), zos);
             sucker.run();
           }
-          zipFile.close();
         }
       } finally {
         zos.close();

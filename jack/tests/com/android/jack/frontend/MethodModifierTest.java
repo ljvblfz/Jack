@@ -22,8 +22,7 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.util.filter.RejectAllMethods;
+import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
@@ -33,7 +32,7 @@ import org.junit.Test;
 
 public class MethodModifierTest {
 
-  private JProgram program;
+  private JSession session;
   private final String classBinaryName = "com/android/jack/modifier/jack/MethodModifier";
   private final String classSignature = "L" + classBinaryName + ";";
 
@@ -43,15 +42,15 @@ public class MethodModifierTest {
 
     Options jackArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(classBinaryName));
-    jackArgs.setFilter(new RejectAllMethods());
+    jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
 
-    program = TestTools.buildProgram(jackArgs);
-    Assert.assertNotNull(program);
+    session = TestTools.buildSession(jackArgs);
+    Assert.assertNotNull(session);
   }
 
   @Test
   public void methodPublicModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodPublic()V");
@@ -62,7 +61,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodProtectedModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodProtected()V");
@@ -73,7 +72,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodPrivateModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodPrivate()V");
@@ -84,7 +83,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodStaticModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodStatic()V");
@@ -95,7 +94,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodFinalModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodFinal()V");
@@ -106,7 +105,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodPublicFinalModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodPublicFinal()V");
@@ -117,7 +116,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodSynchronized() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodSynchronized()V");
@@ -128,7 +127,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodNative() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodNative()V");
@@ -140,7 +139,7 @@ public class MethodModifierTest {
   @Test
   @Ignore
   public void methodVarags() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodVarags([I)V");
@@ -151,7 +150,7 @@ public class MethodModifierTest {
 
   @Test
   public void constructorPrivate() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "<init>()V");
@@ -162,7 +161,7 @@ public class MethodModifierTest {
 
   @Test
   public void constructorPublic() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "<init>(I)V");
@@ -173,7 +172,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodAbstract() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodAbstract()V");
@@ -184,7 +183,7 @@ public class MethodModifierTest {
 
   @Test
   public void clinit() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = type.getMethod("<clinit>", JPrimitiveTypeEnum.VOID.getType());
@@ -195,7 +194,7 @@ public class MethodModifierTest {
 
   @Test
   public void methodStrictfp() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod method = TestTools.getMethod(type, "methodStrictfp()V");

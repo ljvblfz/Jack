@@ -55,6 +55,15 @@ public class ListPropertyId<T> extends PropertyId<List<T>> {
     return this;
   }
 
+
+  @Override
+  @Nonnull
+  public ListPropertyId<T> addDefaultValue (@Nonnull List<T> defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
   @Override
   @Nonnull
   public ListPropertyId<T> requiredIf(@Nonnull BooleanExpression expression) {

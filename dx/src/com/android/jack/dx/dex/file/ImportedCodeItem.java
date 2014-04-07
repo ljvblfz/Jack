@@ -16,16 +16,13 @@
 
 package com.android.jack.dx.dex.file;
 
-import java.io.PrintWriter;
-
 import com.android.jack.dx.io.Code;
-import com.android.jack.dx.io.CodeReader;
-import com.android.jack.dx.io.Opcodes;
 import com.android.jack.dx.io.Code.CatchHandler;
 import com.android.jack.dx.io.Code.Try;
+import com.android.jack.dx.io.CodeReader;
+import com.android.jack.dx.io.Opcodes;
 import com.android.jack.dx.io.instructions.DecodedInstruction;
 import com.android.jack.dx.io.instructions.ShortArrayCodeOutput;
-import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -33,10 +30,13 @@ import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 import com.android.jack.dx.util.DexException;
 import com.android.jack.dx.util.Hex;
 
+import java.io.PrintWriter;
+
 /**
  * Representation of all the parts needed to import methods from a {@code dex} file into another.
  */
-public final class ImportedCodeItem extends OffsettedItem implements com.android.jack.dx.dex.file.Code {
+public final class ImportedCodeItem extends OffsettedItem implements
+    com.android.jack.dx.dex.file.Code {
 
   /** {@code null-ok;} the imported debug info or {@code null} if there is none; */
   ImportedDebugInfoItem debugInfoItem = null;
@@ -101,6 +101,7 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
   }
 
   /** {@inheritDoc} */
+  @Override
   public void addContents(DexFile file) {
     if (debugInfoItem != null) {
       file.getByteData().add(debugInfoItem);
@@ -132,7 +133,8 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
   protected void place0(Section addedTo, int offset) {
     int triesLength = code.getTries().length;
 
-    encodedHandlers = triesLength != 0 ? encodeAndRemapCatchHandler(addedTo.getFile()) : new byte[0];
+    encodedHandlers =
+        triesLength != 0 ? encodeAndRemapCatchHandler(addedTo.getFile()) : new byte[0];
 
     int catchesSize = triesLength * CatchStructs.TRY_ITEM_WRITE_SIZE + encodedHandlers.length;
 
@@ -314,6 +316,7 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
 
   private class GenericVisitor implements CodeReader.Visitor {
 
+    @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
       remappedInstructions[remappingIndex++] = decodedInst;
     }
@@ -335,8 +338,8 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
       int newIndex = cstIndexMap.getRemappedCstStringIndex(file, decodedInst.getIndex());
 
       if (decodedInst.getOpcode() != Opcodes.CONST_STRING_JUMBO && (newIndex > 0xffff)) {
-        throw new DexException("Cannot remap new index " + newIndex
-            + " into a non-jumbo instruction!");
+        throw new DexException(
+            "Cannot remap new index " + newIndex + " into a non-jumbo instruction!");
       }
 
       remappedInstructions[remappingIndex++] = decodedInst.withIndex(newIndex);
@@ -356,8 +359,8 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
 
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-      remappedInstructions[remappingIndex++] =
-          decodedInst.withIndex(cstIndexMap.getRemappedCstFieldRefIndex(file, decodedInst.getIndex()));
+      remappedInstructions[remappingIndex++] = decodedInst.withIndex(
+          cstIndexMap.getRemappedCstFieldRefIndex(file, decodedInst.getIndex()));
     }
   }
 
@@ -392,9 +395,8 @@ public final class ImportedCodeItem extends OffsettedItem implements com.android
 
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-      remappedInstructions[remappingIndex++] =
-          decodedInst.withIndex(cstIndexMap.getRemappedCstBaseMethodRefIndex(file,
-              decodedInst.getIndex()));
+      remappedInstructions[remappingIndex++] = decodedInst.withIndex(
+          cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getIndex()));
     }
   }
 }

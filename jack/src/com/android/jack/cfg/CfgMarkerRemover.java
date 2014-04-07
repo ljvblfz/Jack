@@ -16,14 +16,17 @@
 
 package com.android.jack.cfg;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +39,9 @@ import javax.annotation.Nonnull;
 @Transform(remove = {ControlFlowGraph.class, BasicBlockMarker.class})
 public class CfgMarkerRemover implements RunnableSchedulable<JMethod> {
 
+  @Nonnull
+  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+
   private static class Visitor extends JVisitor {
     @Override
     public boolean visit(@Nonnull JStatement stmt) {
@@ -46,6 +52,11 @@ public class CfgMarkerRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
+    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
+        || !filter.accept(this.getClass(), method)) {
+      return;
+    }
+
     method.removeMarker(ControlFlowGraph.class);
     Visitor v = new Visitor();
     v.accept(method);

@@ -21,11 +21,10 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
+import com.android.jack.scheduling.adapter.JMethodAdaptor;
 import com.android.jack.transformations.parent.ParentSetterChecker;
-import com.android.jack.util.filter.SupportedMethods;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.SchedulableManager;
@@ -50,11 +49,11 @@ public class BlockStatisticsOnCore {
   public void computeBlockStatOnCore() throws Exception {
     Options compilerArgs = TestTools.buildCommandLineArgs(null, null,
         TestTools.getFromAndroidTree("libcore/luni/src/main/java/"));
-    compilerArgs.setFilter(new SupportedMethods());
-    JProgram program = buildProgram(compilerArgs);
-    Assert.assertNotNull(program);
+    compilerArgs.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    JSession session = buildSession(compilerArgs);
+    Assert.assertNotNull(session);
 
-    BlockCountMarker bcm = program.getMarker(BlockCountMarker.class);
+    BlockCountMarker bcm = session.getMarker(BlockCountMarker.class);
     Assert.assertNotNull(bcm);
     assert bcm != null; // Find Bugs will be happy
 
@@ -70,9 +69,9 @@ public class BlockStatisticsOnCore {
   }
 
   @Nonnull
-  private static JProgram buildProgram(@Nonnull Options options) throws Exception {
-    JProgram jprogram = TestTools.buildProgram(options);
-    Assert.assertNotNull(jprogram);
+  private static JSession buildSession(@Nonnull Options options) throws Exception {
+    JSession session = TestTools.buildSession(options);
+    Assert.assertNotNull(session);
 
     Scheduler scheduler = Scheduler.getScheduler();
     SchedulableManager sm = SchedulableManager.getSchedulableManager();
@@ -82,14 +81,14 @@ public class BlockStatisticsOnCore {
     sr.addTargetIncludeTagOrMarker(JavaSourceIr.class);
     sr.addInitialTagOrMarker(JavaSourceIr.class);
 
-    PlanBuilder<JProgram> progPlan = sr.getPlanBuilder(JProgram.class);
-    progPlan.append(ParentSetterChecker.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = progPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+    PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
+    planBuilder.append(ParentSetterChecker.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
     SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
     methodPlan.append(BlockStatistics.class);
 
-    progPlan.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
 
-    return (jprogram);
+    return (session);
   }
 }

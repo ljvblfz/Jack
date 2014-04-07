@@ -21,12 +21,12 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -58,7 +58,7 @@ public class FieldInitializer implements RunnableSchedulable<JField> {
       TransformationRequest request = new TransformationRequest(field);
 
       // Lookup for clinit
-      JMethod clinit = field.getEnclosingType().getMethod(JProgram.STATIC_INIT_NAME,
+      JMethod clinit = field.getEnclosingType().getMethod(NamingTools.STATIC_INIT_NAME,
           JPrimitiveTypeEnum.VOID.getType());
       JMethodBody body = (JMethodBody) clinit.getBody();
       assert body != null;

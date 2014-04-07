@@ -20,6 +20,5 @@ package com.android.sched.util.log;
  * Represents a event type of an event.
  */
 public interface EventType {
-  public String getColor();
   public String getName();
 }

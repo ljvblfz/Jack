@@ -52,6 +52,21 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
 
   @Override
   @Nonnull
+  public BooleanPropertyId addDefaultValue (@Nonnull Boolean defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Nonnull
+  public BooleanPropertyId addDefaultValue (boolean defaultValue) {
+    super.addDefaultValue(Boolean.valueOf(defaultValue));
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public BooleanPropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 

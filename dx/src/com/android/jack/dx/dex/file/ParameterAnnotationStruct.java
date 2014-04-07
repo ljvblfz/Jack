@@ -28,134 +28,135 @@ import java.util.ArrayList;
 /**
  * Association of a method and its parameter annotations.
  */
-public final class ParameterAnnotationStruct
-        implements ToHuman, Comparable<ParameterAnnotationStruct> {
-    /** {@code non-null;} the method in question */
-    private final CstMethodRef method;
+public final class ParameterAnnotationStruct implements ToHuman,
+    Comparable<ParameterAnnotationStruct> {
+  /** {@code non-null;} the method in question */
+  private final CstMethodRef method;
 
-    /** {@code non-null;} the associated annotations list */
-    private final AnnotationsList annotationsList;
+  /** {@code non-null;} the associated annotations list */
+  private final AnnotationsList annotationsList;
 
-    /** {@code non-null;} the associated annotations list, as an item */
-    private final UniformListItem<AnnotationSetRefItem> annotationsItem;
+  /** {@code non-null;} the associated annotations list, as an item */
+  private final UniformListItem<AnnotationSetRefItem> annotationsItem;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param method {@code non-null;} the method in question
-     * @param annotationsList {@code non-null;} the associated annotations list
+  /**
+   * Constructs an instance.
+   *
+   * @param method {@code non-null;} the method in question
+   * @param annotationsList {@code non-null;} the associated annotations list
+   */
+  public ParameterAnnotationStruct(CstMethodRef method, AnnotationsList annotationsList) {
+    if (method == null) {
+      throw new NullPointerException("method == null");
+    }
+
+    if (annotationsList == null) {
+      throw new NullPointerException("annotationsList == null");
+    }
+
+    this.method = method;
+    this.annotationsList = annotationsList;
+
+    /*
+     * Construct an item for the annotations list. TODO(dx team): This
+     * requires way too much copying; fix it.
      */
-    public ParameterAnnotationStruct(CstMethodRef method,
-            AnnotationsList annotationsList) {
-        if (method == null) {
-            throw new NullPointerException("method == null");
-        }
 
-        if (annotationsList == null) {
-            throw new NullPointerException("annotationsList == null");
-        }
+int size = annotationsList.size();
+    ArrayList<AnnotationSetRefItem> arrayList = new ArrayList<AnnotationSetRefItem>(size);
 
-        this.method = method;
-        this.annotationsList = annotationsList;
-
-        /*
-         * Construct an item for the annotations list. TODO: This
-         * requires way too much copying; fix it.
-         */
-
-        int size = annotationsList.size();
-        ArrayList<AnnotationSetRefItem> arrayList = new
-            ArrayList<AnnotationSetRefItem>(size);
-
-        for (int i = 0; i < size; i++) {
-            Annotations annotations = annotationsList.get(i);
-            AnnotationSetItem item = new AnnotationSetItem(annotations);
-            arrayList.add(new AnnotationSetRefItem(item));
-        }
-
-        this.annotationsItem = new UniformListItem<AnnotationSetRefItem>(
-                ItemType.TYPE_ANNOTATION_SET_REF_LIST, arrayList);
+    for (int i = 0; i < size; i++) {
+      Annotations annotations = annotationsList.get(i);
+      AnnotationSetItem item = new AnnotationSetItem(annotations);
+      arrayList.add(new AnnotationSetRefItem(item));
     }
 
-    /** {@inheritDoc} */
-    public int hashCode() {
-        return method.hashCode();
+    this.annotationsItem =
+        new UniformListItem<AnnotationSetRefItem>(ItemType.TYPE_ANNOTATION_SET_REF_LIST, arrayList);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int hashCode() {
+    return method.hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof ParameterAnnotationStruct)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    public boolean equals(Object other) {
-        if (! (other instanceof ParameterAnnotationStruct)) {
-            return false;
-        }
+    return method.equals(((ParameterAnnotationStruct) other).method);
+  }
 
-        return method.equals(((ParameterAnnotationStruct) other).method);
+  /** {@inheritDoc} */
+  @Override
+  public int compareTo(ParameterAnnotationStruct other) {
+    return method.compareTo(other.method);
+  }
+
+  /** {@inheritDoc} */
+  public void addContents(DexFile file) {
+    MethodIdsSection methodIds = file.getMethodIds();
+    MixedItemSection wordData = file.getWordData();
+
+    methodIds.intern(method);
+    wordData.add(annotationsItem);
+  }
+
+  /** {@inheritDoc} */
+  public void writeTo(DexFile file, AnnotatedOutput out) {
+    int methodIdx = file.getMethodIds().indexOf(method);
+    int annotationsOff = annotationsItem.getAbsoluteOffset();
+
+    if (out.annotates()) {
+      out.annotate(0, "    " + method.toHuman());
+      out.annotate(4, "      method_idx:      " + Hex.u4(methodIdx));
+      out.annotate(4, "      annotations_off: " + Hex.u4(annotationsOff));
     }
 
-    /** {@inheritDoc} */
-    public int compareTo(ParameterAnnotationStruct other) {
-        return method.compareTo(other.method);
+    out.writeInt(methodIdx);
+    out.writeInt(annotationsOff);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(method.toHuman());
+    sb.append(": ");
+
+    boolean first = true;
+    for (AnnotationSetRefItem item : annotationsItem.getItems()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(", ");
+      }
+      sb.append(item.toHuman());
     }
 
-    /** {@inheritDoc} */
-    public void addContents(DexFile file) {
-        MethodIdsSection methodIds = file.getMethodIds();
-        MixedItemSection wordData = file.getWordData();
+    return sb.toString();
+  }
 
-        methodIds.intern(method);
-        wordData.add(annotationsItem);
-    }
+  /**
+   * Gets the method this item is for.
+   *
+   * @return {@code non-null;} the method
+   */
+  public CstMethodRef getMethod() {
+    return method;
+  }
 
-    /** {@inheritDoc} */
-    public void writeTo(DexFile file, AnnotatedOutput out) {
-        int methodIdx = file.getMethodIds().indexOf(method);
-        int annotationsOff = annotationsItem.getAbsoluteOffset();
-
-        if (out.annotates()) {
-            out.annotate(0, "    " + method.toHuman());
-            out.annotate(4, "      method_idx:      " + Hex.u4(methodIdx));
-            out.annotate(4, "      annotations_off: " +
-                    Hex.u4(annotationsOff));
-        }
-
-        out.writeInt(methodIdx);
-        out.writeInt(annotationsOff);
-    }
-
-    /** {@inheritDoc} */
-    public String toHuman() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(method.toHuman());
-        sb.append(": ");
-
-        boolean first = true;
-        for (AnnotationSetRefItem item : annotationsItem.getItems()) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(", ");
-            }
-            sb.append(item.toHuman());
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * Gets the method this item is for.
-     *
-     * @return {@code non-null;} the method
-     */
-    public CstMethodRef getMethod() {
-        return method;
-    }
-
-    /**
-     * Gets the associated annotations list.
-     *
-     * @return {@code non-null;} the annotations list
-     */
-    public AnnotationsList getAnnotationsList() {
-        return annotationsList;
-    }
+  /**
+   * Gets the associated annotations list.
+   *
+   * @return {@code non-null;} the annotations list
+   */
+  public AnnotationsList getAnnotationsList() {
+    return annotationsList;
+  }
 }

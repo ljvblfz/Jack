@@ -24,169 +24,169 @@ import com.android.jack.dx.util.FixedSizeList;
  * method to extract an instance out of a {@link DalvInsnList}.
  */
 public final class PositionList extends FixedSizeList {
-    /** {@code non-null;} empty instance */
-    public static final PositionList EMPTY = new PositionList(0);
+  /** {@code non-null;} empty instance */
+  public static final PositionList EMPTY = new PositionList(0);
+
+  /**
+   * constant for {@link #make} to indicate that no actual position
+   * information should be returned
+   */
+  public static final int NONE = 1;
+
+  /**
+   * constant for {@link #make} to indicate that only line number
+   * transitions should be returned
+   */
+  public static final int LINES = 2;
+
+  /**
+   * constant for {@link #make} to indicate that only "important" position
+   * information should be returned. This includes block starts and
+   * instructions that might throw.
+   */
+  public static final int IMPORTANT = 3;
+
+  /**
+   * Extracts and returns the source position information out of an
+   * instruction list.
+   *
+   * @param insns {@code non-null;} instructions to convert
+   * @param howMuch how much information should be included; one of the
+   * static constants defined by this class
+   * @return {@code non-null;} the positions list
+   */
+  public static PositionList make(DalvInsnList insns, int howMuch) {
+    switch (howMuch) {
+      case NONE: {
+        return EMPTY;
+      }
+      case LINES:
+      case IMPORTANT: {
+        // Valid.
+        break;
+      }
+      default: {
+        throw new IllegalArgumentException("bogus howMuch");
+      }
+    }
+
+    SourcePosition noInfo = SourcePosition.NO_INFO;
+    SourcePosition cur = noInfo;
+    int sz = insns.size();
+    PositionList.Entry[] arr = new PositionList.Entry[sz];
+    boolean lastWasTarget = false;
+    int at = 0;
+
+    for (int i = 0; i < sz; i++) {
+      DalvInsn insn = insns.get(i);
+
+      if (insn instanceof CodeAddress) {
+        lastWasTarget = true;;
+        continue;
+      }
+
+      SourcePosition pos = insn.getPosition();
+
+      if (pos.equals(noInfo) || pos.sameLine(cur)) {
+        continue;
+      }
+
+      if ((howMuch == IMPORTANT) && !lastWasTarget) {
+        continue;
+      }
+
+      cur = pos;
+      arr[at] = new PositionList.Entry(insn.getAddress(), pos);
+      at++;
+
+      lastWasTarget = false;
+    }
+
+    PositionList result = new PositionList(at);
+    for (int i = 0; i < at; i++) {
+      result.set(i, arr[i]);
+    }
+
+    result.setImmutable();
+    return result;
+  }
+
+  /**
+   * Constructs an instance. All indices initially contain {@code null}.
+   *
+   * @param size {@code >= 0;} the size of the list
+   */
+  public PositionList(int size) {
+    super(size);
+  }
+
+  /**
+   * Gets the element at the given index. It is an error to call
+   * this with the index for an element which was never set; if you
+   * do that, this will throw {@code NullPointerException}.
+   *
+   * @param n {@code >= 0, < size();} which index
+   * @return {@code non-null;} element at that index
+   */
+  public Entry get(int n) {
+    return (Entry) get0(n);
+  }
+
+  /**
+   * Sets the entry at the given index.
+   *
+   * @param n {@code >= 0, < size();} which index
+   * @param entry {@code non-null;} the entry to set at {@code n}
+   */
+  public void set(int n, Entry entry) {
+    set0(n, entry);
+  }
+
+  /**
+   * Entry in a position list.
+   */
+  public static class Entry {
+    /** {@code >= 0;} address of this entry */
+    private final int address;
+
+    /** {@code non-null;} corresponding source position information */
+    private final SourcePosition position;
 
     /**
-     * constant for {@link #make} to indicate that no actual position
-     * information should be returned
-     */
-    public static final int NONE = 1;
-
-    /**
-     * constant for {@link #make} to indicate that only line number
-     * transitions should be returned
-     */
-    public static final int LINES = 2;
-
-    /**
-     * constant for {@link #make} to indicate that only "important" position
-     * information should be returned. This includes block starts and
-     * instructions that might throw.
-     */
-    public static final int IMPORTANT = 3;
-
-    /**
-     * Extracts and returns the source position information out of an
-     * instruction list.
+     * Constructs an instance.
      *
-     * @param insns {@code non-null;} instructions to convert
-     * @param howMuch how much information should be included; one of the
-     * static constants defined by this class
-     * @return {@code non-null;} the positions list
+     * @param address {@code >= 0;} address of this entry
+     * @param position {@code non-null;} corresponding source position information
      */
-    public static PositionList make(DalvInsnList insns, int howMuch) {
-        switch (howMuch) {
-            case NONE: {
-                return EMPTY;
-            }
-            case LINES:
-            case IMPORTANT: {
-                // Valid.
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("bogus howMuch");
-            }
-        }
+    public Entry(int address, SourcePosition position) {
+      if (address < 0) {
+        throw new IllegalArgumentException("address < 0");
+      }
 
-        SourcePosition noInfo = SourcePosition.NO_INFO;
-        SourcePosition cur = noInfo;
-        int sz = insns.size();
-        PositionList.Entry[] arr = new PositionList.Entry[sz];
-        boolean lastWasTarget = false;
-        int at = 0;
+      if (position == null) {
+        throw new NullPointerException("position == null");
+      }
 
-        for (int i = 0; i < sz; i++) {
-            DalvInsn insn = insns.get(i);
-
-            if (insn instanceof CodeAddress) {
-                lastWasTarget = true;;
-                continue;
-            }
-
-            SourcePosition pos = insn.getPosition();
-
-            if (pos.equals(noInfo) || pos.sameLine(cur)) {
-                continue;
-            }
-
-            if ((howMuch == IMPORTANT) && !lastWasTarget) {
-                continue;
-            }
-
-            cur = pos;
-            arr[at] = new PositionList.Entry(insn.getAddress(), pos);
-            at++;
-
-            lastWasTarget = false;
-        }
-
-        PositionList result = new PositionList(at);
-        for (int i = 0; i < at; i++) {
-            result.set(i, arr[i]);
-        }
-
-        result.setImmutable();
-        return result;
+      this.address = address;
+      this.position = position;
     }
 
     /**
-     * Constructs an instance. All indices initially contain {@code null}.
+     * Gets the address.
      *
-     * @param size {@code >= 0;} the size of the list
+     * @return {@code >= 0;} the address
      */
-    public PositionList(int size) {
-        super(size);
+    public int getAddress() {
+      return address;
     }
 
     /**
-     * Gets the element at the given index. It is an error to call
-     * this with the index for an element which was never set; if you
-     * do that, this will throw {@code NullPointerException}.
+     * Gets the source position information.
      *
-     * @param n {@code >= 0, < size();} which index
-     * @return {@code non-null;} element at that index
+     * @return {@code non-null;} the position information
      */
-    public Entry get(int n) {
-        return (Entry) get0(n);
+    public SourcePosition getPosition() {
+      return position;
     }
-
-    /**
-     * Sets the entry at the given index.
-     *
-     * @param n {@code >= 0, < size();} which index
-     * @param entry {@code non-null;} the entry to set at {@code n}
-     */
-    public void set(int n, Entry entry) {
-        set0(n, entry);
-    }
-
-    /**
-     * Entry in a position list.
-     */
-    public static class Entry {
-        /** {@code >= 0;} address of this entry */
-        private final int address;
-
-        /** {@code non-null;} corresponding source position information */
-        private final SourcePosition position;
-
-        /**
-         * Constructs an instance.
-         *
-         * @param address {@code >= 0;} address of this entry
-         * @param position {@code non-null;} corresponding source position information
-         */
-        public Entry (int address, SourcePosition position) {
-            if (address < 0) {
-                throw new IllegalArgumentException("address < 0");
-            }
-
-            if (position == null) {
-                throw new NullPointerException("position == null");
-            }
-
-            this.address = address;
-            this.position = position;
-        }
-
-        /**
-         * Gets the address.
-         *
-         * @return {@code >= 0;} the address
-         */
-        public int getAddress() {
-            return address;
-        }
-
-        /**
-         * Gets the source position information.
-         *
-         * @return {@code non-null;} the position information
-         */
-        public SourcePosition getPosition() {
-            return position;
-        }
-    }
+  }
 }

@@ -1,5 +1,5 @@
 com.android.jack.shrob.test010.jack.B -> com.android.jack.shrob.test010.jack.B:
     void <init>() -> <init>
     void keep() -> keep
-com.android.jack.shrob.test010.jack.A -> com.android.jack.shrob.test010.jack.a:
+com.android.jack.shrob.test010.jack.A -> com.android.jack.shrob.test010.jack.RenamedA:
     void <init>() -> <init>

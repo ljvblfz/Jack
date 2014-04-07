@@ -100,6 +100,14 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
 
   @Override
   @Nonnull
+  public JavaVersionPropertyId addDefaultValue (@Nonnull JavaVersion defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public JavaVersionPropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 

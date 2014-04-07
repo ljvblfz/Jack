@@ -21,8 +21,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.util.filter.RejectAllMethods;
+import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
@@ -31,27 +30,31 @@ import org.junit.Test;
 
 public class FieldModifierTest {
 
-  private JProgram program;
+  private JSession session;
 
-  private final static String FIELD_MODIFIER_BINARY_NAME = "com/android/jack/modifier/jack/FieldModifier";
+  private final static String FIELD_MODIFIER_BINARY_NAME =
+      "com/android/jack/modifier/jack/FieldModifier";
   private final static String FIELD_MODIFIER_SIGNATURE = "L" + FIELD_MODIFIER_BINARY_NAME + ";";
-  private final static String FIELD_ENUM_BINARY_NAME = "com/android/jack/modifier/jack/FieldEnumModifier";
+  private final static String FIELD_ENUM_BINARY_NAME =
+      "com/android/jack/modifier/jack/FieldEnumModifier";
 
   @Before
   public void setUp() throws Exception {
     FieldModifierTest.class.getClassLoader().setDefaultAssertionStatus(true);
 
-    Options jackArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestFromBinaryName(FIELD_MODIFIER_BINARY_NAME));
-    jackArgs.setFilter(new RejectAllMethods());
+    Options jackArgs =
+        TestTools.buildCommandLineArgs(TestTools
+            .getJackTestFromBinaryName(FIELD_MODIFIER_BINARY_NAME));
+    jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
 
-    program = TestTools.buildProgram(jackArgs);
-    Assert.assertNotNull(program);
+    session = TestTools.buildSession(jackArgs);
+    Assert.assertNotNull(session);
   }
 
   @Test
   public void fieldPublicModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldPublic");
@@ -62,7 +65,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldProtectedModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldProtected");
@@ -73,7 +77,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldPrivateModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldPrivate");
@@ -84,7 +89,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldStaticModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldStatic");
@@ -95,7 +101,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldVolatileModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldVolatile");
@@ -106,7 +113,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldFinalModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldFinal");
@@ -117,7 +125,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldTransientModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldTransient");
@@ -128,7 +137,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldPublicFinalModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldPublicFinal");
@@ -139,7 +149,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldMultipleFinalModifier() throws Exception {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(FIELD_MODIFIER_SIGNATURE);
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "fieldProtectedStaticVolatileTransient");
@@ -153,12 +164,14 @@ public class FieldModifierTest {
   public void fieldEnumModifier() throws Exception {
     Options args = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(FIELD_ENUM_BINARY_NAME));
-    args.setFilter(new RejectAllMethods());
+    args.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
 
-    JProgram program = TestTools.buildProgram(args);
-    Assert.assertNotNull(program);
+    JSession session = TestTools.buildSession(args);
+    Assert.assertNotNull(session);
 
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType("L" + FIELD_ENUM_BINARY_NAME + "$Select;");
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(
+            "L" + FIELD_ENUM_BINARY_NAME + "$Select;");
     Assert.assertNotNull(type);
 
     JField field = getFieldFromName(type, "ONE");

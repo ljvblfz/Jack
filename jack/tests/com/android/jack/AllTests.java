@@ -38,8 +38,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses(value = {
     AnnotationTest.class,
-    Arithmetic001Test.class,
-    Arithmetic002Test.class,
+    ArithmeticTest.class,
     ArrayTest.class,
     AssertionTest.class,
     AssignmentTest.class,
@@ -83,6 +82,7 @@ import org.junit.runners.Suite.SuiteClasses;
     OpcodesTest.class,
     OrderTest.class,
     ReachingDefsTest.class,
+    ResourceTest.class,
     ReturnTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,

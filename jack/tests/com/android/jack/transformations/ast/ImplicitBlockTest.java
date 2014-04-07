@@ -18,15 +18,15 @@ package com.android.jack.transformations.ast;
 
 
 import com.android.jack.Options;
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
+import com.android.jack.scheduling.adapter.JMethodAdaptor;
 import com.android.jack.transformations.parent.ParentSetterChecker;
+import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
@@ -106,9 +106,11 @@ public class ImplicitBlockTest {
 
   private static JMethod buildMethodWithImplicitBlock(String methodSignature) throws Exception {
     Options options = TestTools.buildCommandLineArgs(FILE);
-    options.setFilter(new SignatureMethodFilter(methodSignature));
-    JProgram jprogram = TestTools.buildJAst(options);
-    Assert.assertNotNull(jprogram);
+    options.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    options.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
+    JSession session = TestTools.buildJAst(options);
+    Assert.assertNotNull(session);
 
     Scheduler scheduler = Scheduler.getScheduler();
     Request sr = scheduler.createScheduleRequest();
@@ -117,17 +119,17 @@ public class ImplicitBlockTest {
     sr.addTargetIncludeTagOrMarker(JavaSourceIr.class);
     sr.addInitialTagOrMarker(JavaSourceIr.class);
 
-    PlanBuilder<JProgram> progPlan = sr.getPlanBuilder(JProgram.class);
-    progPlan.append(ParentSetterChecker.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = progPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+    PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
+    planBuilder.append(ParentSetterChecker.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
     SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
     methodPlan.append(ImplicitBlocks.class);
     methodPlan.append(ImplicitBlocksChecker.class);
 
-    progPlan.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
 
     JDefinedClassOrInterface type = (JDefinedClassOrInterface)
-        jprogram.getLookup().getType(CLASS_SIGNATURE);
+        session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(type);
 
     JMethod foundMethod = TestTools.getMethod(type, methodSignature);

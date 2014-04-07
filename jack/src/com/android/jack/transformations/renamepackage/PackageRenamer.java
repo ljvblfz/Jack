@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
@@ -61,7 +61,7 @@ import javax.annotation.Nonnull;
 @Name("PackageRenamer")
 @Support(Jarjar.class)
 @Transform(add = {JStringLiteral.class, JPackage.class}, modify = JDefinedClassOrInterface.class)
-public class PackageRenamer implements RunnableSchedulable<JProgram>{
+public class PackageRenamer implements RunnableSchedulable<JSession>{
 
   @Nonnull
   public static final PropertyId<File> JARJAR_FILE = PropertyId.create(
@@ -79,7 +79,7 @@ public class PackageRenamer implements RunnableSchedulable<JProgram>{
     private final Stack<JNode> transformationRequestRoot = new Stack<JNode>();
 
     @Nonnull
-    private final JLookup lookup = Jack.getProgram().getLookup();
+    private final JLookup lookup = Jack.getSession().getLookup();
     @Nonnull
     private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
@@ -139,11 +139,11 @@ public class PackageRenamer implements RunnableSchedulable<JProgram>{
   }
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     List<PatternElement> result = RulesFileParser.parse(jarjarRulesFile);
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
-    new Visitor(wildcards).accept(program);
-    program.getLookup().clear();
-    program.getPhantomLookup().clear();
+    new Visitor(wildcards).accept(session);
+    session.getLookup().clear();
+    session.getPhantomLookup().clear();
   }
 }

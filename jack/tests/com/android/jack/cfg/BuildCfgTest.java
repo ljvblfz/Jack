@@ -18,13 +18,13 @@ package com.android.jack.cfg;
 
 
 import com.android.jack.Options;
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
+import com.android.jack.util.filter.SignatureMethodFilter;
 
 import junit.framework.Assert;
 
@@ -47,7 +47,9 @@ public class BuildCfgTest {
     File fileName = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
     final String methodSignature = "fibonacci(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method = CfgTools.buildCfg(classSignature, methodSignature, commandLineArgs);
 

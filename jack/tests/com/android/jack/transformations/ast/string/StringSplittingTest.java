@@ -32,7 +32,7 @@ public class StringSplittingTest {
   @Test
   public void testTypeStringSplitting() {
     DummyAction parserActions = new DummyAction();
-    GenericSignatureParser parser = new GenericSignatureParser(parserActions);
+    GenericSignatureParser<Object> parser = new GenericSignatureParser<Object>(parserActions);
     String signature = "LOuter.Inner;";
     parser.parseClassSignature(signature);
     Assert.assertEquals(signature, parserActions.getNewSignature());

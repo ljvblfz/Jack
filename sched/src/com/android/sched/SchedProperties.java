@@ -16,6 +16,7 @@
 
 package com.android.sched;
 
+import com.android.sched.item.onlyfor.Default;
 import com.android.sched.item.onlyfor.OnlyForType;
 import com.android.sched.util.codec.ClassSelector;
 import com.android.sched.util.config.HasKeyId;
@@ -32,10 +33,10 @@ public class SchedProperties {
   @Nonnull
   public static final BooleanPropertyId FAILED_STOP = BooleanPropertyId.create(
       "sched.failedstop", "Define if the SchedLib stop at the first failed")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final PropertyId<Class<? extends OnlyForType>> ONLY_FOR = PropertyId.create(
       "sched.onlyfor", "Define which items to take into account",
-      new ClassSelector<OnlyForType>(OnlyForType.class)).addDefaultValue("default");
+      new ClassSelector<OnlyForType>(OnlyForType.class)).addDefaultValue(Default.class);
 }

@@ -18,12 +18,14 @@ package com.android.jack.util.filter;
 
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.codec.ImplementationName;
 
 import javax.annotation.Nonnull;
 
 /**
  * {@link AllMethods} accepts all methods.
  */
+@ImplementationName(iface = Filter.class, name = "all-methods")
 public class AllMethods implements Filter<JMethod> {
 
   @Override

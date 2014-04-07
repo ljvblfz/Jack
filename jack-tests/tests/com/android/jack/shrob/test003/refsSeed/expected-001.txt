@@ -1,3 +1,0 @@
-com.android.jack.shrob.test003.jack.B
-com.android.jack.shrob.test003.lib.Test
-com.android.jack.shrob.test003.lib.Test: void keep()

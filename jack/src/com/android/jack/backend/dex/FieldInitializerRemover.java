@@ -61,12 +61,12 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
   @Nonnull
   public static final BooleanPropertyId CLASS_AS_INITIALVALUE = BooleanPropertyId.create(
       "jack.legacy.dx.initialvalue.class",
-      "Emit class literal as initial value of field").addDefaultValue("true");
+      "Emit class literal as initial value of field").addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId STRING_AS_INITIALVALUE_OF_OBJECT = BooleanPropertyId.create(
       "jack.legacy.runtime.initialvalue.string",
-      "Emit string literal as initial value of field").addDefaultValue("true");
+      "Emit string literal as initial value of field").addDefaultValue(Boolean.TRUE);
 
   private final boolean allowClassInInitialValue =
       ThreadConfig.get(CLASS_AS_INITIALVALUE).booleanValue();
@@ -84,7 +84,7 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
           /* Object field initialized by a String literal: don't remove unless allowed */
           && (allowStringAsObjectInit
               || !((field.getType() !=
-                        Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))
+                        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))
                   && (initialValue instanceof JAbstractStringLiteral)))
           /* Field initialized by a class literal: don't remove unless allowed */
           && (allowClassInInitialValue || !(initialValue instanceof JClassLiteral))

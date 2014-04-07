@@ -31,7 +31,7 @@ public class VariableMatchesSeveralConfigurationException extends VariableConfig
 
   public VariableMatchesSeveralConfigurationException(
       @Nonnull String variable, @Nonnull PropertyId<?> propertyId) {
-    super(variable, "Environment variable '" + variable + " matches several properties: '"
+    super(variable, "Environment variable '" + variable + "' matches several properties: '"
         + propertyId.getName() + "'");
     this.propertyId = propertyId;
   }

@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.load.MethodLoader;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -35,7 +36,7 @@ public class JConstructor extends JMethod {
 
   public JConstructor(@Nonnull SourceInfo info, @Nonnull JDefinedClass enclosingType,
       int modifier) {
-    super(info, new JMethodId(JProgram.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
+    super(info, new JMethodId(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
         enclosingType, JPrimitiveTypeEnum.VOID.getType(), modifier);
     assert JModifier.isMethodModifier(modifier);
     assert JModifier.isValidMethodModifier(modifier);
@@ -49,7 +50,7 @@ public class JConstructor extends JMethod {
 
   public JConstructor(@Nonnull SourceInfo info, @Nonnull JDefinedClass enclosingType, int modifier,
       @Nonnull MethodLoader loader) {
-    super(info, new JMethodId(JProgram.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
+    super(info, new JMethodId(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
         enclosingType, JPrimitiveTypeEnum.VOID.getType(), modifier, loader);
     assert JModifier.isMethodModifier(modifier);
     assert JModifier.isValidMethodModifier(modifier);

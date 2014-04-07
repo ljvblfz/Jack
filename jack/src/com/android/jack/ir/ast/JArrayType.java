@@ -126,7 +126,7 @@ public class JArrayType extends JDefinedReferenceType {
   public List<JInterface> getImplements() {
     // TODO(mikaelpeltier): Move init of superInterfaces into constructor (Bug:9652410)
     if (superInterfaces.isEmpty()) {
-      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
       superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));
       superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_LANG_CLONEABLE));
     }

@@ -56,7 +56,7 @@ public class JMethodCall extends JExpression {
   @Nonnull
   private JMethodId methodId;
   @Nonnull
-  private JType returnType;
+  private final JType returnType;
   @Nonnull
   private final DispatchKind dispatchKind;
 
@@ -189,10 +189,6 @@ public class JMethodCall extends JExpression {
     return returnType;
   }
 
-  public void resolveType(@Nonnull JType returnType) {
-    this.returnType = returnType;
-  }
-
   public void resolveMethodId(@Nonnull JMethodId methodId) {
     this.methodId = methodId;
   }
@@ -237,11 +233,6 @@ public class JMethodCall extends JExpression {
   @Nonnull
   public String getMethodName() {
     return methodId.getName();
-  }
-
-  public void resolve(@Nonnull JClassOrInterface receiverType, @Nonnull JType returnType) {
-    setReceiverType(receiverType);
-    this.returnType = returnType;
   }
 
   @Nonnull

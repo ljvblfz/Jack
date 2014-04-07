@@ -28,110 +28,110 @@ import java.util.TreeMap;
  * Method refs list section of a {@code .dex} file.
  */
 public final class MethodIdsSection extends MemberIdsSection {
-    /**
-     * {@code non-null;} map from method constants to {@link
-     * MethodIdItem} instances
-     */
-    private final TreeMap<CstBaseMethodRef, MethodIdItem> methodIds;
+  /**
+   * {@code non-null;} map from method constants to {@link
+   * MethodIdItem} instances
+   */
+  private final TreeMap<CstBaseMethodRef, MethodIdItem> methodIds;
 
-    /**
-     * Constructs an instance. The file offset is initially unknown.
-     *
-     * @param file {@code non-null;} file that this instance is part of
-     */
-    public MethodIdsSection(DexFile file) {
-        super("method_ids", file);
+  /**
+   * Constructs an instance. The file offset is initially unknown.
+   *
+   * @param file {@code non-null;} file that this instance is part of
+   */
+  public MethodIdsSection(DexFile file) {
+    super("method_ids", file);
 
-        methodIds = new TreeMap<CstBaseMethodRef, MethodIdItem>();
+    methodIds = new TreeMap<CstBaseMethodRef, MethodIdItem>();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Collection<? extends Item> items() {
+    return methodIds.values();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public IndexedItem get(Constant cst) {
+    if (cst == null) {
+      throw new NullPointerException("cst == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Collection<? extends Item> items() {
-        return methodIds.values();
+    throwIfNotPrepared();
+
+    IndexedItem result = methodIds.get(cst);
+
+    if (result == null) {
+      throw new IllegalArgumentException("not found");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public IndexedItem get(Constant cst) {
-        if (cst == null) {
-            throw new NullPointerException("cst == null");
-        }
+    return result;
+  }
 
-        throwIfNotPrepared();
+  /**
+   * Writes the portion of the file header that refers to this instance.
+   *
+   * @param out {@code non-null;} where to write
+   */
+  public void writeHeaderPart(AnnotatedOutput out) {
+    throwIfNotPrepared();
 
-        IndexedItem result = methodIds.get((CstBaseMethodRef) cst);
+    int sz = methodIds.size();
+    int offset = (sz == 0) ? 0 : getFileOffset();
 
-        if (result == null) {
-            throw new IllegalArgumentException("not found");
-        }
-
-        return result;
+    if (out.annotates()) {
+      out.annotate(4, "method_ids_size: " + Hex.u4(sz));
+      out.annotate(4, "method_ids_off:  " + Hex.u4(offset));
     }
 
-    /**
-     * Writes the portion of the file header that refers to this instance.
-     *
-     * @param out {@code non-null;} where to write
-     */
-    public void writeHeaderPart(AnnotatedOutput out) {
-        throwIfNotPrepared();
+    out.writeInt(sz);
+    out.writeInt(offset);
+  }
 
-        int sz = methodIds.size();
-        int offset = (sz == 0) ? 0 : getFileOffset();
-
-        if (out.annotates()) {
-            out.annotate(4, "method_ids_size: " + Hex.u4(sz));
-            out.annotate(4, "method_ids_off:  " + Hex.u4(offset));
-        }
-
-        out.writeInt(sz);
-        out.writeInt(offset);
+  /**
+   * Interns an element into this instance.
+   *
+   * @param method {@code non-null;} the reference to intern
+   * @return {@code non-null;} the interned reference
+   */
+  public MethodIdItem intern(CstBaseMethodRef method) {
+    if (method == null) {
+      throw new NullPointerException("method == null");
     }
 
-    /**
-     * Interns an element into this instance.
-     *
-     * @param method {@code non-null;} the reference to intern
-     * @return {@code non-null;} the interned reference
-     */
-    public MethodIdItem intern(CstBaseMethodRef method) {
-        if (method == null) {
-            throw new NullPointerException("method == null");
-        }
+    throwIfPrepared();
 
-        throwIfPrepared();
+    MethodIdItem result = methodIds.get(method);
 
-        MethodIdItem result = methodIds.get(method);
-
-        if (result == null) {
-            result = new MethodIdItem(method);
-            methodIds.put(method, result);
-        }
-
-        return result;
+    if (result == null) {
+      result = new MethodIdItem(method);
+      methodIds.put(method, result);
     }
 
-    /**
-     * Gets the index of the given reference, which must have been added
-     * to this instance.
-     *
-     * @param ref {@code non-null;} the reference to look up
-     * @return {@code >= 0;} the reference's index
-     */
-    public int indexOf(CstBaseMethodRef ref) {
-        if (ref == null) {
-            throw new NullPointerException("ref == null");
-        }
+    return result;
+  }
 
-        throwIfNotPrepared();
-
-        MethodIdItem item = methodIds.get(ref);
-
-        if (item == null) {
-            throw new IllegalArgumentException("not found");
-        }
-
-        return item.getIndex();
+  /**
+   * Gets the index of the given reference, which must have been added
+   * to this instance.
+   *
+   * @param ref {@code non-null;} the reference to look up
+   * @return {@code >= 0;} the reference's index
+   */
+  public int indexOf(CstBaseMethodRef ref) {
+    if (ref == null) {
+      throw new NullPointerException("ref == null");
     }
+
+    throwIfNotPrepared();
+
+    MethodIdItem item = methodIds.get(ref);
+
+    if (item == null) {
+      throw new IllegalArgumentException("not found");
+    }
+
+    return item.getIndex();
+  }
 }

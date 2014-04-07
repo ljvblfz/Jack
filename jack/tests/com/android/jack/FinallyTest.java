@@ -95,8 +95,8 @@ public class FinallyTest {
     String methodSignature = "get()V";
 
     JMethod m =
-        TestTools.getJMethod(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature, new SignatureMethodFilter(methodSignature));
+        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
+            + classBinaryName + ";", methodSignature);
     Assert.assertNotNull(m);
 
     new checkUselessIf().accept(m);

@@ -22,7 +22,7 @@ import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.jack.scheduling.marker.DexFileMarker;
@@ -31,8 +31,7 @@ import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.TextUtils;
-import com.android.jack.util.filter.Filter;
-import com.android.jack.util.filter.SupportedMethods;
+import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
@@ -512,28 +511,28 @@ public class TestTools {
   }
 
   @Nonnull
-  public static JProgram buildJAst(@Nonnull Options options) throws Exception {
+  public static JSession buildJAst(@Nonnull Options options) throws Exception {
     RunnableHooks hooks = new RunnableHooks();
     try {
       options.checkValidity(hooks);
       ThreadConfig.setConfig(options.getConfig());
 
-      JProgram jprogram = Jack.buildProgram(options, hooks);
+      JSession session = Jack.buildSession(options, hooks);
 
-      return (jprogram);
+      return (session);
     } finally {
       hooks.runHooks();
     }
   }
 
   /**
-   * Build a {@code JProgram} by using the monolithic plan.
+   * Build a {@code JSession} by using the monolithic plan.
    */
   @Nonnull
-  public static JProgram buildProgram(@Nonnull Options options) throws Exception {
+  public static JSession buildSession(@Nonnull Options options) throws Exception {
     RunnableHooks hooks = new RunnableHooks();
     try {
-      return buildProgram(options, hooks);
+      return buildSession(options, hooks);
     } finally {
       hooks.runHooks();
     }
@@ -541,10 +540,10 @@ public class TestTools {
   }
 
   /**
-   * Build a {@code JProgram} by using the monolithic plan.
+   * Build a {@code JSession} by using the monolithic plan.
    */
   @Nonnull
-  public static JProgram buildProgram(@Nonnull Options options, @Nonnull RunnableHooks hooks) throws Exception {
+  public static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks) throws Exception {
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();
@@ -558,7 +557,7 @@ public class TestTools {
     options.checkValidity(hooks);
     ThreadConfig.setConfig(options.getConfig());
 
-    JProgram jprogram = Jack.buildProgram(options, hooks);
+    JSession session = Jack.buildSession(options, hooks);
 
     Request request = Jack.createInitialRequest();
     request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
@@ -567,13 +566,13 @@ public class TestTools {
       request.addProduction(JackFormatProduct.class);
     }
 
-    PlanBuilder<JProgram> planBuilder = request.getPlanBuilder(JProgram.class);
+    PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
     Jack.fillDexPlan(options, planBuilder);
     request.addTargetIncludeTagOrMarker(DexFileMarker.Complete.class);
 
-    planBuilder.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
 
-    return (jprogram);
+    return (session);
   }
 
   public static void checkStructure(@CheckForNull File[] bootclasspath,
@@ -677,7 +676,7 @@ public class TestTools {
     if (flags != null) {
     jackOptions.applyShrobFlags();
     }
-    jackOptions.setFilter(new SupportedMethods());
+    jackOptions.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 
     File out = TestTools.createTempFile("checklisting", ".dex");
     TestTools.compileSourceToDex(jackOptions,
@@ -695,7 +694,7 @@ public class TestTools {
     Options jackOptions = new Options();
     File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
     jackOptions.typeAndMemberListing = candidateNodeListing;
-    jackOptions.setFilter(new SupportedMethods());
+    jackOptions.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     jackOptions.disableDxOptimizations();
 
     File out = TestTools.createTempFile("checklisting", ".dex");
@@ -721,15 +720,39 @@ public class TestTools {
   }
 
   @Nonnull
-  public static JMethod getJMethod(@Nonnull File fileName, @Nonnull String className,
-      @Nonnull String methodSignature, @Nonnull Filter<JMethod> filter) throws Exception {
+  public static JMethod getJMethodWithRejectAllFilter(@Nonnull File fileName,
+      @Nonnull String className, @Nonnull String methodSignature) throws Exception {
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
-    commandLineArgs.setFilter(filter);
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     commandLineArgs.keepMethodBody = true;
-    JProgram program = TestTools.buildProgram(commandLineArgs);
-    Assert.assertNotNull(program);
+    JSession session = TestTools.buildSession(commandLineArgs);
+    Assert.assertNotNull(session);
 
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup().getType(className);
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(className);
+    Assert.assertNotNull(type);
+
+    JMethod foundMethod = null;
+    foundMethod = getMethod(type, methodSignature);
+
+    Assert.assertNotNull(foundMethod);
+
+    return foundMethod;
+  }
+
+  @Nonnull
+  public static JMethod getJMethodWithSignatureFilter(@Nonnull File fileName,
+      @Nonnull String className, @Nonnull String methodSignature) throws Exception {
+    Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
+    commandLineArgs.keepMethodBody = true;
+    JSession session = TestTools.buildSession(commandLineArgs);
+    Assert.assertNotNull(session);
+
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) session.getLookup().getType(className);
     Assert.assertNotNull(type);
 
     JMethod foundMethod = null;

@@ -92,10 +92,10 @@ import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
@@ -305,7 +305,7 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JCatchBlock x) {
     JLocal catchVar = x.getCatchVar();
-    if (catchVar.getType() == Jack.getProgram().getPhantomLookup()
+    if (catchVar.getType() == Jack.getSession().getPhantomLookup()
         .getClass(CommonTypes.JAVA_LANG_OBJECT)) {
       print(CHARS_FINALLY);
     } else {
@@ -954,8 +954,8 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JProgram x) {
-    print("<JProgram>");
+  public boolean visit(@Nonnull JSession x) {
+    print("<JSession>");
     return false;
   }
 

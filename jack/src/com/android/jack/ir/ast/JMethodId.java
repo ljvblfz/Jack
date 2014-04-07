@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.util.NamingTools;
 import com.android.sched.marker.LocalMarkerManager;
 
 import java.io.Serializable;
@@ -48,16 +49,16 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Nonnull
   private String name;
   @Nonnull
-  private List<JType> paramTypes = new ArrayList<JType>();
+  private final List<JType> paramTypes = new ArrayList<JType>();
   @Nonnull
-  private List<JMethod> methods = new ArrayList<JMethod>();
+  private final List<JMethod> methods = new ArrayList<JMethod>();
 
   @Nonnull
   private final MethodKind methodKind;
 
   public JMethodId(@Nonnull String name, @Nonnull MethodKind kind) {
     assert !(name.contains("(") || name.contains(")"));
-    assert (!("<init>".equals(name) || "<clinit>".equals(name)))
+    assert (!(NamingTools.INIT_NAME.equals(name) || NamingTools.STATIC_INIT_NAME.equals(name)))
         || (kind != MethodKind.INSTANCE_VIRTUAL);
     this.name = name;
     this.methodKind = kind;
@@ -142,14 +143,6 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Nonnull
   public List<JType> getParamTypes() {
     return paramTypes;
-  }
-
-  public void resolve(@Nonnull List<JType> paramTypes, @Nonnull Collection<JMethod> methods) {
-    this.paramTypes = paramTypes;
-    this.methods = new ArrayList<JMethod>();
-    for (JMethod jMethod : methods) {
-      addMethod(jMethod);
-    }
   }
 
   @Override

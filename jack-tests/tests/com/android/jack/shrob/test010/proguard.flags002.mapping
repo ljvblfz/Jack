@@ -1,3 +1,0 @@
-com.android.jack.shrob.test010.jack.A -> com.android.jack.shrob.test010.jack.A:
-    java.lang.Object get() -> get
-    void set(java.lang.Object) -> set

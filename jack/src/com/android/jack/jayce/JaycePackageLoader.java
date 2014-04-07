@@ -26,10 +26,10 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.load.ComposablePackageLoader;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.jack.vfs.VDir;
-import com.android.jack.vfs.VElement;
-import com.android.jack.vfs.VFile;
 import com.android.sched.util.config.Location;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VElement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,16 +43,14 @@ import javax.annotation.Nonnull;
  */
 public class JaycePackageLoader implements ComposablePackageLoader {
 
-  private static final int JACK_EXTENSION_LENGTH = JayceFileImporter.JAYCE_FILE_EXTENSION.length();
-
   @Nonnull
-  private final VDir dir;
+  private final InputVDir dir;
   private final JPhantomLookup lookup;
 
   @Nonnull
   private final NodeLevel defaultLoadLevel;
 
-  JaycePackageLoader(@Nonnull VDir dir, @Nonnull JPhantomLookup lookup,
+  JaycePackageLoader(@Nonnull InputVDir dir, @Nonnull JPhantomLookup lookup,
       @Nonnull NodeLevel defaultLoadLevel) {
     this.dir = dir;
     this.lookup = lookup;
@@ -64,9 +62,9 @@ public class JaycePackageLoader implements ComposablePackageLoader {
   public JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage loading, @Nonnull String simpleName) throws JLookupException {
     for (VElement sub : dir.list()) {
-      if (sub instanceof VFile && isJackFileNameOf(sub.getName(), simpleName)) {
+      if (sub instanceof InputVFile && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
-          return new JayceClassOrInterfaceLoader((VFile) sub, lookup, defaultLoadLevel)
+          return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
             .loadClassOrInterface(loading, simpleName);
         } catch (IOException e) {
           throw new JackIOException("Failed to load class '" + simpleName + "' in package '"
@@ -83,7 +81,7 @@ public class JaycePackageLoader implements ComposablePackageLoader {
     List<String> subs = new ArrayList<String>();
     for (VElement sub : dir.list()) {
       String fileName = sub.getName();
-      if (sub instanceof VFile && isJackFileName(fileName)) {
+      if (sub instanceof InputVFile && JayceFileImporter.isJackFileName(fileName)) {
         subs.add(fileName.substring(0, fileName.length() - 5));
       }
     }
@@ -94,11 +92,11 @@ public class JaycePackageLoader implements ComposablePackageLoader {
   @Override
   public ComposablePackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) {
-    for (VElement sub : dir.list()) {
-      if (sub instanceof VDir && sub.getName().equals(simpleName)) {
-        return new JaycePackageLoader((VDir) sub, lookup, defaultLoadLevel);
+      for (VElement sub : dir.list()) {
+        if (sub instanceof InputVDir && sub.getName().equals(simpleName)) {
+          return new JaycePackageLoader((InputVDir) sub, lookup, defaultLoadLevel);
+        }
       }
-    }
     throw new JPackageLookupException(simpleName, loading);
   }
 
@@ -107,7 +105,7 @@ public class JaycePackageLoader implements ComposablePackageLoader {
   public Collection<String> getSubPackageNames(@Nonnull JPackage loading) {
     List<String> subs = new ArrayList<String>();
     for (VElement sub : dir.list()) {
-      if (sub instanceof VDir) {
+      if (sub instanceof InputVDir) {
         subs.add(sub.getName());
       }
     }
@@ -121,21 +119,14 @@ public class JaycePackageLoader implements ComposablePackageLoader {
   }
 
   private boolean isJackFileNameOf(@Nonnull String fileName, @Nonnull String typeName) {
-    return (fileName.length() >  JACK_EXTENSION_LENGTH)
-        && (fileName.substring(0, fileName.length() - JACK_EXTENSION_LENGTH).equals(typeName))
-        && (fileName.substring(fileName.length() - JACK_EXTENSION_LENGTH).equalsIgnoreCase(
-            JayceFileImporter.JAYCE_FILE_EXTENSION));
-  }
-
-  private boolean isJackFileName(@Nonnull String name) {
-    return (name.length() >  JACK_EXTENSION_LENGTH)
-        && (name.substring(name.length() - JACK_EXTENSION_LENGTH).equalsIgnoreCase(
-            JayceFileImporter.JAYCE_FILE_EXTENSION));
+    return (fileName.length() > JayceFileImporter.JACK_EXTENSION_LENGTH) && (fileName.substring(0,
+        fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equals(typeName)) && (fileName
+        .substring(fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equalsIgnoreCase(
+        JayceFileImporter.JAYCE_FILE_EXTENSION));
   }
 
   @Override
   public boolean isOnPath(@Nonnull JPackage loaded) {
     return true;
   }
-
 }

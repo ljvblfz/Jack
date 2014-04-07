@@ -21,18 +21,18 @@ package com.android.jack.dx.util;
  */
 public interface IntIterator {
 
-    /**
-     * Checks to see if the iterator has a next value.
-     *
-     * @return true if next() will succeed
-     */
-    boolean hasNext();
+  /**
+   * Checks to see if the iterator has a next value.
+   *
+   * @return true if next() will succeed
+   */
+  boolean hasNext();
 
-    /**
-     * Returns the next value in the iterator.
-     *
-     * @return next value
-     * @throws java.util.NoSuchElementException if no next element exists
-     */
-    int next();
+  /**
+   * Returns the next value in the iterator.
+   *
+   * @return next value
+   * @throws java.util.NoSuchElementException if no next element exists
+   */
+  int next();
 }

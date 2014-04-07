@@ -22,70 +22,70 @@ import com.android.jack.dx.util.Hex;
 /**
  * Constants of type {@code CONSTANT_Float_info}.
  */
-public final class CstFloat
-        extends CstLiteral32 {
-    /** {@code non-null;} instance representing {@code 0} */
-    public static final CstFloat VALUE_0 = make(Float.floatToIntBits(0.0f));
+public final class CstFloat extends CstLiteral32 {
+  /** {@code non-null;} instance representing {@code 0} */
+  public static final CstFloat VALUE_0 = make(Float.floatToIntBits(0.0f));
 
-    /** {@code non-null;} instance representing {@code 1} */
-    public static final CstFloat VALUE_1 = make(Float.floatToIntBits(1.0f));
+  /** {@code non-null;} instance representing {@code 1} */
+  public static final CstFloat VALUE_1 = make(Float.floatToIntBits(1.0f));
 
-    /** {@code non-null;} instance representing {@code 2} */
-    public static final CstFloat VALUE_2 = make(Float.floatToIntBits(2.0f));
+  /** {@code non-null;} instance representing {@code 2} */
+  public static final CstFloat VALUE_2 = make(Float.floatToIntBits(2.0f));
 
-    /**
-     * Makes an instance for the given value. This may (but does not
-     * necessarily) return an already-allocated instance.
-     *
-     * @param bits the {@code float} value as {@code int} bits
+  /**
+   * Makes an instance for the given value. This may (but does not
+   * necessarily) return an already-allocated instance.
+   *
+   * @param bits the {@code float} value as {@code int} bits
+   */
+  public static CstFloat make(int bits) {
+    /*
+     * Note: Javadoc notwithstanding, this implementation always
+     * allocates.
      */
-    public static CstFloat make(int bits) {
-        /*
-         * Note: Javadoc notwithstanding, this implementation always
-         * allocates.
-         */
-        return new CstFloat(bits);
-    }
+    return new CstFloat(bits);
+  }
 
-    /**
-     * Constructs an instance. This constructor is private; use {@link #make}.
-     *
-     * @param bits the {@code float} value as {@code int} bits
-     */
-    private CstFloat(int bits) {
-        super(bits);
-    }
+  /**
+   * Constructs an instance. This constructor is private; use {@link #make}.
+   *
+   * @param bits the {@code float} value as {@code int} bits
+   */
+  private CstFloat(int bits) {
+    super(bits);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        int bits = getIntBits();
-        return "float{0x" + Hex.u4(bits) + " / " +
-            Float.intBitsToFloat(bits) + '}';
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toString() {
+    int bits = getIntBits();
+    return "float{0x" + Hex.u4(bits) + " / " + Float.intBitsToFloat(bits) + '}';
+  }
 
-    /** {@inheritDoc} */
-    public Type getType() {
-        return Type.FLOAT;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public Type getType() {
+    return Type.FLOAT;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public String typeName() {
-        return "float";
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String typeName() {
+    return "float";
+  }
 
-    /** {@inheritDoc} */
-    public String toHuman() {
-        return Float.toString(Float.intBitsToFloat(getIntBits()));
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    return Float.toString(Float.intBitsToFloat(getIntBits()));
+  }
 
-    /**
-     * Gets the {@code float} value.
-     *
-     * @return the value
-     */
-    public float getValue() {
-        return Float.intBitsToFloat(getIntBits());
-    }
+  /**
+   * Gets the {@code float} value.
+   *
+   * @return the value
+   */
+  public float getValue() {
+    return Float.intBitsToFloat(getIntBits());
+  }
 }

@@ -1,3 +1,2 @@
-com.android.jack.shrob.test011.jack.A -> com.android.jack.shrob.test011.jack.A:
-    java.lang.Object keep1() -> keep1
-com.android.jack.shrob.test011.jack.B -> com.android.jack.shrob.test011.jack.a:
+com.android.jack.shrob.test011.jack.B -> com.android.jack.shrob.test011.jack.RenamedB:
+com.android.jack.shrob.test011.jack.C -> com.android.jack.shrob.test011.jack.RenamedC:

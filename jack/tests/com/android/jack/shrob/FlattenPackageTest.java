@@ -18,13 +18,10 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
 import com.android.jack.category.SlowTests;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -60,21 +57,5 @@ public class FlattenPackageTest extends AbstractTest {
     TestTools.runWithFlags(jackOptions, bootclasspath, classpath,
         TestTools.getJackTestsWithJackFolder(testName), flags);
     ListingComparator.compare(refOutputMapping, candidateOutputMapping);
-  }
-
-  @Test
-  @Category(KnownBugs.class)
-  @Override
-  @Ignore
-  public void test16_001() throws Exception {
-    runTest(defaultBootclasspath, null, "016", "001", "");
-  }
-
-  @Test
-  @Category(KnownBugs.class)
-  @Override
-  @Ignore
-  public void test16_002() throws Exception {
-    runTest(defaultBootclasspath, null, "016", "002", "");
   }
 }

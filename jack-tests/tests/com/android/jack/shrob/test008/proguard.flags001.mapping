@@ -1,4 +1,3 @@
 com.android.jack.shrob.test008.jack.A -> com.android.jack.shrob.test008.jack.A:
-    void m() -> a
-    void keep() -> keep
-com.android.jack.shrob.test008.jack.MyException -> com.android.jack.shrob.test008.jack.a:
+    void m() -> renamedM
+com.android.jack.shrob.test008.jack.MyException -> com.android.jack.shrob.test008.jack.RenamedMyException:

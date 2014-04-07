@@ -33,6 +33,4 @@ public interface Annotable {
 
   @Nonnull
   Collection<JAnnotationLiteral> getAnnotations();
-
-  void updateAnnotations();
 }

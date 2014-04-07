@@ -31,6 +31,16 @@ import javax.annotation.Nonnull;
 @Description("Indicates that this class or member should not be removed when shrinking.")
 public class KeepMarker implements Marker {
 
+  private boolean mustTraceOverridingMethods = false;
+
+  public void setMustTraceOverridingMethods(boolean mustTraceOverridingMethods) {
+    this.mustTraceOverridingMethods = mustTraceOverridingMethods;
+  }
+
+  public boolean mustTraceOverridingMethods() {
+    return mustTraceOverridingMethods;
+  }
+
   @Override
   public Marker cloneIfNeeded() {
     return this;

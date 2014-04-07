@@ -16,89 +16,98 @@
 
 package com.android.jack.dx.io;
 
+/**
+ * TODO(jack team)
+ */
 public final class ClassData {
-    private final Field[] staticFields;
-    private final Field[] instanceFields;
-    private final Method[] directMethods;
-    private final Method[] virtualMethods;
+  private final Field[] staticFields;
+  private final Field[] instanceFields;
+  private final Method[] directMethods;
+  private final Method[] virtualMethods;
 
-    public ClassData(Field[] staticFields, Field[] instanceFields,
-            Method[] directMethods, Method[] virtualMethods) {
-        this.staticFields = staticFields;
-        this.instanceFields = instanceFields;
-        this.directMethods = directMethods;
-        this.virtualMethods = virtualMethods;
+  public ClassData(Field[] staticFields, Field[] instanceFields, Method[] directMethods,
+      Method[] virtualMethods) {
+    this.staticFields = staticFields;
+    this.instanceFields = instanceFields;
+    this.directMethods = directMethods;
+    this.virtualMethods = virtualMethods;
+  }
+
+  public Field[] getStaticFields() {
+    return staticFields;
+  }
+
+  public Field[] getInstanceFields() {
+    return instanceFields;
+  }
+
+  public Method[] getDirectMethods() {
+    return directMethods;
+  }
+
+  public Method[] getVirtualMethods() {
+    return virtualMethods;
+  }
+
+  public Field[] allFields() {
+    Field[] result = new Field[staticFields.length + instanceFields.length];
+    System.arraycopy(staticFields, 0, result, 0, staticFields.length);
+    System.arraycopy(instanceFields, 0, result, staticFields.length, instanceFields.length);
+    return result;
+  }
+
+  public Method[] allMethods() {
+    Method[] result = new Method[directMethods.length + virtualMethods.length];
+    System.arraycopy(directMethods, 0, result, 0, directMethods.length);
+    System.arraycopy(virtualMethods, 0, result, directMethods.length, virtualMethods.length);
+    return result;
+  }
+
+  /**
+   * TODO(jack team)
+   */
+  public static class Field {
+    private final int fieldIndex;
+    private final int accessFlags;
+
+    public Field(int fieldIndex, int accessFlags) {
+      this.fieldIndex = fieldIndex;
+      this.accessFlags = accessFlags;
     }
 
-    public Field[] getStaticFields() {
-        return staticFields;
+    public int getFieldIndex() {
+      return fieldIndex;
     }
 
-    public Field[] getInstanceFields() {
-        return instanceFields;
+    public int getAccessFlags() {
+      return accessFlags;
+    }
+  }
+
+  /**
+   * TODO(jack team)
+   */
+  public static class Method {
+    private final int methodIndex;
+    private final int accessFlags;
+    private final int codeOffset;
+
+    public Method(int methodIndex, int accessFlags, int codeOffset) {
+      this.methodIndex = methodIndex;
+      this.accessFlags = accessFlags;
+      this.codeOffset = codeOffset;
     }
 
-    public Method[] getDirectMethods() {
-        return directMethods;
+    public int getMethodIndex() {
+      return methodIndex;
     }
 
-    public Method[] getVirtualMethods() {
-        return virtualMethods;
+    public int getAccessFlags() {
+      return accessFlags;
     }
 
-    public Field[] allFields() {
-        Field[] result = new Field[staticFields.length + instanceFields.length];
-        System.arraycopy(staticFields, 0, result, 0, staticFields.length);
-        System.arraycopy(instanceFields, 0, result, staticFields.length, instanceFields.length);
-        return result;
+    public int getCodeOffset() {
+      return codeOffset;
     }
-
-    public Method[] allMethods() {
-        Method[] result = new Method[directMethods.length + virtualMethods.length];
-        System.arraycopy(directMethods, 0, result, 0, directMethods.length);
-        System.arraycopy(virtualMethods, 0, result, directMethods.length, virtualMethods.length);
-        return result;
-    }
-
-    public static class Field {
-        private final int fieldIndex;
-        private final int accessFlags;
-
-        public Field(int fieldIndex, int accessFlags) {
-            this.fieldIndex = fieldIndex;
-            this.accessFlags = accessFlags;
-        }
-
-        public int getFieldIndex() {
-            return fieldIndex;
-        }
-
-        public int getAccessFlags() {
-            return accessFlags;
-        }
-    }
-
-    public static class Method {
-        private final int methodIndex;
-        private final int accessFlags;
-        private final int codeOffset;
-
-        public Method(int methodIndex, int accessFlags, int codeOffset) {
-            this.methodIndex = methodIndex;
-            this.accessFlags = accessFlags;
-            this.codeOffset = codeOffset;
-        }
-
-        public int getMethodIndex() {
-            return methodIndex;
-        }
-
-        public int getAccessFlags() {
-            return accessFlags;
-        }
-
-        public int getCodeOffset() {
-            return codeOffset;
-        }
-    }
+  }
 }

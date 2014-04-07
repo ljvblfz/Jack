@@ -18,10 +18,10 @@ package com.android.sched.util.config;
 
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
-import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.PropertyId.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,14 +35,15 @@ public class ConfigChecker {
   @Nonnull
   private final CodecContext context;
   @Nonnull
-  private final Map<PropertyId<?>, String> stringValuesById = new HashMap<PropertyId<?>, String>();
+  private final Map<PropertyId<?>, PropertyId<?>.Value> values =
+      new HashMap<PropertyId<?>, PropertyId<?>.Value>();
   @Nonnull
-  private final Map<KeyId<?, ?>, Object> instanceValuesById = new HashMap<KeyId<?, ?>, Object>();
+  private final Map<KeyId<?, ?>, Object> instances = new HashMap<KeyId<?, ?>, Object>();
   @Nonnull
-  private final Map<KeyId<?, ?>, Location> locationsById =
+  private final Map<KeyId<?, ?>, Location> locations =
       new HashMap<KeyId<?, ?>, Location>();
   @Nonnull
-  private final Map<KeyId<?, ?>, String> droppedById = new HashMap<KeyId<?, ?>, String>();
+  private final Map<KeyId<?, ?>, String> dropped = new HashMap<KeyId<?, ?>, String>();
 
   /**
    * @param context Context for parsers
@@ -50,57 +51,50 @@ public class ConfigChecker {
    * @param instanceValues All the property values as objects.
    */
   ConfigChecker(@Nonnull CodecContext context,
-      @Nonnull Map<PropertyId<?>, String> stringValues,
+      @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> stringValues,
       @Nonnull Map<ObjectId<?>, Object> instanceValues,
       @Nonnull Map<KeyId<?, ?>, Location> locationsById) {
     this.context = context;
-    this.stringValuesById.putAll(stringValues);
-    this.instanceValuesById.putAll(instanceValues);
-    this.locationsById.putAll(locationsById);
+    this.values.putAll(stringValues);
+    this.instances.putAll(instanceValues);
+    this.locations.putAll(locationsById);
   }
 
   @Nonnull
-  public synchronized <T> T parse(@Nonnull PropertyId<T> propertyId) throws PropertyIdException
-       {
-    @SuppressWarnings("unchecked")
-    T instance = (T) instanceValuesById.get(propertyId);
+  public synchronized <T> T parse(@Nonnull PropertyId<T> propertyId) throws PropertyIdException {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    PropertyId<T>.Value value = (PropertyId.Value) values.get(propertyId);
 
-    if (instance == null) {
-      String value = getRawValue(propertyId);
-      try {
-        StringCodec<T> parser = propertyId.getCodec();
-
-        instance = parser.checkString(context, value);
-        if (instance == null) {
-          instance = parser.parseString(context, value);
-        }
-
-        instanceValuesById.put(propertyId, instance);
-        stringValuesById.remove(propertyId);
-      } catch (ParsingException e) {
-        throw new PropertyIdException(propertyId, getLocation(propertyId), e);
-      }
+    if (value == null) {
+      throw new MissingPropertyException(propertyId);
     }
 
-    return instance;
+    try {
+      value.check(context);
+      return value.getObject(context);
+    } catch (ParsingException e) {
+      throw new PropertyIdException(propertyId, getLocation(propertyId), e);
+    }
   }
 
   public synchronized <T, S> void check(@Nonnull KeyId<T, S> keyId) throws PropertyIdException {
-    if (instanceValuesById.get(keyId) == null) {
+    if (instances.get(keyId) == null) {
       if (keyId instanceof PropertyId) {
         @SuppressWarnings("unchecked")
         PropertyId<T> propertyId = (PropertyId<T>) keyId;
-        String value = getRawValue(propertyId);
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        PropertyId<T>.Value value = (PropertyId.Value) values.get(propertyId);
+
+        if (value == null) {
+          throw new MissingPropertyException(propertyId);
+        }
+
         try {
-          T instance = propertyId.getCodec().checkString(context, value);
-          if (instance != null) {
-            instanceValuesById.put(propertyId, instance);
-            stringValuesById.remove(keyId);
-          }
+          value.check(context);
         } catch (ParsingException e) {
           throw new PropertyIdException(propertyId, getLocation(propertyId), e);
         }
-
       } else {
         assert keyId instanceof ObjectId;
 
@@ -114,41 +108,42 @@ public class ConfigChecker {
   @Nonnull
   public <T> String getRawValue(@Nonnull PropertyId<T> propertyId)
       throws MissingPropertyException {
-    String value = stringValuesById.get(propertyId);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    PropertyId<T>.Value value = (Value) values.get(propertyId);
 
     if (value == null) {
       throw new MissingPropertyException(propertyId);
     }
 
-    return value;
+    return value.getString();
   }
 
   @Nonnull
   public Map<KeyId<?, ?>, Object> getInstances() {
-    return instanceValuesById;
+    return instances;
   }
 
   @Nonnull
-  public Map<PropertyId<?>, String> getStrings() {
-    return stringValuesById;
+  public Map<PropertyId<?>, PropertyId<?>.Value> getValues() {
+    return values;
   }
 
   @Nonnull
   public Map<KeyId<?, ?>, String> getDropCauses() {
-    return droppedById;
+    return dropped;
   }
 
   @Nonnull
   public Location getLocation(@Nonnull KeyId<?, ?> keyId) {
-    assert locationsById.get(keyId) != null;
+    assert locations.get(keyId) != null;
 
-    return locationsById.get(keyId);
+    return locations.get(keyId);
   }
 
   public void remove(@Nonnull KeyId<?, ?> keyId, @Nonnull String cause) {
-    stringValuesById.remove(keyId);
-    instanceValuesById.remove(keyId);
-    locationsById.remove(keyId);
-    droppedById.put(keyId, cause);
+    values.remove(keyId);
+    instances.remove(keyId);
+    locations.remove(keyId);
+    dropped.put(keyId, cause);
   }
 }

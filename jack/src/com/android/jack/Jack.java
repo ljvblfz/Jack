@@ -60,7 +60,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
@@ -185,9 +185,6 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder
 import com.android.jack.transformations.uselessif.UselessIfChecker;
 import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
-import com.android.jack.vfs.VDir;
-import com.android.jack.vfs.direct.DirectDir;
-import com.android.jack.vfs.zip.ZipArchive;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.IllegalRequestException;
 import com.android.sched.scheduler.Plan;
@@ -204,6 +201,7 @@ import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ReflectFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -211,12 +209,16 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.direct.InputDirectDir;
+import com.android.sched.vfs.zip.InputZipArchive;
 
 import org.antlr.runtime.RecognitionException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -243,8 +245,8 @@ public abstract class Jack {
       UserFriendlyFormatter.getFormatter();
 
   @Nonnull
-  public static final ObjectId<JProgram> PROGRAM =
-      new ObjectId<JProgram>("jack.program", JProgram.class);
+  public static final ObjectId<JSession> SESSION =
+      new ObjectId<JSession>("jack.session", JSession.class);
 
 
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
@@ -258,7 +260,7 @@ public abstract class Jack {
           "jack.internal.jayce.loader.classpath.policy",
           "Hint on default load policy for classpath entries",
           JaycePackageLoader.class)
-          .addArgType(VDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
+          .addArgType(InputVDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
           .addDefaultValue("structure");
 
   @Nonnull
@@ -267,12 +269,12 @@ public abstract class Jack {
           "jack.internal.jayce.loader.import.policy",
           "Hint on default load policy for import entries",
           JaycePackageLoader.class)
-          .addArgType(VDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
+          .addArgType(InputVDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
           .addDefaultValue("full");
 
   @Nonnull
-  public static JProgram getProgram() {
-    return ThreadConfig.get(Jack.PROGRAM);
+  public static JSession getSession() {
+    return ThreadConfig.get(Jack.SESSION);
   }
 
   @Nonnull
@@ -334,7 +336,7 @@ public abstract class Jack {
         logger.log(Level.INFO, "Jack sanity checks {0}",
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
-        JProgram program = buildProgram(options, hooks);
+        JSession session = buildSession(options, hooks);
         Request request = createInitialRequest();
 
         JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
@@ -405,9 +407,9 @@ public abstract class Jack {
 
         ProductionSet targetProduction = request.getTargetProductions();
         FeatureSet features = request.getFeatures();
-        PlanBuilder<JProgram> planBuilder;
+        PlanBuilder<JSession> planBuilder;
         try {
-          planBuilder = request.getPlanBuilder(JProgram.class);
+          planBuilder = request.getPlanBuilder(JSession.class);
         } catch (IllegalRequestException e) {
           throw new AssertionError(e);
         }
@@ -444,11 +446,11 @@ public abstract class Jack {
           }
         }
 
-        Plan<JProgram> plan;
+        Plan<JSession> plan;
         try {
           // Try to build an automatic plan ...
           try {
-            plan = request.buildPlan(JProgram.class);
+            plan = request.buildPlan(JSession.class);
           } catch (PlanNotFoundException e) {
             throw new AssertionError(e);
           } catch (IllegalRequestException e) {
@@ -466,7 +468,7 @@ public abstract class Jack {
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
-          plan.getScheduleInstance().process(program);
+          plan.getScheduleInstance().process(session);
         } catch (Exception e) {
           throw new AssertionError(e);
         }
@@ -507,26 +509,22 @@ public abstract class Jack {
   }
 
   @Nonnull
-  static JProgram buildProgram(@Nonnull Options options, @Nonnull RunnableHooks hooks)
+  static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws JackIOException {
 
     Tracer tracer = TracerFactory.getTracer();
 
     List<String> ecjArguments = options.ecjArguments;
 
-    JProgram program =  getProgram();
+    JSession session =  getSession();
 
-    ComposedPackageLoader rootPackageLoader = program.getTopLevelLoader();
+    ComposedPackageLoader rootPackageLoader = session.getTopLevelLoader();
 
-    JPhantomLookup phantomLookup = program.getPhantomLookup();
-    putInJackClasspath(options.jayceImport, rootPackageLoader, phantomLookup, hooks,
-        IMPORT_POLICY);
-    putInJackClasspath(options.getBootclasspath(), rootPackageLoader, phantomLookup, hooks,
-        CLASSPATH_POLICY);
-    putInJackClasspath(options.getClasspath(), rootPackageLoader, phantomLookup, hooks,
-        CLASSPATH_POLICY);
-
-    JayceFileImporter jayceImporter = new JayceFileImporter(options.jayceImport);
+    JPhantomLookup phantomLookup = session.getPhantomLookup();
+    JayceFileImporter jayceImporter =
+        getJayceFileImporter(options.jayceImport, rootPackageLoader, phantomLookup, hooks);
+    putInJackClasspath(options.getBootclasspath(), rootPackageLoader, phantomLookup, hooks);
+    putInJackClasspath(options.getClasspath(), rootPackageLoader, phantomLookup, hooks);
 
     if (ecjArguments != null) {
       String bootclasspathOption = "-bootclasspath";
@@ -543,7 +541,7 @@ public abstract class Jack {
         ecjArguments.add(JackBatchCompiler.JACK_LOGICAL_PATH_ENTRY);
       }
 
-      JackBatchCompiler jbc = new JackBatchCompiler(program, jayceImporter);
+      JackBatchCompiler jbc = new JackBatchCompiler(session, jayceImporter);
 
       Event event = tracer.start(JackEventType.ECJ_COMPILATION);
 
@@ -556,18 +554,18 @@ public abstract class Jack {
       }
     }
 
-    jayceImporter.doImport(program);
+    jayceImporter.doImport(session);
 
     Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
 
     try {
       JClass javaLangObject = phantomLookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
       MethodIdMerger merger = new MethodIdMerger(javaLangObject);
-      for (JType type : program.getTypesToEmit()) {
+      for (JType type : session.getTypesToEmit()) {
         merger.accept(type);
       }
       JVisitor remover = new VirtualMethodsMarker.Remover(javaLangObject);
-      for (JType type : program.getTypesToEmit()) {
+      for (JType type : session.getTypesToEmit()) {
         remover.accept(type);
       }
     } finally {
@@ -575,106 +573,135 @@ public abstract class Jack {
     }
 
     MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
-    methodIdDupRemover.accept(program);
+    methodIdDupRemover.accept(session);
 
-    return program;
+    return session;
+  }
+
+  @Nonnull
+  private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
+      @Nonnull ComposedPackageLoader rootPackageLoader, @Nonnull JPhantomLookup phantomLookup,
+      @Nonnull RunnableHooks hooks) {
+    List<InputVDir> jackFilesToImport = new ArrayList<InputVDir>(jayceImport.size());
+    ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
+    for (final File jackFile : jayceImport) {
+      try {
+        InputVDir vDir = wrapAsVDir(jackFile, hooks);
+        jackFilesToImport.add(vDir);
+        // add to classpath
+        JaycePackageLoader rootPLoader = factory.create(vDir, phantomLookup);
+        rootPackageLoader.appendLoader(rootPLoader);
+      } catch (IOException ioException) {
+        throw new JackFileException("Error importing jack container: " + jackFile.getAbsolutePath(),
+            ioException);
+      }
+    }
+    return new JayceFileImporter(jackFilesToImport);
   }
 
   private static void putInJackClasspath(@Nonnull List<File> jackFiles,
       @Nonnull ComposedPackageLoader rootPackageLoader,
       @Nonnull JPhantomLookup phantomJNodeLookup,
-      @Nonnull RunnableHooks hooks,
-      @Nonnull ReflectFactoryPropertyId<JaycePackageLoader> loadPolicy)
-      throws JackIOException {
+      @Nonnull RunnableHooks hooks) {
+    ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
     for (final File jackFile : jackFiles) {
       try {
-        VDir dir;
-        if (jackFile.isDirectory()) {
-          dir = new DirectDir(jackFile);
-        } else { // zip
-          final ZipArchive zipArchive = new ZipArchive(jackFile);
-          dir = zipArchive;
-          hooks.addHook(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                zipArchive.close();
-              } catch (IOException e) {
-                logger.log(Level.FINE, "Failed to close zip for '" + jackFile + "'.", e);
-              }
-            }
-          });
-        }
-        JaycePackageLoader rootPLoader =
-            ThreadConfig.get(loadPolicy).create(dir, phantomJNodeLookup);
+        InputVDir vDir = wrapAsVDir(jackFile, hooks);
+        JaycePackageLoader rootPLoader = factory.create(vDir, phantomJNodeLookup);
         rootPackageLoader.appendLoader(rootPLoader);
       } catch (IOException ioException) {
         // Ignore bad entry
-        logger.log(Level.WARNING, "Ignore bad entry into classpath: {0}",
+        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}",
             jackFile.getAbsolutePath());
       }
     }
   }
 
+  @Nonnull
+  private static InputVDir wrapAsVDir(@Nonnull final File dirOrZip,
+      @Nonnull RunnableHooks hooks) throws IOException {
+    InputVDir dir;
+    if (dirOrZip.isDirectory()) {
+      dir = new InputDirectDir(dirOrZip);
+    } else { // zip
+      final InputZipArchive zipArchive = new InputZipArchive(dirOrZip);
+      dir = zipArchive;
+      hooks.addHook(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            zipArchive.close();
+          } catch (IOException e) {
+            logger.log(Level.FINE, "Failed to close zip for '" + dirOrZip + "'.", e);
+          }
+        }
+      });
+    }
+    return dir;
+  }
+
   private static void fillJayceToJaycePlan(
-      @Nonnull Options options, @Nonnull PlanBuilder<JProgram> programPlan) {
+      @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
     // Add here transformations we want to apply before writing .jack file
-    FeatureSet features = programPlan.getRequest().getFeatures();
-    ProductionSet productions = programPlan.getRequest().getTargetProductions();
+    FeatureSet features = planBuilder.getRequest().getFeatures();
+    ProductionSet productions = planBuilder.getRequest().getTargetProductions();
 
     if (features.contains(SanityChecks.class)) {
-      programPlan.append(TypeDuplicateRemoverChecker.class);
+      planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
     // JarJar
     if (features.contains(Jarjar.class)) {
-      programPlan.append(PackageRenamer.class);
+      planBuilder.append(PackageRenamer.class);
     }
 
     // Shrob
-    appendStringRefiningPlan(programPlan);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
+      appendStringRefiningPlan(planBuilder);
+    }
+
     if (productions.contains(SeedFile.class)) {
-      programPlan.append(SeedPrinter.class);
+      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(programPlan);
+      appendShrinkingPlan(planBuilder);
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(programPlan);
+      appendObfuscationPlan(planBuilder);
     }
     if (productions.contains(Mapping.class)) {
-      programPlan.append(MappingPrinter.class);
+      planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(TypeAndMemberListing.class)) {
-      programPlan.append(TypeAndMemberLister.class);
+      planBuilder.append(TypeAndMemberLister.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendShrobMarkerRemoverPlan(programPlan);
+      appendShrobMarkerRemoverPlan(planBuilder);
     }
   }
 
-  static void fillDexPlan(@Nonnull Options options, @Nonnull PlanBuilder<JProgram> programPlan) {
-    FeatureSet features = programPlan.getRequest().getFeatures();
-    ProductionSet productions = programPlan.getRequest().getTargetProductions();
+  static void fillDexPlan(@Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+    FeatureSet features = planBuilder.getRequest().getFeatures();
+    ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
 
     // Build the plan
     if (hasSanityChecks) {
-      programPlan.append(TypeDuplicateRemoverChecker.class);
+      planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
     if (features.contains(Jarjar.class)) {
-      programPlan.append(PackageRenamer.class);
+      planBuilder.append(PackageRenamer.class);
     }
 
     if (hasSanityChecks) {
-      programPlan.append(ParentSetterChecker.class);
+      planBuilder.append(ParentSetterChecker.class);
     }
-    programPlan.append(DexFileBuilder.class);
+    planBuilder.append(DexFileBuilder.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
         if (features.contains(LineDebugInfo.class)) {
@@ -690,21 +717,24 @@ public abstract class Jack {
       }
     }
 
-    appendStringRefiningPlan(programPlan);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
+      appendStringRefiningPlan(planBuilder);
+    }
+
     if (productions.contains(SeedFile.class)) {
-      programPlan.append(SeedPrinter.class);
+      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(programPlan);
+      appendShrinkingPlan(planBuilder);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(UsedEnumFieldCollector.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         if (features.contains(DxLegacy.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
@@ -715,10 +745,10 @@ public abstract class Jack {
         methodPlan.append(AssertionTransformer.class);
       }
     }
-    programPlan.append(AssertionTransformerSchedulingSeparator.class);
+    planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
 
       {
         {
@@ -746,18 +776,18 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
 
-    programPlan.append(InnerAccessorSchedulingSeparator.class);
-    programPlan.append(TryStatementSchedulingSeparator.class);
-    programPlan.append(EnumMappingSchedulingSeparator.class);
+    planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    planBuilder.append(TryStatementSchedulingSeparator.class);
+    planBuilder.append(EnumMappingSchedulingSeparator.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
@@ -786,12 +816,12 @@ public abstract class Jack {
     }
 
     if (features.contains(JackFileZipOutput.class)) {
-      programPlan.append(JayceZipWriter.class);
+      planBuilder.append(JayceZipWriter.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
 
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdaptor.class);
@@ -830,24 +860,24 @@ public abstract class Jack {
       }
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(programPlan);
+      appendObfuscationPlan(planBuilder);
     }
     if (productions.contains(Mapping.class)) {
-      programPlan.append(MappingPrinter.class);
+      planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(TypeAndMemberListing.class)) {
-      programPlan.append(TypeAndMemberLister.class);
+      planBuilder.append(TypeAndMemberLister.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ClassDefItemBuilder.class);
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
             typePlan5.appendSubPlan(JMethodAdaptor.class);
@@ -897,49 +927,52 @@ public abstract class Jack {
     }
 
     if (hasSanityChecks) {
-      programPlan.append(ParentSetterChecker.class);
+      planBuilder.append(ParentSetterChecker.class);
       {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(DeclaredTypePackageChecker.class);
       }
       {
-        SubPlanBuilder<JPackage> packagePlan = programPlan.appendSubPlan(JPackageAdapter.class);
+        SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
         packagePlan.append(PackageChecker.class);
       }
     }
   }
 
   private static void fillJavaToJaycePlan(
-      @Nonnull Options options, @Nonnull PlanBuilder<JProgram> programPlan) {
-    Request request = programPlan.getRequest();
+      @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+    Request request = planBuilder.getRequest();
     FeatureSet features = request.getFeatures();
     ProductionSet productions = request.getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
 
     // Build the plan
     if (hasSanityChecks) {
-      programPlan.append(TypeDuplicateRemoverChecker.class);
+      planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
     if (features.contains(Jarjar.class)) {
-      programPlan.append(PackageRenamer.class);
+      planBuilder.append(PackageRenamer.class);
     }
 
-    appendStringRefiningPlan(programPlan);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
+      appendStringRefiningPlan(planBuilder);
+    }
+
     if (productions.contains(SeedFile.class)) {
-      programPlan.append(SeedPrinter.class);
+      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(programPlan);
+      appendShrinkingPlan(planBuilder);
     }
 
     if (hasSanityChecks) {
-      programPlan.append(ParentSetterChecker.class);
+      planBuilder.append(ParentSetterChecker.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan7.append(UsedEnumFieldCollector.class);
 
       {
@@ -957,7 +990,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       if (features.contains(DxLegacy.class)) {
         typePlan2.append(VisibilityBridgeAdder.class);
       }
@@ -971,10 +1004,10 @@ public abstract class Jack {
         }
       }
     }
-    programPlan.append(AssertionTransformerSchedulingSeparator.class);
+    planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         {
           SubPlanBuilder<JField> fieldPlan =
@@ -999,17 +1032,17 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
 
-    programPlan.append(InnerAccessorSchedulingSeparator.class);
-    programPlan.append(EnumMappingSchedulingSeparator.class);
+    planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    planBuilder.append(EnumMappingSchedulingSeparator.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
@@ -1027,29 +1060,29 @@ public abstract class Jack {
       }
       typePlan4.append(FieldInitMethodRemover.class);
     }
-    programPlan.append(TryStatementSchedulingSeparator.class);
+    planBuilder.append(TryStatementSchedulingSeparator.class);
 
     if (hasSanityChecks) {
-      programPlan.append(TypeDuplicateRemoverChecker.class);
+      planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(programPlan);
+      appendObfuscationPlan(planBuilder);
     }
     if (productions.contains(Mapping.class)) {
-      programPlan.append(MappingPrinter.class);
+      planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(TypeAndMemberListing.class)) {
-      programPlan.append(TypeAndMemberLister.class);
+      planBuilder.append(TypeAndMemberLister.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendShrobMarkerRemoverPlan(programPlan);
+      appendShrobMarkerRemoverPlan(planBuilder);
     }
   }
 
-  private static void appendStringRefiningPlan(@Nonnull PlanBuilder<JProgram> programPlan) {
+  private static void appendStringRefiningPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(TypeGenericSignatureSplitter.class);
       typePlan.append(TypeStringLiteralRefiner.class);
       {
@@ -1068,10 +1101,10 @@ public abstract class Jack {
     }
   }
 
-  private static void appendShrobMarkerRemoverPlan(@Nonnull PlanBuilder<JProgram> programPlan) {
+  private static void appendShrobMarkerRemoverPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan4.append(TypeShrinkMarkerRemover.class);
       typePlan4.append(TypeKeepNameMarkerRemover.class);
       typePlan4.append(TypeOriginalNameMarkerRemover.class);
@@ -1088,20 +1121,20 @@ public abstract class Jack {
     }
   }
 
-  private static void appendShrinkingPlan(@Nonnull PlanBuilder<JProgram> programPlan) {
+  private static void appendShrinkingPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ExtendingOrImplementingClassFinder.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(Keeper.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(TypeShrinker.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
@@ -1114,16 +1147,16 @@ public abstract class Jack {
     }
   }
 
-  private static void appendObfuscationPlan(@Nonnull PlanBuilder<JProgram> programPlan) {
+  private static void appendObfuscationPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JPackage> packagePlan =
-          programPlan.appendSubPlan(JPackageAdapter.class);
+          planBuilder.appendSubPlan(JPackageAdapter.class);
       packagePlan.append(NameKeeper.class);
     }
-    programPlan.append(Renamer.class);
+    planBuilder.append(Renamer.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(TypeAnnotationRemover.class);
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
@@ -1138,43 +1171,46 @@ public abstract class Jack {
   }
 
   private static void fillJayceToDexPlan(
-      @Nonnull Options options, @Nonnull PlanBuilder<JProgram> programPlan) {
-    Request request = programPlan.getRequest();
+      @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+    Request request = planBuilder.getRequest();
     FeatureSet features = request.getFeatures();
     ProductionSet productions = request.getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
 
     // Build the plan
     if (hasSanityChecks) {
-      programPlan.append(TypeDuplicateRemoverChecker.class);
+      planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
     if (features.contains(Jarjar.class)) {
-      programPlan.append(PackageRenamer.class);
+      planBuilder.append(PackageRenamer.class);
     }
 
-    appendStringRefiningPlan(programPlan);
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
+      appendStringRefiningPlan(planBuilder);
+    }
+
     if (productions.contains(SeedFile.class)) {
-      programPlan.append(SeedPrinter.class);
+      planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(programPlan);
+      appendShrinkingPlan(planBuilder);
     }
 
     if (hasSanityChecks) {
-      programPlan.append(ParentSetterChecker.class);
+      planBuilder.append(ParentSetterChecker.class);
     }
-    programPlan.append(DexFileBuilder.class);
+    planBuilder.append(DexFileBuilder.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ReflectAnnotationsAdder.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         {
           SubPlanBuilder<JMethod> methodPlan2 =
@@ -1191,7 +1227,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan4.append(ClassDefItemBuilder.class);
       typePlan4.append(ClassAnnotationBuilder.class);
       {
@@ -1231,18 +1267,18 @@ public abstract class Jack {
     }
 
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(programPlan);
+      appendObfuscationPlan(planBuilder);
     }
     if (productions.contains(Mapping.class)) {
-      programPlan.append(MappingPrinter.class);
+      planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(TypeAndMemberListing.class)) {
-      programPlan.append(TypeAndMemberLister.class);
+      planBuilder.append(TypeAndMemberLister.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          programPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
             typePlan5.appendSubPlan(JMethodAdaptor.class);
@@ -1292,7 +1328,7 @@ public abstract class Jack {
     }
 
     if (hasSanityChecks) {
-      programPlan.append(ParentSetterChecker.class);
+      planBuilder.append(ParentSetterChecker.class);
     }
   }
 

@@ -17,6 +17,8 @@
 package com.android.sched.util.codec;
 
 
+import com.google.common.base.Joiner;
+
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.ReflectDefaultCtorFactory;
@@ -56,8 +58,9 @@ public class DefaultFactorySelector<T> extends Selector<T>
   public void checkValue(@Nonnull CodecContext context, @Nonnull DefaultFactory<T> factory)
       throws CheckingException {
     if (!checkClass(factory.getInstanciatedClass())) {
-      throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(factory) + "'");
+      throw new CheckingException("The value must be a DefaultFactory<{"
+          + Joiner.on(',').join(getClasses()) + "}> but is a DefaultFactory<"
+          + factory.getInstanciatedClass().getCanonicalName() + ">");
     }
   }
 

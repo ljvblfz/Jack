@@ -23,24 +23,15 @@ import javax.annotation.Nonnull;
  * Represents a type of event whose performance is tracked
  */
 public enum SchedEventType implements EventType {
-  REFLECTIONS("Reflections", "Yellow"), //
-  INSTANCIER("Schedulable instancier", "Blue"), //
-  PLANBUILDER("Plan builder", "Red");
+  REFLECTIONS("Reflections"),
+  INSTANCIER("Schedulable instancier"),
+  PLANBUILDER("Plan builder");
 
-  @Nonnull
-  private final String cssColor;
   @Nonnull
   private final String name;
 
-  SchedEventType(@Nonnull String name, @Nonnull String cssColor) {
+  SchedEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

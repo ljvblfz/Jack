@@ -18,6 +18,7 @@ package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.signature.GenericSignatureParser;
 import com.android.sched.item.Description;
@@ -44,7 +45,7 @@ public class MethodGenericSignatureSplitter implements RunnableSchedulable<JMeth
       JAbstractStringLiteral oldSignature = marker.getGenericSignature();
       if (oldSignature != null) {
         GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
-        GenericSignatureParser parser = new GenericSignatureParser(parserActions);
+        GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
         String strOldSignature = oldSignature.getValue();
         parser.parseMethodSignature(strOldSignature);
         assert parserActions.getNewSignature().getValue().equals(strOldSignature);

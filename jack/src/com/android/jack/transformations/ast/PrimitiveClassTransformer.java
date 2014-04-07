@@ -75,7 +75,7 @@ public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
         JClass receiverType = getType((JPrimitiveType) classLiteral.getRefType());
         JFieldRef fieldAccess = new JFieldRef(classLiteral.getSourceInfo(),
             null, receiverType.getFieldId(FIELD_TYPE_NAME,
-                Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS),
+                Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS),
                 FieldKind.STATIC), receiverType);
         tr.append(new Replace(classLiteral, fieldAccess));
       }
@@ -86,7 +86,7 @@ public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
     // available.
     @Nonnull
     private JClass getType(@Nonnull JPrimitiveType primType) {
-      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
       switch (primType.getPrimitiveTypeEnum()) {
         case BOOLEAN:
           return lookup.getClass(CommonTypes.JAVA_LANG_BOOLEAN);

@@ -20,7 +20,7 @@ import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
@@ -48,13 +48,13 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("lists all members and types")
 @Produce(TypeAndMemberListing.class)
-public class TypeAndMemberLister implements RunnableSchedulable<JProgram> {
+public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
 
   @Nonnull
   public static final BooleanPropertyId TYPE_AND_MEMBER_LISTING = BooleanPropertyId.create(
       "jack.listing",
       "List all types and members")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<StreamFile> TYPE_AND_MEMBER_LISTING_FILE = PropertyId.create(
@@ -122,7 +122,7 @@ public class TypeAndMemberLister implements RunnableSchedulable<JProgram> {
   }
 
   @Override
-  public void run(@Nonnull JProgram t) throws Exception {
+  public void run(@Nonnull JSession t) throws Exception {
     try {
       Visitor visitor = new Visitor();
       visitor.accept(t);

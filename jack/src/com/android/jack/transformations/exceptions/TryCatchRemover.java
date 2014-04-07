@@ -209,7 +209,7 @@ public class TryCatchRemover implements RunnableSchedulable<JMethod> {
           int catchTypesCount = catchTypes.size();
 
           for (JClass catchedType : bb.getCatchTypes()) {
-            if (catchedType == Jack.getProgram().getPhantomLookup()
+            if (catchedType == Jack.getSession().getPhantomLookup()
                 .getClass(CommonTypes.JAVA_LANG_OBJECT)) {
               assert bb.getCatchTypes().size() == 1;
               stmt.appendCatchBlock(bb);

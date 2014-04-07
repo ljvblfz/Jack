@@ -19,128 +19,138 @@ package com.android.jack.dx.io.instructions;
 /**
  * Implementation of {@code CodeOutput} that writes to a {@code short[]}.
  */
-public final class ShortArrayCodeOutput extends BaseCodeCursor
-        implements CodeOutput {
-    /** array to write to */
-    private final short[] array;
+public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOutput {
+  /** array to write to */
+  private final short[] array;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param maxSize the maximum number of code units that will be written
-     */
-    public ShortArrayCodeOutput(int maxSize) {
-        if (maxSize < 0) {
-            throw new IllegalArgumentException("maxSize < 0");
-        }
-
-        this.array = new short[maxSize];
+  /**
+   * Constructs an instance.
+   *
+   * @param maxSize the maximum number of code units that will be written
+   */
+  public ShortArrayCodeOutput(int maxSize) {
+    if (maxSize < 0) {
+      throw new IllegalArgumentException("maxSize < 0");
     }
 
-    /**
-     * Gets the array. The returned array contains exactly the data
-     * written (e.g. no leftover space at the end).
-     */
-    public short[] getArray() {
-        int cursor = cursor();
+    this.array = new short[maxSize];
+  }
 
-        if (cursor == array.length) {
-            return array;
-        }
+  /**
+   * Gets the array. The returned array contains exactly the data
+   * written (e.g. no leftover space at the end).
+   */
+  public short[] getArray() {
+    int cursor = cursor();
 
-        short[] result = new short[cursor];
-        System.arraycopy(array, 0, result, 0, cursor);
-        return result;
+    if (cursor == array.length) {
+      return array;
     }
 
-    /** @inheritDoc */
-    public void write(short codeUnit) {
-        array[cursor()] = codeUnit;
-        advance(1);
-    }
+    short[] result = new short[cursor];
+    System.arraycopy(array, 0, result, 0, cursor);
+    return result;
+  }
 
-    /** @inheritDoc */
-    public void write(short u0, short u1) {
-        write(u0);
-        write(u1);
-    }
+  /** @inheritDoc */
+  @Override
+  public void write(short codeUnit) {
+    array[cursor()] = codeUnit;
+    advance(1);
+  }
 
-    /** @inheritDoc */
-    public void write(short u0, short u1, short u2) {
-        write(u0);
-        write(u1);
-        write(u2);
-    }
+  /** @inheritDoc */
+  @Override
+  public void write(short u0, short u1) {
+    write(u0);
+    write(u1);
+  }
 
-    /** @inheritDoc */
-    public void write(short u0, short u1, short u2, short u3) {
-        write(u0);
-        write(u1);
-        write(u2);
-        write(u3);
-    }
+  /** @inheritDoc */
+  @Override
+  public void write(short u0, short u1, short u2) {
+    write(u0);
+    write(u1);
+    write(u2);
+  }
 
-    /** @inheritDoc */
-    public void write(short u0, short u1, short u2, short u3, short u4) {
-        write(u0);
-        write(u1);
-        write(u2);
-        write(u3);
-        write(u4);
-    }
+  /** @inheritDoc */
+  @Override
+  public void write(short u0, short u1, short u2, short u3) {
+    write(u0);
+    write(u1);
+    write(u2);
+    write(u3);
+  }
 
-    /** @inheritDoc */
-    public void writeInt(int value) {
+  /** @inheritDoc */
+  @Override
+  public void write(short u0, short u1, short u2, short u3, short u4) {
+    write(u0);
+    write(u1);
+    write(u2);
+    write(u3);
+    write(u4);
+  }
+
+  /** @inheritDoc */
+  @Override
+  public void writeInt(int value) {
+    write((short) value);
+    write((short) (value >> 16));
+  }
+
+  /** @inheritDoc */
+  @Override
+  public void writeLong(long value) {
+    write((short) value);
+    write((short) (value >> 16));
+    write((short) (value >> 32));
+    write((short) (value >> 48));
+  }
+
+  /** @inheritDoc */
+  @Override
+  public void write(byte[] data) {
+    int value = 0;
+    boolean even = true;
+    for (byte b : data) {
+      if (even) {
+        value = b & 0xff;
+        even = false;
+      } else {
+        value |= b << 8;
         write((short) value);
-        write((short) (value >> 16));
+        even = true;
+      }
     }
 
-    /** @inheritDoc */
-    public void writeLong(long value) {
-        write((short) value);
-        write((short) (value >> 16));
-        write((short) (value >> 32));
-        write((short) (value >> 48));
+    if (!even) {
+      write((short) value);
     }
+  }
 
-    /** @inheritDoc */
-    public void write(byte[] data) {
-        int value = 0;
-        boolean even = true;
-        for (byte b : data) {
-            if (even) {
-                value = b & 0xff;
-                even = false;
-            } else {
-                value |= b << 8;
-                write((short) value);
-                even = true;
-            }
-        }
-
-        if (!even) {
-            write((short) value);
-        }
+  /** @inheritDoc */
+  @Override
+  public void write(short[] data) {
+    for (short unit : data) {
+      write(unit);
     }
+  }
 
-    /** @inheritDoc */
-    public void write(short[] data) {
-        for (short unit : data) {
-            write(unit);
-        }
+  /** @inheritDoc */
+  @Override
+  public void write(int[] data) {
+    for (int i : data) {
+      writeInt(i);
     }
+  }
 
-    /** @inheritDoc */
-    public void write(int[] data) {
-        for (int i : data) {
-            writeInt(i);
-        }
+  /** @inheritDoc */
+  @Override
+  public void write(long[] data) {
+    for (long l : data) {
+      writeLong(l);
     }
-
-    /** @inheritDoc */
-    public void write(long[] data) {
-        for (long l : data) {
-            writeLong(l);
-        }
-    }
+  }
 }

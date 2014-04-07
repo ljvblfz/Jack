@@ -27,7 +27,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.util.filter.RejectAllMethods;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
@@ -47,9 +46,9 @@ public class GotoTest {
 
   @Test
   public void dumpGoto() throws Exception {
-    JMethod dumpGoto = TestTools.getJMethod(
+    JMethod dumpGoto = TestTools.getJMethodWithRejectAllFilter(
         TestTools.getJackUnitTestFromBinaryName(TEST_CLASS_BINARY_NAME),
-        "L" + TEST_CLASS_BINARY_NAME + ";", "synthetizeCode()V", new RejectAllMethods());
+        "L" + TEST_CLASS_BINARY_NAME + ";", "synthetizeCode()V");
 
     JMethodBody body = (JMethodBody) dumpGoto.getBody();
     assert body != null;

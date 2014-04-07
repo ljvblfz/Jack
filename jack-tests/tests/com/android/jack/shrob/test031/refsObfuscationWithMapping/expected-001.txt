@@ -3,14 +3,14 @@ com.android.jack.shrob.test031.jack.E -> com.android.jack.shrob.test031.jack.E:
 com.android.jack.shrob.test031.jack.Kept -> com.android.jack.shrob.test031.jack.Kept:
     void <init>() -> <init>
     int kept(com.android.jack.shrob.test031.jack.I) -> kept
-com.android.jack.shrob.test031.jack.I -> com.android.jack.shrob.test031.jack.a:
-    int m() -> a
-com.android.jack.shrob.test031.jack.F -> com.android.jack.shrob.test031.jack.b:
+com.android.jack.shrob.test031.jack.I -> com.android.jack.shrob.test031.jack.RenamedI:
+    int m() -> renamedM
+com.android.jack.shrob.test031.jack.F -> com.android.jack.shrob.test031.jack.RenamedF:
     void <init>() -> <init>
 com.android.jack.shrob.test031.jack.B -> com.android.jack.shrob.test031.jack.B:
     void <init>() -> <init>
 com.android.jack.shrob.test031.jack.D -> com.android.jack.shrob.test031.jack.D:
     void <init>() -> <init>
-com.android.jack.shrob.test031.jack.A -> com.android.jack.shrob.test031.jack.c:
+com.android.jack.shrob.test031.jack.A -> com.android.jack.shrob.test031.jack.RenamedA:
     void <init>() -> <init>
-    int m() -> a
+    int m() -> renamedM

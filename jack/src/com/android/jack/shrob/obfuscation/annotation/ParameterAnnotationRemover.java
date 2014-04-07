@@ -52,13 +52,13 @@ public class ParameterAnnotationRemover extends AnnotationRemover implements
   public static final
       BooleanPropertyId EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION = BooleanPropertyId.create(
           "jack.annotation.runtimevisible.parameter",
-          "Emit parameters annotations that are runtime visible").addDefaultValue("true");
+          "Emit parameters annotations that are runtime visible").addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final
       BooleanPropertyId EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION = BooleanPropertyId.create(
           "jack.annotation.runtimeinvisible.parameter",
-          "Emit parameters annotations that are runtime invisible").addDefaultValue("true");
+          "Emit parameters annotations that are runtime invisible").addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

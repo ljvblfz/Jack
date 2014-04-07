@@ -1,5 +1,0 @@
-Lcom/android/jack/shrob/test027/jack/A;:
-<init>()V
-Lcom/android/jack/shrob/test027/lib/ForName;:
-<init>()V
-keptMethod()Ljava/lang/Class;

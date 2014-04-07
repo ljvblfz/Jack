@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.sched.vfs.direct;
+
+import com.android.sched.util.config.FileLocation;
+import com.android.sched.util.config.Location;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.vfs.AbstractVElement;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
+
+/**
+ * An {@link OutputVDir} using a real directory.
+ */
+public class OutputDirectDir extends AbstractVElement implements OutputVDir {
+
+  @Nonnull
+  private final File dir;
+
+  public OutputDirectDir(@Nonnull Directory dir) {
+    this.dir = dir.getFile();
+  }
+
+  @Nonnull
+  @Override
+  public String getName() {
+    return dir.getName();
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return new FileLocation(dir);
+  }
+
+  @Override
+  @Nonnull
+  public OutputVFile createOutputVFile(@Nonnull String filePath) throws CannotCreateFileException,
+      FileAlreadyExistsException {
+    File file = new File(dir, filePath);
+    if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
+      throw new CannotCreateFileException(file.getParentFile().getAbsolutePath(),
+          /* isFile */ false);
+    }
+    return new OutputDirectFile(file);
+  }
+}

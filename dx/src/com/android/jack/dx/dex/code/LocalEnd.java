@@ -27,64 +27,64 @@ import com.android.jack.dx.rop.code.SourcePosition;
  * subsequent instruction, the indicated variable is no longer valid.
  */
 public final class LocalEnd extends ZeroSizeInsn {
-    /**
-     * {@code non-null;} register spec representing the local variable ended
-     * by this instance. <b>Note:</b> Technically, only the register
-     * number needs to be recorded here as the rest of the information
-     * is implicit in the ambient local variable state, but other code
-     * will check the other info for consistency.
-     */
-    private final RegisterSpec local;
+  /**
+   * {@code non-null;} register spec representing the local variable ended
+   * by this instance. <b>Note:</b> Technically, only the register
+   * number needs to be recorded here as the rest of the information
+   * is implicit in the ambient local variable state, but other code
+   * will check the other info for consistency.
+   */
+  private final RegisterSpec local;
 
-    /**
-     * Constructs an instance. The output address of this instance is initially
-     * unknown ({@code -1}).
-     *
-     * @param position {@code non-null;} source position
-     * @param local {@code non-null;} register spec representing the local
-     * variable introduced by this instance
-     */
-    public LocalEnd(SourcePosition position, RegisterSpec local) {
-        super(position);
+  /**
+   * Constructs an instance. The output address of this instance is initially
+   * unknown ({@code -1}).
+   *
+   * @param position {@code non-null;} source position
+   * @param local {@code non-null;} register spec representing the local
+   * variable introduced by this instance
+   */
+  public LocalEnd(SourcePosition position, RegisterSpec local) {
+    super(position);
 
-        if (local == null) {
-            throw new NullPointerException("local == null");
-        }
-
-        this.local = local;
+    if (local == null) {
+      throw new NullPointerException("local == null");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public DalvInsn withRegisterOffset(int delta) {
-        return new LocalEnd(getPosition(), local.withOffset(delta));
-    }
+    this.local = local;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public DalvInsn withRegisters(RegisterSpecList registers) {
-        return new LocalEnd(getPosition(), local);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public DalvInsn withRegisterOffset(int delta) {
+    return new LocalEnd(getPosition(), local.withOffset(delta));
+  }
 
-    /**
-     * Gets the register spec representing the local variable ended
-     * by this instance.
-     *
-     * @return {@code non-null;} the register spec
-     */
-    public RegisterSpec getLocal() {
-        return local;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public DalvInsn withRegisters(RegisterSpecList registers) {
+    return new LocalEnd(getPosition(), local);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected String argString() {
-        return local.toString();
-    }
+  /**
+   * Gets the register spec representing the local variable ended
+   * by this instance.
+   *
+   * @return {@code non-null;} the register spec
+   */
+  public RegisterSpec getLocal() {
+    return local;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected String listingString0(boolean noteIndices) {
-        return "local-end " + LocalStart.localString(local);
-    }
+  /** {@inheritDoc} */
+  @Override
+  protected String argString() {
+    return local.toString();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  protected String listingString0(boolean noteIndices) {
+    return "local-end " + LocalStart.localString(local);
+  }
 }

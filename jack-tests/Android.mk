@@ -59,6 +59,7 @@ $(call declare-test-with-name,annotation/test009)
 $(call declare-test-with-name,arithmetic/test001)
 $(call declare-test-with-name,arithmetic/test002)
 $(call declare-test-with-name,arithmetic/test003)
+$(call declare-test-with-name,arithmetic/test004)
 
 # Array
 $(call declare-test-with-name,array/test001)

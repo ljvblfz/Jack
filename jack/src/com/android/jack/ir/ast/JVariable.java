@@ -121,9 +121,4 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
       super.transform(existingNode, newNode, transformation);
     }
   }
-
-  @Override
-  public void updateAnnotations() {
-    annotations.updateAnnotationSet();
-  }
 }

@@ -144,17 +144,17 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.vars.synthetic",
-      "Emit synthetic local variable debug info into generated dex").addDefaultValue("false");
+      "Emit synthetic local variable debug info into generated dex").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
       "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
       "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
@@ -487,7 +487,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
     DexFileMarker dexFileMarker =
-        method.getEnclosingType().getJProgram().getMarker(DexFileMarker.class);
+        method.getEnclosingType().getSession().getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 
     DexOptions options = dexFileMarker.getDexFile().getDexOptions();

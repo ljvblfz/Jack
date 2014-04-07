@@ -80,7 +80,7 @@ public class NEnumType extends NClassType {
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getProgram(), NodeLevel.TYPES));
+        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
     JDefinedEnum jEnumType =
         new JDefinedEnum(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jEnumType;
@@ -91,7 +91,7 @@ public class NEnumType extends NClassType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedEnum jEnumType = (JDefinedEnum) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getJProgram(),
+    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jEnumType);
       try {

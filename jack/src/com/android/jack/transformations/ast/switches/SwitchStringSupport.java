@@ -37,7 +37,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
@@ -96,8 +96,8 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
 
     public Visitor(@Nonnull TransformationRequest tr, @Nonnull JMethod method) {
       this.tr = tr;
-      JProgram program = method.getEnclosingType().getJProgram();
-      JPhantomLookup lookup = program.getPhantomLookup();
+      JSession session = method.getEnclosingType().getSession();
+      JPhantomLookup lookup = session.getPhantomLookup();
       JClass jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
       JClass jls = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
       equalsMethodId =

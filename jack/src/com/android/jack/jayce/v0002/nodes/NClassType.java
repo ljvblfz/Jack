@@ -117,7 +117,7 @@ public class NClassType extends NDeclaredType {
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getProgram(), NodeLevel.TYPES));
+        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
     JDefinedClass jClassType =
         new JDefinedClass(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jClassType;
@@ -129,7 +129,7 @@ public class NClassType extends NDeclaredType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedClass jClassType = (JDefinedClass) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getJProgram(),
+    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jClassType);
     if (superClass != null) {

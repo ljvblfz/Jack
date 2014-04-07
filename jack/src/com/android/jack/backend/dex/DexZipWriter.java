@@ -19,7 +19,7 @@ package com.android.jack.backend.dex;
 import com.android.jack.JackFileException;
 import com.android.jack.backend.jayce.ResourceContainerMarker;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.scheduling.tags.DexFileProduct;
@@ -29,11 +29,13 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.Support;
+import com.android.sched.util.config.Location;
+import com.android.sched.util.config.ZipLocation;
+import com.android.sched.vfs.InputVFile;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
@@ -52,8 +54,8 @@ public class DexZipWriter extends DexFileWriter {
   private static final String DEX_NAME = "classes.dex";
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
-    DexFile dexFile = getDexFile(program);
+  public void run(@Nonnull JSession session) throws Exception {
+    DexFile dexFile = getDexFile(session);
 
     ZipOutputStream zos = null;
     try {
@@ -63,16 +65,22 @@ public class DexZipWriter extends DexFileWriter {
       dexFile.writeTo(zos, null, false);
       zos.closeEntry();
 
-      ResourceContainerMarker resourceContainer = program.getMarker(ResourceContainerMarker.class);
+      ResourceContainerMarker resourceContainer = session.getMarker(ResourceContainerMarker.class);
       if (resourceContainer != null) {
-        ZipFile zipFile = resourceContainer.getZipFile();
-        for (ZipEntry resourceEntry : resourceContainer.getZipEntries()) {
+        for (InputVFile resource : resourceContainer.getResources()) {
+          Location location = resource.getLocation();
+          String entryName;
+          if (location instanceof ZipLocation) {
+            ZipLocation zipLocation = (ZipLocation) location;
+            entryName = zipLocation.getEntryName();
+          } else {
+            entryName = resource.getName();
+          }
+          ZipEntry resourceEntry = new ZipEntry(entryName);
           zos.putNextEntry(resourceEntry);
-          BytesStreamSucker sucker =
-              new BytesStreamSucker(zipFile.getInputStream(resourceEntry), zos);
+          BytesStreamSucker sucker = new BytesStreamSucker(resource.openRead(), zos);
           sucker.run();
         }
-        zipFile.close();
       }
     } catch (IOException e) {
       throw new JackFileException(

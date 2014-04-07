@@ -19,40 +19,43 @@ package com.android.jack.dx.merge;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.util.Unsigned;
 
-import java.util.Arrays;
-
+/**
+ * TODO(jack team)
+ */
 public final class TypeList implements Comparable<TypeList> {
 
-    public static final TypeList EMPTY = new TypeList(null, new short[0]);
+  public static final TypeList EMPTY = new TypeList(null, new short[0]);
 
-    private final DexBuffer buffer;
-    private final short[] types;
+  private final DexBuffer buffer;
+  private final short[] types;
 
-    public TypeList(DexBuffer buffer, short[] types) {
-        this.buffer = buffer;
-        this.types = types;
+  public TypeList(DexBuffer buffer, short[] types) {
+    this.buffer = buffer;
+    this.types = types;
+  }
+
+  public short[] getTypes() {
+    return types;
+  }
+
+  @Override
+  public int compareTo(TypeList other) {
+    for (int i = 0; i < types.length && i < other.types.length; i++) {
+      if (types[i] != other.types[i]) {
+        return Unsigned.compare(types[i], other.types[i]);
+      }
     }
+    return Unsigned.compare(types.length, other.types.length);
+  }
 
-    public short[] getTypes() {
-        return types;
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder();
+    result.append("(");
+    for (int i = 0, typesLength = types.length; i < typesLength; i++) {
+      result.append(buffer != null ? buffer.typeNames().get(types[i]) : types[i]);
     }
-
-    public int compareTo(TypeList other) {
-        for (int i = 0; i < types.length && i < other.types.length; i++) {
-            if (types[i] != other.types[i]) {
-                return Unsigned.compare(types[i], other.types[i]);
-            }
-        }
-        return Unsigned.compare(types.length, other.types.length);
-    }
-
-    @Override public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("(");
-        for (int i = 0, typesLength = types.length; i < typesLength; i++) {
-            result.append(buffer != null ? buffer.typeNames().get(types[i]) : types[i]);
-        }
-        result.append(")");
-        return result.toString();
-    }
+    result.append(")");
+    return result.toString();
+  }
 }

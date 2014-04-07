@@ -18,51 +18,55 @@ package com.android.jack.dx.io;
 
 import com.android.jack.dx.util.Unsigned;
 
+/**
+ * TODO(jack team)
+ */
 public final class ProtoId implements Comparable<ProtoId> {
-    private final DexBuffer buffer;
-    private final int shortyIndex;
-    private final int returnTypeIndex;
-    private final int parametersOffset;
+  private final DexBuffer buffer;
+  private final int shortyIndex;
+  private final int returnTypeIndex;
+  private final int parametersOffset;
 
-    public ProtoId(DexBuffer buffer, int shortyIndex, int returnTypeIndex, int parametersOffset) {
-        this.buffer = buffer;
-        this.shortyIndex = shortyIndex;
-        this.returnTypeIndex = returnTypeIndex;
-        this.parametersOffset = parametersOffset;
+  public ProtoId(DexBuffer buffer, int shortyIndex, int returnTypeIndex, int parametersOffset) {
+    this.buffer = buffer;
+    this.shortyIndex = shortyIndex;
+    this.returnTypeIndex = returnTypeIndex;
+    this.parametersOffset = parametersOffset;
+  }
+
+  @Override
+  public int compareTo(ProtoId other) {
+    if (returnTypeIndex != other.returnTypeIndex) {
+      return Unsigned.compare(returnTypeIndex, other.returnTypeIndex);
+    }
+    return Unsigned.compare(parametersOffset, other.parametersOffset);
+  }
+
+  public int getShortyIndex() {
+    return shortyIndex;
+  }
+
+  public int getReturnTypeIndex() {
+    return returnTypeIndex;
+  }
+
+  public int getParametersOffset() {
+    return parametersOffset;
+  }
+
+  public void writeTo(DexBuffer.Section out) {
+    out.writeInt(shortyIndex);
+    out.writeInt(returnTypeIndex);
+    out.writeInt(parametersOffset);
+  }
+
+  @Override
+  public String toString() {
+    if (buffer == null) {
+      return shortyIndex + " " + returnTypeIndex + " " + parametersOffset;
     }
 
-    public int compareTo(ProtoId other) {
-        if (returnTypeIndex != other.returnTypeIndex) {
-            return Unsigned.compare(returnTypeIndex, other.returnTypeIndex);
-        }
-        return Unsigned.compare(parametersOffset, other.parametersOffset);
-    }
-
-    public int getShortyIndex() {
-        return shortyIndex;
-    }
-
-    public int getReturnTypeIndex() {
-        return returnTypeIndex;
-    }
-
-    public int getParametersOffset() {
-        return parametersOffset;
-    }
-
-    public void writeTo(DexBuffer.Section out) {
-        out.writeInt(shortyIndex);
-        out.writeInt(returnTypeIndex);
-        out.writeInt(parametersOffset);
-    }
-
-    @Override public String toString() {
-        if (buffer == null) {
-            return shortyIndex + " " + returnTypeIndex + " " + parametersOffset;
-        }
-
-        return buffer.strings().get(shortyIndex)
-                + ": " + buffer.typeNames().get(returnTypeIndex)
-                + " " + buffer.readTypeList(parametersOffset);
-    }
+    return buffer.strings().get(shortyIndex) + ": " + buffer.typeNames().get(returnTypeIndex) + " "
+        + buffer.readTypeList(parametersOffset);
+  }
 }

@@ -17,7 +17,6 @@
 package com.android.jack.frontend;
 
 import com.android.jack.Options;
-import com.android.jack.SignatureMethodFilter;
 import com.android.jack.TestTools;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClass;
@@ -25,7 +24,7 @@ import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
@@ -33,6 +32,7 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.filter.SignatureMethodFilter;
 
 import junit.framework.Assert;
 
@@ -61,7 +61,9 @@ public class SynchronizedTest {
   public void testSynchronizedBlock() throws Exception {
     final String methodSignature = "sync(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -80,7 +82,9 @@ public class SynchronizedTest {
   public void testSynchronizedMethod() throws Exception {
     final String methodSignature = "syncMethod(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -96,7 +100,9 @@ public class SynchronizedTest {
   public void testLockUnlock() throws Exception {
     final String methodSignature = "syncMethod(I)I";
     Options commandLineArgs = TestTools.buildCommandLineArgs(FILE);
-    commandLineArgs.setFilter(new SignatureMethodFilter(methodSignature));
+    commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
+    commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
+        methodSignature);
 
     JMethod method =
         FrontendTools.parseMethod(CLASS_SIGNATURE, methodSignature, commandLineArgs);
@@ -111,7 +117,7 @@ public class SynchronizedTest {
     SourceInfo srcInfo = firstStmt.getSourceInfo();
 
     TransformationRequest tr = new TransformationRequest(method);
-    JClass javaLangClass = method.getParent(JProgram.class).getPhantomLookup()
+    JClass javaLangClass = method.getParent(JSession.class).getPhantomLookup()
         .getClass(CommonTypes.JAVA_LANG_CLASS);
     tr.append(new AppendBefore(firstStmt, new JLock(srcInfo,
         new JClassLiteral(srcInfo, method.getEnclosingType(), javaLangClass))));

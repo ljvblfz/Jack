@@ -21,10 +21,10 @@ package com.android.jack.dx.util;
  */
 public interface LabeledItem {
 
-    /*
-     * Gets the label of this block.
-     *
-     * @return {@code >= 0;} the label
-     */
-    public int getLabel();
+  /*
+   * Gets the label of this block.
+   *
+   * @return {@code >= 0;} the label
+   */
+  public int getLabel();
 }

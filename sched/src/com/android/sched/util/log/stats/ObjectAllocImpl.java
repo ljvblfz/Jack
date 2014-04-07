@@ -18,7 +18,6 @@ package com.android.sched.util.log.stats;
 
 import com.google.common.collect.Iterators;
 
-import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.table.DataHeader;
 import com.android.sched.util.table.DataRow;
 
@@ -66,38 +65,6 @@ public class ObjectAllocImpl extends ObjectAlloc implements DataRow, DataHeader 
       } else {
         assert this.size == stat.size : "Object size are not constant";
       }
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized Object getValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.valueOf(number);
-      case 1:
-        return Long.valueOf(size);
-      case 2:
-        return Long.valueOf(size * number);
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public synchronized String getHumanReadableValue(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return Long.toString(number);
-      case 1:
-        return MemoryBytesProbe.formatBytes(size);
-      case 2:
-        return MemoryBytesProbe.formatBytes(size * number);
-      default:
-        throw new AssertionError();
     }
   }
 

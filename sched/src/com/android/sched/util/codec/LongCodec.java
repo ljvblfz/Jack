@@ -76,7 +76,7 @@ public class LongCodec implements StringCodec<Long>{
 
     if (v < min || v > max) {
       throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(l) + "'");
+          "The value must be " + getUsage() + " but is " + l);
     }
   }
 

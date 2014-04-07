@@ -21,7 +21,6 @@ import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.category.SlowTests;
-import com.android.jack.util.filter.SupportedMethods;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,8 +49,8 @@ public class TreeTest {
     Options options = TestTools.buildCommandLineArgs(new File[]{CORE_SOURCELIST, testFolder});
     options.addProguardFlagsFile(new ProguardFlags(testFolder, "proguard.flags001"));
     options.addProguardFlagsFile(dontObfuscateFlagFile);
-    options.setFilter(new SupportedMethods());
+    options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 
-    TestTools.buildProgram(options);
+    TestTools.buildSession(options);
   }
 }

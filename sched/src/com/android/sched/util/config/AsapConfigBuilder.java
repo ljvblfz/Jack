@@ -38,6 +38,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -69,11 +70,11 @@ public class AsapConfigBuilder {
       new HashMap<KeyId<?, ?>, FieldLocation>();
 
   @Nonnull
-  private final Map<PropertyId<?>, String> stringValuesById =
-      new HashMap<PropertyId<?>, String>();
+  private final Map<PropertyId<?>, PropertyId<?>.Value> valuesById =
+      new HashMap<PropertyId<?>, PropertyId<?>.Value>();
 
   @Nonnull
-  private final Map<ObjectId<?>, Object> instanceValuesById =
+  private final Map<ObjectId<?>, Object> instances =
       new HashMap<ObjectId<?>, Object>();
 
   @Nonnull
@@ -182,13 +183,7 @@ public class AsapConfigBuilder {
   }
 
   @Nonnull
-  public AsapConfigBuilder set(@Nonnull String name, @Nonnull String value)
-      throws UnknownPropertyNameException, PropertyIdException {
-    return set(name, value, defaultLocations.peek());
-  }
-
-  @Nonnull
-  public AsapConfigBuilder set(
+  public AsapConfigBuilder setString(
       @Nonnull String name, @Nonnull String value, @Nonnull Location location)
       throws UnknownPropertyNameException, PropertyIdException {
     KeyId<?, ?> keyId = keyIdsByName.get(name);
@@ -197,7 +192,7 @@ public class AsapConfigBuilder {
     }
 
     try {
-      set((PropertyId<?>) keyId, value, location);
+      setString((PropertyId<?>) keyId, value, location);
     } catch (UnknownPropertyIdException e) {
       throw new AssertionError();
     }
@@ -206,13 +201,36 @@ public class AsapConfigBuilder {
   }
 
   @Nonnull
-  public AsapConfigBuilder set(@Nonnull PropertyId<?> propertyId, @Nonnull String value)
-      throws PropertyIdException {
-    return set(propertyId, value, defaultLocations.peek());
+  public <T> AsapConfigBuilder set(
+      @Nonnull String name, @Nonnull T value, @Nonnull Location location)
+      throws UnknownPropertyNameException, PropertyIdException {
+    KeyId<?, ?> keyId = keyIdsByName.get(name);
+    if (keyId == null || !(keyId instanceof PropertyId)) {
+      throw new UnknownPropertyNameException(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    PropertyId<T> propertyId = (PropertyId<T>) keyId;
+
+    if (context.isDebug()) {
+      try {
+        propertyId.getCodec().checkValue(context, value);
+      } catch (Exception e) {
+        throw new ConfigurationError("Property '" + name + "': " + e.getMessage());
+      }
+    }
+
+    try {
+      set(propertyId, value, location);
+    } catch (UnknownPropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
   }
 
   @Nonnull
-  public AsapConfigBuilder set(
+  public AsapConfigBuilder setString(
       @Nonnull PropertyId<?> propertyId, @Nonnull String value, @Nonnull Location location)
       throws PropertyIdException {
     if (!keyIdsByName.values().contains(propertyId)) {
@@ -227,21 +245,39 @@ public class AsapConfigBuilder {
       }
     }
 
-    stringValuesById.put(propertyId, value);
+    valuesById.put(propertyId, propertyId.new Value(value));
+    locationsByKeyId.put(propertyId, location);
+
+    return this;
+  }
+
+
+  @Nonnull
+  public <T> AsapConfigBuilder set(
+      @Nonnull PropertyId<T> propertyId, @Nonnull T value, @Nonnull Location location)
+      throws PropertyIdException {
+    if (!keyIdsByName.values().contains(propertyId)) {
+      throw new UnknownPropertyIdException(propertyId);
+    }
+
+    if (context.isDebug()) {
+      try {
+        propertyId.getCodec().checkValue(context, value);
+      } catch (Exception e) {
+        throw new ConfigurationError("Property '" + propertyId.getName() + "': " + e.getMessage());
+      }
+    }
+
+    valuesById.put(propertyId, propertyId.new Value(value));
     locationsByKeyId.put(propertyId, location);
 
     return this;
   }
 
   @Nonnull
-  public <T> AsapConfigBuilder set(@Nonnull ObjectId<T> objectId, @Nonnull T value) {
-    return set(objectId, value, defaultLocations.peek());
-  }
-
-  @Nonnull
   public <T> AsapConfigBuilder set(
       @Nonnull ObjectId<T> objectId, @Nonnull T value, @Nonnull Location location) {
-    instanceValuesById.put(objectId, value);
+    instances.put(objectId, value);
     locationsByKeyId.put(objectId, location);
 
     return this;
@@ -276,7 +312,7 @@ public class AsapConfigBuilder {
    * @throws ConfigurationException
    */
   @Nonnull
-  public Config build() throws ConfigurationException {
+  public <X> Config build() throws ConfigurationException {
     ChainedExceptionBuilder<ConfigurationException> exceptions =
         new ChainedExceptionBuilder<ConfigurationException>();
 
@@ -286,12 +322,14 @@ public class AsapConfigBuilder {
       logger.setLevel(Level.INFO);
     }
 
-    @Nonnull Map<PropertyId<?>, String> values = new HashMap<PropertyId<?>, String>();
+    @Nonnull
+    Map<PropertyId<?>, PropertyId<?>.Value> values =
+        new HashMap<PropertyId<?>, PropertyId<?>.Value>();
     processValues(values);
     processDefaultValues(values);
 
     ConfigChecker checker =
-        new ConfigChecker(context, values, instanceValuesById, locationsByKeyId);
+        new ConfigChecker(context, values, instances, locationsByKeyId);
 
     for (KeyId<?, ?> keyId : keyIdsByName.values()) {
       boolean needChecks = false;
@@ -343,15 +381,15 @@ public class AsapConfigBuilder {
 
     if (context.isDebug()) {
       return new ConfigDebug(
-          context, checker.getStrings(), checker.getInstances(), checker.getDropCauses());
+          context, checker.getValues(), checker.getInstances(), checker.getDropCauses());
     } else {
-      return new ConfigImpl(context, checker.getStrings(), checker.getInstances());
+      return new ConfigImpl(context, checker.getValues(), checker.getInstances());
     }
   }
 
   @Nonnull
   public Collection<PropertyId<?>> getPropertyIds() {
-    ArrayList<PropertyId<?>> result = new ArrayList<PropertyId<?>>(keyIdsByName.size());
+    List<PropertyId<?>> result = new ArrayList<PropertyId<?>>(keyIdsByName.size());
 
     for (KeyId<?, ?> keyId : keyIdsByName.values()) {
       if (keyId.isPublic() && keyId instanceof PropertyId<?>) {
@@ -363,15 +401,21 @@ public class AsapConfigBuilder {
   }
 
   @CheckForNull
-  public String getDefaultValue(@Nonnull PropertyId<?> propertyId) {
-    return propertyId.getDefaultValue(context);
+  public <T> String getDefaultValue(@Nonnull PropertyId<T> propertyId) {
+    PropertyId<T>.Value value = propertyId.getDefaultValue(context);
+
+    if (value != null) {
+      return value.getString();
+    } else {
+      return null;
+    }
   }
 
-  private void processValues(@Nonnull Map<PropertyId<?>, String> values) {
-    values.putAll(stringValuesById);
+  private void processValues(@Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values) {
+    values.putAll(valuesById);
   }
 
-  private void processDefaultValues(@Nonnull Map<PropertyId<?>, String> values) {
+  private void processDefaultValues(@Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values) {
     for (KeyId<?, ?> keyId : keyIdsByName.values()) {
       if (keyId instanceof PropertyId) {
         PropertyId<?> propertyId = (PropertyId<?>) keyId;
@@ -427,7 +471,7 @@ public class AsapConfigBuilder {
 
               try {
                 assert propertyId != null;
-                set(propertyId, value, new EnvironmentLocation(envKey));
+                setString(propertyId, value, new EnvironmentLocation(envKey));
               } catch (ConfigurationException e) {
                 exceptions.appendException(e);
               }
@@ -450,6 +494,10 @@ public class AsapConfigBuilder {
     return this;
   }
 
+  //
+  // Default location
+  //
+
   public void pushDefaultLocation(@Nonnull Location location) {
     defaultLocations.push(location);
   }
@@ -457,5 +505,222 @@ public class AsapConfigBuilder {
   public void popDefaultLocation() {
     assert defaultLocations.size() > 1;
     defaultLocations.pop();
+  }
+
+  @Nonnull
+  public <T> AsapConfigBuilder set(@Nonnull ObjectId<T> objectId, @Nonnull T value) {
+    return set(objectId, value, defaultLocations.peek());
+  }
+
+  @Nonnull
+  public <T> AsapConfigBuilder set(@Nonnull String name, @Nonnull T value)
+      throws UnknownPropertyNameException, PropertyIdException {
+    return set(name, value, defaultLocations.peek());
+  }
+
+  @Nonnull
+  public <T> AsapConfigBuilder set(@Nonnull PropertyId<T> propertyId, @Nonnull T value)
+      throws PropertyIdException {
+    return set(propertyId, value, defaultLocations.peek());
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setString(@Nonnull PropertyId<?> propertyId, @Nonnull String value)
+      throws PropertyIdException {
+    return setString(propertyId, value, defaultLocations.peek());
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setString(@Nonnull String name, @Nonnull String value)
+      throws UnknownPropertyNameException, PropertyIdException {
+    return setString(name, value, defaultLocations.peek());
+  }
+
+  //
+  // Commodity helper
+  //
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Boolean> propertyId, boolean value) {
+    try {
+      set(propertyId, Boolean.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Boolean> propertyId, boolean value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Boolean.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Byte> propertyId, byte value) {
+    try {
+      set(propertyId, Byte.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Byte> propertyId, byte value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Byte.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Short> propertyId, short value) {
+    try {
+      set(propertyId, Short.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Short> propertyId, short value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Short.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Character> propertyId, char value) {
+    try {
+      set(propertyId, Character.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Character> propertyId, char value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Character.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Integer> propertyId, int value) {
+    try {
+      set(propertyId, Integer.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Integer> propertyId, int value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Integer.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Long> propertyId, long value) {
+    try {
+      set(propertyId, Long.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Long> propertyId, long value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Long.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Float> propertyId, float value) {
+    try {
+      set(propertyId, Float.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Float> propertyId, float value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Float.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Double> propertyId, double value) {
+    try {
+      set(propertyId, Double.valueOf(value));
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder set(@Nonnull PropertyId<Double> propertyId, double value,
+      @Nonnull Location location) {
+    try {
+      set(propertyId, Double.valueOf(value), location);
+    } catch (PropertyIdException e) {
+      throw new AssertionError();
+    }
+
+    return this;
   }
 }

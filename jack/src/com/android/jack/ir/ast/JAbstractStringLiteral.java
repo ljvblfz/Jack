@@ -37,7 +37,7 @@ public abstract class JAbstractStringLiteral extends JValueLiteral implements Cl
   @Override
   @Nonnull
   public JClass getType() {
-    return Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+    return Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
   }
 
   @Nonnull

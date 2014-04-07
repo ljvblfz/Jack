@@ -20,13 +20,14 @@ package com.android.jack.dx.util;
  * An unsigned integer.
  */
 public final class Uint implements Comparable<Uint> {
-    public final int intValue;
+  public final int intValue;
 
-    public Uint(int value) {
-        this.intValue = value;
-    }
+  public Uint(int value) {
+    this.intValue = value;
+  }
 
-    public int compareTo(Uint uint) {
-        return Unsigned.compare(intValue, uint.intValue);
-    }
+  @Override
+  public int compareTo(Uint uint) {
+    return Unsigned.compare(intValue, uint.intValue);
+  }
 }

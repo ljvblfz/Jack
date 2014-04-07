@@ -17,7 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
@@ -44,20 +44,19 @@ public class NProgram extends NNode {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull  Object node) {
-    JProgram jProgram = (JProgram) node;
-    assert jProgram.codeGenTypes.isEmpty();
-    allTypes = loader.load(NDeclaredType.class, jProgram.getTypesToEmit());
+    JSession session = (JSession) node;
+    allTypes = loader.load(NDeclaredType.class, session.getTypesToEmit());
   }
 
   @Override
   @Nonnull
-  public JProgram exportAsJast(@Nonnull ExportSession exportSession) {
-    JProgram jProgram = new JProgram();
+  public JSession exportAsJast(@Nonnull ExportSession exportSession) {
+    JSession session = new JSession();
     for (NDeclaredType declaredType : allTypes) {
       JDefinedClassOrInterface jDeclaredType = declaredType.exportAsJast(exportSession);
-      jProgram.addTypeToEmit(jDeclaredType);
+      session.addTypeToEmit(jDeclaredType);
     }
-    return jProgram;
+    return session;
   }
 
   @Override

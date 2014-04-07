@@ -24,116 +24,117 @@ import com.android.jack.dx.util.MutabilityControl;
  * Standard implementation of {@link ConstantPool}, which directly stores
  * an array of {@link Constant} objects and can be made immutable.
  */
-public final class StdConstantPool
-        extends MutabilityControl implements ConstantPool {
-    /** {@code non-null;} array of entries */
-    private final Constant[] entries;
+public final class StdConstantPool extends MutabilityControl implements ConstantPool {
+  /** {@code non-null;} array of entries */
+  private final Constant[] entries;
 
-    /**
-     * Constructs an instance. All indices initially contain {@code null}.
-     *
-     * @param size the size of the pool; this corresponds to the
-     * class file field {@code constant_pool_count}, and is in fact
-     * always at least one more than the actual size of the constant pool,
-     * as element {@code 0} is always invalid.
-     */
-    public StdConstantPool(int size) {
-        super(size > 1);
+  /**
+   * Constructs an instance. All indices initially contain {@code null}.
+   *
+   * @param size the size of the pool; this corresponds to the
+   * class file field {@code constant_pool_count}, and is in fact
+   * always at least one more than the actual size of the constant pool,
+   * as element {@code 0} is always invalid.
+   */
+  public StdConstantPool(int size) {
+    super(size > 1);
 
-        if (size < 1) {
-            throw new IllegalArgumentException("size < 1");
-        }
-
-        entries = new Constant[size];
+    if (size < 1) {
+      throw new IllegalArgumentException("size < 1");
     }
 
-    /** {@inheritDoc} */
-    public int size() {
-        return entries.length;
+    entries = new Constant[size];
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int size() {
+    return entries.length;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Constant getOrNull(int n) {
+    try {
+      return entries[n];
+    } catch (IndexOutOfBoundsException ex) {
+      // Translate the exception.
+      return throwInvalid(n);
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Constant get0Ok(int n) {
+    if (n == 0) {
+      return null;
     }
 
-    /** {@inheritDoc} */
-    public Constant getOrNull(int n) {
-        try {
-            return entries[n];
-        } catch (IndexOutOfBoundsException ex) {
-            // Translate the exception.
-            return throwInvalid(n);
-        }
+    return get(n);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Constant get(int n) {
+    try {
+      Constant result = entries[n];
+
+      if (result == null) {
+        throwInvalid(n);
+      }
+
+      return result;
+    } catch (IndexOutOfBoundsException ex) {
+      // Translate the exception.
+      return throwInvalid(n);
+    }
+  }
+
+  /**
+   * Sets the entry at the given index.
+   *
+   * @param n {@code >= 1, < size();} which entry
+   * @param cst {@code null-ok;} the constant to store
+   */
+  public void set(int n, Constant cst) {
+    throwIfImmutable();
+
+    boolean cat2 = (cst != null) && cst.isCategory2();
+
+    if (n < 1) {
+      throw new IllegalArgumentException("n < 1");
     }
 
-    /** {@inheritDoc} */
-    public Constant get0Ok(int n) {
-        if (n == 0) {
-            return null;
-        }
-
-        return get(n);
+    if (cat2) {
+      // Storing a category-2 entry nulls out the next index.
+      if (n == (entries.length - 1)) {
+        throw new IllegalArgumentException("(n == size - 1) && " + "cst.isCategory2()");
+      }
+      entries[n + 1] = null;
     }
 
-    /** {@inheritDoc} */
-    public Constant get(int n) {
-        try {
-            Constant result = entries[n];
-
-            if (result == null) {
-                throwInvalid(n);
-            }
-
-            return result;
-        } catch (IndexOutOfBoundsException ex) {
-            // Translate the exception.
-            return throwInvalid(n);
-        }
+    if ((cst != null) && (entries[n] == null)) {
+      /*
+       * Overwriting the second half of a category-2 entry nulls out
+       * the first half.
+       */
+      Constant prev = entries[n - 1];
+      if ((prev != null) && prev.isCategory2()) {
+        entries[n - 1] = null;
+      }
     }
 
-    /**
-     * Sets the entry at the given index.
-     *
-     * @param n {@code >= 1, < size();} which entry
-     * @param cst {@code null-ok;} the constant to store
-     */
-    public void set(int n, Constant cst) {
-        throwIfImmutable();
+    entries[n] = cst;
+  }
 
-        boolean cat2 = (cst != null) && cst.isCategory2();
-
-        if (n < 1) {
-            throw new IllegalArgumentException("n < 1");
-        }
-
-        if (cat2) {
-            // Storing a category-2 entry nulls out the next index.
-            if (n == (entries.length - 1)) {
-                throw new IllegalArgumentException("(n == size - 1) && " +
-                                                   "cst.isCategory2()");
-            }
-            entries[n + 1] = null;
-        }
-
-        if ((cst != null) && (entries[n] == null)) {
-            /*
-             * Overwriting the second half of a category-2 entry nulls out
-             * the first half.
-             */
-            Constant prev = entries[n - 1];
-            if ((prev != null) && prev.isCategory2()) {
-                entries[n - 1] = null;
-            }
-        }
-
-        entries[n] = cst;
-    }
-
-    /**
-     * Throws the right exception for an invalid cpi.
-     *
-     * @param idx the bad cpi
-     * @return never
-     * @throws ExceptionWithContext always thrown
-     */
-    private static Constant throwInvalid(int idx) {
-        throw new ExceptionWithContext("invalid constant pool index " +
-                                       Hex.u2(idx));
-    }
+  /**
+   * Throws the right exception for an invalid cpi.
+   *
+   * @param idx the bad cpi
+   * @return never
+   * @throws ExceptionWithContext always thrown
+   */
+  private static Constant throwInvalid(int idx) {
+    throw new ExceptionWithContext("invalid constant pool index " + Hex.u2(idx));
+  }
 }

@@ -27,86 +27,86 @@ import java.util.Collection;
  * the output.
  */
 public abstract class UniformItemSection extends Section {
-    /**
-     * Constructs an instance. The file offset is initially unknown.
-     *
-     * @param name {@code null-ok;} the name of this instance, for annotation
-     * purposes
-     * @param file {@code non-null;} file that this instance is part of
-     * @param alignment {@code > 0;} alignment requirement for the final output;
-     * must be a power of 2
+  /**
+   * Constructs an instance. The file offset is initially unknown.
+   *
+   * @param name {@code null-ok;} the name of this instance, for annotation
+   * purposes
+   * @param file {@code non-null;} file that this instance is part of
+   * @param alignment {@code > 0;} alignment requirement for the final output;
+   * must be a power of 2
+   */
+  public UniformItemSection(String name, DexFile file, int alignment) {
+    super(name, file, alignment);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int writeSize() {
+    Collection<? extends Item> items = items();
+    int sz = items.size();
+
+    if (sz == 0) {
+      return 0;
+    }
+
+    // Since each item has to be the same size, we can pick any.
+    return sz * items.iterator().next().writeSize();
+  }
+
+  /**
+   * Gets the item corresponding to the given {@link Constant}. This
+   * will throw an exception if the constant is not found, including
+   * if this instance isn't the sort that maps constants to {@link
+   * IndexedItem} instances.
+   *
+   * @param cst {@code non-null;} constant to look for
+   * @return {@code non-null;} the corresponding item found in this instance
+   */
+  public abstract IndexedItem get(Constant cst);
+
+  /** {@inheritDoc} */
+  @Override
+  protected final void prepare0() {
+    DexFile file = getFile();
+
+    orderItems();
+
+    for (Item one : items()) {
+      one.addContents(file);
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  protected final void writeTo0(AnnotatedOutput out) {
+    DexFile file = getFile();
+    int alignment = getAlignment();
+
+    for (Item one : items()) {
+      one.writeTo(file, out);
+      out.alignTo(alignment);
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int getAbsoluteItemOffset(Item item) {
+    /*
+     * Since all items must be the same size, we can use the size
+     * of the one we're given to calculate its offset.
      */
-    public UniformItemSection(String name, DexFile file, int alignment) {
-        super(name, file, alignment);
-    }
+    IndexedItem ii = (IndexedItem) item;
+    int relativeOffset = ii.getIndex() * ii.writeSize();
 
-    /** {@inheritDoc} */
-    @Override
-    public final int writeSize() {
-        Collection<? extends Item> items = items();
-        int sz = items.size();
+    return getAbsoluteOffset(relativeOffset);
+  }
 
-        if (sz == 0) {
-            return 0;
-        }
-
-        // Since each item has to be the same size, we can pick any.
-        return sz * items.iterator().next().writeSize();
-    }
-
-    /**
-     * Gets the item corresponding to the given {@link Constant}. This
-     * will throw an exception if the constant is not found, including
-     * if this instance isn't the sort that maps constants to {@link
-     * IndexedItem} instances.
-     *
-     * @param cst {@code non-null;} constant to look for
-     * @return {@code non-null;} the corresponding item found in this instance
-     */
-    public abstract IndexedItem get(Constant cst);
-
-    /** {@inheritDoc} */
-    @Override
-    protected final void prepare0() {
-        DexFile file = getFile();
-
-        orderItems();
-
-        for (Item one : items()) {
-            one.addContents(file);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected final void writeTo0(AnnotatedOutput out) {
-        DexFile file = getFile();
-        int alignment = getAlignment();
-
-        for (Item one : items()) {
-            one.writeTo(file, out);
-            out.alignTo(alignment);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public final int getAbsoluteItemOffset(Item item) {
-        /*
-         * Since all items must be the same size, we can use the size
-         * of the one we're given to calculate its offset.
-         */
-        IndexedItem ii = (IndexedItem) item;
-        int relativeOffset = ii.getIndex() * ii.writeSize();
-
-        return getAbsoluteOffset(relativeOffset);
-    }
-
-    /**
-     * Alters or picks the order for items in this instance if desired,
-     * so that subsequent calls to {@link #items} will yield a
-     * so-ordered collection. If the items in this instance are indexed,
-     * then this method should also assign indices.
-     */
-    protected abstract void orderItems();
+  /**
+   * Alters or picks the order for items in this instance if desired,
+   * so that subsequent calls to {@link #items} will yield a
+   * so-ordered collection. If the items in this instance are indexed,
+   * then this method should also assign indices.
+   */
+  protected abstract void orderItems();
 }

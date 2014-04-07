@@ -45,12 +45,12 @@ public class AtomicLongIntUpdaterParameterRefiner extends CommonStringParameterR
 
   @Nonnull
   private final JClassOrInterface atomicIntegerFieldUpdater =
-      (JClassOrInterface) Jack.getProgram().getPhantomLookup()
+      (JClassOrInterface) Jack.getSession().getPhantomLookup()
           .getType(CommonTypes.JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICINTEGERFIELDUPDATER);
 
   @Nonnull
   private final JClassOrInterface atomicLongFieldUpdater =
-      (JClassOrInterface) Jack.getProgram().getPhantomLookup()
+      (JClassOrInterface) Jack.getSession().getPhantomLookup()
           .getType(CommonTypes.JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICLONGFIELDUPDATER);
 
   @Override

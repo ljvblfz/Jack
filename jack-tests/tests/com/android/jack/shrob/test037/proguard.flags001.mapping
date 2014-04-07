@@ -1,3 +1,3 @@
-com.android.jack.shrob.test037.jack.B -> com.android.jack.shrob.test037.jack.a:
-    void m() -> a
-com.android.jack.shrob.test037.jack.A -> com.android.jack.shrob.test037.jack.b:
+com.android.jack.shrob.test037.jack.B -> com.android.jack.shrob.test037.jack.RenamedB:
+    void m() -> renamedM
+com.android.jack.shrob.test037.jack.A -> com.android.jack.shrob.test037.jack.RenamedA:

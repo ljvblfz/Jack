@@ -72,7 +72,7 @@ public class DoubleCodec implements StringCodec<Double> {
 
     if (v < min || v > max) {
       throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(d) + "'");
+          "The value must be " + getUsage() + " but is " + d);
     }
   }
 

@@ -25,22 +25,13 @@ import javax.annotation.Nonnull;
  */
 public enum ObfuscationEventType implements EventType {
 
-  FINDING_OBFUSCATION_SEEDS("Finding seeds", "black");
+  FINDING_OBFUSCATION_SEEDS("Finding seeds");
 
-  @Nonnull
-  private final String cssColor;
   @Nonnull
   private final String name;
 
-  ObfuscationEventType(@Nonnull String name, @Nonnull String cssColor) {
+  ObfuscationEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

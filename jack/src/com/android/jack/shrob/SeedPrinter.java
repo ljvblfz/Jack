@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -59,7 +59,7 @@ import javax.annotation.Nonnull;
 @Description("Visitor that prints the seeds")
 @Produce(SeedFile.class)
 @Constraint(need = OriginalNames.class)
-public class SeedPrinter implements RunnableSchedulable<JProgram> {
+public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   public static final PropertyId<StreamFile> SEEDS_OUTPUT_FILE = PropertyId.create(
@@ -91,9 +91,9 @@ public class SeedPrinter implements RunnableSchedulable<JProgram> {
   }
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
 
-    for (JDefinedClassOrInterface type : program.getTypesToEmit()) {
+    for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
       boolean matched = false;
       List<FieldSpecification> matchedFieldSpecs = new ArrayList<FieldSpecification>();
       List<MethodSpecification> matchedMethodSpecs = new ArrayList<MethodSpecification>();

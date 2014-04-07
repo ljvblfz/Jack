@@ -24,11 +24,10 @@ import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
-import com.android.jack.util.filter.RejectAllMethods;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
@@ -41,7 +40,7 @@ public class BinaryLookup {
 
   private static RunnableHooks hooks;
   private static JLookup lookup;
-  private static JProgram program;
+  private static JSession session;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -49,10 +48,10 @@ public class BinaryLookup {
 
     Options fiboArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName("com/android/jack/fibonacci/jack/Fibo"));
-    fiboArgs.setFilter(new RejectAllMethods());
+    fiboArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     hooks = new RunnableHooks();
-    program = TestTools.buildProgram(fiboArgs, hooks);
-    lookup = program.getLookup();
+    session = TestTools.buildSession(fiboArgs, hooks);
+    lookup = session.getLookup();
   }
 
   @AfterClass
@@ -65,10 +64,11 @@ public class BinaryLookup {
     JType jls = lookup.getType(CommonTypes.JAVA_LANG_STRING);
 
     Assert.assertTrue(Jack.getLookupFormatter().getName(jls).equals("Ljava/lang/String;"));
-    Assert.assertTrue(program.isJavaLangString(jls));
-    Assert.assertTrue(program.getLookup().getType(CommonTypes.JAVA_LANG_STRING) == jls);
-    Assert.assertTrue(program.getLookup().getType("Ljava/lang/String;") == jls);
-    Assert.assertTrue(program.getLookup().getClass(CommonTypes.JAVA_LANG_STRING) ==
+    Assert.assertTrue(jls ==
+        session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING));
+    Assert.assertTrue(session.getLookup().getType(CommonTypes.JAVA_LANG_STRING) == jls);
+    Assert.assertTrue(session.getLookup().getType("Ljava/lang/String;") == jls);
+    Assert.assertTrue(session.getLookup().getClass(CommonTypes.JAVA_LANG_STRING) ==
         lookup.getClass("Ljava/lang/String;"));
   }
 
@@ -77,8 +77,8 @@ public class BinaryLookup {
     JType jls = lookup.getType("[[[Ljava/lang/String;");
 
     Assert.assertTrue(Jack.getLookupFormatter().getName(jls).equals("[[[Ljava/lang/String;"));
-    Assert.assertTrue(program.getLookup()
-        .getArrayType(program.getLookup().getType(CommonTypes.JAVA_LANG_STRING), 3) == jls);
+    Assert.assertTrue(session.getLookup()
+        .getArrayType(session.getLookup().getType(CommonTypes.JAVA_LANG_STRING), 3) == jls);
   }
 
   @Test
@@ -199,7 +199,8 @@ public class BinaryLookup {
     JMethod append = TestTools.getMethod(type, "append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
 
     Assert.assertTrue(append.getName().equals("append"));
-    Assert.assertTrue(program.isJavaLangString(append.getParams().get(0).getType()));
+    Assert.assertTrue(append.getParams().get(0).getType() ==
+        session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING));
   }
 
   @Test

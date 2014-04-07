@@ -37,7 +37,7 @@ public class JClassLiteral extends JLiteral {
 
   private JClass javaLangClass;
 
-  private JType refType;
+  private final JType refType;
 
   public JClassLiteral(SourceInfo sourceInfo, JType type, JClass javaLangClass) {
     super(sourceInfo);
@@ -61,13 +61,6 @@ public class JClassLiteral extends JLiteral {
   @Override
   public boolean canThrow() {
     return true;
-  }
-
-  /**
-   * Resolve an external reference during AST stitching.
-   */
-  public void resolve(JType newType) {
-    refType = newType;
   }
 
   @Override

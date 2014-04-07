@@ -23,38 +23,51 @@ import com.android.jack.dx.io.IndexType;
  * "A" start register and a register count).
  */
 public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
-    /** register argument "A" */
-    private final int a;
+  /** register argument "A" */
+  private final int a;
 
-    /** register count */
-    private final int registerCount;
+  /** register count */
+  private final int registerCount;
 
-    /**
-     * Constructs an instance.
-     */
-    public RegisterRangeDecodedInstruction(InstructionCodec format, int opcode,
-            int index, IndexType indexType, int target, long literal,
-            int a, int registerCount) {
-        super(format, opcode, index, indexType, target, literal);
+  /**
+   * Constructs an instance.
+   */
+  public RegisterRangeDecodedInstruction(InstructionCodec format,
+      int opcode,
+      int index,
+      IndexType indexType,
+      int target,
+      long literal,
+      int a,
+      int registerCount) {
+    super(format, opcode, index, indexType, target, literal);
 
-        this.a = a;
-        this.registerCount = registerCount;
-    }
+    this.a = a;
+    this.registerCount = registerCount;
+  }
 
-    /** @inheritDoc */
-    public int getRegisterCount() {
-        return registerCount;
-    }
+  /** @inheritDoc */
+  @Override
+  public int getRegisterCount() {
+    return registerCount;
+  }
 
-    /** @inheritDoc */
-    public int getA() {
-        return a;
-    }
+  /** @inheritDoc */
+  @Override
+  public int getA() {
+    return a;
+  }
 
-    /** @inheritDoc */
-    public DecodedInstruction withIndex(int newIndex) {
-        return new RegisterRangeDecodedInstruction(
-                getFormat(), getOpcode(), newIndex, getIndexType(),
-                getTarget(), getLiteral(), a, registerCount);
-    }
+  /** @inheritDoc */
+  @Override
+  public DecodedInstruction withIndex(int newIndex) {
+    return new RegisterRangeDecodedInstruction(getFormat(),
+        getOpcode(),
+        newIndex,
+        getIndexType(),
+        getTarget(),
+        getLiteral(),
+        a,
+        registerCount);
+  }
 }

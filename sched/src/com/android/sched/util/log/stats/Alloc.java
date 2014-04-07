@@ -46,52 +46,9 @@ public class Alloc extends Statistic {
 
   @Override
   @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Count";
-      case 1:
-        return "Size";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      case 1:
-        return "number";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
   public String getDescription() {
     return "Allocation";
   }
-
 
   @Nonnull
   private static final String[] HEADER = new String[] {

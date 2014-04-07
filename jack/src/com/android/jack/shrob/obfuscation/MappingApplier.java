@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.JLookupException;
@@ -62,9 +62,6 @@ public class MappingApplier {
 
   @Nonnull
   private static final char[] EMPTY_STOP_CHARS = new char[] {};
-
-  @Nonnull
-  private static final char[] OLD_NAME_STOP_CHARS = new char[] {'-'};
 
   @Nonnull
   private static final char[] CLASSINFO_STOP_CHARS = new char[] {':'};
@@ -102,14 +99,14 @@ public class MappingApplier {
 
   @CheckForNull
   private JDefinedClassOrInterface createMappingForType(@Nonnull String oldName,
-      @Nonnull String newName, @Nonnull JProgram program, @Nonnull File mappingFile,
+      @Nonnull String newName, @Nonnull JSession session, @Nonnull File mappingFile,
       int lineNumber) {
     JClassOrInterface type = null;
-    JNodeLookup lookup = program.getLookup();
+    JNodeLookup lookup = session.getLookup();
     try {
       String typeSignature = NamingTools.getTypeSignatureName(oldName);
       type = (JClassOrInterface) lookup.getType(typeSignature);
-      if (!program.getTypesToEmit().contains(type)) {
+      if (!session.getTypesToEmit().contains(type)) {
         logger.log(Level.WARNING, "{0}:{1}: Type {2} has a mapping but was removed",
             new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber), oldName});
         return null;
@@ -167,6 +164,31 @@ public class MappingApplier {
     return index;
   }
 
+  /**
+   * Reads this string until a whitespace or the '->' separator is read
+   * or until the end of the string, starting the search at the specified index.
+   * @param line the line to read from.
+   * @param index the index to start the reading from.
+   * @return the index of the first occurrence of a whitespace, the '->' separator
+   * or the end of the string.
+   */
+  private int readNameUntilSeparatorOrWhitespace(@Nonnull String line, int index) {
+    int length = line.length();
+    char c = line.charAt(index);
+    while (!Character.isWhitespace(c)) {
+      if (c == '-' && line.charAt(index + 1) == '>') {
+        // We check the second char to avoid bad parsing of names containing '-'
+        break;
+      }
+      if (++index < length) {
+        c = line.charAt(index);
+      } else {
+        break;
+      }
+    }
+    return index;
+  }
+
   private int readWhiteSpaces(@Nonnull String line, int index) {
     char c = line.charAt(index);
     while (Character.isWhitespace(c)) {
@@ -187,11 +209,11 @@ public class MappingApplier {
 
   @CheckForNull
   private JDefinedClassOrInterface readClassInfo(
-      @Nonnull String line, @Nonnull JProgram program, @Nonnull File mappingFile, int lineNumber) {
+      @Nonnull String line, @Nonnull JSession session, @Nonnull File mappingFile, int lineNumber) {
     // qualifiedOldClassName -> newClassName:
     try {
       int startIndex = readWhiteSpaces(line, 0);
-      int endIndex = readName(line, startIndex, OLD_NAME_STOP_CHARS);
+      int endIndex = readNameUntilSeparatorOrWhitespace(line, startIndex);
       String qualifiedOldClassName = line.substring(startIndex, endIndex);
       startIndex = readWhiteSpaces(line, endIndex);
       startIndex = readSeparator(line, startIndex, mappingFile, lineNumber);
@@ -199,7 +221,7 @@ public class MappingApplier {
       endIndex = readName(line, startIndex, CLASSINFO_STOP_CHARS);
       String newClassName = line.substring(startIndex, endIndex);
       return createMappingForType(
-          qualifiedOldClassName, newClassName, program, mappingFile, lineNumber);
+          qualifiedOldClassName, newClassName, session, mappingFile, lineNumber);
     } catch (ArrayIndexOutOfBoundsException e) {
       throwException(
           mappingFile, lineNumber, "The mapping file is badly formatted (class mapping expected)");
@@ -227,7 +249,7 @@ public class MappingApplier {
       int endIndex = readName(line, startIndex, EMPTY_STOP_CHARS);
       String typeSignature = GrammarActions.getSignature(line.substring(startIndex, endIndex));
       startIndex = readWhiteSpaces(line, endIndex);
-      endIndex = readName(line, startIndex, OLD_NAME_STOP_CHARS);
+      endIndex = readNameUntilSeparatorOrWhitespace(line, startIndex);
       String oldName = line.substring(startIndex, endIndex);
       int index = readWhiteSpaces(line, endIndex);
       index = readSeparator(line, index, mappingFile, lineNumber);
@@ -324,7 +346,16 @@ public class MappingApplier {
 
   protected void renameMethod(
       @Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
-    rename(method.getMethodId(), mappingFile, lineNumber, newName);
+    String oldName = method.getName();
+    if (oldName.equals(NamingTools.INIT_NAME)) {
+      logger.log(Level.WARNING, "{0}:{1}: Constructors cannot be renamed",
+          new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber)});
+    } else if (oldName.equals(NamingTools.STATIC_INIT_NAME)) {
+      logger.log(Level.WARNING, "{0}:{1}: Static initializers cannot be renamed",
+          new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber)});
+    } else {
+      rename(method.getMethodId(), mappingFile, lineNumber, newName);
+    }
   }
 
   /**
@@ -335,10 +366,10 @@ public class MappingApplier {
    * type must be in the java form (e.g. java.lang.String, boolean).
    *
    * @param mappingFile
-   * @param program
+   * @param session
    * @throws JackIOException
    */
-  public void applyMapping(@Nonnull File mappingFile, @Nonnull JProgram program)
+  public void applyMapping(@Nonnull File mappingFile, @Nonnull JSession session)
       throws JackIOException {
     LineNumberReader reader = null;
     try {
@@ -348,12 +379,12 @@ public class MappingApplier {
 
       while (line != null) {
         if (isClassInfo(line)) {
-          currentType = readClassInfo(line, program, mappingFile, reader.getLineNumber());
+          currentType = readClassInfo(line, session, mappingFile, reader.getLineNumber());
         } else {
           if (currentType != null) {
             if (isMethodInfo(line)) {
               readMethodInfo(line, currentType, mappingFile, reader.getLineNumber(),
-                  program.getLookup());
+                  session.getLookup());
             } else {
               readFieldInfo(line, currentType, mappingFile, reader.getLineNumber());
             }

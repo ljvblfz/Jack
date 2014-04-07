@@ -23,90 +23,94 @@ import com.android.jack.dx.io.instructions.ShortArrayCodeOutput;
 import com.android.jack.dx.util.DexException;
 
 final class InstructionTransformer {
-    private final IndexMap indexMap;
-    private final CodeReader reader;
-    private DecodedInstruction[] mappedInstructions;
-    private int mappedAt;
+  private final IndexMap indexMap;
+  private final CodeReader reader;
+  private DecodedInstruction[] mappedInstructions;
+  private int mappedAt;
 
-    public InstructionTransformer(IndexMap indexMap) {
-        this.indexMap = indexMap;
-        this.reader = new CodeReader();
-        this.reader.setAllVisitors(new GenericVisitor());
-        this.reader.setStringVisitor(new StringVisitor());
-        this.reader.setTypeVisitor(new TypeVisitor());
-        this.reader.setFieldVisitor(new FieldVisitor());
-        this.reader.setMethodVisitor(new MethodVisitor());
+  public InstructionTransformer(IndexMap indexMap) {
+    this.indexMap = indexMap;
+    this.reader = new CodeReader();
+    this.reader.setAllVisitors(new GenericVisitor());
+    this.reader.setStringVisitor(new StringVisitor());
+    this.reader.setTypeVisitor(new TypeVisitor());
+    this.reader.setFieldVisitor(new FieldVisitor());
+    this.reader.setMethodVisitor(new MethodVisitor());
+  }
+
+  public short[] transform(short[] encodedInstructions) throws DexException {
+    DecodedInstruction[] decodedInstructions = DecodedInstruction.decodeAll(encodedInstructions);
+    int size = decodedInstructions.length;
+
+    mappedInstructions = new DecodedInstruction[size];
+    mappedAt = 0;
+    reader.visitAll(decodedInstructions);
+
+    ShortArrayCodeOutput out = new ShortArrayCodeOutput(size);
+    for (DecodedInstruction instruction : mappedInstructions) {
+      if (instruction != null) {
+        instruction.encode(out);
+      }
     }
 
-    public short[] transform(short[] encodedInstructions) throws DexException {
-        DecodedInstruction[] decodedInstructions =
-            DecodedInstruction.decodeAll(encodedInstructions);
-        int size = decodedInstructions.length;
+    return out.getArray();
+  }
 
-        mappedInstructions = new DecodedInstruction[size];
-        mappedAt = 0;
-        reader.visitAll(decodedInstructions);
-
-        ShortArrayCodeOutput out = new ShortArrayCodeOutput(size);
-        for (DecodedInstruction instruction : mappedInstructions) {
-            if (instruction != null) {
-                instruction.encode(out);
-            }
-        }
-
-        return out.getArray();
+  private class GenericVisitor implements CodeReader.Visitor {
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+      mappedInstructions[mappedAt++] = one;
     }
+  }
 
-    private class GenericVisitor implements CodeReader.Visitor {
-        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
-            mappedInstructions[mappedAt++] = one;
-        }
+  private class StringVisitor implements CodeReader.Visitor {
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+      int stringId = one.getIndex();
+      int mappedId = indexMap.adjustString(stringId);
+      boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
+      jumboCheck(isJumbo, mappedId);
+      mappedInstructions[mappedAt++] = one.withIndex(mappedId);
     }
+  }
 
-    private class StringVisitor implements CodeReader.Visitor {
-        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
-            int stringId = one.getIndex();
-            int mappedId = indexMap.adjustString(stringId);
-            boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
-            jumboCheck(isJumbo, mappedId);
-            mappedInstructions[mappedAt++] = one.withIndex(mappedId);
-        }
+  private class FieldVisitor implements CodeReader.Visitor {
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+      int fieldId = one.getIndex();
+      int mappedId = indexMap.adjustField(fieldId);
+      boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
+      jumboCheck(isJumbo, mappedId);
+      mappedInstructions[mappedAt++] = one.withIndex(mappedId);
     }
+  }
 
-    private class FieldVisitor implements CodeReader.Visitor {
-        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
-            int fieldId = one.getIndex();
-            int mappedId = indexMap.adjustField(fieldId);
-            boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
-            jumboCheck(isJumbo, mappedId);
-            mappedInstructions[mappedAt++] = one.withIndex(mappedId);
-        }
+  private class TypeVisitor implements CodeReader.Visitor {
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+      int typeId = one.getIndex();
+      int mappedId = indexMap.adjustType(typeId);
+      boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
+      jumboCheck(isJumbo, mappedId);
+      mappedInstructions[mappedAt++] = one.withIndex(mappedId);
     }
+  }
 
-    private class TypeVisitor implements CodeReader.Visitor {
-        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
-            int typeId = one.getIndex();
-            int mappedId = indexMap.adjustType(typeId);
-            boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
-            jumboCheck(isJumbo, mappedId);
-            mappedInstructions[mappedAt++] = one.withIndex(mappedId);
-        }
+  private class MethodVisitor implements CodeReader.Visitor {
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+      int methodId = one.getIndex();
+      int mappedId = indexMap.adjustMethod(methodId);
+      boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
+      jumboCheck(isJumbo, mappedId);
+      mappedInstructions[mappedAt++] = one.withIndex(mappedId);
     }
+  }
 
-    private class MethodVisitor implements CodeReader.Visitor {
-        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
-            int methodId = one.getIndex();
-            int mappedId = indexMap.adjustMethod(methodId);
-            boolean isJumbo = (one.getOpcode() == Opcodes.CONST_STRING_JUMBO);
-            jumboCheck(isJumbo, mappedId);
-            mappedInstructions[mappedAt++] = one.withIndex(mappedId);
-        }
+  private static void jumboCheck(boolean isJumbo, int newIndex) {
+    if (!isJumbo && (newIndex > 0xffff)) {
+      throw new DexException(
+          "Cannot merge new index " + newIndex + " into a non-jumbo instruction!");
     }
-
-    private static void jumboCheck(boolean isJumbo, int newIndex) {
-        if (!isJumbo && (newIndex > 0xffff)) {
-            throw new DexException("Cannot merge new index " + newIndex +
-                                   " into a non-jumbo instruction!");
-        }
-    }
+  }
 }

@@ -27,13 +27,15 @@ import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_SET_PROLOGUE_E
 import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL;
 import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED;
 
-import java.io.PrintWriter;
-
 import com.android.jack.dx.io.DexBuffer;
-import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.util.AnnotatedOutput;
 
+import java.io.PrintWriter;
+
+/**
+ * TODO(jack team)
+ */
 public class ImportedDebugInfoItem extends OffsettedItem {
 
   /** the required alignment for instances of this class */

@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.RunnableHooks;
@@ -92,8 +92,8 @@ public class ConditionalTest {
     Options options = new Options();
     options.checkValidity(new RunnableHooks());
     ThreadConfig.setConfig(options.getConfig());
-    JProgram prog = Jack.getProgram();
-    JPhantomLookup lookup = prog.getPhantomLookup();
+    JSession session = Jack.getSession();
+    JPhantomLookup lookup = session.getPhantomLookup();
 
     JArrayType arrayInt = lookup.getArrayType(JPrimitiveTypeEnum.INT.getType(), 1);
     JArrayType arrayByte = lookup.getArrayType(JPrimitiveTypeEnum.BYTE.getType(), 1);
@@ -111,7 +111,7 @@ public class ConditionalTest {
         new JParameter(SourceOrigin.UNKNOWN, "pArrayIntIntInt", arrayIntIntInt, 0, null);
     JParameter pArrayByte = new JParameter(SourceOrigin.UNKNOWN, "pArrayByte", arrayByte, 0, null);
     JClass javaLangObject =
-        Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JParameter pObject =
         new JParameter(SourceOrigin.UNKNOWN, "pArrayByte", javaLangObject, 0,
             null);

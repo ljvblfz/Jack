@@ -16,7 +16,6 @@
 
 package com.android.sched.util.log.tracer;
 
-import com.android.sched.util.Colors;
 import com.android.sched.util.log.EventType;
 
 import javax.annotation.Nonnull;
@@ -26,19 +25,10 @@ import javax.annotation.Nonnull;
  */
 class DynamicEventType implements EventType {
   @Nonnull
-  private final String cssColor;
-  @Nonnull
   private final String name;
 
    DynamicEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = Colors.getCssColor(Colors.getRandomPastel(name.hashCode()));
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

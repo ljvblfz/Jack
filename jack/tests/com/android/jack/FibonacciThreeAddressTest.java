@@ -19,10 +19,9 @@ package com.android.jack;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.util.FileUtils;
-import com.android.jack.util.filter.RejectAllMethods;
 
 import junit.framework.Assert;
 
@@ -54,10 +53,10 @@ public class FibonacciThreeAddressTest {
    */
   @Test
   public void testLoadFiboInJAst() throws Exception {
-    JProgram program = TestTools.buildJAst(TestTools.buildCommandLineArgs(JAVA_FILEPATH));
-    Assert.assertNotNull(program);
+    JSession session = TestTools.buildJAst(TestTools.buildCommandLineArgs(JAVA_FILEPATH));
+    Assert.assertNotNull(session);
 
-    JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) program.getLookup().getType(CLASS_SIGNATURE);
+    JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(fibo);
   }
 
@@ -68,13 +67,13 @@ public class FibonacciThreeAddressTest {
   @Test
   public void testBuildFiboDexFile() throws Exception {
     Options fiboArgs = TestTools.buildCommandLineArgs(JAVA_FILEPATH);
-    fiboArgs.setFilter(new RejectAllMethods());
-    JProgram program = TestTools.buildProgram(fiboArgs);
+    fiboArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
+    JSession session = TestTools.buildSession(fiboArgs);
 
-    JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) program.getLookup().getType(CLASS_SIGNATURE);
+    JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(fibo);
 
-    DexFileMarker marker = program.getMarker(DexFileMarker.class);
+    DexFileMarker marker = session.getMarker(DexFileMarker.class);
     Assert.assertNotNull(marker);
     assert marker != null;
 

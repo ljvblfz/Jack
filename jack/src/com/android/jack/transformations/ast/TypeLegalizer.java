@@ -353,7 +353,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       String methodName;
       JType returnType;
 
-      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
 
       if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_BOOLEAN)) {
         methodName = "booleanValue";
@@ -408,7 +408,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
         @Nonnull JPrimitiveType pType) {
       JClassOrInterface wrapperType = type;
       JType argType;
-      JPhantomLookup lookup = Jack.getProgram().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
       if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BOOLEAN)) {
         argType = JPrimitiveTypeEnum.BOOLEAN.getType();
       } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BYTE)) {

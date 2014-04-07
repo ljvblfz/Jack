@@ -19,7 +19,7 @@ package com.android.jack.transformations.parent;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -49,7 +49,7 @@ public class PackageChecker implements RunnableSchedulable<JPackage> {
     }
 
     JNode parent = pack.getParent();
-    if (parent instanceof JProgram) {
+    if (parent instanceof JSession) {
       if (pack.getEnclosingPackage() != null) {
         throw new AssertionError("Wrong enclosing package");
       }

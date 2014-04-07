@@ -18,6 +18,7 @@ package com.android.jack.util.filter;
 
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.codec.ImplementationName;
 
 import javax.annotation.Nonnull;
 
@@ -26,6 +27,7 @@ import javax.annotation.Nonnull;
  * exists. Otherwise methods are accepted only for a specific set of {@link RunnableSchedulable}
  * specify by {@link RunnableSchedulableFilter}.
  */
+@ImplementationName(iface = Filter.class, name = "supported-methods")
 public class SupportedMethods implements Filter<JMethod> {
 
   @Override

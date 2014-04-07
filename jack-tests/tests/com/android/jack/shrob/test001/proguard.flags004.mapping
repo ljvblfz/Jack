@@ -1,3 +1,2 @@
 com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.D:
-    void keep() -> a
-    void main2(java.lang.String[]) -> main2
+    void keep() -> renamedKeep

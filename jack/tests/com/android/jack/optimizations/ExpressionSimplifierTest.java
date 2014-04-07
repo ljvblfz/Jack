@@ -46,7 +46,7 @@ import com.android.jack.ir.ast.JPrefixBitNotOperation;
 import com.android.jack.ir.ast.JPrefixNegOperation;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.MethodKind;
@@ -75,7 +75,7 @@ public class ExpressionSimplifierTest {
   private final JParameter param;
 
   public ExpressionSimplifierTest() {
-    JPackage p = new JPackage("test", new JProgram(), null);
+    JPackage p = new JPackage("test", new JSession(), null);
     classTest = new JDefinedClass(SourceOrigin.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
     method =

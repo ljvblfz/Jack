@@ -25,98 +25,99 @@ import com.android.jack.dx.util.ToHuman;
 /**
  * Association of a method and its annotations.
  */
-public final class MethodAnnotationStruct
-        implements ToHuman, Comparable<MethodAnnotationStruct> {
-    /** {@code non-null;} the method in question */
-    private final CstMethodRef method;
+public final class MethodAnnotationStruct implements ToHuman, Comparable<MethodAnnotationStruct> {
+  /** {@code non-null;} the method in question */
+  private final CstMethodRef method;
 
-    /** {@code non-null;} the associated annotations */
-    private AnnotationSetItem annotations;
+  /** {@code non-null;} the associated annotations */
+  private AnnotationSetItem annotations;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param method {@code non-null;} the method in question
-     * @param annotations {@code non-null;} the associated annotations
-     */
-    public MethodAnnotationStruct(CstMethodRef method,
-            AnnotationSetItem annotations) {
-        if (method == null) {
-            throw new NullPointerException("method == null");
-        }
-
-        if (annotations == null) {
-            throw new NullPointerException("annotations == null");
-        }
-
-        this.method = method;
-        this.annotations = annotations;
+  /**
+   * Constructs an instance.
+   *
+   * @param method {@code non-null;} the method in question
+   * @param annotations {@code non-null;} the associated annotations
+   */
+  public MethodAnnotationStruct(CstMethodRef method, AnnotationSetItem annotations) {
+    if (method == null) {
+      throw new NullPointerException("method == null");
     }
 
-    /** {@inheritDoc} */
-    public int hashCode() {
-        return method.hashCode();
+    if (annotations == null) {
+      throw new NullPointerException("annotations == null");
     }
 
-    /** {@inheritDoc} */
-    public boolean equals(Object other) {
-        if (! (other instanceof MethodAnnotationStruct)) {
-            return false;
-        }
+    this.method = method;
+    this.annotations = annotations;
+  }
 
-        return method.equals(((MethodAnnotationStruct) other).method);
+  /** {@inheritDoc} */
+  @Override
+  public int hashCode() {
+    return method.hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof MethodAnnotationStruct)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    public int compareTo(MethodAnnotationStruct other) {
-        return method.compareTo(other.method);
+    return method.equals(((MethodAnnotationStruct) other).method);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int compareTo(MethodAnnotationStruct other) {
+    return method.compareTo(other.method);
+  }
+
+  /** {@inheritDoc} */
+  public void addContents(DexFile file) {
+    MethodIdsSection methodIds = file.getMethodIds();
+    MixedItemSection wordData = file.getWordData();
+
+    methodIds.intern(method);
+    annotations = wordData.intern(annotations);
+  }
+
+  /** {@inheritDoc} */
+  public void writeTo(DexFile file, AnnotatedOutput out) {
+    int methodIdx = file.getMethodIds().indexOf(method);
+    int annotationsOff = annotations.getAbsoluteOffset();
+
+    if (out.annotates()) {
+      out.annotate(0, "    " + method.toHuman());
+      out.annotate(4, "      method_idx:      " + Hex.u4(methodIdx));
+      out.annotate(4, "      annotations_off: " + Hex.u4(annotationsOff));
     }
 
-    /** {@inheritDoc} */
-    public void addContents(DexFile file) {
-        MethodIdsSection methodIds = file.getMethodIds();
-        MixedItemSection wordData = file.getWordData();
+    out.writeInt(methodIdx);
+    out.writeInt(annotationsOff);
+  }
 
-        methodIds.intern(method);
-        annotations = wordData.intern(annotations);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    return method.toHuman() + ": " + annotations;
+  }
 
-    /** {@inheritDoc} */
-    public void writeTo(DexFile file, AnnotatedOutput out) {
-        int methodIdx = file.getMethodIds().indexOf(method);
-        int annotationsOff = annotations.getAbsoluteOffset();
+  /**
+   * Gets the method this item is for.
+   *
+   * @return {@code non-null;} the method
+   */
+  public CstMethodRef getMethod() {
+    return method;
+  }
 
-        if (out.annotates()) {
-            out.annotate(0, "    " + method.toHuman());
-            out.annotate(4, "      method_idx:      " + Hex.u4(methodIdx));
-            out.annotate(4, "      annotations_off: " +
-                    Hex.u4(annotationsOff));
-        }
-
-        out.writeInt(methodIdx);
-        out.writeInt(annotationsOff);
-    }
-
-    /** {@inheritDoc} */
-    public String toHuman() {
-        return method.toHuman() + ": " + annotations;
-    }
-
-    /**
-     * Gets the method this item is for.
-     *
-     * @return {@code non-null;} the method
-     */
-    public CstMethodRef getMethod() {
-        return method;
-    }
-
-    /**
-     * Gets the associated annotations.
-     *
-     * @return {@code non-null;} the annotations
-     */
-    public Annotations getAnnotations() {
-        return annotations.getAnnotations();
-    }
+  /**
+   * Gets the associated annotations.
+   *
+   * @return {@code non-null;} the annotations
+   */
+  public Annotations getAnnotations() {
+    return annotations.getAnnotations();
+  }
 }

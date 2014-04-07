@@ -36,7 +36,7 @@ import com.android.jack.ir.ast.JPostfixDecOperation;
 import com.android.jack.ir.ast.JPrefixBitNotOperation;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShlOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JType;
@@ -61,8 +61,8 @@ public class Types {
     options.getConfigBuilder().setDebug();
     ThreadConfig.setConfig(options.getConfig());
 
-    JProgram program = Jack.getProgram();
-    program.getLookup().getOrCreatePackage("java/lang");
+    JSession session = Jack.getSession();
+    session.getLookup().getOrCreatePackage("java/lang");
   }
 
   @BeforeClass
@@ -97,7 +97,7 @@ public class Types {
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JPrefixNotOperation(
         SourceOrigin.UNKNOWN, new JBooleanLiteral(SourceOrigin.UNKNOWN, true)).getType());
 
-    JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+    JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JPrefixNotOperation(
         SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l)).getType());
@@ -139,7 +139,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JPrefixBitNotOperation(SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l))
           .getType();
@@ -158,7 +158,7 @@ public class Types {
     Assert.assertEquals(JPrimitiveTypeEnum.LONG.getType(), new JPrefixBitNotOperation(
         SourceOrigin.UNKNOWN, new JLongLiteral(SourceOrigin.UNKNOWN, 1l)).getType());
 
-    JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CHAR);
+    JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CHAR);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JPrefixBitNotOperation(
         SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l)).getType());
@@ -180,7 +180,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JPostfixDecOperation(SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l))
           .getType();
@@ -202,7 +202,7 @@ public class Types {
     Assert.assertEquals(JPrimitiveTypeEnum.LONG.getType(), new JPostfixDecOperation(
         SourceOrigin.UNKNOWN, new JLongLiteral(SourceOrigin.UNKNOWN, 1l)).getType());
 
-    JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
+    JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JPostfixDecOperation(
         SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l)).getType());
@@ -234,7 +234,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JShlOperation(SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l),
           new JIntLiteral(SourceOrigin.UNKNOWN, 1)).getType();
@@ -246,7 +246,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JShlOperation(SourceOrigin.UNKNOWN, new JIntLiteral(SourceOrigin.UNKNOWN, 1),
           new JLocalRef(SourceOrigin.UNKNOWN, l)).getType();
@@ -273,8 +273,8 @@ public class Types {
         new JShortLiteral(SourceOrigin.UNKNOWN, (short) 1)).getType());
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
-      JType t1 = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
+      JType t1 = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceOrigin.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JShlOperation(SourceOrigin.UNKNOWN,
@@ -283,7 +283,7 @@ public class Types {
     }
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_LONG);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_LONG);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceOrigin.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.LONG.getType(), new JShlOperation(SourceOrigin.UNKNOWN,
@@ -307,7 +307,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JLteOperation(SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l),
           new JFloatLiteral(SourceOrigin.UNKNOWN, 1)).getType();
@@ -318,7 +318,7 @@ public class Types {
     Assert.assertTrue(catched);
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JLteOperation(SourceOrigin.UNKNOWN,
           new JLocalRef(SourceOrigin.UNKNOWN, l), new JIntLiteral(SourceOrigin.UNKNOWN, 1))
@@ -334,7 +334,7 @@ public class Types {
         .getType());
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceOrigin.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JLteOperation(SourceOrigin.UNKNOWN,
@@ -361,7 +361,7 @@ public class Types {
         new JBooleanLiteral(SourceOrigin.UNKNOWN, true)).getType());
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JBitAndOperation(SourceOrigin.UNKNOWN,
           new JLocalRef(SourceOrigin.UNKNOWN, l), new JLocalRef(SourceOrigin.UNKNOWN, l))
@@ -369,7 +369,7 @@ public class Types {
     }
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JBitAndOperation(SourceOrigin.UNKNOWN,
           new JLocalRef(SourceOrigin.UNKNOWN, l), new JLocalRef(SourceOrigin.UNKNOWN, l))
@@ -377,9 +377,9 @@ public class Types {
     }
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      JType t1 = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+      JType t1 = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       JLocal l1 = new JLocal(SourceOrigin.UNKNOWN, "test", t1, JModifier.DEFAULT, null);
       try {
         catched = false;
@@ -393,7 +393,7 @@ public class Types {
     }
 
     {
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_FLOAT);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_FLOAT);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       try {
         catched = false;
@@ -445,7 +445,7 @@ public class Types {
 
     try {
       catched = false;
-      JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+      JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JEqOperation(SourceOrigin.UNKNOWN, new JLocalRef(SourceOrigin.UNKNOWN, l),
           new JIntLiteral(SourceOrigin.UNKNOWN, 1)).getType();
@@ -455,7 +455,7 @@ public class Types {
     }
     Assert.assertTrue(catched);
 
-    JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+    JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JEqOperation(SourceOrigin.UNKNOWN,
         new JLocalRef(SourceOrigin.UNKNOWN, l), new JLocalRef(SourceOrigin.UNKNOWN, l)).getType());
@@ -479,7 +479,7 @@ public class Types {
     }
     Assert.assertTrue(catched);
 
-    JType t = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+    JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JAndOperation(SourceOrigin.UNKNOWN,
         new JLocalRef(SourceOrigin.UNKNOWN, l), new JLocalRef(SourceOrigin.UNKNOWN, l)).getType());
@@ -488,7 +488,7 @@ public class Types {
   @Test
   public void arithmeticGetType() throws Exception {
     boolean catched;
-    JType objectType = Jack.getProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+    JType objectType = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", objectType, JModifier.DEFAULT, null);
 
     try {

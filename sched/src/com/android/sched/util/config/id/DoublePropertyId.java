@@ -51,6 +51,21 @@ public class DoublePropertyId extends PropertyId<Double> {
 
   @Override
   @Nonnull
+  public DoublePropertyId addDefaultValue (@Nonnull Double defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Nonnull
+  public DoublePropertyId addDefaultValue (@Nonnull double defaultValue) {
+    super.addDefaultValue(Double.valueOf(defaultValue));
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public DoublePropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 

@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.sched.util.TextUtils;
+import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
@@ -77,10 +78,17 @@ public abstract class CommandLine {
       } else if (e instanceof StackOverflowError) {
         System.err.println("Try increasing stack size with java option '-Xss<size>'");
       }
+      System.err.println("Warning: This may have produced partial or corrupted output.");
       logger.log(Level.CONFIG, "Virtual machine error:", e);
       System.exit(ExitStatus.FAILURE_VM);
+    } catch (UnrecoverableException e) {
+      System.err.println("Unrecoverable error: " + e.getMessage());
+      System.err.println("Warning: This may have produced partial or corrupted output.");
+      logger.log(Level.FINE, "Unrecoverable exception:", e);
+      System.exit(ExitStatus.FAILURE_UNRECOVERABLE);
     } catch (Throwable e) {
       System.err.println("Internal compiler error (see log)");
+      System.err.println("Warning: This may have produced partial or corrupted output.");
       logger.log(Level.SEVERE, "Internal compiler error:", e);
 
       System.exit(ExitStatus.FAILURE_INTERNAL);

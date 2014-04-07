@@ -46,52 +46,6 @@ public class ObjectAlloc extends Statistic {
 
   @Override
   @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getDescription(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "Object count";
-      case 1:
-        return "Object size";
-      case 2:
-        return "Total size";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getType(@Nonnegative int columnIdx) {
-    switch (columnIdx) {
-      case 0:
-        return "number";
-      case 1:
-        return "number";
-      case 2:
-        return "number";
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  @Override
-  @Nonnull
   public String getDescription() {
     return "Object allocation";
   }

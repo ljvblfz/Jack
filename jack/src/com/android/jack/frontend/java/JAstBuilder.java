@@ -21,10 +21,11 @@ import com.android.jack.JackEventType;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.impl.EcjSourceTypeLoader;
 import com.android.jack.ir.impl.GwtAstBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
+import com.android.sched.util.config.FileLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -55,7 +57,7 @@ class JAstBuilder extends JavaParser {
   private static final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
-  private final JProgram jprogram;
+  private final JSession session;
 
   @Nonnull
   private final GwtAstBuilder astBuilder;
@@ -78,7 +80,7 @@ class JAstBuilder extends JavaParser {
       @CheckForNull PrintWriter out,
       @CheckForNull CompilationProgress progress,
       @Nonnull JayceFileImporter jayceImporter,
-      @Nonnull JProgram program) {
+      @Nonnull JSession session) {
     super(environment,
         policy,
         options,
@@ -86,15 +88,15 @@ class JAstBuilder extends JavaParser {
         problemFactory,
         out,
         progress);
-    jprogram = program;
-    astBuilder = new GwtAstBuilder(lookupEnvironment, program);
+    this.session = session;
+    astBuilder = new GwtAstBuilder(lookupEnvironment, session);
     this.jayceImporter = jayceImporter;
   }
 
   @Nonnull
   private JPackage getOrCreatePackage(@Nonnull char[][] compoundName, int compoundNameLength) {
     assert compoundNameLength <= compoundName.length && compoundNameLength >= 0;
-    JPackage currentPackage = jprogram.getTopLevelPackage();
+    JPackage currentPackage = session.getTopLevelPackage();
     for (int i = 0; i < compoundNameLength; i++) {
       String name = String.valueOf(compoundName[i]);
       currentPackage = currentPackage.getOrCreateSubPackage(name);
@@ -133,7 +135,7 @@ class JAstBuilder extends JavaParser {
       }
 
       for (JDefinedClassOrInterface type : types) {
-        jprogram.addTypeToEmit(type);
+        session.addTypeToEmit(type);
       }
     } finally {
       jastEvent.end();
@@ -154,7 +156,7 @@ class JAstBuilder extends JavaParser {
         char[][] packageNames = parsedUnit.currentPackage.tokens;
         enclosingPackage = getOrCreatePackage(packageNames, packageNames.length);
       } else {
-        enclosingPackage = jprogram.getTopLevelPackage();
+        enclosingPackage = session.getTopLevelPackage();
       }
       ReferenceMapper refMap = astBuilder.getTypeMap();
 
@@ -171,14 +173,15 @@ class JAstBuilder extends JavaParser {
         char[][] packageNames = unit.currentPackage.tokens;
         enclosingPackage = getOrCreatePackage(packageNames, packageNames.length);
       } else {
-        enclosingPackage = jprogram.getTopLevelPackage();
+        enclosingPackage = session.getTopLevelPackage();
       }
       ReferenceMapper refMap = astBuilder.getTypeMap();
       for (LocalTypeBinding binding : unit.localTypes) {
         /* binding.constantPoolName() == null means that ecj detected the local type to be dead
          * code and didn't completed processing */
         if (binding != null && binding.constantPoolName() != null) {
-          EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null);
+          EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null,
+              new FileLocation(new File(new String(unit.getFileName()))));
         }
       }
     }
@@ -187,7 +190,8 @@ class JAstBuilder extends JavaParser {
   private void createTypes(@Nonnull JPackage enclosingPackage, @Nonnull ReferenceMapper refMap,
       @Nonnull TypeDeclaration typeDeclaration) {
     EcjSourceTypeLoader.createType(refMap, enclosingPackage, typeDeclaration.binding,
-        typeDeclaration);
+        typeDeclaration,
+        new FileLocation(new File(new String(typeDeclaration.compilationResult.fileName))));
     if (typeDeclaration.memberTypes != null) {
       for (TypeDeclaration memberType : typeDeclaration.memberTypes) {
         createTypes(enclosingPackage, refMap, memberType);

@@ -35,6 +35,10 @@ public class NamingTools {
 
   public static final char SIGNATURE_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
+  public static final String STATIC_INIT_NAME = "<clinit>";
+
+  public static final String INIT_NAME = "<init>";
+
   /**
    * Return a string representing a valid name for generated files and which does not conflict with
    * name coming from Java source files.

@@ -18,12 +18,8 @@ package com.android.sched.util.log.stats;
 
 import com.android.sched.util.config.ReflectFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
@@ -34,9 +30,6 @@ import javax.annotation.Nonnull;
  * @param <T> Type of the statistic.
  */
 public class StatisticId<T extends Statistic> {
-  @Nonnull
-  private static Set<StatisticId<? extends Statistic>> ids =
-      Collections.synchronizedSet(new HashSet<StatisticId<? extends Statistic>>());
   @Nonnull
   private static Map<Class<? extends Statistic>, Statistic> dummies =
       new ConcurrentHashMap<Class<? extends Statistic>, Statistic>();
@@ -70,8 +63,6 @@ public class StatisticId<T extends Statistic> {
       dummies.put(dummyClass, newDummyInstance());
       regulars.put(dummyClass, regularClass);
     }
-
-    ids.add(this);
   }
 
   @Nonnull
@@ -92,12 +83,6 @@ public class StatisticId<T extends Statistic> {
   @Nonnull
   public T newDummyInstance() {
     return dummyFactory.create(this);
-  }
-
-  @Nonnull
-  @Deprecated
-  public static synchronized Collection<StatisticId<? extends Statistic>> getIds() {
-    return new ArrayList<StatisticId<? extends Statistic>>(ids);
   }
 
   @Nonnull

@@ -87,7 +87,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_DEFAULT = BooleanPropertyId.create(
       "jack.annotation.annotationdefault", "Emit annotation default")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
@@ -150,7 +150,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   @Nonnull
   private JAnnotation getDefaultAnnotationType(@Nonnull JDefinedClassOrInterface type) {
     if (defaultAnnotation == null) {
-      defaultAnnotation = type.getJProgram()
+      defaultAnnotation = type.getSession()
           .getPhantomLookup().getAnnotation(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
     }
     assert defaultAnnotation != null;

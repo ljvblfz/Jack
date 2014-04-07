@@ -1,13 +1,13 @@
-com.android.jack.shrob.test005.jack.A -> a.a.a.a.a.a.a:
-com.android.jack.shrob.test005.jack.Annot -> a.a.a.a.a.a.b:
-    int intValue() -> a
-com.android.jack.shrob.test005.jack.Annot2 -> a.a.a.a.a.a.c:
-com.android.jack.shrob.test005.jack.B -> a.a.a.a.a.a.d:
-com.android.jack.shrob.test005.jack.C -> a.a.a.a.a.a.e:
-com.android.jack.shrob.test005.jack.E -> a.a.a.a.a.a.f:
-    com.android.jack.shrob.test005.jack.E A -> a
-    com.android.jack.shrob.test005.jack.E B -> b
-    com.android.jack.shrob.test005.jack.E C -> c
-    com.android.jack.shrob.test005.jack.E[] $VALUES -> d
-    com.android.jack.shrob.test005.jack.E valueOf(java.lang.String) -> a
-    com.android.jack.shrob.test005.jack.E[] values() -> b
+com.android.jack.shrob.test005.jack.A -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedA:
+com.android.jack.shrob.test005.jack.Annot -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedAnnot:
+    int intValue() -> renamedIntValue
+com.android.jack.shrob.test005.jack.Annot2 -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedAnnot2:
+com.android.jack.shrob.test005.jack.B -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedB:
+com.android.jack.shrob.test005.jack.C -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedC:
+com.android.jack.shrob.test005.jack.E -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest005.renamedJack.RenamedE:
+    com.android.jack.shrob.test005.jack.E A -> renamedA
+    com.android.jack.shrob.test005.jack.E B -> renamedB
+    com.android.jack.shrob.test005.jack.E C -> renamedC
+    com.android.jack.shrob.test005.jack.E[] $VALUES -> renamed$VALUES
+    com.android.jack.shrob.test005.jack.E valueOf(java.lang.String) -> renamedValueOf
+    com.android.jack.shrob.test005.jack.E[] values() -> renamedValues

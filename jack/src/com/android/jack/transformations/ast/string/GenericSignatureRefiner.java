@@ -21,8 +21,11 @@ import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JCompositeStringLiteral;
 import com.android.jack.ir.ast.JStringLiteral;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JTypeStringLiteral.Kind;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -39,7 +42,7 @@ import javax.annotation.Nonnull;
  */
 @Constraint(need = OriginalNames.class)
 @Transform(add = {JTypeStringLiteral.class, JCompositeStringLiteral.class, JStringLiteral.class})
-public class GenericSignatureRefiner implements GenericSignatureAction {
+public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
 
   @CheckForNull
   private JAbstractStringLiteral jstringLiteral = null;
@@ -50,8 +53,11 @@ public class GenericSignatureRefiner implements GenericSignatureAction {
   @Nonnull
   private final  JLookup jlookup;
 
+  @Nonnull
+  private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
+
   public GenericSignatureRefiner() {
-    jlookup = Jack.getProgram().getLookup();
+    jlookup = Jack.getSession().getLookup();
   }
 
   @Override
@@ -65,27 +71,36 @@ public class GenericSignatureRefiner implements GenericSignatureAction {
   }
 
   @Override
-  public void parsedTypeName(@Nonnull String name) {
+  @CheckForNull
+  public JType parsedTypeName(@Nonnull String name) {
     updateJStringLiteral(getJStringLiteralFromBuffer());
     try {
-    updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.BINARY_QN, jlookup
-        .getType(NamingTools.getTypeSignatureName(name))));
+      JType type = jlookup.getType(NamingTools.getTypeSignatureName(name));
+      updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.BINARY_QN, type));
+      return type;
     } catch (JLookupException e) {
-      // Type not found, kept it as a JStringLiteral
+      // Type not found, keep it as a JStringLiteral
       updateJStringLiteral(new JStringLiteral(SourceOrigin.UNKNOWN, name));
+      return null;
     }
   }
 
   @Override
-  public void parsedInnerTypeName(@Nonnull String name) {
+  @CheckForNull
+  public JType parsedInnerTypeName(@CheckForNull JType enclosingType, @Nonnull String name) {
     updateJStringLiteral(getJStringLiteralFromBuffer());
-    try {
-      updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.SIMPLE_NAME,
-          jlookup.getType(NamingTools.getTypeSignatureName(name))));
-    } catch (JLookupException e) {
-      // Type not found, kept it as a JStringLiteral
-      updateJStringLiteral(new JStringLiteral(SourceOrigin.UNKNOWN, name));
+    if (enclosingType != null) {
+      try {
+        JType type = jlookup.getType(NamingTools.getTypeSignatureName(
+            formatter.getName(enclosingType) + '$' + name));
+        updateJStringLiteral(new JTypeStringLiteral(SourceOrigin.UNKNOWN, Kind.SIMPLE_NAME, type));
+        return type;
+      } catch (JLookupException e) {
+        // Type not found, keep it as a JStringLiteral
+      }
     }
+    updateJStringLiteral(new JStringLiteral(SourceOrigin.UNKNOWN, name));
+    return null;
   }
 
   @Override

@@ -19,7 +19,7 @@ package com.android.jack.scheduling.adapter;
 import com.google.common.collect.Iterators;
 
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.AdapterSchedulable;
@@ -31,12 +31,12 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JProgram} onto one or several processes on
- * each {@code JPackage} declared by this program.
+ * Adapts a process on {@code JSession} onto one or several processes on
+ * each {@code JPackage} known by this session.
  */
-@Description("Adapts process on JProgram to one or several processes on each of its JPackage")
+@Description("Adapts process on JSession to one or several processes on each of its JPackage")
 @Name("JPackageAdapter")
-public class JPackageAdapter implements AdapterSchedulable<JProgram, JPackage> {
+public class JPackageAdapter implements AdapterSchedulable<JSession, JPackage> {
   @Nonnull
   private Iterator<JPackage> process(@Nonnull JPackage pack)
       throws Exception {
@@ -53,14 +53,14 @@ public class JPackageAdapter implements AdapterSchedulable<JProgram, JPackage> {
   }
 
   /**
-   * Returns every {@code JPackage} declared in the given {@code JProgram}.
+   * Returns every {@code JPackage} known by the given {@code JSession}.
    */
   @Override
   @Nonnull
-  public Iterator<JPackage> adapt(@Nonnull JProgram program)
+  public Iterator<JPackage> adapt(@Nonnull JSession session)
       throws Exception {
-    return Iterators.concat(Iterators.singletonIterator(program.getTopLevelPackage()),
-        process(program.getTopLevelPackage()));
+    return Iterators.concat(Iterators.singletonIterator(session.getTopLevelPackage()),
+        process(session.getTopLevelPackage()));
   }
 
 }

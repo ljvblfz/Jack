@@ -45,6 +45,22 @@ public class ProbabilityPropertyId extends DoublePropertyId {
 
   @Override
   @Nonnull
+  public ProbabilityPropertyId addDefaultValue (@Nonnull Double defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public ProbabilityPropertyId addDefaultValue (@Nonnull double defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public ProbabilityPropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 
@@ -70,7 +86,7 @@ public class ProbabilityPropertyId extends DoublePropertyId {
   }
 
   private boolean checkRange(double value) {
-    return value >= 0 && value <= 1;
+    return value >= 0.0 && value <= 1.0;
   }
 
   /**

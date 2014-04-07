@@ -22,7 +22,6 @@ import com.android.sched.util.table.DataRow;
 
 import java.util.Iterator;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 
@@ -78,24 +77,6 @@ public class CounterImpl extends Counter implements DataRow {
     synchronized (counter) {
       this.value += counter.value;
     }
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public Object getValue(@Nonnegative int columnIdx) {
-    assert columnIdx == 0;
-
-    return Long.valueOf(value);
-  }
-
-  @Override
-  @Nonnull
-  @Deprecated
-  public String getHumanReadableValue(@Nonnegative int columnIdx) {
-    assert columnIdx == 0;
-
-    return Long.valueOf(value).toString();
   }
 
   @Override

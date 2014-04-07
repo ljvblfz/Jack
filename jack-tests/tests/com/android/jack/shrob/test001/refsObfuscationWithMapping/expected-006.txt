@@ -1,7 +1,7 @@
-com.android.jack.shrob.test001.jack.I -> com.android.jack.shrob.test001.jack.b:
-    void m() -> a
-com.android.jack.shrob.test001.jack.H -> com.android.jack.shrob.test001.jack.a:
+com.android.jack.shrob.test001.jack.I -> com.android.jack.shrob.test001.jack.RenamedI:
+    void m() -> renamedM
+com.android.jack.shrob.test001.jack.H -> com.android.jack.shrob.test001.jack.RenamedH:
 com.android.jack.shrob.test001.jack.G -> com.android.jack.shrob.test001.jack.G:
     void <init>() -> <init>
-    void m() -> a
+    void m() -> renamedM
     void main(java.lang.String[]) -> main

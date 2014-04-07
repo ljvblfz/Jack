@@ -63,10 +63,10 @@ import javax.annotation.Nonnull;
  * VoidDescriptor ::= "V".
  * </pre>
  */
-public class GenericSignatureParser {
+public class GenericSignatureParser<T> {
 
   @Nonnull
-  private final GenericSignatureAction actions;
+  private final GenericSignatureAction<T> actions;
 
   /*
    * Parser:
@@ -89,7 +89,7 @@ public class GenericSignatureParser {
   @Nonnegative
   private int pos;
 
-  public GenericSignatureParser(@Nonnull GenericSignatureAction actions) {
+  public GenericSignatureParser(@Nonnull GenericSignatureAction<T> actions) {
     this.actions = actions;
   }
 
@@ -219,7 +219,7 @@ public class GenericSignatureParser {
     String packageName;
 
     qualIdent.append(this.identifier);
-    actions.parsedTypeName(qualIdent.toString());
+    T parsedEnclosingType = actions.parsedTypeName(qualIdent.toString());
 
     updateOptTypeArguments();
 
@@ -229,7 +229,7 @@ public class GenericSignatureParser {
       scanSymbol();
       scanIdentifier();
       assert identifier != null;
-      actions.parsedInnerTypeName(identifier);
+      parsedEnclosingType = actions.parsedInnerTypeName(parsedEnclosingType, identifier);
       updateOptTypeArguments();
     }
 

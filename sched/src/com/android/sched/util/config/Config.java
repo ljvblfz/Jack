@@ -17,17 +17,21 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.config.id.KeyId;
+import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
-
 /**
- * The class that deals with configuration properties in 'get' mode.
+ * The interface that deals with configuration properties in 'get' mode.
  */
 public interface Config {
+  @Nonnull
+  public <T> T get(@Nonnull PropertyId<T> propertyId);
+  @Nonnull
+  public <T> T get(@Nonnull ObjectId<T> objectId);
   @Nonnull
   public <T, S> T get(@Nonnull KeyId<T, S> keyId);
   @Nonnull

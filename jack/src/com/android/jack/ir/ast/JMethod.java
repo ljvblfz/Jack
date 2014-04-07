@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.load.MethodLoader;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -391,11 +392,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     visitor.visit(this, transformRequest);
   }
 
-  @Override
-  public void updateAnnotations() {
-    annotations.updateAnnotationSet();
-  }
-
   @Nonnull
   public JMethodId getMethodId() {
     return methodId;
@@ -422,5 +418,9 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @CheckForNull
   public JThis getThis() {
     return jThis;
+  }
+
+  public static boolean isClinit(@Nonnull JMethod method) {
+    return method.getName().equals(NamingTools.STATIC_INIT_NAME);
   }
 }

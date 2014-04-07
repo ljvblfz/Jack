@@ -21,7 +21,7 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
@@ -55,25 +55,25 @@ public class Main {
   static void run(@Nonnull Options options)
       throws Exception {
 
-    // Build the plan, verify it and run it onto the program
+    // Build the plan, verify it and run it onto the session
     Scheduler scheduler = Scheduler.getScheduler();
     Request sr = scheduler.createScheduleRequest();
 
     sr.addSchedulables(scheduler.getAllSchedulable());
     sr.addInitialTagOrMarker(JavaSourceIr.class);
 
-    JProgram jprogram = TestTools.buildProgram(options);
-    Assert.assertNotNull(jprogram);
+    JSession session = TestTools.buildSession(options);
+    Assert.assertNotNull(session);
 
     // Currently, plan is manually built by adding RunnableSchedulable(s) and sub-plans
     // corresponding to visitors.
-    PlanBuilder<JProgram> progPlan = sr.getPlanBuilder(JProgram.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = progPlan.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+    PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
     SubPlanBuilder<JNode> nodePlan = typePlan.appendSubPlan(JNodeAdapter.class);
     nodePlan.append(JNodeVisitor1.class);
     nodePlan.append(JNodeVisitor2.class);
 
-    progPlan.getPlan().getScheduleInstance().process(jprogram);
+    planBuilder.getPlan().getScheduleInstance().process(session);
   }
 
   @Nonnull

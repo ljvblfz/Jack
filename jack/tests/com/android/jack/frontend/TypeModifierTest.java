@@ -20,8 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JModifier;
-import com.android.jack.ir.ast.JProgram;
-import com.android.jack.util.filter.RejectAllMethods;
+import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
@@ -29,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TypeModifierTest {
-  private JProgram program;
+  private JSession session;
   private static final String OUTER_CLASS_BINARY_NAME = "com/android/jack/modifier/jack/TypeModifier";
 
   @Before
@@ -38,13 +37,13 @@ public class TypeModifierTest {
 
     Options jackArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(OUTER_CLASS_BINARY_NAME));
-    jackArgs.setFilter(new RejectAllMethods());
-    program = TestTools.buildProgram(jackArgs);
-    Assert.assertNotNull(program);
+    jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
+    session = TestTools.buildSession(jackArgs);
+    Assert.assertNotNull(session);
   }
 
   private JDefinedClassOrInterface lookupInnerClass(String className) {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) program.getLookup()
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup()
         .getType("L" + OUTER_CLASS_BINARY_NAME + "$" + className + ";");
     Assert.assertNotNull(type);
     return type;

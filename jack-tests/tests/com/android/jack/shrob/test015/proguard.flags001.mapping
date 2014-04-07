@@ -1,6 +1,6 @@
-com.android.jack.shrob.test015.jack.A -> a.a.a.a.a.a.a:
-    23:23:com.android.jack.shrob.test015.jack.B m() -> a
-    28:28:void m(com.android.jack.shrob.test015.jack.A) -> a
-com.android.jack.shrob.test015.jack.A$I -> a.a.a.a.a.a.a$a:
-com.android.jack.shrob.test015.jack.A$J -> a.a.a.a.a.a.a$b:
-com.android.jack.shrob.test015.jack.B -> a.a.a.a.a.a.b:
+com.android.jack.shrob.test015.jack.A -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest015.renamedJack.RenamedA:
+    23:23:com.android.jack.shrob.test015.jack.B m() -> renamedM
+    28:28:void m(com.android.jack.shrob.test015.jack.A) -> renamedM
+com.android.jack.shrob.test015.jack.A$I -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest015.renamedJack.RenamedA$I:
+com.android.jack.shrob.test015.jack.A$J -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest015.renamedJack.RenamedA$J:
+com.android.jack.shrob.test015.jack.B -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest015.renamedJack.RenamedB:

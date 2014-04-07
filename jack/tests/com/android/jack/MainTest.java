@@ -17,7 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
@@ -53,10 +53,10 @@ public class MainTest {
    */
   @Test
   public void testLoadFiboInJAst() throws Exception {
-    JProgram program = TestTools.buildJAst(
+    JSession session = TestTools.buildJAst(
         TestTools.buildCommandLineArgs(TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME)));
     JDefinedClassOrInterface fibo =
-        (JDefinedClassOrInterface) program.getLookup().getType(CLASS_SIGNATURE);
+        (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(fibo);
     // TODO(yroussel): make further checks
   }

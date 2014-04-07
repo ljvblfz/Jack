@@ -20,16 +20,16 @@ package com.android.jack.dx.dex;
  * Container for options used to control details of dex file generation.
  */
 public class DexOptions {
-    /** target API level */
-    public int targetApiLevel = DexFormat.API_NO_EXTENDED_OPCODES;
+  /** target API level */
+  public int targetApiLevel = DexFormat.API_NO_EXTENDED_OPCODES;
 
-    /** force generation of jumbo opcodes */
-    public boolean forceJumbo = false;
+  /** force generation of jumbo opcodes */
+  public boolean forceJumbo = false;
 
-    /**
-     * Gets the dex file magic number corresponding to this instance.
-     */
-    public String getMagic() {
-        return DexFormat.apiToMagic(targetApiLevel);
-    }
+  /**
+   * Gets the dex file magic number corresponding to this instance.
+   */
+  public String getMagic() {
+    return DexFormat.apiToMagic(targetApiLevel);
+  }
 }

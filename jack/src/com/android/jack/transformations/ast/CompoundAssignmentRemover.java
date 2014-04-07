@@ -184,7 +184,7 @@ public class CompoundAssignmentRemover implements RunnableSchedulable<JMethod> {
     }
 
     JClass javaLangString = method.getEnclosingType()
-        .getJProgram().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+        .getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
     TransformationRequest tr = new TransformationRequest(method);
     RemoveComplexAssignVisitor rca = new RemoveComplexAssignVisitor(tr, javaLangString);
     rca.accept(method);

@@ -4,7 +4,7 @@ com.android.jack.shrob.test019.jack.B$Inner2$Inner3 -> com.android.jack.shrob.te
     void <init>() -> <init>
 com.android.jack.shrob.test019.jack.B$C$Inner4 -> com.android.jack.shrob.test019.jack.B$C$Inner4:
     void <init>() -> <init>
-com.android.jack.shrob.test019.jack.B$E -> com.android.jack.shrob.test019.jack.a:
+com.android.jack.shrob.test019.jack.B$E -> com.android.jack.shrob.test019.jack.RenamedB$E:
     void <init>() -> <init>
 com.android.jack.shrob.test019.jack.B$E$1 -> com.android.jack.shrob.test019.jack.B$E$1:
     void <init>() -> <init>

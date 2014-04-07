@@ -16,6 +16,7 @@
 
 package com.android.sched.util.config;
 
+import com.android.sched.util.codec.CheckingException;
 import com.android.sched.util.codec.ParsingException;
 
 import javax.annotation.Nonnull;
@@ -41,6 +42,10 @@ public class ConfigurationError extends Error {
   }
 
   public ConfigurationError(@Nonnull ParsingException e) {
+    super(e.getMessage(), e);
+  }
+
+  public ConfigurationError(@Nonnull CheckingException e) {
     super(e.getMessage(), e);
   }
 }

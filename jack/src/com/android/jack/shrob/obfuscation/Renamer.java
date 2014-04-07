@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -67,13 +67,13 @@ import javax.annotation.Nonnull;
 @Transform(add = {OriginalNameMarker.class, OriginalPackageMarker.class},
   remove = OriginalNames.class)
 @Use(MappingApplier.class)
-public class Renamer implements RunnableSchedulable<JProgram> {
+public class Renamer implements RunnableSchedulable<JSession> {
 
   @Nonnull
   public static final
       BooleanPropertyId USE_PACKAGE_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
           "jack.obfuscation.packagedictionary",
-          "Use obfuscation dictionary for packages").addDefaultValue("false");
+          "Use obfuscation dictionary for packages").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<File> PACKAGE_OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -83,7 +83,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   @Nonnull
   public static final BooleanPropertyId USE_CLASS_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
       "jack.obfuscation.classdictionary", "Use obfuscation dictionary for classes")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<File> CLASS_OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -93,7 +93,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   @Nonnull
   public static final BooleanPropertyId USE_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
       "jack.obfuscation.dictionary", "Use obfuscation dictionary for members")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<File> OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -103,7 +103,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   @Nonnull
   public static final BooleanPropertyId USE_MAPPING = BooleanPropertyId.create(
       "jack.obfuscation.mapping", "Use mapping for types and members")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<File> MAPPING_FILE = PropertyId.create(
@@ -115,7 +115,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   public static final BooleanPropertyId REPACKAGE_CLASSES = BooleanPropertyId.create(
       "jack.obfuscation.repackageclasses",
       "Change package for all renamed classes")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<String> PACKAGE_FOR_RENAMED_CLASSES = PropertyId.create(
@@ -127,7 +127,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   public static final BooleanPropertyId FLATTEN_PACKAGE = BooleanPropertyId.create(
       "jack.obfuscation.flattenpackage",
       "Change package for all renamed packages")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final PropertyId<String> PACKAGE_FOR_RENAMED_PACKAGES = PropertyId.create(
@@ -139,7 +139,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   public static final BooleanPropertyId USE_UNIQUE_CLASSMEMBERNAMES = BooleanPropertyId.create(
       "jack.obfuscation.uniqueclassmembernames",
       "All members with the same name must have the same obfuscated name")
-      .addDefaultValue("false");
+      .addDefaultValue(Boolean.FALSE);
 
   public static boolean mustBeRenamed(@Nonnull AbstractMarkerManager node) {
     return !node.containsMarker(KeepNameMarker.class)
@@ -253,7 +253,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
 
     @Nonnull
     private final JPackage packageForRenamedClasses
-      = Jack.getProgram().getLookup().getOrCreatePackage(packageNameForRenamedClasses);
+      = Jack.getSession().getLookup().getOrCreatePackage(packageNameForRenamedClasses);
 
     private RepackagerVisitor(@Nonnull TransformationRequest request) {
       this.request = request;
@@ -290,7 +290,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
 
     @Nonnull
     private final JPackage packageForRenamedPackages
-      = Jack.getProgram().getLookup().getOrCreatePackage(packageNameForRenamedPackages);
+      = Jack.getSession().getLookup().getOrCreatePackage(packageNameForRenamedPackages);
 
     @Nonnull
     private final NameProvider packageNameProvider =
@@ -350,14 +350,14 @@ public class Renamer implements RunnableSchedulable<JProgram> {
   }
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
-    allTypes = program.getTypesToEmit();
+  public void run(@Nonnull JSession session) throws Exception {
+    allTypes = session.getTypesToEmit();
     Map<String, String> fieldNames = new HashMap<String, String>();
     Map<String, String> methodNames = new HashMap<String, String>();
     boolean useUniqueClassMemberNames =
         ThreadConfig.get(USE_UNIQUE_CLASSMEMBERNAMES).booleanValue();
     if (ThreadConfig.get(USE_MAPPING).booleanValue()) {
-      TransformationRequest request = new TransformationRequest(program);
+      TransformationRequest request = new TransformationRequest(session);
       MappingApplier mappingApplier;
       if (useUniqueClassMemberNames) {
         mappingApplier = new CollectingMappingApplier(request);
@@ -366,7 +366,7 @@ public class Renamer implements RunnableSchedulable<JProgram> {
       } else {
         mappingApplier = new MappingApplier(request);
       }
-      mappingApplier.applyMapping(ThreadConfig.get(MAPPING_FILE), program);
+      mappingApplier.applyMapping(ThreadConfig.get(MAPPING_FILE), session);
       request.commit();
     }
 
@@ -386,18 +386,18 @@ public class Renamer implements RunnableSchedulable<JProgram> {
     }
 
     if (ThreadConfig.get(REPACKAGE_CLASSES).booleanValue()) {
-      TransformationRequest request = new TransformationRequest(program);
+      TransformationRequest request = new TransformationRequest(session);
       Visitor visitor = new RepackagerVisitor(request);
-      visitor.accept(program);
+      visitor.accept(session);
       request.commit();
     } else if (ThreadConfig.get(FLATTEN_PACKAGE).booleanValue()) {
-      TransformationRequest request = new TransformationRequest(program);
+      TransformationRequest request = new TransformationRequest(session);
       Visitor visitor = new FlattenerVisitor(request);
-      visitor.accept(program);
+      visitor.accept(session);
       request.commit();
     } else {
       Visitor visitor = new Visitor();
-      visitor.accept(program);
+      visitor.accept(session);
     }
   }
 }

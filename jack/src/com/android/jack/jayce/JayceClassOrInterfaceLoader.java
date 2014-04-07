@@ -22,20 +22,30 @@ import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
-import com.android.jack.vfs.VFile;
 import com.android.sched.util.config.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
+import com.android.sched.vfs.InputVFile;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -43,13 +53,22 @@ import javax.annotation.Nonnull;
  */
 public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   @Nonnull
+  private static final StatisticId<Percent> NNODE_RELOAD = new StatisticId<
+      Percent>("jayce.reload", "Jayce file reload versus total jayce file load",
+          PercentImpl.class, Percent.class);
+  @Nonnull
+  private static final StatisticId<Counter> STRUCTURE_LOAD = new StatisticId<Counter>(
+      "jayce.structure.load", "NDeclaredType structure loaded in a JNode",
+          CounterImpl.class, Counter.class);
+
+  @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final VFile source;
+  private final InputVFile source;
 
   @Nonnull
-  private SoftReference<DeclaredTypeNode> nnode;
+  private Reference<DeclaredTypeNode> nnode;
 
   private boolean structureLoaded = false;
 
@@ -59,15 +78,21 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   @Nonnull
   private final NodeLevel defaultLoadLevel;
 
+  @Nonnegative
+  private int loadCount = 0;
+
   @Nonnull
-  public static JDefinedClassOrInterface load(@Nonnull VFile source, @Nonnull JProgram program,
+  final Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
+  public static JDefinedClassOrInterface load(@Nonnull InputVFile source, @Nonnull JSession session,
       @Nonnull NodeLevel maxLevel)
       throws JayceFormatException, IOException {
-    return new JayceClassOrInterfaceLoader(source, program.getPhantomLookup(),
-        maxLevel).create(program);
+    return new JayceClassOrInterfaceLoader(source, session.getPhantomLookup(),
+        maxLevel).create(session);
   }
 
-  JayceClassOrInterfaceLoader(@Nonnull VFile source, @Nonnull JPhantomLookup lookup,
+  JayceClassOrInterfaceLoader(@Nonnull InputVFile source, @Nonnull JPhantomLookup lookup,
       @Nonnull NodeLevel defaultLoadLevel) {
     this.source = source;
     this.lookup = lookup;
@@ -113,20 +138,20 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
           + type.getSignature() + "' while expecting '" + expectedSignature + "'");
     }
     JDefinedClassOrInterface jType = type.create(enclosingPackage, this);
-    jType.updateParents(enclosingPackage.getProgram());
+    jType.updateParents(enclosingPackage.getSession());
     return jType;
   }
 
   @Nonnull
-  private JDefinedClassOrInterface create(@Nonnull JProgram program)
+  private JDefinedClassOrInterface create(@Nonnull JSession session)
       throws JayceFormatException, IOException {
 
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
     String packageQualifiedName = NamingTools.getPackageNameFromBinaryName(
         NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
-    JPackage pack = program.getLookup().getOrCreatePackage(packageQualifiedName);
+    JPackage pack = session.getLookup().getOrCreatePackage(packageQualifiedName);
     JDefinedClassOrInterface jType = type.create(pack, this);
-    jType.updateParents(program);
+    jType.updateParents(session);
     return jType;
   }
 
@@ -134,7 +159,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws IOException {
     DeclaredTypeNode type = nnode.get();
     if (type == null || !type.getLevel().keep(minimumLevel)) {
-      InputStream in = source.openRead();
+      InputStream in = new BufferedInputStream(source.openRead());
       try {
         JayceReader reader = new JayceReader(in);
         NodeLevel loadLevel = defaultLoadLevel;
@@ -150,6 +175,8 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
           logger.log(Level.WARNING, "Failed to close input stream on '" + source + "'", e);
         }
       }
+      tracer.getStatistic(NNODE_RELOAD).add(loadCount > 0);
+      loadCount++;
     }
     return type;
   }
@@ -169,7 +196,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
         type.updateToStructure(loaded, this);
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);
-        structureLoaded = true;
+        tracer.getStatistic(STRUCTURE_LOAD).incValue();
       }
     }
   }

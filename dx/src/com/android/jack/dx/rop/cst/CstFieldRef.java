@@ -22,58 +22,58 @@ import com.android.jack.dx.rop.type.Type;
  * Constants of type {@code CONSTANT_Fieldref_info}.
  */
 public final class CstFieldRef extends CstMemberRef {
-    /**
-     * Returns an instance of this class that represents the static
-     * field which should hold the class corresponding to a given
-     * primitive type. For example, if given {@link Type#INT}, this
-     * method returns an instance corresponding to the field
-     * {@code java.lang.Integer.TYPE}.
-     *
-     * @param primitiveType {@code non-null;} the primitive type
-     * @return {@code non-null;} the corresponding static field
-     */
-    public static CstFieldRef forPrimitiveType(Type primitiveType) {
-        return new CstFieldRef(CstType.forBoxedPrimitiveType(primitiveType),
-                CstNat.PRIMITIVE_TYPE_NAT);
+  /**
+   * Returns an instance of this class that represents the static
+   * field which should hold the class corresponding to a given
+   * primitive type. For example, if given {@link Type#INT}, this
+   * method returns an instance corresponding to the field
+   * {@code java.lang.Integer.TYPE}.
+   *
+   * @param primitiveType {@code non-null;} the primitive type
+   * @return {@code non-null;} the corresponding static field
+   */
+  public static CstFieldRef forPrimitiveType(Type primitiveType) {
+    return new CstFieldRef(CstType.forBoxedPrimitiveType(primitiveType), CstNat.PRIMITIVE_TYPE_NAT);
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @param definingClass {@code non-null;} the type of the defining class
+   * @param nat {@code non-null;} the name-and-type
+   */
+  public CstFieldRef(CstType definingClass, CstNat nat) {
+    super(definingClass, nat);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String typeName() {
+    return "field";
+  }
+
+  /**
+   * Returns the type of this field.
+   *
+   * @return {@code non-null;} the field's type
+   */
+  @Override
+  public Type getType() {
+    return getNat().getFieldType();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  protected int compareTo0(Constant other) {
+    int cmp = super.compareTo0(other);
+
+    if (cmp != 0) {
+      return cmp;
     }
 
-    /**
-     * Constructs an instance.
-     *
-     * @param definingClass {@code non-null;} the type of the defining class
-     * @param nat {@code non-null;} the name-and-type
-     */
-    public CstFieldRef(CstType definingClass, CstNat nat) {
-        super(definingClass, nat);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String typeName() {
-        return "field";
-    }
-
-    /**
-     * Returns the type of this field.
-     *
-     * @return {@code non-null;} the field's type
-     */
-    public Type getType() {
-        return getNat().getFieldType();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected int compareTo0(Constant other) {
-        int cmp = super.compareTo0(other);
-
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        CstFieldRef otherField = (CstFieldRef) other;
-        CstString thisDescriptor = getNat().getDescriptor();
-        CstString otherDescriptor = otherField.getNat().getDescriptor();
-        return thisDescriptor.compareTo(otherDescriptor);
-    }
+    CstFieldRef otherField = (CstFieldRef) other;
+    CstString thisDescriptor = getNat().getDescriptor();
+    CstString otherDescriptor = otherField.getNat().getDescriptor();
+    return thisDescriptor.compareTo(otherDescriptor);
+  }
 }

@@ -62,13 +62,6 @@ public abstract class JCastOperation extends JExpression {
     this.castType = type;
   }
 
-  /**
-   * Resolve an external reference during AST stitching.
-   */
-  public void resolve(@Nonnull JType newType) {
-    castType = newType;
-  }
-
   @Override
   protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
       throws UnsupportedOperationException {

@@ -20,7 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
@@ -29,10 +29,10 @@ public class FrontendTools {
   public static JMethod parseMethod(
       String classSignature, String methodSignature, Options options)
       throws Exception {
-    JProgram jprogram = TestTools.buildJAst(options);
-    Assert.assertNotNull(jprogram);
+    JSession session = TestTools.buildJAst(options);
+    Assert.assertNotNull(session);
 
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) jprogram.getLookup().getType(classSignature);
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup().getType(classSignature);
     Assert.assertNotNull(type);
 
     JMethod foundMethod = TestTools.getMethod(type, methodSignature);

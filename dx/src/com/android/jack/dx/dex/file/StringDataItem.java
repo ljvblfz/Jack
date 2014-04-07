@@ -26,74 +26,72 @@ import com.android.jack.dx.util.Leb128Utils;
  * Representation of string data for a particular string, in a Dalvik file.
  */
 public final class StringDataItem extends OffsettedItem {
-    /** {@code non-null;} the string value */
-    private final CstString value;
+  /** {@code non-null;} the string value */
+  private final CstString value;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param value {@code non-null;} the string value
-     */
-    public StringDataItem(CstString value) {
-        super(1, writeSize(value));
+  /**
+   * Constructs an instance.
+   *
+   * @param value {@code non-null;} the string value
+   */
+  public StringDataItem(CstString value) {
+    super(1, writeSize(value));
 
-        this.value = value;
+    this.value = value;
+  }
+
+  /**
+   * Gets the write size for a given value.
+   *
+   * @param value {@code non-null;} the string value
+   * @return {@code >= 2}; the write size, in bytes
+   */
+  private static int writeSize(CstString value) {
+    int utf16Size = value.getUtf16Size();
+
+    // The +1 is for the '\0' termination byte.
+    return Leb128Utils.unsignedLeb128Size(utf16Size) + value.getUtf8Size() + 1;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public ItemType itemType() {
+    return ItemType.TYPE_STRING_DATA_ITEM;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void addContents(DexFile file) {
+    // Nothing to do here.
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void writeTo0(DexFile file, AnnotatedOutput out) {
+    ByteArray bytes = value.getBytes();
+    int utf16Size = value.getUtf16Size();
+
+    if (out.annotates()) {
+      out.annotate(Leb128Utils.unsignedLeb128Size(utf16Size), "utf16_size: " + Hex.u4(utf16Size));
+      out.annotate(bytes.size() + 1, value.toQuoted());
     }
 
-    /**
-     * Gets the write size for a given value.
-     *
-     * @param value {@code non-null;} the string value
-     * @return {@code >= 2}; the write size, in bytes
-     */
-    private static int writeSize(CstString value) {
-        int utf16Size = value.getUtf16Size();
+    out.writeUleb128(utf16Size);
+    out.write(bytes);
+    out.writeByte(0);
+  }
 
-        // The +1 is for the '\0' termination byte.
-        return Leb128Utils.unsignedLeb128Size(utf16Size)
-            + value.getUtf8Size() + 1;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String toHuman() {
+    return value.toQuoted();
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public ItemType itemType() {
-        return ItemType.TYPE_STRING_DATA_ITEM;
-    }
+  /** {@inheritDoc} */
+  @Override
+  protected int compareTo0(OffsettedItem other) {
+    StringDataItem otherData = (StringDataItem) other;
 
-    /** {@inheritDoc} */
-    @Override
-    public void addContents(DexFile file) {
-        // Nothing to do here.
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void writeTo0(DexFile file, AnnotatedOutput out) {
-        ByteArray bytes = value.getBytes();
-        int utf16Size = value.getUtf16Size();
-
-        if (out.annotates()) {
-            out.annotate(Leb128Utils.unsignedLeb128Size(utf16Size),
-                    "utf16_size: " + Hex.u4(utf16Size));
-            out.annotate(bytes.size() + 1, value.toQuoted());
-        }
-
-        out.writeUleb128(utf16Size);
-        out.write(bytes);
-        out.writeByte(0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toHuman() {
-        return value.toQuoted();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected int compareTo0(OffsettedItem other) {
-        StringDataItem otherData = (StringDataItem) other;
-
-        return value.compareTo(otherData.value);
-    }
+    return value.compareTo(otherData.value);
+  }
 }

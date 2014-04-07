@@ -103,7 +103,7 @@ public class NInterfaceType extends NDeclaredType {
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getProgram(), NodeLevel.TYPES));
+        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
     JDefinedInterface jInterfaceType =
         new JDefinedInterface(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jInterfaceType;
@@ -115,7 +115,7 @@ public class NInterfaceType extends NDeclaredType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedInterface jInterfaceType = (JDefinedInterface) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getJProgram(),
+    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
     for (String superInterface : superInterfaces) {

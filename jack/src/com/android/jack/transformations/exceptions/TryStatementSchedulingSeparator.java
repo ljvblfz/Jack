@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.exceptions;
 
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
@@ -33,10 +33,10 @@ import javax.annotation.Nonnull;
 @Description("A separation between a Schedulable and TryCatchRemover")
 @Transform(remove = TryStatementSchedulingSeparator.SeparatorTag.class)
 @Constraint(need = TryStatementSchedulingSeparator.SeparatorTag.class)
-public class TryStatementSchedulingSeparator implements RunnableSchedulable<JProgram> {
+public class TryStatementSchedulingSeparator implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     // do nothing
   }
 

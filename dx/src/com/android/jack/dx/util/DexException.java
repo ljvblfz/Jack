@@ -21,11 +21,14 @@ package com.android.jack.dx.util;
  * processing a dex file.
  */
 public final class DexException extends ExceptionWithContext {
-    public DexException(String message) {
-        super(message);
-    }
 
-    public DexException(Throwable cause) {
-        super(cause);
-    }
+  private static final long serialVersionUID = 1L;
+
+  public DexException(String message) {
+    super(message);
+  }
+
+  public DexException(Throwable cause) {
+    super(cause);
+  }
 }

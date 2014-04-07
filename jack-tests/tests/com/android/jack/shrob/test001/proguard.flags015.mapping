@@ -1,7 +1,5 @@
-com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
-    void keep7() -> keep7
-com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.a:
-    int fieldPublic -> a
-    long fieldLong -> b
-    long fieldLong3 -> c
-    long fieldLong4 -> d
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.RenamedReflect2:
+    int fieldPublic -> renamedFieldPublic
+    long fieldLong -> renamedFieldLong
+    long fieldLong3 -> renamedFieldLong3
+    long fieldLong4 -> renamedFieldLong4

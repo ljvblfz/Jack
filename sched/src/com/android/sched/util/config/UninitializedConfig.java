@@ -17,16 +17,29 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.config.id.KeyId;
+import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 
 import java.util.Collection;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * This object represents a {@link Config} which has not been created by the builder.
  */
-class UninitializedConfig implements Config {
+class UninitializedConfig implements Config, InternalConfig {
+  @Override
+  @Nonnull
+  public <T> T get(@Nonnull PropertyId<T> propertyId) {
+    throw new ConfigurationError("Configuration has not been initialized");
+  }
+
+  @Override
+  @Nonnull
+  public <T> T get(@Nonnull ObjectId<T> objectId) {
+    throw new ConfigurationError("Configuration has not been initialized");
+  }
 
   @Override
   @Nonnull
@@ -43,6 +56,12 @@ class UninitializedConfig implements Config {
   @Override
   @Nonnull
   public Collection<PropertyId<?>> getPropertyIds() {
+    throw new ConfigurationError("Configuration has not been initialized");
+  }
+
+  @Override
+  @CheckForNull
+  public <T> T getObjectIfAny(@Nonnull PropertyId<T> propertyId) {
     throw new ConfigurationError("Configuration has not been initialized");
   }
 }

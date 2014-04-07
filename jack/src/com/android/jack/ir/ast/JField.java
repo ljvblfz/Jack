@@ -258,10 +258,4 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
       super.transform(existingNode, newNode, transformation);
     }
   }
-
-  @Override
-  public void updateAnnotations() {
-    annotations.updateAnnotationSet();
-  }
-
 }

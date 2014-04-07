@@ -63,20 +63,6 @@ public class SeedTest extends AbstractTest {
   @Override
   @Test
   @Category(KnownBugs.class)
-  public void test3_001() throws Exception {
-    super.test3_001();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
-  public void test3_001_bis() throws Exception {
-    super.test3_001_bis();
-  }
-
-  @Override
-  @Test
-  @Category(KnownBugs.class)
   public void test19_001() throws Exception {
     super.test19_001();
   }

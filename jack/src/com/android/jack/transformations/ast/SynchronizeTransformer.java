@@ -33,7 +33,7 @@ import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JThisRef;
@@ -91,7 +91,7 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
   public static final BooleanPropertyId REUSE_SYNC_VARIABLE = BooleanPropertyId.create(
       "jack.transformation.reusesyncvariable",
       "Reduce the 'get class' usage in static synchronized methods by reusing a local variable")
-      .addDefaultValue("true");
+      .addDefaultValue(Boolean.TRUE);
 
   private final boolean reuseSyncVariable = ThreadConfig.get(REUSE_SYNC_VARIABLE).booleanValue();
 
@@ -100,15 +100,15 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final TransformationRequest tr;
     @Nonnull
-    private final JProgram program;
+    private final JSession session;
     @Nonnull
     private final LocalVarCreator lvCreator;
 
-    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JProgram program,
+    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JSession session,
         @Nonnull LocalVarCreator lvCreator) {
       this.tr = tr;
       this.lvCreator = lvCreator;
-      this.program = program;
+      this.session = session;
     }
 
     @Override
@@ -202,7 +202,7 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private JClass getJLClass() {
-      return program.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
+      return session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
     }
   }
 
@@ -216,7 +216,7 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
     TransformationRequest tr = new TransformationRequest(method);
     LocalVarCreator lvCreator = new LocalVarCreator(method, "sync");
-    Visitor visitor = new Visitor(tr, enclosingType.getJProgram(), lvCreator);
+    Visitor visitor = new Visitor(tr, enclosingType.getSession(), lvCreator);
     visitor.accept(method);
     tr.commit();
   }

@@ -18,6 +18,8 @@ package com.android.sched.util.codec;
 
 
 
+import com.google.common.base.Joiner;
+
 import com.android.sched.util.config.ConfigurationError;
 
 import javax.annotation.Nonnull;
@@ -44,8 +46,8 @@ public class ClassSelector<T> extends Selector<T> implements StringCodec<Class<?
   public void checkValue(@Nonnull CodecContext context, @Nonnull Class<? extends T> cls)
       throws CheckingException {
     if (!checkClass(cls)) {
-      throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(cls) + "'");
+      throw new CheckingException("The value must be {" + Joiner.on(',').join(getClasses())
+          + "} but is '" + cls.getCanonicalName() + "'");
     }
   }
 

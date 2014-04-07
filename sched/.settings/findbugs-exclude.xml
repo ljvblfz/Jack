@@ -23,6 +23,11 @@
 </Match>
 <!-- See inlined comment in source file -->
 <Match>
+    <Class name="com.android.sched.util.log.stats.SampleImpl"/>
+    <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+</Match>
+<!-- See inlined comment in source file -->
+<Match>
     <Class name="com.android.sched.util.table.AbstractTable"/>
     <Bug pattern="EI_EXPOSE_REP"/>
 </Match>

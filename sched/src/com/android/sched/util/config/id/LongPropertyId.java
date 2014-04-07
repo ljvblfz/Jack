@@ -51,6 +51,21 @@ public class LongPropertyId extends PropertyId<Long> {
 
   @Override
   @Nonnull
+  public LongPropertyId addDefaultValue (@Nonnull Long defaultValue) {
+    super.addDefaultValue(defaultValue);
+
+    return this;
+  }
+
+  @Nonnull
+  public LongPropertyId addDefaultValue (@Nonnull long defaultValue) {
+    super.addDefaultValue(Long.valueOf(defaultValue));
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public LongPropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 

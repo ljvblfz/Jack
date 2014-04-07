@@ -27,143 +27,143 @@ import java.io.Writer;
  * line.
  */
 public final class IndentingWriter extends FilterWriter {
-    /** {@code null-ok;} optional prefix for every line */
-    private final String prefix;
+  /** {@code null-ok;} optional prefix for every line */
+  private final String prefix;
 
-    /** {@code > 0;} the maximum output width */
-    private final int width;
+  /** {@code > 0;} the maximum output width */
+  private final int width;
 
-    /** {@code > 0;} the maximum indent */
-    private final int maxIndent;
+  /** {@code > 0;} the maximum indent */
+  private final int maxIndent;
 
-    /** {@code >= 0;} current output column (zero-based) */
-    private int column;
+  /** {@code >= 0;} current output column (zero-based) */
+  private int column;
 
-    /** whether indent spaces are currently being collected */
-    private boolean collectingIndent;
+  /** whether indent spaces are currently being collected */
+  private boolean collectingIndent;
 
-    /** {@code >= 0;} current indent amount */
-    private int indent;
+  /** {@code >= 0;} current indent amount */
+  private int indent;
 
-    /**
-     * Constructs an instance.
-     *
-     * @param out {@code non-null;} writer to send final output to
-     * @param width {@code >= 0;} the maximum output width (not including
-     * {@code prefix}), or {@code 0} for no maximum
-     * @param prefix {@code non-null;} the prefix for each line
-     */
-    public IndentingWriter(Writer out, int width, String prefix) {
-        super(out);
+  /**
+   * Constructs an instance.
+   *
+   * @param out {@code non-null;} writer to send final output to
+   * @param width {@code >= 0;} the maximum output width (not including
+   * {@code prefix}), or {@code 0} for no maximum
+   * @param prefix {@code non-null;} the prefix for each line
+   */
+  public IndentingWriter(Writer out, int width, String prefix) {
+    super(out);
 
-        if (out == null) {
-            throw new NullPointerException("out == null");
-        }
-
-        if (width < 0) {
-            throw new IllegalArgumentException("width < 0");
-        }
-
-        if (prefix == null) {
-            throw new NullPointerException("prefix == null");
-        }
-
-        this.width = (width != 0) ? width : Integer.MAX_VALUE;
-        this.maxIndent = width >> 1;
-        this.prefix = (prefix.length() == 0) ? null : prefix;
-
-        bol();
+    if (out == null) {
+      throw new NullPointerException("out == null");
     }
 
-    /**
-     * Constructs a no-prefix instance.
-     *
-     * @param out {@code non-null;} writer to send final output to
-     * @param width {@code >= 0;} the maximum output width (not including
-     * {@code prefix}), or {@code 0} for no maximum
-     */
-    public IndentingWriter(Writer out, int width) {
-        this(out, width, "");
+    if (width < 0) {
+      throw new IllegalArgumentException("width < 0");
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void write(int c) throws IOException {
-        synchronized (lock) {
-            if (collectingIndent) {
-                if (c == ' ') {
-                    indent++;
-                    if (indent >= maxIndent) {
-                        indent = maxIndent;
-                        collectingIndent = false;
-                    }
-                } else {
-                    collectingIndent = false;
-                }
-            }
+    if (prefix == null) {
+      throw new NullPointerException("prefix == null");
+    }
 
-            if ((column == width) && (c != '\n')) {
-                out.write('\n');
-                column = 0;
-                /*
-                 * Note: No else, so this should fall through to the next
-                 * if statement.
-                 */
-            }
+    this.width = (width != 0) ? width : Integer.MAX_VALUE;
+    this.maxIndent = width >> 1;
+    this.prefix = (prefix.length() == 0) ? null : prefix;
 
-            if (column == 0) {
-                if (prefix != null) {
-                    out.write(prefix);
-                }
+    bol();
+  }
 
-                if (!collectingIndent) {
-                    for (int i = 0; i < indent; i++) {
-                        out.write(' ');
-                    }
-                    column = indent;
-                }
-            }
+  /**
+   * Constructs a no-prefix instance.
+   *
+   * @param out {@code non-null;} writer to send final output to
+   * @param width {@code >= 0;} the maximum output width (not including
+   * {@code prefix}), or {@code 0} for no maximum
+   */
+  public IndentingWriter(Writer out, int width) {
+    this(out, width, "");
+  }
 
-            out.write(c);
-
-            if (c == '\n') {
-                bol();
-            } else {
-                column++;
-            }
+  /** {@inheritDoc} */
+  @Override
+  public void write(int c) throws IOException {
+    synchronized (lock) {
+      if (collectingIndent) {
+        if (c == ' ') {
+          indent++;
+          if (indent >= maxIndent) {
+            indent = maxIndent;
+            collectingIndent = false;
+          }
+        } else {
+          collectingIndent = false;
         }
-    }
+      }
 
-    /** {@inheritDoc} */
-    @Override
-    public void write(char[] cbuf, int off, int len) throws IOException {
-        synchronized (lock) {
-            while (len > 0) {
-                write(cbuf[off]);
-                off++;
-                len--;
-            }
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void write(String str, int off, int len) throws IOException {
-        synchronized (lock) {
-            while (len > 0) {
-                write(str.charAt(off));
-                off++;
-                len--;
-            }
-        }
-    }
-
-    /**
-     * Indicates that output is at the beginning of a line.
-     */
-    private void bol() {
+      if ((column == width) && (c != '\n')) {
+        out.write('\n');
         column = 0;
-        collectingIndent = (maxIndent != 0);
-        indent = 0;
+        /*
+         * Note: No else, so this should fall through to the next
+         * if statement.
+         */
+      }
+
+      if (column == 0) {
+        if (prefix != null) {
+          out.write(prefix);
+        }
+
+        if (!collectingIndent) {
+          for (int i = 0; i < indent; i++) {
+            out.write(' ');
+          }
+          column = indent;
+        }
+      }
+
+      out.write(c);
+
+      if (c == '\n') {
+        bol();
+      } else {
+        column++;
+      }
     }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void write(char[] cbuf, int off, int len) throws IOException {
+    synchronized (lock) {
+      while (len > 0) {
+        write(cbuf[off]);
+        off++;
+        len--;
+      }
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void write(String str, int off, int len) throws IOException {
+    synchronized (lock) {
+      while (len > 0) {
+        write(str.charAt(off));
+        off++;
+        len--;
+      }
+    }
+  }
+
+  /**
+   * Indicates that output is at the beginning of a line.
+   */
+  private void bol() {
+    column = 0;
+    collectingIndent = (maxIndent != 0);
+    indent = 0;
+  }
 }

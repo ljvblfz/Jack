@@ -44,6 +44,20 @@ public class IntegerPropertyId extends LongPropertyId {
     return this;
   }
 
+  @Nonnull
+  public IntegerPropertyId addDefaultValue (@Nonnull Integer defaultValue) {
+    super.addDefaultValue(Long.valueOf(defaultValue.longValue()));
+
+    return this;
+  }
+
+  @Nonnull
+  public IntegerPropertyId addDefaultValue (@Nonnull int defaultValue) {
+    super.addDefaultValue(Long.valueOf(defaultValue));
+
+    return this;
+  }
+
   @Override
   @Nonnull
   public IntegerPropertyId requiredIf(@Nonnull BooleanExpression expression) {

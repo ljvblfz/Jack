@@ -22,23 +22,17 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Alloc;
 import com.android.sched.util.log.stats.AllocImpl;
-import com.android.sched.util.log.stats.ArrayAlloc;
-import com.android.sched.util.log.stats.ArrayAllocImpl;
-import com.android.sched.util.log.stats.ObjectAlloc;
-import com.android.sched.util.log.stats.ObjectAllocImpl;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Class to watch {@link Object} creation.
+ * Class to watch {@link Object} creation and make a global statistic about allocation.
  */
 public class AllocationWatcher implements ObjectWatcher<Object> {
   static class Statistics implements ObjectWatcher.Statistics {
@@ -53,14 +47,6 @@ public class AllocationWatcher implements ObjectWatcher<Object> {
       "jack.allocation.object.total",
       "Total object and array allocations",
       AllocImpl.class, Alloc.class);
-
-  @Nonnull
-  private static final Map<Class<?>, StatisticId<ObjectAlloc>> objectStats =
-      new ConcurrentHashMap<Class<?>, StatisticId<ObjectAlloc>>();
-
-  @Nonnull
-  private static final Map<Class<?>, StatisticId<ArrayAlloc>> arrayStats =
-      new ConcurrentHashMap<Class<?>, StatisticId<ArrayAlloc>>();
 
   @Override
   public boolean notifyInstantiation(
@@ -77,46 +63,19 @@ public class AllocationWatcher implements ObjectWatcher<Object> {
   }
 
   private void notifyObject(@Nonnull Class<?> type, @Nonnegative long size) {
-    synchronized (AllocationWatcher.class) {
-      StatisticId<ObjectAlloc> id = objectStats.get(type);
-      if (id == null) {
-        String name = type.getName();
-
-        id = new StatisticId<ObjectAlloc>("jack.allocation.object." + name,
-            "Object allocation of type " + type.getName(), ObjectAllocImpl.class,
-            ObjectAlloc.class);
-        objectStats.put(type, id);
-      }
-
-      try {
-        Tracer tracer = TracerFactory.getTracer();
-        tracer.getStatistic(id).recordObjectAllocation(size);
-        tracer.getStatistic(ALLOCATIONS).recordAllocation(size);
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-      }
+    try {
+      TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
+    } catch (RuntimeException e) {
+      // Do best effort here
     }
   }
 
   private synchronized void notifyArray(@Nonnull Class<?> type, @Nonnegative long size,
       @Nonnegative int count) {
-    synchronized (AllocationWatcher.class) {
-      StatisticId<ArrayAlloc> id = arrayStats.get(type);
-      if (id == null) {
-        String name = type.getName();
-
-        id = new StatisticId<ArrayAlloc>("jack.allocation.array." + name,
-            "Array allocation of type " + type.getName(), ArrayAllocImpl.class, ArrayAlloc.class);
-        arrayStats.put(type, id);
-      }
-
-      try {
-        Tracer tracer = TracerFactory.getTracer();
-        tracer.getStatistic(id).recordObjectAllocation(count, size);
-        tracer.getStatistic(ALLOCATIONS).recordAllocation(size);
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-      }
+    try {
+      TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
+    } catch (RuntimeException e) {
+      // Do best effort here
     }
   }
 

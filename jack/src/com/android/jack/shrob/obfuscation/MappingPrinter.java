@@ -28,7 +28,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -61,7 +61,7 @@ import javax.annotation.Nonnull;
 @Produce(Mapping.class)
 @Optional(@ToSupport(
     feature = Obfuscation.class, add = @Constraint(need = OriginalNameMarker.class)))
-public class MappingPrinter implements RunnableSchedulable<JProgram> {
+public class MappingPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   public static final PropertyId<StreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
@@ -195,7 +195,7 @@ public class MappingPrinter implements RunnableSchedulable<JProgram> {
   }
 
   @Override
-  public void run(@Nonnull JProgram t) throws Exception {
+  public void run(@Nonnull JSession t) throws Exception {
     Visitor visitor = new Visitor();
     visitor.accept(t);
     stream.close();

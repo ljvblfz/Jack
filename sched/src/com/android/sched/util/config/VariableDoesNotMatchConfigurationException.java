@@ -25,7 +25,7 @@ public class VariableDoesNotMatchConfigurationException extends VariableConfigur
   private static final long serialVersionUID = 1L;
 
   public VariableDoesNotMatchConfigurationException(@Nonnull String variable) {
-    super(variable, "Environment variable '" + variable + " does not match any properties");
+    super(variable, "Environment variable '" + variable + "' does not match any properties");
   }
 
   public VariableDoesNotMatchConfigurationException(

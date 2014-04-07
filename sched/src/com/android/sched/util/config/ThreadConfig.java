@@ -16,7 +16,14 @@
 
 package com.android.sched.util.config;
 
-import com.android.sched.util.config.id.KeyId;
+import com.android.sched.util.config.id.ObjectId;
+import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
+import com.android.sched.util.log.tracer.TracerEventType;
 
 import javax.annotation.Nonnull;
 
@@ -24,6 +31,11 @@ import javax.annotation.Nonnull;
  * This class handles a configuration that is local to current thread and its children.
  */
 public class ThreadConfig {
+  @Nonnull
+  public static final StatisticId<Counter> TLS_READ = new StatisticId<Counter>(
+      "sched.config.tls.read", "Reading TLS to get current config",
+      CounterImpl.class, Counter.class);
+
   @Nonnull
   private static final Config unitializedConfig = new UninitializedConfig();
 
@@ -37,8 +49,27 @@ public class ThreadConfig {
       };
 
   @Nonnull
-  public static <T, S> T get(@Nonnull KeyId<T, S> keyId) {
-    return threadLocalConfig.get().get(keyId);
+  public static <T> T get(@Nonnull PropertyId<T> propertyId) {
+    Config config = threadLocalConfig.get();
+    updateStatistic(config);
+
+    return config.get(propertyId);
+  }
+
+  @Nonnull
+  public static <T> T get(@Nonnull ObjectId<T> objectId) {
+    Config config = threadLocalConfig.get();
+    updateStatistic(config);
+
+    return config.get(objectId);
+  }
+
+  private static void updateStatistic(@Nonnull Config config) {
+    Tracer tracer = ((InternalConfig) config).<Tracer> getObjectIfAny(TracerFactory.TRACER);
+
+    if (tracer != null && tracer.getCurrentEventType() != TracerEventType.NOEVENT) {
+      tracer.getStatistic(TLS_READ).incValue();
+    }
   }
 
   @Nonnull

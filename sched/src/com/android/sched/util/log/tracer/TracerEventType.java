@@ -24,24 +24,16 @@ import javax.annotation.Nonnull;
  * Represents a type of event whose performance is tracked.
  */
 public enum TracerEventType implements EventType {
-  OVERHEAD("Tracer overhead", "Plum"),
-  NOEVENT("No Event", "Black"),
-  NOTYPE("Not a Type", "Black");
+  OVERHEAD("Tracer overhead"),
+  NOEVENT("No Event"),
+  SINGLETON("Singleton event"),
+  NOTYPE("Not a Type");
 
-  @Nonnull
-  private final String cssColor;
   @Nonnull
   private final String name;
 
-  TracerEventType(@Nonnull String name, @Nonnull String cssColor) {
+  TracerEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

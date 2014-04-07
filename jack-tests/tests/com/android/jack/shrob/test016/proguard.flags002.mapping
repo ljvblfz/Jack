@@ -1,21 +1,21 @@
-com.android.jack.shrob.test016.jack.A -> com.android.jack.shrob.test016.jack.a:
-com.android.jack.shrob.test016.jack.Annot -> com.android.jack.shrob.test016.jack.b:
-    java.lang.String value() -> a
-com.android.jack.shrob.test016.jack.Annot2 -> com.android.jack.shrob.test016.jack.c:
-    java.lang.String value() -> a
-com.android.jack.shrob.test016.jack.Annot3 -> com.android.jack.shrob.test016.jack.d:
-    java.lang.String value() -> a
-com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.e:
-    java.lang.String value() -> a
-com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.f:
-    java.lang.String value() -> a
+com.android.jack.shrob.test016.jack.A -> com.android.jack.shrob.test016.jack.RenamedA:
+com.android.jack.shrob.test016.jack.Annot -> com.android.jack.shrob.test016.jack.RenamedAnnot:
+    java.lang.String value() -> renamedValue
+com.android.jack.shrob.test016.jack.Annot2 -> com.android.jack.shrob.test016.jack.RenamedAnnot2:
+    java.lang.String value() -> renamedValue
+com.android.jack.shrob.test016.jack.Annot3 -> com.android.jack.shrob.test016.jack.RenamedAnnot3:
+    java.lang.String value() -> renamedValue
+com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.RenamedAnnot4:
+    java.lang.String value() -> renamedValue
+com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.RenamedAnnot5:
+    java.lang.String value() -> renamedValue
 com.android.jack.shrob.test016.jack.KeepClass -> com.android.jack.shrob.test016.jack.KeepClass:
-    java.lang.String value() -> a
-    java.lang.String value2() -> b
-    java.lang.String value3() -> c
-    java.lang.String value4() -> d
-    java.lang.String value5() -> e
-    java.lang.String value6() -> f
-    java.lang.String value7() -> g
-    java.lang.String value8() -> h
-    java.lang.String value9() -> i
+    java.lang.String value() -> renamedValue
+    java.lang.String value2() -> renamedValue2
+    java.lang.String value3() -> renamedValue3
+    java.lang.String value4() -> renamedValue4
+    java.lang.String value5() -> renamedValue5
+    java.lang.String value6() -> renamedValue6
+    java.lang.String value7() -> renamedValue7
+    java.lang.String value8() -> renamedValue8
+    java.lang.String value9() -> renamedValue9

@@ -21,10 +21,10 @@ package com.android.jack.dx.util;
  */
 public interface ByteOutput {
 
-    /**
-     * Writes a byte.
-     *
-     * @throws IndexOutOfBoundsException if all bytes have been written.
-     */
-    void writeByte(int i);
+  /**
+   * Writes a byte.
+   *
+   * @throws IndexOutOfBoundsException if all bytes have been written.
+   */
+  void writeByte(int i);
 }

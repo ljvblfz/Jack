@@ -28,230 +28,229 @@ import java.util.EnumSet;
  * and returns it to rop form.
  */
 public class Optimizer {
-    private static boolean preserveLocals = true;
+  private static boolean preserveLocals = true;
 
-    private static TranslationAdvice advice;
+  private static TranslationAdvice advice;
 
-    /** optional optimizer steps */
-    public enum OptionalStep {
-        MOVE_PARAM_COMBINER, SCCP, LITERAL_UPGRADE, CONST_COLLECTOR,
-            ESCAPE_ANALYSIS
+  /** optional optimizer steps */
+  public enum OptionalStep {
+    MOVE_PARAM_COMBINER, SCCP, LITERAL_UPGRADE, CONST_COLLECTOR, ESCAPE_ANALYSIS
+  }
+
+  /**
+   * @return true if local variable information should be preserved, even
+   * at code size/register size cost
+   */
+  public static boolean getPreserveLocals() {
+    return preserveLocals;
+  }
+
+  /**
+   * @return {@code non-null;} translation advice
+   */
+  public static TranslationAdvice getAdvice() {
+    return advice;
+  }
+
+  /**
+   * Runs optimization algorthims over this method, and returns a new
+   * instance of RopMethod with the changes.
+   *
+   * @param rmeth method to process
+   * @param paramWidth the total width, in register-units, of this method's
+   * parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param inPreserveLocals true if local variable info should be preserved,
+   * at the cost of some registers and insns
+   * @param inAdvice {@code non-null;} translation advice
+   * @return optimized method
+   */
+  public static RopMethod optimize(RopMethod rmeth, int paramWidth, boolean isStatic,
+      boolean inPreserveLocals, TranslationAdvice inAdvice) {
+
+    return optimize(rmeth,
+        paramWidth,
+        isStatic,
+        inPreserveLocals,
+        inAdvice,
+        EnumSet.allOf(OptionalStep.class));
+  }
+
+  /**
+   * Runs optimization algorthims over this method, and returns a new
+   * instance of RopMethod with the changes.
+   *
+   * @param rmeth method to process
+   * @param paramWidth the total width, in register-units, of this method's
+   * parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param inPreserveLocals true if local variable info should be preserved,
+   * at the cost of some registers and insns
+   * @param inAdvice {@code non-null;} translation advice
+   * @param steps set of optional optimization steps to run
+   * @return optimized method
+   */
+  public static RopMethod optimize(RopMethod rmeth,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      TranslationAdvice inAdvice,
+      EnumSet<OptionalStep> steps) {
+    SsaMethod ssaMeth = null;
+
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
+
+    ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
+    runSsaFormSteps(ssaMeth, steps);
+
+    RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth, false);
+
+    if (resultMeth.getBlocks().getRegCount() > advice.getMaxOptimalRegisterCount()) {
+      // Try to see if we can squeeze it under the register count bar
+      resultMeth = optimizeMinimizeRegisters(rmeth, paramWidth, isStatic, steps);
     }
+    return resultMeth;
+  }
 
-    /**
-     * @return true if local variable information should be preserved, even
-     * at code size/register size cost
+  /**
+   * Runs the optimizer with a strategy to minimize the number of rop-form
+   * registers used by the end result. Dex bytecode does not have instruction
+   * forms that take register numbers larger than 15 for all instructions.
+   * If we've produced a method that uses more than 16 registers, try again
+   * with a different strategy to see if we can get under the bar. The end
+   * result will be much more efficient.
+   *
+   * @param rmeth method to process
+   * @param paramWidth the total width, in register-units, of this method's
+   * parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param steps set of optional optimization steps to run
+   * @return optimized method
+   */
+  private static RopMethod optimizeMinimizeRegisters(RopMethod rmeth, int paramWidth,
+      boolean isStatic, EnumSet<OptionalStep> steps) {
+    SsaMethod ssaMeth;
+    RopMethod resultMeth;
+
+    ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
+
+    EnumSet<OptionalStep> newSteps = steps.clone();
+
+    /*
+     * CONST_COLLECTOR trades insns for registers, which is not an
+     * appropriate strategy here.
      */
-    public static boolean getPreserveLocals() {
-        return preserveLocals;
+    newSteps.remove(OptionalStep.CONST_COLLECTOR);
+
+    runSsaFormSteps(ssaMeth, newSteps);
+
+    resultMeth = SsaToRop.convertToRopMethod(ssaMeth, true);
+    return resultMeth;
+  }
+
+  private static void runSsaFormSteps(SsaMethod ssaMeth, EnumSet<OptionalStep> steps) {
+    boolean needsDeadCodeRemover = true;
+
+    if (steps.contains(OptionalStep.MOVE_PARAM_COMBINER)) {
+      MoveParamCombiner.process(ssaMeth);
     }
 
-    /**
-     * @return {@code non-null;} translation advice
+    if (steps.contains(OptionalStep.SCCP)) {
+      SCCP.process(ssaMeth);
+      DeadCodeRemover.process(ssaMeth);
+      needsDeadCodeRemover = false;
+    }
+
+    if (steps.contains(OptionalStep.LITERAL_UPGRADE)) {
+      LiteralOpUpgrader.process(ssaMeth);
+      DeadCodeRemover.process(ssaMeth);
+      needsDeadCodeRemover = false;
+    }
+
+    /*
+     * ESCAPE_ANALYSIS impacts debuggability, so left off by default
      */
-    public static TranslationAdvice getAdvice() {
-        return advice;
+    steps.remove(OptionalStep.ESCAPE_ANALYSIS);
+    if (steps.contains(OptionalStep.ESCAPE_ANALYSIS)) {
+      EscapeAnalysis.process(ssaMeth);
+      DeadCodeRemover.process(ssaMeth);
+      needsDeadCodeRemover = false;
     }
 
-    /**
-     * Runs optimization algorthims over this method, and returns a new
-     * instance of RopMethod with the changes.
-     *
-     * @param rmeth method to process
-     * @param paramWidth the total width, in register-units, of this method's
-     * parameters
-     * @param isStatic true if this method has no 'this' pointer argument.
-     * @param inPreserveLocals true if local variable info should be preserved,
-     * at the cost of some registers and insns
-     * @param inAdvice {@code non-null;} translation advice
-     * @return optimized method
-     */
-    public static RopMethod optimize(RopMethod rmeth, int paramWidth,
-            boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice) {
-
-        return optimize(rmeth, paramWidth, isStatic, inPreserveLocals, inAdvice,
-                EnumSet.allOf(OptionalStep.class));
+    if (steps.contains(OptionalStep.CONST_COLLECTOR)) {
+      ConstCollector.process(ssaMeth);
+      DeadCodeRemover.process(ssaMeth);
+      needsDeadCodeRemover = false;
     }
 
-    /**
-     * Runs optimization algorthims over this method, and returns a new
-     * instance of RopMethod with the changes.
-     *
-     * @param rmeth method to process
-     * @param paramWidth the total width, in register-units, of this method's
-     * parameters
-     * @param isStatic true if this method has no 'this' pointer argument.
-     * @param inPreserveLocals true if local variable info should be preserved,
-     * at the cost of some registers and insns
-     * @param inAdvice {@code non-null;} translation advice
-     * @param steps set of optional optimization steps to run
-     * @return optimized method
-     */
-    public static RopMethod optimize(RopMethod rmeth, int paramWidth,
-            boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
-        SsaMethod ssaMeth = null;
-
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
-
-        ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
-        runSsaFormSteps(ssaMeth, steps);
-
-        RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth, false);
-
-        if (resultMeth.getBlocks().getRegCount()
-                > advice.getMaxOptimalRegisterCount()) {
-            // Try to see if we can squeeze it under the register count bar
-            resultMeth = optimizeMinimizeRegisters(rmeth, paramWidth, isStatic,
-                    steps);
-        }
-        return resultMeth;
+    // dead code remover must be run before phi type resolver
+    if (needsDeadCodeRemover) {
+      DeadCodeRemover.process(ssaMeth);
     }
 
-    /**
-     * Runs the optimizer with a strategy to minimize the number of rop-form
-     * registers used by the end result. Dex bytecode does not have instruction
-     * forms that take register numbers larger than 15 for all instructions.
-     * If we've produced a method that uses more than 16 registers, try again
-     * with a different strategy to see if we can get under the bar. The end
-     * result will be much more efficient.
-     *
-     * @param rmeth method to process
-     * @param paramWidth the total width, in register-units, of this method's
-     * parameters
-     * @param isStatic true if this method has no 'this' pointer argument.
-     * @param steps set of optional optimization steps to run
-     * @return optimized method
-     */
-    private static RopMethod optimizeMinimizeRegisters(RopMethod rmeth,
-            int paramWidth, boolean isStatic,
-            EnumSet<OptionalStep> steps) {
-        SsaMethod ssaMeth;
-        RopMethod resultMeth;
+    PhiTypeResolver.process(ssaMeth);
+  }
 
-        ssaMeth = SsaConverter.convertToSsaMethod(
-                rmeth, paramWidth, isStatic);
+  public static SsaMethod debugEdgeSplit(RopMethod rmeth, int paramWidth, boolean isStatic,
+      boolean inPreserveLocals, TranslationAdvice inAdvice) {
 
-        EnumSet<OptionalStep> newSteps = steps.clone();
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
 
-        /*
-         * CONST_COLLECTOR trades insns for registers, which is not an
-         * appropriate strategy here.
-         */
-        newSteps.remove(OptionalStep.CONST_COLLECTOR);
+    return SsaConverter.testEdgeSplit(rmeth, paramWidth, isStatic);
+  }
 
-        runSsaFormSteps(ssaMeth, newSteps);
+  public static SsaMethod debugPhiPlacement(RopMethod rmeth, int paramWidth, boolean isStatic,
+      boolean inPreserveLocals, TranslationAdvice inAdvice) {
 
-        resultMeth = SsaToRop.convertToRopMethod(ssaMeth, true);
-        return resultMeth;
-    }
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
 
-    private static void runSsaFormSteps(SsaMethod ssaMeth,
-            EnumSet<OptionalStep> steps) {
-        boolean needsDeadCodeRemover = true;
+    return SsaConverter.testPhiPlacement(rmeth, paramWidth, isStatic);
+  }
 
-        if (steps.contains(OptionalStep.MOVE_PARAM_COMBINER)) {
-            MoveParamCombiner.process(ssaMeth);
-        }
+  public static SsaMethod debugRenaming(RopMethod rmeth, int paramWidth, boolean isStatic,
+      boolean inPreserveLocals, TranslationAdvice inAdvice) {
 
-        if (steps.contains(OptionalStep.SCCP)) {
-            SCCP.process(ssaMeth);
-            DeadCodeRemover.process(ssaMeth);
-            needsDeadCodeRemover = false;
-        }
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
 
-        if (steps.contains(OptionalStep.LITERAL_UPGRADE)) {
-            LiteralOpUpgrader.process(ssaMeth);
-            DeadCodeRemover.process(ssaMeth);
-            needsDeadCodeRemover = false;
-        }
+    return SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
+  }
 
-        /*
-         * ESCAPE_ANALYSIS impacts debuggability, so left off by default
-         */
-        steps.remove(OptionalStep.ESCAPE_ANALYSIS);
-        if (steps.contains(OptionalStep.ESCAPE_ANALYSIS)) {
-            EscapeAnalysis.process(ssaMeth);
-            DeadCodeRemover.process(ssaMeth);
-            needsDeadCodeRemover = false;
-        }
+  public static SsaMethod debugDeadCodeRemover(RopMethod rmeth, int paramWidth, boolean isStatic,
+      boolean inPreserveLocals, TranslationAdvice inAdvice) {
 
-        if (steps.contains(OptionalStep.CONST_COLLECTOR)) {
-            ConstCollector.process(ssaMeth);
-            DeadCodeRemover.process(ssaMeth);
-            needsDeadCodeRemover = false;
-        }
+    SsaMethod ssaMeth;
 
-        // dead code remover must be run before phi type resolver
-        if (needsDeadCodeRemover) {
-            DeadCodeRemover.process(ssaMeth);
-        }
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
 
-        PhiTypeResolver.process(ssaMeth);
-    }
+    ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
+    DeadCodeRemover.process(ssaMeth);
 
-    public static SsaMethod debugEdgeSplit(RopMethod rmeth, int paramWidth,
-            boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice) {
+    return ssaMeth;
+  }
 
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
+  public static SsaMethod debugNoRegisterAllocation(RopMethod rmeth,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      TranslationAdvice inAdvice,
+      EnumSet<OptionalStep> steps) {
 
-        return SsaConverter.testEdgeSplit(rmeth, paramWidth, isStatic);
-    }
+    SsaMethod ssaMeth;
 
-    public static SsaMethod debugPhiPlacement(RopMethod rmeth, int paramWidth,
-            boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice) {
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
 
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
+    ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
 
-        return SsaConverter.testPhiPlacement(rmeth, paramWidth, isStatic);
-    }
+    runSsaFormSteps(ssaMeth, steps);
 
-    public static SsaMethod debugRenaming(RopMethod rmeth, int paramWidth,
-            boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice) {
+    LivenessAnalyzer.constructInterferenceGraph(ssaMeth);
 
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
-
-        return SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
-    }
-
-    public static SsaMethod debugDeadCodeRemover(RopMethod rmeth,
-            int paramWidth, boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice) {
-
-        SsaMethod ssaMeth;
-
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
-
-        ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
-        DeadCodeRemover.process(ssaMeth);
-
-        return ssaMeth;
-    }
-
-    public static SsaMethod debugNoRegisterAllocation(RopMethod rmeth,
-            int paramWidth, boolean isStatic, boolean inPreserveLocals,
-            TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
-
-        SsaMethod ssaMeth;
-
-        preserveLocals = inPreserveLocals;
-        advice = inAdvice;
-
-        ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
-
-        runSsaFormSteps(ssaMeth, steps);
-
-        LivenessAnalyzer.constructInterferenceGraph(ssaMeth);
-
-        return ssaMeth;
-    }
+    return ssaMeth;
+  }
 }

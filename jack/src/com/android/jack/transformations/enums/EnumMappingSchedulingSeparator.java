@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.enums;
 
-import com.android.jack.ir.ast.JProgram;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
@@ -32,10 +32,10 @@ import javax.annotation.Nonnull;
 @Description("A separation between SwitchEnumSupport and EnumMappingMarkerRemover")
 @Transform(remove = EnumMappingSchedulingSeparator.SeparatorTag.class)
 @Constraint(need = EnumMappingSchedulingSeparator.SeparatorTag.class)
-public class EnumMappingSchedulingSeparator implements RunnableSchedulable<JProgram> {
+public class EnumMappingSchedulingSeparator implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JProgram program) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     // do nothing
   }
 

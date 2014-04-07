@@ -20,6 +20,8 @@ import com.android.sched.util.config.ConfigurationError;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -109,8 +111,28 @@ public class KeyValueCodec<T> implements StringCodec<T> {
       }
     }
 
-    throw new CheckingException(
-        "The value must be " + getUsage() + " but is '" + formatValue(value) + "'");
+    Set<T> set = new HashSet<T>();
+    for (Entry<T> entry : entries) {
+      set.add(entry.value);
+    }
+
+    StringBuilder sb = new StringBuilder();
+    boolean first = true;
+    for (T data : set) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(", ");
+      }
+
+      sb.append(data);
+      sb.append(" (");
+      sb.append(data.getClass().getCanonicalName());
+      sb.append(')');
+    }
+
+    throw new CheckingException("The value must be {" + sb.toString() + "} but is '" + value + " ("
+        + value.getClass().getCanonicalName() + ")'");
   }
 
   @Override

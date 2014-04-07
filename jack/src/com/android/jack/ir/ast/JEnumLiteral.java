@@ -33,7 +33,7 @@ public class JEnumLiteral extends JValueLiteral {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private JFieldId value;
+  private final JFieldId value;
 
   public JEnumLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JFieldId value) {
     super(sourceInfo);
@@ -67,13 +67,6 @@ public class JEnumLiteral extends JValueLiteral {
   @Nonnull
   public JFieldId getFieldId() {
     return value;
-  }
-
-  /**
-   * Resolve an external reference during AST stitching.
-   */
-  public void resolve(@Nonnull JFieldId newField) {
-    value = newField;
   }
 
   @Override

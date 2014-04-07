@@ -96,8 +96,8 @@ import com.android.jack.ir.ast.JPrimitiveType.JIntType;
 import com.android.jack.ir.ast.JPrimitiveType.JLongType;
 import com.android.jack.ir.ast.JPrimitiveType.JShortType;
 import com.android.jack.ir.ast.JPrimitiveType.JVoidType;
-import com.android.jack.ir.ast.JProgram;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShlOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JShrOperation;
@@ -216,7 +216,7 @@ import com.android.sched.item.Name;
     JPrefixNegOperation.class,
     JPrefixNotOperation.class,
     JPrimitiveClassLiteral.class,
-    JProgram.class,
+    JSession.class,
     JReturnStatement.class,
     JShlOperation.class,
     JShortLiteral.class,

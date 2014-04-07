@@ -18,6 +18,7 @@ package com.android.jack.transformations.ast.string;
 
 import com.android.jack.signature.GenericSignatureAction;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
  *
  * It only concatenates the parsed strings.
  */
-public class DummyAction implements GenericSignatureAction {
+public class DummyAction implements GenericSignatureAction<Object> {
 
   @Nonnull
   private StringBuilder strBuf = new StringBuilder();
@@ -41,13 +42,17 @@ public class DummyAction implements GenericSignatureAction {
   }
 
   @Override
-  public void parsedTypeName(@Nonnull String name) {
+  @CheckForNull
+  public Object parsedTypeName(@Nonnull String name) {
     strBuf.append(name);
+    return null;
   }
 
   @Override
-  public void parsedInnerTypeName(@Nonnull String name) {
+  @CheckForNull
+  public Object parsedInnerTypeName(@CheckForNull Object enclosingTypeName, @Nonnull String name) {
     strBuf.append(name);
+    return null;
   }
 
   @Override

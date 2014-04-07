@@ -34,116 +34,112 @@ import java.util.BitSet;
  * for details.
  */
 public final class Form21c extends InsnFormat {
-    /** {@code non-null;} unique instance of this class */
-    public static final InsnFormat THE_ONE = new Form21c();
+  /** {@code non-null;} unique instance of this class */
+  public static final InsnFormat THE_ONE = new Form21c();
 
-    /**
-     * Constructs an instance. This class is not publicly
-     * instantiable. Use {@link #THE_ONE}.
-     */
-    private Form21c() {
-        // This space intentionally left blank.
+  /**
+   * Constructs an instance. This class is not publicly
+   * instantiable. Use {@link #THE_ONE}.
+   */
+  private Form21c() {
+    // This space intentionally left blank.
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnArgString(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    return regs.get(0).regString() + ", " + cstString(insn);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public String insnCommentString(DalvInsn insn, boolean noteIndices) {
+    if (noteIndices) {
+      return cstComment(insn);
+    } else {
+      return "";
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int codeSize() {
+    return 2;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean isCompatible(DalvInsn insn) {
+    if (!(insn instanceof CstInsn)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnArgString(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        return regs.get(0).regString() + ", " + cstString(insn);
-    }
+    RegisterSpecList regs = insn.getRegisters();
+    RegisterSpec reg;
 
-    /** {@inheritDoc} */
-    @Override
-    public String insnCommentString(DalvInsn insn, boolean noteIndices) {
-        if (noteIndices) {
-            return cstComment(insn);
-        } else {
-            return "";
+    switch (regs.size()) {
+      case 1: {
+        reg = regs.get(0);
+        break;
+      }
+      case 2: {
+        /*
+         * This format is allowed for ops that are effectively
+         * 2-arg but where the two args are identical.
+         */
+        reg = regs.get(0);
+        if (reg.getReg() != regs.get(1).getReg()) {
+          return false;
         }
+        break;
+      }
+      default: {
+        return false;
+      }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int codeSize() {
-        return 2;
+    if (!unsignedFitsInByte(reg.getReg())) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean isCompatible(DalvInsn insn) {
-        if (!(insn instanceof CstInsn)) {
-            return false;
-        }
+    CstInsn ci = (CstInsn) insn;
+    int cpi = ci.getIndex();
+    Constant cst = ci.getConstant();
 
-        RegisterSpecList regs = insn.getRegisters();
-        RegisterSpec reg;
-
-        switch (regs.size()) {
-            case 1: {
-                reg = regs.get(0);
-                break;
-            }
-            case 2: {
-                /*
-                 * This format is allowed for ops that are effectively
-                 * 2-arg but where the two args are identical.
-                 */
-                reg = regs.get(0);
-                if (reg.getReg() != regs.get(1).getReg()) {
-                    return false;
-                }
-                break;
-            }
-            default: {
-                return false;
-            }
-        }
-
-        if (!unsignedFitsInByte(reg.getReg())) {
-            return false;
-        }
-
-        CstInsn ci = (CstInsn) insn;
-        int cpi = ci.getIndex();
-        Constant cst = ci.getConstant();
-
-        if (! unsignedFitsInShort(cpi)) {
-            return false;
-        }
-
-        return (cst instanceof CstType) ||
-            (cst instanceof CstFieldRef) ||
-            (cst instanceof CstString);
+    if (!unsignedFitsInShort(cpi)) {
+      return false;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public BitSet compatibleRegs(DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        int sz = regs.size();
-        BitSet bits = new BitSet(sz);
-        boolean compat = unsignedFitsInByte(regs.get(0).getReg());
+    return (cst instanceof CstType) || (cst instanceof CstFieldRef) || (cst instanceof CstString);
+  }
 
-        if (sz == 1) {
-            bits.set(0, compat);
-        } else {
-            if (regs.get(0).getReg() == regs.get(1).getReg()) {
-                bits.set(0, compat);
-                bits.set(1, compat);
-            }
-        }
+  /** {@inheritDoc} */
+  @Override
+  public BitSet compatibleRegs(DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    int sz = regs.size();
+    BitSet bits = new BitSet(sz);
+    boolean compat = unsignedFitsInByte(regs.get(0).getReg());
 
-        return bits;
+    if (sz == 1) {
+      bits.set(0, compat);
+    } else {
+      if (regs.get(0).getReg() == regs.get(1).getReg()) {
+        bits.set(0, compat);
+        bits.set(1, compat);
+      }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void writeTo(AnnotatedOutput out, DalvInsn insn) {
-        RegisterSpecList regs = insn.getRegisters();
-        int cpi = ((CstInsn) insn).getIndex();
+    return bits;
+  }
 
-        write(out,
-              opcodeUnit(insn, regs.get(0).getReg()),
-              (short) cpi);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public void writeTo(AnnotatedOutput out, DalvInsn insn) {
+    RegisterSpecList regs = insn.getRegisters();
+    int cpi = ((CstInsn) insn).getIndex();
+
+    write(out, opcodeUnit(insn, regs.get(0).getReg()), (short) cpi);
+  }
 }

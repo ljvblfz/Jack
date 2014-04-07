@@ -33,7 +33,7 @@ public class JInstanceOf extends JExpression {
   private static final long serialVersionUID = 1L;
 
   private JExpression expr;
-  private JReferenceType testType;
+  private final JReferenceType testType;
 
   public JInstanceOf(SourceInfo info, JReferenceType testType, JExpression expression) {
     super(info);
@@ -57,13 +57,6 @@ public class JInstanceOf extends JExpression {
   @Override
   public boolean canThrow() {
     return true;
-  }
-
-  /**
-   * Resolve an external reference during AST stitching.
-   */
-  public void resolve(JReferenceType newType) {
-    testType = newType;
   }
 
   @Override

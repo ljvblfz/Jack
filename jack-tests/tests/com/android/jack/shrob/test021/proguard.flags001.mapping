@@ -1,0 +1,2 @@
+com.android.jack.shrob.test021.jack.Shrob021$KeptInterface -> com.android.jack.shrob.test021.jack.RenamedShrob021$KeptInterface:
+    void interfaceMethod() -> renamedInterfaceMethod

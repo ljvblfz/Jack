@@ -66,8 +66,8 @@ abstract class CommonStringParameterRefiner {
   protected static final TypeFormatter formatter = BinarySignatureFormatter.getFormatter();
 
   CommonStringParameterRefiner() {
-    lookup = Jack.getProgram().getLookup();
-    JPhantomLookup phantomLookup = Jack.getProgram().getPhantomLookup();
+    lookup = Jack.getSession().getLookup();
+    JPhantomLookup phantomLookup = Jack.getSession().getPhantomLookup();
     javaLangClass = phantomLookup.getClass(CommonTypes.JAVA_LANG_CLASS);
     javaLangString = phantomLookup.getClass(CommonTypes.JAVA_LANG_STRING);
     javaLangClassArray = javaLangClass.getArray();

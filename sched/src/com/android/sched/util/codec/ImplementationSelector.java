@@ -16,6 +16,8 @@
 
 package com.android.sched.util.codec;
 
+import com.google.common.base.Joiner;
+
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.ReflectDefaultCtorFactory;
 
@@ -56,8 +58,9 @@ public class ImplementationSelector<T> extends Selector<T> implements StringCode
   public void checkValue(@Nonnull CodecContext context, @Nonnull T data)
       throws CheckingException {
     if (!checkClass((Class<? extends T>) data.getClass())) {
-      throw new CheckingException(
-          "The value must be " + getUsage() + " but is '" + formatValue(data) + "'");
+      throw new CheckingException("The value must be an instance of {"
+          + Joiner.on(',').join(getClasses()) + "} but is an instance of '"
+          + data.getClass().getCanonicalName() + "'");
     }
   }
 

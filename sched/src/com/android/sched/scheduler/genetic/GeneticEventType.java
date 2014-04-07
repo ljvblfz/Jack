@@ -25,24 +25,16 @@ import javax.annotation.Nonnull;
  * Represents a type of event whose performance is tracked
  */
 enum GeneticEventType implements EventType {
-  ENGINE("Genetic engine", "Red"),
-  ANALYZER("Genetic analizing plan", "Red"),
-  BUILDER("Genetic builder builder", "Red"),
-  RANDOM_INIT("Random generator initializer", "Red");
-  @Nonnull
-  private final String cssColor;
+  ENGINE("Genetic engine"),
+  ANALYZER("Genetic analizing plan"),
+  BUILDER("Genetic builder builder"),
+  RANDOM_INIT("Random generator initializer");
+
   @Nonnull
   private final String name;
 
-  GeneticEventType(@Nonnull String name, @Nonnull String cssColor) {
+  GeneticEventType(@Nonnull String name) {
     this.name = name;
-    this.cssColor = cssColor;
-  }
-
-  @Override
-  @Nonnull
-  public String getColor() {
-    return cssColor;
   }
 
   @Override

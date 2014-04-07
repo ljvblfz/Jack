@@ -1,4 +1,4 @@
-com.android.jack.shrob.test010.jack.C -> com.android.jack.shrob.test010.jack.a:
+com.android.jack.shrob.test010.jack.C -> com.android.jack.shrob.test010.jack.RenamedC:
     void <init>() -> <init>
 com.android.jack.shrob.test010.jack.A -> com.android.jack.shrob.test010.jack.A:
     void <init>() -> <init>

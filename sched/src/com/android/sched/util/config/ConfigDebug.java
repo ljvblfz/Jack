@@ -18,6 +18,7 @@ package com.android.sched.util.config;
 
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.config.id.KeyId;
+import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -47,12 +48,25 @@ class ConfigDebug extends ConfigImpl {
       }
   };
 
-  ConfigDebug(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, String> stringValues,
-      @Nonnull Map<KeyId<?, ?>, Object> instanceValues,
+  ConfigDebug(@Nonnull CodecContext context,
+      @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
+      @Nonnull Map<KeyId<?, ?>, Object> instances,
       @Nonnull Map<KeyId<?, ?>, String> dropCauses) {
-    super(context, stringValues, instanceValues);
+    super(context, values, instances);
 
     this.dropCauses = new HashMap<KeyId<?, ?>, String>(dropCauses);
+  }
+
+  @Override
+  @Nonnull
+  public synchronized <T> T get(@Nonnull PropertyId<T> propertyId) {
+    return get((KeyId<T, ?>) propertyId);
+  }
+
+  @Override
+  @Nonnull
+  public synchronized <T> T get(@Nonnull ObjectId<T> objectId) {
+    return get((KeyId<T, ?>) objectId);
   }
 
   @Override

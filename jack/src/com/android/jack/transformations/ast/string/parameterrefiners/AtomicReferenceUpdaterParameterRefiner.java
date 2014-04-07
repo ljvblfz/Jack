@@ -35,7 +35,7 @@ public class AtomicReferenceUpdaterParameterRefiner extends AtomicLongIntUpdater
 
   @Nonnull
   private final JClassOrInterface atomicFieldUpdater =
-      (JClassOrInterface) Jack.getProgram().getPhantomLookup()
+      (JClassOrInterface) Jack.getSession().getPhantomLookup()
           .getType(CommonTypes.JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICREFERENCEFIELDUPDATER);
 
   @Override

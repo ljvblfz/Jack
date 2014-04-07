@@ -16,7 +16,12 @@
 
 package com.android.sched.util.log.stats;
 
+import com.google.common.collect.Iterators;
+
+import com.android.sched.util.codec.Formatter;
+import com.android.sched.util.codec.ToStringFormatter;
 import com.android.sched.util.table.DataHeader;
+import com.android.sched.util.table.DataRow;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -40,27 +45,50 @@ public abstract class Statistic implements DataHeader {
   }
 
   @Nonnull
-  @Deprecated
-  public abstract Object getValue(@Nonnegative int columnIdx);
-
-  @Nonnull
-  @Deprecated
-  public abstract String getHumanReadableValue(@Nonnegative int columnIdx);
-
-  @Nonnull
-  @Deprecated
-  public abstract String getDescription(@Nonnegative int columnIdx);
-
-  @Nonnull
-  @Deprecated
-  public abstract String getType(@Nonnegative int columnIdx);
-
-  @Nonnull
   public abstract String getDescription();
 
   @Override
   @Nonnull
   public String toString() {
     return id.getName();
+  }
+
+  //
+  // Adapter for deprecated API
+  //
+
+  @Nonnull
+  @Deprecated
+  public final String getDescription(int columnIdx) {
+    return getHeader()[columnIdx];
+  }
+
+  @Nonnull
+  @Deprecated
+  public final String getType(int columnIdx) {
+    if (getFormatters()[columnIdx] instanceof ToStringFormatter) {
+      return "string";
+    } else {
+      return "number";
+    }
+  }
+
+  @Nonnull
+  @Deprecated
+  public final Object getValue(@Nonnegative int columnIdx) {
+    if (this instanceof DataRow) {
+      DataRow data = (DataRow) this;
+
+      return Iterators.get(data.iterator(), columnIdx);
+    }
+
+    throw new AssertionError();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nonnull
+  @Deprecated
+  public final String getHumanReadableValue(@Nonnegative int columnIdx) {
+    return ((Formatter<Object>) (getFormatters()[columnIdx])).formatValue(getValue(columnIdx));
   }
 }

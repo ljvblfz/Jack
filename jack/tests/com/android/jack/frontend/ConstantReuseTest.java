@@ -18,7 +18,6 @@ package com.android.jack.frontend;
 
 
 import com.android.jack.TestTools;
-import com.android.jack.util.filter.RejectAllMethods;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,73 +37,73 @@ public class ConstantReuseTest {
 
   @Test
   public void intConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "intConstantReuse()V", new RejectAllMethods());
+        "intConstantReuse()V");
   }
 
   @Test
   public void byteConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "byteConstantReuse()V", new RejectAllMethods());
+        "byteConstantReuse()V");
   }
 
   @Test
   public void shortConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "shortConstantReuse()V", new RejectAllMethods());
+        "shortConstantReuse()V");
   }
 
   @Test
   public void charConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "charConstantReuse()V", new RejectAllMethods());
+        "charConstantReuse()V");
   }
 
   @Test
   public void floatConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "floatConstantReuse()V", new RejectAllMethods());
+        "floatConstantReuse()V");
   }
 
   @Test
   public void longConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "longConstantReuse()V",new RejectAllMethods());
+        "longConstantReuse()V");
   }
 
   @Test
   public void doubleConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "doubleConstantReuse()V",new RejectAllMethods());
+        "doubleConstantReuse()V");
   }
 
   @Test
   public void booleanConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "booleanConstantReuse()V", new RejectAllMethods());
+        "booleanConstantReuse()V");
   }
 
   @Test
   public void nullConstantReuse() throws Exception {
-    TestTools.getJMethod(
+    TestTools.getJMethodWithRejectAllFilter(
         TEST_FILE,
         CLASS_SIGNATURE,
-        "nullConstantReuse()V", new RejectAllMethods());
+        "nullConstantReuse()V");
   }
 }

@@ -34,7 +34,6 @@ import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.Marker;
-import com.android.sched.util.config.FileLocation;
 import com.android.sched.util.config.Location;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -46,7 +45,6 @@ import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -82,7 +80,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   @Nonnull
   private final WeakReference<SourceTypeBinding> bindingRef;
 
-  @Nonnull
+  @CheckForNull
   private final WeakReference<TypeDeclaration> declarationRef;
 
   @Nonnull
@@ -91,10 +89,14 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   private int loadStatus = 0;
 
   @Nonnull
+  private final Location location;
+
+  @Nonnull
   public static JDefinedClassOrInterface createType(@Nonnull ReferenceMapper refMap,
       @Nonnull JPackage enclosingPackage, @Nonnull SourceTypeBinding binding,
-      @CheckForNull TypeDeclaration typeDeclaration) {
-    EcjSourceTypeLoader loader = new EcjSourceTypeLoader(refMap, binding, typeDeclaration);
+      @CheckForNull TypeDeclaration typeDeclaration, Location location) {
+    EcjSourceTypeLoader loader = new EcjSourceTypeLoader(refMap, binding, typeDeclaration,
+        location);
     CudInfo cuInfo = new CudInfo(binding.scope.referenceCompilationUnit());
     SourceInfo info = ReferenceMapper.makeSourceInfo(cuInfo, binding.scope.referenceContext);
     String name;
@@ -134,24 +136,27 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     } else {
       throw new AssertionError("ReferenceBinding is not a class, interface, or enum.");
     }
-    type.updateParents(enclosingPackage.getProgram());
+    type.updateParents(enclosingPackage.getSession());
     return type;
   }
 
 
   EcjSourceTypeLoader(@Nonnull ReferenceMapper refMap, @Nonnull SourceTypeBinding binding,
-      @CheckForNull TypeDeclaration typeDeclaration) {
+      @CheckForNull TypeDeclaration typeDeclaration, @Nonnull Location location) {
     this.refMap = new WeakReference<ReferenceMapper>(refMap);
     this.bindingRef = new WeakReference<SourceTypeBinding>(binding);
-    this.declarationRef = new WeakReference<TypeDeclaration>(typeDeclaration);
+    if (typeDeclaration != null) {
+      this.declarationRef = new WeakReference<TypeDeclaration>(typeDeclaration);
+    } else {
+      this.declarationRef = null;
+    }
+    this.location = location;
   }
 
   @Override
   @Nonnull
   public Location getLocation(@Nonnull JDefinedClassOrInterface loaded) {
-    TypeDeclaration decl = declarationRef.get();
-    assert decl != null;
-    return new FileLocation(new File(new String(decl.compilationResult.fileName)));
+    return location;
   }
 
 
@@ -196,7 +201,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding(loaded);
-      JLookup lookup = loaded.getEnclosingPackage().getProgram().getPhantomLookup();
+      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
       if (loaded instanceof JDefinedClass) {
         ReferenceBinding superclass = binding.superclass();
         if (superclass != null) {
@@ -278,11 +283,14 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.INNERS)) {
         return;
       }
-      TypeDeclaration declaration = declarationRef.get();
-      if (declaration != null && declaration.memberTypes != null) {
-        ReferenceMapper referenceMapper = refMap.get();
-        for (TypeDeclaration memberType : declaration.memberTypes) {
-          ((JDefinedClassOrInterface) referenceMapper.get(memberType.binding)).getEnclosingType();
+      if (declarationRef != null) {
+        TypeDeclaration declaration = declarationRef.get();
+        assert declaration != null;
+        if (declaration.memberTypes != null) {
+          ReferenceMapper referenceMapper = refMap.get();
+          for (TypeDeclaration memberType : declaration.memberTypes) {
+            ((JDefinedClassOrInterface) referenceMapper.get(memberType.binding)).getEnclosingType();
+          }
         }
       }
       markLoaded(Scope.INNERS);
@@ -310,7 +318,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding(loaded);
-      JLookup lookup = loaded.getEnclosingPackage().getProgram().getPhantomLookup();
+      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
       for (MethodBinding methodBinding : binding.methods()) {
         load(lookup, loaded, methodBinding);
       }
@@ -331,7 +339,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding(loaded);
-      JLookup lookup = loaded.getEnclosingPackage().getProgram().getPhantomLookup();
+      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
       for (FieldBinding fieldBinding : binding.fields()) {
         load(lookup, loaded, fieldBinding);
       }
