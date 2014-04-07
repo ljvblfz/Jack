@@ -16,7 +16,6 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.HasType;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JArrayType;
@@ -34,6 +33,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -61,7 +61,7 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
 
     public Visitor(@Nonnull JType currentType, @Nonnull CompilerState compilerState) {
       this.compilerState = compilerState;
-      assert currentType.getSourceInfo() != SourceOrigin.UNKNOWN;
+      assert currentType.getSourceInfo() != SourceInfo.UNKNOWN;
       currentFileName = currentType.getSourceInfo().getFileName();
       compilerState.addCodeUsage(currentFileName, null);
       compilerState.addCstUsage(currentFileName, null);
@@ -69,7 +69,7 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
     }
 
     private void addStructUsage(@Nonnull JType usedType) {
-      if (usedType.getSourceInfo() == SourceOrigin.UNKNOWN) {
+      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
         return;
       }
       String usedTypeFileName = usedType.getSourceInfo().getFileName();
@@ -80,7 +80,7 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
       if (usedType instanceof JArrayType) {
         usedType = ((JArrayType) usedType).getLeafType();
       }
-      if (usedType.getSourceInfo() == SourceOrigin.UNKNOWN) {
+      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
         return;
       }
       String usedTypeFileName = usedType.getSourceInfo().getFileName();

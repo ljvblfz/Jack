@@ -57,7 +57,7 @@ public class NExceptionRuntimeValue extends NExpression {
     assert sourceInfo != null;
     assert catchedType != null;
     return new JExceptionRuntimeValue(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         (JClassOrInterface) exportSession.getLookup().getType(catchedType));
   }
 

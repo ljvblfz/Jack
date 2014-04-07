@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -65,7 +65,7 @@ public class NArrayLiteral extends NLiteral {
     for (NLiteral value : values) {
       jValues.add(value.exportAsJast(exportSession));
     }
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JArrayLiteral jArrayLiteral = new JArrayLiteral(jSourceInfo, jValues);
     return jArrayLiteral;
   }

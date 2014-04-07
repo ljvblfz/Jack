@@ -62,7 +62,7 @@ public class NAsgDivOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgDivOperation(sourceInfo.exportAsJast(),
+    return new JAsgDivOperation(sourceInfo.exportAsJast(exportSession),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -77,7 +77,6 @@ public class NAsgDivOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     lhs = in.readNode(NExpression.class);
     rhs = in.readNode(NExpression.class);
-
   }
 
   @Override

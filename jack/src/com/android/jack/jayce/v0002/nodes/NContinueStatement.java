@@ -16,9 +16,9 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JContinueStatement;
 import com.android.jack.ir.ast.JLabel;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
@@ -62,7 +62,7 @@ public class NContinueStatement extends NStatement {
   @Nonnull
   public JContinueStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JLabel jLabel = (label == null) ? null : new JLabel(jSourceInfo, label);
     JContinueStatement jContinueStatement = new JContinueStatement(jSourceInfo, jLabel);
     for (String catchId : catchBlockIds) {

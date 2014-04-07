@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExpression;
@@ -26,6 +25,7 @@ import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;

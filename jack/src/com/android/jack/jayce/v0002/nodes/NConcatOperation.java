@@ -65,7 +65,7 @@ public class NConcatOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JConcatOperation(sourceInfo.exportAsJast(),
+    return new JConcatOperation(sourceInfo.exportAsJast(exportSession),
         exportSession.getLookup().getClass(JAVA_LANG_STRING),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
@@ -81,7 +81,6 @@ public class NConcatOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     lhs = in.readNode(NExpression.class);
     rhs = in.readNode(NExpression.class);
-
   }
 
   @Override

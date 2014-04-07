@@ -18,8 +18,8 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Options;
 import com.android.jack.frontend.ParentSetter;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.sched.util.RunnableHooks;
@@ -39,13 +39,13 @@ public class MarkerCollectorTest {
 
   public MarkerCollectorTest() {
     JPackage p = new JPackage("test", new JSession(), null);
-    JDefinedClass classTest = new JDefinedClass(SourceOrigin.UNKNOWN, "Test", JModifier.PUBLIC, p,
+    JDefinedClass classTest = new JDefinedClass(SourceInfo.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
     JMethod method =
-        new JMethod(SourceOrigin.UNKNOWN, new JMethodId("test", MethodKind.STATIC), classTest,
+        new JMethod(SourceInfo.UNKNOWN, new JMethodId("test", MethodKind.STATIC), classTest,
             JPrimitiveTypeEnum.VOID.getType(), JModifier.PUBLIC | JModifier.STATIC);
     param =
-        new JParameter(SourceOrigin.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
+        new JParameter(SourceInfo.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
   }
 
   @BeforeClass
@@ -62,19 +62,19 @@ public class MarkerCollectorTest {
   public void markerCollector001() {
     // p = 1
     JBinaryOperation binOp1 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp1.addMarker(new M1());
 
     // p + (p = 1)
-    JParameterRef pref = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp2 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
 
     // p = p + (p = 1)
     JBinaryOperation binOp =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), binOp2);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), binOp2);
 
     ParentSetter ps = new ParentSetter();
     ps.accept(binOp);
@@ -96,31 +96,31 @@ public class MarkerCollectorTest {
   public void markerCollector002() {
     // binOp1: p = 1
     JBinaryOperation binOp1 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp1.addMarker(new M1());
 
     // binOp2: p + binOp1
-    JParameterRef pref = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp2 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
 
     // binOp3: p = 1
     JBinaryOperation binOp3 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp3.addMarker(new M1());
 
     // binOp4: p + binOp3
-    JParameterRef pref2 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref2 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp4 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
 
     // p = binOp2 + binOp4
-    JParameterRef pref3 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref3 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, pref3,
-            JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, pref3,
+            JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
 
     ParentSetter ps = new ParentSetter();
     ps.accept(binOp);
@@ -143,32 +143,32 @@ public class MarkerCollectorTest {
   public void markerCollector003() {
     // binOp1: p = 1
     JBinaryOperation binOp1 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp1.addMarker(new M1());
 
     // binOp2: p + binOp1
-    JParameterRef pref = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp2 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
 
     // binOp3: p = 1
     JBinaryOperation binOp3 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp3.addMarker(new M1());
 
     // binOp4: p + binOp3
-    JParameterRef pref2 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref2 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp4 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
     binOp4.addMarker(new M2());
 
     // p = binOp2 + binOp4
-    JParameterRef pref3 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref3 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, pref3,
-            JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, pref3,
+            JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
 
     ParentSetter ps = new ParentSetter();
     ps.accept(binOp);
@@ -189,32 +189,32 @@ public class MarkerCollectorTest {
   public void markerCollector004() {
     // binOp1: p = 1
     JBinaryOperation binOp1 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp1.addMarker(new M1());
 
     // binOp2: p + binOp1
-    JParameterRef pref = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp2 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref, binOp1);
 
     // binOp3: p = 1
     JBinaryOperation binOp3 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp3.addMarker(new M1());
 
     // binOp4: p + binOp3
-    JParameterRef pref2 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref2 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp4 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref2, binOp3);
     binOp4.addMarker(new M2());
 
     // p = binOp2 + binOp4
-    JParameterRef pref3 = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref3 = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, pref3,
-            JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, pref3,
+            JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, binOp2, binOp4));
 
     ParentSetter ps = new ParentSetter();
     ps.accept(binOp);
@@ -234,25 +234,25 @@ public class MarkerCollectorTest {
   public void markerCollector005() {
     // binOp1: p == 1
     JBinaryOperation binOp1 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.EQ, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.EQ, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp1.addMarker(new M1());
 
  // binOp2: p + 2
-    JParameterRef pref = new JParameterRef(SourceOrigin.UNKNOWN, param);
+    JParameterRef pref = new JParameterRef(SourceInfo.UNKNOWN, param);
     JBinaryOperation binOp2 =
-        JBinaryOperation.create(SourceOrigin.UNKNOWN, JBinaryOperator.ADD, pref, new JIntLiteral(
-            SourceOrigin.UNKNOWN, 2));
+        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ADD, pref, new JIntLiteral(
+            SourceInfo.UNKNOWN, 2));
 
     // binOp3: p = 1
     JBinaryOperation binOp3 = JBinaryOperation
-        .create(SourceOrigin.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
-            SourceOrigin.UNKNOWN, param), new JIntLiteral(SourceOrigin.UNKNOWN, 1));
+        .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JParameterRef(
+            SourceInfo.UNKNOWN, param), new JIntLiteral(SourceInfo.UNKNOWN, 1));
     binOp3.addMarker(new M1());
 
     // if (binOp1) { binOP2 } else { binOp3 }
     JIfStatement ifStmt =
-        new JIfStatement(SourceOrigin.UNKNOWN, binOp1, binOp2.makeStatement(),
+        new JIfStatement(SourceInfo.UNKNOWN, binOp1, binOp2.makeStatement(),
             binOp3.makeStatement());
 
     ParentSetter ps = new ParentSetter();

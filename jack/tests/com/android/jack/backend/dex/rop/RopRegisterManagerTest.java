@@ -18,12 +18,11 @@ package com.android.jack.backend.dex.rop;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 
 import junit.framework.Assert;
 
@@ -91,7 +90,7 @@ public class RopRegisterManagerTest {
     RopRegisterManager rrm = new RopRegisterManager(
         true /* emitDebugInfo */,
         false /* emitSyntheticDebugInfo */);
-    SourceInfo srcPos = SourceOrigin.create(0, 0, "");
+    SourceInfo srcPos = SourceInfo.UNKNOWN;
     JParameter parameter = new JParameter(srcPos, "", JPrimitiveTypeEnum.INT.getType(), JModifier.DEFAULT, null);
     JParameterRef ref = new JParameterRef(srcPos, parameter);
 
@@ -112,7 +111,7 @@ public class RopRegisterManagerTest {
     RopRegisterManager rrm = new RopRegisterManager(
         true /* emitDebugInfo */,
         false /* emitSyntheticDebugInfo */);
-    SourceInfo srcPos = SourceOrigin.create(0, 0, "");
+    SourceInfo srcPos = SourceInfo.UNKNOWN;
     JParameter parameter = new JParameter(srcPos, "", JPrimitiveTypeEnum.INT.getType(), JModifier.DEFAULT, null);
     JParameterRef ref = new JParameterRef(srcPos, parameter);
     rrm.createRegisterSpec(parameter);

@@ -57,7 +57,7 @@ public class NPrefixBitNotOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixBitNotOperation(sourceInfo.exportAsJast(),
+    return new JPrefixBitNotOperation(sourceInfo.exportAsJast(exportSession),
         arg.exportAsJast(exportSession));
   }
 

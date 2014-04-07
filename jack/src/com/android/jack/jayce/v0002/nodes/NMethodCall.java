@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
@@ -26,6 +25,7 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -127,7 +127,7 @@ public class NMethodCall extends NExpression {
     JMethodId methodId = jReceiverType.getOrCreateMethodId(methodName,
         exportSession.getTypeListFromSignatureList(methodArgsType), methodKind);
     JType jReturnType = exportSession.getLookup().getType(returnType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JMethodCall jMethodCall = new JMethodCall(jSourceInfo, jInstance, jReceiverType, methodId,
         jReturnType, dispatchKind == DispatchKind.VIRTUAL /* isVirtualDispatch */);
     for (NExpression arg : args) {

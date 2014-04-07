@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -64,7 +64,7 @@ public class NArrayRef extends NExpression {
     assert sourceInfo != null;
     assert instance != null;
     assert index != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JExpression jInstance = instance.exportAsJast(exportSession);
     JExpression jIndex = index.exportAsJast(exportSession);
     JArrayRef jArrayRef = new JArrayRef(jSourceInfo, jInstance, jIndex);

@@ -75,6 +75,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
+import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -594,6 +595,7 @@ public abstract class Jack {
     TagOrMarkerOrComponentSet set = scheduler.createTagOrMarkerOrComponentSet();
     set.add(JavaSourceIr.class);
     set.add(OriginalNames.class);
+    set.add(SourceInfoCreation.class);
     return set;
   }
 
@@ -603,6 +605,7 @@ public abstract class Jack {
     TagOrMarkerOrComponentSet set = scheduler.createTagOrMarkerOrComponentSet();
     set.add(JackFormatIr.class);
     set.add(OriginalNames.class);
+    set.add(SourceInfoCreation.class);
     return set;
   }
 

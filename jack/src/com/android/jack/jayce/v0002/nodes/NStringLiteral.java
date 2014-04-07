@@ -16,9 +16,9 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JStringLiteral;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -55,7 +55,7 @@ public class NStringLiteral extends NLiteral {
   public JAbstractStringLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert value != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JAbstractStringLiteral jStringLiteral = new JStringLiteral(jSourceInfo, value);
     return jStringLiteral;
   }

@@ -18,12 +18,12 @@ package com.android.jack.transformations.debug;
 
 import com.android.jack.Options;
 import com.android.jack.ir.JavaSourceIr;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;

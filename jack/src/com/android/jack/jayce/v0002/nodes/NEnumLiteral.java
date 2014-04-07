@@ -16,12 +16,12 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -66,7 +66,7 @@ public class NEnumLiteral extends NLiteral {
     assert sourceInfo != null;
     assert enumFieldDeclaringType != null;
     assert enumFieldName != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JLookup lookup = exportSession.getLookup();
     JEnum enumType = lookup.getEnum(enumFieldDeclaringType);
     /* type of the field is enumType, see JLS-8 8.9.2 */

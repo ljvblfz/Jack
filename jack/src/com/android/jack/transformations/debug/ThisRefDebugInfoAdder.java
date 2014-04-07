@@ -18,10 +18,10 @@ package com.android.jack.transformations.debug;
 
 import com.android.jack.Options;
 import com.android.jack.ir.JavaSourceIr;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
@@ -51,7 +51,7 @@ public class ThisRefDebugInfoAdder implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JThisRef x) {
-      if (x.getSourceInfo() == SourceOrigin.UNKNOWN) {
+      if (x.getSourceInfo() == SourceInfo.UNKNOWN) {
         x.setSourceInfo(x.getParent().getSourceInfo());
       }
       return super.visit(x);

@@ -66,7 +66,7 @@ public class NReturnStatement extends NStatement {
     assert sourceInfo != null;
     JExpression jExpr = expr != null ? expr.exportAsJast(exportSession) : null;
     JReturnStatement statement =
-        new JReturnStatement(sourceInfo.exportAsJast(), jExpr);
+        new JReturnStatement(sourceInfo.exportAsJast(exportSession), jExpr);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(statement));
     }

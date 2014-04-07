@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -72,7 +72,7 @@ public class NConditionalExpression extends NExpression {
     JExpression jIf = ifTest.exportAsJast(exportSession);
     JExpression jThen = thenExpr.exportAsJast(exportSession);
     JExpression jElse = elseExpr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JConditionalExpression jConditionalExpression =
         new JConditionalExpression(jSourceInfo, jIf, jThen, jElse);
     return jConditionalExpression;

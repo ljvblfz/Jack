@@ -16,7 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.item.Component;
@@ -37,8 +37,7 @@ public class JArrayType extends JDefinedReferenceType {
   private JType leafType = null;
 
   JArrayType(JType elementType) {
-    super(elementType.getSourceInfo().makeChild(SourceOrigin.UNKNOWN), elementType.getName()
-        + "[]");
+    super(SourceInfo.UNKNOWN, elementType.getName() + "[]");
     this.elementType = elementType;
     JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
     superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));

@@ -16,8 +16,8 @@
 
 package com.android.jack.transformations.debug;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;

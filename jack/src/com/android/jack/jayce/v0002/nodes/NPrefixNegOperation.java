@@ -57,7 +57,7 @@ public class NPrefixNegOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixNegOperation(sourceInfo.exportAsJast(),
+    return new JPrefixNegOperation(sourceInfo.exportAsJast(exportSession),
         arg.exportAsJast(exportSession));
   }
 

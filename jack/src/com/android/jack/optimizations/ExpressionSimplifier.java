@@ -17,7 +17,6 @@
 package com.android.jack.optimizations;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JBooleanLiteral;
@@ -45,6 +44,7 @@ import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Number;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.ast.ImplicitCast;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;

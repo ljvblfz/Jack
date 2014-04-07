@@ -16,11 +16,11 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -69,7 +69,7 @@ public class NMethodLiteral extends NLiteral {
     JDefinedClassOrInterface jEnclosingType =
         (JDefinedClassOrInterface) exportSession.getLookup().getType(methodEnclosingType);
     JMethod jMethod = exportSession.getDeclaredMethod(jEnclosingType, method);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JMethodLiteral jMethodLiteral = new JMethodLiteral(jMethod, jSourceInfo);
     return jMethodLiteral;
   }

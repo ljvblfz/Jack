@@ -16,8 +16,6 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -35,6 +33,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
@@ -149,7 +148,7 @@ public class WrapperMarker implements Marker {
 
     JMethod wrapper = getWrapper(method, isSuper);
     if (wrapper == null) {
-      SourceInfo sourceInfo = SourceOrigin.UNKNOWN;
+      SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
       boolean isConstructor = method instanceof JConstructor;
       if (isConstructor) {

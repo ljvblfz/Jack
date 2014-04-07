@@ -17,7 +17,6 @@
 package com.android.jack.transformations.ast.splitnew;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JClass;
@@ -31,6 +30,7 @@ import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;

@@ -17,7 +17,6 @@
 package com.android.jack.gwt;
 
 import com.android.jack.Main;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JExpression;
@@ -25,6 +24,7 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.impl.ToStringGenerationVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.DefaultTextOutput;
 
 import junit.framework.Assert;
@@ -45,9 +45,9 @@ public class ToString {
   @Test
   public void toStringNewArray001() {
     List<JExpression> dims = new ArrayList<JExpression>();
-    dims.add(new JAbsentArrayDimension(SourceOrigin.UNKNOWN));
+    dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
     JNewArray newArray =
-        JNewArray.createWithDims(SourceOrigin.UNKNOWN,
+        JNewArray.createWithDims(SourceInfo.UNKNOWN,
             JPrimitiveTypeEnum.INT.getType().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
@@ -58,10 +58,10 @@ public class ToString {
   @Test
   public void toStringNewArray002() {
     List<JExpression> dims = new ArrayList<JExpression>();
-    dims.add(new JAbsentArrayDimension(SourceOrigin.UNKNOWN));
-    dims.add(new JAbsentArrayDimension(SourceOrigin.UNKNOWN));
+    dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
+    dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
     JNewArray newArray = JNewArray.createWithDims(
-        SourceOrigin.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
+        SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
     v.accept(newArray);
@@ -71,10 +71,10 @@ public class ToString {
   @Test
   public void toStringNewArray003() {
     List<JExpression> dims = new ArrayList<JExpression>();
-    dims.add(new JAbsentArrayDimension(SourceOrigin.UNKNOWN));
-    dims.add(new JIntLiteral(SourceOrigin.UNKNOWN, 4));
+    dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
+    dims.add(new JIntLiteral(SourceInfo.UNKNOWN, 4));
     JNewArray newArray = JNewArray.createWithDims(
-        SourceOrigin.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
+        SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
     v.accept(newArray);
@@ -84,10 +84,10 @@ public class ToString {
   @Test
   public void toStringNewArray004() {
     List<JExpression> init = new ArrayList<JExpression>();
-    init.add(new JIntLiteral(SourceOrigin.UNKNOWN, 4));
-    init.add(new JIntLiteral(SourceOrigin.UNKNOWN, 5));
+    init.add(new JIntLiteral(SourceInfo.UNKNOWN, 4));
+    init.add(new JIntLiteral(SourceInfo.UNKNOWN, 5));
     JNewArray newArray =
-        JNewArray.createWithInits(SourceOrigin.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray(),
+        JNewArray.createWithInits(SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray(),
             init);
     DefaultTextOutput out = new DefaultTextOutput(false);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
@@ -99,12 +99,12 @@ public class ToString {
   public void toStringNewArray005() {
     List<JExpression> init = new ArrayList<JExpression>();
     List<JExpression> init2 = new ArrayList<JExpression>();
-    init2.add(new JIntLiteral(SourceOrigin.UNKNOWN, 4));
-    init2.add(new JIntLiteral(SourceOrigin.UNKNOWN, 5));
+    init2.add(new JIntLiteral(SourceInfo.UNKNOWN, 4));
+    init2.add(new JIntLiteral(SourceInfo.UNKNOWN, 5));
     JArrayType intArray1 = JPrimitiveTypeEnum.INT.getType().getArray();
-    init.add(JNewArray.createWithInits(SourceOrigin.UNKNOWN, intArray1, init2));
+    init.add(JNewArray.createWithInits(SourceInfo.UNKNOWN, intArray1, init2));
     JNewArray newArray = JNewArray.createWithInits(
-        SourceOrigin.UNKNOWN, intArray1.getArray(), init);
+        SourceInfo.UNKNOWN, intArray1.getArray(), init);
     DefaultTextOutput out = new DefaultTextOutput(false);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
     v.accept(newArray);

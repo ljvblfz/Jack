@@ -18,7 +18,6 @@ package com.android.jack.frontend;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JLock;
@@ -29,6 +28,7 @@ import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JUnlock;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;

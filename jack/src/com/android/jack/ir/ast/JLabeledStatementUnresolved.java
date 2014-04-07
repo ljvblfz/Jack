@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -34,7 +34,7 @@ public class JLabeledStatementUnresolved extends JLabeledStatement {
 
 
   private JLabeledStatementUnresolved() {
-    super(SourceOrigin.UNKNOWN, null, null);
+    super(SourceInfo.UNKNOWN, null, null);
   }
 
   @Override

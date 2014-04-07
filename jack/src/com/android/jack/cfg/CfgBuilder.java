@@ -16,6 +16,7 @@
 
 package com.android.jack.cfg;
 
+import com.android.jack.Jack;
 import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.cfg.ForwardBranchResolver.ForwardBranchKind;
@@ -49,6 +50,7 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.transformations.ast.RefAsStatement;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -60,6 +62,7 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.schedulable.Use;
 import com.android.sched.schedulable.With;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Event;
@@ -91,6 +94,7 @@ import javax.annotation.Nonnull;
 @Protect(
     add = JNode.class, remove = JNode.class, unprotect = @With(remove = ControlFlowGraph.class))
 @Transform(add = {ControlFlowGraph.class, JReturnStatement.class, BasicBlockMarker.class})
+@Use(SourceInfoFactory.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -116,6 +120,9 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private List<JCatchBlock> previousCatchBlock = new ArrayList<JCatchBlock>();
+
+    @Nonnull
+    private final SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
 
     private static class JCaseStatementComparator
         implements Comparator<JCaseStatement>, Serializable {

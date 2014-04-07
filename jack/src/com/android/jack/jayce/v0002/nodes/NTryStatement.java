@@ -86,7 +86,7 @@ public class NTryStatement extends NStatement {
       jResourcesDeclaration.add(stmt.exportAsJast(exportSession));
     }
 
-    JTryStatement jTryStatement = new JTryStatement(sourceInfo.exportAsJast(),
+    JTryStatement jTryStatement = new JTryStatement(sourceInfo.exportAsJast(exportSession),
         jResourcesDeclaration,
         tryBlock.exportAsJast(exportSession),
         jCatchBlocks,

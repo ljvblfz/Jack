@@ -16,7 +16,6 @@
 
 package com.android.jack.ir.impl;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedAnnotation;
@@ -30,6 +29,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.util.NamingTools;
@@ -97,8 +97,10 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       @CheckForNull TypeDeclaration typeDeclaration, Location location) {
     EcjSourceTypeLoader loader = new EcjSourceTypeLoader(refMap, binding, typeDeclaration,
         location);
-    CudInfo cuInfo = new CudInfo(binding.scope.referenceCompilationUnit());
-    SourceInfo info = ReferenceMapper.makeSourceInfo(cuInfo, binding.scope.referenceContext);
+    CudInfo cuInfo =
+        new CudInfo(binding.scope.referenceCompilationUnit());
+    SourceInfo info = ReferenceMapper.makeSourceInfo(cuInfo, binding.scope.referenceContext,
+        refMap.getSourceInfoFactory());
     String name;
     if (binding instanceof LocalTypeBinding) {
       name = NamingTools.getSimpleClassNameFromBinaryName(new String(binding.constantPoolName()));

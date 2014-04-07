@@ -81,7 +81,7 @@ public class NLocal extends NVariable {
     assert type != null;
     assert id != null;
     JLocal jLocal = new JLocal(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         name,
         exportSession.getLookup().getType(type),
         modifiers,

@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
 import java.util.ArrayList;

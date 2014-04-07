@@ -16,11 +16,11 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -66,7 +66,7 @@ public class NDynamicCastOperation extends NExpression {
     assert expr != null;
     JType jType = exportSession.getLookup().getType(castType);
     JExpression jExpr = expr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDynamicCastOperation jDynamicCastOperation =
         new JDynamicCastOperation(jSourceInfo, jType, jExpr);
     return jDynamicCastOperation;

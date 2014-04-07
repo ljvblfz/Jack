@@ -18,8 +18,6 @@ package com.android.jack.transformations.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAsgOperation.NonReusedAsg;
 import com.android.jack.ir.ast.JBlock;
@@ -47,6 +45,8 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.Replace;
@@ -88,7 +88,7 @@ import javax.annotation.Nonnull;
     JIfStatement.class,
     JThrowStatement.class},
     remove = JTryStatement.TryWithResourcesForm.class)
-@Use(LocalVarCreator.class)
+@Use({LocalVarCreator.class, SourceInfoFactory.class})
 @Support(SourceVersion7.class)
 public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod> {
 
@@ -103,6 +103,8 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
     private final LocalVarCreator localVarCreator;
     @Nonnull
     private final TransformationRequest request;
+    @Nonnull
+    private final SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
 
     @Nonnull
     private static final String AUTO_CLOSEABLE_SIGNATURE = "Ljava/lang/AutoCloseable;";
@@ -127,15 +129,16 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
 
       if (x.getResourcesDeclarations().size() > 0) {
 
-        SourceInfo endOfTrySourceInfos = SourceOrigin.create(
-            x.getSourceInfo().getEndLine(), x.getSourceInfo().getEndLine(),
-            x.getSourceInfo().getFileName());
+        SourceInfo trySourceInfo = x.getSourceInfo();
+        SourceInfo endOfTrySourceInfos = sourceInfoFactory.create(
+            trySourceInfo.getEndLine(), trySourceInfo.getEndLine(),
+            trySourceInfo.getFileSourceInfo());
 
-        SourceInfo firstLineSourceInfos = SourceOrigin.create(
-            x.getSourceInfo().getStartLine(), x.getSourceInfo().getStartLine(),
-            x.getSourceInfo().getFileName());
+        SourceInfo firstLineSourceInfos = sourceInfoFactory.create(
+            trySourceInfo.getStartLine(), trySourceInfo.getStartLine(),
+            trySourceInfo.getFileSourceInfo());
 
-        JBlock finalTryBlock = new JBlock(x.getSourceInfo());
+        JBlock finalTryBlock = new JBlock(trySourceInfo);
 
         // Declare exception to throw in the end, if any, and initialize it to null;
         JClass throwableClass = Jack.getSession().getPhantomLookup().getClass(THROWABLE_SIGNATURE);

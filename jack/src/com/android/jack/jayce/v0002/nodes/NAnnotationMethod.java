@@ -16,13 +16,13 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -78,7 +78,7 @@ public class NAnnotationMethod extends NMethod {
     assert returnType != null;
     assert sourceInfo != null;
     assert body == null;
-    SourceInfo info = sourceInfo.exportAsJast();
+    SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JAnnotationMethod jAnnotationMethod = new JAnnotationMethod(

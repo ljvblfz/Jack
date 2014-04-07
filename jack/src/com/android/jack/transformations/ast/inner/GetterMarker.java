@@ -16,8 +16,6 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JExpression;
@@ -32,6 +30,7 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
@@ -93,7 +92,7 @@ public class GetterMarker implements Marker {
     // }
     JMethod getter = getters.get(field);
     if (getter == null) {
-      SourceInfo sourceInfo = SourceOrigin.UNKNOWN;
+      SourceInfo sourceInfo = SourceInfo.UNKNOWN;
       JMethodId id = new JMethodId(GETTER_PREFIX + index++, MethodKind.STATIC);
       getter = new JMethod(sourceInfo,
           id,

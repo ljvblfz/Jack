@@ -15,8 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -30,7 +29,7 @@ import javax.annotation.Nonnull;
 @Description("Java null reference type")
 public class JNullType extends JReferenceTypeCommon {
 
-  public static final JNullType INSTANCE = new JNullType(SourceOrigin.UNKNOWN);
+  public static final JNullType INSTANCE = new JNullType(SourceInfo.UNKNOWN);
 
   private JNullType(SourceInfo sourceInfo) {
     super(sourceInfo, "null");

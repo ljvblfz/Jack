@@ -16,7 +16,6 @@
 
 package com.android.jack;
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JClass;
@@ -25,6 +24,7 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.RunnableHooks;
@@ -104,74 +104,74 @@ public class ConditionalTest {
     JArrayType arrayTestTest = lookup.getArrayType(testClass, 2);
     JArrayType arrayTestTestTest = lookup.getArrayType(testClass, 3);
 
-    JParameter pArrayInt = new JParameter(SourceOrigin.UNKNOWN, "pArrayInt", arrayInt, 0, null);
+    JParameter pArrayInt = new JParameter(SourceInfo.UNKNOWN, "pArrayInt", arrayInt, 0, null);
     JParameter pArrayIntInt =
-        new JParameter(SourceOrigin.UNKNOWN, "pArrayIntInt", arrayIntInt, 0, null);
+        new JParameter(SourceInfo.UNKNOWN, "pArrayIntInt", arrayIntInt, 0, null);
     JParameter pArrayIntIntInt =
-        new JParameter(SourceOrigin.UNKNOWN, "pArrayIntIntInt", arrayIntIntInt, 0, null);
-    JParameter pArrayByte = new JParameter(SourceOrigin.UNKNOWN, "pArrayByte", arrayByte, 0, null);
+        new JParameter(SourceInfo.UNKNOWN, "pArrayIntIntInt", arrayIntIntInt, 0, null);
+    JParameter pArrayByte = new JParameter(SourceInfo.UNKNOWN, "pArrayByte", arrayByte, 0, null);
     JClass javaLangObject =
         Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JParameter pObject =
-        new JParameter(SourceOrigin.UNKNOWN, "pArrayByte", javaLangObject, 0,
+        new JParameter(SourceInfo.UNKNOWN, "pArrayByte", javaLangObject, 0,
             null);
-    JParameter pArrayTest = new JParameter(SourceOrigin.UNKNOWN, "pArrayTest", arrayTest, 0, null);
+    JParameter pArrayTest = new JParameter(SourceInfo.UNKNOWN, "pArrayTest", arrayTest, 0, null);
     JParameter pArrayTestTest =
-        new JParameter(SourceOrigin.UNKNOWN, "pArrayTestTest", arrayTestTest, 0, null);
+        new JParameter(SourceInfo.UNKNOWN, "pArrayTestTest", arrayTestTest, 0, null);
     JParameter pArrayTestTestTest =
-        new JParameter(SourceOrigin.UNKNOWN, "pArrayTestTestTest", arrayTestTestTest, 0, null);
+        new JParameter(SourceInfo.UNKNOWN, "pArrayTestTestTest", arrayTestTestTest, 0, null);
 
     {
       // true ? int[] : byte[] => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayByte));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayByte));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
     {
       // true ? int[] : Object => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pObject));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pObject));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
     {
       // true ? int[][] : int[] => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayInt));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayInt));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
     {
       // true ? int[] : int[] => int []
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayInt));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayInt));
       Assert.assertEquals(arrayInt, conditional.getType());
     }
 
     {
       // true ? int[][] : int[][][] => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayIntIntInt));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayIntIntInt));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
     {
       // true ? Test[] : Test[][] => Object[]
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayTest),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayTestTest));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayTest),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest));
       Assert.assertEquals(lookup.getArrayType(javaLangObject, 1),
           conditional.getType());
     }
@@ -179,9 +179,9 @@ public class ConditionalTest {
     {
       // true ? Test[][] : Test[][][] => Object[][]
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayTestTest),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayTestTestTest));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTestTest));
       Assert.assertEquals(
           lookup.getArrayType(javaLangObject, 2),
           conditional.getType());
@@ -190,18 +190,18 @@ public class ConditionalTest {
     {
       // true ? int[][] : Test[][] => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayTestTest));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
     {
       // true ? int[][] : Test[][][] => Object
       JConditionalExpression conditional =
-          new JConditionalExpression(SourceOrigin.UNKNOWN, new JBooleanLiteral(
-              SourceOrigin.UNKNOWN, true), new JParameterRef(SourceOrigin.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceOrigin.UNKNOWN, pArrayTestTestTest));
+          new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
+              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
+              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTestTest));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
   }

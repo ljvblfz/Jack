@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -57,7 +57,7 @@ public class NAlloc extends NExpression {
     assert sourceInfo != null;
     assert instanceType != null;
     JClass jType = exportSession.getLookup().getClass(instanceType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JAlloc jAlloc = new JAlloc(jSourceInfo, jType);
     return jAlloc;
   }

@@ -18,8 +18,6 @@ package com.android.jack.backend.dex.annotations;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexAnnotations;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JAnnotationMethod;
@@ -32,6 +30,7 @@ import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.AddNameValuePair;
 import com.android.jack.transformations.request.Remove;
@@ -118,12 +117,12 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
         targetType.getAnnotation(defaultAnnotationType);
     if (defaultAnnotation == null) {
       defaultAnnotation = new JAnnotationLiteral(
-          SourceOrigin.UNKNOWN, JRetentionPolicy.SYSTEM, defaultAnnotationType);
+          SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM, defaultAnnotationType);
       JMethodId methodId = defaultAnnotationType.getOrCreateMethodId(
           "value", Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
       defaultAnnotation
-          .add(new JNameValuePair(SourceOrigin.UNKNOWN, methodId, new JAnnotationLiteral(
-              SourceOrigin.UNKNOWN, targetType.getRetentionPolicy(), targetType)));
+          .add(new JNameValuePair(SourceInfo.UNKNOWN, methodId, new JAnnotationLiteral(
+              SourceInfo.UNKNOWN, targetType.getRetentionPolicy(), targetType)));
       tr.append(new AddAnnotation(defaultAnnotation, targetType));
     }
     return (JAnnotationLiteral) defaultAnnotation.getNameValuePairs().iterator().next().getValue();

@@ -57,7 +57,7 @@ public class NPrefixDecOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixDecOperation(sourceInfo.exportAsJast(),
+    return new JPrefixDecOperation(sourceInfo.exportAsJast(exportSession),
         arg.exportAsJast(exportSession));
   }
 

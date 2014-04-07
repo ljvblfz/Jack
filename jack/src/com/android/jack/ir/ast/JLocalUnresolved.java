@@ -15,8 +15,8 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -34,7 +34,7 @@ public class JLocalUnresolved extends JLocal {
   public static final JLocalUnresolved INSTANCE = new JLocalUnresolved();
 
   private JLocalUnresolved() {
-    super(SourceOrigin.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0, null);
+    super(SourceInfo.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0, null);
   }
 
   @Override
