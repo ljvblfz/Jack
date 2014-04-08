@@ -35,7 +35,7 @@ public class JClassLiteral extends JLiteral {
 
   private static final long serialVersionUID = 1L;
 
-  private JClass javaLangClass;
+  private final JClass javaLangClass;
 
   private final JType refType;
 
@@ -52,10 +52,6 @@ public class JClassLiteral extends JLiteral {
   @Override
   public JType getType() {
     return javaLangClass;
-  }
-
-  public void setType(@Nonnull JClass type) {
-     javaLangClass = type;
   }
 
   @Override
