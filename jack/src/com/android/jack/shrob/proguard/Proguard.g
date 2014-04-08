@@ -29,12 +29,22 @@ import com.android.jack.shrob.spec.KeepModifier;
 protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
     throw new RecognitionException(input);
 }
+
+@Override
+public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+    throw new RecoverableRecognitionException(e);
+}
 }
 
 @lexer::members {
 @Override
 protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
     throw new RecognitionException(input);
+}
+
+@Override
+public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+    throw new RecoverableRecognitionException(e);
 }
 }
 

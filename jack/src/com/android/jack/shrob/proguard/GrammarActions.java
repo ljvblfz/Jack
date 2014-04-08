@@ -336,14 +336,13 @@ public class GrammarActions {
     File proguardFile = getFileFromBaseDir(baseDir, proguardFileName);
     ProguardParser parser = createParserFromFile(proguardFile);
     if (parser != null) {
-      parser.prog(flags, proguardFile.getParentFile().getAbsolutePath());
+      try {
+        parser.prog(flags, proguardFile.getParentFile().getAbsolutePath());
+      } catch (RecoverableRecognitionException e) {
+        // A recoverable error happened, but we do not want to ignore it.
+        throw e.getCause();
+      }
     }
-  }
-
-  public static void parseFromArgString(
-      @Nonnull String proguardArgString, @Nonnull Flags flags) throws RecognitionException {
-    ProguardParser parser = createParserFromArgString(proguardArgString);
-    parser.prog(flags, ".");
   }
 
   static void addKeepClassMembers(
