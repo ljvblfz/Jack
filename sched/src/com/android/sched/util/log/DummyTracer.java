@@ -25,9 +25,7 @@ import com.android.sched.util.log.tracer.watcher.ObjectWatcher;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -44,10 +42,6 @@ public final class DummyTracer implements Tracer {
    * Represents event.
    */
   public static class DummyTracerEvent implements Event {
-    @Nonnull
-    private final Map<StatisticId<? extends Statistic>, Statistic> statisticsById =
-        new HashMap<StatisticId<? extends Statistic>, Statistic>();
-
     DummyTracerEvent() {
     }
 
@@ -98,15 +92,7 @@ public final class DummyTracer implements Tracer {
     @Override
     @Nonnull
     public <T extends Statistic> T getStatistic(@Nonnull StatisticId<T> id) {
-      @SuppressWarnings("unchecked")
-      T statistic = (T) statisticsById.get(id);
-
-      if (statistic == null) {
-        statistic = id.newDummyInstance();
-        statisticsById.put(id, statistic);
-      }
-
-      return statistic;
+      return id.getDummyInstance();
     }
   }
 
