@@ -21,9 +21,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.StreamFile;
 import com.android.sched.util.log.LoggerFactory;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -42,19 +40,11 @@ public class SimpleTextPlanPrinter implements PlanPrinter {
 
   @Override
   public void printPlan(@Nonnull Plan<?> plan) {
+    PrintStream printStream = planFile.getPrintStream();
     try {
-      PrintStream printStream = null;
-      try {
-        printStream = planFile.getPrintStream();
-        printStream.println(plan.getDescription());
-      } finally {
-        if (printStream != null) {
-          printStream.close();
-        }
-      }
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Error trying to write the schedulable plan to a file", e);
+      printStream.println(plan.getDescription());
+    } finally {
+      printStream.close();
     }
   }
-
 }

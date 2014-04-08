@@ -16,6 +16,7 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.UncloseableInputStream;
@@ -98,38 +99,50 @@ public class StreamFile extends FileOrDirectory {
   }
 
   @Nonnull
-  public InputStream getInputStream() throws FileNotFoundException {
+  public InputStream getInputStream() {
     if (file == null) {
       return new UncloseableInputStream(System.in);
     } else {
       assert isReadable();
 
       clearRemover();
-      return new FileInputStream(file);
+      try {
+        return new FileInputStream(file);
+      } catch (FileNotFoundException e) {
+        throw new ConcurrentIOException(e);
+      }
     }
   }
 
   @Nonnull
-  public OutputStream getOutputStream() throws FileNotFoundException {
+  public OutputStream getOutputStream() {
     if (file == null) {
       return new UncloseableOutputStream(System.out);
     } else {
       assert isWritable();
 
       clearRemover();
-      return new FileOutputStream(file, append);
+      try {
+        return new FileOutputStream(file, append);
+      } catch (FileNotFoundException e) {
+        throw new ConcurrentIOException(e);
+      }
     }
   }
 
   @Nonnull
-  public PrintStream getPrintStream() throws FileNotFoundException {
+  public PrintStream getPrintStream() {
     if (file == null) {
       return new UncloseablePrintStream(System.out);
     } else {
       assert isWritable();
 
       clearRemover();
-      return new PrintStream(file);
+      try {
+        return new PrintStream(file);
+      } catch (FileNotFoundException e) {
+        throw new ConcurrentIOException(e);
+      }
     }
   }
 

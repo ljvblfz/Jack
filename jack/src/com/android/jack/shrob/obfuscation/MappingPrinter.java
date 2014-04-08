@@ -18,7 +18,6 @@ package com.android.jack.shrob.obfuscation;
 
 import com.google.common.base.Strings;
 
-import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -47,7 +46,6 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
 
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Iterator;
 
@@ -77,13 +75,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   private static final char PACKAGE_SEPARATOR = '.';
 
   public MappingPrinter() {
-    StreamFile outputStream = ThreadConfig.get(MAPPING_OUTPUT_FILE);
-    try {
-      stream = outputStream.getPrintStream();
-    } catch (FileNotFoundException e) {
-      throw new JackIOException(
-          "Mapping output stream " + outputStream.getName() + " not found", e);
-    }
+    stream = ThreadConfig.get(MAPPING_OUTPUT_FILE).getPrintStream();
   }
 
   private class Visitor extends JVisitor {

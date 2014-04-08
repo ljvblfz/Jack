@@ -23,9 +23,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.StreamFile;
 import com.android.sched.util.log.LoggerFactory;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -43,34 +41,26 @@ public class TextReportPrinter implements ReportPrinter {
 
   @Override
   public void printReport(@Nonnull Report report) {
+    PrintStream printStream = reportFile.getPrintStream();
     try {
-      PrintStream printStream = null;
-
-      try {
-        printStream = reportFile.getPrintStream();
-        printStream.println("Report: " + report.getName());
-        if (!report.getDescription().isEmpty()) {
-          printStream.println("        " + report.getDescription());
+      printStream.println("Report: " + report.getName());
+      if (!report.getDescription().isEmpty()) {
+        printStream.println("        " + report.getDescription());
+      }
+      printStream.println();
+      for (Table table : report) {
+        printStream.println("Table: " + table.getName());
+        if (!table.getDescription().isEmpty()) {
+          printStream.println("       " + table.getDescription());
+        }
+        printStream.println(Joiner.on(", ").join(table.getHeader()));
+        for (Iterable<String> row : table) {
+          printStream.println(Joiner.on(", ").join(row));
         }
         printStream.println();
-        for (Table table : report) {
-          printStream.println("Table: " + table.getName());
-          if (!table.getDescription().isEmpty()) {
-            printStream.println("       " + table.getDescription());
-          }
-          printStream.println(Joiner.on(", ").join(table.getHeader()));
-          for (Iterable<String> row : table) {
-            printStream.println(Joiner.on(", ").join(row));
-          }
-          printStream.println();
-        }
-      } finally {
-        if (printStream != null) {
-          printStream.close();
-        }
       }
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Error trying to write the report to a file", e);
+    } finally {
+      printStream.close();
     }
   }
 }

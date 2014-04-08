@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob.shrink;
 
-import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -36,7 +35,6 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
 
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import javax.annotation.CheckForNull;
@@ -86,15 +84,10 @@ public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
   }
 
   @Nonnull
-  private PrintStream stream;
+  private final PrintStream stream;
 
   public TypeAndMemberLister() {
-    StreamFile typeAndMemberListing = ThreadConfig.get(TYPE_AND_MEMBER_LISTING_FILE);
-    try {
-      stream = typeAndMemberListing.getPrintStream();
-    } catch (FileNotFoundException e) {
-      throw new JackIOException("Listing file " + typeAndMemberListing.getName() + " not found", e);
-    }
+    stream = ThreadConfig.get(TYPE_AND_MEMBER_LISTING_FILE).getPrintStream();
   }
 
   private class Visitor extends JVisitor {

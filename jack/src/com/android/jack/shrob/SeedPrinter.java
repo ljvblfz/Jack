@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -44,7 +43,6 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
 
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -76,13 +74,7 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
   private final Flags flags = ThreadConfig.get(Options.FLAGS);
 
   public SeedPrinter() {
-    StreamFile outputStreamFile = ThreadConfig.get(SEEDS_OUTPUT_FILE);
-    try {
-      stream = outputStreamFile.getPrintStream();
-    } catch (FileNotFoundException e) {
-      throw new JackIOException(
-          "Seeds output file " + outputStreamFile.getName() + " not found", e);
-    }
+    stream = ThreadConfig.get(SEEDS_OUTPUT_FILE).getPrintStream();
   }
 
   private void appendQualifiedName(

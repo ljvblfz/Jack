@@ -26,9 +26,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.StreamFile;
 import com.android.sched.util.log.LoggerFactory;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -47,47 +45,39 @@ public class CsvReportPrinter implements ReportPrinter {
 
   @Override
   public void printReport(@Nonnull Report report) {
+    PrintStream printStream = reportFile.getPrintStream();
     try {
-      PrintStream printStream = null;
+      for (Table table : report) {
 
-      try {
-        printStream = reportFile.getPrintStream();
-        for (Table table : report) {
+        // Change some formatters to raw formatters here
+        Formatter<?>[] formatters = table.getFormatters();
+        for (int idx = 0; idx < formatters.length; idx++) {
+          Formatter<?> formatter = formatters[idx];
 
-          // Change some formatters to raw formatters here
-          Formatter<?>[] formatters = table.getFormatters();
-          for (int idx = 0; idx < formatters.length; idx++) {
-            Formatter<?> formatter = formatters[idx];
-
-            if (formatter instanceof PercentFormatter) {
-              formatters[idx] = new DoubleCodec();
-            } else if (formatter instanceof ByteFormatter) {
-              formatters[idx] = new LongCodec();
-            }
+          if (formatter instanceof PercentFormatter) {
+            formatters[idx] = new DoubleCodec();
+          } else if (formatter instanceof ByteFormatter) {
+            formatters[idx] = new LongCodec();
           }
+        }
 
-          // Dump table
-          for (Iterable<String> row : table) {
-            boolean first = true;
-            for (String data : row) {
-              if (first) {
-                first = false;
-              } else {
-                printStream.print(',');
-              }
-              printStream.print(data.replace(",", "\\,"));
+        // Dump table
+        for (Iterable<String> row : table) {
+          boolean first = true;
+          for (String data : row) {
+            if (first) {
+              first = false;
+            } else {
+              printStream.print(',');
             }
-            printStream.println();
+            printStream.print(data.replace(",", "\\,"));
           }
           printStream.println();
         }
-      } finally {
-        if (printStream != null) {
-          printStream.close();
-        }
+        printStream.println();
       }
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Error trying to write the report to a file", e);
+    } finally {
+      printStream.close();
     }
   }
 }
