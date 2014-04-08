@@ -92,6 +92,7 @@ import com.android.jack.shrob.SeedFile;
 import com.android.jack.shrob.SeedPrinter;
 import com.android.jack.shrob.obfuscation.Mapping;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
+import com.android.jack.shrob.obfuscation.NameFinalizer;
 import com.android.jack.shrob.obfuscation.NameKeeper;
 import com.android.jack.shrob.obfuscation.Obfuscation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -668,6 +669,8 @@ public abstract class Jack {
     }
     if (features.contains(Obfuscation.class)) {
       appendObfuscationPlan(planBuilder);
+    } else {
+      planBuilder.append(NameFinalizer.class);
     }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
@@ -811,7 +814,6 @@ public abstract class Jack {
         if (features.contains(JackFileNonZipOutput.class)) {
           typePlan4.append(JayceSingleTypeWriter.class);
         }
-        typePlan4.append(ReflectAnnotationsAdder.class);
       }
     }
 
@@ -861,12 +863,19 @@ public abstract class Jack {
     }
     if (features.contains(Obfuscation.class)) {
       appendObfuscationPlan(planBuilder);
+    } else {
+      planBuilder.append(NameFinalizer.class);
     }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(TypeAndMemberListing.class)) {
       planBuilder.append(TypeAndMemberLister.class);
+    }
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+      typePlan.append(ReflectAnnotationsAdder.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1067,6 +1076,8 @@ public abstract class Jack {
     }
     if (features.contains(Obfuscation.class)) {
       appendObfuscationPlan(planBuilder);
+    } else {
+      planBuilder.append(NameFinalizer.class);
     }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
@@ -1201,13 +1212,6 @@ public abstract class Jack {
       planBuilder.append(ParentSetterChecker.class);
     }
     planBuilder.append(DexFileBuilder.class);
-
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-      typePlan.append(ReflectAnnotationsAdder.class);
-    }
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
@@ -1225,6 +1229,16 @@ public abstract class Jack {
       }
     }
 
+    if (features.contains(Obfuscation.class)) {
+      appendObfuscationPlan(planBuilder);
+    } else {
+      planBuilder.append(NameFinalizer.class);
+    }
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+      typePlan.append(ReflectAnnotationsAdder.class);
+    }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
@@ -1264,10 +1278,6 @@ public abstract class Jack {
         methodPlan3.append(ExpressionStatementLegalizer.class);
         methodPlan3.append(NumericConversionChecker.class);
       }
-    }
-
-    if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder);
     }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);

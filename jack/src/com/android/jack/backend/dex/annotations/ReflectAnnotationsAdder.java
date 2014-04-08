@@ -47,11 +47,10 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
-import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.jack.shrob.obfuscation.FinalNames;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.PutNameValuePair;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
@@ -77,8 +76,8 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
-    JNullLiteral.class, JIntLiteral.class}, remove = ThreeAddressCodeForm.class)
-@Constraint(need = {OriginalTypeInfo.class, OriginalNames.class})
+    JNullLiteral.class, JIntLiteral.class})
+@Constraint(need = {OriginalTypeInfo.class, FinalNames.class})
 @Protect(add = OriginalTypeInfo.class, unprotect = @With(remove = ReflectAnnotations.class))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
