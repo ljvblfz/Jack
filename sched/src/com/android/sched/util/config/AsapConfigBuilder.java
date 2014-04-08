@@ -28,6 +28,11 @@ import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.EnvironmentLocation;
+import com.android.sched.util.location.FieldLocation;
+import com.android.sched.util.location.LineLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import java.io.IOException;
 import java.io.InputStream;

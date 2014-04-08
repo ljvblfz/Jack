@@ -16,12 +16,11 @@
 
 package com.android.sched.util.config;
 
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -37,9 +36,9 @@ public class ConfigPrinterFactory {
           .addDefaultValue("none");
 
   @Nonnull
-  public static final PropertyId<StreamFile> CONFIG_PRINTER_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> CONFIG_PRINTER_FILE = PropertyId.create(
       "config.printer.file", "The file where to print the config",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-");
 
   @Nonnull

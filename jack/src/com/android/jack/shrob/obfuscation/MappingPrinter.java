@@ -38,13 +38,12 @@ import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.ToSupport;
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import java.io.PrintStream;
 import java.util.Iterator;
@@ -62,9 +61,9 @@ import javax.annotation.Nonnull;
 public class MappingPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  public static final PropertyId<StreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
       "jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-");
 
   @Nonnull

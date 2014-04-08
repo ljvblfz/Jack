@@ -16,6 +16,8 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.location.FileOrDirLocation;
+
 import java.io.IOException;
 
 import javax.annotation.CheckForNull;
@@ -27,12 +29,12 @@ import javax.annotation.Nonnull;
 public class CannotCreateFileException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public CannotCreateFileException(@Nonnull String name, boolean isFile) {
-    this(name, isFile, null);
+  public CannotCreateFileException(@Nonnull FileOrDirLocation location) {
+    this(location, null);
   }
 
-  public CannotCreateFileException(
-      @Nonnull String name, boolean isFile, @CheckForNull Throwable cause) {
-    super((isFile ? "File" : "Directory") + " '" + name + "' can not be created", cause);
+  public CannotCreateFileException(@Nonnull FileOrDirLocation location,
+      @CheckForNull Throwable cause) {
+    super(location.getDescription() + " can not be created", cause);
   }
 }

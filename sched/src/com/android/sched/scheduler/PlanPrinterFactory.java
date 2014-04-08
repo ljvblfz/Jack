@@ -16,14 +16,13 @@
 
 package com.android.sched.scheduler;
 
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -41,9 +40,9 @@ public class PlanPrinterFactory {
           .addDefaultValue("none");
 
   @Nonnull
-  public static final PropertyId<StreamFile> PLAN_PRINTER_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> PLAN_PRINTER_FILE = PropertyId.create(
       "sched.plan.printer.file", "The file where to print the plan",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-");
 
   public static PlanPrinter getPlanPrinter() {

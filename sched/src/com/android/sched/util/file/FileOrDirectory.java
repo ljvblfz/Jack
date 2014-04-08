@@ -17,6 +17,9 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -30,7 +33,7 @@ import javax.annotation.Nonnull;
  * Abstract class for file or directory which manage the underlying state
  * of the file system.
  */
-public class FileOrDirectory {
+public abstract class FileOrDirectory {
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
   /**
@@ -61,7 +64,10 @@ public class FileOrDirectory {
   }
 
   @Nonnull
-  protected final String name;
+  private static final Location NO_LOCATION = new NoLocation();
+
+  @Nonnull
+  protected Location location = NO_LOCATION;
 
   @CheckForNull
   private RunnableHooks hooks;
@@ -69,66 +75,71 @@ public class FileOrDirectory {
   @CheckForNull
   private Runnable remover;
 
-  protected FileOrDirectory(@Nonnull String name, @CheckForNull RunnableHooks hooks) {
-    this.name = name;
+  protected FileOrDirectory(@CheckForNull RunnableHooks hooks) {
     this.hooks = hooks;
   }
 
   @Nonnull
-  public String getName() {
-    return name;
+  public Location getLocation() {
+    return location;
   }
 
-  protected void setPermissions(@Nonnull File file, @Nonnull String name, int permissions,
+  @Nonnull
+  public abstract String getPath();
+
+  protected void setPermissions(@Nonnull File file, int permissions,
       @Nonnull FileOrDirectory.ChangePermission change) throws CannotSetPermissionException {
     if (change != ChangePermission.NOCHANGE) {
       // Set access
       if ((permissions & Permission.READ) != 0) {
         if (file.setReadable(true, change == ChangePermission.OWNER)) {
-          logger.log(Level.FINE, "Set readable permission to ''{0}'' (''{1}'')",
-              new Object[] {name, file.getAbsoluteFile()});
+          logger.log(Level.FINE, "Set readable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotSetPermissionException(name, Permission.READ, change);
+          throw new CannotSetPermissionException((FileOrDirLocation) location, Permission.READ,
+              change);
         }
       }
 
       if ((permissions & Permission.WRITE) != 0) {
         if (file.setWritable(true, change == ChangePermission.OWNER)) {
-          logger.log(Level.FINE, "Set writable permission to ''{0}'' (''{1}'')",
-              new Object[] {name, file.getAbsoluteFile()});
+          logger.log(Level.FINE, "Set writable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotSetPermissionException(name, Permission.WRITE, change);
+          throw new CannotSetPermissionException((FileOrDirLocation) location, Permission.WRITE,
+              change);
         }
       }
 
       if ((permissions & Permission.EXECUTE) != 0) {
         if (file.setExecutable(true, change == ChangePermission.OWNER)) {
-          logger.log(Level.FINE, "Set executable permission to ''{0}'' (''{1}'')",
-              new Object[] {name, file.getAbsoluteFile()});
+          logger.log(Level.FINE, "Set executable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotSetPermissionException(name, Permission.EXECUTE, change);
+          throw new CannotSetPermissionException((FileOrDirLocation) location, Permission.EXECUTE,
+              change);
         }
       }
     }
   }
 
-  protected void checkPermissions(@Nonnull File file, @Nonnull String name, int permissions)
+  protected void checkPermissions(@Nonnull File file, int permissions)
       throws WrongPermissionException {
     if ((permissions & Permission.READ) != 0) {
       if (!file.canRead()) {
-        throw new WrongPermissionException(name, Permission.READ);
+        throw new WrongPermissionException((FileOrDirLocation) location, Permission.READ);
       }
     }
 
     if ((permissions & Permission.WRITE) != 0) {
       if (!file.canWrite()) {
-        throw new WrongPermissionException(name, Permission.WRITE);
+        throw new WrongPermissionException((FileOrDirLocation) location, Permission.WRITE);
       }
     }
 
     if ((permissions & Permission.EXECUTE) != 0) {
       if (!file.canExecute()) {
-        throw new WrongPermissionException(name, Permission.EXECUTE);
+        throw new WrongPermissionException((FileOrDirLocation) location, Permission.EXECUTE);
       }
     }
   }
@@ -140,19 +151,13 @@ public class FileOrDirectory {
       remover = new Runnable() {
         @Override
         public void run() {
-          boolean isDirectory = false;
-
-          if (logger.isLoggable(Level.FINE)) {
-            isDirectory = file.isDirectory();
-          }
-
           if (file.delete()) {
-            logger.log(Level.FINE, "Remove {0} ''{1}''",
-                new Object[] {(isDirectory ? "directory" : "file"), file.getAbsoluteFile()});
+            logger.log(Level.FINE, "Remove {0} (''{1}'')",
+                new Object[] {location.getDescription(), file.getAbsoluteFile()});
           } else {
-            LoggerFactory.getLogger().log(Level.SEVERE,
-                "Can not delete " + (file.isDirectory() ? "directory" : "file") + " ''{0}''",
-                name);
+            logger.log(Level.SEVERE,
+                "Can not delete {0}",
+                location.getDescription());
          }
         }
       };

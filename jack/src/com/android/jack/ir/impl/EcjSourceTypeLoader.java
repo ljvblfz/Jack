@@ -34,7 +34,7 @@ import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.Marker;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;

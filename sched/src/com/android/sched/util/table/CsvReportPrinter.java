@@ -23,7 +23,7 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.codec.LongCodec;
 import com.android.sched.util.codec.PercentFormatter;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.PrintStream;
@@ -41,7 +41,8 @@ public class CsvReportPrinter implements ReportPrinter {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final StreamFile reportFile = ThreadConfig.get(ReportPrinterFactory.REPORT_PRINTER_FILE);
+  private final OutputStreamFile reportFile =
+      ThreadConfig.get(ReportPrinterFactory.REPORT_PRINTER_FILE);
 
   @Override
   public void printReport(@Nonnull Report report) {

@@ -17,6 +17,8 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import java.util.Iterator;
 

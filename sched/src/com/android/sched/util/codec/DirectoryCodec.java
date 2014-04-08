@@ -101,6 +101,6 @@ public class DirectoryCodec extends FileOrDirCodec
   @Override
   @Nonnull
   public String formatValue(@Nonnull Directory directory) {
-    return directory.getName();
+    return directory.getPath();
   }
 }

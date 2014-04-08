@@ -16,9 +16,9 @@
 
 package com.android.sched.vfs.zip;
 
-import com.android.sched.util.config.FileLocation;
-import com.android.sched.util.config.Location;
-import com.android.sched.util.config.ZipLocation;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputVFile;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.file;
-
-import com.android.sched.util.location.FileOrDirLocation;
-
-import java.io.IOException;
+package com.android.sched.util.location;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file or directory of that name already exists.
+ * Class describing a standard output.
  */
-public class FileAlreadyExistsException extends IOException {
-  private static final long serialVersionUID = 1L;
-
-  public FileAlreadyExistsException(@Nonnull FileOrDirLocation location) {
-    this(location, null);
+public class StandardOutputLocation extends Location {
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return "standard output";
   }
 
-  public FileAlreadyExistsException(
-      @Nonnull FileOrDirLocation location, @CheckForNull Throwable cause) {
-    super(location.getDescription() + " already exists", cause);
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj instanceof StandardOutputLocation;
+  }
+
+  @Override
+  public final int hashCode() {
+    return StandardOutputLocation.class.hashCode();
   }
 }

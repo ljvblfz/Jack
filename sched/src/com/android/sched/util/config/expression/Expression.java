@@ -17,9 +17,9 @@
 package com.android.sched.util.config.expression;
 
 import com.android.sched.util.config.ConfigChecker;
-import com.android.sched.util.config.Location;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 

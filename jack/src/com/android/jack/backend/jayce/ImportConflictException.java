@@ -19,7 +19,7 @@ package com.android.jack.backend.jayce;
 import com.android.jack.Jack;
 import com.android.jack.JackUserException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 

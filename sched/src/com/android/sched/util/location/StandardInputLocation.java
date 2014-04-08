@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.config;
+package com.android.sched.util.location;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Base class to describe a location.
+ * Class describing a standard input.
  */
-public abstract class Location {
+public class StandardInputLocation extends Location {
+  @Override
   @Nonnull
-  public abstract String getDescription();
+  public String getDescription() {
+    return "standard input";
+  }
+
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj instanceof StandardInputLocation;
+  }
+
+  @Override
+  public final int hashCode() {
+    return StandardInputLocation.class.hashCode();
+  }
 }

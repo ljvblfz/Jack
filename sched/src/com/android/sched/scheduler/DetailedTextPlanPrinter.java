@@ -18,7 +18,7 @@ package com.android.sched.scheduler;
 
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.PrintStream;
@@ -35,7 +35,7 @@ public class DetailedTextPlanPrinter implements PlanPrinter {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final StreamFile planFile = ThreadConfig.get(PlannerFactory.PLANNER_FILE);
+  private final OutputStreamFile planFile = ThreadConfig.get(PlanPrinterFactory.PLAN_PRINTER_FILE);
 
   @Override
   public void printPlan(@Nonnull Plan<?> plan) {

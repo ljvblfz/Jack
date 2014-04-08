@@ -14,42 +14,40 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.config;
-
-import java.lang.reflect.Field;
+package com.android.sched.util.location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Class describing a field in a Java program.
+ * Class describing a environment variable.
  */
-public class FieldLocation extends Location {
+public class EnvironmentLocation extends Location {
   @Nonnull
-  private final Field field;
+  private final String name;
 
-  public FieldLocation(@Nonnull Field field) {
-    this.field = field;
+  public EnvironmentLocation(@Nonnull String name) {
+    this.name = name;
   }
 
   @Nonnull
-  public Field getField() {
-    return field;
+  public String getVariableName() {
+    return name;
   }
 
   @Override
   @Nonnull
   public String getDescription() {
-    return "field " + field.getDeclaringClass().getCanonicalName() + "." + field.getName();
+    return "environment variable '" + name + "'";
   }
 
   @Override
   public final boolean equals(Object obj) {
-    return obj instanceof FieldLocation
-        && ((FieldLocation) obj).field.equals(field);
+    return obj instanceof EnvironmentLocation
+        && ((EnvironmentLocation) obj).name.equals(name);
   }
 
   @Override
   public final int hashCode() {
-    return field.hashCode();
+    return name.hashCode();
   }
 }

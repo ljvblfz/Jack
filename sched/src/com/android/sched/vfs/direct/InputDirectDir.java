@@ -17,9 +17,10 @@
 package com.android.sched.vfs.direct;
 
 import com.android.sched.util.ConcurrentIOException;
-import com.android.sched.util.config.FileLocation;
-import com.android.sched.util.config.Location;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.location.DirectoryLocation;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.VElement;
@@ -44,7 +45,7 @@ public class InputDirectDir extends AbstractVElement implements InputVDir {
 
   public InputDirectDir(@Nonnull File dir) throws NotFileOrDirectoryException {
     if (!dir.isDirectory()) {
-      throw new NotFileOrDirectoryException(dir.getAbsolutePath(), false);
+      throw new NotFileOrDirectoryException(new DirectoryLocation(dir));
     }
     this.dir = dir;
   }

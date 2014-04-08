@@ -31,9 +31,9 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
-import com.android.sched.util.config.Location;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.ZipLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.InputVFile;
 
 import java.io.BufferedOutputStream;

@@ -17,8 +17,8 @@
 package com.android.jack.load;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.sched.util.config.Location;
-import com.android.sched.util.config.NoLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import javax.annotation.Nonnull;
 

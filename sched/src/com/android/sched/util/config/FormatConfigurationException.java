@@ -16,6 +16,8 @@
 
 package com.android.sched.util.config;
 
+import com.android.sched.util.location.Location;
+
 import javax.annotation.Nonnull;
 
 /**

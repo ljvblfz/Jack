@@ -19,7 +19,7 @@ package com.android.jack.load;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.marker.Marker;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 

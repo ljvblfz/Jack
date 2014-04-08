@@ -26,7 +26,7 @@ import com.android.jack.lookup.JMethodWithReturnLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import java.util.ArrayList;
 import java.util.Arrays;

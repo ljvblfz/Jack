@@ -18,8 +18,8 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.load.AbstractMethodLoader;
 import com.android.jack.load.MethodLoader;
-import com.android.sched.util.config.Location;
-import com.android.sched.util.config.NoLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import javax.annotation.Nonnull;
 

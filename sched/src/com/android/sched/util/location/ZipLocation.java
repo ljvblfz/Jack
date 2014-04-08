@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.config;
+package com.android.sched.util.location;
 
 import java.util.zip.ZipEntry;
 

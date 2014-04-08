@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.sched.marker.Marker;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import java.util.List;
 

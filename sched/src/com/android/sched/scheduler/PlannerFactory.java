@@ -17,14 +17,13 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.item.Component;
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.InputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.DefaultFactoryPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.InputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -44,9 +43,9 @@ public class PlannerFactory {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Nonnull
-  public static final PropertyId<StreamFile> PLANNER_FILE = PropertyId.create(
+  public static final PropertyId<InputStreamFile> PLANNER_FILE = PropertyId.create(
       "sched.planner.file", "The file to read the plan from",
-      new StreamCodec(Existence.MUST_EXIST, Permission.READ)).
+      new InputStreamCodec(Existence.MUST_EXIST)).
       requiredIf(((DefaultFactoryPropertyId<Planner>) (Object) PLANNER_PROVIDER).
           getClazz().isImplementedBy(DeserializerPlanner.class));
 

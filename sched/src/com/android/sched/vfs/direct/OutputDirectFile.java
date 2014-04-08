@@ -16,9 +16,9 @@
 
 package com.android.sched.vfs.direct;
 
-import com.android.sched.util.config.FileLocation;
-import com.android.sched.util.config.Location;
 import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.OutputVFile;
 
@@ -41,7 +41,7 @@ class OutputDirectFile extends AbstractVElement implements OutputVFile {
 
   public OutputDirectFile(@Nonnull File file) throws FileAlreadyExistsException {
     if (checkIfFileAlreadyExists && file.exists()) {
-      throw new FileAlreadyExistsException(file.getAbsolutePath(), !file.isDirectory());
+      throw new FileAlreadyExistsException(new FileLocation(file));
     }
     this.file = file;
   }

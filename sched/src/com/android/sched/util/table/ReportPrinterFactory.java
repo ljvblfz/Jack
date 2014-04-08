@@ -16,14 +16,13 @@
 
 package com.android.sched.util.table;
 
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -40,9 +39,9 @@ public class ReportPrinterFactory{
           .addDefaultValue("none");
 
   @Nonnull
-  public static final PropertyId<StreamFile> REPORT_PRINTER_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> REPORT_PRINTER_FILE = PropertyId.create(
       "sched.report.printer.file", "The file where to print the report",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-");
 
   public static ReportPrinter getReportPrinter() {

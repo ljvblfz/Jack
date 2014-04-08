@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.load.ComposablePackageLoader;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VElement;

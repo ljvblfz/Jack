@@ -22,6 +22,7 @@ import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.PropertyId.Value;
+import com.android.sched.util.location.Location;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;

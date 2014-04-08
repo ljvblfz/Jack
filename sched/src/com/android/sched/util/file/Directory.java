@@ -17,6 +17,8 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.DirectoryLocation;
+import com.android.sched.util.location.FileOrDirLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -43,9 +45,10 @@ public class Directory extends FileOrDirectory {
       NotFileOrDirectoryException,
       FileAlreadyExistsException,
       CannotCreateFileException {
-    super(name, hooks);
+    super(hooks);
 
     this.file = new File(name);
+    this.location = new DirectoryLocation(name);
 
     if (existence == Existence.MAY_EXIST) {
       if (file.exists()) {
@@ -57,10 +60,10 @@ public class Directory extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        processExisting(file, name, permissions);
+        processExisting(permissions);
         break;
       case NOT_EXIST:
-        processNotExisting(file, name, permissions, change);
+        processNotExisting(permissions, change);
         break;
       case MAY_EXIST:
         throw new AssertionError();
@@ -77,43 +80,52 @@ public class Directory extends FileOrDirectory {
   @Override
   @Nonnull
   public String toString() {
-    return name;
+    return location.getDescription();
   }
 
-  private void processExisting(@Nonnull File file, @Nonnull String name, int permissions)
+  private void processExisting(int permissions)
       throws WrongPermissionException, NoSuchFileException, NotFileOrDirectoryException {
+    assert file != null;
+
     // Check existing
     if (!file.exists()) {
-      throw new NoSuchFileException(name, /* isFile */ false);
+      throw new NoSuchFileException((FileOrDirLocation) location);
     }
 
     // Check directory
     if (!file.isDirectory()) {
-      throw new NotFileOrDirectoryException(name, /* isFile */ false);
+      throw new NotFileOrDirectoryException((FileOrDirLocation) location);
     }
 
-    checkPermissions(file, name, permissions);
+    checkPermissions(file, permissions);
   }
 
-  private void processNotExisting(
-      @Nonnull File file, @Nonnull String name, int permissions, @Nonnull ChangePermission change)
+  private void processNotExisting(int permissions, @Nonnull ChangePermission change)
       throws WrongPermissionException, CannotSetPermissionException, FileAlreadyExistsException,
       CannotCreateFileException {
+    assert file != null;
+
     // Check Existing
     if (file.exists()) {
-      throw new FileAlreadyExistsException(name, /* isFile */ false);
+      throw new FileAlreadyExistsException((FileOrDirLocation) location);
     }
 
     // Create
     if (file.mkdir()) {
-      logger.log(Level.FINE, "Create directory ''{0}'' (''{1}'')",
-          new Object[] {name, file.getAbsoluteFile()});
+      logger.log(Level.FINE, "Create {0} (''{1}'')",
+          new Object[] {location.getDescription(), file.getAbsoluteFile()});
       addRemover(file);
     } else {
-      throw new CannotCreateFileException(name, /* isFile */ false);
+      throw new CannotCreateFileException((FileOrDirLocation) location);
     }
 
-    setPermissions(file, name, permissions, change);
-    checkPermissions(file, name, permissions);
+    setPermissions(file, permissions, change);
+    checkPermissions(file, permissions);
+  }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return ((DirectoryLocation) location).getPath();
   }
 }

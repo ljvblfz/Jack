@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs;
+package com.android.sched.util.location;
 
-import com.android.sched.util.location.Location;
+import java.io.File;
 
 import javax.annotation.Nonnull;
 
 /**
- * Element of a virtual file system.
+ * Class describing a file location.
  */
-public interface VElement {
+public class FileLocation extends FileOrDirLocation {
+  public FileLocation(@Nonnull File file) {
+    super(file);
+  }
 
+  public FileLocation(@Nonnull String path) {
+    super(path);
+  }
+
+  @Override
   @Nonnull
-  String getName();
-
-  @Nonnull
-  public Location getLocation();
-
+  public String getDescription() {
+    return "file '" + getPath() + "'";
+  }
 }

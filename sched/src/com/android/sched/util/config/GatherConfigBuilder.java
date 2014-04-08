@@ -20,6 +20,7 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 import java.io.InputStream;

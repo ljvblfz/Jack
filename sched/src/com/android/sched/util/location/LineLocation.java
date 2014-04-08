@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.config;
+package com.android.sched.util.location;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;

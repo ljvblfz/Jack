@@ -16,62 +16,30 @@
 
 package com.android.sched.util.codec;
 
-import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
 
-import java.io.IOException;
-
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link StreamFile}.
+ * This {@link StringCodec} is used to help the creation of an instance inherited from
+ * {@link StreamFile}.
  */
-public class StreamCodec extends FileOrDirCodec
-    implements StringCodec<StreamFile> {
-  private static final String STANDARD_IO_NAME = "-";
+public abstract class StreamCodec extends FileOrDirCodec {
+  @Nonnull
+  protected static final String STANDARD_IO_NAME = "-";
 
-  private boolean allowStandard = false;
-  private boolean append        = false;
+  protected boolean allowStandard;
 
-  public StreamCodec(@Nonnull Existence existence, int permissions) {
+  protected StreamCodec(@Nonnull Existence existence, int permissions) {
     super(existence, permissions);
 
     assert ((permissions & Permission.READ)  != 0) ||
            ((permissions & Permission.WRITE) != 0);
   }
 
-  @Nonnull
-  public StreamCodec changeOwnerPermission() {
-    setChangePermission(ChangePermission.OWNER);
-
-    return this;
-  }
-
-  @Nonnull
-  public StreamCodec changeAllPermission() {
-    setChangePermission(ChangePermission.EVERYBODY);
-
-    return this;
-  }
-
-  @Nonnull
-  public StreamCodec allowStandard() {
-    this.allowStandard = true;
-
-    return this;
-  }
-
-  @Nonnull
-  public StreamCodec makeAppendable() {
-    this.append = true;
-
-    return this;
-  }
-
-  @Override
   @Nonnull
   public String getUsage() {
     StringBuilderAppender sb = new StringBuilderAppender(", ");
@@ -102,62 +70,43 @@ public class StreamCodec extends FileOrDirCodec
     return sb.toString();
   }
 
-  @Override
-  @Nonnull
-  public StreamFile checkString(@Nonnull CodecContext context, @Nonnull String value)
+  @CheckForNull
+  protected StreamFile checkString(@Nonnull CodecContext context, @Nonnull String value)
       throws ParsingException {
-    StreamFile streamFile;
-
     if (value.equals(STANDARD_IO_NAME)) {
       if (!allowStandard) {
-        StringBuilderAppender sb = new StringBuilderAppender("/");
-
-        sb.append("Standard ");
-        sb.append((permissions & Permission.READ)  != 0, "input");
-        sb.append((permissions & Permission.WRITE) != 0, "output");
-        sb.append(" can not be used");
-
-        throw new ParsingException(sb.toString());
-      }
-
-      streamFile = new StreamFile();
-    } else {
-      try {
-        streamFile = new StreamFile(value,
-            context.getRunnableHooks(),
-            existence,
-            permissions,
-            change,
-            append);
-      } catch (IOException e) {
-        throw new ParsingException(e.getMessage(), e);
+        throw new ParsingException(getStandardStreamDescription() + " can not be used");
       }
     }
 
-    return streamFile;
+    return null;
   }
 
-  @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull StreamFile stream) {
-  }
-
-  @Override
-  @Nonnull
-  public StreamFile parseString(@Nonnull CodecContext context, @Nonnull String string) {
-    try {
-      return checkString(context, string);
-    } catch (ParsingException e) {
-      throw new ConfigurationError(e);
+  protected void checkValue(@Nonnull CodecContext context, @Nonnull StreamFile stream)
+      throws CheckingException {
+    if (stream.isStandard() && !allowStandard) {
+      throw new CheckingException(getStandardStreamDescription() + " is not allowed");
     }
   }
 
-  @Override
   @Nonnull
-  public String formatValue(@Nonnull StreamFile stream) {
+  private String getStandardStreamDescription() {
+    StringBuilderAppender sb = new StringBuilderAppender("/");
+
+    sb.append("Standard ");
+    sb.append((permissions & Permission.READ)  != 0, "input");
+    sb.append((permissions & Permission.WRITE) != 0, "output");
+
+
+    return sb.toString();
+  }
+
+  @Nonnull
+  protected String formatValue(@Nonnull StreamFile stream) {
     if (stream.isStandard()) {
       return STANDARD_IO_NAME;
     } else {
-      return stream.getName();
+      return stream.getPath();
     }
   }
 }

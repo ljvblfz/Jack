@@ -26,14 +26,13 @@ import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import java.io.PrintStream;
 
@@ -55,9 +54,9 @@ public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<StreamFile> TYPE_AND_MEMBER_LISTING_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> TYPE_AND_MEMBER_LISTING_FILE = PropertyId.create(
       "jack.listing.file", "File containing the list of all types and members",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-").requiredIf(TYPE_AND_MEMBER_LISTING.getValue().isTrue());
 
   private static final TypeAndMethodFormatter formatter = BinarySignatureFormatter.getFormatter();

@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.JLookupException;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 
 import java.util.ArrayList;
 import java.util.HashSet;

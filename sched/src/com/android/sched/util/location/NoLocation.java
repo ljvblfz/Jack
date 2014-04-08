@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs;
-
-import com.android.sched.util.location.Location;
+package com.android.sched.util.location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Element of a virtual file system.
+ * Class without location.
  */
-public interface VElement {
+public class NoLocation extends Location {
 
+  @Override
   @Nonnull
-  String getName();
+  public String getDescription() {
+    return "";
+  }
 
-  @Nonnull
-  public Location getLocation();
+  @Override
+  public final boolean equals(Object obj) {
+    return obj instanceof NoLocation;
+  }
 
+  @Override
+  public final int hashCode() {
+    return 0x12345678;
+  }
 }

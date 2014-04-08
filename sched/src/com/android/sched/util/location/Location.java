@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.config;
+package com.android.sched.util.location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Class without location.
+ * Base class to describe a location.
  */
-public class NoLocation extends Location {
-
-  @Override
+public abstract class Location {
   @Nonnull
-  public String getDescription() {
-    return "";
-  }
-
-  @Override
-  public final boolean equals(Object obj) {
-    return obj instanceof NoLocation;
-  }
-
-  @Override
-  public final int hashCode() {
-    return 0x12345678;
-  }
+  public abstract String getDescription();
 }

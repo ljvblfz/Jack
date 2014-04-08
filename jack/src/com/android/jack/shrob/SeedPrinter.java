@@ -35,13 +35,12 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.codec.StreamCodec;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.StreamFile;
+import com.android.sched.util.file.OutputStreamFile;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -60,9 +59,9 @@ import javax.annotation.Nonnull;
 public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  public static final PropertyId<StreamFile> SEEDS_OUTPUT_FILE = PropertyId.create(
+  public static final PropertyId<OutputStreamFile> SEEDS_OUTPUT_FILE = PropertyId.create(
       "jack.seed.dump.file", "File where the seeds will be printed",
-      new StreamCodec(Existence.MAY_EXIST, Permission.WRITE).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-");
 
   @Nonnull

@@ -25,7 +25,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.impl.EcjSourceTypeLoader;
 import com.android.jack.ir.impl.GwtAstBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
-import com.android.sched.util.config.FileLocation;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;

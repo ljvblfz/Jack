@@ -21,7 +21,7 @@ import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.load.AbstractMethodLoader;
-import com.android.sched.util.config.Location;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
