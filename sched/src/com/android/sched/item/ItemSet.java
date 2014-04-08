@@ -16,9 +16,17 @@
 
 package com.android.sched.item;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Ordering;
+
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.log.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +41,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T> a type of {@code Item}
  */
+@HasKeyId
 public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? extends T>> {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -230,9 +239,41 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
     return true;
   }
 
+  @Nonnull
+  public static final BooleanPropertyId COMPACT_TOSTRING = BooleanPropertyId.create(
+      "sched.itemset.compact", "Define if item sets are displayed compacted")
+      .addDefaultValue("false");
+
   @Override
   @Nonnull
   public String toString() {
+    if (ThreadConfig.get(COMPACT_TOSTRING).booleanValue()) {
+      return toStringCompact();
+    } else {
+      return toStringRaw();
+    }
+  }
+
+  @Nonnull
+  public String toStringRaw() {
+    List<String> names = new ArrayList<String>();
+
+    ItemIterator<Item> iter = new ItemIterator<Item>(this);
+    while (iter.hasNext()) {
+      names.add(iter.next().getName());
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append('[');
+    Joiner.on(", ")
+        .appendTo(sb, Ordering.from(String.CASE_INSENSITIVE_ORDER).immutableSortedCopy(names));
+    sb.append(']');
+
+    return sb.toString();
+  }
+
+  @Nonnull
+  public String toStringCompact() {
     ItemSet<T> items = new ItemSet<T>(this);
     StringBuilder sb = new StringBuilder();
     ManagedItem bestItem = null;
