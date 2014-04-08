@@ -16,6 +16,7 @@
 
 package com.android.jack.frontend.java;
 
+import com.android.jack.JackUserException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
@@ -40,6 +41,24 @@ import javax.annotation.Nonnull;
  * Entry-point to call JDT compiler.
  */
 public class JackBatchCompiler extends Main {
+  /**
+   * Error used to transport runtime exception through ecj catch.
+   */
+  private static class TransportExceptionAroundEcjError extends Error {
+
+    private static final long serialVersionUID = 1L;
+
+    public TransportExceptionAroundEcjError(@Nonnull RuntimeException cause) {
+      super(cause);
+    }
+
+    @Nonnull
+    @Override
+    public RuntimeException getCause() {
+      return (RuntimeException) super.getCause();
+    }
+
+  }
 
   @Nonnull
   public static final String JACK_LOGICAL_PATH_ENTRY = "<jack-logical-entry>";
@@ -132,7 +151,17 @@ public class JackBatchCompiler extends Main {
   }
 
   @Override
-  public void performCompilation() {
+  public boolean compile(String[] argv) {
+    try {
+      return super.compile(argv);
+    } catch (TransportExceptionAroundEcjError e) {
+      throw e.getCause();
+    }
+  }
+
+  @Override
+  public void performCompilation() throws JackUserException,
+      TransportExceptionAroundEcjError {
     startTime = System.currentTimeMillis();
 
     compilerOptions = new CompilerOptions(options);
@@ -157,8 +186,17 @@ public class JackBatchCompiler extends Main {
 
     // Compiles every compilation units with logging support.
     logger.startLoggingSources();
-    batchCompiler.compile(getCompilationUnits());
-    logger.endLoggingSources();
+    try {
+      batchCompiler.compile(getCompilationUnits());
+    } catch (IllegalArgumentException e) {
+      // ecj is throwing this one for missing source files, let them be reported correctly
+      // most other IllegalArgumentException are wrapped by JAstBuilder
+      throw new JackUserException(e.getMessage(), e);
+    } catch (RuntimeException e) {
+      throw new TransportExceptionAroundEcjError(e);
+    } finally {
+      logger.endLoggingSources();
+    }
 
     // Update compiler statistics and log them.
     if (compilerStats != null && compilerStats.length > currentRepetition) {

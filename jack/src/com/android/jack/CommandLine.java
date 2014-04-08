@@ -43,6 +43,10 @@ import javax.annotation.Nonnull;
 public abstract class CommandLine {
 
   @Nonnull
+  private static final String INTERRUPTED_COMPILATION_WARNING =
+    "Warning: This may have produced partial or corrupted output.";
+
+  @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
   protected static void runJackAndExitOnError(@Nonnull Options options) {
@@ -69,26 +73,33 @@ public abstract class CommandLine {
       System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (JackUserException e) {
       System.err.println(e.getMessage());
-      logger.log(Level.INFO, "Jack user exception:", e);
+      logger.log(Level.FINE, "Jack user exception:", e);
       System.exit(ExitStatus.FAILURE_COMPILATION);
+    } catch (OutOfMemoryError e) {
+      printExceptionMessage(e, "Out of memory error.");
+      System.err.println("Try increasing heap size with java option '-Xmx<size>'");
+      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      logger.log(Level.FINE, "Out of memory error:", e);
+      System.exit(ExitStatus.FAILURE_VM);
+    } catch (StackOverflowError e) {
+      printExceptionMessage(e, "Stack overflow error.");
+      System.err.println("Try increasing stack size with java option '-Xss<size>'");
+      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      logger.log(Level.FINE, "Stack overflow error:", e);
+      System.exit(ExitStatus.FAILURE_VM);
     } catch (VirtualMachineError e) {
-      System.err.println(e.getMessage());
-      if (e instanceof OutOfMemoryError) {
-        System.err.println("Try increasing heap size with java option '-Xmx<size>'");
-      } else if (e instanceof StackOverflowError) {
-        System.err.println("Try increasing stack size with java option '-Xss<size>'");
-      }
-      System.err.println("Warning: This may have produced partial or corrupted output.");
-      logger.log(Level.CONFIG, "Virtual machine error:", e);
+      printExceptionMessage(e, "Virtual machine error: " + e.getClass() + ".");
+      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      logger.log(Level.FINE, "Virtual machine error:", e);
       System.exit(ExitStatus.FAILURE_VM);
     } catch (UnrecoverableException e) {
       System.err.println("Unrecoverable error: " + e.getMessage());
-      System.err.println("Warning: This may have produced partial or corrupted output.");
+      System.err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Unrecoverable exception:", e);
       System.exit(ExitStatus.FAILURE_UNRECOVERABLE);
     } catch (Throwable e) {
-      System.err.println("Internal compiler error (see log)");
-      System.err.println("Warning: This may have produced partial or corrupted output.");
+      System.err.println("Internal compiler error.");
+      System.err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.SEVERE, "Internal compiler error:", e);
 
       System.exit(ExitStatus.FAILURE_INTERNAL);
@@ -157,5 +168,13 @@ public abstract class CommandLine {
 
       System.out.println(sb);
     }
+  }
+
+  private static void printExceptionMessage(@Nonnull Throwable t, @Nonnull String defaultMessage) {
+    String exceptionMessage = t.getMessage();
+    if (exceptionMessage == null) {
+      exceptionMessage = defaultMessage;
+    }
+    System.err.println(exceptionMessage);
   }
 }
