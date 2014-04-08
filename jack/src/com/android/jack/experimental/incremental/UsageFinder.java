@@ -29,7 +29,6 @@ import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
@@ -46,19 +45,19 @@ import javax.annotation.Nonnull;
  */
 @Description("Find all usages between java files")
 @Name("UsageFinder")
-@Transform(add = CompilerStateMarker.class)
+@Transform(add = CompilerState.Filled.class)
 @Synchronized
 public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Visitor extends JVisitor {
 
     @Nonnull
-    private final CompilerStateMarker compilerState;
+    private final CompilerState compilerState;
 
     @Nonnull
     private final String currentFileName;
 
-    public Visitor(@Nonnull JType currentType, @Nonnull CompilerStateMarker compilerState) {
+    public Visitor(@Nonnull JType currentType, @Nonnull CompilerState compilerState) {
       this.compilerState = compilerState;
       assert currentType.getSourceInfo() != SourceOrigin.UNKNOWN;
       currentFileName = currentType.getSourceInfo().getFileName();
@@ -151,15 +150,7 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
       return;
     }
 
-    JSession program = declaredType.getParent(JSession.class);
-    assert program != null;
-    CompilerStateMarker csm = program.getMarker(CompilerStateMarker.class);
-    if (csm == null) {
-      csm = new CompilerStateMarker();
-      program.addMarker(csm);
-    }
-
-    Visitor v = new Visitor(declaredType, csm);
+    Visitor v = new Visitor(declaredType, JackIncremental.getCompilerState());
     v.accept(declaredType);
   }
 }

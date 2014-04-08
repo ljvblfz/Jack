@@ -17,11 +17,10 @@
 package com.android.jack.experimental.incremental;
 
 import com.android.jack.JackUserException;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.util.TextUtils;
 import com.android.sched.item.Description;
-import com.android.sched.marker.Marker;
-import com.android.sched.marker.ValidOn;
+import com.android.sched.item.Name;
+import com.android.sched.item.Tag;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,15 +40,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * A marker which contains compiler state of a compilation. It could be reused later during
- * another compilation.
+ * A compiler state of a compilation. It could be reused later during another compilation.
  */
-@Description("Compiler state of a compilation. It could be reused later during " +
-    "another compilation")
-@ValidOn(JSession.class)
-public final class CompilerStateMarker implements Marker, Serializable {
+public final class CompilerState {
 
-  private static final long serialVersionUID = 1L;
+  /**
+   * This tag means that {@link CompilerState} is filled and could be write for later compilation.
+   */
+  @Description("Compiler state is filled and ready to be written")
+  @Name("CompilerState.Filled")
+  public static final class Filled implements Tag{
+  }
 
   @Nonnull
   private Map<String, Set<String>> codeFileToUsedFiles = new HashMap<String, Set<String>>();
@@ -63,11 +63,6 @@ public final class CompilerStateMarker implements Marker, Serializable {
 
   @Nonnull
   private Map<String, Set<String>> javaFileToJackFile = new HashMap<String, Set<String>>();
-
-  @Override
-  public Marker cloneIfNeeded() {
-    return this;
-  }
 
   public void updateCompilerState(@Nonnull Set<String> filesToRecompile) {
     for (String javaFileToRecompile : filesToRecompile) {
@@ -131,8 +126,8 @@ public final class CompilerStateMarker implements Marker, Serializable {
   }
 
   @Nonnull
-  public static CompilerStateMarker read(@Nonnull File compilerStateFile) {
-    CompilerStateMarker csm = new CompilerStateMarker();
+  public static CompilerState read(@Nonnull File compilerStateFile) {
+    CompilerState csm = new CompilerState();
     BufferedReader br = null;
 
     try {

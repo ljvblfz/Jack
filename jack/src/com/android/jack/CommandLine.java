@@ -43,7 +43,7 @@ import javax.annotation.Nonnull;
 public abstract class CommandLine {
 
   @Nonnull
-  private static final String INTERRUPTED_COMPILATION_WARNING =
+  protected static final String INTERRUPTED_COMPILATION_WARNING =
     "Warning: This may have produced partial or corrupted output.";
 
   @Nonnull
@@ -170,7 +170,8 @@ public abstract class CommandLine {
     }
   }
 
-  private static void printExceptionMessage(@Nonnull Throwable t, @Nonnull String defaultMessage) {
+  protected static void printExceptionMessage(@Nonnull Throwable t,
+      @Nonnull String defaultMessage) {
     String exceptionMessage = t.getMessage();
     if (exceptionMessage == null) {
       exceptionMessage = defaultMessage;

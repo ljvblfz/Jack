@@ -387,7 +387,7 @@ public class TestTools {
   }
 
   @Nonnull
-  private static List<String> buildEcjArgs(
+  protected static List<String> buildEcjArgs(
       boolean useOnlyCompatible) {
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add("-nowarn");
@@ -399,7 +399,7 @@ public class TestTools {
     return ecjArgs;
   }
 
-  private static void addFile(@Nonnull File fileOrSourceList, @Nonnull List<String> args) {
+  protected static void addFile(@Nonnull File fileOrSourceList, @Nonnull List<String> args) {
     if (fileOrSourceList instanceof Sourcelist) {
       args.add("@" + fileOrSourceList.getAbsolutePath());
     } else {

@@ -329,6 +329,11 @@ public class Options {
   }
 
   @Nonnull
+  public String getClasspathAsString() {
+    return classpath;
+  }
+
+  @Nonnull
   public List<File> getClasspath() {
     return getFilesFromPathString(classpath);
   }

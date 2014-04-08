@@ -52,6 +52,7 @@ import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.experimental.incremental.CompilerStateProduct;
 import com.android.jack.experimental.incremental.CompilerStateWriter;
+import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.experimental.incremental.UsageFinder;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.frontend.MethodIdDuplicateRemover;
@@ -307,7 +308,7 @@ public abstract class Jack {
       unmodifiableCollections =
           ThreadConfig.get(UnmodifiableCollections.UNMODIFIABLE_COLLECTION).create();
     }
-    assert unmodifiableCollections != null; //FINDBUGS
+    assert unmodifiableCollections != null; // FINDBUGS
     return unmodifiableCollections;
   }
 
@@ -443,7 +444,7 @@ public abstract class Jack {
             request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
             request.addProduction(JackFormatProduct.class);
           }
-          if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
+          if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
             request.addProduction(CompilerStateProduct.class);
           }
         }

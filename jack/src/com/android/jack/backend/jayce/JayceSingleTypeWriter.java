@@ -21,8 +21,8 @@ import com.android.jack.JackFileException;
 import com.android.jack.Options;
 import com.android.jack.Options.Container;
 import com.android.jack.backend.VDirPathFormatter;
-import com.android.jack.experimental.incremental.CompilerStateMarker;
-import com.android.jack.experimental.incremental.CompilerStateWriter;
+import com.android.jack.experimental.incremental.CompilerState;
+import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -89,10 +89,10 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         JayceWriter writer = new JayceWriter(out);
         writer.write(type, "jack " + Jack.getVersionString());
 
-        if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
-          assert vFile instanceof OutputDirectDir;
+        if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
+          assert vDir instanceof OutputDirectDir;
           assert outputDir != null;
-          CompilerStateMarker csm = type.getSession().getMarker(CompilerStateMarker.class);
+          CompilerState csm = JackIncremental.getCompilerState();
           assert csm != null;
           csm.addMappingBetweenJavaAndJackFile(type.getSourceInfo().getFileName(),
               new File(outputDir.getFile(), filePath).getAbsolutePath());

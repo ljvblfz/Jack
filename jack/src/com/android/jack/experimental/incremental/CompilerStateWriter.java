@@ -22,13 +22,7 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.codec.PathCodec;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
-
-import java.io.File;
 
 import javax.annotation.Nonnull;
 
@@ -37,24 +31,13 @@ import javax.annotation.Nonnull;
  */
 @Description("Write compiler state to the disk")
 @Name("CompilerStateWriter")
-@Constraint(need = CompilerStateMarker.class)
+@Constraint(need = CompilerState.Filled.class)
 @Produce(CompilerStateProduct.class)
-@HasKeyId
 public class CompilerStateWriter implements RunnableSchedulable<JSession>{
-
-  public static final BooleanPropertyId GENERATE_COMPILER_STATE = BooleanPropertyId.create(
-      "jack.experimental.compilerstate.generate", "Generate compiler state").addDefaultValue(
-      Boolean.FALSE);
-
-  @Nonnull
-  public static final PropertyId<File> COMPILER_STATE_OUTPUT = PropertyId.create(
-      "jack.experimental.compilerstate.output", "Compiler state output file", new PathCodec())
-      .requiredIf(GENERATE_COMPILER_STATE.getValue().isTrue());
 
   @Override
   public void run(@Nonnull JSession program) {
-    CompilerStateMarker csm = program.getMarker(CompilerStateMarker.class);
-    assert csm != null;
-    csm.write(ThreadConfig.get(CompilerStateWriter.COMPILER_STATE_OUTPUT));
+    JackIncremental.getCompilerState().write(
+        ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT));
   }
 }

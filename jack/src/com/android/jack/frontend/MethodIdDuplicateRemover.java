@@ -43,8 +43,6 @@ public class MethodIdDuplicateRemover extends JVisitor {
     Collection<JMethod> methods = id.getMethods();
     if (!methods.isEmpty()) {
       JMethod method = methods.iterator().next();
-      assert method.isExternal() || method.getMethodId() ==
-          receiverType.getMethodId(id.getName(), id.getParamTypes(), id.getKind());
       return method.getMethodId();
     } else {
       return receiverType.getOrCreateMethodId(id.getName(), id.getParamTypes(), id.getKind());

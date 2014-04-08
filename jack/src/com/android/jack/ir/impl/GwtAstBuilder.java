@@ -16,8 +16,7 @@
 package com.android.jack.ir.impl;
 
 import com.android.jack.Jack;
-import com.android.jack.experimental.incremental.CompilerStateMarker;
-import com.android.jack.experimental.incremental.CompilerStateWriter;
+import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.SourceInfo;
@@ -2787,16 +2786,12 @@ public class GwtAstBuilder {
       SourceInfo info = makeSourceInfo(x);
 
       if (x.constant != Constant.NotAConstant) {
-        if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
-          CompilerStateMarker csm = session.getMarker(CompilerStateMarker.class);
-          if (csm == null) {
-            csm = new CompilerStateMarker();
-            session.addMarker(csm);
-          }
+        if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
           if (x.binding instanceof FieldBinding) {
             FieldBinding b = ((FieldBinding) x.binding).original();
             JField field = getTypeMap().get(b);
-            csm.addCstUsage(info.getFileName(), field.getSourceInfo().getFileName());
+            JackIncremental.getCompilerState().addCstUsage(info.getFileName(),
+                field.getSourceInfo().getFileName());
           }
         }
 

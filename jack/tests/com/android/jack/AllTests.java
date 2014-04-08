@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTest;
 import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
+import com.android.jack.experimental.incremental.DependencyAllTests;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
@@ -57,6 +58,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ConcatTest.class,
     ConditionalTest.class,
     ConstantTest.class,
+    DependencyAllTests.class,
     DxTest.class,
     EnumTest.class,
     ErrorTest.class,
