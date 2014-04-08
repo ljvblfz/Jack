@@ -18,7 +18,11 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackFileException;
+import com.android.jack.Options;
+import com.android.jack.Options.Container;
 import com.android.jack.backend.VDirPathFormatter;
+import com.android.jack.experimental.incremental.CompilerStateMarker;
+import com.android.jack.experimental.incremental.CompilerStateWriter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -32,13 +36,18 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.Directory;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.direct.OutputDirectDir;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -52,12 +61,26 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
+  @CheckForNull
+  private final Directory outputDir;
+
+  {
+    if (ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue() &&
+        ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE) == Container.DIR) {
+      outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+    } else {
+      outputDir = null;
+    }
+  }
+
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVDir vDir = type.getSession().getOutputVDir();
     assert vDir != null;
     VDirPathFormatter formatter = new VDirPathFormatter(vDir);
-    OutputVFile vFile = vDir.createOutputVFile(getFilePath(type, formatter));
+    String filePath = getFilePath(type, formatter);
+    OutputVFile vFile = vDir.createOutputVFile(filePath);
+
 
     try {
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
@@ -65,6 +88,15 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         // Write to file
         JayceWriter writer = new JayceWriter(out);
         writer.write(type, "jack " + Jack.getVersionString());
+
+        if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
+          assert vFile instanceof OutputDirectDir;
+          assert outputDir != null;
+          CompilerStateMarker csm = type.getSession().getMarker(CompilerStateMarker.class);
+          assert csm != null;
+          csm.addMappingBetweenJavaAndJackFile(type.getSourceInfo().getFileName(),
+              new File(outputDir.getFile(), filePath).getAbsolutePath());
+        }
       } finally {
         out.close();
       }
