@@ -725,7 +725,7 @@ public class StatsTracerFtl extends AbstractTracer {
     dmHeader.add("string");
 
     // Add value columns
-    Statistic dummy = id.newDummyInstance();
+    Statistic dummy = id.getDummyInstance();
     for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
       dmHeader.add(dummy.getDescription(idx));
       dmHeader.add(dummy.getType(idx));
@@ -762,7 +762,7 @@ public class StatsTracerFtl extends AbstractTracer {
     dmHeader.add("string");
 
     // Add value columns
-    dummy = id.newDummyInstance();
+    dummy = id.getDummyInstance();
     for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
       dmHeader.add(dummy.getDescription(idx));
       dmHeader.add(dummy.getType(idx));
