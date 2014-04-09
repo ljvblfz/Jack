@@ -67,8 +67,9 @@ public class JaycePackageLoader implements ComposablePackageLoader {
           return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
             .loadClassOrInterface(loading, simpleName);
         } catch (IOException e) {
-          throw new JackIOException("Failed to load class '" + simpleName + "' in package '"
-              + Jack.getUserFriendlyFormatter().getName(loading) + "' from '" + sub + "'" , e);
+          throw new JackIOException("Failed to load class " +
+              Jack.getUserFriendlyFormatter().getName(loading, simpleName) +
+              ": " + e.getMessage() , e);
         }
       }
     }
