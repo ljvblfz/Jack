@@ -31,6 +31,7 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
 import org.eclipse.jdt.core.compiler.CompilationProgress;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -111,34 +112,42 @@ class JAstBuilder extends JavaParser {
    */
   @Override
   public void process(CompilationUnitDeclaration unit, int i) {
-    Event jastEvent = tracer.start(JackEventType.J_AST_BUILDER);
     try {
-      super.process(unit, i);
-
-      loadLocalClasses(unit);
-
-      if (unit.hasErrors()) {
-        // An error has already been detected, don't even try to handle the unit.
-        return;
-      }
-
-      // Generate GWT IR after each compilation of CompilationUnitDeclaration.
-      // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
-      // reset method of ecj was called by super.compile(sourceUnits) and after the lookup
-      // environment is no longer usable.
-      Event gwtEvent = tracer.start(JackEventType.GWT_AST_BUILDER);
-      List<JDefinedClassOrInterface> types;
+      Event jastEvent = tracer.start(JackEventType.J_AST_BUILDER);
       try {
-        types = astBuilder.process(unit);
-      } finally {
-        gwtEvent.end();
-      }
+        super.process(unit, i);
 
-      for (JDefinedClassOrInterface type : types) {
-        session.addTypeToEmit(type);
+        loadLocalClasses(unit);
+
+        if (unit.hasErrors()) {
+          // An error has already been detected, don't even try to handle the unit.
+          return;
+        }
+
+        // Generate GWT IR after each compilation of CompilationUnitDeclaration.
+        // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
+        // reset method of ecj was called by super.compile(sourceUnits) and after the lookup
+        // environment is no longer usable.
+        Event gwtEvent = tracer.start(JackEventType.GWT_AST_BUILDER);
+        List<JDefinedClassOrInterface> types;
+        try {
+          types = astBuilder.process(unit);
+        } finally {
+          gwtEvent.end();
+        }
+
+        for (JDefinedClassOrInterface type : types) {
+          session.addTypeToEmit(type);
+        }
+      } finally {
+        jastEvent.end();
       }
-    } finally {
-      jastEvent.end();
+    } catch (IllegalArgumentException e) {
+      // This is a workaround to reduce bad handling of IllegalArgumentException in
+      // JackBatchCompiler.
+      AssertionError error = new AssertionError();
+      error.initCause(e);
+      throw error;
     }
   }
 
@@ -197,5 +206,11 @@ class JAstBuilder extends JavaParser {
         createTypes(enclosingPackage, refMap, memberType);
       }
     }
+  }
+
+  @Override
+  protected void handleInternalException(@Nonnull Throwable internalException,
+      @CheckForNull CompilationUnitDeclaration unit, @CheckForNull CompilationResult result) {
+    // do nothing here, let JackBatchCompiler do the appropriate handling
   }
 }
