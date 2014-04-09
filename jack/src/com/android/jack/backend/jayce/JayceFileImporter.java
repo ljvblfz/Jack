@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
 import com.android.sched.util.codec.EnumCodec;
@@ -72,12 +73,23 @@ public class JayceFileImporter {
   @Nonnull
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
       "jack.jackimport.policy",
-      "Defines the policy to follow concerning type collision in imported jack files",
+      "Defines the policy to follow concerning type collision from imported jack files",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL);
 
   @Nonnull
   private final CollisionPolicy collisionPolicy = ThreadConfig.get(COLLISION_POLICY);
+
+  @Nonnull
+  public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId.create(
+      "jack.jackimport.resource.policy",
+      "Defines the policy to follow concerning resource collision in imported jack containers",
+      new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
+      .addDefaultValue(CollisionPolicy.FAIL);
+
+  @Nonnull
+  private final CollisionPolicy resourceCollisionPolicy =
+      ThreadConfig.get(RESOURCE_COLLISION_POLICY);
 
   public JayceFileImporter(@Nonnull List<InputVDir> jayceContainers) {
     this.jayceContainers = jayceContainers;
@@ -111,7 +123,7 @@ public class JayceFileImporter {
       if (isJackFileName(file.getName())) {
         addImportedTypes(session, file.getName(), pack, file.getLocation());
       } else {
-        pack.addResource(new Resource(file));
+        addImportedResource(file, pack);
       }
     } else {
       throw new AssertionError();
@@ -130,12 +142,13 @@ public class JayceFileImporter {
       Location existingSource = declaredType.getLocation();
       if (!expectedLoadSource.equals(existingSource)) {
         if (collisionPolicy == CollisionPolicy.FAIL) {
-          throw new ImportConflictException(declaredType, expectedLoadSource);
+          throw new TypeImportConflictException(declaredType, expectedLoadSource);
         } else {
           logger.log(Level.INFO,
-              "Type ''{0}'' has already been imported from {1}: "
+              "Type ''{0}'' from {1} has already been imported from {2}: "
               + "ignoring import", new Object[] {
               Jack.getUserFriendlyFormatter().getName(declaredType),
+              expectedLoadSource.getDescription(),
               existingSource.getDescription()});
         }
       } else {
@@ -144,6 +157,27 @@ public class JayceFileImporter {
     } finally {
       readEvent.end();
     }
+  }
+
+  private void addImportedResource(@Nonnull InputVFile file, @Nonnull JPackage pack) {
+    Resource newResource = new Resource(file);
+    for (Resource existingResource : pack.getResources()) {
+      if (existingResource.getName().equals(newResource.getName())) {
+        if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
+          throw new ResourceImportConflictException(newResource, existingResource.getLocation(),
+              pack);
+        } else {
+          logger.log(Level.INFO,
+              "Resource ''{0}'' from {1} has already been imported from {2}: "
+              + "ignoring import", new Object[] {
+              BinaryQualifiedNameFormatter.getFormatter().getName(pack, newResource.getName()),
+              newResource.getLocation().getDescription(),
+              existingResource.getLocation().getDescription()});
+        }
+        return;
+      }
+    }
+    pack.addResource(new Resource(file));
   }
 
   public static boolean isJackFileName(@Nonnull String name) {

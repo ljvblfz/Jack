@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.sched.item.Description;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 
 import java.io.Serializable;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
  * Represents a resource.
  */
 @Description("Represents a resource")
-public class Resource implements Serializable {
+public class Resource implements HasName, Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -41,5 +42,16 @@ public class Resource implements Serializable {
   @Nonnull
   public InputVFile getVFile() {
     return vFile;
+  }
+
+  @Nonnull
+  public Location getLocation() {
+    return vFile.getLocation();
+  }
+
+  @Override
+  @Nonnull
+  public String getName() {
+    return vFile.getName();
   }
 }
