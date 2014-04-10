@@ -17,9 +17,11 @@
 package com.android.jack;
 
 
+import com.android.jack.category.KnownBugs;
 import com.android.jack.category.SlowTests;
 
 import org.junit.experimental.categories.Categories;
+import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
@@ -30,6 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Categories.class)
 @IncludeCategory(SlowTests.class)
+@ExcludeCategory(KnownBugs.class)
 @SuiteClasses(value = {AllTests.class})
 public class LongLastingTests {
 }

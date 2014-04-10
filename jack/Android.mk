@@ -154,7 +154,7 @@ local_long_libs := $(call java-lib-files,core bouncycastle core-junit ext framew
 test-jack-long: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-long: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-long: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_long_libs) $(JACK_JAR)
-	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.LongLastingTests
+	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.LongLastingTests && echo "$@: PASSED"
 
 .PHONY: test-jack-unit-all
 test-jack-unit-all: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
