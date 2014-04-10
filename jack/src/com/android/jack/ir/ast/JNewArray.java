@@ -42,7 +42,7 @@ public class JNewArray extends JExpression {
   @Nonnull
   private final List<JExpression> initializers;
   @Nonnull
-  private JArrayType type;
+  private final JArrayType type;
 
   @Nonnull
   public static JNewArray createWithInits(
@@ -79,10 +79,6 @@ public class JNewArray extends JExpression {
   @Override
   public boolean canThrow() {
     return true;
-  }
-
-  public void setType(@Nonnull JArrayType type) {
-    this.type = type;
   }
 
   @Override

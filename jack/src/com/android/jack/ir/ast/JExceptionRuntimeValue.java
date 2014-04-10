@@ -32,7 +32,7 @@ public class JExceptionRuntimeValue extends JExpression {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private JClassOrInterface catchedType;
+  private final JClassOrInterface catchedType;
 
   public JExceptionRuntimeValue(
       @Nonnull SourceInfo sourceInfo, @Nonnull JClassOrInterface catchedType) {
@@ -61,10 +61,6 @@ public class JExceptionRuntimeValue extends JExpression {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
-  }
-
-  public void setType(@Nonnull JClassOrInterface receiverType) {
-    this.catchedType = receiverType;
   }
 
   @Override

@@ -31,7 +31,7 @@ public class JConcatOperation extends JBinaryOperation {
 
   private static final long serialVersionUID = 1L;
   @Nonnull
-  private JClass jlString;
+  private final JClass jlString;
 
   public JConcatOperation(
       @Nonnull SourceInfo info, @Nonnull JClass jlString,
@@ -74,10 +74,6 @@ public class JConcatOperation extends JBinaryOperation {
           || lhsType == JPrimitiveTypeEnum.LONG.getType()
           || lhsType == JPrimitiveTypeEnum.DOUBLE.getType()
           || lhsType instanceof JReferenceType));
-  }
-
-  public void setType(@Nonnull JClass jlString) {
-    this.jlString = jlString;
   }
 
   @Override

@@ -53,7 +53,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   private final List<JParameter> params = new ArrayList<JParameter>();
   @Nonnull
-  private JType returnType;
+  private final JType returnType;
   @Nonnull
   private final List<JClass> thrownExceptions = new ArrayList<JClass>();
 
@@ -261,10 +261,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public void setSynthetic() {
     modifier |= JModifier.SYNTHETIC;
-  }
-
-  public void setType(@Nonnull JType newType) {
-    returnType = newType;
   }
 
   @Override

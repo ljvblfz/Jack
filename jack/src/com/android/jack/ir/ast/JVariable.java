@@ -37,7 +37,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   private String name;
   @Nonnull
-  private JType type;
+  private final JType type;
   protected final AnnotationSet annotations = new AnnotationSet();
 
   protected int modifier;
@@ -90,11 +90,6 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   public void setSynthetic() {
     modifier |= JModifier.SYNTHETIC;
-  }
-
-  public void setType(JType newType) {
-    assert newType != null;
-    type = newType;
   }
 
   @Override

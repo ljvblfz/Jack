@@ -30,7 +30,7 @@ public abstract class JCastOperation extends JExpression {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private JType castType;
+  private final JType castType;
 
   @Nonnull
   protected JExpression expr;
@@ -56,10 +56,6 @@ public abstract class JCastOperation extends JExpression {
   @Nonnull
   public JType getType() {
     return castType;
-  }
-
-  public void setType(@Nonnull JType type) {
-    this.castType = type;
   }
 
   @Override

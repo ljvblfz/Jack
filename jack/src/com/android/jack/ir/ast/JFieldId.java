@@ -35,7 +35,7 @@ public class JFieldId extends LocalMarkerManager
   @Nonnull
   private String name;
   @Nonnull
-  private JType type;
+  private final JType type;
   @Nonnull
   private final FieldKind kind;
   @CheckForNull
@@ -68,10 +68,6 @@ public class JFieldId extends LocalMarkerManager
   @Override
   public void setName(@Nonnull String name) {
     this.name = name;
-  }
-
-  public void setType(@Nonnull JType type) {
-    this.type = type;
   }
 
   @Nonnull
