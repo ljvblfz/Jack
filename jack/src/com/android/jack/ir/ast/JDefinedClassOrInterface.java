@@ -258,7 +258,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
       @Nonnull List<? extends JType> args) throws JMethodLookupException {
     loader.ensureMethod(this, name, args, returnType);
     for (JMethod m : methods) {
-      if (m.getMethodId().equals(name, args) && (m.getType() == returnType)) {
+      if (m.getMethodId().equals(name, args) && m.getType().equals(returnType)) {
         return m;
       }
     }

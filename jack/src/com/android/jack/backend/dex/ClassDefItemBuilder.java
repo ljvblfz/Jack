@@ -132,8 +132,8 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
         return RopHelper.getCstType(
             Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
       } else {
-        assert type == Jack.getSession().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)
-            || type == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        assert type.equals(
+            Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
         return null;
       }
     }

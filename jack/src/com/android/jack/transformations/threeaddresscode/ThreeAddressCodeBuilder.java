@@ -204,7 +204,7 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
         }
       } else {
 
-        if ((expr.getType() == JPrimitiveTypeEnum.VOID.getType()
+        if ((expr.getType().equals(JPrimitiveTypeEnum.VOID.getType())
             && !(parent instanceof JMultiExpression)) || parent instanceof JExpressionStatement) {
           return;
         } else if (parent instanceof JAsgOperation &&
@@ -222,7 +222,7 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
             assert insertStatement != null;
             transformationRequest.append(new AppendBefore(insertStatement, stmt));
           }
-        } else if (expr.getType() == JPrimitiveTypeEnum.VOID.getType()) {
+        } else if (expr.getType().equals(JPrimitiveTypeEnum.VOID.getType())) {
           // Splits expressions contained into another expression or into a statement
           JStatement stmt = expr.makeStatement();
           stmt.setCatchBlocks(currentCatchBlocks);

@@ -23,7 +23,6 @@ import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.ir.types.JIntegralType64;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.CommonTypes.CommonType;
-import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -116,18 +115,18 @@ public abstract class JPrimitiveType extends JNode implements JType {
         || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
         || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
 
-    if ((lhsType == JPrimitiveTypeEnum.DOUBLE.getType())
-        || (rhsType == JPrimitiveTypeEnum.DOUBLE.getType())
+    if (lhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
+        || rhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_DOUBLE, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_DOUBLE, rhsType)) {
       promotedType = JPrimitiveTypeEnum.DOUBLE.getType();
-    } else if ((lhsType == JPrimitiveTypeEnum.FLOAT.getType())
-        || (rhsType == JPrimitiveTypeEnum.FLOAT.getType())
+    } else if (lhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
+        || rhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_FLOAT, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_FLOAT, rhsType)) {
       promotedType = JPrimitiveTypeEnum.FLOAT.getType();
-    } else if ((lhsType == JPrimitiveTypeEnum.LONG.getType())
-        || (rhsType == JPrimitiveTypeEnum.LONG.getType())
+    } else if (lhsType.equals(JPrimitiveTypeEnum.LONG.getType())
+        || rhsType.equals(JPrimitiveTypeEnum.LONG.getType())
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_LONG, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_LONG, rhsType)) {
       promotedType = JPrimitiveTypeEnum.LONG.getType();
@@ -153,9 +152,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   }
 
   public boolean isWrapperType(@Nonnull JType candidate) {
-    JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-    return lookup.getClass(getWrapperCommonType()) == candidate
-        || lookup.getType(getWrapperCommonType()) == candidate;
+    return Jack.getSession().getPhantomLookup().getClass(getWrapperCommonType()).equals(candidate);
   }
 
   @Nonnull

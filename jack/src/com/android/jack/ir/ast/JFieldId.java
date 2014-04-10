@@ -86,6 +86,6 @@ public class JFieldId extends LocalMarkerManager
     if ((this.kind != otherKind) || (!this.name.equals(otherName))) {
       return false;
     }
-    return type == otherType;
+    return type.equals(otherType);
   }
 }

@@ -163,7 +163,7 @@ public class JSession extends JNode {
 
   @Nonnull
   synchronized JArrayType getArrayOf(JPrimitiveTypeEnum primitive) {
-    assert primitive != JPrimitiveTypeEnum.VOID;
+    assert !primitive.equals(JPrimitiveTypeEnum.VOID);
     if (primitiveArrays[primitive.ordinal()] == null) {
       primitiveArrays[primitive.ordinal()] = new JArrayType(primitive.getType());
     }

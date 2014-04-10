@@ -212,8 +212,8 @@ public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
           checkUnboxing(rhs);
           checkCast(lhs, expectedType);
           checkCast(rhs, expectedType);
-        } else if (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
-            || lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()) {
+        } else if (rhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
+            || lhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())) {
           checkUnboxing(lhs);
           checkUnboxing(rhs);
         }
@@ -312,7 +312,7 @@ public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
     }
 
     private void checkCast(@Nonnull JExpression exprToCast, @Nonnull JType expectedType) {
-      if (expectedType instanceof JNumericType && exprToCast.getType() != expectedType) {
+      if (expectedType instanceof JNumericType && !exprToCast.getType().equals(expectedType)) {
         throw new AssertionError(MISSING_CAST_ERROR);
       }
     }

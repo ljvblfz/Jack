@@ -80,7 +80,7 @@ public class JConditionalExpression extends JExpression {
 
 
     // JLS-7 15.25 first bullet
-    if (thenType == elseType) {
+    if (thenType.equals(elseType)) {
       return thenType;
     }
 
@@ -94,10 +94,10 @@ public class JConditionalExpression extends JExpression {
 
 
     // JLS-7 15.25 third bullet
-    if ((thenType == JNullType.INSTANCE) && (elseType instanceof JReferenceType)) {
+    if (JNullType.isNullType(thenType) && (elseType instanceof JReferenceType)) {
       return elseType;
     }
-    if ((elseType == JNullType.INSTANCE) && (thenType instanceof JReferenceType)) {
+    if (JNullType.isNullType(elseType) && (thenType instanceof JReferenceType)) {
       return thenType;
     }
 
@@ -113,18 +113,18 @@ public class JConditionalExpression extends JExpression {
       }
 
       // second sub-bullet
-      if (((thenType == JPrimitiveTypeEnum.BYTE.getType())
-          || (thenType == JPrimitiveTypeEnum.CHAR.getType())
-          || (thenType == JPrimitiveTypeEnum.SHORT.getType()))
+      if ((thenType.equals(JPrimitiveTypeEnum.BYTE.getType())
+          || thenType.equals(JPrimitiveTypeEnum.CHAR.getType())
+          || thenType.equals(JPrimitiveTypeEnum.SHORT.getType()))
           && ((elseExpr instanceof JIntegralConstant32) && elseType instanceof JIntegralType)) {
         if (((JIntegralType32) thenType).isValidValue(
             ((JIntegralConstant32) elseExpr).getIntValue())) {
           return thenType;
         }
       }
-      if (((elseType == JPrimitiveTypeEnum.BYTE.getType())
-          || (elseType == JPrimitiveTypeEnum.CHAR.getType())
-          || (elseType == JPrimitiveTypeEnum.SHORT.getType()))
+      if ((elseType.equals(JPrimitiveTypeEnum.BYTE.getType())
+          || elseType.equals(JPrimitiveTypeEnum.CHAR.getType())
+          || elseType.equals(JPrimitiveTypeEnum.SHORT.getType()))
           && ((thenExpr instanceof JIntegralConstant32) && thenType instanceof JIntegralType)) {
         if (((JIntegralType32) elseType).isValidValue(
             ((JIntegralConstant32) thenExpr).getIntValue())) {
@@ -165,10 +165,10 @@ public class JConditionalExpression extends JExpression {
 
     // Implementation of only a tiny case needed for unboxing. To be removed if fifth bullet is
     // really implemented.
-    if ((thenType == JNullType.INSTANCE) && (elseType instanceof JPrimitiveType)) {
+    if (JNullType.isNullType(thenType) && (elseType instanceof JPrimitiveType)) {
       return ((JPrimitiveType) elseType).getWrapperType();
     }
-    if ((elseType == JNullType.INSTANCE) && (thenType instanceof JPrimitiveType)) {
+    if (JNullType.isNullType(elseType) && (thenType instanceof JPrimitiveType)) {
       return ((JPrimitiveType) thenType).getWrapperType();
     }
 

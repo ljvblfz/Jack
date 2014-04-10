@@ -57,7 +57,7 @@ public class GetFieldParameterRefiner extends CommonStringParameterRefiner imple
           GETFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),
           MethodKind.INSTANCE_VIRTUAL);
     }
-    if (call.getReceiverType() == javaLangClass && call.getMethodId() == getFieldMethodId) {
+    if (call.getReceiverType().equals(javaLangClass) && call.getMethodId() == getFieldMethodId) {
       assert formatter.getName(call.getType()).equals(FIELD_CLASS_SIGNATURE);
       return true;
     }

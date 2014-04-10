@@ -113,7 +113,7 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
             JPrimitiveTypeEnum.BOOLEAN.getType(), FieldKind.STATIC);
         JField field = id.getField();
         assert field != null;
-        if (field.getEnclosingType() == currentType) {
+        if (field.getEnclosingType().equals(currentType)) {
           // return only direct field
           return id;
         }

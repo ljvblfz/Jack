@@ -100,7 +100,7 @@ abstract class CommonStringParameterRefiner {
 
   protected boolean isOrIsSubClassOf(
       @Nonnull JClassOrInterface rootType, @Nonnull JReferenceType searchedType) {
-    if (rootType == searchedType) {
+    if (rootType.equals(searchedType)) {
       return true;
     } else if (rootType instanceof JDefinedClass) {
       return ((JDefinedClass) rootType).isSubTypeOf(searchedType);

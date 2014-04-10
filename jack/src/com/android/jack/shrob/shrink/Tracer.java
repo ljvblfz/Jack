@@ -203,7 +203,7 @@ public abstract class Tracer extends JVisitor {
   protected JMethod findMethod(@Nonnull JMethodId methodId,
       @Nonnull JClassOrInterface enclosingType, @Nonnull JType returnType) {
     for (JMethod m : methodId.getMethods()) {
-      if (m.getEnclosingType() == enclosingType && m.getType() == returnType) {
+      if (m.getEnclosingType().equals(enclosingType) && m.getType().equals(returnType)) {
         return m;
       }
     }
@@ -278,7 +278,7 @@ public abstract class Tracer extends JVisitor {
     trace(type);
     for (JNameValuePair pair : al.getNameValuePairs()) {
       for (JMethod method : pair.getMethodId().getMethods()) {
-        if (method.getEnclosingType() == type) {
+        if (method.getEnclosingType().equals(type)) {
           trace(method);
           JLiteral defaultValue = ((JAnnotationMethod) method).getDefaultValue();
           if (defaultValue != null) {

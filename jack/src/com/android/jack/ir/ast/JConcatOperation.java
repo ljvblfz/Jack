@@ -51,27 +51,27 @@ public class JConcatOperation extends JBinaryOperation {
   private boolean hasValidOperand() {
     JType lhsType = getLhs().getType();
     JType rhsType = getRhs().getType();
-    return ((lhsType == jlString) &&
-        (rhsType == jlString))
-      || ((lhsType == jlString) &&
-            (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
-            || rhsType == JPrimitiveTypeEnum.BYTE.getType()
-            || rhsType == JPrimitiveTypeEnum.CHAR.getType()
-            || rhsType == JPrimitiveTypeEnum.SHORT.getType()
-            || rhsType == JPrimitiveTypeEnum.INT.getType()
-            || rhsType == JPrimitiveTypeEnum.FLOAT.getType()
-            || rhsType == JPrimitiveTypeEnum.LONG.getType()
-            || rhsType == JPrimitiveTypeEnum.DOUBLE.getType()
+    return (lhsType.equals(jlString) &&
+        rhsType.equals(jlString))
+      || (lhsType.equals(jlString) &&
+            (rhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.BYTE.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.CHAR.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.SHORT.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.INT.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.LONG.getType())
+            || rhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
             || rhsType instanceof JReferenceType))
-      || ((rhsType == jlString) &&
-          (lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
-          || lhsType == JPrimitiveTypeEnum.BYTE.getType()
-          || lhsType == JPrimitiveTypeEnum.CHAR.getType()
-          || lhsType == JPrimitiveTypeEnum.SHORT.getType()
-          || lhsType == JPrimitiveTypeEnum.INT.getType()
-          || lhsType == JPrimitiveTypeEnum.FLOAT.getType()
-          || lhsType == JPrimitiveTypeEnum.LONG.getType()
-          || lhsType == JPrimitiveTypeEnum.DOUBLE.getType()
+      || (rhsType.equals(jlString) &&
+          (lhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.BYTE.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.CHAR.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.SHORT.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.INT.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.LONG.getType())
+          || lhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
           || lhsType instanceof JReferenceType));
   }
 

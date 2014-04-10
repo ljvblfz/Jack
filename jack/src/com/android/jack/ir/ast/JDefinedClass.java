@@ -115,7 +115,7 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
       do {
         currentClass = ((JDefinedClass) currentClass).getSuperClass();
 
-        if (currentClass == jclass) {
+        if (jclass.equals(currentClass)) {
           return true;
         }
       } while (currentClass instanceof JDefinedClass);

@@ -166,9 +166,9 @@ public class IncDecRemover implements RunnableSchedulable<JMethod> {
           JExpression rhs = JBinaryOperation.create(
               sourceInfo, newOperator, argCopy, new JIntLiteral(sourceInfo, 1));
           JType unaryArgType = unary.getArg().getType();
-          if (unaryArgType == JPrimitiveTypeEnum.BYTE.getType() ||
-              unaryArgType == JPrimitiveTypeEnum.SHORT.getType() ||
-              unaryArgType == JPrimitiveTypeEnum.CHAR.getType()){
+          if (unaryArgType.equals(JPrimitiveTypeEnum.BYTE.getType()) ||
+              unaryArgType.equals(JPrimitiveTypeEnum.SHORT.getType()) ||
+              unaryArgType.equals(JPrimitiveTypeEnum.CHAR.getType())) {
             rhs = new JDynamicCastOperation(sourceInfo, unaryArgType, rhs);
           }
           JAsgOperation newExpr = new JAsgOperation(sourceInfo, unary.getArg(), rhs);

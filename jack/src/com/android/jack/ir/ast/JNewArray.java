@@ -143,7 +143,8 @@ public class JNewArray extends JExpression {
       }
 
       for (JExpression initExpression : initializers) {
-        if (!(initExpression instanceof JValueLiteral) || initExpression.getType() != eltType) {
+        if (!(initExpression instanceof JValueLiteral)
+            || !initExpression.getType().equals(eltType)) {
           return false;
         }
       }

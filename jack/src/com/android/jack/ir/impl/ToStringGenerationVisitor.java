@@ -306,8 +306,8 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JCatchBlock x) {
     JLocal catchVar = x.getCatchVar();
-    if (catchVar.getType() == Jack.getSession().getPhantomLookup()
-        .getClass(CommonTypes.JAVA_LANG_OBJECT)) {
+    if (catchVar.getType().equals(Jack.getSession().getPhantomLookup()
+        .getClass(CommonTypes.JAVA_LANG_OBJECT))) {
       print(CHARS_FINALLY);
     } else {
       print(CHARS_CATCH);
@@ -813,7 +813,7 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
     } else if (x.getInstance() instanceof JThisRef) {
       // super() or this() call.
       JReferenceType thisType = (JReferenceType) instance.getType();
-      if (thisType == x.getReceiverType()) {
+      if (thisType.equals(x.getReceiverType())) {
         print(CHARS_THIS);
       } else {
         print(CHARS_SUPER);

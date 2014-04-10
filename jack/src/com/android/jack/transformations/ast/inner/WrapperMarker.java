@@ -203,7 +203,7 @@ public class WrapperMarker implements Marker {
 
       assert methodCall.getArgs().size() == methodCall.getMethodId().getParamTypes().size();
 
-      if (method.getType() == JPrimitiveTypeEnum.VOID.getType()) {
+      if (method.getType().equals(JPrimitiveTypeEnum.VOID.getType())) {
         bodyBlock.addStmt(methodCall.makeStatement());
         bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
       } else {
@@ -246,8 +246,7 @@ public class WrapperMarker implements Marker {
       return false;
     }
     for (int i = 0; i < size; i++) {
-      if (wrapperParams.get(i).getType() !=
-          methodParams.get(i).getType()) {
+      if (!wrapperParams.get(i).getType().equals(methodParams.get(i).getType())) {
         return false;
       }
     }

@@ -17,6 +17,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Description;
@@ -32,6 +33,8 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   @Nonnull
   protected String name;
+
+  private int hashCode = 0;
 
   @CheckForNull
   private JArrayType array;
@@ -65,9 +68,8 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   }
 
   protected boolean isTrivialCast(@Nonnull JReferenceType castTo) {
-    if (this == castTo
-        || castTo == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT)
-        || castTo == Jack.getSession().getPhantomLookup().getType(CommonTypes.JAVA_LANG_OBJECT)) {
+    if (this.equals(castTo) || castTo.equals(
+        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT))) {
       return true;
     }
 
@@ -93,5 +95,29 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
     }
     assert array != null;
     return array;
+  }
+
+  /**
+   * Two reference types are considered equals if they share the same descriptor.
+   */
+  @Override
+  public final boolean equals(Object obj) {
+    if (obj instanceof JReferenceType) {
+      TypeFormatter lookupFormatter = Jack.getLookupFormatter();
+      return lookupFormatter.getName((JType) obj).equals(lookupFormatter.getName(this));
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public final int hashCode() {
+    if (hashCode == 0) {
+      hashCode = Jack.getLookupFormatter().getName(this).hashCode();
+      if (hashCode == 0) {
+        hashCode++;
+      }
+    }
+    return hashCode;
   }
 }

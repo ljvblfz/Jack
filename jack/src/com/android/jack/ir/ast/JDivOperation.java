@@ -43,11 +43,11 @@ public class JDivOperation extends JArithmeticBinaryOperation {
 
   @Override
   public boolean canThrow() {
-    return (getType() == JPrimitiveTypeEnum.BYTE.getType())
-        || (getType() == JPrimitiveTypeEnum.CHAR.getType())
-        || (getType() == JPrimitiveTypeEnum.SHORT.getType())
-        || (getType() == JPrimitiveTypeEnum.INT.getType())
-        || (getType() == JPrimitiveTypeEnum.LONG.getType());
+    return getType().equals(JPrimitiveTypeEnum.BYTE.getType())
+        || getType().equals(JPrimitiveTypeEnum.CHAR.getType())
+        || getType().equals(JPrimitiveTypeEnum.SHORT.getType())
+        || getType().equals(JPrimitiveTypeEnum.INT.getType())
+        || getType().equals(JPrimitiveTypeEnum.LONG.getType());
   }
 
   @Override

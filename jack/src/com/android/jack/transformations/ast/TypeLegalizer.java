@@ -46,8 +46,6 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.ir.types.JNumericType;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.lookup.CommonTypes.CommonType;
-import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
@@ -221,8 +219,8 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
           JType expectedType = JPrimitiveType.getBinaryPromotionType(lhsType, rhsType);
           castIfNeeded(maybeUnbox(lhs), expectedType);
           castIfNeeded(maybeUnbox(rhs), expectedType);
-        } else if (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
-            || lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()) {
+        } else if (rhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
+            || lhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())) {
           maybeUnbox(lhs);
           maybeUnbox(rhs);
         }
@@ -355,28 +353,28 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
       JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
 
-      if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_BOOLEAN)) {
+      if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
         methodName = "booleanValue";
         returnType = JPrimitiveTypeEnum.BOOLEAN.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_BYTE)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
         methodName = "byteValue";
         returnType = JPrimitiveTypeEnum.BYTE.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_CHAR)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
         methodName = "charValue";
         returnType = JPrimitiveTypeEnum.CHAR.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_SHORT)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
         methodName = "shortValue";
         returnType = JPrimitiveTypeEnum.SHORT.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_INTEGER)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
         methodName = "intValue";
         returnType = JPrimitiveTypeEnum.INT.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_FLOAT)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
         methodName = "floatValue";
         returnType = JPrimitiveTypeEnum.FLOAT.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_DOUBLE)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
         methodName = "doubleValue";
         returnType = JPrimitiveTypeEnum.DOUBLE.getType();
-      } else if (isBoxingType(lookup, typeToUnbox, CommonTypes.JAVA_LANG_LONG)) {
+      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
         methodName = "longValue";
         returnType = JPrimitiveTypeEnum.LONG.getType();
       } else {
@@ -395,11 +393,6 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       return unboxMethodCall;
     }
 
-    private boolean isBoxingType(@Nonnull JLookup lookup, @Nonnull JType type,
-        @Nonnull CommonType boxingType) {
-      return (type == lookup.getType(boxingType)) || (type == lookup.getClass(boxingType));
-    }
-
     // TODO(mikaelpeltier): Put it into JPrimitiveType
     @Nonnull
     private JMethodCall getBoxingCall(
@@ -409,21 +402,21 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       JClassOrInterface wrapperType = type;
       JType argType;
       JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-      if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BOOLEAN)) {
+      if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
         argType = JPrimitiveTypeEnum.BOOLEAN.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_BYTE)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
         argType = JPrimitiveTypeEnum.BYTE.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_CHAR)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
         argType = JPrimitiveTypeEnum.CHAR.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_SHORT)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
         argType = JPrimitiveTypeEnum.SHORT.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_INTEGER)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
         argType = JPrimitiveTypeEnum.INT.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_FLOAT)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
         argType = JPrimitiveTypeEnum.FLOAT.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_DOUBLE)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
         argType = JPrimitiveTypeEnum.DOUBLE.getType();
-      } else if (isBoxingType(lookup, wrapperType, CommonTypes.JAVA_LANG_LONG)) {
+      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
         argType = JPrimitiveTypeEnum.LONG.getType();
       } else {
         argType = pType;
@@ -477,7 +470,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       JType paramType = paramTypes.get(0);
       JType exprToBoxType = exprToBox.getType();
       JExpression arg;
-      if (exprToBoxType instanceof JNumericType && paramType != exprToBoxType) {
+      if (exprToBoxType instanceof JNumericType && !paramType.equals(exprToBoxType)) {
         assert paramType instanceof JNumericType;
         arg = new JDynamicCastOperation(exprToBox.getSourceInfo(), paramType, exprToBox);
       } else {
@@ -489,7 +482,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     }
 
     private void castIfNeeded(@Nonnull JExpression exprToCast, @Nonnull JType expectedType) {
-      if (expectedType instanceof JNumericType && exprToCast.getType() != expectedType) {
+      if (expectedType instanceof JNumericType && !exprToCast.getType().equals(expectedType)) {
         tr.append(new Replace(exprToCast, new JDynamicCastOperation(
             exprToCast.getSourceInfo(), expectedType, exprToCast)));
       }

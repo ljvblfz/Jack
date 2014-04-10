@@ -31,6 +31,10 @@ public class JNullType extends JReferenceTypeCommon {
 
   public static final JNullType INSTANCE = new JNullType(SourceInfo.UNKNOWN);
 
+  public static boolean isNullType(@Nonnull JType type) {
+    return type == INSTANCE;
+  }
+
   private JNullType(SourceInfo sourceInfo) {
     super(sourceInfo, "null");
   }

@@ -78,7 +78,7 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JExpression expr) {
       assert expr.getType() instanceof JBooleanType || expr.getType()
-          == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       opAfterTransformation++;
       return false;
     }
@@ -86,7 +86,7 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JBinaryOperation binaryOp) {
       assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType()
-          == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       opBeforeTransformation++;
       JBinaryOperator op = binaryOp.getOp();
 
@@ -131,7 +131,7 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JExpression expr) {
       assert expr.getType() instanceof JBooleanType || expr.getType()
-          == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       tr.append(new Replace(expr, new JPrefixNotOperation(expr.getSourceInfo(), expr)));
       return false;
     }
@@ -139,7 +139,7 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JBinaryOperation binaryOp) {
       assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType()
-          == Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       JBinaryOperator op = binaryOp.getOp();
 
       if (op.isComparison() || op.isConditionalOperation()

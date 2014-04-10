@@ -157,7 +157,7 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
 
           if (varRef.getParent() instanceof JCastOperation) {
             JCastOperation cast = (JCastOperation) varRef.getParent();
-            if (cast.getCastType() == dm.getValue().getType()) {
+            if (cast.getCastType().equals(dm.getValue().getType())) {
               // Remove useless cast directly since it trigger new opportunities.
               tr.append(new Replace(cast, cloneExpr.cloneExpression(dm.getValue())));
             } else {

@@ -82,14 +82,14 @@ public class RopCastLegalizer implements RunnableSchedulable<JMethod> {
       if (castTo instanceof JPrimitiveType) {
         JType castedFrom = cast.getExpr().getType();
 
-        if ((castTo == JPrimitiveTypeEnum.BYTE.getType())
-            || (castTo == JPrimitiveTypeEnum.SHORT.getType())
-            || (castTo == JPrimitiveTypeEnum.CHAR.getType())) {
+        if (castTo.equals(JPrimitiveTypeEnum.BYTE.getType())
+            || castTo.equals(JPrimitiveTypeEnum.SHORT.getType())
+            || castTo.equals(JPrimitiveTypeEnum.CHAR.getType())) {
 
 
-          if ((castedFrom == JPrimitiveTypeEnum.LONG.getType())
-              || (castedFrom == JPrimitiveTypeEnum.FLOAT.getType())
-              || (castedFrom == JPrimitiveTypeEnum.DOUBLE.getType())) {
+          if (castedFrom.equals(JPrimitiveTypeEnum.LONG.getType())
+              || castedFrom.equals(JPrimitiveTypeEnum.FLOAT.getType())
+              || castedFrom.equals(JPrimitiveTypeEnum.DOUBLE.getType())) {
             /* The cast operation is not supported, lets split it in 2 with a intermediate INT
              */
             JExpression intermediateCastToInt = new JDynamicCastOperation(

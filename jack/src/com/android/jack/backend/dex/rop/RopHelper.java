@@ -183,7 +183,7 @@ public class RopHelper {
    */
   @Nonnull
   public static Type convertTypeToDx(@Nonnull JType type) {
-    if (type == JNullType.INSTANCE) {
+    if (JNullType.isNullType(type)) {
       return Type.KNOWN_NULL;
     }
 
