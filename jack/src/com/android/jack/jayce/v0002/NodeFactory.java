@@ -131,6 +131,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
 import com.android.jack.jayce.v0002.nodes.NAddOperation;
 import com.android.jack.jayce.v0002.nodes.NAlloc;
@@ -239,6 +240,7 @@ import com.android.jack.jayce.v0002.nodes.NSynchronizedBlock;
 import com.android.jack.jayce.v0002.nodes.NThisRef;
 import com.android.jack.jayce.v0002.nodes.NThisRefTypeInfo;
 import com.android.jack.jayce.v0002.nodes.NThrowStatement;
+import com.android.jack.jayce.v0002.nodes.NThrownExceptionMarker;
 import com.android.jack.jayce.v0002.nodes.NTryStatement;
 import com.android.jack.jayce.v0002.nodes.NUnlock;
 import com.android.jack.jayce.v0002.nodes.NWhileStatement;
@@ -780,6 +782,8 @@ public class NodeFactory {
       return new NOriginalTypeInfo();
     } else if (from instanceof ThisRefTypeInfo) {
       return new NThisRefTypeInfo();
+    } else if (from instanceof ThrownExceptionMarker) {
+      return new NThrownExceptionMarker();
     }
     throw new AssertionError("Not yet implemented (" + from.getClass() + ")");
   }

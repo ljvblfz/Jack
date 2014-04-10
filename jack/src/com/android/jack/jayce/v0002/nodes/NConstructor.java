@@ -48,7 +48,6 @@ public class NConstructor extends NMethod {
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object jElement) {
     JConstructor jConstructor = (JConstructor) jElement;
     parameters = loader.load(NParameter.class, jConstructor.getParams());
-    thrownExceptions = ImportHelper.getSignatureNameList(jConstructor.getThrownExceptions());
     modifier = jConstructor.getModifier();
     annotations = loader.load(NAnnotationLiteral.class, jConstructor.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jConstructor.getBody());
@@ -80,9 +79,6 @@ public class NConstructor extends NMethod {
       JMethodId id = jConstructor.getMethodId();
       id.addParam(jParam.getType());
     }
-    for (String exceptionName : thrownExceptions) {
-      jConstructor.addThrownException(exportSession.getLookup().getClass(exceptionName));
-    }
     for (NAnnotationLiteral annotationLiteral : annotations) {
       jConstructor.addAnnotation(annotationLiteral.exportAsJast(exportSession));
     }
@@ -99,10 +95,8 @@ public class NConstructor extends NMethod {
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
     assert parameters != null;
-    assert thrownExceptions != null;
     assert annotations != null;
     out.writeNodes(parameters);
-    out.writeIds(thrownExceptions);
     out.writeInt(modifier);
     out.writeNodes(annotations);
     out.writeNode(body);
@@ -113,7 +107,6 @@ public class NConstructor extends NMethod {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     level = in.getNodeLevel();
     parameters = in.readNodes(NParameter.class);
-    thrownExceptions = in.readIds();
     modifier = in.readInt();
     annotations = in.readNodes(NAnnotationLiteral.class);
     body = in.readNode(NAbstractMethodBody.class);

@@ -21,6 +21,7 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotationMethod;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -37,6 +38,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JNodeLookup;
@@ -424,9 +426,15 @@ public class ReferenceMapper {
   }
 
   private void mapExceptions(JMethod method, MethodBinding binding) {
-    for (ReferenceBinding thrownBinding : binding.thrownExceptions) {
-      JDefinedClass type = (JDefinedClass) get(thrownBinding);
-      method.addThrownException(type);
+    ReferenceBinding[] thrownExceptions = binding.thrownExceptions;
+    int length = thrownExceptions.length;
+    if (length != 0) {
+      List<JClass> thrownException = new ArrayList<JClass>(length);
+      for (ReferenceBinding thrownBinding : thrownExceptions) {
+        JDefinedClass type = (JDefinedClass) get(thrownBinding);
+        thrownException.add(type);
+      }
+      method.addMarker(new ThrownExceptionMarker(thrownException));
     }
   }
 

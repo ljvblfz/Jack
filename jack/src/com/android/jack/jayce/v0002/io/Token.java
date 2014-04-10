@@ -125,6 +125,7 @@ import com.android.jack.jayce.v0002.nodes.NSynchronizedBlock;
 import com.android.jack.jayce.v0002.nodes.NThisRef;
 import com.android.jack.jayce.v0002.nodes.NThisRefTypeInfo;
 import com.android.jack.jayce.v0002.nodes.NThrowStatement;
+import com.android.jack.jayce.v0002.nodes.NThrownExceptionMarker;
 import com.android.jack.jayce.v0002.nodes.NTryStatement;
 import com.android.jack.jayce.v0002.nodes.NUnlock;
 import com.android.jack.jayce.v0002.nodes.NWhileStatement;
@@ -901,6 +902,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NThrowStatement();
+    }
+  },
+  THROWN_EXCEPTION("thrown-exception", NodeLevel.STRUCTURE) {
+    @Override
+    @Nonnull
+    public NNode newNode() {
+      return new NThrownExceptionMarker();
     }
   },
   TRY_STATEMENT("try") {

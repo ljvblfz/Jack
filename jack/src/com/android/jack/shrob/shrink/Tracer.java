@@ -56,6 +56,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.util.log.LoggerFactory;
@@ -254,8 +255,11 @@ public abstract class Tracer extends JVisitor {
         trace(arg.getType());
       }
       trace(m.getType());
-      for (JType type : m.getThrownExceptions()) {
-        trace(type);
+      ThrownExceptionMarker marker = m.getMarker(ThrownExceptionMarker.class);
+      if (marker != null) {
+        for (JClass throwException : marker.getThrownExceptions()) {
+          trace(throwException);
+        }
       }
       if (!m.isExternal()) {
         JAbstractMethodBody body = m.getBody();

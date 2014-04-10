@@ -45,6 +45,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -217,11 +218,11 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     private void addThrows(@Nonnull JMethod method) {
-      List<JClass> throwns = method.getThrownExceptions();
-      if (throwns.size() > 0) {
+      ThrownExceptionMarker marker = method.getMarker(ThrownExceptionMarker.class);
+      if (marker != null) {
+        List<JClass> throwns = marker.getThrownExceptions();
         SourceInfo info = method.getSourceInfo();
-        JAnnotationLiteral annotation =
-            createAnnotation(method, throwsAnnotation, info);
+        JAnnotationLiteral annotation = createAnnotation(method, throwsAnnotation, info);
         List<JLiteral> classLiterals = new ArrayList<JLiteral>();
         for (JClass thrown : throwns) {
           classLiterals.add(new JClassLiteral(info, thrown, javaLangClass));
@@ -229,7 +230,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         JMethodId methodId = getOrCreateMethodId(throwsAnnotation, ELT_VALUE);
         addClassLiterals(classLiterals, annotation, methodId, info);
       }
-    }
+   }
 
     private void addMemberClasses(@Nonnull JDefinedClassOrInterface innerType) {
       JDefinedClassOrInterface enclosingType =
