@@ -71,7 +71,8 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
       return null;
     }
 
-    GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
+    GenericSignatureRefiner parserActions =
+        new GenericSignatureRefiner(oldSignature.getSourceInfo());
     GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
     String strOldSignature = oldSignature.getValue();
     parser.parseClassSignature(strOldSignature);
