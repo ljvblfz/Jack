@@ -46,11 +46,9 @@ import org.jf.dexlib.ClassDefItem;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -867,20 +865,6 @@ public class TestTools {
     // Compare Jack Dex file to reference
     new DexComparator().compare(refDex, jackDex, withDebugInfo, strict,
         false /* compareDebugInfoBinary */, compareInstructionNumber, instructionNumberTolerance);
-  }
-
-  public static void writeDexToFile(@Nonnull DexFile abstractDex, @Nonnull File physicalDex)
-      throws IOException {
-    OutputStreamWriter dexDumpOSW = null;
-    FileOutputStream dexOS = null;
-    try {
-      dexOS = new FileOutputStream(physicalDex);
-      abstractDex.writeTo(dexOS, null, false);
-    } finally {
-      if (dexOS != null) {
-        dexOS.close();
-      }
-    }
   }
 
   private static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
