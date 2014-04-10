@@ -141,8 +141,15 @@ public class DxTest {
     for (AnalyzedInstruction ai : ma.getInstructions()) {
       if (ai.getInstruction() instanceof Instruction23x) {
         Instruction23x inst = (Instruction23x) ai.getInstruction();
-        if (inst.getRegisterA() == inst.getRegisterC()
-            || inst.getRegisterA() == inst.getRegisterC() + 1) {
+        // Register overlaps in the following cases
+        // v0, v1 = ..., v1, v2
+        // v0, v1 = v1, v2, ...
+        // v1, v2 = ..., v0, v1
+        // v1, v2 = v0, v1, ...
+        if (inst.getRegisterA() + 1 == inst.getRegisterC()
+            || inst.getRegisterA() + 1 == inst.getRegisterB()
+            || inst.getRegisterA() == inst.getRegisterC() + 1
+            || inst.getRegisterA() == inst.getRegisterB() + 1) {
           Assert.fail("Register overlapping");
         }
       }
