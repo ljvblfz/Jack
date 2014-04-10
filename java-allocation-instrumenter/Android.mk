@@ -33,7 +33,6 @@ LOCAL_JAVA_LIBRARIES := \
   guava-jack
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-  asm-all-4.1-jack \
   guava-collect-jack
 
 include $(BUILD_HOST_JAVA_LIBRARY)
