@@ -57,7 +57,8 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
           FORNAME_METHOD_NAME, Collections.singletonList((JType) javaLangString),
           MethodKind.STATIC);
     }
-    if (call.getReceiverType().equals(javaLangClass) && call.getMethodId() == forNameMethodId) {
+    if (call.getReceiverType().equals(javaLangClass)
+        && call.getMethodId().equals(forNameMethodId)) {
       assert call.getType().equals(javaLangClass);
       return true;
     }

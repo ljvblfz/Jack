@@ -128,7 +128,7 @@ public class JAnnotationLiteral extends JLiteral {
   @CheckForNull
   public JNameValuePair getNameValuePair(@Nonnull JMethodId methodId) {
     for (JNameValuePair pair : elements) {
-      if (pair.getMethodId() == methodId) {
+      if (pair.getMethodId().equals(methodId)) {
         return pair;
       }
     }

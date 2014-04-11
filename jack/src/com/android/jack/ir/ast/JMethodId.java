@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -178,10 +179,20 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
 
   private boolean canBeResultId() {
     for (JMethod method : methods) {
-      if (method.getMethodId() != this) {
+      if (!method.getMethodId().equals(this)) {
         return false;
       }
     }
     return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj == this;
   }
 }

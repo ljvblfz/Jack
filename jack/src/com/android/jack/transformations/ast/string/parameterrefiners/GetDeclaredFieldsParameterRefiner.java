@@ -52,7 +52,7 @@ public class GetDeclaredFieldsParameterRefiner extends GetFieldParameterRefiner 
           MethodKind.INSTANCE_VIRTUAL);
     }
     if (call.getReceiverType().equals(javaLangClass)
-        && call.getMethodId() == getFieldMethodId) {
+        && call.getMethodId().equals(getFieldMethodId)) {
       assert formatter.getName(call.getType()).equals(FIELD_CLASS_SIGNATURE);
       return true;
     }

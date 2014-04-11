@@ -55,7 +55,7 @@ public class GetDeclaredMethodParameterRefiner extends GetMethodParameterRefiner
           GETDECLAREDMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
     }
     if (call.getReceiverType().equals(javaLangClass)
-        && call.getMethodId() == getDeclaredMethodMethodId) {
+        && call.getMethodId().equals(getDeclaredMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);
       return true;
     }

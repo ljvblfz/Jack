@@ -66,7 +66,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
           GETMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
     }
     if (call.getReceiverType().equals(javaLangClass)
-        && call.getMethodId() == getMethodMethodId) {
+        && call.getMethodId().equals(getMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);
       return true;
     }
