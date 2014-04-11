@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,33 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
 
 /**
- * Builds a {@code DexFile} instance from a {@code Session}.
- *
- * <p>This builder only creates an empty {@code DexFile} instance. This instance
- * is then filled with {@code ClassDefItem}s by the {@code ClassDefItemBuilder}.
- *
- * @see ClassDefItemBuilder
+ * Prepare dex file to be written later.
  */
-@Description("Builds a DexFile instance from a Session.")
-@Name("DexFileBuilder")
-@Transform(add = DexFileMarker.class)
-public class DexFileBuilder implements RunnableSchedulable<JSession> {
+@Description("Prepare dex file to be written later")
+@Name("DexFilePreparer")
+@Transform(add = {DexFileMarker.Prepared.class})
+@Constraint(need = {DexCodeMarker.class, DexFileMarker.Complete.class})
+public class DexFilePreparer implements RunnableSchedulable<JSession> {
 
-  @Nonnull
-  private final DexFile dexFile = new DexFile(new DexOptions());
-
-  /**
-   * Attaches the {@code DexFile} instance to build to the given {@code session}
-   * in a {@code DexFileMarker}. This {@code DexFile} instance is then accessible
-   * in {@code ClassDefItemBuilder} schedulable.
-   */
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    DexFileMarker dexFileMarker = new DexFileMarker(dexFile);
-    session.addMarker(dexFileMarker);
+    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
+    assert dexFileMarker != null;
+    DexFile dexFile = dexFileMarker.getDexFile();
+    assert dexFile != null;
+    dexFile.prepare(null);
   }
 }

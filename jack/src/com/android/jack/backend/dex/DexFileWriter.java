@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Write dex into a file")
 @Name("DexFileWriter")
-@Constraint(need = {DexFileMarker.Complete.class})
+@Constraint(need = {DexFileMarker.Prepared.class})
 @Produce(DexFileProduct.class)
 @Support(DexNonZipOutput.class)
 public class DexFileWriter implements RunnableSchedulable<JSession> {

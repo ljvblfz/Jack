@@ -30,6 +30,7 @@ import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileBuilder;
+import com.android.jack.backend.dex.DexFilePreparer;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexZipWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
@@ -972,6 +973,8 @@ public abstract class Jack {
         packagePlan.append(PackageChecker.class);
       }
     }
+
+    planBuilder.append(DexFilePreparer.class);
   }
 
   private static void fillJavaToJaycePlan(
@@ -1365,6 +1368,8 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(ParentSetterChecker.class);
     }
+
+    planBuilder.append(DexFilePreparer.class);
   }
 
   @Nonnull

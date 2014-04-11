@@ -46,7 +46,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Write dex into a zip")
 @Name("DexZipWriter")
-@Constraint(need = {DexFileMarker.Complete.class})
+@Constraint(need = {DexFileMarker.Prepared.class})
 @Produce(DexFileProduct.class)
 @Support(DexZipOutput.class)
 public class DexZipWriter extends DexFileWriter {
