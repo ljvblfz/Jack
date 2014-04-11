@@ -72,7 +72,6 @@ import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.jayce.JaycePackageLoader;
-import com.android.jack.load.ComposedPackageLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
@@ -555,13 +554,13 @@ public abstract class Jack {
 
     JSession session =  getSession();
 
-    ComposedPackageLoader rootPackageLoader = session.getTopLevelLoader();
+    JPackage rootPackage = session.getTopLevelPackage();
 
     JPhantomLookup phantomLookup = session.getPhantomLookup();
     JayceFileImporter jayceImporter =
-        getJayceFileImporter(options.jayceImport, rootPackageLoader, phantomLookup, hooks);
-    putInJackClasspath(options.getBootclasspath(), rootPackageLoader, phantomLookup, hooks);
-    putInJackClasspath(options.getClasspath(), rootPackageLoader, phantomLookup, hooks);
+        getJayceFileImporter(options.jayceImport, rootPackage, phantomLookup, hooks);
+    putInJackClasspath(options.getBootclasspath(), rootPackage, phantomLookup, hooks);
+    putInJackClasspath(options.getClasspath(), rootPackage, phantomLookup, hooks);
 
     if (ecjArguments != null) {
       String bootclasspathOption = "-bootclasspath";
@@ -617,7 +616,7 @@ public abstract class Jack {
 
   @Nonnull
   private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
-      @Nonnull ComposedPackageLoader rootPackageLoader, @Nonnull JPhantomLookup phantomLookup,
+      @Nonnull JPackage rootPackage, @Nonnull JPhantomLookup phantomLookup,
       @Nonnull RunnableHooks hooks) throws JackFileException {
     List<InputVDir> jackFilesToImport = new ArrayList<InputVDir>(jayceImport.size());
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
@@ -627,7 +626,7 @@ public abstract class Jack {
         jackFilesToImport.add(vDir);
         // add to classpath
         JaycePackageLoader rootPLoader = factory.create(vDir, phantomLookup);
-        rootPackageLoader.appendLoader(rootPLoader);
+        rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         throw new JackFileException("Error importing jack container: " + jackFile.getAbsolutePath(),
             ioException);
@@ -637,7 +636,7 @@ public abstract class Jack {
   }
 
   private static void putInJackClasspath(@Nonnull List<File> jackFiles,
-      @Nonnull ComposedPackageLoader rootPackageLoader,
+      @Nonnull JPackage rootPackage,
       @Nonnull JPhantomLookup phantomJNodeLookup,
       @Nonnull RunnableHooks hooks) {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
@@ -645,7 +644,7 @@ public abstract class Jack {
       try {
         InputVDir vDir = wrapAsVDir(jackFile, hooks);
         JaycePackageLoader rootPLoader = factory.create(vDir, phantomJNodeLookup);
-        rootPackageLoader.appendLoader(rootPLoader);
+        rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         // Ignore bad entry
         logger.log(Level.WARNING, "Bad classpath entry ignored: {0}",

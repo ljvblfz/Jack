@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.load.ComposablePackageLoader;
+import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.location.Location;
@@ -39,9 +39,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * ComposablePackageLoader for package containing classes defined in jack files.
+ * {@link PackageLoader} for package containing classes defined in jack files.
  */
-public class JaycePackageLoader implements ComposablePackageLoader {
+public class JaycePackageLoader implements PackageLoader {
 
   @Nonnull
   private final InputVDir dir;
@@ -91,7 +91,7 @@ public class JaycePackageLoader implements ComposablePackageLoader {
 
   @Nonnull
   @Override
-  public ComposablePackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
+  public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) {
       for (VElement sub : dir.list()) {
         if (sub instanceof InputVDir && sub.getName().equals(simpleName)) {

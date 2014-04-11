@@ -26,16 +26,16 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * Element of a {@link ComposedPackageLoader}.
+ * Loader for {@link JPackage}.
  */
-public interface ComposablePackageLoader {
+public interface PackageLoader {
 
   @Nonnull
   JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage enclosing, @Nonnull String simpleName) throws JLookupException;
 
   @Nonnull
-  ComposablePackageLoader getLoaderForSubPackage(@Nonnull JPackage enclosing,
+  PackageLoader getLoaderForSubPackage(@Nonnull JPackage enclosing,
       @Nonnull String simpleName);
 
   @Nonnull

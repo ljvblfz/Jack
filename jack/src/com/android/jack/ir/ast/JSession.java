@@ -18,7 +18,6 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.load.ComposedPackageLoader;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.item.Component;
@@ -80,11 +79,6 @@ public class JSession extends JNode {
     topLevelPackage.updateParents(this);
     lookup = new JNodeLookup(topLevelPackage);
     phantomLookup = new JPhantomLookup(lookup);
-  }
-
-  @Nonnull
-  public ComposedPackageLoader getTopLevelLoader() {
-    return topLevelPackage.getLoader();
   }
 
   /**

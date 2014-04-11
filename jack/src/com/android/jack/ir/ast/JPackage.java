@@ -17,18 +17,22 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceOrigin;
-import com.android.jack.load.ComposedPackageLoader;
+import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JLookupException;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -39,6 +43,12 @@ import javax.annotation.Nonnull;
  */
 @Description("Represents a Java package")
 public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosingPackage {
+
+  private static enum OnPath {
+    NOT_YET_AVAILABLE,
+    TRUE,
+    FALSE;
+  }
 
   private static final long serialVersionUID = 1L;
 
@@ -88,27 +98,28 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final JSession session;
 
   @Nonnull
-  private final transient ComposedPackageLoader loader;
+  private final transient List<PackageLoader> loaders =
+      new LinkedList<PackageLoader>();
 
-  private boolean isOnPath;
+  private OnPath isOnPath = OnPath.NOT_YET_AVAILABLE;
 
   public JPackage(
       @Nonnull String name, @Nonnull JSession session, @CheckForNull JPackage enclosingPackage) {
-    this(name, session, enclosingPackage, new ComposedPackageLoader());
+    this(name, session, enclosingPackage, Collections.<PackageLoader>emptyList());
   }
 
   public JPackage(@Nonnull String name, @Nonnull JSession session,
-      @CheckForNull JPackage enclosingPackage, @Nonnull ComposedPackageLoader loader) {
+      @CheckForNull JPackage enclosingPackage,
+      @Nonnull List<PackageLoader> loaders) {
     super(SourceOrigin.UNKNOWN);
     this.session = session;
     this.name = name;
-    this.loader = loader;
+    this.loaders.addAll(loaders);
     if (enclosingPackage != null) {
       assert !name.isEmpty();
       this.enclosingPackage = enclosingPackage;
       this.enclosingPackage.addPackage(this);
     }
-    isOnPath = loader.isOnPath(this);
     session.getTracer().getStatistic(PACKAGE_CREATION).incValue();
   }
 
@@ -136,13 +147,13 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Nonnull
   public List<JPackage> getSubPackages() {
-    getLoader().loadSubPackages(this);
+    loadSubPackages();
     return subPackages;
   }
 
   @Nonnull
   public List<JDefinedClassOrInterface> getTypes() {
-    getLoader().loadClassesAndInterfaces(this);
+    loadClassesAndInterfaces();
     return declaredTypes;
   }
 
@@ -175,7 +186,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       }
     }
 
-    return getLoader().loadSubPackage(this, packageName);
+    return loadSubPackage(packageName);
   }
 
   @Nonnull
@@ -198,18 +209,27 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       }
     }
 
-    return getLoader().loadClassOrInterface(this, typeName);
+    return loadClassOrInterface(typeName);
   }
 
   public void setOnPath(boolean isOnPath) {
-    this.isOnPath = isOnPath;
+    this.isOnPath = OnPath.TRUE;
   }
 
   /**
    * Return true if this JPackage is defined in bootclasspath, classpath or a sourcepath.
    */
   public boolean isOnPath() {
-    return isOnPath;
+    if (isOnPath == OnPath.NOT_YET_AVAILABLE) {
+      isOnPath = OnPath.FALSE;
+      for (PackageLoader loader : loaders) {
+        if (loader.isOnPath(this)) {
+          isOnPath = OnPath.TRUE;
+          break;
+        }
+      }
+    }
+    return isOnPath == OnPath.TRUE;
   }
 
   @Nonnull
@@ -331,8 +351,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       if (visitor.needLoading()) {
-        getLoader().loadSubPackages(this);
-        getLoader().loadClassesAndInterfaces(this);
+        loadSubPackages();
+        loadClassesAndInterfaces();
       }
       visitor.accept(subPackages);
       visitor.accept(declaredTypes);
@@ -406,11 +426,78 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     return declaredTypes;
   }
 
-  /**
-   * @return the loader
-   */
   @Nonnull
-  public ComposedPackageLoader getLoader() {
-    return loader;
+  public JPackage addLoader(@Nonnull PackageLoader loader) {
+    loaders.add(loader);
+    return this;
+  }
+
+  @Nonnull
+  public List<Location> getLocations(@Nonnull JPackage loaded) {
+    List<Location> locations = new ArrayList<Location>(loaders.size());
+    for (PackageLoader loader : loaders) {
+      locations.add(loader.getLocation(loaded));
+    }
+    return locations;
+  }
+
+  @Nonnull
+  protected JPackage loadSubPackage(@Nonnull String simpleName)
+      throws JPackageLookupException {
+    List<PackageLoader> subLoaders = null;
+    for (PackageLoader loader : loaders) {
+      try {
+        PackageLoader subLoader =
+            loader.getLoaderForSubPackage(this, simpleName);
+        if (subLoaders == null) {
+          subLoaders = new LinkedList<PackageLoader>();
+        }
+        subLoaders.add(subLoader);
+      } catch (JPackageLookupException e) {
+        // ignore
+      }
+    }
+    if (subLoaders != null) {
+      JPackage subPackage = new JPackage(simpleName, getSession(), this, subLoaders);
+      subPackage.updateParents(this);
+      return subPackage;
+    } else {
+      throw new JPackageLookupException(simpleName, this);
+    }
+  }
+
+  protected void loadSubPackages() {
+    HashSet<String> subNames = new HashSet<String>();
+    for (PackageLoader loader : loaders) {
+      subNames.addAll(loader.getSubPackageNames(this));
+    }
+
+    for (String name : subNames) {
+      getSubPackage(name);
+    }
+  }
+
+  @Nonnull
+  protected JDefinedClassOrInterface loadClassOrInterface(
+      @Nonnull String simpleName) throws JLookupException {
+    for (PackageLoader loader : loaders) {
+      try {
+        return loader.loadClassOrInterface(this, simpleName);
+      } catch (JLookupException e) {
+        // ignore
+      }
+    }
+    throw new JTypeLookupException(this, simpleName);
+  }
+
+  protected void loadClassesAndInterfaces() {
+    HashSet<String> subNames = new HashSet<String>();
+    for (PackageLoader loader : loaders) {
+      subNames.addAll(loader.getSubClassNames(this));
+    }
+
+    for (String name : subNames) {
+      getType(name);
+    }
   }
 }
