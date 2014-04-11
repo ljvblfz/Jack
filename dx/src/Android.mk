@@ -13,6 +13,7 @@ LOCAL_SRC_FILES := $(call all-subdir-java-files)
 LOCAL_JAR_MANIFEST := ../etc/manifest.txt
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= dx-jack
+LOCAL_STATIC_JAVA_LIBRARIES := jsr305lib-jack
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 
