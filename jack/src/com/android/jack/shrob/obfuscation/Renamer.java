@@ -63,9 +63,9 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 @Description("Visitor that renames JNodes")
-@Constraint(need = {KeepNameMarker.class, OriginalNames.class})
-@Transform(add = {OriginalNameMarker.class, OriginalPackageMarker.class},
-  remove = OriginalNames.class)
+@Constraint(need = {KeepNameMarker.class, OriginalNames.class}, no = FinalNames.class)
+@Transform(remove = OriginalNames.class,
+    add = {OriginalNameMarker.class, OriginalPackageMarker.class, FinalNames.class})
 @Use(MappingApplier.class)
 public class Renamer implements RunnableSchedulable<JSession> {
 
