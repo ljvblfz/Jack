@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.ssa.back;
 
+import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.rop.code.CstInsn;
 import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegOps;
@@ -45,6 +46,49 @@ import java.util.TreeMap;
  * kept together if possible.
  */
 public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
+
+  /**
+   * Alignment constraint that can be used during search of free registers.
+   */
+  private enum Alignment {
+    EVEN {
+      @Override
+      int nextClearBit(BitSet bitSet, int startIdx) {
+        int bitNumber = bitSet.nextClearBit(startIdx);
+        while (!isEven(bitNumber)) {
+          bitNumber = bitSet.nextClearBit(bitNumber + 1);
+        }
+        return bitNumber;
+      }
+    },
+    ODD {
+      @Override
+      int nextClearBit(BitSet bitSet, int startIdx) {
+        int bitNumber = bitSet.nextClearBit(startIdx);
+        while (isEven(bitNumber)) {
+          bitNumber = bitSet.nextClearBit(bitNumber + 1);
+        }
+        return bitNumber;
+      }
+    },
+    UNSPECIFIED {
+      @Override
+      int nextClearBit(BitSet bitSet, int startIdx) {
+        return bitSet.nextClearBit(startIdx);
+      }
+    };
+
+    /**
+     * Returns the index of the first bit that is set to {@code false} that occurs on or after the
+     * specified starting index and that respect {@link Alignment}.
+     *
+     * @param bitSet bitSet working on.
+     * @param startIdx {@code >= 0;} the index to start checking from (inclusive).
+     * @return the index of the next clear bit respecting alignment.
+     */
+    abstract int nextClearBit(BitSet bitSet, int startIdx);
+  }
+
   /** local debug flag */
   private static final boolean DEBUG = false;
 
@@ -355,16 +399,48 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
   }
 
   /**
+   * Return the register alignment constraint to have 64-bits registers that will be align on even
+   * dalvik registers after that parameter registers are move up to the top of the frame to match
+   * the calling convention.
+   *
+   * @param regCategory category of the register that will be aligned.
+   * @return the register alignment constraint.
+   */
+  private Alignment getAlignment(int regCategory) {
+    Alignment alignment = Alignment.UNSPECIFIED;
+
+    if (DexOptions.ALIGN_64BIT_REGS && regCategory == 2) {
+      if (isEven(paramRangeEnd)) {
+        alignment = Alignment.EVEN;
+      } else {
+        alignment = Alignment.ODD;
+      }
+    }
+
+    return alignment;
+  }
+
+  /**
+   * Finds unreserved rop registers with a specific category.
+   *
+   * @param startReg {@code >= 0;} a rop register to start the search at
+   * @param regCategory {@code > 0;} category of the searched registers.
+   * @return {@code >= 0;} start of available registers.
+   */
+  private int findNextUnreservedRopReg(int startReg, int regCategory) {
+    return findNextUnreservedRopReg(startReg, regCategory, getAlignment(regCategory));
+  }
+
+  /**
    * Finds a range of unreserved rop registers.
    *
    * @param startReg {@code >= 0;} a rop register to start the search at
    * @param width {@code > 0;} the width, in registers, required.
+   * @param alignment the alignment constraint.
    * @return {@code >= 0;} start of available register range.
    */
-  private int findNextUnreservedRopReg(int startReg, int width) {
-    int reg;
-
-    reg = reservedRopRegs.nextClearBit(startReg);
+  private int findNextUnreservedRopReg(int startReg, int width, Alignment alignment) {
+    int reg = alignment.nextClearBit(reservedRopRegs, startReg);
 
     while (true) {
       int i = 1;
@@ -377,36 +453,35 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
         return reg;
       }
 
-      reg = reservedRopRegs.nextClearBit(reg + i);
+      reg = alignment.nextClearBit(reservedRopRegs, reg + i);
     }
   }
 
   /**
-   * Finds a range of rop regs that can be used for local variables.
+   * Finds rop registers that can be used for local variables.
    * If {@code MIX_LOCALS_AND_OTHER} is {@code false}, this means any
    * rop register that has not yet been used.
    *
    * @param startReg {@code >= 0;} a rop register to start the search at
-   * @param width {@code > 0;} the width, in registers, required.
-   * @return {@code >= 0;} start of available register range.
+   * @param category {@code > 0;} the register category required.
+   * @return {@code >= 0;} start of available registers.
    */
-  private int findRopRegForLocal(int startReg, int width) {
-    int reg;
-
-    reg = usedRopRegs.nextClearBit(startReg);
+  private int findRopRegForLocal(int startReg, int category) {
+    Alignment alignment = getAlignment(category);
+    int reg = alignment.nextClearBit(usedRopRegs, startReg);
 
     while (true) {
       int i = 1;
 
-      while (i < width && !usedRopRegs.get(reg + i)) {
+      while (i < category && !usedRopRegs.get(reg + i)) {
         i++;
       }
 
-      if (i == width) {
+      if (i == category) {
         return reg;
       }
 
-      reg = usedRopRegs.nextClearBit(reg + i);
+      reg = alignment.nextClearBit(usedRopRegs, reg + i);
     }
   }
 
@@ -837,7 +912,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * registers we can move the range into.
      */
 
-if (resultRangeStart == -1) {
+    if (resultRangeStart == -1) {
       resultMovesRequired = new BitSet(szSources);
 
       resultRangeStart =
@@ -848,7 +923,7 @@ if (resultRangeStart == -1) {
      * Now, insert any moves required.
      */
 
-for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
+    for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
         i = resultMovesRequired.nextSetBit(i + 1)) {
       insn.changeOneSource(i, insertMoveBefore(insn, sources.get(i)));
     }
@@ -872,9 +947,44 @@ for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
    */
   private int findAnyFittingRange(NormalSsaInsn insn, int rangeLength, int[] categoriesForIndex,
       BitSet outMovesRequired) {
+    Alignment alignment = Alignment.UNSPECIFIED;
+
+    if (DexOptions.ALIGN_64BIT_REGS) {
+      int regNumber = 0;
+      int p64bitsAligned = 0;
+      int p64bitsNotAligned = 0;
+      for (int category : categoriesForIndex) {
+        if (category == 2) {
+          if (isEven(regNumber)) {
+            p64bitsAligned++;
+          } else {
+            p64bitsNotAligned++;
+          }
+          regNumber += 2;
+        } else {
+          regNumber += 1;
+        }
+      }
+
+      if (p64bitsNotAligned > p64bitsAligned) {
+        if (isEven(paramRangeEnd)) {
+          alignment = Alignment.ODD;
+        } else {
+          alignment = Alignment.EVEN;
+        }
+      } else if (p64bitsAligned > 0) {
+        if (isEven(paramRangeEnd)) {
+          alignment = Alignment.EVEN;
+        } else {
+          alignment = Alignment.ODD;
+        }
+      }
+    }
+
     int rangeStart = paramRangeEnd;
     while (true) {
-      rangeStart = findNextUnreservedRopReg(rangeStart, rangeLength);
+      rangeStart = findNextUnreservedRopReg(rangeStart, rangeLength, alignment);
+
       int fitWidth = fitPlanForRange(rangeStart, insn, categoriesForIndex, outMovesRequired);
 
       if (fitWidth >= 0) {
@@ -883,7 +993,12 @@ for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
       rangeStart++;
       outMovesRequired.clear();
     }
+
     return rangeStart;
+  }
+
+  private static boolean isEven(int regNumger) {
+    return ((regNumger & 1) == 0);
   }
 
   /**
@@ -943,7 +1058,7 @@ for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
          *     overlapping moves, which we can't presently handle)
          */
 
-outMovesRequired.set(i);
+        outMovesRequired.set(i);
       } else {
         fitWidth = -1;
         break;

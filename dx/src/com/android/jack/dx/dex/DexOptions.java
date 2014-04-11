@@ -20,6 +20,12 @@ package com.android.jack.dx.dex;
  * Container for options used to control details of dex file generation.
  */
 public class DexOptions {
+
+  /**
+   * Enable alignment of 64-bit registers on Dalvik even registers.
+   */
+  public static final boolean ALIGN_64BIT_REGS = true;
+
   /** target API level */
   public int targetApiLevel = DexFormat.API_NO_EXTENDED_OPCODES;
 

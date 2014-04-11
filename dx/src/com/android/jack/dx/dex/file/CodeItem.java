@@ -207,8 +207,7 @@ public final class CodeItem extends OffsettedItem implements Code {
      * unit, post-code padding if necessary, and however much
      * space the catches need.
      */
-
-int insnsSize = code.getInsns().codeSize();
+    int insnsSize = code.getInsns().codeSize();
     if ((insnsSize & 1) != 0) {
       insnsSize++;
     }

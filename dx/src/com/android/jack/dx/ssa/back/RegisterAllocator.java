@@ -36,6 +36,7 @@ import java.util.ArrayList;
  * Base class of all register allocators.
  */
 public abstract class RegisterAllocator {
+
   /** method being processed */
   protected final SsaMethod ssaMeth;
 
