@@ -105,11 +105,10 @@ public final class DexFile {
   /** {@code >= 40;} maximum width of the file dump */
   private int dumpWidth;
 
-  /** List of constant index mapping that must be used to remap binary */
-  private List<CstIndexMap> cstIndexMaps;
-
-  public DexFile(DexOptions dexOptions, List<CstIndexMap> cstIndexMaps) {
-    this.cstIndexMaps = cstIndexMaps;
+  /**
+   * Constructs an instance. It is initially empty.
+   */
+  public DexFile(DexOptions dexOptions) {
     this.dexOptions = dexOptions;
 
     header = new HeaderSection(this);
@@ -146,13 +145,6 @@ public final class DexFile {
 
     fileSize = -1;
     dumpWidth = 79;
-  }
-
-  /**
-   * Constructs an instance. It is initially empty.
-   */
-  public DexFile(DexOptions dexOptions) {
-    this(dexOptions, null);
   }
 
   /**
@@ -496,26 +488,23 @@ public final class DexFile {
   }
 
   /**
-   * Returns the contents of this instance as a {@code .dex} file,
-   * in a {@link ByteArrayAnnotatedOutput} instance.
+   * Prepares this instance for writing. This performs any necessary prerequisites, including
+   * particularly adding stuff to other sections and places all the items in this instance at
+   * particular offsets.
    *
-   * @param annotate whether or not to keep annotations
-   * @param verbose if annotating, whether to be verbose
-   * @return {@code non-null;} a {@code .dex} file for this instance
+   * @param cstIndexMaps list used to map offsets from a dex file to this instance
    */
-  private ByteArrayAnnotatedOutput toDex0(boolean annotate, boolean verbose) {
-    /*
-     * The following is ordered so that the prepare() calls which
-     * add items happen before the calls to the sections that get
-     * added to.
-     */
-
-if (cstIndexMaps != null) {
+  public void prepare(List<CstIndexMap> cstIndexMaps) {
+    if (cstIndexMaps != null) {
       for (CstIndexMap cstIndexMap : cstIndexMaps) {
         cstIndexMap.mergeConstantsIntoDexFile(this);
       }
     }
 
+    /**
+     * The following is ordered so that the prepare() calls which add items happen before the calls
+     * to the sections that get added to.
+     */
     classDefs.prepare();
     classData.prepare();
     wordData.prepare();
@@ -569,6 +558,32 @@ if (cstIndexMaps != null) {
     // Write out all the sections.
 
     fileSize = offset;
+  }
+
+  /**
+   * Returns the contents of this instance as a {@code .dex} file,
+   * in a {@link ByteArrayAnnotatedOutput} instance.
+   *
+   * @param annotate whether or not to keep annotations
+   * @param verbose if annotating, whether to be verbose
+   * @return {@code non-null;} a {@code .dex} file for this instance
+   */
+  private ByteArrayAnnotatedOutput toDex0(boolean annotate, boolean verbose) {
+    classDefs.throwIfNotPrepared();
+    classData.throwIfNotPrepared();
+    wordData.throwIfNotPrepared();
+    byteData.throwIfNotPrepared();
+    methodIds.throwIfNotPrepared();
+    fieldIds.throwIfNotPrepared();
+    protoIds.throwIfNotPrepared();
+    typeLists.throwIfNotPrepared();
+    typeIds.throwIfNotPrepared();
+    stringIds.throwIfNotPrepared();
+    stringData.throwIfNotPrepared();
+    header.throwIfNotPrepared();
+
+    // Write out all the sections.
+    int count = sections.length;
     byte[] barr = new byte[fileSize];
     ByteArrayAnnotatedOutput out = new ByteArrayAnnotatedOutput(barr);
 

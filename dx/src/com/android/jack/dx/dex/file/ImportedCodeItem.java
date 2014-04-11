@@ -51,7 +51,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
    * {@code non-null;} map index values used into code that references {@link Constant} from one
    * dex file into index values compliant with another dex file.
    */
-  private CstIndexMap cstIndexMap;
+  private final CstIndexMap cstIndexMap;
 
   /** Array of remapped instructions */
   private DecodedInstruction[] remappedInstructions;
@@ -314,6 +314,10 @@ public final class ImportedCodeItem extends OffsettedItem implements
     throw new AssertionError("Not yet supported");
   }
 
+  public CstIndexMap getCstIndexMap() {
+    return cstIndexMap;
+  }
+
   private class GenericVisitor implements CodeReader.Visitor {
 
     @Override
@@ -327,7 +331,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
    */
   private class StringRemapper implements CodeReader.Visitor {
 
-    private DexFile file;
+    private final DexFile file;
 
     public StringRemapper(DexFile dex) {
       this.file = dex;
@@ -351,7 +355,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
    */
   private class FieldRemapper implements CodeReader.Visitor {
 
-    private DexFile file;
+    private final DexFile file;
 
     public FieldRemapper(DexFile dex) {
       this.file = dex;
@@ -369,7 +373,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
    */
   private class TypeRemapper implements CodeReader.Visitor {
 
-    private DexFile file;
+    private final DexFile file;
 
     public TypeRemapper(DexFile dex) {
       this.file = dex;
@@ -387,7 +391,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
    */
   private class MethodRemapper implements CodeReader.Visitor {
 
-    private DexFile file;
+    private final DexFile file;
 
     public MethodRemapper(DexFile dex) {
       this.file = dex;

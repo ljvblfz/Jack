@@ -92,6 +92,15 @@ public final class DexFileMarker implements Marker {
   public static final class ClassAnnotation implements Tag {
   }
 
+  /**
+   * This tag means that the {@code DexFile}s contained into the {@Code DexFileMarker} are prepared
+   * and ready to be written in an {@code OutputStream}.
+   */
+  @Description("The DexFile contained into the DexFileMarker is prepared.")
+  @Name("DexFileMarker.Prepared")
+  public static final class Prepared implements Tag {
+  }
+
   public DexFileMarker(@Nonnull DexFile dexFile) {
     this.dexFile = dexFile;
   }
