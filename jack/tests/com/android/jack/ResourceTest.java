@@ -92,7 +92,6 @@ public class ResourceTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testJackDirToDexArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = TestTools.createTempDir("tempjack", "dir");
