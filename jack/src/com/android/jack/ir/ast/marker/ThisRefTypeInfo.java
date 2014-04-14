@@ -16,7 +16,6 @@
 
 package com.android.jack.ir.ast.marker;
 
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -32,18 +31,18 @@ import javax.annotation.Nonnull;
 public class ThisRefTypeInfo implements Marker {
 
   @Nonnull
-  private JAbstractStringLiteral genericSignature;
+  private CharSequence genericSignature;
 
-  public ThisRefTypeInfo(@Nonnull JAbstractStringLiteral genericSignature) {
+  public ThisRefTypeInfo(@Nonnull CharSequence genericSignature) {
     this.genericSignature = genericSignature;
   }
 
   @Nonnull
-  public JAbstractStringLiteral getGenericSignature() {
-    return genericSignature;
+  public String getGenericSignature() {
+    return genericSignature.toString();
   }
 
-  public void setGenericSignature(@Nonnull JAbstractStringLiteral genericSignature) {
+  public void setGenericSignature(@Nonnull CharSequence genericSignature) {
     this.genericSignature = genericSignature;
   }
 

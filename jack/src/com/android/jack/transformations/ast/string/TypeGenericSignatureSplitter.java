@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast.string;
 
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
@@ -49,7 +48,7 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
 
     OriginalTypeInfo marker = declaredType.getMarker(OriginalTypeInfo.class);
     if (marker != null) {
-      JAbstractStringLiteral newSignature = getSplittedSignature(marker.getGenericSignature());
+      CharSequence newSignature = getSplittedSignature(marker.getGenericSignature());
       if (newSignature != null) {
         marker.setGenericSignature(newSignature);
       }
@@ -57,7 +56,7 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
 
     ThisRefTypeInfo thisMarker = declaredType.getMarker(ThisRefTypeInfo.class);
     if (thisMarker != null) {
-      JAbstractStringLiteral newSignature = getSplittedSignature(thisMarker.getGenericSignature());
+      CharSequence newSignature = getSplittedSignature(thisMarker.getGenericSignature());
       if (newSignature != null) {
         thisMarker.setGenericSignature(newSignature);
       }
@@ -65,18 +64,15 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
   }
 
   @CheckForNull
-  private JAbstractStringLiteral getSplittedSignature(
-      @CheckForNull JAbstractStringLiteral oldSignature) {
-    if (oldSignature == null || oldSignature.getValue().isEmpty()) {
+  private CharSequence getSplittedSignature(@CheckForNull String oldSignature) {
+    if (oldSignature == null || oldSignature.isEmpty()) {
       return null;
     }
 
-    GenericSignatureRefiner parserActions =
-        new GenericSignatureRefiner(oldSignature.getSourceInfo());
+    GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
     GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
-    String strOldSignature = oldSignature.getValue();
-    parser.parseClassSignature(strOldSignature);
-    assert parserActions.getNewSignature().getValue().equals(strOldSignature);
+    parser.parseClassSignature(oldSignature);
+    assert parserActions.getNewSignature().toString().equals(oldSignature);
     return parserActions.getNewSignature();
   }
 }

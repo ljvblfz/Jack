@@ -135,9 +135,9 @@ class LoaderUtils {
   static <T extends JNode & Annotable> char[] getGenericSignature(@Nonnull T annotableNode) {
     OriginalTypeInfo typeInfo = annotableNode.getMarker(OriginalTypeInfo.class);
     if (typeInfo != null) {
-      JAbstractStringLiteral genericSignature = typeInfo.getGenericSignature();
+      String genericSignature = typeInfo.getGenericSignature();
       if (genericSignature != null) {
-        return genericSignature.getValue().toCharArray();
+        return genericSignature.toCharArray();
       }
     }
 

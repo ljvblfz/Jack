@@ -16,7 +16,6 @@
 
 package com.android.jack.ir.ast.marker;
 
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -36,12 +35,12 @@ import javax.annotation.Nonnull;
 public class OriginalTypeInfo implements Marker {
 
   @CheckForNull
-  private JAbstractStringLiteral genericSignature;
+  private CharSequence genericSignature;
 
   @CheckForNull
   private String sourceName;
 
-  public void setGenericSignature(@CheckForNull JAbstractStringLiteral genericSignature) {
+  public void setGenericSignature(@Nonnull CharSequence genericSignature) {
     this.genericSignature = genericSignature;
   }
 
@@ -55,8 +54,12 @@ public class OriginalTypeInfo implements Marker {
   }
 
   @CheckForNull
-  public JAbstractStringLiteral getGenericSignature() {
-    return genericSignature;
+  public String getGenericSignature() {
+    if (genericSignature == null) {
+      return null;
+    } else {
+      return genericSignature.toString();
+    }
   }
 
   @Override

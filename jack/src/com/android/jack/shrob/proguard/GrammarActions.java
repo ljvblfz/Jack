@@ -552,4 +552,9 @@ public class GrammarActions {
       flags.setSeedsFile(getFileFromBaseDir(baseDir, fileName));
     }
   }
+
+  public static void adaptResourceFileNames(@Nonnull Flags flags,
+      @Nonnull FilterSpecification filter) {
+    flags.adaptResourceFileNames(filter);
+  }
 }

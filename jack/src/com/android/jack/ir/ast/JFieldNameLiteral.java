@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.naming.FieldName;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -31,22 +32,22 @@ import javax.annotation.Nonnull;
 public class JFieldNameLiteral extends JAbstractStringLiteral {
 
   @Nonnull
-  private final JField field;
+  private final FieldName fieldName;
 
   public JFieldNameLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JField field) {
     super(sourceInfo);
-    this.field = field;
+    this.fieldName = new FieldName(field);
   }
 
   @Override
   @Nonnull
   public String getValue() {
-    return field.getName();
+    return fieldName.toString();
   }
 
   @Nonnull
   public JField getField() {
-    return field;
+    return fieldName.getField();
   }
 
   @Override

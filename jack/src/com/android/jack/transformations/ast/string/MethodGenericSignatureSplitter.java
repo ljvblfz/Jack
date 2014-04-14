@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast.string;
 
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
@@ -25,6 +24,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
 import javax.annotation.Nonnull;
@@ -35,6 +35,7 @@ import javax.annotation.Nonnull;
 @Description("Split method generic signature into more specific string literals.")
 @Name("MethodGenericSignatureSplitter")
 @Constraint(need = {OriginalTypeInfo.class})
+@Transform(modify = OriginalTypeInfo.class)
 @Use(GenericSignatureRefiner.class)
 public class MethodGenericSignatureSplitter implements RunnableSchedulable<JMethod> {
 
@@ -42,14 +43,12 @@ public class MethodGenericSignatureSplitter implements RunnableSchedulable<JMeth
   public void run(@Nonnull JMethod method) throws Exception {
     OriginalTypeInfo marker = method.getMarker(OriginalTypeInfo.class);
     if (marker != null) {
-      JAbstractStringLiteral oldSignature = marker.getGenericSignature();
+      String oldSignature = marker.getGenericSignature();
       if (oldSignature != null) {
-        GenericSignatureRefiner parserActions =
-            new GenericSignatureRefiner(oldSignature.getSourceInfo());
+        GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
         GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
-        String strOldSignature = oldSignature.getValue();
-        parser.parseMethodSignature(strOldSignature);
-        assert parserActions.getNewSignature().getValue().equals(strOldSignature);
+        parser.parseMethodSignature(oldSignature);
+        assert parserActions.getNewSignature().toString().equals(oldSignature);
         marker.setGenericSignature(parserActions.getNewSignature());
       }
     }

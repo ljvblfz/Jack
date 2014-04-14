@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce.v0002;
+package com.android.jack.ir.naming;
+
 
 /**
- * Version.
+ * An {@link AbstractName} is a readable sequence of char values.
+ * {@link AbstractName} and its subtypes do not guarantee thread-safety.
  */
-public class Version {
+public abstract class AbstractName implements CharSequence {
 
-  public static final int MINOR_MIN = 11;
+  @Override
+  public int length() {
+    return toString().length();
+  }
 
-  public static final int CURRENT_MINOR = 11;
+  @Override
+  public char charAt(int index) {
+    return toString().charAt(index);
+  }
+
+  @Override
+  public CharSequence subSequence(int start, int end) {
+    return toString().subSequence(start, end);
+  }
 }

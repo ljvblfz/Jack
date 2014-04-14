@@ -17,35 +17,30 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JCompositeStringLiteral;
-import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JTypeStringLiteral;
-import com.android.jack.ir.ast.JTypeStringLiteral.Kind;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.ir.naming.CompositeName;
+import com.android.jack.ir.naming.TypeName;
+import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.signature.GenericSignatureAction;
 import com.android.jack.util.NamingTools;
 import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Transform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Decomposed a generic signature into {@code JStringLiteral} and {@code JTypeLiteral}.
+ * Decompose a generic signature into {@code String}s and {@code TypeName}s.
  */
 @Constraint(need = OriginalNames.class)
-@Transform(add = {JTypeStringLiteral.class, JCompositeStringLiteral.class, JStringLiteral.class})
 public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
 
   @CheckForNull
-  private JAbstractStringLiteral jstringLiteral = null;
+  private CharSequence refinedSequence = null;
 
   @Nonnull
   private StringBuilder strBuf = new StringBuilder();
@@ -56,12 +51,8 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
   @Nonnull
   private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
-  @Nonnull
-  private final SourceInfo sourceInfo;
-
-  public GenericSignatureRefiner(@Nonnull SourceInfo sourceInfo) {
+  public GenericSignatureRefiner() {
     jlookup = Jack.getSession().getLookup();
-    this.sourceInfo = sourceInfo;
   }
 
   @Override
@@ -77,14 +68,14 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
   @Override
   @CheckForNull
   public JType parsedTypeName(@Nonnull String name) {
-    updateJStringLiteral(getJStringLiteralFromBuffer());
+    updateRefinedSequence(getStringFromBuffer());
     try {
       JType type = jlookup.getType(NamingTools.getTypeSignatureName(name));
-      updateJStringLiteral(new JTypeStringLiteral(sourceInfo, Kind.BINARY_QN, type));
+      updateRefinedSequence(new TypeName(Kind.BINARY_QN, type));
       return type;
     } catch (JLookupException e) {
-      // Type not found, keep it as a JStringLiteral
-      updateJStringLiteral(new JStringLiteral(sourceInfo, name));
+      // Type not found, keep it as a String
+      updateRefinedSequence(name);
       return null;
     }
   }
@@ -92,53 +83,51 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
   @Override
   @CheckForNull
   public JType parsedInnerTypeName(@CheckForNull JType enclosingType, @Nonnull String name) {
-    updateJStringLiteral(getJStringLiteralFromBuffer());
+    updateRefinedSequence(getStringFromBuffer());
     if (enclosingType != null) {
       try {
         JType type = jlookup.getType(NamingTools.getTypeSignatureName(
             formatter.getName(enclosingType) + '$' + name));
-        updateJStringLiteral(new JTypeStringLiteral(sourceInfo, Kind.SIMPLE_NAME, type));
+        updateRefinedSequence(new TypeName(Kind.SIMPLE_NAME, type));
         return type;
       } catch (JLookupException e) {
-        // Type not found, keep it as a JStringLiteral
+        // Type not found, keep it as a String
       }
     }
-    updateJStringLiteral(new JStringLiteral(sourceInfo, name));
+    updateRefinedSequence(name);
     return null;
   }
 
   @Override
   public void start() {
     strBuf = new StringBuilder();
-    jstringLiteral = null;
+    refinedSequence = null;
   }
 
   @Override
   public void stop() {
-    updateJStringLiteral(getJStringLiteralFromBuffer());
+    updateRefinedSequence(getStringFromBuffer());
   }
 
   @Nonnull
-  public JAbstractStringLiteral getNewSignature() {
-    assert jstringLiteral != null;
-    return jstringLiteral;
+  public CharSequence getNewSignature() {
+    assert refinedSequence != null;
+    return refinedSequence;
   }
 
   @Nonnull
-  private JAbstractStringLiteral getJStringLiteralFromBuffer() {
-    JAbstractStringLiteral newStringLiteral =
-        new JStringLiteral(sourceInfo, strBuf.toString());
+  private String getStringFromBuffer() {
+    CharSequence oldBuffer = strBuf;
     strBuf = new StringBuilder();
-    return newStringLiteral;
+    return oldBuffer.toString();
   }
 
-  private void updateJStringLiteral(@Nonnull JAbstractStringLiteral stringLiteral) {
-    if (jstringLiteral == null) {
-      jstringLiteral = stringLiteral;
-    } else {
-      assert jstringLiteral != null;
-      jstringLiteral =
-          new JCompositeStringLiteral(sourceInfo, jstringLiteral, stringLiteral);
+  private void updateRefinedSequence(@Nonnull CharSequence newSequence) {
+    if (refinedSequence == null) {
+      refinedSequence = newSequence;
+    } else if (newSequence.length() > 0){
+      assert refinedSequence != null;
+      refinedSequence = new CompositeName(refinedSequence, newSequence);
     }
   }
 }

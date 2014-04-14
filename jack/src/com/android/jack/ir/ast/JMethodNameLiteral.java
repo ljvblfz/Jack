@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.naming.MethodName;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -31,22 +32,22 @@ import javax.annotation.Nonnull;
 public class JMethodNameLiteral extends JAbstractStringLiteral {
 
   @Nonnull
-  private final JMethod method;
+  private final MethodName methodName;
 
   public JMethodNameLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JMethod method) {
     super(sourceInfo);
-    this.method = method;
+    this.methodName = new MethodName(method);
   }
 
   @Override
   @Nonnull
   public String getValue() {
-    return method.getName();
+    return methodName.toString();
   }
 
   @Nonnull
   public JMethod getMethod() {
-    return method;
+    return methodName.getMethod();
   }
 
   @Override

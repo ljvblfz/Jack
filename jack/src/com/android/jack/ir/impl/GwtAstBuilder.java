@@ -2293,7 +2293,7 @@ public class GwtAstBuilder {
       // non-generic signature
       if (!CharOperation.equals(signature, genericSignature)) {
         OriginalTypeInfo infoMarker = new OriginalTypeInfo();
-        infoMarker.setGenericSignature(getStringLiteral(SourceOrigin.UNKNOWN, genericSignature));
+        infoMarker.setGenericSignature(ReferenceMapper.intern(genericSignature));
         newLocal.addMarker(infoMarker);
       }
       curMethod.locals.put(b, newLocal);
@@ -3418,8 +3418,7 @@ public class GwtAstBuilder {
       // Check if the generic signature really contains generic types i.e. is different from the
       // non-generic signature
       if (!CharOperation.equals(signature, genericSignature)) {
-        ThisRefTypeInfo thisMarker =
-            new ThisRefTypeInfo(getStringLiteral(SourceOrigin.UNKNOWN, genericSignature));
+        ThisRefTypeInfo thisMarker = new ThisRefTypeInfo(ReferenceMapper.intern(genericSignature));
         type.addMarker(thisMarker);
       }
 

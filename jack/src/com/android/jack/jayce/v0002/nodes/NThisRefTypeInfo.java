@@ -37,32 +37,32 @@ public class NThisRefTypeInfo extends NMarker {
   public static final Token TOKEN = Token.THIS_REF_TYPE_INFO;
 
   @CheckForNull
-  public NStringLiteral genericSignature;
+  public String genericSignature;
 
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     ThisRefTypeInfo marker = (ThisRefTypeInfo) node;
-    genericSignature = (NStringLiteral) loader.load(marker.getGenericSignature());
+    genericSignature = marker.getGenericSignature();
   }
 
   @Override
   @Nonnull
   public ThisRefTypeInfo exportAsJast(@Nonnull ExportSession exportSession) {
     assert genericSignature != null;
-    ThisRefTypeInfo marker = new ThisRefTypeInfo(genericSignature.exportAsJast(exportSession));
+    ThisRefTypeInfo marker = new ThisRefTypeInfo(genericSignature);
 
     return marker;
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(genericSignature);
+    out.writeString(genericSignature);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
-    genericSignature = in.readNode(NStringLiteral.class);
+    genericSignature = in.readString();
   }
 
   @Override

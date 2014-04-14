@@ -122,6 +122,7 @@ import com.android.jack.shrob.obfuscation.remover.FieldKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.MethodKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeOriginalNameMarkerRemover;
+import com.android.jack.shrob.obfuscation.resource.ResourceRefiner;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.ExtendingOrImplementingClassFinder;
 import com.android.jack.shrob.shrink.FieldShrinker;
@@ -1232,6 +1233,7 @@ public abstract class Jack {
     {
       SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
       packagePlan.append(NameKeeper.class);
+      packagePlan.append(ResourceRefiner.class);
     }
     planBuilder.append(Renamer.class);
     {

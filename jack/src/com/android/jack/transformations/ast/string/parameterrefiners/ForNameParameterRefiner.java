@@ -23,8 +23,8 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
-import com.android.jack.ir.ast.JTypeStringLiteral.Kind;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.util.NamingTools;
@@ -93,9 +93,8 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
     if (NamingTools.isTypeDescriptor(typeSignature)) {
       try {
         type = lookup.getType(typeSignature);
-        strTypeLiteral =
-            new JTypeStringLiteral(paramToRefine.getSourceInfo(),
-                type instanceof JArrayType ? Kind.SRC_SIGNATURE : Kind.SRC_QN, type);
+        strTypeLiteral = new JTypeStringLiteral(paramToRefine.getSourceInfo(),
+            type instanceof JArrayType ? Kind.SRC_SIGNATURE : Kind.SRC_QN, type);
         assert typeName.equals(strTypeLiteral.getValue());
       } catch (JLookupException e) {
         // The string was not a valid type, do not replace it.

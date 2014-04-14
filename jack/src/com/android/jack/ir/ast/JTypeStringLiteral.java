@@ -17,10 +17,8 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.formatter.BinarySignatureFormatter;
-import com.android.jack.ir.formatter.SourceFormatter;
-import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.ir.naming.TypeName;
+import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -35,96 +33,23 @@ import javax.annotation.Nonnull;
 public class JTypeStringLiteral extends JAbstractStringLiteral {
 
   @Nonnull
-  private static final TypeFormatter binaryQnFormatter =
-      BinaryQualifiedNameFormatter.getFormatter();
-  @Nonnull
-  private static final TypeFormatter binarySignatureFormatter =
-      BinarySignatureFormatter.getFormatter();
-  @Nonnull
-  private static final TypeFormatter sourceQnFormatter = SourceFormatter.getFormatter();
+  private final TypeName typeName;
 
-  /**
-   * kind of literal type representation.
-   */
-  public enum Kind {
-    BINARY_SIGNATURE,   // means Ljava/lang/Object;
-    SRC_SIGNATURE,      // means Ljava.lang.Object;
-    BINARY_QN,          // means java/lang/Object
-    SRC_QN,             // means java.lang.Object
-    SIMPLE_NAME         // means d when type name is a/b/c/d or a/b/c/e$d or a.b.c.d or a.b.c$d
-  }
-
-  @Nonnull
-  private final JType type;
-
-  @Nonnull
-  private final Kind kind;
-
-  public JTypeStringLiteral(
-      @Nonnull SourceInfo sourceInfo, @Nonnull Kind kind, @Nonnull JType type) {
+  public JTypeStringLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull Kind kind,
+      @Nonnull JType type) {
     super(sourceInfo);
-    assert kind != Kind.SIMPLE_NAME || type instanceof JClassOrInterface;
-    this.kind = kind;
-    this.type = type;
-  }
-
-  @Nonnull
-  private static String getValue(@Nonnull JType type, @Nonnull Kind kind) {
-    if (type instanceof JArrayType) {
-      switch (kind) {
-        case BINARY_SIGNATURE:
-        case SRC_SIGNATURE:
-          return "[" + getValue(((JArrayType) type).getElementType(), kind);
-        case BINARY_QN:
-        case SRC_QN:
-        case SIMPLE_NAME:
-          return getValue(((JArrayType) type).getElementType(), kind) + "[]";
-        default: {
-          throw new AssertionError();
-        }
-      }
-    } else {
-      switch (kind) {
-        case BINARY_SIGNATURE:
-          return binarySignatureFormatter.getName(type);
-        case SRC_SIGNATURE:
-          return binarySignatureFormatter.getName(type).replace('/', '.');
-        case BINARY_QN:
-          assert type instanceof JClassOrInterface;
-          return binaryQnFormatter.getName(type);
-        case SRC_QN:
-          assert type instanceof JClassOrInterface;
-          return sourceQnFormatter.getName(type);
-        case SIMPLE_NAME:
-          return getSimpleName(type);
-        default: {
-          throw new AssertionError();
-        }
-      }
-    }
+    this.typeName = new TypeName(kind, type);
   }
 
   @Override
   @Nonnull
   public String getValue() {
-    return getValue(type, kind);
+    return typeName.toString();
   }
 
   @Nonnull
   public JType getReferencedType() {
-    return type;
-  }
-
-  @Nonnull
-  private static String getSimpleName(@Nonnull JType type) {
-    String typeName = type.getName();
-    int simpleNameBeginIndex = typeName.lastIndexOf("$");
-
-    if (simpleNameBeginIndex == -1) {
-      return typeName;
-    } else {
-      return typeName.substring(simpleNameBeginIndex + 1);
-    }
+    return typeName.getReferencedType();
   }
 
   @Override

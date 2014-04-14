@@ -278,8 +278,7 @@ public class ReferenceMapper {
     char [] genSignature = b.genericSignature();
     if (genSignature != null) {
       OriginalTypeInfo marker = new OriginalTypeInfo();
-      marker.setGenericSignature(GwtAstBuilder.getStringLiteral(SourceOrigin.UNKNOWN,
-          genSignature));
+      marker.setGenericSignature(ReferenceMapper.intern(genSignature));
       method.addMarker(marker);
     }
 
@@ -320,8 +319,7 @@ public class ReferenceMapper {
       // non-generic signature
       if (!genericSignature.equals(Jack.getLookupFormatter().getName(type))) {
         OriginalTypeInfo infoMarker = new OriginalTypeInfo();
-        infoMarker.setGenericSignature(GwtAstBuilder.getStringLiteral(SourceOrigin.UNKNOWN,
-            genericSignature));
+        infoMarker.setGenericSignature(ReferenceMapper.intern(genericSignature));
         param.addMarker(infoMarker);
       }
     }
@@ -376,8 +374,7 @@ public class ReferenceMapper {
     char [] genSignature = binding.genericSignature();
     if (genSignature != null) {
       OriginalTypeInfo marker = new OriginalTypeInfo();
-      marker.setGenericSignature(GwtAstBuilder.getStringLiteral(SourceOrigin.UNKNOWN,
-          genSignature));
+      marker.setGenericSignature(ReferenceMapper.intern(genSignature));
       field.addMarker(marker);
     }
 

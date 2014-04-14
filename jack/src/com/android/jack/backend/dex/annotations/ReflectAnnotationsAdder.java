@@ -21,7 +21,6 @@ import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JArrayLiteral;
@@ -151,12 +150,12 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         }
       }
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
-      JAbstractStringLiteral genericSignature = null;
+      String genericSignature = null;
       if (marker != null) {
         genericSignature = marker.getGenericSignature();
       }
       if (genericSignature != null) {
-        addSignature(x, genericSignature.getValue(), x.getSourceInfo());
+        addSignature(x, genericSignature, x.getSourceInfo());
       }
     }
 
@@ -164,9 +163,9 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     public void endVisit(@Nonnull JField x) {
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
       if (marker != null) {
-        JAbstractStringLiteral jStrLit = marker.getGenericSignature();
-        assert jStrLit != null;
-        addSignature(x, jStrLit.getValue(), x.getSourceInfo());
+        String genericSignature = marker.getGenericSignature();
+        assert genericSignature != null;
+        addSignature(x, genericSignature, x.getSourceInfo());
       }
     }
 
@@ -177,10 +176,9 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       }
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
       if (marker != null) {
-        JAbstractStringLiteral jStrLit = marker.getGenericSignature();
-        if (jStrLit != null) {
-          addSignature(x, jStrLit.getValue(), x.getSourceInfo());
-        }
+        String genericSignature = marker.getGenericSignature();
+        assert genericSignature != null;
+        addSignature(x, genericSignature, x.getSourceInfo());
       }
     }
 

@@ -14,14 +14,33 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce.v0002;
+package com.android.jack.ir.naming;
+
+import com.android.jack.ir.ast.JField;
+
+import javax.annotation.Nonnull;
 
 /**
- * Version.
+ * An {@link AbstractName} referencing a field. This implementation is not thread-safe.
+ * If multiple threads modify the referenced field, it must be synchronized externally.
  */
-public class Version {
+public class FieldName extends AbstractName {
 
-  public static final int MINOR_MIN = 11;
+  @Nonnull
+  private final JField field;
 
-  public static final int CURRENT_MINOR = 11;
+  public FieldName(@Nonnull JField field) {
+    this.field = field;
+  }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return field.getName();
+  }
+
+  @Nonnull
+  public JField getField() {
+    return field;
+  }
 }

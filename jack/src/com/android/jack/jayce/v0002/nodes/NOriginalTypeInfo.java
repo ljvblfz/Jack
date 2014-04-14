@@ -37,7 +37,7 @@ public class NOriginalTypeInfo extends NMarker {
   public static final Token TOKEN = Token.ORIGINAL_TYPE_INFO;
 
   @CheckForNull
-  public NStringLiteral genericSignature;
+  public String genericSignature;
 
   @CheckForNull
   public String sourceName;
@@ -45,7 +45,7 @@ public class NOriginalTypeInfo extends NMarker {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     OriginalTypeInfo marker = (OriginalTypeInfo) node;
-    genericSignature = (NStringLiteral) loader.load(marker.getGenericSignature());
+    genericSignature = marker.getGenericSignature();
     sourceName = marker.getSourceName();
   }
 
@@ -54,7 +54,7 @@ public class NOriginalTypeInfo extends NMarker {
   public OriginalTypeInfo exportAsJast(@Nonnull ExportSession exportSession) {
     OriginalTypeInfo marker = new OriginalTypeInfo();
     if (genericSignature != null) {
-      marker.setGenericSignature(genericSignature.exportAsJast(exportSession));
+      marker.setGenericSignature(genericSignature);
     }
     if (sourceName != null) {
       marker.setSourceName(sourceName);
@@ -65,13 +65,13 @@ public class NOriginalTypeInfo extends NMarker {
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(genericSignature);
+    out.writeString(genericSignature);
     out.writeString(sourceName);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
-    genericSignature = in.readNode(NStringLiteral.class);
+    genericSignature = in.readString();
     sourceName = in.readString();
   }
 

@@ -29,10 +29,14 @@ import javax.annotation.Nonnull;
 public class Resource implements HasName {
 
   @Nonnull
+  private CharSequence name;
+
+  @Nonnull
   private final InputVFile vFile;
 
   public Resource(@Nonnull InputVFile vFile) {
     this.vFile = vFile;
+    name = vFile.getName();
   }
 
   @Nonnull
@@ -48,6 +52,10 @@ public class Resource implements HasName {
   @Override
   @Nonnull
   public String getName() {
-    return vFile.getName();
+    return name.toString();
+  }
+
+  public void setName(@Nonnull CharSequence name) {
+    this.name = name;
   }
 }

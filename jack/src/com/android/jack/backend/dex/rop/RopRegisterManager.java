@@ -20,7 +20,6 @@ import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.type.Type;
-import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JParameter;
@@ -88,8 +87,8 @@ class RopRegisterManager {
     if (emitDebugInfo) {
       CstString cstSignature = null;
       ThisRefTypeInfo thisMarker = type.getMarker(ThisRefTypeInfo.class);
-      if (thisMarker != null && !thisMarker.getGenericSignature().getValue().isEmpty()) {
-        cstSignature = new CstString(thisMarker.getGenericSignature().getValue());
+      if (thisMarker != null && !thisMarker.getGenericSignature().isEmpty()) {
+        cstSignature = new CstString(thisMarker.getGenericSignature());
       }
       LocalItem localItem = LocalItem.make(new CstString("this"), RopHelper.getCstType(type),
           cstSignature);
@@ -137,9 +136,9 @@ class RopRegisterManager {
       CstString cstSignature = null;
       OriginalTypeInfo infoMarker = var.getMarker(OriginalTypeInfo.class);
       if (infoMarker != null) {
-        JAbstractStringLiteral jStrLit = infoMarker.getGenericSignature();
-        if (jStrLit != null) {
-          cstSignature = new CstString(jStrLit.getValue());
+        String genericSignature = infoMarker.getGenericSignature();
+        if (genericSignature != null) {
+          cstSignature = new CstString(genericSignature);
         }
       }
       LocalItem localItem =

@@ -52,7 +52,7 @@ public class ResourceWriter implements RunnableSchedulable<JPackage> {
     List<Resource> resources = pack.getResources();
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
-      String path = formatter.getName(pack, inputFile.getName());
+      String path = formatter.getName(pack, resource.getName());
       OutputVFile outputFile = outputVDir.createOutputVFile(path);
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();

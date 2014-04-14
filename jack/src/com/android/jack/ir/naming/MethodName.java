@@ -14,14 +14,33 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce.v0002;
+package com.android.jack.ir.naming;
+
+import com.android.jack.ir.ast.JMethod;
+
+import javax.annotation.Nonnull;
 
 /**
- * Version.
+ * An {@link AbstractName} referencing a method. This implementation is not thread-safe.
+ * If multiple threads modify the referenced method, it must be synchronized externally.
  */
-public class Version {
+public class MethodName extends AbstractName {
 
-  public static final int MINOR_MIN = 11;
+  @Nonnull
+  private final JMethod method;
 
-  public static final int CURRENT_MINOR = 11;
+  public MethodName(@Nonnull JMethod method) {
+    this.method = method;
+  }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return method.getName();
+  }
+
+  @Nonnull
+  public JMethod getMethod() {
+    return method;
+  }
 }

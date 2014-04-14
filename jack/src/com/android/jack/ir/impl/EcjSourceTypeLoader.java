@@ -17,7 +17,6 @@
 package com.android.jack.ir.impl;
 
 import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedAnnotation;
@@ -245,8 +244,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (genSignature != null) {
         if (CharOperation.contains('<', genSignature)) {
           assert CharOperation.contains('>', genSignature);
-          marker.setGenericSignature(GwtAstBuilder.getStringLiteral(SourceOrigin.UNKNOWN,
-              genSignature));
+          marker.setGenericSignature(ReferenceMapper.intern(genSignature));
         }
       }
       marker.setSourceName(new String(binding.sourceName));

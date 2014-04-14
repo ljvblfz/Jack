@@ -96,6 +96,9 @@ public class Flags {
   @CheckForNull
   private File seedsFile;
 
+  @CheckForNull
+  private FilterSpecification adaptResourceFileNames;
+
   public void setShrink(boolean shrink) {
     this.shrink = shrink;
   }
@@ -334,5 +337,14 @@ public class Flags {
 
   public void setSeedsFile(@CheckForNull File seedsFile) {
     this.seedsFile = seedsFile;
+  }
+
+  public void adaptResourceFileNames(@CheckForNull FilterSpecification filter) {
+    this.adaptResourceFileNames = filter;
+  }
+
+  @CheckForNull
+  public FilterSpecification getAdaptResourceFileNames() {
+    return adaptResourceFileNames;
   }
 }
