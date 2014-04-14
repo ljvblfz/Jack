@@ -141,7 +141,6 @@ public class ResourceTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = TestTools.createTempDir("tempjack", "dir");
@@ -173,7 +172,6 @@ public class ResourceTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testJackArchiveToJackDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -196,7 +194,6 @@ public class ResourceTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testJackDirToJackDir() throws Exception {
     /// compile source file to a Jack dir
     File jackFolder = TestTools.createTempDir("tempjack", "dir");
