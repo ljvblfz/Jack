@@ -1,4 +1,3 @@
 -dontshrink
 -adaptresourcefilenames
 -keep,allowobfuscation class com.android.jack.fileconflict.test004.jack.MyClass
--flattenpackagehierarchy
