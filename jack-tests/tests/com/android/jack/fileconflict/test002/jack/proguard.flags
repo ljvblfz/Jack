@@ -1,0 +1,2 @@
+-keep class com.android.jack.fileconflict.test002.jack.*
+-dontobfuscate
