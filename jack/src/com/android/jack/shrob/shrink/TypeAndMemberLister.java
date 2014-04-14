@@ -117,7 +117,7 @@ public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
   public void run(@Nonnull JSession t) throws Exception {
     try {
       Visitor visitor = new Visitor();
-      visitor.accept(t);
+      visitor.accept(t.getTypesToEmit());
     } finally {
       stream.close();
     }

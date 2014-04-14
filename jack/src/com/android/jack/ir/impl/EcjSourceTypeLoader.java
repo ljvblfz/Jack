@@ -136,7 +136,6 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     } else {
       throw new AssertionError("ReferenceBinding is not a class, interface, or enum.");
     }
-    type.updateParents(enclosingPackage.getSession());
     return type;
   }
 

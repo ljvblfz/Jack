@@ -224,21 +224,23 @@ public class Renamer implements RunnableSchedulable<JSession> {
 
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface type) {
-      Collection<JFieldId> allFieldsInHierarchy = collectAllFieldIdsInHierarchy(type);
-      NameProvider fieldNameProvider =
-          nameProviderFactory.getFieldNameProvider(allFieldsInHierarchy);
-      for (JField field : type.getFields()) {
-        rename(field.getId(), fieldNameProvider);
+      if (!type.isExternal()) {
+        Collection<JFieldId> allFieldsInHierarchy = collectAllFieldIdsInHierarchy(type);
+        NameProvider fieldNameProvider =
+            nameProviderFactory.getFieldNameProvider(allFieldsInHierarchy);
+        for (JField field : type.getFields()) {
+          rename(field.getId(), fieldNameProvider);
+        }
+
+        Collection<JMethodId> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
+        NameProvider methodNameProvider =
+            nameProviderFactory.getMethodNameProvider(allMethodsInHierarchy);
+        for (JMethod method : type.getMethods()) {
+          rename(method.getMethodId(), methodNameProvider);
+        }
       }
 
-      Collection<JMethodId> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
-      NameProvider methodNameProvider =
-          nameProviderFactory.getMethodNameProvider(allMethodsInHierarchy);
-      for (JMethod method : type.getMethods()) {
-        rename(method.getMethodId(), methodNameProvider);
-      }
-
-      return super.visit(type);
+      return false;
     }
   }
 

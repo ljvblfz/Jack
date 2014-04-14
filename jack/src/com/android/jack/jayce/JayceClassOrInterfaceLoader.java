@@ -138,7 +138,6 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
           + type.getSignature() + "' while expecting '" + expectedSignature + "'");
     }
     JDefinedClassOrInterface jType = type.create(enclosingPackage, this);
-    jType.updateParents(enclosingPackage.getSession());
     return jType;
   }
 
@@ -151,7 +150,6 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
         NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
     JPackage pack = session.getLookup().getOrCreatePackage(packageQualifiedName);
     JDefinedClassOrInterface jType = type.create(pack, this);
-    jType.updateParents(session);
     return jType;
   }
 

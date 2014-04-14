@@ -142,7 +142,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   public void run(@Nonnull JSession session) throws Exception {
     List<PatternElement> result = RulesFileParser.parse(jarjarRulesFile);
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
-    new Visitor(wildcards).accept(session);
+    new Visitor(wildcards).accept(session.getTypesToEmit());
     session.getLookup().clear();
     session.getPhantomLookup().clear();
   }

@@ -55,9 +55,7 @@ public class ChangeEnclosingPackage implements TransformationStep, TransformStep
     }
     newEnclosingPackage.add(existingNode);
     existingNode.setEnclosingPackage(newEnclosingPackage);
-    if (existingNode instanceof JPackage) {
-      ((JPackage) existingNode).updateParents(newEnclosingPackage);
-    }
+    ((JNode) existingNode).updateParents(newEnclosingPackage);
   }
 
   @Override

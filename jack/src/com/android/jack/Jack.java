@@ -605,7 +605,7 @@ public abstract class Jack {
     }
 
     MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
-    methodIdDupRemover.accept(session);
+    methodIdDupRemover.accept(session.getTypesToEmit());
 
     return session;
   }
