@@ -380,7 +380,7 @@ public class FileConflictTest {
       try {
         fos = new FileOutputStream(copiedFile);
         BytesStreamSucker sucker = new BytesStreamSucker(fis, fos);
-        sucker.run();
+        sucker.suck();
       } finally {
         if (fos != null) {
           fos.close();
