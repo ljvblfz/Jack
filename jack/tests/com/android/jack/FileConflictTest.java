@@ -332,17 +332,21 @@ public class FileConflictTest {
 
     // copy a different resource to output dir with the same name
     File resource2 = new File(testSrcDir, "a.txt");
-    copyFileToDir(resource2, "a/a.txt", jackOutput);
+    copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
     System.out.println(jackOutput.getAbsolutePath());
+    Options options = new Options();
+    options.nameProvider = "rot13";
 
     // run Jack on Jack dir
     ProguardFlags flags = new ProguardFlags(new File(testSrcDir, "proguard.flags"));
-    TestTools.shrobJackToJack(new Options(),
+    TestTools.shrobJackToJack(options,
         jackImport1,
-        null,
+        TestTools.getDefaultBootclasspathString(),
         jackOutput,
         Collections.singletonList(flags),
         false /* non-zipped */);
+    checkResourceContent(jackOutput, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt",
+        "MyClass");
   }
 
   private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy)
