@@ -101,7 +101,9 @@ import com.android.jack.shrob.obfuscation.Renamer;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
 import com.android.jack.shrob.obfuscation.remover.FieldKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.MethodKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
@@ -374,6 +376,9 @@ public abstract class Jack {
           }
           if (options.flags.printSeeds()) {
             request.addProduction(SeedFile.class);
+          }
+          if (!options.flags.keepAttribute("EnclosingMethod")) {
+            request.addFeature(RemoveEnclosingMethod.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -691,7 +696,6 @@ public abstract class Jack {
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendStringRefiningPlan(planBuilder);
     }
-
     if (productions.contains(SeedFile.class)) {
       planBuilder.append(SeedPrinter.class);
     }
@@ -699,7 +703,7 @@ public abstract class Jack {
       appendShrinkingPlan(planBuilder);
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder);
+      appendObfuscationPlan(planBuilder, features);
     } else {
       planBuilder.append(NameFinalizer.class);
     }
@@ -888,7 +892,7 @@ public abstract class Jack {
       }
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder);
+      appendObfuscationPlan(planBuilder, features);
     } else {
       planBuilder.append(NameFinalizer.class);
     }
@@ -1103,7 +1107,7 @@ public abstract class Jack {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder);
+      appendObfuscationPlan(planBuilder, features);
     } else {
       planBuilder.append(NameFinalizer.class);
     }
@@ -1186,10 +1190,10 @@ public abstract class Jack {
     }
   }
 
-  private static void appendObfuscationPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
+  private static void appendObfuscationPlan(@Nonnull PlanBuilder<JSession> planBuilder,
+      @Nonnull FeatureSet features) {
     {
-      SubPlanBuilder<JPackage> packagePlan =
-          planBuilder.appendSubPlan(JPackageAdapter.class);
+      SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
       packagePlan.append(NameKeeper.class);
     }
     planBuilder.append(Renamer.class);
@@ -1197,6 +1201,9 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(TypeAnnotationRemover.class);
+      if (features.contains(RemoveEnclosingMethod.class)) {
+        typePlan.append(TypeEnclosingMethodRemover.class);
+      }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
         fieldPlan.append(FieldAnnotationRemover.class);
@@ -1258,7 +1265,7 @@ public abstract class Jack {
     }
 
     if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder);
+      appendObfuscationPlan(planBuilder, features);
     } else {
       planBuilder.append(NameFinalizer.class);
     }
