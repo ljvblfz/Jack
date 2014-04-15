@@ -21,27 +21,12 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main/java)
 
-LOCAL_JAR_MANIFEST := etc/manifest.txt
-
 LOCAL_MODULE := allocation-jack
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
-
 LOCAL_JAVA_LIBRARIES := \
   guava-jack
 
-LOCAL_STATIC_JAVA_LIBRARIES := \
-  guava-collect-jack
-
 include $(BUILD_HOST_JAVA_LIBRARY)
-
-$(LOCAL_BUILT_MODULE): PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
-$(LOCAL_BUILT_MODULE): $(full_classes_compiled_jar) | $(JARJAR)
-	@echo JarJar: $@
-	$(hide) java -jar $(JARJAR) process $(PRIVATE_JARJAR_RULES) $< $@
-	$(hide)jar umf $(PRIVATE_LOCAL_PATH)/etc/manifest.txt $@
-
-$(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):allocation-jack.jar)
 
