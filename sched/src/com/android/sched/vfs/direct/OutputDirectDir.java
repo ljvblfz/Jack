@@ -64,4 +64,9 @@ public class OutputDirectDir extends AbstractVElement implements OutputVDir {
     }
     return new OutputDirectFile(file);
   }
+
+  @Override
+  public char getSeparator() {
+    return File.separatorChar;
+  }
 }
