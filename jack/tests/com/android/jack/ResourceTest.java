@@ -16,14 +16,12 @@
 
 package com.android.jack;
 
-import com.android.jack.category.KnownBugs;
 import com.android.jack.util.BytesStreamSucker;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.File;
