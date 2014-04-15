@@ -76,7 +76,7 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
-    JNullLiteral.class, JIntLiteral.class})
+    JNullLiteral.class, JIntLiteral.class, ClassAnnotationSchedulingSeparator.SeparatorTag.class})
 @Constraint(need = {OriginalTypeInfo.class, FinalNames.class})
 @Protect(add = OriginalTypeInfo.class, unprotect = @With(remove = ReflectAnnotations.class))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
