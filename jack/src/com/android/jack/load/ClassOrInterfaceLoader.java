@@ -68,6 +68,8 @@ public interface ClassOrInterfaceLoader {
 
   public void ensureRetentionPolicy(@Nonnull JDefinedAnnotation loaded);
 
+  public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded);
+
   @Nonnull
   public Location getLocation(@Nonnull JDefinedClassOrInterface loaded);
 }

@@ -412,6 +412,11 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     }
   }
 
+  @Override
+  public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded) {
+    // done at creation
+  }
+
   private boolean isLoaded(@Nonnull Scope range) {
     return (loadStatus & range.getMask()) != 0;
   }

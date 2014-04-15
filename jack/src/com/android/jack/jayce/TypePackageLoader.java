@@ -25,13 +25,13 @@ import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
-@ImplementationName(iface = JaycePackageLoader.class, name = "structure", description =
-"start by always reading structure information (ie members, annotations, markers etc)")
-class StructurePackageLoader extends JaycePackageLoader {
+@ImplementationName(iface = JaycePackageLoader.class, name = "type", description =
+"start by only reading type and name information")
+class TypePackageLoader extends JaycePackageLoader {
 
-  public StructurePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
+  public TypePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull JPhantomLookup lookup) throws FileTypeDoesNotExistException {
     super(inputJackLibrary, inputJackLibrary.getDir(FileType.JAYCE, VPath.ROOT), lookup,
-        NodeLevel.STRUCTURE);
+        NodeLevel.TYPES);
   }
 }

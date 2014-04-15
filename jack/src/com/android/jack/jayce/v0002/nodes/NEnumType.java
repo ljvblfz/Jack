@@ -72,20 +72,19 @@ public class NEnumType extends NClassType {
   public JDefinedEnum exportAsJast(@Nonnull ExportSession exportSession) {
     throw new UnsupportedOperationException();
   }
+
   @Override
   @Nonnull
   public JDefinedEnum create(@Nonnull JPackage enclosingPackage,
       @Nonnull JayceClassOrInterfaceLoader loader) {
-    assert sourceInfo != null;
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.STRUCTURE));
     JDefinedEnum jEnumType =
-        new JDefinedEnum(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
+        new JDefinedEnum(SourceInfo.UNKNOWN, simpleName, modifiers, enclosingPackage, loader);
     return jEnumType;
   }
+
   @Override
   public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
       @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
@@ -96,51 +95,48 @@ public class NEnumType extends NClassType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jEnumType);
-      try {
-        exportSession.setCurrentType(jEnumType);
-        if (superClass != null) {
-          jEnumType.setSuperClass(exportSession.getLookup().getClass(superClass));
+    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
+
+    if (superClass != null) {
+      jEnumType.setSuperClass(exportSession.getLookup().getClass(superClass));
+    }
+    for (String superInterface : superInterfaces) {
+      jEnumType.addImplements(exportSession.getLookup().getInterface(superInterface));
+    }
+    if (enclosingType != null) {
+      jEnumType.setEnclosingType(
+          (JClassOrInterface) exportSession.getLookup().getType(enclosingType));
+    }
+    if (enclosingMethodClass != null) {
+      assert enclosingMethod != null;
+      JClass enclosingMethodJClass =
+          exportSession.getLookup().getClass(enclosingMethodClass);
+      if (enclosingMethodJClass instanceof JDefinedClass) {
+        try {
+          jEnumType.setEnclosingMethod(
+              exportSession.getDeclaredMethod((JDefinedClass) enclosingMethodJClass,
+                  enclosingMethod));
+        } catch (JMethodLookupException e) {
+          // Method does not longer exists but anonymous already exists, could be trigger by
+          // build tricky mechanism, skip it to go ahead
         }
-        for (String superInterface : superInterfaces) {
-          jEnumType.addImplements(exportSession.getLookup().getInterface(superInterface));
-        }
-        if (enclosingType != null) {
-          jEnumType.setEnclosingType(
-              (JClassOrInterface) exportSession.getLookup().getType(enclosingType));
-        }
-        if (enclosingMethodClass != null) {
-          assert enclosingMethod != null;
-          JClass enclosingMethodJClass =
-              exportSession.getLookup().getClass(enclosingMethodClass);
-          if (enclosingMethodJClass instanceof JDefinedClass) {
-            try {
-              jEnumType.setEnclosingMethod(
-                  exportSession.getDeclaredMethod((JDefinedClass) enclosingMethodJClass,
-                      enclosingMethod));
-            } catch (JMethodLookupException e) {
-              // Method does not longer exists but anonymous already exists, could be trigger by
-              // build tricky mechanism, skip it to go ahead
-            }
-          }
-        }
-        for (String memberType : inners) {
-          jEnumType.addMemberType(
-              (JClassOrInterface) exportSession.getLookup().getType(memberType));
-        }
-        for (NField field : fields) {
-          JField jField = field.exportAsJast(exportSession);
-          jEnumType.addField(jField);
-        }
-        for (NMethod method : methods) {
-          JMethod jMethod = method.exportAsJast(exportSession, loader);
-          jEnumType.addMethod(jMethod);
-        }
-        for (NAnnotationLiteral annotation : annotations) {
-          jEnumType.addAnnotation(annotation.exportAsJast(exportSession));
-        }
-      } finally {
-        exportSession.setCurrentType(null);
       }
+    }
+    for (String memberType : inners) {
+      jEnumType.addMemberType(
+          (JClassOrInterface) exportSession.getLookup().getType(memberType));
+    }
+    for (NField field : fields) {
+      JField jField = field.exportAsJast(exportSession);
+      jEnumType.addField(jField);
+    }
+    for (NMethod method : methods) {
+      JMethod jMethod = method.exportAsJast(exportSession, loader);
+      jEnumType.addMethod(jMethod);
+    }
+    for (NAnnotationLiteral annotation : annotations) {
+      jEnumType.addAnnotation(annotation.exportAsJast(exportSession));
+    }
     for (NMarker marker : markers) {
       jEnumType.addMarker(marker.exportAsJast(exportSession));
     }
@@ -169,16 +165,18 @@ public class NEnumType extends NClassType {
     level = in.getNodeLevel();
     modifiers = in.readInt();
     signature = in.readId();
-    superClass = in.readId();
-    superInterfaces = in.readIds();
-    enclosingType = in.readId();
-    enclosingMethodClass = in.readId();
-    enclosingMethod = in.readId();
-    inners = in.readIds();
-    fields = in.readNodes(NField.class);
-    methods = in.readNodes(NMethod.class);
-    annotations = in.readNodes(NAnnotationLiteral.class);
-    markers = in.readNodes(NMarker.class);
+    if (level != NodeLevel.TYPES) {
+      superClass = in.readId();
+      superInterfaces = in.readIds();
+      enclosingType = in.readId();
+      enclosingMethodClass = in.readId();
+      enclosingMethod = in.readId();
+      inners = in.readIds();
+      fields = in.readNodes(NField.class);
+      methods = in.readNodes(NMethod.class);
+      annotations = in.readNodes(NAnnotationLiteral.class);
+      markers = in.readNodes(NMarker.class);
+    }
 
   }
 

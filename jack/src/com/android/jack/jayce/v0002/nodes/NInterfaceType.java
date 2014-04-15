@@ -100,14 +100,11 @@ public class NInterfaceType extends NDeclaredType {
   @Nonnull
   public JDefinedInterface create(@Nonnull JPackage enclosingPackage,
       @Nonnull JayceClassOrInterfaceLoader loader) {
-    assert sourceInfo != null;
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.STRUCTURE));
     JDefinedInterface jInterfaceType =
-        new JDefinedInterface(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
+        new JDefinedInterface(SourceInfo.UNKNOWN, simpleName, modifiers, enclosingPackage, loader);
     return jInterfaceType;
   }
 
@@ -121,6 +118,7 @@ public class NInterfaceType extends NDeclaredType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
+    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
     for (String superInterface : superInterfaces) {
       jInterfaceType.addImplements(
           exportSession.getLookup().getInterface(superInterface));
@@ -170,13 +168,15 @@ public class NInterfaceType extends NDeclaredType {
     level = in.getNodeLevel();
     modifiers = in.readInt();
     signature = in.readId();
-    superInterfaces = in.readIds();
-    enclosingType = in.readId();
-    inners = in.readIds();
-    fields = in.readNodes(NField.class);
-    methods = in.readNodes(NMethod.class);
-    annotations = in.readNodes(NAnnotationLiteral.class);
-    markers = in.readNodes(NMarker.class);
+    if (level != NodeLevel.TYPES) {
+      superInterfaces = in.readIds();
+      enclosingType = in.readId();
+      inners = in.readIds();
+      fields = in.readNodes(NField.class);
+      methods = in.readNodes(NMethod.class);
+      annotations = in.readNodes(NAnnotationLiteral.class);
+      markers = in.readNodes(NMarker.class);
+    }
   }
 
   @Nonnull

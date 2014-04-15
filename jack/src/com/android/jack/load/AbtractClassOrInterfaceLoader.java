@@ -98,5 +98,10 @@ public abstract class AbtractClassOrInterfaceLoader implements ClassOrInterfaceL
     ensureAll(loaded);
   }
 
+  @Override
+  public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureAll(loaded);
+  }
+
   protected abstract void ensureAll(@Nonnull JDefinedClassOrInterface loaded);
 }
