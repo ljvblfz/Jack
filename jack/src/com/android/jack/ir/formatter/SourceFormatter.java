@@ -41,9 +41,12 @@ public class SourceFormatter extends CharSeparatedPackageFormatter
   @Nonnull
   private static final SourceFormatter formatter = new SourceFormatter();
 
-  private static final char PACKAGE_SEPARATOR = '.';
-
   protected SourceFormatter() {
+  }
+
+  @Override
+  protected char getPackageSeparator() {
+    return '.';
   }
 
   @Nonnull
@@ -102,7 +105,7 @@ public class SourceFormatter extends CharSeparatedPackageFormatter
     StringBuilder sb;
     if (!enclosingPackage.isDefaultPackage()) {
       sb = getNameInternal(enclosingPackage);
-      sb.append(PACKAGE_SEPARATOR);
+      sb.append(getPackageSeparator());
     } else {
       sb = new StringBuilder();
     }
@@ -114,11 +117,6 @@ public class SourceFormatter extends CharSeparatedPackageFormatter
   @Nonnull
   public String getName(@Nonnull JPackage pack) {
     return getNameInternal(pack).toString();
-  }
-
-  @Override
-  protected char getPackageSeparator() {
-    return PACKAGE_SEPARATOR;
   }
 
   @Override

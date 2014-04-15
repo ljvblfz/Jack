@@ -32,12 +32,15 @@ import javax.annotation.Nonnull;
 public class BinaryQualifiedNameFormatter extends CharSeparatedPackageFormatter
     implements TypeFormatter, PackageFormatter {
 
-  private static final char PACKAGE_SEPARATOR = '/';
-
   @Nonnull
   private static final BinaryQualifiedNameFormatter formatter = new BinaryQualifiedNameFormatter();
 
   protected BinaryQualifiedNameFormatter() {
+  }
+
+  @Override
+  protected char getPackageSeparator() {
+    return '/';
   }
 
   @Nonnull
@@ -102,16 +105,11 @@ public class BinaryQualifiedNameFormatter extends CharSeparatedPackageFormatter
     StringBuilder sb;
     if (!enclosingPackage.isDefaultPackage()) {
       sb = getNameInternal(enclosingPackage);
-      sb.append(PACKAGE_SEPARATOR);
+      sb.append(getPackageSeparator());
     } else {
       sb = new StringBuilder();
     }
     sb.append(classOrInterfaceSimpleName);
     return sb.toString();
-  }
-
-  @Override
-  protected char getPackageSeparator() {
-    return PACKAGE_SEPARATOR;
   }
 }
