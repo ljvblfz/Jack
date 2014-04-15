@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.backend.jayce.ResourceImportConflictException;
 import com.android.jack.category.KnownBugs;
 import com.android.jack.util.BytesStreamSucker;
 
@@ -137,14 +138,43 @@ public class FileConflictTest {
 
   /**
    * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
-   * outputting to a Jack folder.
+   * outputting to a Jack folder, with no collision policy specified.
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
   public void test002a() throws Exception {
     File jackOutput = TestTools.createTempDir("jackoutput", "dir");
-    runTest002(jackOutput, false /* non-zipped */);
+    try {
+      runTest002(jackOutput, false /* non-zipped */, null);
+      Assert.fail();
+    } catch (ResourceImportConflictException e) {
+    }
+  }
+
+  /**
+   * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
+   * outputting to a Jack folder, with the collision policy set to "fail".
+   * @throws Exception
+   */
+  @Test
+  public void test002b() throws Exception {
+    File jackOutput = TestTools.createTempDir("jackoutput", "dir");
+    try {
+      runTest002(jackOutput, false /* non-zipped */, "fail");
+      Assert.fail();
+    } catch (ResourceImportConflictException e) {
+    }
+  }
+
+  /**
+   * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
+   * outputting to a Jack folder, with the collision policy set to "keep-first".
+   * @throws Exception
+   */
+  @Test
+  public void test002c() throws Exception {
+    File jackOutput = TestTools.createTempDir("jackoutput", "dir");
+    runTest002(jackOutput, false /* non-zipped */, "keep-first");
     checkResourceContent(jackOutput, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(jackOutput, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(jackOutput, RESOURCE3_LONGPATH, "Res3");
@@ -152,14 +182,43 @@ public class FileConflictTest {
 
   /**
    * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
-   * outputting to a Jack zip.
+   * outputting to a Jack zip, with no collision policy specified.
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
-  public void test002b() throws Exception {
+  public void test002d() throws Exception {
     File jackOutput = TestTools.createTempFile("jackoutput", ".zip");
-    runTest002(jackOutput, true /* zipped */);
+    try {
+      runTest002(jackOutput, true /* zipped */, null);
+      Assert.fail();
+    } catch (ResourceImportConflictException e) {
+    }
+  }
+
+  /**
+   * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
+   * outputting to a Jack zip, with the collision policy set to "fail".
+   * @throws Exception
+   */
+  @Test
+  public void test002e() throws Exception {
+    File jackOutput = TestTools.createTempFile("jackoutput", ".zip");
+    try {
+      runTest002(jackOutput, true /* zipped */, "fail");
+      Assert.fail();
+    } catch (ResourceImportConflictException e) {
+    }
+  }
+
+  /**
+   * Test the behavior of Jack when importing 2 Jack folders containing conflicting resources, and
+   * outputting to a Jack zip, with the collision policy set to "keep-first".
+   * @throws Exception
+   */
+  @Test
+  public void test002f() throws Exception {
+    File jackOutput = TestTools.createTempFile("jackoutput", ".zip");
+    runTest002(jackOutput, true /* zipped */, "keep-first");
     ZipFile zipFile = new ZipFile(jackOutput);
     checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
@@ -208,7 +267,6 @@ public class FileConflictTest {
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
   public void test003b() throws Exception {
     File jackOutput = TestTools.createTempDir("jackoutput", "dir");
 
@@ -322,7 +380,8 @@ public class FileConflictTest {
     Jack.run(options);
   }
 
-  private void runTest002(@Nonnull File jackOutput, boolean zip) throws Exception {
+  private void runTest002(@Nonnull File jackOutput, boolean zip,
+      @CheckForNull String collisionPolicy) throws Exception {
     // compile source files to a Jack dir
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
     TestTools.compileSourceToJack(new Options(), TEST002_DIR,
@@ -359,6 +418,9 @@ public class FileConflictTest {
       options.setJayceOutputZip(jackOutput);
     } else {
       options.setJayceOutputDir(jackOutput);
+    }
+    if (collisionPolicy != null) {
+      options.addProperty(JayceFileImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     }
     Jack.run(options);
   }
