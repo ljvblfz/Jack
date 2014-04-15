@@ -108,8 +108,10 @@ import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
+import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
+import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingTypeRemover;
 import com.android.jack.shrob.obfuscation.remover.FieldKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.MethodKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
@@ -385,6 +387,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("EnclosingMethod")) {
             request.addFeature(RemoveEnclosingMethod.class);
+          }
+          if (!options.flags.keepAttribute("InnerClasses")) {
+            request.addFeature(RemoveEnclosingType.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1220,6 +1225,9 @@ public abstract class Jack {
       typePlan.append(TypeAnnotationRemover.class);
       if (features.contains(RemoveEnclosingMethod.class)) {
         typePlan.append(TypeEnclosingMethodRemover.class);
+      }
+      if (features.contains(RemoveEnclosingType.class)) {
+        typePlan.append(TypeEnclosingTypeRemover.class);
       }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);

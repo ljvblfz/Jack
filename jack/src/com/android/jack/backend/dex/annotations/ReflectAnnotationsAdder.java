@@ -140,7 +140,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         boolean isLocal =
             (x instanceof JDefinedClass) && ((JDefinedClass) x).getEnclosingMethod() != null;
         // !anonymous && !local
-        if (!isLocal && !JModifier.isAnonymousType(x.getModifier()) && addAnnotationMemberClasses) {
+        if (!isLocal && !JModifier.isAnonymousType(x.getModifier())) {
           addMemberClasses(x);
         }
         if (isLocal) {
@@ -387,16 +387,8 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
   public static final BooleanPropertyId EMIT_ANNOTATION_THROWS = BooleanPropertyId.create(
       "jack.annotation.throws", "Emit annotation throws").addDefaultValue(Boolean.TRUE);
 
-  @Nonnull
-  public static final BooleanPropertyId EMIT_ANNOTATION_MEMBER_CLASSES = BooleanPropertyId.create(
-      "jack.annotation.memberclasses", "Emit annotation member classes")
-      .addDefaultValue(Boolean.TRUE);
-
   private final boolean addAnnotationThrows =
       ThreadConfig.get(EMIT_ANNOTATION_THROWS).booleanValue();
-
-  private final boolean addAnnotationMemberClasses =
-      ThreadConfig.get(EMIT_ANNOTATION_MEMBER_CLASSES).booleanValue();
 
   private final boolean addAnnotationSignature =
       ThreadConfig.get(EMIT_ANNOTATION_SIG).booleanValue();

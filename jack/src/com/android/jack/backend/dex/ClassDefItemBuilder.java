@@ -176,7 +176,6 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
 
     // An anonymous class should not be flagged as final unless it is static
     if (JModifier.isAnonymousType(accessFlags)) {
-      assert isInner;
 
       if (!type.isStatic()) {
         accessFlags &= ~JModifier.FINAL;
