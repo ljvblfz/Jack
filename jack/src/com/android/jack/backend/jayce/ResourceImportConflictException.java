@@ -16,9 +16,6 @@
 
 package com.android.jack.backend.jayce;
 
-import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -31,25 +28,21 @@ public class ResourceImportConflictException extends ImportConflictException {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private final Resource resource;
+  private final Location newResourceLocation;
   @Nonnull
   private final Location existingResourceLocation;
-  @Nonnull
-  private final JPackage pack;
 
-  public ResourceImportConflictException(@Nonnull Resource resource,
-      @Nonnull Location existingResourceLocation, @Nonnull JPackage pack) {
-    this.resource = resource;
+  public ResourceImportConflictException(@Nonnull Location newResourceLocation,
+      @Nonnull Location existingResourceLocation) {
+    this.newResourceLocation = newResourceLocation;
     this.existingResourceLocation = existingResourceLocation;
-    this.pack = pack;
   }
 
   @Override
   @Nonnull
   public String getMessage() {
-    return "Failed to perform import: Resource '"
-        + BinaryQualifiedNameFormatter.getFormatter().getName(pack, resource.getName()) + "' from "
-        + resource.getLocation().getDescription() + " has already been imported from "
+    return "Failed to perform import: Resource in "
+        + newResourceLocation.getDescription() + " has already been imported from "
         + existingResourceLocation.getDescription()
         + " (see property '" + JayceFileImporter.RESOURCE_COLLISION_POLICY.getName()
         + "' for resource collision policy)";

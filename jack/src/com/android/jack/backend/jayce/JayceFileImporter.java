@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
 import com.android.sched.util.codec.EnumCodec;
@@ -164,15 +163,13 @@ public class JayceFileImporter {
     for (Resource existingResource : pack.getResources()) {
       if (existingResource.getName().equals(newResource.getName())) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
-          throw new ResourceImportConflictException(newResource, existingResource.getLocation(),
-              pack);
+          throw new ResourceImportConflictException(newResource.getLocation(),
+              existingResource.getLocation());
         } else {
           logger.log(Level.INFO,
-              "Resource ''{0}'' from {1} has already been imported from {2}: "
-              + "ignoring import", new Object[] {
-              BinaryQualifiedNameFormatter.getFormatter().getName(pack, newResource.getName()),
-              newResource.getLocation().getDescription(),
-              existingResource.getLocation().getDescription()});
+              "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
+                  newResource.getLocation().getDescription(),
+                  existingResource.getLocation().getDescription()});
         }
         return;
       }
