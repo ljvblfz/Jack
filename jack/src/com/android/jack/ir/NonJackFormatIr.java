@@ -16,6 +16,7 @@
 
 package com.android.jack.ir;
 
+import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JContinueStatement;
@@ -62,6 +63,7 @@ import com.android.sched.item.Name;
     JPrefixIncOperation.class,
     JSwitchStatement.SwitchWithEnum.class,
     JWhileStatement.class,
+    ReflectAnnotations.class,
     SwitchEnumSupport.UsedEnumField.class})
 public class NonJackFormatIr implements AbstractComponent {
 }
