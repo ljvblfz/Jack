@@ -483,7 +483,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   @Nonnull
   public JFieldId getFieldId(
       @Nonnull String name, @Nonnull JType type,
-      @Nonnull FieldKind kind) {
+      @Nonnull FieldKind kind) throws JFieldLookupException {
     loader.ensureFields(this);
     for (JField field : fields) {
       JFieldId id = field.getId();

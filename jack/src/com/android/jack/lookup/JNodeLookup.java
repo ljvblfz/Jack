@@ -135,7 +135,7 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedInterface getInterface(@Nonnull String typeName) throws JLookupException {
+  public JDefinedInterface getInterface(@Nonnull String typeName) throws JTypeLookupException {
     JType type = getType(typeName);
     assert type instanceof JDefinedInterface;
     return (JDefinedInterface) type;
@@ -147,13 +147,13 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedAnnotation getAnnotation(@Nonnull String signature) throws JLookupException {
+  public JDefinedAnnotation getAnnotation(@Nonnull String signature) throws JTypeLookupException {
     return (JDefinedAnnotation) getType(signature);
   }
 
   @Override
   @Nonnull
-  public JDefinedEnum getEnum(@Nonnull String typeName) throws JLookupException {
+  public JDefinedEnum getEnum(@Nonnull String typeName) throws JTypeLookupException {
     return (JDefinedEnum) getType(typeName);
   }
 

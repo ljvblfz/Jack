@@ -43,6 +43,7 @@ import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparat
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
@@ -62,8 +63,10 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
@@ -543,7 +546,8 @@ public abstract class Jack {
 
   @Nonnull
   static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
-      throws JackIOException {
+      throws JackIOException, JTypeLookupException, JPackageLookupException,
+      ImportConflictException {
 
     Tracer tracer = TracerFactory.getTracer();
 
@@ -614,7 +618,7 @@ public abstract class Jack {
   @Nonnull
   private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
       @Nonnull ComposedPackageLoader rootPackageLoader, @Nonnull JPhantomLookup phantomLookup,
-      @Nonnull RunnableHooks hooks) {
+      @Nonnull RunnableHooks hooks) throws JackFileException {
     List<InputVDir> jackFilesToImport = new ArrayList<InputVDir>(jayceImport.size());
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
     for (final File jackFile : jayceImport) {

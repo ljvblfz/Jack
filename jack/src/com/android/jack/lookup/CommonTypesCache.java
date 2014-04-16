@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.CommonTypes.CommonType;
 
 import javax.annotation.Nonnull;
@@ -37,21 +38,21 @@ class CommonTypesCache {
     this.lookup = lookup;
   }
 
-  public JClass getClass(@Nonnull CommonType type) {
+  public JClass getClass(@Nonnull CommonType type) throws JTypeLookupException {
     if (commonClasses[type.ordinal()] == null) {
       commonClasses[type.ordinal()] = lookup.getClass(type.getSignature());
     }
     return commonClasses[type.ordinal()];
   }
 
-  public JInterface getInterface(@Nonnull CommonType type) {
+  public JInterface getInterface(@Nonnull CommonType type) throws JTypeLookupException {
     if (commonInterfaces[type.ordinal()] == null) {
       commonInterfaces[type.ordinal()] = lookup.getInterface(type.getSignature());
     }
     return commonInterfaces[type.ordinal()];
   }
 
-  public JType getType(@Nonnull CommonType type) {
+  public JType getType(@Nonnull CommonType type) throws JTypeLookupException {
     if (commonTypes[type.ordinal()] == null) {
       commonTypes[type.ordinal()] = (JClassOrInterface) lookup.getType(type.getSignature());
     }

@@ -21,6 +21,7 @@ import com.android.jack.JackEventType;
 import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.jayce.JayceFormatException;
@@ -94,8 +95,12 @@ public class JayceFileImporter {
     this.jayceContainers = jayceContainers;
   }
 
-  public void doImport(@Nonnull JSession session) throws JayceFormatException,
-      JayceVersionException, JackFileException {
+  public void doImport(@Nonnull JSession session)
+      throws JayceFormatException,
+      JayceVersionException,
+      JackFileException,
+      JPackageLookupException,
+      ImportConflictException {
 
     for (InputVDir jayceContainer : jayceContainers) {
       try {
@@ -112,7 +117,8 @@ public class JayceFileImporter {
   }
 
   private void importJayceFile(@Nonnull VElement element, @Nonnull JSession session,
-      @Nonnull JPackage pack) throws IOException, JayceFormatException, JayceVersionException {
+      @Nonnull JPackage pack) throws IOException, JayceFormatException, JayceVersionException,
+      JPackageLookupException, TypeImportConflictException, ResourceImportConflictException {
     if (element instanceof InputVDir) {
       for (VElement subFile : ((InputVDir) element).list()) {
         importJayceFile(subFile, session, pack.getSubPackage(element.getName()));
@@ -130,8 +136,8 @@ public class JayceFileImporter {
   }
 
   private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
-      @Nonnull JPackage pack, @Nonnull Location expectedLoadSource) throws JayceFormatException,
-      JayceVersionException {
+      @Nonnull JPackage pack, @Nonnull Location expectedLoadSource)
+      throws TypeImportConflictException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
     try {
       logger.log(Level.FINEST, "Importing jack file ''{0}'' in package ''{1}''",
@@ -158,7 +164,8 @@ public class JayceFileImporter {
     }
   }
 
-  private void addImportedResource(@Nonnull InputVFile file, @Nonnull JPackage pack) {
+  private void addImportedResource(@Nonnull InputVFile file, @Nonnull JPackage pack)
+      throws ResourceImportConflictException {
     Resource newResource = new Resource(file);
     for (Resource existingResource : pack.getResources()) {
       if (existingResource.getName().equals(newResource.getName())) {

@@ -166,11 +166,7 @@ public class JAstClasspath extends ClasspathLocation {
 
   @CheckForNull
   JAstBinaryType findType(@Nonnull JType type) {
-    try {
-      return new JAstBinaryType((JDefinedClassOrInterface) type, this);
-    } catch (JLookupException e) {
-      return null;
-    }
+    return new JAstBinaryType((JDefinedClassOrInterface) type, this);
   }
 
   /**

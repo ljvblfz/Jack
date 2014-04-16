@@ -31,6 +31,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JModifier;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexFileMarker;
@@ -107,7 +108,8 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
   }
 
   @Nonnull
-  private ClassDefItem createClassDefItem(@Nonnull JDefinedClassOrInterface type) {
+  private ClassDefItem createClassDefItem(@Nonnull JDefinedClassOrInterface type)
+      throws JTypeLookupException {
     CstType thisClass = RopHelper.getCstType(type);
     CstType superclassType = createSuperClass(type);
     int accessFlags = getDxAccessFlagsForType(type);
@@ -122,7 +124,8 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
   }
 
   @CheckForNull
-  private static CstType createSuperClass(@Nonnull JDefinedClassOrInterface type) {
+  private static CstType createSuperClass(@Nonnull JDefinedClassOrInterface type)
+      throws JTypeLookupException {
     JClass superClass = type.getSuperClass();
     if (superClass == null) {
       if (type instanceof JDefinedInterface) {

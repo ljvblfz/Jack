@@ -76,34 +76,34 @@ public abstract class JLookup {
    * @return The {@link JType} found.
    */
   @Nonnull
-  public abstract JType getType(@Nonnull String typeName) throws JLookupException;
+  public abstract JType getType(@Nonnull String typeName) throws JTypeLookupException;
 
   @Nonnull
-  public abstract JClass getClass(@Nonnull String typeName) throws JLookupException;
+  public abstract JClass getClass(@Nonnull String typeName) throws JTypeLookupException;
 
   @Nonnull
-  public abstract JEnum getEnum(@Nonnull String typeName) throws JLookupException;
+  public abstract JEnum getEnum(@Nonnull String typeName) throws JTypeLookupException;
 
   @Nonnull
-  public abstract JInterface getInterface(@Nonnull String typeName) throws JLookupException;
+  public abstract JInterface getInterface(@Nonnull String typeName) throws JTypeLookupException;
 
   @Nonnull
-  public abstract JAnnotation getAnnotation(@Nonnull String signature) throws JLookupException;
+  public abstract JAnnotation getAnnotation(@Nonnull String signature) throws JTypeLookupException;
 
   public abstract void clear();
 
   @Nonnull
-  public JClass getClass(@Nonnull CommonType type) throws JLookupException {
+  public JClass getClass(@Nonnull CommonType type) throws JTypeLookupException {
     return commonTypesCache.getClass(type);
   }
 
   @Nonnull
-  public JInterface getInterface(@Nonnull CommonType type) throws JLookupException {
+  public JInterface getInterface(@Nonnull CommonType type) throws JTypeLookupException {
     return commonTypesCache.getInterface(type);
   }
 
   @Nonnull
-  public JType getType(@Nonnull CommonType type) throws JLookupException {
+  public JType getType(@Nonnull CommonType type) throws JTypeLookupException {
      return commonTypesCache.getType(type);
   }
 
@@ -125,7 +125,7 @@ public abstract class JLookup {
   }
 
   @Nonnull
-  protected JArrayType getArrayType(@Nonnull String typeName) {
+  protected JArrayType getArrayType(@Nonnull String typeName) throws JTypeLookupException {
     int typeNameLength = typeName.length();
     assert typeNameLength > 0 && typeName.charAt(0) == '[';
 
