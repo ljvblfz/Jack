@@ -116,7 +116,6 @@ public class JSession extends JNode {
   public void removeTypeToEmit(@Nonnull JDefinedClassOrInterface type) {
     boolean removed = typesToEmit.remove(type);
     assert removed;
-    type.setExternal(true);
   }
 
 @Nonnull
