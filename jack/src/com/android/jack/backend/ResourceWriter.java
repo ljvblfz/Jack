@@ -18,7 +18,6 @@ package com.android.jack.backend;
 
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.util.BytesStreamSucker;
 import com.android.sched.item.Description;
@@ -48,10 +47,10 @@ public class ResourceWriter implements RunnableSchedulable<JPackage> {
   @Override
   public synchronized void run(@Nonnull JPackage pack) throws Exception {
     OutputVDir outputVDir = pack.getSession().getOutputVDir();
+    VDirPathFormatter formatter = new VDirPathFormatter(outputVDir);
     List<Resource> resources = pack.getResources();
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
-      BinaryQualifiedNameFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
       String path = formatter.getName(pack, inputFile.getName());
       OutputVFile outputFile = outputVDir.createOutputVFile(path);
       InputStream is = inputFile.openRead();

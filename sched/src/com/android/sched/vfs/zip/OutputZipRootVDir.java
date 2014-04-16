@@ -77,4 +77,9 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
   public void close() throws IOException {
     zos.close();
   }
+
+  @Override
+  public char getSeparator() {
+    return '/';
+  }
 }

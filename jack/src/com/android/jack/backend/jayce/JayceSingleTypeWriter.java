@@ -18,10 +18,10 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackFileException;
+import com.android.jack.backend.VDirPathFormatter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.scheduling.feature.JackFileOutput;
@@ -36,7 +36,6 @@ import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -53,14 +52,12 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  @Nonnull
-  private static final TypeFormatter formatter = new FilePathFormatter();
-
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVDir vDir = type.getSession().getOutputVDir();
     assert vDir != null;
-    OutputVFile vFile = vDir.createOutputVFile(getFilePath(type));
+    VDirPathFormatter formatter = new VDirPathFormatter(vDir);
+    OutputVFile vFile = vDir.createOutputVFile(getFilePath(type, formatter));
 
     try {
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
@@ -77,18 +74,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
   }
 
   @Nonnull
-  protected static String getFilePath(@Nonnull JDefinedClassOrInterface type) {
+  protected static String getFilePath(@Nonnull JDefinedClassOrInterface type,
+      @Nonnull TypeFormatter formatter) {
     return formatter.getName(type) + JayceFileImporter.JAYCE_FILE_EXTENSION;
-  }
-
-  private static class FilePathFormatter extends BinaryQualifiedNameFormatter {
-
-    private static final char PACKAGE_SEPARATOR = File.separatorChar;
-
-    @Override
-    protected char getPackageSeparator() {
-      return PACKAGE_SEPARATOR;
-    }
-
   }
 }

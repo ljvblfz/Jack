@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs;
+package com.android.jack.backend;
 
-import java.io.IOException;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.sched.vfs.OutputVDir;
 
 import javax.annotation.Nonnull;
 
-/**
- * Virtual directory to write to.
- */
-public interface OutputVDir extends VElement {
+public class VDirPathFormatter extends BinaryQualifiedNameFormatter {
 
-  @Nonnull
-  OutputVFile createOutputVFile(@Nonnull String filePath) throws IOException;
+  private final char separator;
 
-  char getSeparator();
+  public VDirPathFormatter(@Nonnull OutputVDir vDir) {
+    this.separator = vDir.getSeparator();
+  }
 
+  @Override
+  protected char getPackageSeparator() {
+    return separator;
+  }
 }
