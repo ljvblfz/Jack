@@ -39,6 +39,7 @@ import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
+import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
@@ -903,6 +904,7 @@ public abstract class Jack {
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ReflectAnnotationsAdder.class);
     }
+    planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
@@ -1267,6 +1269,7 @@ public abstract class Jack {
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ReflectAnnotationsAdder.class);
     }
+    planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);

@@ -17,6 +17,7 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
+import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.ir.ast.JAnnotationLiteral;
@@ -40,7 +41,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = {ClassDefItemMarker.class, DexFileMarker.class},
     no = AnnotationMethodDefaultValue.class)
 @Transform(add = DexFileMarker.ClassAnnotation.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class})
+    modify = {ClassDefItemMarker.class, DexFileMarker.class},
+    remove = ClassAnnotationSchedulingSeparator.SeparatorTag.class)
 @Use(AnnotationBuilder.class)
 public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
