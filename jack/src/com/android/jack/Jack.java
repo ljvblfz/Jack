@@ -841,11 +841,10 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan3 =
             typePlan4.appendSubPlan(JMethodAdaptor.class);
         methodPlan3.append(FieldInitMethodCallRemover.class);
-
-        typePlan4.append(FieldInitMethodRemover.class);
-        if (features.contains(JackFileOutput.class)) {
-          typePlan4.append(JayceSingleTypeWriter.class);
-        }
+      }
+      typePlan4.append(FieldInitMethodRemover.class);
+      if (features.contains(JackFileOutput.class)) {
+        typePlan4.append(JayceSingleTypeWriter.class);
       }
     }
     {
