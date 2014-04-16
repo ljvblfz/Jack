@@ -188,7 +188,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   @Override
   public void run(@Nonnull JSession t) throws Exception {
     Visitor visitor = new Visitor();
-    visitor.accept(t);
+    visitor.accept(t.getTypesToEmit());
     stream.close();
   }
 

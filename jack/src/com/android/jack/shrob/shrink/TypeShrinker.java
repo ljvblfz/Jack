@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -104,11 +105,11 @@ public class TypeShrinker implements RunnableSchedulable<JDefinedClassOrInterfac
       TransformationRequest request = new TransformationRequest(type);
       request.append(new Remove(type));
       logger.log(Level.INFO, "Removed type {0}", Jack.getUserFriendlyFormatter().getName(type));
-      type.getEnclosingPackage().remove(type);
       JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) type.getEnclosingType();
       if (enclosingType != null) {
         enclosingType.removeMemberType(type);
       }
+      type.getParent(JSession.class).removeTypeToEmit(type);
       request.commit();
     } else {
       updateSuperTypeList(type);

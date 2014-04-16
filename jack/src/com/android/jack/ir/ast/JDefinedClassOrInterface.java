@@ -108,6 +108,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.enclosingPackage.addType(this);
     this.loader = loader;
     location = loader.getLocation(this);
+    updateParents(enclosingPackage);
   }
 
   public void setModifier(int modifier) {
@@ -175,6 +176,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public void setEnclosingPackage(@CheckForNull JPackage enclosingPackage) {
     assert enclosingPackage != null;
     this.enclosingPackage = enclosingPackage;
+    updateParents(enclosingPackage);
   }
 
   /**

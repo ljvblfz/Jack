@@ -111,7 +111,12 @@ public class JSession extends JNode {
   public void addTypeToEmit(@Nonnull JDefinedClassOrInterface type) {
     typesToEmit.add(type);
     type.setExternal(false);
-    type.updateParents(this);
+  }
+
+  public void removeTypeToEmit(@Nonnull JDefinedClassOrInterface type) {
+    boolean removed = typesToEmit.remove(type);
+    assert removed;
+    type.setExternal(true);
   }
 
 @Nonnull
@@ -128,7 +133,6 @@ public class JSession extends JNode {
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       visitor.accept(topLevelPackage);
-      visitor.accept(typesToEmit);
     }
     visitor.endVisit(this);
   }
@@ -136,19 +140,7 @@ public class JSession extends JNode {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    for (JDefinedClassOrInterface type : typesToEmit) {
-      type.traverse(schedule);
-    }
     topLevelPackage.traverse(schedule);
-  }
-
-  @Override
-  protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
-      @Nonnull Transformation transformation) throws UnsupportedOperationException {
-    if (!transform(typesToEmit, existingNode, (JDefinedClassOrInterface) newNode,
-        transformation)) {
-      super.transform(existingNode, newNode, transformation);
-    }
   }
 
   @Override

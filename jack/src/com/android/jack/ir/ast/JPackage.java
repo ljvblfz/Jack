@@ -330,7 +330,12 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
+      if (visitor.needLoading()) {
+        getLoader().loadSubPackages(this);
+        getLoader().loadClassesAndInterfaces(this);
+      }
       visitor.accept(subPackages);
+      visitor.accept(declaredTypes);
     }
     visitor.endVisit(this);
   }
@@ -395,10 +400,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   @Override
   public String getName() {
     return name;
-  }
-
-  Collection<? extends JPackage> getLoadedPackages() {
-    return subPackages;
   }
 
   public Collection<? extends JDefinedClassOrInterface> getLoadedTypes() {
