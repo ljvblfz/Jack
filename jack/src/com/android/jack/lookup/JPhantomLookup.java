@@ -69,11 +69,10 @@ public class JPhantomLookup extends JLookup {
    * @param signature Name of the searched type. The type name must have the following form
    *        Ljava/jang/String;.
    * @return The {@link JType} found.
-   * @throws JTypeLookupException
    */
   @Override
   @Nonnull
-  public JType getType(@Nonnull String signature) throws JTypeLookupException {
+  public JType getType(@Nonnull String signature) {
     JType type;
     try {
       type = jackLookup.getType(signature);

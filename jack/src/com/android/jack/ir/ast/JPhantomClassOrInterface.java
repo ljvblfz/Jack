@@ -17,7 +17,6 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.SourceOrigin;
-import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -135,7 +134,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   @Nonnull
   @Override
   public JMethodId getMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
-      @Nonnull MethodKind kind) throws JMethodLookupException {
+      @Nonnull MethodKind kind) {
     synchronized (methodIds) {
       for (JMethodId id : methodIds) {
         if (id.equals(name, argsType)) {

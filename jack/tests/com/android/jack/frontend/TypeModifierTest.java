@@ -21,6 +21,7 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JTypeLookupException;
 
 import junit.framework.Assert;
 
@@ -42,7 +43,7 @@ public class TypeModifierTest {
     Assert.assertNotNull(session);
   }
 
-  private JDefinedClassOrInterface lookupInnerClass(String className) {
+  private JDefinedClassOrInterface lookupInnerClass(String className) throws JTypeLookupException {
     JDefinedClassOrInterface type = (JDefinedClassOrInterface) session.getLookup()
         .getType("L" + OUTER_CLASS_BINARY_NAME + "$" + className + ";");
     Assert.assertNotNull(type);

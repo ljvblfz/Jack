@@ -75,7 +75,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
 
   @Nonnull
   // Section Unary Numeric Promotion (JLS-7 5.6.1)
-  public static JType getUnaryPromotion(@Nonnull JType argType) throws AssertionError {
+  public static JType getUnaryPromotion(@Nonnull JType argType) {
     JType promotedType;
 
     if (JPrimitiveTypeEnum.BYTE.getType().isEquivalent(argType)
@@ -102,20 +102,20 @@ public abstract class JPrimitiveType extends JNode implements JType {
     JType promotedType;
 
     assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.INT.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.LONG.getType().isEquivalent(lhsType)
-    || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(lhsType);
+        || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(lhsType)
+        || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(lhsType)
+        || JPrimitiveTypeEnum.INT.getType().isEquivalent(lhsType)
+        || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(lhsType)
+        || JPrimitiveTypeEnum.LONG.getType().isEquivalent(lhsType)
+        || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(lhsType);
 
     assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.INT.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
-    || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
+        || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(rhsType)
+        || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(rhsType)
+        || JPrimitiveTypeEnum.INT.getType().isEquivalent(rhsType)
+        || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(rhsType)
+        || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
+        || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
 
     if ((lhsType == JPrimitiveTypeEnum.DOUBLE.getType())
         || (rhsType == JPrimitiveTypeEnum.DOUBLE.getType())
