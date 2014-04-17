@@ -46,7 +46,6 @@ public class WithPhantomTest {
     return unixPath.replace('/', File.separatorChar);
   }
 
-  @Category(value = KnownBugs.class)
   @Test
   public void testPhantomOuter() throws Exception {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
@@ -185,7 +184,6 @@ public class WithPhantomTest {
     TestTools.compileJackToDex(new Options(), tempJackFolder, tempOut2, false /* non-zipped */);
   }
 
-  @Category(value = KnownBugs.class)
   @Test
   public void testPhantomLocalOuter() throws Exception {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");

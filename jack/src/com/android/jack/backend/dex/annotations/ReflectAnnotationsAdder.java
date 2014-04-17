@@ -229,16 +229,17 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     private void addMemberClasses(@Nonnull JDefinedClassOrInterface innerType) {
-      JDefinedClassOrInterface enclosingType =
-          (JDefinedClassOrInterface) innerType.getEnclosingType();
-      SourceInfo info = enclosingType.getSourceInfo();
-      JAnnotationLiteral annotation =
-          getAnnotation(enclosingType, memberClassAnnotation, info);
-      JLiteral newValue = new JClassLiteral(info, innerType, javaLangClass);
-      List<JLiteral> literals = new ArrayList<JLiteral>();
-      literals.add(newValue);
-      JMethodId methodId = getOrCreateMethodId(memberClassAnnotation, ELT_VALUE);
-      addClassLiterals(literals, annotation, methodId, info);
+      JClassOrInterface enclosingType = innerType.getEnclosingType();
+      if (!enclosingType.isExternal() && enclosingType instanceof JDefinedClassOrInterface) {
+          SourceInfo info = enclosingType.getSourceInfo();
+          JAnnotationLiteral annotation =
+              getAnnotation((JDefinedClassOrInterface) enclosingType, memberClassAnnotation, info);
+          JLiteral newValue = new JClassLiteral(info, innerType, javaLangClass);
+          List<JLiteral> literals = new ArrayList<JLiteral>();
+          literals.add(newValue);
+          JMethodId methodId = getOrCreateMethodId(memberClassAnnotation, ELT_VALUE);
+          addClassLiterals(literals, annotation, methodId, info);
+      }
     }
 
     private void addEnclosingClass(@Nonnull JDefinedClassOrInterface innerType) {

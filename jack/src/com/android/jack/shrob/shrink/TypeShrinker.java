@@ -105,8 +105,9 @@ public class TypeShrinker implements RunnableSchedulable<JDefinedClassOrInterfac
       TransformationRequest request = new TransformationRequest(type);
       request.append(new Remove(type));
       logger.log(Level.INFO, "Removed type {0}", Jack.getUserFriendlyFormatter().getName(type));
-      JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) type.getEnclosingType();
-      if (enclosingType != null) {
+      JClassOrInterface enclosing = type.getEnclosingType();
+      if (enclosing instanceof JDefinedClassOrInterface) {
+        JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) enclosing;
         enclosingType.removeMemberType(type);
       }
       type.getParent(JSession.class).removeTypeToEmit(type);
@@ -123,9 +124,8 @@ public class TypeShrinker implements RunnableSchedulable<JDefinedClassOrInterfac
 
   private void updateEnclosingType(@Nonnull JDefinedClassOrInterface type) {
     JClassOrInterface enclosingType = type.getEnclosingType();
-    while (enclosingType != null) {
-      if (((JNode) enclosingType).containsMarker(KeepMarker.class) || enclosingType.isExternal()
-          || !(enclosingType instanceof JDefinedClassOrInterface)) {
+    while (enclosingType instanceof JDefinedClassOrInterface) {
+      if (((JNode) enclosingType).containsMarker(KeepMarker.class) || enclosingType.isExternal()) {
         break;
       }
       enclosingType = ((JDefinedClassOrInterface) enclosingType).getEnclosingType();
