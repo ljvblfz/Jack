@@ -38,12 +38,15 @@ import javax.annotation.Nonnull;
 public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
     implements TypeAndMethodFormatter {
 
-  private static final char PACKAGE_SEPARATOR = '/';
-
   @Nonnull
   private static final BinarySignatureFormatter formatter = new BinarySignatureFormatter();
 
   protected BinarySignatureFormatter() {
+  }
+
+  @Override
+  protected char getPackageSeparator() {
+    return '/';
   }
 
   @Nonnull
@@ -102,7 +105,7 @@ public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
     StringBuilder sb = new StringBuilder("L");
     if (!enclosingPackage.isDefaultPackage()) {
       sb.append(getNameInternal(enclosingPackage));
-      sb.append(PACKAGE_SEPARATOR);
+      sb.append(getPackageSeparator());
     }
     sb.append(classOrInterfaceSimpleName).append(";");
     return sb.toString();
@@ -154,10 +157,4 @@ public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
 
     return sb.toString();
   }
-
-  @Override
-  protected char getPackageSeparator() {
-    return PACKAGE_SEPARATOR;
-  }
-
 }
