@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.rop.code;
 
+import com.android.jack.dx.rop.type.TypeBearer;
 import com.android.jack.dx.util.MutabilityControl;
 
 import java.util.HashMap;

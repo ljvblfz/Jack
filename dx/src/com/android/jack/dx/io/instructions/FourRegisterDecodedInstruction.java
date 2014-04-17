@@ -55,38 +55,38 @@ public final class FourRegisterDecodedInstruction extends DecodedInstruction {
     this.d = d;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getRegisterCount() {
     return 4;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getA() {
     return a;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getB() {
     return b;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getC() {
     return c;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getD() {
     return d;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public DecodedInstruction withIndex(int newIndex) {
     return new FourRegisterDecodedInstruction(getFormat(),
         getOpcode(),

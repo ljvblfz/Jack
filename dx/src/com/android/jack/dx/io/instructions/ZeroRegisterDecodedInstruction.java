@@ -34,14 +34,14 @@ public final class ZeroRegisterDecodedInstruction extends DecodedInstruction {
     super(format, opcode, index, indexType, target, literal);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getRegisterCount() {
     return 0;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public DecodedInstruction withIndex(int newIndex) {
     return new ZeroRegisterDecodedInstruction(getFormat(),
         getOpcode(),

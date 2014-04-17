@@ -35,8 +35,8 @@ public class BitIntSet implements IntSet {
     bits = Bits.makeBitSet(max);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void add(int value) {
     ensureCapacity(value);
     Bits.set(bits, value, true);
@@ -55,22 +55,22 @@ public class BitIntSet implements IntSet {
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void remove(int value) {
     if (value < Bits.getMax(bits)) {
       Bits.set(bits, value, false);
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public boolean has(int value) {
     return (value < Bits.getMax(bits)) && Bits.get(bits, value);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void merge(IntSet other) {
     if (other instanceof BitIntSet) {
       BitIntSet o = (BitIntSet) other;
@@ -94,26 +94,26 @@ public class BitIntSet implements IntSet {
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int elements() {
     return Bits.bitCount(bits);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public IntIterator iterator() {
     return new IntIterator() {
       private int idx = Bits.findFirst(bits, 0);
 
-      /** @inheritDoc */
       @Override
+      /** @inheritDoc */
       public boolean hasNext() {
         return idx >= 0;
       }
 
-      /** @inheritDoc */
       @Override
+      /** @inheritDoc */
       public int next() {
         if (!hasNext()) {
           throw new NoSuchElementException();
@@ -128,8 +128,8 @@ public class BitIntSet implements IntSet {
     };
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public String toString() {
     StringBuilder sb = new StringBuilder();
 

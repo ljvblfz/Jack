@@ -40,20 +40,20 @@ public final class OneRegisterDecodedInstruction extends DecodedInstruction {
     this.a = a;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getRegisterCount() {
     return 1;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getA() {
     return a;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public DecodedInstruction withIndex(int newIndex) {
     return new OneRegisterDecodedInstruction(getFormat(),
         getOpcode(),

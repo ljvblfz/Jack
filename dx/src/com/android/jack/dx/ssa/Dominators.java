@@ -153,8 +153,6 @@ public final class Dominators {
   /**
    * Performs dominator/post-dominator calculation for the control
    * flow graph.
-   *
-   * @param meth {@code non-null;} method to analyze
    */
   private void run() {
     SsaBasicBlock root = postdom ? meth.getExitBlock() : meth.getEntryBlock();

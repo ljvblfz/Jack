@@ -105,15 +105,15 @@ if (localA == null) {
            * Map all uses of specB to specA
            */
 
-RegisterMapper mapper = new RegisterMapper() {
-            /** @inheritDoc */
+          RegisterMapper mapper = new RegisterMapper() {
             @Override
+            /** @inheritDoc */
             public int getNewRegisterCount() {
               return ssaMeth.getRegCount();
             }
 
-            /** @inheritDoc */
             @Override
+            /** @inheritDoc */
             public RegisterSpec map(RegisterSpec registerSpec) {
               if (registerSpec.getReg() == specB.getReg()) {
                 return specA;
