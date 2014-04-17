@@ -73,7 +73,6 @@ public final class MethodAnnotationStruct implements ToHuman, Comparable<MethodA
     return method.compareTo(other.method);
   }
 
-  /** {@inheritDoc} */
   public void addContents(DexFile file) {
     MethodIdsSection methodIds = file.getMethodIds();
     MixedItemSection wordData = file.getWordData();
@@ -82,7 +81,6 @@ public final class MethodAnnotationStruct implements ToHuman, Comparable<MethodA
     annotations = wordData.intern(annotations);
   }
 
-  /** {@inheritDoc} */
   public void writeTo(DexFile file, AnnotatedOutput out) {
     int methodIdx = file.getMethodIds().indexOf(method);
     int annotationsOff = annotations.getAbsoluteOffset();

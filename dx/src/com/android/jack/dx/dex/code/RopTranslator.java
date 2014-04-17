@@ -155,9 +155,9 @@ public final class RopTranslator {
     this.output = new OutputCollector(dexOptions, maxInsns, bsz * 3, regCount);
 
     if (locals != null) {
-      this.translationVisitor = new LocalVariableAwareTranslationVisitor(output, locals);
+      this.translationVisitor = new LocalVariableAwareTranslationVisitor();
     } else {
-      this.translationVisitor = new TranslationVisitor(output);
+      this.translationVisitor = new TranslationVisitor();
     }
   }
 
@@ -475,9 +475,6 @@ regs = RegisterSpecList.make(regs.get(1), regs.get(0));
    * Instruction visitor class for doing the instruction translation per se.
    */
   private class TranslationVisitor implements Insn.Visitor {
-    /** {@code non-null;} list of output instructions in-progress */
-    private final OutputCollector output;
-
     /** {@code non-null;} basic block being worked on */
     private BasicBlock block;
 
@@ -486,15 +483,6 @@ regs = RegisterSpecList.make(regs.get(1), regs.get(0));
      * block (used before switches and throwing instructions)
      */
     private CodeAddress lastAddress;
-
-    /**
-     * Constructs an instance.
-     *
-     * @param output {@code non-null;} destination for instruction output
-     */
-    public TranslationVisitor(OutputCollector output) {
-      this.output = output;
-    }
 
     /**
      * Sets the block currently being worked on.
@@ -782,19 +770,6 @@ RegisterSpec dest = insn.getResult();
    * local variable tracking
    */
   private class LocalVariableAwareTranslationVisitor extends TranslationVisitor {
-    /** {@code non-null;} local variable info */
-    private LocalVariableInfo locals;
-
-    /**
-     * Constructs an instance.
-     *
-     * @param output {@code non-null;} destination for instruction output
-     * @param locals {@code non-null;} the local variable info
-     */
-    public LocalVariableAwareTranslationVisitor(OutputCollector output, LocalVariableInfo locals) {
-      super(output);
-      this.locals = locals;
-    }
 
     /** {@inheritDoc} */
     @Override

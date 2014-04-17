@@ -73,7 +73,6 @@ public final class FieldAnnotationStruct implements ToHuman, Comparable<FieldAnn
     return field.compareTo(other.field);
   }
 
-  /** {@inheritDoc} */
   public void addContents(DexFile file) {
     FieldIdsSection fieldIds = file.getFieldIds();
     MixedItemSection wordData = file.getWordData();
@@ -82,7 +81,6 @@ public final class FieldAnnotationStruct implements ToHuman, Comparable<FieldAnn
     annotations = wordData.intern(annotations);
   }
 
-  /** {@inheritDoc} */
   public void writeTo(DexFile file, AnnotatedOutput out) {
     int fieldIdx = file.getFieldIds().indexOf(field);
     int annotationsOff = annotations.getAbsoluteOffset();

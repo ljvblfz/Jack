@@ -20,7 +20,6 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.util.DexException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -81,13 +80,13 @@ public final class TableOfContents {
     signature = new byte[20];
   }
 
-  public void readFrom(DexBuffer buffer) throws IOException {
+  public void readFrom(DexBuffer buffer) {
     readHeader(buffer.open(0));
     readMap(buffer.open(mapList.off));
     computeSizesFromOffsets();
   }
 
-  private void readHeader(DexBuffer.Section headerIn) throws UnsupportedEncodingException {
+  private void readHeader(DexBuffer.Section headerIn) {
     byte[] magic = headerIn.readByteArray(8);
     int apiTarget = DexFormat.magicToApi(magic);
 
@@ -128,7 +127,7 @@ public final class TableOfContents {
     dataOff = headerIn.readInt();
   }
 
-  private void readMap(DexBuffer.Section in) throws IOException {
+  private void readMap(DexBuffer.Section in) {
     int mapSize = in.readInt();
     Section previous = null;
     for (int i = 0; i < mapSize; i++) {
@@ -205,7 +204,7 @@ public final class TableOfContents {
     out.writeInt(dataOff);
   }
 
-  public void writeMap(DexBuffer.Section out) throws IOException {
+  public void writeMap(DexBuffer.Section out) {
     int count = 0;
     for (Section section : sections) {
       if (section.exists()) {
