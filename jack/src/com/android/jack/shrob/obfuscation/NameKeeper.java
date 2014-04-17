@@ -80,10 +80,17 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         return false;
       } else {
         // Handle "keep names" rules
-        findSeeds(clOrI, flags.getKeepClassSpecs(), false /* allSpecsMustMatch */);
+        findSeeds(clOrI, flags.getKeepClassSpecs(), false /* allSpecsMustMatch */,
+            true /* markType */);
 
         // Handle "keep classes with member names" rules
-        findSeeds(clOrI, flags.getKeepClassesWithMembersSpecs(), true /* allSpecsMustMatch */);
+        findSeeds(clOrI, flags.getKeepClassesWithMembersSpecs(), true /* allSpecsMustMatch */,
+            true /* markType */);
+
+        // Handle "keep class member names" rules
+        findSeeds(clOrI, flags.getKeepClassMembersSpecs(), false /* allSpecsMustMatch */,
+            false /* markType */);
+
         return super.visit(clOrI);
       }
     }
@@ -98,7 +105,8 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   }
 
   private void findSeeds(@Nonnull JDefinedClassOrInterface declaredType,
-      @Nonnull List<ClassSpecification> specs, boolean allSpecsMustMatch) {
+      @Nonnull List<ClassSpecification> specs, boolean allSpecsMustMatch,
+      boolean markType) {
     for (ClassSpecification classSpec : specs) {
       boolean classMatches;
 
@@ -133,7 +141,9 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         // name of the fields and methods found and their enclosing type.
         if (!allSpecsMustMatch || (fieldFinder.allSpecificationsMatched()
             && methodFinder.allSpecificationsMatched())) {
-          keepName(declaredType);
+          if (markType) {
+            keepName(declaredType);
+          }
 
           for (JField node : fieldsFound) {
             keepName(node);
@@ -175,9 +185,6 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   private void keepName(@Nonnull JDefinedClassOrInterface type) {
     if (markIfNecessary(type)) {
       keepName(type.getEnclosingPackage());
-
-      // Handle "keepclassmember" rules
-      findSeeds(type, flags.getKeepClassMembersSpecs(), false /* allSpecsMustMatch */);
     }
   }
 
