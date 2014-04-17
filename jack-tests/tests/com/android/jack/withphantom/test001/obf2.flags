@@ -1,0 +1,3 @@
+-dontoptimize
+-keep,allowobfuscation public class com.android.jack.withphantom.test001.jack.A$Inner1 {
+}
