@@ -301,9 +301,19 @@ public abstract class Jack {
    * @throws ConfigurationException
    * @throws IllegalOptionsException
    * @throws NothingToDoException
+   * @throws ImportConflictException
+   * @throws JackIOException
+   * @throws JPackageLookupException
+   * @throws JTypeLookupException
    */
   public static void run(@Nonnull Options options)
-      throws IllegalOptionsException, NothingToDoException, ConfigurationException {
+      throws IllegalOptionsException,
+      NothingToDoException,
+      ConfigurationException,
+      JTypeLookupException,
+      JPackageLookupException,
+      JackIOException,
+      ImportConflictException {
     boolean assertEnable = false;
     // assertEnable = true if assertion is already enable
     assert true == (assertEnable = true);

@@ -114,8 +114,7 @@ public abstract class JLookup {
    * @return An instance of a {@code leafType} JArrayType of dimension {@code dimension}
    */
   @Nonnull
-  public JArrayType getArrayType(@Nonnull JType leafType, @Nonnegative int dimension)
-      throws JTypeLookupException {
+  public JArrayType getArrayType(@Nonnull JType leafType, @Nonnegative int dimension) {
     assert dimension > 0;
     JType array = leafType;
     for (int i = 0; i < dimension; i++) {
