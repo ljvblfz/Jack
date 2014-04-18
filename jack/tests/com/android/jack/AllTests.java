@@ -98,6 +98,7 @@ import org.junit.runners.Suite.SuiteClasses;
     UnaryTest.class,
     UselessCastRemoverTest.class,
     UselessVariableCopyTest.class,
+    WithPhantomTest.class,
     ClasspathTest.class})
 public class AllTests {
 }

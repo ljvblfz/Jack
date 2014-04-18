@@ -1,0 +1,5 @@
+-dontoptimize
+-keep,allowobfuscation public class com.android.jack.withphantom.test002.jack.A {
+}
+-keep,allowobfuscation public class com.android.jack.withphantom.test002.jack.A$* {
+}
