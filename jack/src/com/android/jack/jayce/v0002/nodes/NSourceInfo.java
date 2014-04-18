@@ -18,8 +18,6 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.SourceOrigin;
-import com.android.jack.jayce.v0002.io.ExportSession;
-import com.android.jack.jayce.v0002.io.ImportHelper;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -43,11 +41,7 @@ public class NSourceInfo {
 
   public static final NSourceInfo UNKNOWN = new NSourceInfo();
 
-  public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object object) {
-    importFromJast(loader, (SourceInfo) object);
-  }
-
-  public void importFromJast(@Nonnull ImportHelper loader, @Nonnull SourceInfo sourceInfo) {
+  public void importFromJast(@Nonnull SourceInfo sourceInfo) {
     fileName = sourceInfo.getFileName();
     startLine = sourceInfo.getStartLine();
     endLine = sourceInfo.getEndLine();
@@ -56,7 +50,7 @@ public class NSourceInfo {
   }
 
   @Nonnull
-  public SourceInfo exportAsJast(@Nonnull ExportSession exportSession) {
+  public SourceInfo exportAsJast() {
     if (fileName == null
         && startLine == 0
         && endLine == 0

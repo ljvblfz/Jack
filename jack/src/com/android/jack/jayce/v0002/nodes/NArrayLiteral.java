@@ -62,7 +62,7 @@ public class NArrayLiteral extends NLiteral {
     for (NLiteral value : values) {
       jValues.add(value.exportAsJast(exportSession));
     }
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JArrayLiteral jArrayLiteral = new JArrayLiteral(jSourceInfo, jValues);
     return jArrayLiteral;
   }

@@ -72,7 +72,7 @@ public class NAssertStatement extends NStatement {
       jArg = arg.exportAsJast(exportSession);
     }
     JAssertStatement jAssertStatement = new JAssertStatement(
-        sourceInfo.exportAsJast(exportSession), testExpression.exportAsJast(exportSession), jArg);
+        sourceInfo.exportAsJast(), testExpression.exportAsJast(exportSession), jArg);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId,
           new CatchBlockLinker(jAssertStatement));

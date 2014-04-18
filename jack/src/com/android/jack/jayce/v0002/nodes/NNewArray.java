@@ -68,7 +68,7 @@ public class NNewArray extends NExpression {
     assert sourceInfo != null;
     assert type != null;
     JArrayType jType = (JArrayType) exportSession.getLookup().getType(type);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     if (initializers.isEmpty()) {
       List<JExpression> jDims = new ArrayList<JExpression>(dims.size());
       for (NExpression expr : dims) {

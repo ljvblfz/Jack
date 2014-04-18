@@ -37,7 +37,6 @@ import com.android.sched.util.log.TracerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +65,7 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
   @Nonnull
   private final  List<String> currentCatchBlockList = new ArrayList<String>();
 
-  public JayceInternalWriterImpl(@Nonnull OutputStream out, @Nonnull Charset encoding) {
+  public JayceInternalWriterImpl(@Nonnull OutputStream out) {
     this.out = new JayceOutputStream(out);
   }
 

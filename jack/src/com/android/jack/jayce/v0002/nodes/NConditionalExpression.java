@@ -69,7 +69,7 @@ public class NConditionalExpression extends NExpression {
     JExpression jIf = ifTest.exportAsJast(exportSession);
     JExpression jThen = thenExpr.exportAsJast(exportSession);
     JExpression jElse = elseExpr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JConditionalExpression jConditionalExpression =
         new JConditionalExpression(jSourceInfo, jIf, jThen, jElse);
     return jConditionalExpression;

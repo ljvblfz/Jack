@@ -148,16 +148,9 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  public JType get(@Nonnull String signature, @Nonnull LookupEnvironment lookupEnvironment)
-      throws JTypeLookupException {
-    return get(signature, lookupEnvironment, null);
-  }
-
-  @Nonnull
   public JType get(@Nonnull TypeBinding binding) throws JTypeLookupException {
     binding = binding.erasure();
-    String key = new String(binding.signature());
-    return get(key, null, binding);
+    return get(new String(binding.signature()));
   }
 
   @Nonnull
@@ -171,8 +164,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  private JType get(@Nonnull String signature, @CheckForNull LookupEnvironment lookupEnvironment,
-      @CheckForNull TypeBinding binding) throws JTypeLookupException {
+  public JType get(@Nonnull String signature) throws JTypeLookupException {
     return lookup.getType(signature);
   }
 

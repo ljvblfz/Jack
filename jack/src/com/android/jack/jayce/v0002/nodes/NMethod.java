@@ -110,7 +110,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert returnType != null;
     assert methodKind != null;
     assert sourceInfo != null;
-    SourceInfo info = sourceInfo.exportAsJast(exportSession);
+    SourceInfo info = sourceInfo.exportAsJast();
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JMethodId id = new JMethodId(name, methodKind);

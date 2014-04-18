@@ -73,7 +73,7 @@ public class NSynchronizedBlock extends NStatement {
     assert synchronizedBlock != null;
     JExpression jLockExpr = lockExpr.exportAsJast(exportSession);
     JBlock jBlock = synchronizedBlock.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JSynchronizedBlock jSynchronizedBlock = new JSynchronizedBlock(jSourceInfo, jLockExpr, jBlock);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()

@@ -59,7 +59,7 @@ public class NModOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JModOperation(sourceInfo.exportAsJast(exportSession),
+    return new JModOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

@@ -79,8 +79,7 @@ public class NEnumType extends NClassType {
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDefinedEnum jEnumType =
         new JDefinedEnum(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jEnumType;

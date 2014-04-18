@@ -56,7 +56,7 @@ public class NAlloc extends NExpression {
     assert sourceInfo != null;
     assert instanceType != null;
     JClass jType = exportSession.getLookup().getClass(instanceType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JAlloc jAlloc = new JAlloc(jSourceInfo, jType);
     return jAlloc;
   }

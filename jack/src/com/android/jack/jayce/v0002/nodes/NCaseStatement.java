@@ -68,7 +68,7 @@ public class NCaseStatement extends NStatement {
     assert sourceInfo != null;
     assert id != null;
     JLiteral jExpr = expr != null ? expr.exportAsJast(exportSession) : null;
-    JCaseStatement jCase = new JCaseStatement(sourceInfo.exportAsJast(exportSession), jExpr);
+    JCaseStatement jCase = new JCaseStatement(sourceInfo.exportAsJast(), jExpr);
     exportSession.getCaseResolver().addTarget(id, jCase);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jCase));

@@ -55,7 +55,7 @@ public class NStringLiteral extends NLiteral {
   public JAbstractStringLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert value != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JAbstractStringLiteral jStringLiteral = new JStringLiteral(jSourceInfo, value);
     return jStringLiteral;
   }

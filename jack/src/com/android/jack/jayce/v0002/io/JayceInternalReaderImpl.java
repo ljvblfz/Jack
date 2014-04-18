@@ -39,7 +39,6 @@ import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +80,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
-  public JayceInternalReaderImpl(@Nonnull InputStream in, @Nonnull Charset encoding) {
+  public JayceInternalReaderImpl(@Nonnull InputStream in) {
     this.tokenizer = new Tokenizer(in);
   }
 

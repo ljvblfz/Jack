@@ -54,7 +54,7 @@ public class NPrefixNegOperation extends NExpression {
   public JPrefixNegOperation exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixNegOperation(sourceInfo.exportAsJast(exportSession),
+    return new JPrefixNegOperation(sourceInfo.exportAsJast(),
         arg.exportAsJast(exportSession));
   }
 

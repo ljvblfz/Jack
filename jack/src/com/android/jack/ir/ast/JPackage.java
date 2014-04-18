@@ -210,7 +210,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     return loadClassOrInterface(typeName);
   }
 
-  public void setOnPath(boolean isOnPath) {
+  public void setOnPath() {
     this.isOnPath = OnPath.TRUE;
   }
 

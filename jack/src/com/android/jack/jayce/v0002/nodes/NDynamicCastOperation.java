@@ -63,7 +63,7 @@ public class NDynamicCastOperation extends NExpression {
     assert expr != null;
     JType jType = exportSession.getLookup().getType(castType);
     JExpression jExpr = expr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDynamicCastOperation jDynamicCastOperation =
         new JDynamicCastOperation(jSourceInfo, jType, jExpr);
     return jDynamicCastOperation;

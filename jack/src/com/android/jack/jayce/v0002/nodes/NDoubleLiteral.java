@@ -54,7 +54,7 @@ public class NDoubleLiteral extends NLiteral {
   @Nonnull
   public JLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDoubleLiteral jDoubleLiteral = new JDoubleLiteral(jSourceInfo, value);
     return jDoubleLiteral;
   }

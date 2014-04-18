@@ -422,9 +422,9 @@ public abstract class Jack {
         if (targetProduction.contains(JackFormatProduct.class)
             && !targetProduction.contains(DexFileProduct.class)) {
           if (options.ecjArguments == null) {
-            fillJayceToJaycePlan(options, planBuilder);
+            fillJayceToJaycePlan(planBuilder);
           } else {
-            fillJavaToJaycePlan(options, planBuilder);
+            fillJavaToJaycePlan(planBuilder);
           }
           SubPlanBuilder<JDefinedClassOrInterface> typePlan =
               planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
@@ -674,8 +674,7 @@ public abstract class Jack {
     return dir;
   }
 
-  private static void fillJayceToJaycePlan(
-      @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+  private static void fillJayceToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     // Add here transformations we want to apply before writing .jack file
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
@@ -979,8 +978,7 @@ public abstract class Jack {
     planBuilder.append(DexFilePreparer.class);
   }
 
-  private static void fillJavaToJaycePlan(
-      @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+  private static void fillJavaToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     Request request = planBuilder.getRequest();
     FeatureSet features = request.getFeatures();
     ProductionSet productions = request.getTargetProductions();

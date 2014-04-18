@@ -59,7 +59,7 @@ public class NAsgShruOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgShruOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgShruOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

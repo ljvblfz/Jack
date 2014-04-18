@@ -66,7 +66,7 @@ public class NNewInstance extends NMethodCall {
     JClassOrInterface jReceiverType = exportSession.getLookup().getClass(receiverType);
     JMethodId methodId = exportSession.getMethodId(jReceiverType, INIT_NAME, methodArgsType,
         MethodKind.INSTANCE_NON_VIRTUAL);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JNewInstance jNewInstance = new JNewInstance(jSourceInfo, jReceiverType, methodId);
     for (NExpression arg : args) {
       jNewInstance.addArg(arg.exportAsJast(exportSession));

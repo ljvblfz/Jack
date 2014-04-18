@@ -50,7 +50,7 @@ public class NNativeMethodBody extends NAbstractMethodBody {
   @Nonnull
   public JNativeMethodBody exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JNativeMethodBody jNativeMethodBody = new JNativeMethodBody(jSourceInfo);
     return jNativeMethodBody;
   }

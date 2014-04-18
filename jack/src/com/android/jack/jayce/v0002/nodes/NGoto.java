@@ -64,7 +64,7 @@ public class NGoto extends NStatement {
     assert sourceInfo != null;
     assert target != null;
     JGoto jGoto =
-        new JGoto(sourceInfo.exportAsJast(exportSession), JLabeledStatementUnresolved.INSTANCE);
+        new JGoto(sourceInfo.exportAsJast(), JLabeledStatementUnresolved.INSTANCE);
     exportSession.getLabelResolver().addLink(target, new GotoLinker(jGoto));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jGoto));

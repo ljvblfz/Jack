@@ -58,7 +58,7 @@ public class NMultiExpression extends NExpression {
   @Nonnull
   public JMultiExpression exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     List<JExpression> jExprs = new ArrayList<JExpression>(exprs.size());
     for (NExpression expr : exprs) {
       jExprs.add(expr.exportAsJast(exportSession));

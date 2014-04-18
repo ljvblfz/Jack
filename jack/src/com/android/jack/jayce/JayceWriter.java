@@ -81,7 +81,7 @@ public class JayceWriter extends JayceProcessor {
         "com.android.jack.jayce.v" + majorVersionString + ".io.JayceInternalWriterImpl";
     JayceInternalWriter jayceInternalWriter =
         (JayceInternalWriter) instantiateConstructorWithParameters(className,
-            new Class[] {OutputStream.class, Charset.class}, new Object[] {out, encoding},
+            new Class[] {OutputStream.class}, new Object[] {out},
             String.valueOf(majorVersion));
     int currentMinor = jayceInternalWriter.getCurrentMinor();
     JayceHeader jayceHeader = new JayceHeader(majorVersion, currentMinor, encoding, emitterId);

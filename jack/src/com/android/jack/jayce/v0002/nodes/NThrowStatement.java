@@ -63,7 +63,7 @@ public class NThrowStatement extends NStatement {
   public JThrowStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert expr != null;
-    JThrowStatement jStatement = new JThrowStatement(sourceInfo.exportAsJast(exportSession),
+    JThrowStatement jStatement = new JThrowStatement(sourceInfo.exportAsJast(),
         expr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));

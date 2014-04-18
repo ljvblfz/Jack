@@ -54,7 +54,7 @@ public class NPrefixIncOperation extends NExpression {
   public JPrefixIncOperation exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixIncOperation(sourceInfo.exportAsJast(exportSession),
+    return new JPrefixIncOperation(sourceInfo.exportAsJast(),
         arg.exportAsJast(exportSession));
   }
 

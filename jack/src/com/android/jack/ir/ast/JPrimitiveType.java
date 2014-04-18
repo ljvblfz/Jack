@@ -68,7 +68,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Nonnull
   protected final String name;
 
-  private JPrimitiveType(@Nonnull String name, @Nonnull String signatureName) {
+  private JPrimitiveType(@Nonnull String name) {
     super(SourceOrigin.UNKNOWN);
     this.name = name;
   }
@@ -193,7 +193,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java boolean type")
   public static class JBooleanType extends JPrimitiveType {
     private JBooleanType() {
-      super("boolean", "Z");
+      super("boolean");
     }
 
     @Override
@@ -228,7 +228,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java byte type")
   public static class JByteType extends JPrimitiveType implements JIntegralType32 {
     private JByteType() {
-      super("byte", "B");
+      super("byte");
     }
 
     @Override
@@ -267,7 +267,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java char type")
   public static class JCharType extends JPrimitiveType implements JIntegralType32 {
     private JCharType() {
-      super("char", "C");
+      super("char");
     }
 
     @Override
@@ -306,7 +306,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java double type")
   public static class JDoubleType extends JPrimitiveType implements JFloatingPointType {
     private JDoubleType() {
-      super("double", "D");
+      super("double");
     }
 
     @Override
@@ -340,7 +340,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java float type")
   public static class JFloatType extends JPrimitiveType implements JFloatingPointType {
     private JFloatType() {
-      super("float", "F");
+      super("float");
     }
 
     @Override
@@ -374,7 +374,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java int type")
   public static class JIntType extends JPrimitiveType implements JIntegralType32 {
     private JIntType() {
-      super("int", "I");
+      super("int");
     }
 
     @Override
@@ -413,7 +413,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java long type")
   public static class JLongType extends JPrimitiveType implements JIntegralType64 {
     private JLongType() {
-      super("long", "J");
+      super("long");
     }
 
     @Override
@@ -447,7 +447,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java short type")
   public static class JShortType extends JPrimitiveType implements JIntegralType32 {
     private JShortType() {
-      super("short", "S");
+      super("short");
     }
 
     @Override
@@ -486,7 +486,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   @Description("Java void type")
   public static class JVoidType extends JPrimitiveType {
     private JVoidType() {
-      super("void", "V");
+      super("void");
     }
 
     @Override

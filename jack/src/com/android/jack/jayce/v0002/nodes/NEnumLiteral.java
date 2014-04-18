@@ -64,7 +64,7 @@ public class NEnumLiteral extends NLiteral {
     assert sourceInfo != null;
     assert enumFieldDeclaringType != null;
     assert enumFieldName != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JLookup lookup = exportSession.getLookup();
     JEnum enumType = lookup.getEnum(enumFieldDeclaringType);
     /* type of the field is enumType, see JLS-8 8.9.2 */

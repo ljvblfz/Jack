@@ -59,7 +59,7 @@ public class NBitAndOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JBitAndOperation(sourceInfo.exportAsJast(exportSession),
+    return new JBitAndOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

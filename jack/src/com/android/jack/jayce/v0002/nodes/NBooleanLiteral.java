@@ -53,7 +53,7 @@ public class NBooleanLiteral extends NLiteral {
   @Nonnull
   public JBooleanLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JBooleanLiteral jBooleanLiteral = new JBooleanLiteral(jSourceInfo, value);
     return jBooleanLiteral;
   }

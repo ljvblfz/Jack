@@ -116,8 +116,7 @@ public class NClassType extends NDeclaredType {
     assert sourceInfo != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDefinedClass jClassType =
         new JDefinedClass(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jClassType;

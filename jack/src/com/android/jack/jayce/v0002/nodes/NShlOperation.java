@@ -59,7 +59,7 @@ public class NShlOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JShlOperation(sourceInfo.exportAsJast(exportSession),
+    return new JShlOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

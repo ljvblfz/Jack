@@ -1300,7 +1300,7 @@ public class GwtAstBuilder {
     public void endVisit(MethodDeclaration x, ClassScope scope) {
       try {
         if (x.isNative()) {
-          processNativeMethod(x);
+          processNativeMethod();
         } else {
           List<JStatement> statements = pop(x.statements);
           curMethod.body.getBlock().addStmts(statements);
@@ -2233,8 +2233,8 @@ public class GwtAstBuilder {
 
     private JField createEnumValuesField(JDefinedEnum type) {
       // $VALUES = new E[]{A,B,B};
-      JArrayType enumArrayType = (JArrayType) getTypeMap()
-          .get("[" + Jack.getLookupFormatter().getName(type), lookupEnvironment);
+      JArrayType enumArrayType =
+          (JArrayType) getTypeMap().get("[" + Jack.getLookupFormatter().getName(type));
 
       JField valuesField = new JField(type.getSourceInfo(), "$VALUES", type,
           enumArrayType,
@@ -2483,17 +2483,17 @@ public class GwtAstBuilder {
       {
         JMethod valueOfMethod = type.getMethod(VALUE_OF_STRING, type, javaLangString);
         assert VALUE_OF_STRING.equals(valueOfMethod.getName());
-        writeEnumValueOfMethod(type, valueOfMethod, valuesField);
+        writeEnumValueOfMethod(type, valueOfMethod);
       }
       {
         JMethod valuesMethod = type.getMethod(VALUES_STRING,
-            getTypeMap().get("[" + Jack.getLookupFormatter().getName(type), lookupEnvironment));
+            getTypeMap().get("[" + Jack.getLookupFormatter().getName(type)));
         assert VALUES_STRING.equals(valuesMethod.getName());
         writeEnumValuesMethod(type, valuesMethod, valuesField);
       }
     }
 
-    private void processNativeMethod(MethodDeclaration x) {
+    private void processNativeMethod() {
       JMethod method = curMethod.method;
       SourceInfo info = method.getSourceInfo();
       JNativeMethodBody body = new JNativeMethodBody(info);
@@ -2850,7 +2850,7 @@ public class GwtAstBuilder {
 
           if (!(((FieldReference) x).receiver instanceof ThisReference)
               && !binding.isStatic()) {
-              return generateGetClassFollowedByConstant(result, x, cst);
+              return generateGetClassFollowedByConstant(result, cst);
           }
 
           result = cst;
@@ -2864,7 +2864,7 @@ public class GwtAstBuilder {
             JLiteral cst = getConstant(result.getSourceInfo(), constant);
 
             if (!lastBinding.isStatic()) {
-              return generateGetClassFollowedByConstant(result, x, cst);
+              return generateGetClassFollowedByConstant(result, cst);
             }
 
             // Prefer JDT-computed constant value to the actual written expression.
@@ -2875,8 +2875,7 @@ public class GwtAstBuilder {
       return result;
     }
 
-    private JExpression generateGetClassFollowedByConstant(
-        JExpression result, Expression x, JLiteral cst) {
+    private JExpression generateGetClassFollowedByConstant(JExpression result, JLiteral cst) {
       assert result instanceof JFieldRef;
       // a.x => (a.getClass(), constant)
 
@@ -2891,7 +2890,7 @@ public class GwtAstBuilder {
       return (new JMultiExpression(sourceInfo, exprs));
     }
 
-    private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method, JField valuesField) {
+    private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method) {
       ReferenceBinding enumType = curCud.scope.getJavaLangEnum();
       ReferenceBinding classType = curCud.scope.getJavaLangClass();
 

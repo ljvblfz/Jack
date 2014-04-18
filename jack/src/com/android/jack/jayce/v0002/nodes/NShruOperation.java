@@ -59,7 +59,7 @@ public class NShruOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JShruOperation(sourceInfo.exportAsJast(exportSession),
+    return new JShruOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

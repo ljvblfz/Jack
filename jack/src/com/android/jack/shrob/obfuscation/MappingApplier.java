@@ -136,7 +136,7 @@ public class MappingApplier {
         newEnclosingPackage = newEnclosingPackage.getEnclosingPackage();
       }
 
-      rename(clOrI, mappingFile, lineNumber, newSimpleName);
+      rename(clOrI, newSimpleName);
       return clOrI;
     }
     return null;
@@ -270,8 +270,7 @@ public class MappingApplier {
     }
   }
 
-  private void rename(@Nonnull CanBeRenamed renamable, @Nonnull File mappingFile, int lineNumber,
-      @Nonnull String newName) {
+  private void rename(@Nonnull CanBeRenamed renamable, @Nonnull String newName) {
     AbstractMarkerManager markerManager = (AbstractMarkerManager) renamable;
     if (!markerManager.containsMarker(OriginalNameMarker.class)) {
       markerManager.addMarker(new OriginalNameMarker(((HasName) renamable).getName()));
@@ -279,9 +278,10 @@ public class MappingApplier {
     }
   }
 
+
   protected void renameField(@Nonnull JField field, @Nonnull File mappingFile, int lineNumber,
       @Nonnull String newName) {
-    rename(field.getId(), mappingFile, lineNumber, newName);
+    rename(field.getId(), newName);
   }
 
   private int readChar(@Nonnull String line, int index, char expectedChar,
@@ -354,7 +354,7 @@ public class MappingApplier {
       logger.log(Level.WARNING, "{0}:{1}: Static initializers cannot be renamed",
           new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber)});
     } else {
-      rename(method.getMethodId(), mappingFile, lineNumber, newName);
+      rename(method.getMethodId(), newName);
     }
   }
 

@@ -53,7 +53,7 @@ public class NLongLiteral extends NLiteral {
   @Nonnull
   public JLongLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JLongLiteral jLongLiteral = new JLongLiteral(jSourceInfo, value);
     return jLongLiteral;
   }

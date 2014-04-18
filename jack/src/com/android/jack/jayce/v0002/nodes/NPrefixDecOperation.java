@@ -54,7 +54,7 @@ public class NPrefixDecOperation extends NExpression {
   public JPrefixDecOperation exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixDecOperation(sourceInfo.exportAsJast(exportSession),
+    return new JPrefixDecOperation(sourceInfo.exportAsJast(),
         arg.exportAsJast(exportSession));
   }
 

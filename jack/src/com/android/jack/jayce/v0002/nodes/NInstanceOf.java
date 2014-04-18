@@ -63,7 +63,7 @@ public class NInstanceOf extends NExpression {
     assert testType != null;
     JExpression jExpr = expr.exportAsJast(exportSession);
     JReferenceType jType = (JReferenceType) exportSession.getLookup().getType(testType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JInstanceOf jInstanceOf = new JInstanceOf(jSourceInfo, jType, jExpr);
     return jInstanceOf;
   }

@@ -74,7 +74,7 @@ public class NLabeledStatement extends NStatement {
     assert body != null;
     assert id != null;
     assert label != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JLabeledStatement jLabeled = new JLabeledStatement(jSourceInfo,
         new JLabel(jSourceInfo, label), body.exportAsJast(exportSession));
     exportSession.getLabelResolver().addTarget(id, jLabeled);

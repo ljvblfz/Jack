@@ -76,7 +76,7 @@ public class NIfStatement extends NStatement {
       jElseStatement = elseStatement.exportAsJast(exportSession);
     }
     JIfStatement jIfStatement = new JIfStatement(
-        sourceInfo.exportAsJast(exportSession), ifExpression.exportAsJast(exportSession),
+        sourceInfo.exportAsJast(), ifExpression.exportAsJast(exportSession),
         thenStatement.exportAsJast(exportSession), jElseStatement);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jIfStatement));

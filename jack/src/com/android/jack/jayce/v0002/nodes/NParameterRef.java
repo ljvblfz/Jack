@@ -56,7 +56,7 @@ public class NParameterRef extends NExpression {
   public JParameterRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert localId != null;
-    JParameterRef jRef = new JParameterRef(sourceInfo.exportAsJast(exportSession),
+    JParameterRef jRef = new JParameterRef(sourceInfo.exportAsJast(),
         JParameterUnresolved.INSTANCE);
     exportSession.getParameterResolver().addLink(localId, new ParameterRefLinker(jRef));
     return jRef;

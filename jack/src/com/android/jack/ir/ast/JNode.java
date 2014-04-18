@@ -186,6 +186,15 @@ public abstract class JNode extends LocalMarkerManager
     transform(existingNode, newNode, Transformation.INSERT_AFTER);
   }
 
+  /**
+   * Transform a {@link JNode}.
+   *
+   * @param existingNode {@link JNode} to transform.
+   * @param newNode {@link JNode} that will replace the existing node if the transformation kind is
+   *        set to remove.
+   * @param transformation transformation kind.
+   * @throws UnsupportedOperationException
+   */
  protected void transform(
       @Nonnull JNode existingNode,
       @CheckForNull JNode newNode,
@@ -242,6 +251,11 @@ public abstract class JNode extends LocalMarkerManager
     this.parent = parent;
   }
 
+  /**
+   * Check if the result of an expression is used or not.
+   * @param expr {@link JExpression} that we want to check the result usage.
+   * @return true if result of {@link JExpression} is used, false otherwise.
+   */
   protected boolean isResultOfExpressionUsed(JExpression expr) {
     throw new AssertionError("Not yet supported");
   }

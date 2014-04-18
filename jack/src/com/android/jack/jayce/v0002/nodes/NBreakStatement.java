@@ -61,7 +61,7 @@ public class NBreakStatement extends NStatement {
   @Nonnull
   public JBreakStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JLabel jLabel = (label == null) ? null : new JLabel(jSourceInfo, label);
     JBreakStatement jBreakStatement = new JBreakStatement(jSourceInfo, jLabel);
     for (String catchId : catchBlockIds) {

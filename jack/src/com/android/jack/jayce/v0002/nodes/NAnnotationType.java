@@ -81,8 +81,7 @@ public class NAnnotationType extends NInterfaceType {
     assert retentionPolicy != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDefinedAnnotation jInterfaceType =
         new JDefinedAnnotation(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     jInterfaceType.setRetentionPolicy(retentionPolicy);

@@ -54,7 +54,7 @@ public class NPrefixBitNotOperation extends NExpression {
   public JPrefixBitNotOperation exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixBitNotOperation(sourceInfo.exportAsJast(exportSession),
+    return new JPrefixBitNotOperation(sourceInfo.exportAsJast(),
         arg.exportAsJast(exportSession));
   }
 

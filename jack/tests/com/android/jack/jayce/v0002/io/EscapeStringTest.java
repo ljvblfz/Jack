@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
@@ -118,9 +117,8 @@ public class EscapeStringTest {
       options.checkValidity(new RunnableHooks());
       options.getConfigBuilder().setDebug();
       ThreadConfig.setConfig(options.getConfig());
-      Charset encoding = Charset.forName("UTF-8");
       FileOutputStream fos = new FileOutputStream(tmp);
-      JayceInternalWriterImpl jw = new JayceInternalWriterImpl(fos, encoding);
+      JayceInternalWriterImpl jw = new JayceInternalWriterImpl(fos);
       jw.writeString(stringToWrite);
       jw.close();
       FileInputStream fis = new FileInputStream(tmp);

@@ -84,7 +84,7 @@ public class NCatchBlock extends NStatement {
     assert catchVar != null;
     JLocal jCatchVar = catchVar.exportAsJast(exportSession);
     final JCatchBlock jCatchBlock =
-        new JCatchBlock(sourceInfo.exportAsJast(exportSession), jCatchTypes, jCatchVar);
+        new JCatchBlock(sourceInfo.exportAsJast(), jCatchTypes, jCatchVar);
 
     for (NStatement nStatement : statements) {
       jCatchBlock.addStmt(nStatement.exportAsJast(exportSession));

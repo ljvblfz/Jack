@@ -68,7 +68,7 @@ public class NDoStatement extends NStatement {
     assert sourceInfo != null;
     JStatement jBody = body != null ? body.exportAsJast(exportSession) : null;
     JDoStatement jDoStatement = new JDoStatement(
-        sourceInfo.exportAsJast(exportSession), testExpression.exportAsJast(exportSession), jBody);
+        sourceInfo.exportAsJast(), testExpression.exportAsJast(exportSession), jBody);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jDoStatement));
     }

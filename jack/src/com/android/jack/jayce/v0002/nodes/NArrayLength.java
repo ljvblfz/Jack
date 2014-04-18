@@ -57,7 +57,7 @@ public class NArrayLength extends NExpression {
     assert sourceInfo != null;
     assert instance != null;
     JExpression jInstance = instance.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JArrayLength jArrayLength = new JArrayLength(jSourceInfo, jInstance);
     return jArrayLength;
   }

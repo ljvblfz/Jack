@@ -59,7 +59,7 @@ public class NAsgSubOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgSubOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgSubOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

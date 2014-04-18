@@ -63,7 +63,7 @@ public class NLock extends NStatement {
   public JLock exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert lockExpr != null;
-    JLock jStatement = new JLock(sourceInfo.exportAsJast(exportSession),
+    JLock jStatement = new JLock(sourceInfo.exportAsJast(),
         lockExpr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));

@@ -66,7 +66,7 @@ public class NMethodLiteral extends NLiteral {
     JDefinedClassOrInterface jEnclosingType =
         (JDefinedClassOrInterface) exportSession.getLookup().getType(methodEnclosingType);
     JMethod jMethod = exportSession.getDeclaredMethod(jEnclosingType, method);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JMethodLiteral jMethodLiteral = new JMethodLiteral(jMethod, jSourceInfo);
     return jMethodLiteral;
   }

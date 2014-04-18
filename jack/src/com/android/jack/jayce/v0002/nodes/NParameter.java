@@ -78,7 +78,7 @@ public class NParameter extends NVariable {
     assert type != null;
     assert name != null;
     JParameter jParameter = new JParameter(
-        sourceInfo.exportAsJast(exportSession),
+        sourceInfo.exportAsJast(),
         name,
         exportSession.getLookup().getType(type),
         modifiers,

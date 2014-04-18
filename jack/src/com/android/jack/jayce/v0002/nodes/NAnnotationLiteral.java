@@ -70,7 +70,7 @@ public class NAnnotationLiteral extends NLiteral {
     assert retentionPolicy != null;
     assert sourceInfo != null;
     assert annotationType != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JAnnotation type = exportSession.getLookup().getAnnotation(annotationType);
     JAnnotationLiteral jAnnotationLiteral =
         new JAnnotationLiteral(jSourceInfo, retentionPolicy, type);

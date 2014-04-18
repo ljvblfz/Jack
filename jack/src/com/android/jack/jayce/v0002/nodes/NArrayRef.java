@@ -61,7 +61,7 @@ public class NArrayRef extends NExpression {
     assert sourceInfo != null;
     assert instance != null;
     assert index != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JExpression jInstance = instance.exportAsJast(exportSession);
     JExpression jIndex = index.exportAsJast(exportSession);
     JArrayRef jArrayRef = new JArrayRef(jSourceInfo, jInstance, jIndex);

@@ -59,7 +59,7 @@ public class NAsgMulOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgMulOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgMulOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

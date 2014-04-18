@@ -53,7 +53,7 @@ public class NByteLiteral extends NLiteral {
   @Nonnull
   public JByteLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JByteLiteral jByteLiteral = new JByteLiteral(jSourceInfo, value);
     return jByteLiteral;
   }

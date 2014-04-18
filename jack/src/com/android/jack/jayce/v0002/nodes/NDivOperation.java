@@ -59,7 +59,7 @@ public class NDivOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JDivOperation(sourceInfo.exportAsJast(exportSession),
+    return new JDivOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

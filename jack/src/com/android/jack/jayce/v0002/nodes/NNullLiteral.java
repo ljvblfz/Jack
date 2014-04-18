@@ -50,7 +50,7 @@ public class NNullLiteral extends NLiteral {
   @Nonnull
   public JNullLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JNullLiteral jNullLiteral = new JNullLiteral(jSourceInfo);
     return jNullLiteral;
   }

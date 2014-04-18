@@ -53,7 +53,7 @@ public class NIntLiteral extends NLiteral {
   @Nonnull
   public JIntLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JIntLiteral jIntLiteral = new JIntLiteral(jSourceInfo, value);
     return jIntLiteral;
   }

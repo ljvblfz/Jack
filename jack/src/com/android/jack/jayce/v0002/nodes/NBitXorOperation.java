@@ -59,7 +59,7 @@ public class NBitXorOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JBitXorOperation(sourceInfo.exportAsJast(exportSession),
+    return new JBitXorOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

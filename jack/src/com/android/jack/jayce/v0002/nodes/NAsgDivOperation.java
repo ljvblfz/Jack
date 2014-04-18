@@ -59,7 +59,7 @@ public class NAsgDivOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgDivOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgDivOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

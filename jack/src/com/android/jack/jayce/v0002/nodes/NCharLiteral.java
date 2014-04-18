@@ -53,7 +53,7 @@ public class NCharLiteral extends NLiteral {
   @Nonnull
   public JCharLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JCharLiteral jCharLiteral = new JCharLiteral(jSourceInfo, value);
     return jCharLiteral;
   }

@@ -53,7 +53,7 @@ public class NShortLiteral extends NLiteral {
   @Nonnull
   public JShortLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JShortLiteral jShortLiteral = new JShortLiteral(jSourceInfo, value);
     return jShortLiteral;
   }

@@ -102,8 +102,7 @@ public class NInterfaceType extends NDeclaredType {
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.TYPES));
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDefinedInterface jInterfaceType =
         new JDefinedInterface(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jInterfaceType;

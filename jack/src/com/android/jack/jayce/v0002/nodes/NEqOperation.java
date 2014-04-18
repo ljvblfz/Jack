@@ -59,7 +59,7 @@ public class NEqOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JEqOperation(sourceInfo.exportAsJast(exportSession),
+    return new JEqOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

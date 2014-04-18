@@ -101,7 +101,7 @@ class JAstBuilder extends JavaParser {
     for (int i = 0; i < compoundNameLength; i++) {
       String name = String.valueOf(compoundName[i]);
       currentPackage = currentPackage.getOrCreateSubPackage(name);
-      currentPackage.setOnPath(true);
+      currentPackage.setOnPath();
     }
 
     return currentPackage;

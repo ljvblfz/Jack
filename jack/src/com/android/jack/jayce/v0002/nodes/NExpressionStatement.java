@@ -63,7 +63,7 @@ public class NExpressionStatement extends NStatement {
     assert sourceInfo != null;
     assert expression != null;
     JExpressionStatement jExpressionStatement = new JExpressionStatement(
-        sourceInfo.exportAsJast(exportSession), expression.exportAsJast(exportSession));
+        sourceInfo.exportAsJast(), expression.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()
           .addLink(catchId, new CatchBlockLinker(jExpressionStatement));

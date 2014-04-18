@@ -118,7 +118,7 @@ public class ImportHelper {
       return NSourceInfo.UNKNOWN;
     }
     NSourceInfo nSourceInfo = new NSourceInfo();
-    nSourceInfo.importFromJast(this, sourceInfo);
+    nSourceInfo.importFromJast(sourceInfo);
     return nSourceInfo;
   }
 

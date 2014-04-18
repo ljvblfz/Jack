@@ -76,7 +76,7 @@ public class NAnnotationMethod extends NMethod {
     assert returnType != null;
     assert sourceInfo != null;
     assert body == null;
-    SourceInfo info = sourceInfo.exportAsJast(exportSession);
+    SourceInfo info = sourceInfo.exportAsJast();
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JAnnotationMethod jAnnotationMethod = new JAnnotationMethod(

@@ -64,7 +64,7 @@ public class NReinterpretCastOperation extends NExpression {
     assert expr != null;
     JType jType = exportSession.getLookup().getType(castType);
     JExpression jExpr = expr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JReinterpretCastOperation jReinterpretCastOperation =
         new JReinterpretCastOperation(jSourceInfo, jType, jExpr);
     return jReinterpretCastOperation;

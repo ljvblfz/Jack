@@ -62,7 +62,7 @@ public class NConcatOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JConcatOperation(sourceInfo.exportAsJast(exportSession),
+    return new JConcatOperation(sourceInfo.exportAsJast(),
         exportSession.getLookup().getClass(JAVA_LANG_STRING),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));

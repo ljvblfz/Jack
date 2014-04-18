@@ -322,7 +322,11 @@ public class JVisitor {
     endVisit((JMethodCall) newInstance);
   }
 
-  public void endVisit(@Nonnull JNode x) {
+  /**
+   * End visit of a {@link JNode}
+   * @param jnode visited {@link JNode}
+   */
+  public void endVisit(@Nonnull JNode jnode) {
     // empty block
   }
 
@@ -698,7 +702,11 @@ public class JVisitor {
     return visit((JMethodCall) x);
   }
 
-  public boolean visit(@Nonnull JNode x) {
+  /**
+   * Visit of a {@link JNode}
+   * @param jnode visited {@link JNode}
+   */
+  public boolean visit(@Nonnull JNode jnode) {
     return true;
   }
 
@@ -1136,7 +1144,12 @@ public class JVisitor {
     visit((JMethodCall) x, transformRequest);
   }
 
-  public void visit(@Nonnull JNode x, @Nonnull TransformRequest transformRequest)
+  /**
+   * Visit of a {@link JNode} with a {@link TransformRequest} to apply on.
+   * @param jnode visited {@link JNode}
+   * @param transformRequest {@link TransformRequest} to apply on.
+   */
+  public void visit(@Nonnull JNode jnode, @Nonnull TransformRequest transformRequest)
       throws Exception {}
 
   public void visit(@Nonnull JNullLiteral x, @Nonnull TransformRequest transformRequest)

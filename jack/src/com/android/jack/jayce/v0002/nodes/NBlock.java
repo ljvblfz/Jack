@@ -60,7 +60,7 @@ public class NBlock extends NStatement {
   @Nonnull
   public JBlock exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    JBlock jBlock = new JBlock(sourceInfo.exportAsJast(exportSession));
+    JBlock jBlock = new JBlock(sourceInfo.exportAsJast());
     for (NStatement nStatement : statements) {
       jBlock.addStmt(nStatement.exportAsJast(exportSession));
     }

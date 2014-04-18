@@ -59,7 +59,7 @@ public class NAsgConcatOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgConcatOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgConcatOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

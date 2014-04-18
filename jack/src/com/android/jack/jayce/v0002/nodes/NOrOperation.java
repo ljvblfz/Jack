@@ -59,7 +59,7 @@ public class NOrOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JOrOperation(sourceInfo.exportAsJast(exportSession),
+    return new JOrOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

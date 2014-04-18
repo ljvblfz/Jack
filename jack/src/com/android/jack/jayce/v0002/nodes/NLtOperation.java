@@ -59,7 +59,7 @@ public class NLtOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JLtOperation(sourceInfo.exportAsJast(exportSession),
+    return new JLtOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

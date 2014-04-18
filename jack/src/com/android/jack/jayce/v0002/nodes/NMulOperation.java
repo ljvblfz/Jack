@@ -59,7 +59,7 @@ public class NMulOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JMulOperation(sourceInfo.exportAsJast(exportSession),
+    return new JMulOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

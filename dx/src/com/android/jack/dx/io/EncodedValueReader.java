@@ -117,44 +117,32 @@ public class EncodedValueReader {
     }
   }
 
-  @SuppressWarnings("unused")
   protected void visitArray(int size) {}
 
-  @SuppressWarnings("unused")
   protected void visitAnnotation(int typeIndex, int size) {}
 
-  @SuppressWarnings("unused")
   protected void visitAnnotationName(int nameIndex) {}
 
-  @SuppressWarnings("unused")
   protected void visitPrimitive(int argAndType, int type, int arg, int size) {
     for (int i = 0; i < size; i++) {
       in.readByte();
     }
   }
 
-  @SuppressWarnings("unused")
   protected void visitString(int type, int index) {}
 
-  @SuppressWarnings("unused")
   protected void visitType(int type, int index) {}
 
-  @SuppressWarnings("unused")
   protected void visitField(int type, int index) {}
 
-  @SuppressWarnings("unused")
   protected void visitMethod(int type, int index) {}
 
-  @SuppressWarnings("unused")
   protected void visitArrayValue(int argAndType) {}
 
-  @SuppressWarnings("unused")
   protected void visitAnnotationValue(int argAndType) {}
 
-  @SuppressWarnings("unused")
   protected void visitEncodedBoolean(int argAndType) {}
 
-  @SuppressWarnings("unused")
   protected void visitEncodedNull(int argAndType) {}
 
   private int readIndex(ByteInput in, int byteCount) {

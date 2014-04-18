@@ -124,7 +124,7 @@ public class NMethodCall extends NExpression {
     JMethodId methodId = exportSession.getMethodId(jReceiverType, methodName, methodArgsType,
         methodKind);
     JType jReturnType = exportSession.getLookup().getType(returnType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JMethodCall jMethodCall = new JMethodCall(jSourceInfo, jInstance, jReceiverType, methodId,
         jReturnType, dispatchKind == DispatchKind.VIRTUAL /* isVirtualDispatch */);
     for (NExpression arg : args) {

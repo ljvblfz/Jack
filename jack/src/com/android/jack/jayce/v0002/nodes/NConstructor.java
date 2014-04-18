@@ -68,7 +68,7 @@ public class NConstructor extends NMethod {
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) {
     assert sourceInfo != null;
     exportSession.getLocalResolver().clear();
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
     JConstructor jConstructor = new JConstructor(jSourceInfo,

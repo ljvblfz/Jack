@@ -72,7 +72,7 @@ public class NFieldInitializer extends NStatement {
     assert initializer != null;
     JFieldInitializer jFieldInitializer =
         new JFieldInitializer(
-            sourceInfo.exportAsJast(exportSession),
+            sourceInfo.exportAsJast(),
             fieldRef.exportAsJast(exportSession),
             initializer.exportAsJast(exportSession));
     // field of fieldRef can be external after exportToJast(), so use  field resolver here

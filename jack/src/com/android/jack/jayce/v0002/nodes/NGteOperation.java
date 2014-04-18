@@ -59,7 +59,7 @@ public class NGteOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JGteOperation(sourceInfo.exportAsJast(exportSession),
+    return new JGteOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

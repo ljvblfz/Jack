@@ -62,7 +62,7 @@ public class NContinueStatement extends NStatement {
   @Nonnull
   public JContinueStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JLabel jLabel = (label == null) ? null : new JLabel(jSourceInfo, label);
     JContinueStatement jContinueStatement = new JContinueStatement(jSourceInfo, jLabel);
     for (String catchId : catchBlockIds) {

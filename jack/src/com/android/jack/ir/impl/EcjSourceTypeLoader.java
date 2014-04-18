@@ -159,8 +159,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   }
 
 
-  private void load(@Nonnull JLookup lookup, @Nonnull JDefinedClassOrInterface enclosingType,
-      @Nonnull FieldBinding binding) {
+  private void load(@Nonnull FieldBinding binding) {
     getRefMap().createField(binding);
   }
 
@@ -172,13 +171,12 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   }
 
 
-  private void load(@Nonnull JLookup lookup, @Nonnull JDefinedClassOrInterface enclosingType,
-      @Nonnull MethodBinding binding) {
+  private void load(@Nonnull MethodBinding binding) {
     getRefMap().createMethod(binding, null);
   }
 
   @Nonnull
-  private SourceTypeBinding getBinding(@Nonnull JDefinedClassOrInterface loaded) {
+  private SourceTypeBinding getBinding() {
     SourceTypeBinding binding = bindingRef.get();
     assert binding != null;
     return binding;
@@ -199,7 +197,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.HIERARCHY)) {
         return;
       }
-      SourceTypeBinding binding = getBinding(loaded);
+      SourceTypeBinding binding = getBinding();
       JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
       if (loaded instanceof JDefinedClass) {
         ReferenceBinding superclass = binding.superclass();
@@ -224,7 +222,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.ENCLOSING)) {
         return;
       }
-      ReferenceBinding enclosingBinding = getBinding(loaded).enclosingType();
+      ReferenceBinding enclosingBinding = getBinding().enclosingType();
       if (enclosingBinding != null) {
         JDefinedClassOrInterface enclosing =
             (JDefinedClassOrInterface) getRefMap().get(enclosingBinding);
@@ -241,7 +239,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.MARKERS)) {
         return;
       }
-      SourceTypeBinding binding = getBinding(loaded);
+      SourceTypeBinding binding = getBinding();
       OriginalTypeInfo marker = new OriginalTypeInfo();
       char [] genSignature = binding.genericSignature();
       if (genSignature != null) {
@@ -316,10 +314,9 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.METHODS)) {
         return;
       }
-      SourceTypeBinding binding = getBinding(loaded);
-      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
+      SourceTypeBinding binding = getBinding();
       for (MethodBinding methodBinding : binding.methods()) {
-        load(lookup, loaded, methodBinding);
+        load(methodBinding);
       }
       markLoaded(Scope.METHODS);
     }
@@ -337,10 +334,9 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (isLoaded(Scope.FIELDS)) {
         return;
       }
-      SourceTypeBinding binding = getBinding(loaded);
-      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
+      SourceTypeBinding binding = getBinding();
       for (FieldBinding fieldBinding : binding.fields()) {
-        load(lookup, loaded, fieldBinding);
+        load(fieldBinding);
       }
       markLoaded(Scope.FIELDS);
     }
@@ -358,7 +354,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       loaded.setRetentionPolicy(ReferenceMapper.getRetentionPolicy(
-          getBinding(loaded).getAnnotationTagBits()));
+          getBinding().getAnnotationTagBits()));
       markLoaded(Scope.RETENTION);
     }
   }
@@ -371,7 +367,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
 
-      SourceTypeBinding binding = getBinding(loaded);
+      SourceTypeBinding binding = getBinding();
       int accessFlags = binding.getAccessFlags();
       if (binding.isAnonymousType()) {
         accessFlags |= JModifier.ANONYMOUS_TYPE;

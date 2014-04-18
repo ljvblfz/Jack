@@ -93,8 +93,8 @@ public class JayceReader extends JayceProcessor {
   private void initialize(@Nonnull NodeLevel nodeLevel) throws JayceVersionException {
 
     jayceInternalReader = (JayceInternalReader) instantiateConstructorWithParameters(
-        readerClassName, new Class[] {InputStream.class, Charset.class},
-        new Object[] {in, encoding}, majorVersion + "." + minorVersion);
+        readerClassName, new Class[] {InputStream.class},
+        new Object[] {in}, majorVersion + "." + minorVersion);
     int minorMin = jayceInternalReader.getMinorMin();
     int currentMinor = jayceInternalReader.getCurrentMinor();
     if (minorVersion < minorMin) {

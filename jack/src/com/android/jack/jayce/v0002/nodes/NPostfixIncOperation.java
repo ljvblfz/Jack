@@ -54,7 +54,7 @@ public class NPostfixIncOperation extends NExpression {
   public JPostfixIncOperation exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPostfixIncOperation(sourceInfo.exportAsJast(exportSession),
+    return new JPostfixIncOperation(sourceInfo.exportAsJast(),
         arg.exportAsJast(exportSession));
   }
 

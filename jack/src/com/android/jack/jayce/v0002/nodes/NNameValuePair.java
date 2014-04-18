@@ -66,7 +66,7 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
     assert value != null;
     assert name != null;
     JLiteral jValue = value.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JMethodId methodId = new JMethodId(name, MethodKind.INSTANCE_VIRTUAL);
     JNameValuePair jNameValuePair = new JNameValuePair(jSourceInfo, methodId, jValue);
     return jNameValuePair;

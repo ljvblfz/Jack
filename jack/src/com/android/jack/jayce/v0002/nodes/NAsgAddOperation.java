@@ -59,7 +59,7 @@ public class NAsgAddOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgAddOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgAddOperation(sourceInfo.exportAsJast(),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

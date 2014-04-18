@@ -49,7 +49,7 @@ public class NAbsentArrayDimension extends NLiteral {
   @Nonnull
   public JAbsentArrayDimension exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    return new JAbsentArrayDimension(sourceInfo.exportAsJast(exportSession));
+    return new JAbsentArrayDimension(sourceInfo.exportAsJast());
   }
 
   @SuppressWarnings("unused")
