@@ -2553,8 +2553,7 @@ public class GwtAstBuilder {
           paramIt.next();
           paramIt.next();
         }
-        for (
-        ReferenceBinding argType : binding.syntheticEnclosingInstanceTypes()) {
+        for (int i = 0; i < binding.syntheticEnclosingInstanceTypes().length; i++) {
           JParameter param = paramIt.next();
           call.addArg(new JParameterRef(call.getSourceInfo(), param));
         }
@@ -2567,7 +2566,6 @@ public class GwtAstBuilder {
 
     private void pushBinaryOp(Expression x, JBinaryOperator op, Expression lhs, Expression rhs) {
       try {
-        JType type = getTypeMap().get(x.resolvedType);
         SourceInfo info = makeSourceInfo(x);
         JExpression exprArg2 = pop(rhs);
         JExpression exprArg1 = pop(lhs);
@@ -2894,8 +2892,6 @@ public class GwtAstBuilder {
     }
 
     private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method, JField valuesField) {
-      JField mapField;
-      TypeBinding mapType;
       ReferenceBinding enumType = curCud.scope.getJavaLangEnum();
       ReferenceBinding classType = curCud.scope.getJavaLangClass();
 

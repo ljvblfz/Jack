@@ -159,7 +159,6 @@ public class ExpressionSimplifierTest {
 
     for (int opIdx = 0; opIdx < opsToTest.length; opIdx++) {
       JBinaryOperator opToTest = opsToTest[opIdx];
-      int resultIdx = 0;
       for (int operandIdx = 0; operandIdx < operands.length; operandIdx++) {
         JExpression[] operand = operands[operandIdx];
         boolean result = results[opIdx][operandIdx];
@@ -228,7 +227,6 @@ public class ExpressionSimplifierTest {
 
     for (int opIdx = 0; opIdx < opsToTest.length; opIdx++) {
       JBinaryOperator opToTest = opsToTest[opIdx];
-      int resultIdx = 0;
       for (int operandIdx = 0; operandIdx < operands.length; operandIdx++) {
         JExpression[] operand = operands[operandIdx];
         int result = results[opIdx][operandIdx];
@@ -275,7 +273,6 @@ public class ExpressionSimplifierTest {
 
     for (int opIdx = 0; opIdx < opsToTest.length; opIdx++) {
       JBinaryOperator opToTest = opsToTest[opIdx];
-      int resultIdx = 0;
       for (int operandIdx = 0; operandIdx < operands.length; operandIdx++) {
         JExpression[] operand = operands[operandIdx];
         float result = results[opIdx][operandIdx];

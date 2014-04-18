@@ -137,7 +137,6 @@ public class DxTest {
 
   private void checkThatRegistersDoesNotOverlap(@Nonnull EncodedMethod em) {
     MethodAnalyzer ma = new MethodAnalyzer(em, false, null);
-    boolean packedSwitchDataPseudo = false;
     for (AnalyzedInstruction ai : ma.getInstructions()) {
       if (ai.getInstruction() instanceof Instruction23x) {
         Instruction23x inst = (Instruction23x) ai.getInstruction();

@@ -163,7 +163,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     @Override
     public void endVisit(@Nonnull JField x) {
-      String genericSignature = null;
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
       if (marker != null) {
         JAbstractStringLiteral jStrLit = marker.getGenericSignature();
@@ -177,7 +176,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       if (addAnnotationThrows) {
         addThrows(x);
       }
-      String genericSignature = null;
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
       if (marker != null && addAnnotationSignature) {
         JAbstractStringLiteral jStrLit = marker.getGenericSignature();

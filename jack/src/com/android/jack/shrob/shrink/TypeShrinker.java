@@ -75,7 +75,7 @@ public class TypeShrinker implements RunnableSchedulable<JDefinedClassOrInterfac
         int index = type.getImplements().indexOf(i);
         type.removeImplements(index);
         for (JInterface subInterface : ((JDefinedInterface) i).getImplements()) {
-          addImplements(type, i);
+          addImplements(type, subInterface);
         }
       }
     }
