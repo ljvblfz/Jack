@@ -71,7 +71,7 @@ public class FirstFitAllocator extends RegisterAllocator {
        * space.
        */
 
-nextNewRegister = ssaMeth.getParamWidth();
+      nextNewRegister = ssaMeth.getParamWidth();
     }
 
     for (int i = 0; i < oldRegCount; i++) {

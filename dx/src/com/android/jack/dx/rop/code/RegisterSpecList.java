@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.rop.code;
 
+import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.FixedSizeList;
@@ -358,15 +359,15 @@ public final class RegisterSpecList extends FixedSizeList implements TypeList {
 
   /**
    * Returns an instance that is identical to this one, except that
-   * all incompatible register numbers are renumbered sequentially from
+   * all incompatible register numbers are renumbered from
    * the given base, with the first number duplicated if indicated. If
-   * a null BitSet is given, it indicates all registers are compatible.
+   * a null BitSet is given, it indicates all registers are incompatible.
    *
    * @param base the base register number
    * @param duplicateFirst whether to duplicate the first number
    * @param compatRegs {@code null-ok;} either a {@code non-null} set of
    * compatible registers, or {@code null} to indicate all registers are
-   * compatible
+   * Incompatible
    * @return {@code non-null;} an appropriately-constructed instance
    */
   public RegisterSpecList withExpandedRegisters(int base, boolean duplicateFirst,
@@ -378,30 +379,77 @@ public final class RegisterSpecList extends FixedSizeList implements TypeList {
       return this;
     }
 
-    RegisterSpecList result = new RegisterSpecList(sz);
+    Expander expander = new Expander(this, compatRegs, base, duplicateFirst);
 
-    for (int i = 0; i < sz; i++) {
-      RegisterSpec one = (RegisterSpec) get0(i);
-      boolean replace = (compatRegs == null) ? true : !compatRegs.get(i);
+    if (DexOptions.ALIGN_64BIT_REGS) {
+      // Numbering done into HighRegisterPrefix starts by allocating 64-bit registers and
+      // thereafter adding 32-bit registers. Since the number of the first 32-bit register is
+      // unknown, 64-bit registers must be managed first.
+      for (int regIdx = 0; regIdx < sz; regIdx++) {
+        RegisterSpec reg = (RegisterSpec) get0(regIdx);
+        if (reg.isCategory2()) {
+          expander.expandRegister(regIdx, reg);
+        }
+      }
+
+      for (int regIdx = 0; regIdx < sz; regIdx++) {
+        RegisterSpec reg = (RegisterSpec) get0(regIdx);
+        if (reg.isCategory1()) {
+          expander.expandRegister(regIdx, reg);
+        }
+      }
+    } else {
+      for (int regIdx = 0; regIdx < sz; regIdx++) {
+        expander.expandRegister(regIdx);
+      }
+    }
+
+    return expander.getResult();
+  }
+
+  private static class Expander {
+    private BitSet compatRegs;
+    private RegisterSpecList regSpecList;
+    private int base;
+    private RegisterSpecList result;
+    private boolean duplicateFirst;
+
+    private Expander(RegisterSpecList regSpecList, BitSet compatRegs, int base,
+        boolean duplicateFirst) {
+      this.regSpecList = regSpecList;
+      this.compatRegs = compatRegs;
+      this.base = base;
+      this.result = new RegisterSpecList(regSpecList.size());
+      this.duplicateFirst = duplicateFirst;
+    }
+
+    private void expandRegister(int regIdx) {
+      expandRegister(regIdx, (RegisterSpec) regSpecList.get0(regIdx));
+    }
+
+    private void expandRegister(int regIdx, RegisterSpec registerToExpand) {
+      boolean replace = (compatRegs == null) ? true : !compatRegs.get(regIdx);
+      RegisterSpec expandedReg;
 
       if (replace) {
-        result.set0(i, one.withReg(base));
+        expandedReg = registerToExpand.withReg(base);
         if (!duplicateFirst) {
-          base += one.getCategory();
+          base += expandedReg.getCategory();
         }
-      } else {
-        result.set0(i, one);
-      }
-
-      if (duplicateFirst) {
         duplicateFirst = false;
+      } else {
+        expandedReg = registerToExpand;
       }
+
+      result.set0(regIdx, expandedReg);
     }
 
-    if (isImmutable()) {
-      result.setImmutable();
-    }
+    private RegisterSpecList getResult() {
+      if (regSpecList.isImmutable()) {
+        result.setImmutable();
+      }
 
-    return result;
+      return result;
+    }
   }
 }

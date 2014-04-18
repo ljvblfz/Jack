@@ -555,6 +555,12 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
     return makeLocalOptional(reg, type, local);
   }
 
+  /**
+   * @return boolean specifying if this instance is an even register or not.
+   */
+  public boolean isEvenRegister() {
+    return ((getReg() & 1) == 0);
+  }
 
   /**
    * Helper for {@link #toString} and {@link #toHuman}.
