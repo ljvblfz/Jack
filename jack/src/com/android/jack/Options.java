@@ -17,7 +17,6 @@
 package com.android.jack;
 
 import com.android.jack.backend.dex.FieldInitializerRemover;
-import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.JavaVersionPropertyId;
@@ -442,8 +441,6 @@ public class Options {
     if (flags != null) {
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_THROWS,
           flags.keepAttribute("Exceptions"));
-      configBuilder.set(DefaultValueAnnotationAdder.EMIT_ANNOTATION_DEFAULT,
-          flags.keepAttribute("AnnotationDefault"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
           flags.keepAttribute("RuntimeInvisibleAnnotations"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,

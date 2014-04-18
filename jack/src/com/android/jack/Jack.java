@@ -104,11 +104,13 @@ import com.android.jack.shrob.obfuscation.NameKeeper;
 import com.android.jack.shrob.obfuscation.Obfuscation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.obfuscation.Renamer;
+import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValue;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
@@ -397,6 +399,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("Signature")) {
             request.addFeature(RemoveGenericSignature.class);
+          }
+          if (!options.flags.keepAttribute("AnnotationDefault")) {
+            request.addFeature(RemoveAnnotationDefaultValue.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -881,7 +886,6 @@ public abstract class Jack {
 
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdaptor.class);
-        methodPlan.append(DefaultValueAnnotationAdder.class);
         methodPlan.append(ConditionalAndOrRemover.class);
         if (hasSanityChecks) {
           methodPlan.append(ConditionalAndOrRemoverChecker.class);
@@ -935,6 +939,10 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ReflectAnnotationsAdder.class);
+      {
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        methodPlan.append(DefaultValueAnnotationAdder.class);
+      }
     }
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
@@ -1253,6 +1261,9 @@ public abstract class Jack {
         if (features.contains(RemoveGenericSignature.class)) {
             methodPlan.append(MethodGenericSignatureRemover.class);
         }
+        if (features.contains(RemoveAnnotationDefaultValue.class)) {
+          methodPlan.append(AnnotationDefaultValueRemover.class);
+        }
       }
     }
   }
@@ -1300,7 +1311,6 @@ public abstract class Jack {
           if (hasSanityChecks) {
             methodPlan2.append(UselessIfChecker.class);
           }
-          methodPlan2.append(DefaultValueAnnotationAdder.class);
         }
       }
     }
@@ -1314,6 +1324,10 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       typePlan.append(ReflectAnnotationsAdder.class);
+      {
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        methodPlan.append(DefaultValueAnnotationAdder.class);
+      }
     }
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {

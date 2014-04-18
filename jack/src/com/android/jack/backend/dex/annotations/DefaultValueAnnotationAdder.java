@@ -32,7 +32,6 @@ import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.AddNameValuePair;
 import com.android.jack.transformations.request.Remove;
@@ -40,12 +39,10 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.Collections;
 
@@ -81,22 +78,13 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(remove = AnnotationMethodDefaultValue.class,
     add = {JAnnotationLiteral.class, JNameValuePair.class})
-@Constraint(need = OriginalNames.class)
 public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod> {
-
-  @Nonnull
-  public static final BooleanPropertyId EMIT_ANNOTATION_DEFAULT = BooleanPropertyId.create(
-      "jack.annotation.annotationdefault", "Emit annotation default")
-      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   @CheckForNull
   private JAnnotation defaultAnnotation;
-
-  private final boolean addAnnotationDefault =
-      ThreadConfig.get(EMIT_ANNOTATION_DEFAULT).booleanValue();
 
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
@@ -112,13 +100,11 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
       if (defaultValue != null) {
         TransformationRequest tr = new TransformationRequest(enclosingType);
         tr.append(new Remove(defaultValue));
-        if (addAnnotationDefault) {
-          SourceInfo sourceInfo = defaultValue.getSourceInfo();
-          JAnnotationLiteral defaultAnnotation =
-              getDefaultAnnotation((JDefinedAnnotation) enclosingType, tr);
-          tr.append(new AddNameValuePair(defaultAnnotation,
-              new JNameValuePair(sourceInfo, method.getMethodId(), defaultValue)));
-        }
+        SourceInfo sourceInfo = defaultValue.getSourceInfo();
+        JAnnotationLiteral defaultAnnotation =
+            getDefaultAnnotation((JDefinedAnnotation) enclosingType, tr);
+        tr.append(new AddNameValuePair(defaultAnnotation,
+            new JNameValuePair(sourceInfo, method.getMethodId(), defaultValue)));
         tr.commit();
       }
     }
