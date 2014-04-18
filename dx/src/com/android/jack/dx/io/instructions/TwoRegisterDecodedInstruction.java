@@ -45,26 +45,26 @@ public final class TwoRegisterDecodedInstruction extends DecodedInstruction {
     this.b = b;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getRegisterCount() {
     return 2;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getA() {
     return a;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getB() {
     return b;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public DecodedInstruction withIndex(int newIndex) {
     return new TwoRegisterDecodedInstruction(getFormat(),
         getOpcode(),

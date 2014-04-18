@@ -42,7 +42,6 @@ public class FirstFitAllocator extends RegisterAllocator {
   /** indexed by old reg; the set of old regs we've mapped */
   private final BitSet mapped;
 
-  /** {@inheritDoc} */
   public FirstFitAllocator(final SsaMethod ssaMeth, final InterferenceGraph interference) {
     super(ssaMeth, interference);
 

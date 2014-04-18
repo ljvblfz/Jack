@@ -52,30 +52,30 @@ public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOu
     return result;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short codeUnit) {
     array[cursor()] = codeUnit;
     advance(1);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short u0, short u1) {
     write(u0);
     write(u1);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short u0, short u1, short u2) {
     write(u0);
     write(u1);
     write(u2);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short u0, short u1, short u2, short u3) {
     write(u0);
     write(u1);
@@ -83,8 +83,8 @@ public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOu
     write(u3);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short u0, short u1, short u2, short u3, short u4) {
     write(u0);
     write(u1);
@@ -93,15 +93,15 @@ public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOu
     write(u4);
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void writeInt(int value) {
     write((short) value);
     write((short) (value >> 16));
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void writeLong(long value) {
     write((short) value);
     write((short) (value >> 16));
@@ -109,8 +109,8 @@ public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOu
     write((short) (value >> 48));
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(byte[] data) {
     int value = 0;
     boolean even = true;
@@ -130,24 +130,24 @@ public final class ShortArrayCodeOutput extends BaseCodeCursor implements CodeOu
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(short[] data) {
     for (short unit : data) {
       write(unit);
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(int[] data) {
     for (int i : data) {
       writeInt(i);
     }
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void write(long[] data) {
     for (long l : data) {
       writeLong(l);

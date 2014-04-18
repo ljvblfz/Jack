@@ -210,7 +210,7 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
   }
 
   /**
-   * Helper for {@link #equals} and {@link #ForComparison.equals},
+   * Helper for {@link #equals} and {@link ForComparison#equals},
    * which actually does the test.
    *
    * @param reg value of the instance variable, for another instance
@@ -261,7 +261,7 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
   }
 
   /**
-   * Helper for {@link #hashCode} and {@link #ForComparison.hashCode},
+   * Helper for {@link #hashCode} and {@link ForComparison#hashCode},
    * which actually does the calculation.
    *
    * @param reg value of the instance variable
@@ -621,7 +621,6 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
      * value) which is loaded from or stored to the indicated
      * register
      * @param local {@code null-ok;} the associated local variable, if any
-     * @return {@code non-null;} an appropriately-constructed instance
      */
     public void set(int reg, TypeBearer type, LocalItem local) {
       this.reg = reg;

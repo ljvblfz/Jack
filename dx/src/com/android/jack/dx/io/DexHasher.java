@@ -16,7 +16,6 @@
 
 package com.android.jack.dx.io;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Adler32;
@@ -35,7 +34,7 @@ public final class DexHasher {
    * first 32 bytes of dex files are not specified to be included in the
    * signature.
    */
-  public byte[] computeSignature(DexBuffer dex) throws IOException {
+  public byte[] computeSignature(DexBuffer dex) {
     MessageDigest digest;
     try {
       digest = MessageDigest.getInstance("SHA-1");
@@ -52,7 +51,7 @@ public final class DexHasher {
   /**
    * Returns the checksum of all but the first 12 bytes of {@code dex}.
    */
-  public int computeChecksum(DexBuffer dex) throws IOException {
+  public int computeChecksum(DexBuffer dex) {
     Adler32 adler32 = new Adler32();
     int offset = CHECKSUM_OFFSET + CHECKSUM_SIZE;
 
@@ -65,7 +64,7 @@ public final class DexHasher {
    * Generates the signature and checksum of the dex file {@code out} and
    * writes them to the file.
    */
-  public void writeHashes(DexBuffer dex) throws IOException {
+  public void writeHashes(DexBuffer dex) {
     byte[] signature = computeSignature(dex);
     dex.open(SIGNATURE_OFFSET).write(signature);
 

@@ -24,7 +24,7 @@ public abstract class BaseCodeCursor implements CodeCursor {
   /** base address map */
   private final AddressMap baseAddressMap;
 
-  /** next index within {@link #array} to read from or write to */
+  /** next index within {@code array} to read from or write to */
   private int cursor;
 
   /**
@@ -35,21 +35,21 @@ public abstract class BaseCodeCursor implements CodeCursor {
     this.cursor = 0;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public final int cursor() {
     return cursor;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public final int baseAddressForCursor() {
     int mapped = baseAddressMap.get(cursor);
     return (mapped >= 0) ? mapped : cursor;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public final void setBaseAddress(int targetAddress, int baseAddress) {
     baseAddressMap.put(targetAddress, baseAddress);
   }

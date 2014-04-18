@@ -60,44 +60,44 @@ public final class FiveRegisterDecodedInstruction extends DecodedInstruction {
     this.e = e;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getRegisterCount() {
     return 5;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getA() {
     return a;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getB() {
     return b;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getC() {
     return c;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getD() {
     return d;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public int getE() {
     return e;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public DecodedInstruction withIndex(int newIndex) {
     return new FiveRegisterDecodedInstruction(getFormat(),
         getOpcode(),

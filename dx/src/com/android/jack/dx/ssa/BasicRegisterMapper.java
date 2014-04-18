@@ -18,12 +18,13 @@ package com.android.jack.dx.ssa;
 
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.util.IntList;
+import com.android.jack.dx.util.ToHuman;
 
 /**
  * This class maps one register space into another, with
  * each mapping built up individually and added via addMapping()
  */
-public class BasicRegisterMapper extends RegisterMapper {
+public class BasicRegisterMapper extends RegisterMapper implements ToHuman {
   /** indexed by old register, containing new name */
   private IntList oldToNew;
 
@@ -81,7 +82,8 @@ public class BasicRegisterMapper extends RegisterMapper {
     return oldToNew.get(oldReg);
   }
 
-  /** {@inheritDoc} */
+  @Override
+  /** @inheritDoc */
   public String toHuman() {
     StringBuilder sb = new StringBuilder();
 

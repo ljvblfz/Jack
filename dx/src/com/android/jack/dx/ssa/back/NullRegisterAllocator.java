@@ -26,13 +26,13 @@ import com.android.jack.dx.ssa.SsaMethod;
  * about normal or wide categories. Used for debugging.
  */
 public class NullRegisterAllocator extends RegisterAllocator {
-  /** {@inheritDoc} */
+
   public NullRegisterAllocator(SsaMethod ssaMeth, InterferenceGraph interference) {
     super(ssaMeth, interference);
   }
 
-  /** {@inheritDoc} */
   @Override
+  /** {@inheritDoc} */
   public boolean wantsParamsMovedHigh() {
     // We're not smart enough for this.
     return false;

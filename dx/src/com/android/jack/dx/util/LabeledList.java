@@ -28,7 +28,6 @@ public class LabeledList extends FixedSizeList {
    */
   private final IntList labelToIndex;
 
-  /** @inheritDoc */
   public LabeledList(int size) {
     super(size);
 
@@ -141,8 +140,8 @@ public class LabeledList extends FixedSizeList {
     return result;
   }
 
-  /** @inheritDoc */
   @Override
+  /** @inheritDoc */
   public void shrinkToFit() {
     super.shrinkToFit();
 

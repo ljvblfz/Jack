@@ -43,7 +43,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printStrings() throws IOException {
+  private void printStrings() {
     int index = 0;
     for (String string : dexBuffer.strings()) {
       System.out.println("string " + index + ": " + string);
@@ -51,7 +51,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printTypeIds() throws IOException {
+  private void printTypeIds() {
     int index = 0;
     for (Integer type : dexBuffer.typeIds()) {
       System.out.println("type " + index + ": " + dexBuffer.strings().get(type));
@@ -59,7 +59,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printProtoIds() throws IOException {
+  private void printProtoIds() {
     int index = 0;
     for (ProtoId protoId : dexBuffer.protoIds()) {
       System.out.println("proto " + index + ": " + protoId);
@@ -67,7 +67,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printFieldIds() throws IOException {
+  private void printFieldIds() {
     int index = 0;
     for (FieldId fieldId : dexBuffer.fieldIds()) {
       System.out.println("field " + index + ": " + fieldId);
@@ -75,7 +75,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printMethodIds() throws IOException {
+  private void printMethodIds() {
     int index = 0;
     for (MethodId methodId : dexBuffer.methodIds()) {
       System.out.println("methodId " + index + ": " + methodId);
@@ -83,7 +83,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  private void printTypeLists() throws IOException {
+  private void printTypeLists() {
     if (tableOfContents.typeLists.off == -1) {
       System.out.println("No type lists");
       return;

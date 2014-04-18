@@ -88,13 +88,12 @@ public final class DexMerger {
   /** minimum number of wasted bytes before it's worthwhile to compact the result */
   private int compactWasteThreshold = 1024 * 1024; // 1MiB
 
-  public DexMerger(DexBuffer dexA, DexBuffer dexB, CollisionPolicy collisionPolicy)
-      throws IOException {
+  public DexMerger(DexBuffer dexA, DexBuffer dexB, CollisionPolicy collisionPolicy) {
     this(dexA, dexB, collisionPolicy, new WriterSizes(dexA, dexB));
   }
 
   private DexMerger(DexBuffer dexA, DexBuffer dexB, CollisionPolicy collisionPolicy,
-      WriterSizes writerSizes) throws IOException {
+      WriterSizes writerSizes) {
     this.dexA = dexA;
     this.dexB = dexB;
     this.collisionPolicy = collisionPolicy;
