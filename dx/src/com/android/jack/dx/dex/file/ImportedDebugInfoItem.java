@@ -28,6 +28,7 @@ import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL;
 import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED;
 
 import com.android.jack.dx.io.DexBuffer;
+import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.util.AnnotatedOutput;
 

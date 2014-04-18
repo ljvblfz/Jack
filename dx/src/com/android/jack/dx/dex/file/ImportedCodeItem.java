@@ -23,6 +23,7 @@ import com.android.jack.dx.io.CodeReader;
 import com.android.jack.dx.io.Opcodes;
 import com.android.jack.dx.io.instructions.DecodedInstruction;
 import com.android.jack.dx.io.instructions.ShortArrayCodeOutput;
+import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -327,7 +328,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
   }
 
   /**
-   * {@link CodeReader.Visitor} remapping instructions using string index.
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using string index.
    */
   private class StringRemapper implements CodeReader.Visitor {
 
@@ -351,7 +352,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
   }
 
   /**
-   * {@link CodeReader.Visitor} remapping instructions using field index.
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using field index.
    */
   private class FieldRemapper implements CodeReader.Visitor {
 
@@ -369,7 +370,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
   }
 
   /**
-   * {@link CodeReader.Visitor} remapping instructions using type index.
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using type index.
    */
   private class TypeRemapper implements CodeReader.Visitor {
 
@@ -387,7 +388,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
   }
 
   /**
-   * {@link CodeReader.Visitor} remapping instructions using method index.
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using method index.
    */
   private class MethodRemapper implements CodeReader.Visitor {
 

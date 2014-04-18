@@ -97,7 +97,6 @@ int size = annotationsList.size();
     return method.compareTo(other.method);
   }
 
-  /** {@inheritDoc} */
   public void addContents(DexFile file) {
     MethodIdsSection methodIds = file.getMethodIds();
     MixedItemSection wordData = file.getWordData();
@@ -106,7 +105,6 @@ int size = annotationsList.size();
     wordData.add(annotationsItem);
   }
 
-  /** {@inheritDoc} */
   public void writeTo(DexFile file, AnnotatedOutput out) {
     int methodIdx = file.getMethodIds().indexOf(method);
     int annotationsOff = annotationsItem.getAbsoluteOffset();

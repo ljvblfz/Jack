@@ -65,8 +65,7 @@ public final class StringIdItem extends IndexedItem implements Comparable<String
   /** {@inheritDoc} */
   @Override
   public int compareTo(StringIdItem other) {
-    StringIdItem otherString = (StringIdItem) other;
-    return value.compareTo(otherString.value);
+    return value.compareTo(other.value);
   }
 
   /** {@inheritDoc} */

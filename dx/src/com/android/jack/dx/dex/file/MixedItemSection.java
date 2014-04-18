@@ -47,8 +47,8 @@ public final class MixedItemSection extends Section {
     TYPE,
 
     /** sort in class-major order, with instances sorted per-class */
-    INSTANCE;
-  };
+    INSTANCE
+  }
 
   /** {@code non-null;} sorter which sorts instances by type */
   private static final Comparator<OffsettedItem> TYPE_SORTER = new Comparator<OffsettedItem>() {
