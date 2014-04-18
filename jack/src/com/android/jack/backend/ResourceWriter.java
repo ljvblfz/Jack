@@ -47,6 +47,7 @@ public class ResourceWriter implements RunnableSchedulable<JPackage> {
   @Override
   public synchronized void run(@Nonnull JPackage pack) throws Exception {
     OutputVDir outputVDir = pack.getSession().getOutputVDir();
+    assert outputVDir != null;
     VDirPathFormatter formatter = new VDirPathFormatter(outputVDir);
     List<Resource> resources = pack.getResources();
     for (Resource resource : resources) {
