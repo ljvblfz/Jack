@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java array reference expression")
 public class JArrayRef extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JExpression indexExpr;
   @Nonnull

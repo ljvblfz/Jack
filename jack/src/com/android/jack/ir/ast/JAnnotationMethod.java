@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Method of an annotation type")
 public class JAnnotationMethod extends JMethod {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JLiteral defaultValue;
 

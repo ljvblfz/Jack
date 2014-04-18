@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Inc prefix operator expression")
 public class JPrefixIncOperation extends JPrefixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixIncOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

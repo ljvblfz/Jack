@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Phantom class")
 public class JPhantomClass extends JPhantomClassOrInterface implements JClass {
 
-  private static final long serialVersionUID = 1L;
-
   public JPhantomClass(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(name, enclosingPackage);
   }

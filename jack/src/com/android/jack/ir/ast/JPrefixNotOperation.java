@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Not prefix operator expression")
 public class JPrefixNotOperation extends JPrefixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixNotOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

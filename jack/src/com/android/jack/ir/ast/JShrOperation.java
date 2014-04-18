@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Shr operator expression")
 public class JShrOperation extends JShiftOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JShrOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

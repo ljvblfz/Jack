@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Assign div operator expression")
 public class JAsgDivOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgDivOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

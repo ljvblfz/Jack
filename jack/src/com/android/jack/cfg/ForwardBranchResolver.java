@@ -48,9 +48,7 @@ class ForwardBranchResolver {
   @Description("Statement to represent dead code.")
   static class JDeadCodeStatement extends JStatement {
 
-    private static final long serialVersionUID = 1L;
-
-    public JDeadCodeStatement() {
+      public JDeadCodeStatement() {
       super(SourceOrigin.UNKNOWN);
     }
 

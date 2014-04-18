@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Phantom annotation type")
 public class JPhantomAnnotation extends JPhantomInterface implements JAnnotation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPhantomAnnotation(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(name, enclosingPackage);
   }

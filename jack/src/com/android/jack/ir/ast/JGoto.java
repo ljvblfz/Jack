@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Goto statement.")
 public class JGoto extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JLabeledStatement labeledStmt;
 

@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java local variable definition")
 public class JLocal extends JVariable implements HasEnclosingMethod {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JMethodBody enclosingMethodBody;
 

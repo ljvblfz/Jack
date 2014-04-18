@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java statement that has an associated label")
 public class JLabeledStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private JStatement body;
   private final JLabel label;
 

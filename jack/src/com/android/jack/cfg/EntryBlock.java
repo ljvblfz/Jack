@@ -24,8 +24,6 @@ import javax.annotation.Nonnull;
  */
 public class EntryBlock extends NormalBasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   public EntryBlock(@Nonnull ControlFlowGraph cfg) {
     super(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
   }

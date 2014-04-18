@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java null literal expression")
 public class JNullLiteral extends JValueLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   public JNullLiteral(SourceInfo sourceInfo) {
     super(sourceInfo);
   }

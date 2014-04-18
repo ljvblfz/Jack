@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Cast expression")
 public abstract class JCastOperation extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JType castType;
 

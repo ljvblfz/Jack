@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Lte operator expression")
 public class JLteOperation extends JRelationalOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JLteOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

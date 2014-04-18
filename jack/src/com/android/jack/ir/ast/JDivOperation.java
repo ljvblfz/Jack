@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Div operator expression")
 public class JDivOperation extends JArithmeticBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JDivOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

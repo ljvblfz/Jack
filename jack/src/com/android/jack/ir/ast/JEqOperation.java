@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Eq operator expression")
 public class JEqOperation extends JEqualityOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JEqOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

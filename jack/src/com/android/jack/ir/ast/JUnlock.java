@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Release the monitor(lock)")
 public class JUnlock extends JSynchronize {
 
-  private static final long serialVersionUID = 1L;
-
   public JUnlock(@Nonnull SourceInfo info, @Nonnull JExpression lockExpr) {
     super(info, lockExpr);
   }

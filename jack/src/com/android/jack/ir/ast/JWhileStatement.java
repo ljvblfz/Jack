@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java while statement")
 public class JWhileStatement extends JStatement implements JLoop {
 
-  private static final long serialVersionUID = 1L;
-
   private JStatement body;
   private JExpression testExpr;
 

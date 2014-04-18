@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
     CanBeRenamed, HasType, Annotable {
 
-  private static final long serialVersionUID = 1L;
-
   private String name;
   @Nonnull
   private final JType type;

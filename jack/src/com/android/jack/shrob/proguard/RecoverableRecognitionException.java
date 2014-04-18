@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
  * An exception that encapsulate a {@link RecognitionException} that is recoverable.
  */
 public class RecoverableRecognitionException extends RuntimeException {
+
   private static final long serialVersionUID = 1L;
 
   public RecoverableRecognitionException(@Nonnull String message,

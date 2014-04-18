@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java field reference expression")
 public class JFieldRef extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * The type in which the field is accessed.
    */

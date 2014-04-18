@@ -32,8 +32,6 @@ public class JParameterUnresolved extends JParameter implements HasEnclosingMeth
 
   public static final JParameterUnresolved INSTANCE = new JParameterUnresolved();
 
-  private static final long serialVersionUID = 1L;
-
   private JParameterUnresolved() {
     super(SourceOrigin.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0, null);
   }

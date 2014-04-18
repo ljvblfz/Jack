@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Phantom interface")
 public class JPhantomInterface extends JPhantomClassOrInterface implements JInterface {
 
-  private static final long serialVersionUID = 1L;
-
   public JPhantomInterface(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(name, enclosingPackage);
   }

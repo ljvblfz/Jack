@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 @Description("Java class literal expression")
 public class JClassLiteral extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final JClass javaLangClass;
 
   private final JType refType;

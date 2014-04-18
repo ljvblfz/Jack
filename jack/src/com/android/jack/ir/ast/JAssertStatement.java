@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java assert statement")
 public class JAssertStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
   private JExpression arg;
   private JExpression testExpr;
 

@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Gt operator expression")
 public class JGtOperation extends JRelationalOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JGtOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

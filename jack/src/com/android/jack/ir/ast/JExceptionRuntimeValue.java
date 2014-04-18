@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Runtime value of a catched exception.")
 public class JExceptionRuntimeValue extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JClassOrInterface catchedType;
 

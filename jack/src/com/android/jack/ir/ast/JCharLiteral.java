@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 public class JCharLiteral extends JValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final char value;
 
   public JCharLiteral(SourceInfo sourceInfo, char value) {

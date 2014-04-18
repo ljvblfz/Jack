@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java cast expression that can throws exceptions at runtime")
 public class JDynamicCastOperation extends JCastOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JDynamicCastOperation(@Nonnull SourceInfo info, @Nonnull JType castType,
       @Nonnull JExpression expr) {
     super(info, castType, expr);

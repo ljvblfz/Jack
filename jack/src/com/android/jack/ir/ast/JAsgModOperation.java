@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Assign mod operator expression")
 public class JAsgModOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgModOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

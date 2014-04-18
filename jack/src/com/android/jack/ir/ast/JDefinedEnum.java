@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Java enum type reference expression")
 public class JDefinedEnum extends JDefinedClass implements JEnum {
 
-  private static final long serialVersionUID = 1L;
-
   /*
    * TODO(gwt): implement traverse?
    */

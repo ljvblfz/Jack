@@ -33,8 +33,6 @@ public class JLocalUnresolved extends JLocal {
   @Nonnull
   public static final JLocalUnresolved INSTANCE = new JLocalUnresolved();
 
-  private static final long serialVersionUID = 1L;
-
   private JLocalUnresolved() {
     super(SourceOrigin.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0, null);
   }

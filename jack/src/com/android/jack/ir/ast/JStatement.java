@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java program statement")
 public abstract class JStatement extends JNode {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * Each statements can contains a list of catch blocks representing all potential targets on
    * exceptions. The list is ordered by decreasing priority.

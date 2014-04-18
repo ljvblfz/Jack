@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Or operator expression")
 public class JOrOperation extends JConditionalOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JOrOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

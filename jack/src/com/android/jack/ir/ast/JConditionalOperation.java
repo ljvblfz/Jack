@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Conditional binary expression")
 public abstract class JConditionalOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JConditionalOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

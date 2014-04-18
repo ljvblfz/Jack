@@ -26,8 +26,6 @@ import javax.annotation.Nonnull;
 @Description("Phantom enum")
 public class JPhantomEnum extends JPhantomClass implements JEnum {
 
-  private static final long serialVersionUID = 1L;
-
   public JPhantomEnum(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(name, enclosingPackage);
   }

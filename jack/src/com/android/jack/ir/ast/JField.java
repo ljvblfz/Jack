@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 public class JField extends JNode implements HasName, HasType, JVisitable, CanBeStatic,
     HasEnclosingType, CanBeSetFinal, Annotable {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JFieldInitializer fieldInitializer = null;
   @Nonnull

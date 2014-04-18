@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
  */
 public class ConditionalBasicBlock extends BasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int THEN_BLOCK_INDEX = 0;
   @Nonnegative

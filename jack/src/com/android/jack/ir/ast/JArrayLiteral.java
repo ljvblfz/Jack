@@ -34,8 +34,6 @@ import javax.annotation.Nonnull;
 @Description("JLiteral representing a fixed array of other JLiteral.")
 public class JArrayLiteral extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JLiteral> values;
 

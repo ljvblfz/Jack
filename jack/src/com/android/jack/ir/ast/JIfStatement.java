@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java if statement")
 public class JIfStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private JStatement elseStmt;
   private JExpression ifExpr;
   private JStatement thenStmt;

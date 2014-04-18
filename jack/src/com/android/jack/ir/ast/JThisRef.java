@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java method this expression")
 public class JThisRef extends JVariableRef {
 
-  private static final long serialVersionUID = 1L;
-
   public JThisRef(@Nonnull SourceInfo info, @Nonnull JVariable thisVar) {
     super(info, thisVar);
   }

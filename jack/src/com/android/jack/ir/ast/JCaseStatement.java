@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Java case statement")
 public class JCaseStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JLiteral expr;
 

@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Java interface type definition")
 public class JDefinedInterface extends JDefinedClassOrInterface implements JInterface {
 
-  private static final long serialVersionUID = 1L;
-
   public JDefinedInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name, modifier, enclosingPackage, loader);

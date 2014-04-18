@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 @Description("Java for statement")
 public class JForStatement extends JStatement implements JLoop {
 
-  private static final long serialVersionUID = 1L;
-
   private JStatement body;
   private final List<JExpressionStatement> increments;
   private final List<JStatement> initializers;

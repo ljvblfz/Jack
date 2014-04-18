@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Reinterpret cast expression")
 public class JReinterpretCastOperation extends JCastOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JReinterpretCastOperation(@Nonnull SourceInfo info, @Nonnull JType castType,
       @Nonnull JExpression expr) {
     super(info, castType, expr);

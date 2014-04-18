@@ -26,8 +26,6 @@ import javax.annotation.Nonnull;
 @Description("Any reference to a JVariable")
 public abstract class JVariableRef extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   protected JVariable target;
 

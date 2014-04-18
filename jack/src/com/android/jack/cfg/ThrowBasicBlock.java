@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
  */
 public class ThrowBasicBlock extends PeiBasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   protected ThrowBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
     super(cfg, statements);
   }

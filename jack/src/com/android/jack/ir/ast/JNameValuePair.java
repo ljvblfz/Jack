@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("A (name, value) pair. These are used as the contents of an annotation.")
 public final class JNameValuePair extends JNode {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JMethodId methodId;
 

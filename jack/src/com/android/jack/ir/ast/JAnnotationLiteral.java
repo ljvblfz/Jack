@@ -38,8 +38,6 @@ import javax.annotation.Nonnull;
 @Description("Annotation on an element of a class.")
 public class JAnnotationLiteral extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JNameValuePair> elements = new ArrayList<JNameValuePair>();
   @Nonnull

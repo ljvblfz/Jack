@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
  */
 public class ReturnBasicBlock extends BasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int EXIT_BLOCK_INDEX = 0;
 

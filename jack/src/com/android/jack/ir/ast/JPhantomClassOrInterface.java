@@ -39,8 +39,6 @@ import javax.annotation.Nonnull;
 @Description("Phantom class or interface")
 public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JClassOrInterface {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JPackage enclosingPackage;
 

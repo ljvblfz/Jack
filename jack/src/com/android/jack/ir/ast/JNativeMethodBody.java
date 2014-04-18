@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Represents a the body of a native method")
 public class JNativeMethodBody extends JAbstractMethodBody {
 
-  private static final long serialVersionUID = 1L;
-
   public JNativeMethodBody(SourceInfo info) {
     super(info);
   }

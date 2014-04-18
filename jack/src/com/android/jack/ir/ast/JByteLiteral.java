@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 public class JByteLiteral extends JValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final byte value;
 
   public JByteLiteral(@Nonnull SourceInfo sourceInfo, byte value) {

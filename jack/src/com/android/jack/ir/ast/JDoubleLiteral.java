@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java double literal expression")
 public class JDoubleLiteral extends JValueLiteral implements JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final double value;
 
   public JDoubleLiteral(SourceInfo sourceInfo, double value) {

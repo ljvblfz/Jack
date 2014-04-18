@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java literal typed as a float")
 public class JFloatLiteral extends JValueLiteral implements JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final float value;
 
   public JFloatLiteral(SourceInfo sourceInfo, float value) {

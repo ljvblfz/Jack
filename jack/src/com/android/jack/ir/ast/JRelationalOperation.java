@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Relational binary expression")
 public abstract class JRelationalOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JRelationalOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 @Description("A list of JStatements representing a catch block.")
 public class JCatchBlock extends JStatementList {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JClass> catchTypes;
 

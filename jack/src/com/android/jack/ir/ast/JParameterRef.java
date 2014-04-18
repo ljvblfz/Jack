@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java method parameter reference expression")
 public class JParameterRef extends JVariableRef {
 
-  private static final long serialVersionUID = 1L;
-
   public JParameterRef(@Nonnull SourceInfo info, @Nonnull JParameter param) {
     super(info, param);
   }

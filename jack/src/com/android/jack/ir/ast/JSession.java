@@ -40,8 +40,6 @@ import javax.annotation.Nonnull;
 @Description("Representing a compilation")
 public class JSession extends JNode {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JDefinedClassOrInterface> typesToEmit =
       new ArrayList<JDefinedClassOrInterface>();
@@ -50,19 +48,19 @@ public class JSession extends JNode {
   private final JPackage topLevelPackage;
 
   @Nonnull
-  private final transient JNodeLookup lookup;
+  private final JNodeLookup lookup;
 
   @Nonnull
-  private final transient JPhantomLookup phantomLookup;
+  private final JPhantomLookup phantomLookup;
 
   @Nonnull
   private final JArrayType[] primitiveArrays = new JArrayType[JPrimitiveTypeEnum.values().length];
 
   @Nonnull
-  private final transient Tracer tracer = TracerFactory.getTracer();
+  private final Tracer tracer = TracerFactory.getTracer();
 
   @CheckForNull
-  private transient OutputVDir outputVDir;
+  private OutputVDir outputVDir;
 
   @CheckForNull
   public OutputVDir getOutputVDir() {

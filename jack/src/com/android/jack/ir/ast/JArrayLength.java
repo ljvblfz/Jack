@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java array length expression")
 public class JArrayLength extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   private JExpression instance;
 
   public JArrayLength(SourceInfo info, JExpression instance) {

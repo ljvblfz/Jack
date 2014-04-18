@@ -27,7 +27,6 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.marker.Marker;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
@@ -40,9 +39,7 @@ import javax.annotation.Nonnull;
  */
 @Description("AST Node")
 public abstract class JNode extends LocalMarkerManager
-  implements JVisitable, HasSourceInfo, Component, Serializable {
-
-  private static final long serialVersionUID = 1L;
+  implements JVisitable, HasSourceInfo, Component {
 
   /**
    * Transformation kind.

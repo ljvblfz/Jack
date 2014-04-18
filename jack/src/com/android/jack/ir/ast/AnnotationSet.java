@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JNode.Transformation;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +28,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
-class AnnotationSet implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+class AnnotationSet {
 
   @Nonnull
   private final Map<JAnnotation, JAnnotationLiteral> annotations =

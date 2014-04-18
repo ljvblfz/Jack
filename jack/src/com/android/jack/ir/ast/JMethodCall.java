@@ -44,8 +44,6 @@ public class JMethodCall extends JExpression {
     DIRECT;
   }
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JExpression instance;
   @Nonnull

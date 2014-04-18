@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("String representing the name of a method")
 public class JMethodNameLiteral extends JAbstractStringLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JMethod method;
 

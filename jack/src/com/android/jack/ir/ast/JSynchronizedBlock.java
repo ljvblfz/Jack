@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("A synchronized block")
 public class JSynchronizedBlock extends JSynchronize {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JBlock synchronizedBlock;
 

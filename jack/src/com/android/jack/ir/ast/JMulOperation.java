@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Mul operator expression")
 public class JMulOperation extends JArithmeticBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JMulOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

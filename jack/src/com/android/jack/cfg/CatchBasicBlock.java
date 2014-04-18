@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
  */
 public class CatchBasicBlock extends NormalBasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JClass> catchTypes;
 

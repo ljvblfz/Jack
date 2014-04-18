@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java integer literal expression")
 public class JIntLiteral extends JValueLiteral implements JIntegralConstant32, JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final int value;
 
   public JIntLiteral(SourceInfo sourceInfo, int value) {

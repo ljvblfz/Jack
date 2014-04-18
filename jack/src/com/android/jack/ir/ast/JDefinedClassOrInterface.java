@@ -43,11 +43,9 @@ import javax.annotation.Nonnull;
 public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   implements JClassOrInterface, Annotable, CanBeAbstract, CanBeFinal {
 
-  private static final long serialVersionUID = 1L;
+  protected List<JField> fields = new ArrayList<JField>();
 
-  protected transient List<JField> fields = new ArrayList<JField>();
-
-  protected transient List<JMethod> methods = new ArrayList<JMethod>();
+  protected List<JMethod> methods = new ArrayList<JMethod>();
 
   /**
    * The type which originally enclosed this type. Null if this class was a

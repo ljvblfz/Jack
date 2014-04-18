@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Binary shift expression")
 public abstract class JShiftOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JShiftOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

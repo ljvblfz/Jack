@@ -25,8 +25,6 @@ import javax.annotation.Nonnull;
  */
 public class ExitBlock extends BasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int FIXED_BLOCK_COUNT = 0;
 

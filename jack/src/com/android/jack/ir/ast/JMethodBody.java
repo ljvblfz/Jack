@@ -35,7 +35,6 @@ import javax.annotation.Nonnull;
 @Description("Represents a the body of a Java method")
 public class JMethodBody extends JAbstractMethodBody {
 
-  private static final long serialVersionUID = 1L;
   @Nonnull
   private JBlock block;
   @Nonnull

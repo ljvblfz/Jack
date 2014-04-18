@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Method literal")
 public class JMethodLiteral extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JMethod method;
 

@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Java class type reference expression")
 public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetFinal, JClass {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JClass superClass;
 

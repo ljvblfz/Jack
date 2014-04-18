@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign concat operator expression")
 public class JAsgConcatOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgConcatOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

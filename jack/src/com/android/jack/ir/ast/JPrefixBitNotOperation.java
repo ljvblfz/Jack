@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Bit not prefix operator expression")
 public class JPrefixBitNotOperation extends JPrefixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixBitNotOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

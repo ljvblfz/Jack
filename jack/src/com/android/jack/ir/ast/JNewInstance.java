@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("A new instance expression")
 public class JNewInstance extends JMethodCall {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * Initialize a new instance operation equivalent to another one. The new
    * object has no arguments on initialization. This forces the caller to

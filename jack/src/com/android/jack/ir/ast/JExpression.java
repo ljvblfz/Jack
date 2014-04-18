@@ -24,8 +24,6 @@ import com.android.sched.item.Description;
 @Description("Java expressions")
 public abstract class JExpression extends JNode implements HasType {
 
-  private static final long serialVersionUID = 1L;
-
   public JExpression(SourceInfo info) {
     super(info);
   }

@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("An allocation expression")
 public class JAlloc extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JClass instanceType;
 

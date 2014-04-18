@@ -20,20 +20,16 @@ import com.android.sched.item.Description;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 
-import java.io.Serializable;
-
 import javax.annotation.Nonnull;
 
 /**
  * Represents a resource.
  */
 @Description("Represents a resource")
-public class Resource implements HasName, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class Resource implements HasName {
 
   @Nonnull
-  private final transient InputVFile vFile;
+  private final InputVFile vFile;
 
   public Resource(@Nonnull InputVFile vFile) {
     this.vFile = vFile;

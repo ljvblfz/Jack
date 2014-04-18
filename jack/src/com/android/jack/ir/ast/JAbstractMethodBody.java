@@ -24,8 +24,6 @@ import com.android.sched.item.Description;
 @Description("Represents the body of a method")
 public abstract class JAbstractMethodBody extends JNode {
 
-  private static final long serialVersionUID = 1L;
-
   protected JMethod method;
 
   protected JAbstractMethodBody(SourceInfo info) {

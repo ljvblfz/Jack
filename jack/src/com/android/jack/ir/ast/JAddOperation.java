@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Add operator expression")
 public class JAddOperation extends JArithmeticBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAddOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

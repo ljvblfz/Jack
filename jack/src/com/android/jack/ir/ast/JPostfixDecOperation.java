@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Dec postfix operator expression")
 public class JPostfixDecOperation extends JPostfixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPostfixDecOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

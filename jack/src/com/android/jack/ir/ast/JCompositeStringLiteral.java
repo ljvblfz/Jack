@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Composition of JStringLiteral")
 public class JCompositeStringLiteral extends JAbstractStringLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JAbstractStringLiteral leftStr;
 

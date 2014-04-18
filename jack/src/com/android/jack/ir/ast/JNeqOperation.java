@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Neq operator expression")
 public class JNeqOperation extends JEqualityOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JNeqOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

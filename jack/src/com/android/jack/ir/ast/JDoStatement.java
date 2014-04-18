@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java do statement")
 public class JDoStatement extends JStatement implements JLoop {
 
-  private static final long serialVersionUID = 1L;
   private JStatement body;
   private JExpression testExpr;
 

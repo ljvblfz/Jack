@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Represents a statement that is an expression")
 public class JExpressionStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private JExpression expr;
 
   /**

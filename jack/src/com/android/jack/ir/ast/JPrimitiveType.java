@@ -38,8 +38,6 @@ import javax.annotation.Nonnull;
 @Description("Java primitive types")
 public abstract class JPrimitiveType extends JNode implements JType {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * This enum represents all primitive types.
    */
@@ -103,21 +101,21 @@ public abstract class JPrimitiveType extends JNode implements JType {
   public static JType getBinaryPromotionType(@Nonnull JType lhsType, @Nonnull JType rhsType) {
     JType promotedType;
 
-   assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.INT.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.LONG.getType().isEquivalent(lhsType)
-   || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(lhsType);
+    assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.INT.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.LONG.getType().isEquivalent(lhsType)
+    || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(lhsType);
 
-   assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.INT.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
-   || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
+    assert JPrimitiveTypeEnum.BYTE.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.CHAR.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.SHORT.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.INT.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.FLOAT.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
+    || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
 
     if ((lhsType == JPrimitiveTypeEnum.DOUBLE.getType())
         || (rhsType == JPrimitiveTypeEnum.DOUBLE.getType())
@@ -194,8 +192,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java boolean type")
   public static class JBooleanType extends JPrimitiveType {
-    private static final long serialVersionUID = 1L;
-
     private JBooleanType() {
       super("boolean", "Z");
     }
@@ -231,8 +227,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java byte type")
   public static class JByteType extends JPrimitiveType implements JIntegralType32 {
-    private static final long serialVersionUID = 1L;
-
     private JByteType() {
       super("byte", "B");
     }
@@ -272,8 +266,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java char type")
   public static class JCharType extends JPrimitiveType implements JIntegralType32 {
-    private static final long serialVersionUID = 1L;
-
     private JCharType() {
       super("char", "C");
     }
@@ -313,8 +305,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java double type")
   public static class JDoubleType extends JPrimitiveType implements JFloatingPointType {
-    private static final long serialVersionUID = 1L;
-
     private JDoubleType() {
       super("double", "D");
     }
@@ -349,8 +339,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java float type")
   public static class JFloatType extends JPrimitiveType implements JFloatingPointType {
-    private static final long serialVersionUID = 1L;
-
     private JFloatType() {
       super("float", "F");
     }
@@ -385,8 +373,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java int type")
   public static class JIntType extends JPrimitiveType implements JIntegralType32 {
-    private static final long serialVersionUID = 1L;
-
     private JIntType() {
       super("int", "I");
     }
@@ -426,8 +412,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java long type")
   public static class JLongType extends JPrimitiveType implements JIntegralType64 {
-    private static final long serialVersionUID = 1L;
-
     private JLongType() {
       super("long", "J");
     }
@@ -462,8 +446,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java short type")
   public static class JShortType extends JPrimitiveType implements JIntegralType32 {
-    private static final long serialVersionUID = 1L;
-
     private JShortType() {
       super("short", "S");
     }
@@ -503,8 +485,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
    */
   @Description("Java void type")
   public static class JVoidType extends JPrimitiveType {
-    private static final long serialVersionUID = 1L;
-
     private JVoidType() {
       super("void", "V");
     }

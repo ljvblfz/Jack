@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java instance of expression")
 public class JInstanceOf extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   private JExpression expr;
   private final JReferenceType testType;
 

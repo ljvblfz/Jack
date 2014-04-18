@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Sub operator expression")
 public class JSubOperation extends JArithmeticBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JSubOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

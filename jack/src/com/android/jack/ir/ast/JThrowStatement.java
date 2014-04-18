@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java throw expression")
 public class JThrowStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private JExpression expr;
 
   public JThrowStatement(SourceInfo info, JExpression expr) {

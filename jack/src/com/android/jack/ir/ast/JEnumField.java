@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("An enum constant")
 public class JEnumField extends JField {
 
-  private static final long serialVersionUID = 1L;
-
   public static final int ORDINAL_UNKNOWN = -1;
 
   private final int ordinal;

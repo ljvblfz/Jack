@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Binary arithmetic expression")
 public abstract class JArithmeticBinaryOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JArithmeticBinaryOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

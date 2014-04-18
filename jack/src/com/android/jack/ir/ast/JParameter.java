@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java method parameter definition")
 public class JParameter extends JVariable implements HasEnclosingMethod {
 
-  private static final long serialVersionUID = 1L;
-
   private final JMethod enclosingMethod;
 
   public JParameter(SourceInfo info, String name, JType type, int modifier,

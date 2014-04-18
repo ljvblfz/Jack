@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java literal expression that evaluates to a Long")
 public class JLongLiteral extends JValueLiteral implements JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final long value;
 
   public JLongLiteral(SourceInfo sourceInfo, long value) {

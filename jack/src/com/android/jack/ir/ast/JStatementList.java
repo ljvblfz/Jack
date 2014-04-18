@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("A list of JStatements")
 public abstract class JStatementList extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   protected List<JStatement> statements = new ArrayList<JStatement>();
 

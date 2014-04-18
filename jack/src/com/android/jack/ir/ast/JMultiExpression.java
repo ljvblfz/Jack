@@ -34,8 +34,6 @@ import javax.annotation.Nonnull;
 @Description("Represents multiple ordered expressions")
 public class JMultiExpression extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   public List<JExpression> exprs;
 
   public JMultiExpression(SourceInfo info, List<JExpression> exprs) {

@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Represents a Java label")
 public class JLabel extends JNode implements HasName {
 
-  private static final long serialVersionUID = 1L;
-
   private final String name;
 
   public JLabel(SourceInfo info, String name) {

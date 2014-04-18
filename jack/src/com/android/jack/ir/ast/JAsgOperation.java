@@ -36,8 +36,6 @@ public class JAsgOperation extends JAsgBinaryOperation {
   public static class NonReusedAsg implements Tag {
   }
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Logical and bitwise expression")
 public abstract class JLogicalAndBitwiseOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JLogicalAndBitwiseOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
  */
 public class SwitchBasicBlock extends BasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int DEFAULT_BLOCK_INDEX = 0;
   @Nonnegative

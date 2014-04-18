@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign bit and operator expression")
 public class JAsgBitAndOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgBitAndOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

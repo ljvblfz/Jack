@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Inc postfix operator expression")
 public class JPostfixIncOperation extends JPostfixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPostfixIncOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

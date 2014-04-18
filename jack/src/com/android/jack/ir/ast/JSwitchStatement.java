@@ -40,8 +40,6 @@ public class JSwitchStatement extends JStatement {
   public static final class SwitchWithEnum implements Tag {
   }
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JBlock body;
   @Nonnull

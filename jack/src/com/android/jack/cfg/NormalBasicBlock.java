@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
  */
 public class NormalBasicBlock extends BasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int TARGET_BLOCK_INDEX = 0;
 

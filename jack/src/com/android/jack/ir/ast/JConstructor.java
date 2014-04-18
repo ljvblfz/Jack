@@ -32,8 +32,6 @@ import javax.annotation.Nonnull;
 @Description("A Java constructor method")
 public class JConstructor extends JMethod {
 
-  private static final long serialVersionUID = 1L;
-
   public JConstructor(@Nonnull SourceInfo info, @Nonnull JDefinedClass enclosingType,
       int modifier) {
     super(info, new JMethodId(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),

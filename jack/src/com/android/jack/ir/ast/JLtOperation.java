@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Lt operator expression")
 public class JLtOperation extends JRelationalOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JLtOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

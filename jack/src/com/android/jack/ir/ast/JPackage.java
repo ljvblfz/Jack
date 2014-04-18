@@ -50,8 +50,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     FALSE;
   }
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   public static final StatisticId<Counter> PACKAGE_CREATION = new StatisticId<Counter>(
       "jack.package.create", "Created JPackage",
@@ -98,7 +96,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final JSession session;
 
   @Nonnull
-  private final transient List<PackageLoader> loaders =
+  private final List<PackageLoader> loaders =
       new LinkedList<PackageLoader>();
 
   private OnPath isOnPath = OnPath.NOT_YET_AVAILABLE;

@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign sub operator expression")
 public class JAsgSubOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgSubOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

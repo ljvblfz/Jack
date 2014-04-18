@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java annotation type definition")
 public class JDefinedAnnotation extends JDefinedInterface implements JAnnotation {
 
-  private static final long serialVersionUID = 1L;
-
   @CheckForNull
   private JRetentionPolicy retentionPolicy;
 

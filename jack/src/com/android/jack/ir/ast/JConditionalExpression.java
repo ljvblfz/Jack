@@ -36,8 +36,6 @@ import javax.annotation.Nonnull;
 @Description("Conditional expression")
 public class JConditionalExpression extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JExpression elseExpr;
   @Nonnull

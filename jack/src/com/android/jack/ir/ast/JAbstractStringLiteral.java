@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Commmon part of literal expression that evaluates to a string")
 public abstract class JAbstractStringLiteral extends JValueLiteral implements Cloneable {
 
-  private static final long serialVersionUID = 1L;
-
   protected JAbstractStringLiteral(@Nonnull SourceInfo sourceInfo) {
     super(sourceInfo);
   }

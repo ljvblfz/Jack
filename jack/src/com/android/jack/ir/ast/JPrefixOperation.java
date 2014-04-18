@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Java prefix operation expression")
 public abstract class JPrefixOperation extends JUnaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java continue statement")
 public class JContinueStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private final JLabel label;
 
   public JContinueStatement(SourceInfo info, JLabel label) {

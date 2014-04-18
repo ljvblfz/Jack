@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Base class for any defined reference type.")
 public abstract class JDefinedReferenceType extends JReferenceTypeCommon {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * This type's implemented interfaces.
    */

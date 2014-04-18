@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 public class JShortLiteral extends JValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final short value;
 
   public JShortLiteral(@Nonnull SourceInfo sourceInfo, short value) {

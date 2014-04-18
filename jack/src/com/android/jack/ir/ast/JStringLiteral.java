@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java literal expression that evaluates to a string")
 public class JStringLiteral extends JAbstractStringLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private String value;
 

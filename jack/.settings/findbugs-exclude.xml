@@ -31,9 +31,4 @@
 <Match>
     <Bug code="LG"/>
 </Match>
-<!-- Serialization, JNode should not even be declared Serializable -->
-<Match>
-    <Class name="com.android.jack.ir.ast.JPackage"/>
-    <Bug code="Se"/>
-</Match>
 </FindBugsFilter>

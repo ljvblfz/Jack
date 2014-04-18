@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Dec prefix operator expression")
 public class JPrefixDecOperation extends JPrefixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixDecOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

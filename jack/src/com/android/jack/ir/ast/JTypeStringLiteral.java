@@ -34,8 +34,6 @@ import javax.annotation.Nonnull;
 @Description("String representing the source name of a type")
 public class JTypeStringLiteral extends JAbstractStringLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private static final TypeFormatter binaryQnFormatter =
       BinaryQualifiedNameFormatter.getFormatter();

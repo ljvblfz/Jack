@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("A synchronization statement")
 public abstract class JSynchronize extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JExpression lockExpr;
 

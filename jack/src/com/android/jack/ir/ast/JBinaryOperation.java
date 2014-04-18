@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Binary operator expression")
 public abstract class JBinaryOperation extends JExpression {
 
-  private static final long serialVersionUID = 1L;
   @Nonnull
   private JExpression lhs;
   @Nonnull

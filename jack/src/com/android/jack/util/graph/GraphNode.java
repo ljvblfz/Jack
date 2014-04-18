@@ -19,7 +19,6 @@ package com.android.jack.util.graph;
 import com.android.jack.Jack;
 import com.android.sched.marker.LocalMarkerManager;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @param <N> The type of graph node.
  */
-public class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
 
   // TODO(mikaelpeltier) Think about new implementation of sparse list due to index usage and
   // append usage to fill successors.

@@ -35,8 +35,6 @@ import javax.annotation.Nonnull;
 @Description("New array expression")
 public class JNewArray extends JExpression {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final List<JExpression> dims;
   @Nonnull

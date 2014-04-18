@@ -34,13 +34,9 @@ import javax.annotation.Nonnull;
  */
 public class SourceOrigin implements SourceInfo {
 
-  private static final long serialVersionUID = 1L;
-
   private static class SourceOriginPos extends SourceOrigin {
 
-    private static final long serialVersionUID = 1L;
-
-    private final int endCol;
+      private final int endCol;
     private final int startCol;
 
     private SourceOriginPos(@Nonnull String location, @Nonnegative int startLine,
@@ -76,13 +72,7 @@ public class SourceOrigin implements SourceInfo {
   }
 
   @Nonnull
-  public static final SourceOrigin UNKNOWN = new SourceOrigin("Unknown", 0, 0) {
-    private static final long serialVersionUID = 1L;
-
-    private Object readResolve() {
-      return UNKNOWN;
-    }
-  };
+  public static final SourceOrigin UNKNOWN = new SourceOrigin("Unknown", 0, 0);
 
   /**
    * Cache to reuse recently-created origins. This is very useful for JS nodes,

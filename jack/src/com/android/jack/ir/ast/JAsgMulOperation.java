@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign mul operator expression")
 public class JAsgMulOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgMulOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Reference type")
 abstract class JReferenceTypeCommon extends JNode implements JReferenceType, CanBeRenamed {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   protected String name;
 

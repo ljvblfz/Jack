@@ -30,7 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java method return statement")
 public class JReturnStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
   @CheckForNull
   private JExpression expr;
 

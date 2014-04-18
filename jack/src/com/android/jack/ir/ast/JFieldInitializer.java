@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Statement setting the initial value of fields")
 public class JFieldInitializer extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private JExpression initializer;
   @Nonnull

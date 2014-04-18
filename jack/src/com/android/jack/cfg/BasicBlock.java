@@ -20,7 +20,6 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.util.graph.GraphNode;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,10 +32,7 @@ import javax.annotation.Nonnull;
  * of predecessors and successors. Each {@link BasicBlock} has an unique id inside a
  * {@link ControlFlowGraph}.
  */
-public abstract class BasicBlock extends GraphNode<BasicBlock>
-                        implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public abstract class BasicBlock extends GraphNode<BasicBlock> {
 
   @Nonnull
   protected final ControlFlowGraph cfg;

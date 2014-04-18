@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
  */
 public class PeiBasicBlock extends NormalBasicBlock {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnegative
   private static final int NO_CATCH_EXCEPTION_INDEX = 1;
   @Nonnegative

@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Concat operator expression")
 public class JConcatOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
   @Nonnull
   private final JClass jlString;
 

@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Binary operator expression performing an assignment")
 public abstract class JAsgBinaryOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgBinaryOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

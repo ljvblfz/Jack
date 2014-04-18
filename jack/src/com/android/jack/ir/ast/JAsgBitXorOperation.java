@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign bit xor operator expression")
 public class JAsgBitXorOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgBitXorOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

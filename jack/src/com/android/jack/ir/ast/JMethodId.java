@@ -20,7 +20,6 @@ import com.android.jack.Jack;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.LocalMarkerManager;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,9 +31,7 @@ import javax.annotation.Nonnull;
  * An identifier for methods. A JMethodId instance is shared between JMethods
  * that may share an overriding relation.
  */
-public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed {
 
   /**
    * Method hierarchy filter.

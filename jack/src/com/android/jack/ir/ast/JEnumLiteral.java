@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("JLiteral representing a reference to an Enum field.")
 public class JEnumLiteral extends JValueLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JFieldId value;
 

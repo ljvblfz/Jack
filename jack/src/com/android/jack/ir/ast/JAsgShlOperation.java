@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Assign shl operator expression")
 public class JAsgShlOperation extends JAsgBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAsgShlOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

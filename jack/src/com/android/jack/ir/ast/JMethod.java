@@ -39,13 +39,11 @@ import javax.annotation.Nonnull;
 public class JMethod extends JNode implements HasEnclosingType, HasName, HasType, CanBeAbstract,
     CanBeSetFinal, CanBeNative, CanBeStatic, Annotable {
 
-  private static final long serialVersionUID = 1L;
-
   /**
    * Special serialization treatment.
    */
   @CheckForNull
-  private transient JAbstractMethodBody body = null;
+  private JAbstractMethodBody body = null;
   @Nonnull
   private JDefinedClassOrInterface enclosingType;
   private int modifier;
@@ -67,7 +65,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private final JThis jThis;
 
   @Nonnull
-  private final transient MethodLoader loader;
+  private final MethodLoader loader;
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,

@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Java prefix or postfix operation expression")
 public abstract class JUnaryOperation extends JExpression {
 
-  private static final long serialVersionUID = 1L;
   private JExpression arg;
 
   public JUnaryOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {

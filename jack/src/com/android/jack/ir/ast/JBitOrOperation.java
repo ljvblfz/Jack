@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Bit or operator expression")
 public class JBitOrOperation extends JLogicalAndBitwiseOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JBitOrOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

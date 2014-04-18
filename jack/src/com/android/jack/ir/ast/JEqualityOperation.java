@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("Equality binary expression")
 public abstract class JEqualityOperation extends JBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JEqualityOperation(@Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {
     super(info, lhs, rhs);

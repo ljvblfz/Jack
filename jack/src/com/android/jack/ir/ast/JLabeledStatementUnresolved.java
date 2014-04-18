@@ -32,8 +32,6 @@ public class JLabeledStatementUnresolved extends JLabeledStatement {
   @Nonnull
   public static final JLabeledStatementUnresolved INSTANCE = new JLabeledStatementUnresolved();
 
-  private static final long serialVersionUID = 1L;
-
 
   private JLabeledStatementUnresolved() {
     super(SourceOrigin.UNKNOWN, null, null);

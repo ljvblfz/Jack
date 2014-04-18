@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java this variable definition")
 public class JThis extends JVariable implements HasEnclosingMethod {
 
-  private static final long serialVersionUID = 1L;
-
   @Nonnull
   private final JMethod enclosingMethod;
 

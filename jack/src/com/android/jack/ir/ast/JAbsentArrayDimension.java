@@ -32,8 +32,6 @@ import javax.annotation.Nonnull;
 "instantiation expression")
 public class JAbsentArrayDimension extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   public JAbsentArrayDimension(SourceInfo sourceInfo) {
     super(sourceInfo);
   }

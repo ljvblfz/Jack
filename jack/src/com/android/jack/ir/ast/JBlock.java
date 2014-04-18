@@ -31,8 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Block containing a list of JStatements")
 public class JBlock extends JStatementList {
 
-  private static final long serialVersionUID = 1L;
-
   public JBlock(@Nonnull SourceInfo info) {
     super(info);
   }

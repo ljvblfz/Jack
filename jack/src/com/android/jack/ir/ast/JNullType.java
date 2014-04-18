@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java null reference type")
 public class JNullType extends JReferenceTypeCommon {
 
-  private static final long serialVersionUID = 1L;
-
   public static final JNullType INSTANCE = new JNullType(SourceOrigin.UNKNOWN);
 
   private JNullType(SourceInfo sourceInfo) {
@@ -48,10 +46,6 @@ public class JNullType extends JReferenceTypeCommon {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-  }
-
-  private Object readResolve() {
-    return INSTANCE;
   }
 
   @Override

@@ -47,7 +47,6 @@ public class JTryStatement extends JStatement {
   public static final class TryWithResourcesForm implements Tag {
   }
 
-  private static final long serialVersionUID = 1L;
   @Nonnull
   private List<JStatement> resourcesDeclaration;
   @Nonnull

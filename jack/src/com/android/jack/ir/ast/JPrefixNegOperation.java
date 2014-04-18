@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
 @Description("Neg prefix operator expression")
 public class JPrefixNegOperation extends JPrefixOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JPrefixNegOperation(@Nonnull SourceInfo info, @Nonnull JExpression arg) {
     super(info, arg);
   }

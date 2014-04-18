@@ -24,8 +24,6 @@ import com.android.sched.item.Description;
 @Description("Java literal expression")
 public abstract class JValueLiteral extends JLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   public JValueLiteral(SourceInfo sourceInfo) {
     super(sourceInfo);
   }

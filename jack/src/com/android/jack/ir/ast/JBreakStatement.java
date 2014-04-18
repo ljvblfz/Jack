@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java break statement")
 public class JBreakStatement extends JStatement {
 
-  private static final long serialVersionUID = 1L;
-
   private final JLabel label;
 
   public JBreakStatement(SourceInfo info, JLabel label) {

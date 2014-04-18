@@ -15,12 +15,11 @@
  */
 package com.android.jack.ir;
 
-import java.io.Serializable;
 
 /**
  * Tracks file and line information for AST nodes.
  */
-public interface SourceInfo extends Serializable {
+public interface SourceInfo {
 
   int getEndColumn();
 

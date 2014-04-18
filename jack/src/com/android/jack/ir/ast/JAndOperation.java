@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 @Description("And operator expression")
 public class JAndOperation extends JConditionalOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JAndOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

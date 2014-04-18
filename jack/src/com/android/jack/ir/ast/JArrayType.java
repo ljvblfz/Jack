@@ -34,11 +34,9 @@ import javax.annotation.Nonnull;
 @Description("Java array type")
 public class JArrayType extends JDefinedReferenceType {
 
-  private static final long serialVersionUID = 1L;
-
-  private transient int dims = 0;
+  private int dims = 0;
   private JType elementType;
-  private transient JType leafType = null;
+  private JType leafType = null;
 
   JArrayType(JType elementType) {
     super(elementType.getSourceInfo().makeChild(SourceOrigin.UNKNOWN), elementType.getName()

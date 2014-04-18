@@ -19,8 +19,6 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.sched.marker.LocalMarkerManager;
 
-import java.io.Serializable;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -28,9 +26,7 @@ import javax.annotation.Nonnull;
  * Description of a field.
  */
 public class JFieldId extends LocalMarkerManager
-  implements HasName, CanBeRenamed, HasType, Serializable {
-
-  private static final long serialVersionUID = 1L;
+  implements HasName, CanBeRenamed, HasType {
 
   @Nonnull
   private String name;

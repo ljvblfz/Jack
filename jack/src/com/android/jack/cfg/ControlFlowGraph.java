@@ -23,8 +23,6 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import java.io.Serializable;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -33,10 +31,7 @@ import javax.annotation.Nonnull;
  */
 @Description("A ControlFlowGraph marker.")
 @ValidOn(JMethod.class)
-public class ControlFlowGraph extends Graph<BasicBlock>
-                              implements Marker, Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class ControlFlowGraph extends Graph<BasicBlock> implements Marker {
 
   @Nonnull
   private final JMethod method;

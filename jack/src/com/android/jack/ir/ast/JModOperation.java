@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Mod operator expression")
 public class JModOperation extends JArithmeticBinaryOperation {
 
-  private static final long serialVersionUID = 1L;
-
   public JModOperation(
       @Nonnull SourceInfo info,
       @Nonnull JExpression lhs, @Nonnull JExpression rhs) {

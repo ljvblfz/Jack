@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 @Description("Java boolean literal expression")
 public class JBooleanLiteral extends JValueLiteral {
 
-  private static final long serialVersionUID = 1L;
-
   private final boolean value;
 
   public JBooleanLiteral(SourceInfo sourceInfo, boolean value) {

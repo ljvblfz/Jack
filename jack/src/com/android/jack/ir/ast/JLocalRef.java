@@ -29,8 +29,6 @@ import javax.annotation.Nonnull;
 @Description("Java local variable reference")
 public class JLocalRef extends JVariableRef {
 
-  private static final long serialVersionUID = 1L;
-
   public JLocalRef(@Nonnull SourceInfo info, @Nonnull JLocal local) {
     super(info, local);
   }
