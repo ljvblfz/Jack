@@ -112,11 +112,13 @@ import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatu
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.ParameterNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValue;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
 import com.android.jack.shrob.obfuscation.annotation.ThrownExceptionRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
@@ -437,6 +439,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("Exceptions")) {
             request.addFeature(RemoveThrownException.class);
+          }
+          if (!options.flags.getKeepParameterNames()) {
+            request.addFeature(RemoveParameterName.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1331,6 +1336,9 @@ public abstract class Jack {
         }
         if (features.contains(RemoveThrownException.class)) {
           methodPlan.append(ThrownExceptionRemover.class);
+        }
+        if (features.contains(RemoveParameterName.class)) {
+          methodPlan.append(ParameterNameRemover.class);
         }
       }
     }

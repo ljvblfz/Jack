@@ -79,7 +79,6 @@ public class NParameter extends NVariable {
       JMethodLookupException {
     assert sourceInfo != null;
     assert type != null;
-    assert name != null;
     JParameter jParameter = new JParameter(
         sourceInfo.exportAsJast(),
         name,

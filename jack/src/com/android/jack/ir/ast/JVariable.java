@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
     CanBeRenamed, HasType, Annotable {
 
+  @CheckForNull
   private String name;
   @Nonnull
   private final JType type;
@@ -40,13 +41,17 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   protected int modifier;
 
-  JVariable(SourceInfo info, String name, @Nonnull JType type, int modifier) {
+  JVariable(SourceInfo info, @CheckForNull String name, @Nonnull JType type, int modifier) {
     super(info);
     assert (type != null);
     assert (type != JPrimitiveTypeEnum.VOID.getType());
-    this.name = StringInterner.get().intern(name);
+    this.name = name == null ? null : StringInterner.get().intern(name);
     this.type = type;
     this.modifier = modifier;
+  }
+
+  JVariable(SourceInfo info, @Nonnull JType type, int modifier) {
+    this(info, null, type, modifier);
   }
 
   /**
@@ -62,7 +67,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
   }
 
   @Override
-  public void setName(@Nonnull String name) {
+  public void setName(@CheckForNull String name) {
     this.name = name;
   }
 

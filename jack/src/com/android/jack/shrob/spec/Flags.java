@@ -132,7 +132,11 @@ public class Flags {
   }
 
   public boolean getKeepParameterNames() {
-    return keepParameterNames;
+    if (obfuscate) {
+      return keepParameterNames;
+    } else {
+      return true;
+    }
   }
 
   public void setObfuscationMapping(@CheckForNull File obfuscationMapping) {
