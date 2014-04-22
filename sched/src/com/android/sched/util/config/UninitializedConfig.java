@@ -16,7 +16,6 @@
 
 package com.android.sched.util.config;
 
-import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 
@@ -38,12 +37,6 @@ class UninitializedConfig implements Config, InternalConfig {
   @Override
   @Nonnull
   public <T> T get(@Nonnull ObjectId<T> objectId) {
-    throw new ConfigurationError("Configuration has not been initialized");
-  }
-
-  @Override
-  @Nonnull
-  public <T, S> T get(@Nonnull KeyId<T, S> keyId) {
     throw new ConfigurationError("Configuration has not been initialized");
   }
 

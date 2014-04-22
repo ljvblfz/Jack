@@ -31,7 +31,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * Debug implementation of a fully built {@code Config}. This class check recursivity.
+ * Debug implementation of a fully built {@code Config}. This class check recursivity,
+ * and add extra details during {@code ConfigurationError}.
  */
 class ConfigDebug extends ConfigImpl {
   @Nonnull
@@ -60,20 +61,54 @@ class ConfigDebug extends ConfigImpl {
   @Override
   @Nonnull
   public synchronized <T> T get(@Nonnull PropertyId<T> propertyId) {
-    return get((KeyId<T, ?>) propertyId);
+    Stack<KeyId<?, ?>> localKeyIds = keyIds.get();
+
+    checkRecursivity(localKeyIds, propertyId);
+    localKeyIds.push(propertyId);
+    try {
+      return super.get(propertyId);
+    } catch (ConfigurationError e) {
+      throw getDetailedException(propertyId, e);
+    } finally {
+      localKeyIds.pop();
+    }
   }
 
   @Override
   @Nonnull
   public synchronized <T> T get(@Nonnull ObjectId<T> objectId) {
-    return get((KeyId<T, ?>) objectId);
-  }
-
-  @Override
-  @Nonnull
-  public <T, S> T get(@Nonnull KeyId<T, S> keyId) {
     Stack<KeyId<?, ?>> localKeyIds = keyIds.get();
 
+    checkRecursivity(localKeyIds, objectId);
+    localKeyIds.push(objectId);
+    try {
+      return super.get(objectId);
+    } catch (ConfigurationError e) {
+      throw getDetailedException(objectId, e);
+    } finally {
+      localKeyIds.pop();
+    }
+  }
+
+  private ConfigurationError getDetailedException(@Nonnull KeyId<?, ?> keyId,
+      @Nonnull ConfigurationError e) {
+    String cause = dropCauses.get(keyId);
+    if (cause != null) {
+      StringBuilder sb = new StringBuilder();
+
+      sb.append(e.getMessage());
+      sb.append(" (dropped because ");
+      sb.append(dropCauses.get(keyId));
+      sb.append(')');
+
+      return new ConfigurationError(sb.toString(), e);
+    }
+
+    return e;
+  }
+
+  private void checkRecursivity(@Nonnull Stack<KeyId<?, ?>> localKeyIds,
+      @Nonnull KeyId<?, ?> keyId) {
     if (localKeyIds.contains(keyId)) {
       logger.log(Level.SEVERE, "Recursivity during getting configuration:");
 
@@ -95,30 +130,7 @@ class ConfigDebug extends ConfigImpl {
       }
 
       throw new AssertionError(
-          "Recursivity during creation of '" + keyId.getName() + "' (see log)");
-    }
-
-    localKeyIds.push(keyId);
-    try {
-      try {
-        return super.get(keyId);
-      } catch (ConfigurationError e) {
-        String cause = dropCauses.get(keyId);
-        if (cause != null) {
-          StringBuilder sb = new StringBuilder();
-
-          sb.append(e.getMessage());
-          sb.append(" (dropped because ");
-          sb.append(dropCauses.get(keyId));
-          sb.append(')');
-
-          throw new ConfigurationError(sb.toString(), e);
-        } else {
-          throw e;
-        }
-      }
-    } finally {
-      localKeyIds.pop();
+          "Recursive get of '" + keyId.getName() + "' (see log)");
     }
   }
 }
