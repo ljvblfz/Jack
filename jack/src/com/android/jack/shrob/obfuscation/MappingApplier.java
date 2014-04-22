@@ -278,7 +278,13 @@ public class MappingApplier {
     }
   }
 
-
+/**
+ * Rename a field using the provided name.
+ * @param field The field that will be renamed
+ * @param mappingFile The file where the mapping is stored
+ * @param lineNumber The line number in the mapping file where the new name was defined
+ * @param newName The new name of the field
+ */
   protected void renameField(@Nonnull JField field, @Nonnull File mappingFile, int lineNumber,
       @Nonnull String newName) {
     rename(field.getId(), newName);
@@ -344,6 +350,13 @@ public class MappingApplier {
     }
   }
 
+  /**
+   * Rename a method using the provided name.
+   * @param method The method that will be renamed
+   * @param mappingFile The file where the mapping is stored
+   * @param lineNumber The line number in the mapping file where the new name was defined
+   * @param newName The new name of the method
+   */
   protected void renameMethod(
       @Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
     String oldName = method.getName();
