@@ -2,24 +2,16 @@
 #
 LOCAL_PATH := $(call my-dir)
 
-# This tool is prebuilt if we're doing an app-only build.
-ifeq ($(TARGET_BUILD_APPS),)
-
 # dx java library
 # ============================================================
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-subdir-java-files)
-LOCAL_JAR_MANIFEST := ../etc/manifest.txt
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= dx-jack
 LOCAL_STATIC_JAVA_LIBRARIES := jsr305lib-jack
 
 include $(BUILD_HOST_JAVA_LIBRARY)
-
-INTERNAL_DALVIK_MODULES += $(LOCAL_INSTALLED_MODULE)
-
-endif # TARGET_BUILD_APPS
 
 # the documentation
 # ============================================================
