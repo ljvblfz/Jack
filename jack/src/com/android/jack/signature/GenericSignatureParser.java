@@ -216,7 +216,6 @@ public class GenericSignatureParser<T> {
       scanIdentifier();
       assert identifier != null;
     }
-    String packageName;
 
     qualIdent.append(this.identifier);
     T parsedEnclosingType = actions.parsedTypeName(qualIdent.toString());

@@ -564,8 +564,6 @@ public abstract class Jack {
 
     if (ecjArguments != null) {
       String bootclasspathOption = "-bootclasspath";
-      String classpathOption = "-classpath";
-      String classpathShortOption = "-cp";
 
       int bootclasspathIndex = ecjArguments.indexOf(bootclasspathOption);
       if (bootclasspathIndex != -1) {

@@ -938,7 +938,6 @@ class RopBuilderVisitor extends JVisitor {
     Constant cst = null;
 
     JType type = literal.getType();
-    Insn constInst;
     if (type instanceof JPrimitiveType) {
       cst = buildPrimitiveConstant(literal);
     } else  if (literal instanceof JAbstractStringLiteral){

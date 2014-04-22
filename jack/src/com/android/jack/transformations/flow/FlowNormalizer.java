@@ -203,7 +203,6 @@ public class FlowNormalizer implements RunnableSchedulable<JMethod> {
       JExpression cond = doStmt.getTestExpr();
       SourceInfo condInfo = cond.getSourceInfo();
       JBlock branchBlock = new JBlock(condInfo);
-      JStatement condStmt;
       JLabeledStatement labeledCond = createLabeledBlock("do.cond", condInfo);
       JGoto gotoStmt = new JGoto(SourceOrigin.UNKNOWN, labeledBody);
 

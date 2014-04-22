@@ -35,8 +35,6 @@ public class ExecFileException extends Exception {
   public ExecFileException(@Nonnull String[] cmdLine, @Nonnull Exception e) {
     super();
 
-    int i;
-
     errorMsg = "Error during execution of ";
 
     for (String arg : cmdLine) {
@@ -48,7 +46,6 @@ public class ExecFileException extends Exception {
 
   public ExecFileException(@Nonnull String[] cmdLine, int value) {
     super();
-    int i;
 
     errorMsg = "Return value of ";
 

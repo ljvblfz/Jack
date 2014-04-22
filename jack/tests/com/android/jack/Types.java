@@ -274,7 +274,6 @@ public class Types {
 
     {
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
-      JType t1 = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
       JLocal l = new JLocal(SourceOrigin.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceOrigin.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JShlOperation(SourceOrigin.UNKNOWN,
