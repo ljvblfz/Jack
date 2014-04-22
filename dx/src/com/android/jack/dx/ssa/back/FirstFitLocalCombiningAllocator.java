@@ -766,8 +766,8 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     }
 
     if (DEBUG) {
-      System.out.printf("Add mapping s%d -> v%d c:%d\n", ssaSpec.getReg(), ropReg,
-          ssaSpec.getCategory());
+      System.out.printf("Add mapping s%d -> v%d c:%d\n", Integer.valueOf(ssaSpec.getReg()),
+          Integer.valueOf(ropReg), Integer.valueOf(ssaSpec.getCategory()));
     }
 
     int category = ssaSpec.getCategory();
@@ -922,10 +922,11 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     /*
      * Now, insert any moves required.
      */
-
-    for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
-        i = resultMovesRequired.nextSetBit(i + 1)) {
-      insn.changeOneSource(i, insertMoveBefore(insn, sources.get(i)));
+    if (resultMovesRequired != null) {
+      for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
+          i = resultMovesRequired.nextSetBit(i + 1)) {
+        insn.changeOneSource(i, insertMoveBefore(insn, sources.get(i)));
+      }
     }
 
     return resultRangeStart;

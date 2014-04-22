@@ -320,7 +320,7 @@ public abstract class DalvInsn {
    */
   public final String identifierString() {
     if (address != -1) {
-      return String.format("%04x", address);
+      return String.format("%04x", Integer.valueOf(address));
     }
 
     return Hex.u4(System.identityHashCode(this));

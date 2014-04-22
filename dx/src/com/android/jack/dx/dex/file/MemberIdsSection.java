@@ -72,14 +72,16 @@ public abstract class MemberIdsSection extends UniformItemSection {
     try {
       formatter = new Formatter();
       String memberType = this instanceof MethodIdsSection ? "methods" : "fields";
-      formatter.format("Too many %s: %d; max is %d. By package:", memberType, items().size(),
-          MAX_MEMBERS);
+      formatter.format("Too many %s: %d; max is %d. By package:", memberType,
+          Integer.valueOf(items().size()), Integer.valueOf(MAX_MEMBERS));
       for (Map.Entry<String, AtomicInteger> entry : membersByPackage.entrySet()) {
-        formatter.format("%n%6d %s", entry.getValue().get(), entry.getKey());
+        formatter.format("%n%6d %s", Integer.valueOf(entry.getValue().get()), entry.getKey());
       }
       return formatter.toString();
     } finally {
-      formatter.close();
+      if (formatter != null) {
+        formatter.close();
+      }
     }
   }
 }

@@ -179,7 +179,7 @@ public class ConstCollector {
         insn = predInsns.get(predInsns.size() - 1);
       }
 
-      if (insn.canThrow()) {
+      if (insn != null && insn.canThrow()) {
         /*
          * Don't move anything other than strings -- the risk
          * of changing where an exception is thrown is too high.
@@ -215,16 +215,16 @@ public class ConstCollector {
 
       Integer has = countUses.get(cst);
       if (has == null) {
-        countUses.put(cst, 1);
+        countUses.put(cst, Integer.valueOf(1));
       } else {
-        countUses.put(cst, has + 1);
+        countUses.put(cst, Integer.valueOf(has.intValue() + 1));
       }
     }
 
     // Collect constants that have been reused.
     ArrayList<TypedConstant> constantList = new ArrayList<TypedConstant>();
     for (Map.Entry<TypedConstant, Integer> entry : countUses.entrySet()) {
-      if (entry.getValue() > 1) {
+      if (entry.getValue().intValue() > 1) {
         constantList.add(entry.getKey());
       }
     }
@@ -234,7 +234,7 @@ public class ConstCollector {
       @Override
       public int compare(Constant a, Constant b) {
         int ret;
-        ret = countUses.get(b) - countUses.get(a);
+        ret = countUses.get(b).intValue() - countUses.get(a).intValue();
 
         if (ret == 0) {
           /*
@@ -245,11 +245,6 @@ public class ConstCollector {
         }
 
         return ret;
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        return obj == this;
       }
     });
 

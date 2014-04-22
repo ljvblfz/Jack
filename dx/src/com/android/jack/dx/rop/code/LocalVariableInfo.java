@@ -223,10 +223,11 @@ public final class LocalVariableInfo extends MutabilityControl {
         continue;
       }
 
+      Integer labelInteger = Integer.valueOf(label);
       if (blockStarts[label] == emptySet) {
-        System.out.printf("%04x: empty set\n", label);
+        System.out.printf("%04x: empty set\n", labelInteger);
       } else {
-        System.out.printf("%04x: %s\n", label, blockStarts[label]);
+        System.out.printf("%04x: %s\n", labelInteger, blockStarts[label]);
       }
     }
   }

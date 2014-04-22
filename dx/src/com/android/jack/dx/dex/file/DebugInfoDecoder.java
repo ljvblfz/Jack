@@ -187,12 +187,12 @@ public class DebugInfoDecoder {
     @Override
     public String toString() {
       return String.format("[%x %s v%d %04x %04x %04x]",
-          address,
+          Integer.valueOf(address),
           isStart ? "start" : "end",
-          reg,
-          nameIndex,
-          typeIndex,
-          signatureIndex);
+          Integer.valueOf(reg),
+          Integer.valueOf(nameIndex),
+          Integer.valueOf(typeIndex),
+          Integer.valueOf(signatureIndex));
     }
   }
 

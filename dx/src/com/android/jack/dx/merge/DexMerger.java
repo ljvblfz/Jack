@@ -197,19 +197,21 @@ public final class DexMerger {
           new DexMerger(dexOut, new DexBuffer(), CollisionPolicy.FAIL, compactedSizes);
       result = compacter.mergeDexBuffers();
       System.out.printf("Result compacted from %.1fKiB to %.1fKiB to save %.1fKiB%n",
-          dexOut.getLength() / 1024f, result.getLength() / 1024f, wastedByteCount / 1024f);
+          Float.valueOf(dexOut.getLength() / 1024f),
+          Float.valueOf(result.getLength() / 1024f),
+          Float.valueOf(wastedByteCount / 1024f));
     }
 
     long elapsed = System.nanoTime() - start;
     System.out.printf("Merged dex A (%d defs/%.1fKiB) with dex B "
         + "(%d defs/%.1fKiB). Result is %d defs/%.1fKiB. Took %.1fs%n",
-        dexA.getTableOfContents().classDefs.size,
-        dexA.getLength() / 1024f,
-        dexB.getTableOfContents().classDefs.size,
-        dexB.getLength() / 1024f,
-        result.getTableOfContents().classDefs.size,
-        result.getLength() / 1024f,
-        elapsed / 1000000000f);
+        Integer.valueOf(dexA.getTableOfContents().classDefs.size),
+        Float.valueOf(dexA.getLength() / 1024f),
+        Integer.valueOf(dexB.getTableOfContents().classDefs.size),
+        Float.valueOf(dexB.getLength() / 1024f),
+        Integer.valueOf(result.getTableOfContents().classDefs.size),
+        Float.valueOf(result.getLength() / 1024f),
+        Float.valueOf(elapsed / 1000000000f));
 
     return result;
   }
@@ -245,11 +247,11 @@ public final class DexMerger {
       T b = null;
 
       while (true) {
-        if (a == null && aIndex < aSection.size) {
+        if (a == null && aIndex < aSection.size && inA != null) {
           aOffset = inA.getPosition();
           a = read(inA, aIndexMap, aIndex);
         }
-        if (b == null && bIndex < bSection.size) {
+        if (b == null && bIndex < bSection.size && inB != null) {
           bOffset = inB.getPosition();
           b = read(inB, bIndexMap, bIndex);
         }
@@ -410,7 +412,7 @@ public final class DexMerger {
       @Override
       Integer read(DexBuffer.Section in, IndexMap indexMap, int index) {
         int stringIndex = in.readInt();
-        return indexMap.adjustString(stringIndex);
+        return Integer.valueOf(indexMap.adjustString(stringIndex));
       }
 
       @Override
@@ -421,7 +423,7 @@ public final class DexMerger {
 
       @Override
       void write(Integer value) {
-        idsDefsOut.writeInt(value);
+        idsDefsOut.writeInt(value.intValue());
       }
     }.mergeSorted();
   }

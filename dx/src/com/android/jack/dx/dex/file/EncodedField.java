@@ -139,7 +139,7 @@ this.field = field;
     int accessFlags = getAccessFlags();
 
     if (out.annotates()) {
-      out.annotate(0, String.format("  [%x] %s", dumpSeq, field.toHuman()));
+      out.annotate(0, String.format("  [%x] %s", Integer.valueOf(dumpSeq), field.toHuman()));
       out.annotate(Leb128Utils.unsignedLeb128Size(diff), "    field_idx:    " + Hex.u4(fieldIdx));
       out.annotate(Leb128Utils.unsignedLeb128Size(accessFlags),
           "    access_flags: " + AccessFlags.fieldString(accessFlags));

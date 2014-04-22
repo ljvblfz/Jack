@@ -68,45 +68,45 @@ public final class IndexMap {
      * A type list, annotation set, annotation directory, or static value at
      * offset 0 is always empty. Always map offset 0 to 0.
      */
-    this.typeListOffsets.put(0, 0);
-    this.annotationSetOffsets.put(0, 0);
-    this.annotationDirectoryOffsets.put(0, 0);
-    this.staticValuesOffsets.put(0, 0);
+    this.typeListOffsets.put(Integer.valueOf(0), Integer.valueOf(0));
+    this.annotationSetOffsets.put(Integer.valueOf(0), Integer.valueOf(0));
+    this.annotationDirectoryOffsets.put(Integer.valueOf(0), Integer.valueOf(0));
+    this.staticValuesOffsets.put(Integer.valueOf(0), Integer.valueOf(0));
   }
 
   public void putTypeListOffset(int oldOffset, int newOffset) {
     if (oldOffset <= 0 || newOffset <= 0) {
       throw new IllegalArgumentException();
     }
-    typeListOffsets.put(oldOffset, newOffset);
+    typeListOffsets.put(Integer.valueOf(oldOffset), Integer.valueOf(newOffset));
   }
 
   public void putAnnotationOffset(int oldOffset, int newOffset) {
     if (oldOffset <= 0 || newOffset <= 0) {
       throw new IllegalArgumentException();
     }
-    annotationOffsets.put(oldOffset, newOffset);
+    annotationOffsets.put(Integer.valueOf(oldOffset), Integer.valueOf(newOffset));
   }
 
   public void putAnnotationSetOffset(int oldOffset, int newOffset) {
     if (oldOffset <= 0 || newOffset <= 0) {
       throw new IllegalArgumentException();
     }
-    annotationSetOffsets.put(oldOffset, newOffset);
+    annotationSetOffsets.put(Integer.valueOf(oldOffset), Integer.valueOf(newOffset));
   }
 
   public void putAnnotationDirectoryOffset(int oldOffset, int newOffset) {
     if (oldOffset <= 0 || newOffset <= 0) {
       throw new IllegalArgumentException();
     }
-    annotationDirectoryOffsets.put(oldOffset, newOffset);
+    annotationDirectoryOffsets.put(Integer.valueOf(oldOffset), Integer.valueOf(newOffset));
   }
 
   public void putStaticValuesOffset(int oldOffset, int newOffset) {
     if (oldOffset <= 0 || newOffset <= 0) {
       throw new IllegalArgumentException();
     }
-    staticValuesOffsets.put(oldOffset, newOffset);
+    staticValuesOffsets.put(Integer.valueOf(oldOffset), Integer.valueOf(newOffset));
   }
 
   public int adjustString(int stringIndex) {
@@ -141,23 +141,23 @@ public final class IndexMap {
   }
 
   public int adjustTypeListOffset(int typeListOffset) {
-    return typeListOffsets.get(typeListOffset);
+    return typeListOffsets.get(Integer.valueOf(typeListOffset)).intValue();
   }
 
   public int adjustAnnotation(int annotationOffset) {
-    return annotationOffsets.get(annotationOffset);
+    return annotationOffsets.get(Integer.valueOf(annotationOffset)).intValue();
   }
 
   public int adjustAnnotationSet(int annotationSetOffset) {
-    return annotationSetOffsets.get(annotationSetOffset);
+    return annotationSetOffsets.get(Integer.valueOf(annotationSetOffset)).intValue();
   }
 
   public int adjustAnnotationDirectory(int annotationDirectoryOffset) {
-    return annotationDirectoryOffsets.get(annotationDirectoryOffset);
+    return annotationDirectoryOffsets.get(Integer.valueOf(annotationDirectoryOffset)).intValue();
   }
 
   public int adjustStaticValues(int staticValuesOffset) {
-    return staticValuesOffsets.get(staticValuesOffset);
+    return staticValuesOffsets.get(Integer.valueOf(staticValuesOffset)).intValue();
   }
 
   public MethodId adjust(MethodId methodId) {

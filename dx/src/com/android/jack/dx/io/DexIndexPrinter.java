@@ -54,7 +54,7 @@ public final class DexIndexPrinter {
   private void printTypeIds() {
     int index = 0;
     for (Integer type : dexBuffer.typeIds()) {
-      System.out.println("type " + index + ": " + dexBuffer.strings().get(type));
+      System.out.println("type " + index + ": " + dexBuffer.strings().get(type.intValue()));
       index++;
     }
   }

@@ -169,7 +169,7 @@ public final class DebugInfoEncoder {
 
       if (DEBUG) {
         for (int i = 0; i < ret.length; i++) {
-          System.err.printf("byte %02x\n", (0xff & ret[i]));
+          System.err.printf("byte %02x\n", Integer.valueOf((0xff & ret[i])));
         }
       }
 
@@ -213,7 +213,7 @@ public final class DebugInfoEncoder {
     output.writeByte(DBG_SET_PROLOGUE_END);
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(1, String.format("%04x: prologue end", address));
+      annotate(1, String.format("%04x: prologue end", Integer.valueOf(address)));
     }
 
     int positionsSz = sortedPositions.size();
@@ -411,7 +411,8 @@ int nextAddrL = Integer.MAX_VALUE; // local variable
     output.writeUleb128(szParamTypes);
 
     if (annotate) {
-      annotate(output.getCursor() - mark, String.format("parameters_size: %04x", szParamTypes));
+      annotate(output.getCursor() - mark,
+          String.format("parameters_size: %04x", Integer.valueOf(szParamTypes)));
     }
 
     /*
@@ -499,11 +500,6 @@ for (LocalList.Entry arg : lastEntryForReg) {
       public int compare(PositionList.Entry a, PositionList.Entry b) {
         return a.getAddress() - b.getAddress();
       }
-
-      @Override
-      public boolean equals(Object obj) {
-        return obj == this;
-      }
     });
     return result;
   }
@@ -556,11 +552,6 @@ for (LocalList.Entry arg : lastEntryForReg) {
       @Override
       public int compare(LocalList.Entry a, LocalList.Entry b) {
         return a.getRegister() - b.getRegister();
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        return obj == this;
       }
     });
 
@@ -621,8 +612,8 @@ for (LocalList.Entry arg : lastEntryForReg) {
     emitUnsignedLeb128(entry.getRegister());
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(output.getCursor() - mark,
-          String.format("%04x: +local restart %s", address, entryAnnotationString(entry)));
+      annotate(output.getCursor() - mark, String.format("%04x: +local restart %s",
+          Integer.valueOf(address), entryAnnotationString(entry)));
     }
 
     if (DEBUG) {
@@ -695,7 +686,7 @@ for (LocalList.Entry arg : lastEntryForReg) {
 
     if (annotateTo != null || debugPrint != null) {
       annotate(output.getCursor() - mark,
-          String.format("%04x: +local %s", address, entryAnnotationString(entry)));
+          String.format("%04x: +local %s", Integer.valueOf(address), entryAnnotationString(entry)));
     }
 
     if (DEBUG) {
@@ -722,8 +713,8 @@ for (LocalList.Entry arg : lastEntryForReg) {
     emitStringIndex(entry.getSignature());
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(output.getCursor() - mark,
-          String.format("%04x: +localx %s", address, entryAnnotationString(entry)));
+      annotate(output.getCursor() - mark, String.format("%04x: +localx %s",
+          Integer.valueOf(address), entryAnnotationString(entry)));
     }
 
     if (DEBUG) {
@@ -746,7 +737,7 @@ for (LocalList.Entry arg : lastEntryForReg) {
 
     if (annotateTo != null || debugPrint != null) {
       annotate(output.getCursor() - mark,
-          String.format("%04x: -local %s", address, entryAnnotationString(entry)));
+          String.format("%04x: -local %s", Integer.valueOf(address), entryAnnotationString(entry)));
     }
 
     if (DEBUG) {
@@ -802,7 +793,7 @@ for (LocalList.Entry arg : lastEntryForReg) {
     address += deltaAddress;
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(1, String.format("%04x: line %d", address, line));
+      annotate(1, String.format("%04x: line %d", Integer.valueOf(address), Integer.valueOf(line)));
     }
   }
 
@@ -842,11 +833,11 @@ for (LocalList.Entry arg : lastEntryForReg) {
     line += deltaLines;
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(output.getCursor() - mark, String.format("line = %d", line));
+      annotate(output.getCursor() - mark, String.format("line = %d", Integer.valueOf(line)));
     }
 
     if (DEBUG) {
-      System.err.printf("Emitting advance_line for %d\n", deltaLines);
+      System.err.printf("Emitting advance_line for %d\n", Integer.valueOf(deltaLines));
     }
   }
 
@@ -865,11 +856,12 @@ for (LocalList.Entry arg : lastEntryForReg) {
     address += deltaAddress;
 
     if (annotateTo != null || debugPrint != null) {
-      annotate(output.getCursor() - mark, String.format("%04x: advance pc", address));
+      annotate(output.getCursor() - mark,
+          String.format("%04x: advance pc", Integer.valueOf(address)));
     }
 
     if (DEBUG) {
-      System.err.printf("Emitting advance_pc for %d\n", deltaAddress);
+      System.err.printf("Emitting advance_pc for %d\n", Integer.valueOf(deltaAddress));
     }
   }
 

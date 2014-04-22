@@ -146,7 +146,7 @@ public final class CatchStructs {
       boolean catchesAll = list.catchesAll();
 
       // Set the offset before we do any writing.
-      mapping.setValue(out.getCursor());
+      mapping.setValue(Integer.valueOf(out.getCursor()));
 
       if (catchesAll) {
         // A size <= 0 means that the list ends with a catch-all.
@@ -206,7 +206,7 @@ public final class CatchStructs {
 
       out.writeInt(start);
       out.writeShort(insnCount);
-      out.writeShort(handlerOffsets.get(one.getHandlers()));
+      out.writeShort(handlerOffsets.get(one.getHandlers()).intValue());
     }
 
     out.write(encodedHandlers);
@@ -224,13 +224,12 @@ public final class CatchStructs {
   private void annotateEntries(String prefix, PrintWriter printTo, AnnotatedOutput annotateTo) {
     finishProcessingIfNecessary();
 
-    boolean consume = (annotateTo != null);
-    int amt1 = consume ? 6 : 0;
-    int amt2 = consume ? 2 : 0;
+    int amt1 = annotateTo != null ? 6 : 0;
+    int amt2 = annotateTo != null ? 2 : 0;
     int size = table.size();
     String subPrefix = prefix + "  ";
 
-    if (consume) {
+    if (annotateTo != null) {
       annotateTo.annotate(0, prefix + "tries:");
     } else {
       printTo.println(prefix + "tries:");
@@ -243,7 +242,7 @@ public final class CatchStructs {
           subPrefix + "try " + Hex.u2or4(entry.getStart()) + ".." + Hex.u2or4(entry.getEnd());
       String s2 = handlers.toHuman(subPrefix, "");
 
-      if (consume) {
+      if (annotateTo != null) {
         annotateTo.annotate(amt1, s1);
         annotateTo.annotate(amt2, s2);
       } else {
@@ -252,7 +251,7 @@ public final class CatchStructs {
       }
     }
 
-    if (!consume) {
+    if (annotateTo == null) {
       // Only emit the handler lists if we are consuming bytes.
       return;
     }
@@ -266,7 +265,7 @@ public final class CatchStructs {
 
     for (Map.Entry<CatchHandlerList, Integer> mapping : handlerOffsets.entrySet()) {
       CatchHandlerList list = mapping.getKey();
-      int offset = mapping.getValue();
+      int offset = mapping.getValue().intValue();
 
       if (lastList != null) {
         annotateAndConsumeHandlers(lastList,

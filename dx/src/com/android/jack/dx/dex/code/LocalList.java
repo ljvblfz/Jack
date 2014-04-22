@@ -178,6 +178,14 @@ public final class LocalList extends FixedSizeList {
       return (compareTo((Entry) other) == 0);
     }
 
+    @Override
+    public int hashCode() {
+      int hashcode = address;
+      hashcode *= isStart() ? 1231 : 1237;
+      hashcode ^= spec.hashCode();
+      return hashcode;
+    }
+
     /**
      * Compares by (in priority order) address, end then start
      * disposition (variants of end are all consistered
@@ -525,7 +533,7 @@ MakeState state = new MakeState(sz);
      */
     public void snapshot(int address, RegisterSpecSet specs) {
       if (DEBUG) {
-        System.err.printf("%04x snapshot %s\n", address, specs);
+        System.err.printf("%04x snapshot %s\n", Integer.valueOf(address), specs);
       }
 
       int sz = specs.getMaxSize();
@@ -548,7 +556,7 @@ MakeState state = new MakeState(sz);
       }
 
       if (DEBUG) {
-        System.err.printf("%04x snapshot done\n", address);
+        System.err.printf("%04x snapshot done\n", Integer.valueOf(address));
       }
     }
 
@@ -561,7 +569,7 @@ MakeState state = new MakeState(sz);
      */
     public void startLocal(int address, RegisterSpec startedLocal) {
       if (DEBUG) {
-        System.err.printf("%04x start %s\n", address, startedLocal);
+        System.err.printf("%04x start %s\n", Integer.valueOf(address), startedLocal);
       }
 
       int regNum = startedLocal.getReg();
@@ -691,7 +699,7 @@ add(address, Disposition.START, startedLocal);
      */
     public void endLocal(int address, RegisterSpec endedLocal, Disposition disposition) {
       if (DEBUG) {
-        System.err.printf("%04x end %s\n", address, endedLocal);
+        System.err.printf("%04x end %s\n", Integer.valueOf(address), endedLocal);
       }
 
       int regNum = endedLocal.getReg();
@@ -785,6 +793,7 @@ regs.remove(endedLocal);
         // We found an end for the same register.
         endIndices[regNum] = at;
 
+        assert entry != null;
         if (entry.getAddress() == address) {
           /*
            * It's still the same address, so update the

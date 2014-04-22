@@ -250,7 +250,8 @@ public final class TableOfContents {
 
     @Override
     public String toString() {
-      return String.format("Section[type=%#x,off=%#x,size=%#x]", type, off, size);
+      return String.format("Section[type=%#x,off=%#x,size=%#x]", Short.valueOf(type),
+          Integer.valueOf(off), Integer.valueOf(size));
     }
   }
 }

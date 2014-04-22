@@ -31,7 +31,7 @@ import java.io.EOFException;
 public enum InstructionCodec {
   FORMAT_00X() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       return new ZeroRegisterDecodedInstruction(this, opcodeUnit, 0, null, 0, 0L);
     }
 
@@ -43,7 +43,7 @@ public enum InstructionCodec {
 
   FORMAT_10X() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int literal = byte1(opcodeUnit); // should be zero
       return new ZeroRegisterDecodedInstruction(this, opcode, 0, null, 0, literal);
@@ -57,7 +57,7 @@ public enum InstructionCodec {
 
   FORMAT_12X() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int a = nibble2(opcodeUnit);
       int b = nibble3(opcodeUnit);
@@ -72,7 +72,7 @@ public enum InstructionCodec {
 
   FORMAT_11N() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int a = nibble2(opcodeUnit);
       int literal = (nibble3(opcodeUnit) << 28) >> 28; // sign-extend
@@ -87,7 +87,7 @@ public enum InstructionCodec {
 
   FORMAT_11X() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int a = byte1(opcodeUnit);
       return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, 0L, a);
@@ -101,7 +101,7 @@ public enum InstructionCodec {
 
   FORMAT_10T() {
   @Override
-    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int baseAddress = in.cursor() - 1;
       int opcode = byte0(opcodeUnit);
       int target = (byte) byte1(opcodeUnit); // sign-extend

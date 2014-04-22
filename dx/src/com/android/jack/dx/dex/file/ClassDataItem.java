@@ -369,7 +369,7 @@ int size = staticFields.size();
    */
   private static void encodeSize(DexFile file, AnnotatedOutput out, String label, int size) {
     if (out.annotates()) {
-      out.annotate(String.format("  %-21s %08x", label + "_size:", size));
+      out.annotate(String.format("  %-21s %08x", label + "_size:", Integer.valueOf(size)));
     }
 
     out.writeUleb128(size);

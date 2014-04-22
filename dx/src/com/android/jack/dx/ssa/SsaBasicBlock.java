@@ -740,7 +740,7 @@ for (int i = successors.nextSetBit(0); i >= 0; i = successors.nextSetBit(i + 1))
         }
 
         // At least one insn will be set above.
-
+        assert insnToSplit != null;
         RegisterSpec result = insnToSplit.getResult();
         RegisterSpec tempSpec = result.withReg(parent.borrowSpareRegister(result.getCategory()));
 

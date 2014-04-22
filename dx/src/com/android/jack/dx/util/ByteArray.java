@@ -17,7 +17,6 @@
 package com.android.jack.dx.util;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -294,7 +293,7 @@ public final class ByteArray {
     }
 
     @Override
-    public int read() throws IOException {
+    public int read() {
       if (cursor >= size) {
         return -1;
       }
