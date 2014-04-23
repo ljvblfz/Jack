@@ -38,14 +38,14 @@ public final class AddressMap {
    * {@code -1} if there is no mapping.
    */
   public int get(int keyAddress) {
-    Integer value = map.get(keyAddress);
-    return (value == null) ? -1 : value;
+    Integer value = map.get(Integer.valueOf(keyAddress));
+    return (value == null) ? -1 : value.intValue();
   }
 
   /**
    * Sets the value address associated with the given key address.
    */
   public void put(int keyAddress, int valueAddress) {
-    map.put(keyAddress, valueAddress);
+    map.put(Integer.valueOf(keyAddress), Integer.valueOf(valueAddress));
   }
 }

@@ -223,7 +223,8 @@ public class SsaToRop {
     }
 
     if (DEBUG) {
-      System.out.printf("Moving %d registers from 0 to %d\n", paramWidth, regCount - paramWidth);
+      System.out.printf("Moving %d registers from 0 to %d\n", Integer.valueOf(paramWidth),
+          Integer.valueOf(regCount - paramWidth));
     }
 
     ssaMeth.mapRegisters(mapper);
@@ -346,20 +347,21 @@ public class SsaToRop {
     Integer[] ret = new Integer[regCount];
 
     for (int i = 0; i < regCount; i++) {
-      ret[i] = i;
+      ret[i] = Integer.valueOf(i);
     }
 
     Arrays.sort(ret, new Comparator<Integer>() {
       @Override
       public int compare(Integer o1, Integer o2) {
-        return ssaMeth.getUseListForRegister(o2).size() - ssaMeth.getUseListForRegister(o1).size();
+        return ssaMeth.getUseListForRegister(o2.intValue()).size()
+            - ssaMeth.getUseListForRegister(o1.intValue()).size();
       }
     });
 
     int result[] = new int[regCount];
 
     for (int i = 0; i < regCount; i++) {
-      result[i] = ret[i];
+      result[i] = ret[i].intValue();
     }
 
     return result;

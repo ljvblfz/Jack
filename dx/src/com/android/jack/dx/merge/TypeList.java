@@ -53,7 +53,7 @@ public final class TypeList implements Comparable<TypeList> {
     StringBuilder result = new StringBuilder();
     result.append("(");
     for (int i = 0, typesLength = types.length; i < typesLength; i++) {
-      result.append(buffer != null ? buffer.typeNames().get(types[i]) : types[i]);
+      result.append(buffer != null ? buffer.typeNames().get(types[i]) : Short.valueOf(types[i]));
     }
     result.append(")");
     return result.toString();

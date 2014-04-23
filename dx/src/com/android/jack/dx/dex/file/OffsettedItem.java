@@ -104,6 +104,18 @@ public abstract class OffsettedItem extends Item implements Comparable<Offsetted
   }
 
   /**
+   * {@code compareTo0} method is not implemented into all sub-classes of {@link OffsettedItem}.
+   * Consequently, calls to equals method on these types can trigger
+   * {@link UnsupportedOperationException}. For the same types that can trigger
+   * {@link UnsupportedOperationException}, the method {@code hashCode} will always trigger an
+   * exception.
+   */
+  @Override
+  public int hashCode() {
+    throw new UnsupportedOperationException("unsupported");
+  }
+
+  /**
    * {@inheritDoc}
    *
    * Comparisons for this class are defined to be class-major (if the

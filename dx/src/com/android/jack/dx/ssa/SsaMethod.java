@@ -845,8 +845,9 @@ public final class SsaMethod {
       int insnsSz = insns.size();
       SsaInsn lastInsn = (insnsSz == 0) ? null : insns.get(insnsSz - 1);
 
-      if (block != getExitBlock() && (insnsSz == 0 || lastInsn.getOriginalRopInsn() == null
-          || lastInsn.getOriginalRopInsn().getOpcode().getBranchingness() == Rop.BRANCH_NONE)) {
+      if (block != getExitBlock() && (insnsSz == 0
+          || (lastInsn != null && ((lastInsn.getOriginalRopInsn() == null)
+          || lastInsn.getOriginalRopInsn().getOpcode().getBranchingness() == Rop.BRANCH_NONE)))) {
         // We managed to eat a throwable insn
 
         Insn gotoInsn =

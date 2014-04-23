@@ -70,6 +70,11 @@ public final class EncodedMethod extends EncodedMember implements Comparable<Enc
     return compareTo((EncodedMethod) other) == 0;
   }
 
+  @Override
+  public int hashCode() {
+    return method.hashCode();
+  }
+
   /**
    * {@inheritDoc}
    *
@@ -168,7 +173,7 @@ public final class EncodedMethod extends EncodedMember implements Comparable<Enc
     }
 
     if (out.annotates()) {
-      out.annotate(0, String.format("  [%x] %s", dumpSeq, method.toHuman()));
+      out.annotate(0, String.format("  [%x] %s", Integer.valueOf(dumpSeq), method.toHuman()));
       out.annotate(Leb128Utils.unsignedLeb128Size(diff), "    method_idx:   " + Hex.u4(methodIdx));
       out.annotate(Leb128Utils.unsignedLeb128Size(accessFlags),
           "    access_flags: " + AccessFlags.methodString(accessFlags));

@@ -72,7 +72,8 @@ public final class DexBuffer {
     @Override
     public Integer get(int index) {
       checkBounds(index, tableOfContents.typeIds.size);
-      return open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt();
+      return Integer.valueOf(
+          open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt());
     }
 
     @Override
@@ -85,7 +86,7 @@ public final class DexBuffer {
     @Override
     public String get(int index) {
       checkBounds(index, tableOfContents.typeIds.size);
-      return strings.get(typeIds.get(index));
+      return strings.get(typeIds.get(index).intValue());
     }
 
     @Override
@@ -144,7 +145,7 @@ public final class DexBuffer {
    * Creates a new dex buffer that reads from {@code data}. It is an error to
    * modify {@code data} after using it to create a dex buffer.
    */
-  public DexBuffer(byte[] data) throws IOException {
+  public DexBuffer(byte[] data) {
     this.data = data;
     this.length = data.length;
     this.tableOfContents.readFrom(this);
