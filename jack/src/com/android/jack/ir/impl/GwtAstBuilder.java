@@ -15,8 +15,9 @@
  */
 package com.android.jack.ir.impl;
 
-
 import com.android.jack.Jack;
+import com.android.jack.experimental.incremental.CompilerStateMarker;
+import com.android.jack.experimental.incremental.CompilerStateWriter;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.SourceInfo;
@@ -120,6 +121,7 @@ import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.config.ThreadConfig;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -2768,9 +2770,24 @@ public class GwtAstBuilder {
 
     private JExpression resolveNameReference(NameReference x, BlockScope scope) {
       SourceInfo info = makeSourceInfo(x);
+
       if (x.constant != Constant.NotAConstant) {
+        if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
+          CompilerStateMarker csm = session.getMarker(CompilerStateMarker.class);
+          if (csm == null) {
+            csm = new CompilerStateMarker();
+            session.addMarker(csm);
+          }
+          if (x.binding instanceof FieldBinding) {
+            FieldBinding b = ((FieldBinding) x.binding).original();
+            JField field = getTypeMap().get(b);
+            csm.addCstUsage(info.getFileName(), field.getSourceInfo().getFileName());
+          }
+        }
+
         return getConstant(info, x.constant);
       }
+
       Binding binding = x.binding;
       JExpression result = null;
       if (binding instanceof LocalVariableBinding) {
@@ -3182,10 +3199,14 @@ public class GwtAstBuilder {
   @Nonnull
   private final LookupEnvironment lookupEnvironment;
 
+  @Nonnull
+  private final JSession session;
+
   public GwtAstBuilder(@Nonnull LookupEnvironment lookupEnvironment,
       @Nonnull JSession session) {
     this.lookupEnvironment = lookupEnvironment;
     typeMap = new ReferenceMapper(session.getLookup(), lookupEnvironment);
+    this.session = session;
   }
 
   /**

@@ -50,6 +50,9 @@ import com.android.jack.backend.jayce.JayceSingleTypeWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.experimental.incremental.CompilerStateProduct;
+import com.android.jack.experimental.incremental.CompilerStateWriter;
+import com.android.jack.experimental.incremental.UsageFinder;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.frontend.MethodIdDuplicateRemover;
 import com.android.jack.frontend.MethodIdMerger;
@@ -401,6 +404,9 @@ public abstract class Jack {
             request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
             request.addProduction(JackFormatProduct.class);
           }
+          if (ThreadConfig.get(CompilerStateWriter.GENERATE_COMPILER_STATE).booleanValue()) {
+            request.addProduction(CompilerStateProduct.class);
+          }
         }
 
         if (options.jayceOutDir != null || options.jayceOutZip != null) {
@@ -738,7 +744,13 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
       {
+
+        if (productions.contains(CompilerStateProduct.class)) {
+          typePlan.append(UsageFinder.class);
+        }
+
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
         }
@@ -887,6 +899,11 @@ public abstract class Jack {
         methodPlan.append(NumericConversionChecker.class);
       }
     }
+
+    if (productions.contains(CompilerStateProduct.class)) {
+      planBuilder.append(CompilerStateWriter.class);
+    }
+
     if (features.contains(Obfuscation.class)) {
       appendObfuscationPlan(planBuilder);
     } else {

@@ -77,7 +77,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-
 /**
  * Jack command line options Bean
  */
