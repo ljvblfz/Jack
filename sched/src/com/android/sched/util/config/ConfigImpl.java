@@ -112,17 +112,6 @@ class ConfigImpl implements Config, InternalConfig {
     return instance;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  @Nonnull
-  public <T, S> T get(@Nonnull KeyId<T, S> keyId) {
-    if (keyId instanceof PropertyId) {
-      return get((PropertyId<T>) keyId);
-    } else {
-      return get((ObjectId<T>) keyId);
-    }
-  }
-
   @Override
   @Nonnull
   public Collection<PropertyId<?>> getPropertyIds() {

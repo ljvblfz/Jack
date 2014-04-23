@@ -16,7 +16,6 @@
 
 package com.android.sched.util.config;
 
-import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 
@@ -32,8 +31,6 @@ public interface Config {
   public <T> T get(@Nonnull PropertyId<T> propertyId);
   @Nonnull
   public <T> T get(@Nonnull ObjectId<T> objectId);
-  @Nonnull
-  public <T, S> T get(@Nonnull KeyId<T, S> keyId);
   @Nonnull
   public <T> String getAsString(@Nonnull PropertyId<T> propertyId);
   @Nonnull
