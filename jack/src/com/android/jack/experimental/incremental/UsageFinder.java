@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -98,8 +99,11 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
 
     @Override
     public boolean visit(@Nonnull JMethod jmethod) {
-      for (JClass exception : jmethod.getThrownExceptions()) {
-        addCodeUsage(exception);
+      ThrownExceptionMarker marker = jmethod.getMarker(ThrownExceptionMarker.class);
+      if (marker != null) {
+        for (JClass exception : marker.getThrownExceptions()) {
+          addCodeUsage(exception);
+        }
       }
       return super.visit(jmethod);
     }
