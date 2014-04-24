@@ -45,6 +45,7 @@ import com.android.jack.dx.rop.code.RopMethod;
 import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstInteger;
+import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.ssa.Optimizer;
 import com.android.jack.dx.util.IntList;
@@ -68,6 +69,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -395,8 +397,13 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private static TypeList createThrows(@Nonnull JMethod method) {
-    List<JClass> thrownExceptions = method.getThrownExceptions();
-    return RopHelper.createTypeList(thrownExceptions);
+    List<JClass> thrownExceptions;
+    ThrownExceptionMarker marker = method.getMarker(ThrownExceptionMarker.class);
+    if (marker != null) {
+      return RopHelper.createTypeList(marker.getThrownExceptions());
+    } else {
+      return StdTypeList.EMPTY;
+    }
   }
 
   private int getParameterSize(@Nonnull JMethod method) {

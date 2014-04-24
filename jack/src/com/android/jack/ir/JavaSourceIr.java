@@ -133,6 +133,7 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.marker.OriginalTypeInfo;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
@@ -283,6 +284,7 @@ import com.android.sched.item.Name;
     MultiDimensionNewArray.class,
     OriginalTypeInfo.class,
     ThisRefTypeInfo.class,
+    ThrownExceptionMarker.class,
     UselessSwitches.class})
 public class JavaSourceIr implements AbstractComponent {
 }

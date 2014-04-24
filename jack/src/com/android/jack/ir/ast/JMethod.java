@@ -52,8 +52,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private final List<JParameter> params = new ArrayList<JParameter>();
   @Nonnull
   private final JType returnType;
-  @Nonnull
-  private final List<JClass> thrownExceptions = new ArrayList<JClass>();
 
   @Nonnull
   private final AnnotationSet annotations = new AnnotationSet();
@@ -120,14 +118,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     params.add(parameter);
   }
 
-  public void addThrownException(JClass exceptionType) {
-    thrownExceptions.add(exceptionType);
-  }
-
-  public void addThrownExceptions(List<JClass> exceptionTypes) {
-    thrownExceptions.addAll(exceptionTypes);
-  }
-
   /**
    * Returns true if this method can participate in virtual dispatch. Returns
    * true for non-private instance methods; false for static methods, private
@@ -161,11 +151,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   public List<JParameter> getParams() {
     return params;
-  }
-
-  @Nonnull
-  public List<JClass> getThrownExceptions() {
-    return thrownExceptions;
   }
 
   @Nonnull

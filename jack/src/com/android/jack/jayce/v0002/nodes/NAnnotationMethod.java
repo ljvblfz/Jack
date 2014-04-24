@@ -51,7 +51,6 @@ public class NAnnotationMethod extends NMethod {
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAnnotationMethod jAnnotationMethod = (JAnnotationMethod) node;
     assert jAnnotationMethod.getBody() == null;
-    assert jAnnotationMethod.getThrownExceptions().isEmpty();
     assert jAnnotationMethod.getParams().isEmpty();
     name = jAnnotationMethod.getName();
     returnType = ImportHelper.getSignatureName(jAnnotationMethod.getType());

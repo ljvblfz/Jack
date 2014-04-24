@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.formatter.TypeFormatter;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -147,14 +148,17 @@ class JAstBinaryMethod implements IBinaryMethod {
   @Override
   public char[][] getExceptionTypeNames() {
     char[][] exceptionsBinaryNames = NO_EXCEPTION;
-    List<JClass> throwns = jMethod.getThrownExceptions();
-    if (throwns.size() != 0) {
-      exceptionsBinaryNames = new char[throwns.size()][];
-    }
-    int argIndex = 0;
-    TypeFormatter formatter = LoaderUtils.getQualifiedNameFormatter();
-    for (JClass thrown : throwns) {
-      exceptionsBinaryNames[argIndex++] = formatter.getName(thrown).toCharArray();
+    ThrownExceptionMarker marker = jMethod.getMarker(ThrownExceptionMarker.class);
+    if (marker != null) {
+      List<JClass> throwns = marker.getThrownExceptions();
+      if (throwns.size() != 0) {
+        exceptionsBinaryNames = new char[throwns.size()][];
+      }
+      int argIndex = 0;
+      TypeFormatter formatter = LoaderUtils.getQualifiedNameFormatter();
+      for (JClass thrown : throwns) {
+        exceptionsBinaryNames[argIndex++] = formatter.getName(thrown).toCharArray();
+      }
     }
     return exceptionsBinaryNames;
   }

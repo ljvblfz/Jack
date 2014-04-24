@@ -59,8 +59,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public List<NParameter> parameters = Collections.emptyList();
   @CheckForNull
   public MethodKind methodKind;
-  @Nonnull
-  public List<String> thrownExceptions = Collections.emptyList();
 
   public int modifier;
   @Nonnull
@@ -89,7 +87,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     returnType = ImportHelper.getSignatureName(jMethod.getType());
     parameters = loader.load(NParameter.class, jMethod.getParams());
     methodKind = jMethod.getMethodId().getKind();
-    thrownExceptions = ImportHelper.getSignatureNameList(jMethod.getThrownExceptions());
     modifier = jMethod.getModifier();
     annotations = loader.load(NAnnotationLiteral.class, jMethod.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jMethod.getBody());
@@ -123,9 +120,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       JParameter jParam = parameter.exportAsJast(exportSession);
       jMethod.addParam(jParam);
       id.addParam(jParam.getType());
-    }
-    for (String exceptionName : thrownExceptions) {
-      jMethod.addThrownException(exportSession.getLookup().getClass(exceptionName));
     }
     for (NAnnotationLiteral annotationLiteral : annotations) {
       jMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
@@ -170,7 +164,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     out.writeId(returnType);
     out.writeNodes(parameters);
     out.writeMethodKindEnum(methodKind);
-    out.writeIds(thrownExceptions);
     out.writeInt(modifier);
     out.writeNodes(annotations);
     out.writeNode(body);
@@ -184,7 +177,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     returnType = in.readId();
     parameters = in.readNodes(NParameter.class);
     methodKind = in.readMethodKindEnum();
-    thrownExceptions = in.readIds();
     modifier = in.readInt();
     annotations = in.readNodes(NAnnotationLiteral.class);
     body = in.readNode(NAbstractMethodBody.class);
