@@ -53,7 +53,6 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAssertStatement;
-import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConditionalOperation;
@@ -397,7 +396,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private static TypeList createThrows(@Nonnull JMethod method) {
-    List<JClass> thrownExceptions;
     ThrownExceptionMarker marker = method.getMarker(ThrownExceptionMarker.class);
     if (marker != null) {
       return RopHelper.createTypeList(marker.getThrownExceptions());
