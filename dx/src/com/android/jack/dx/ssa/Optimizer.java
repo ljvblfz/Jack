@@ -34,7 +34,7 @@ public class Optimizer {
 
   /** optional optimizer steps */
   public enum OptionalStep {
-    MOVE_PARAM_COMBINER, SCCP, LITERAL_UPGRADE, CONST_COLLECTOR, ESCAPE_ANALYSIS
+    SCCP, LITERAL_UPGRADE, CONST_COLLECTOR, ESCAPE_ANALYSIS
   }
 
   /**
@@ -151,10 +151,6 @@ public class Optimizer {
 
   private static void runSsaFormSteps(SsaMethod ssaMeth, EnumSet<OptionalStep> steps) {
     boolean needsDeadCodeRemover = true;
-
-    if (steps.contains(OptionalStep.MOVE_PARAM_COMBINER)) {
-      MoveParamCombiner.process(ssaMeth);
-    }
 
     if (steps.contains(OptionalStep.SCCP)) {
       SCCP.process(ssaMeth);
