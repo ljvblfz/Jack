@@ -446,8 +446,6 @@ public class Options {
           flags.keepAttribute("Exceptions"));
       configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_MEMBER_CLASSES,
           flags.keepAttribute("InnerClasses"));
-      configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_ENCLOSING_METHOD,
-          flags.keepAttribute("EnclosingMethod"));
       configBuilder.set(DefaultValueAnnotationAdder.EMIT_ANNOTATION_DEFAULT,
           flags.keepAttribute("AnnotationDefault"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,

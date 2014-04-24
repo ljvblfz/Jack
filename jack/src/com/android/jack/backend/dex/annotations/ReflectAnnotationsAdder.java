@@ -144,9 +144,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
           addMemberClasses(x);
         }
         if (isLocal) {
-          if (addAnnotationEnclosingMethod) {
-            addEnclosingMethod(x);
-          }
+          addEnclosingMethod(x);
         } else {
           addEnclosingClass(x);
         }
@@ -386,11 +384,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_ANNOTATION_ENCLOSING_METHOD = BooleanPropertyId.create(
-      "jack.annotation.enclosingmethod", "Emit annotation enclosing method")
-      .addDefaultValue(Boolean.TRUE);
-
-  @Nonnull
   public static final BooleanPropertyId EMIT_ANNOTATION_THROWS = BooleanPropertyId.create(
       "jack.annotation.throws", "Emit annotation throws").addDefaultValue(Boolean.TRUE);
 
@@ -407,9 +400,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
   private final boolean addAnnotationSignature =
       ThreadConfig.get(EMIT_ANNOTATION_SIG).booleanValue();
-
-  private final boolean addAnnotationEnclosingMethod =
-      ThreadConfig.get(EMIT_ANNOTATION_ENCLOSING_METHOD).booleanValue();
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
