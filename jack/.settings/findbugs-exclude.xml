@@ -7,6 +7,10 @@
     <Class name="com.android.jack.shrob.shrink.Tracer"/>
     <Bug code="EC"/>
 </Match>
+<Match>
+    <Class name="com.android.jack.shrob.obfuscation.annotation.RemoveThrownException"/>
+    <Bug code="Nm"/>
+</Match>
 <!-- Ignore Antlr generated files -->
 <Match>
     <Class name="~com\.android\.jack\.shrob\.proguard\.ProguardLexer.*"/>

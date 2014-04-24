@@ -17,7 +17,6 @@
 package com.android.jack;
 
 import com.android.jack.backend.dex.FieldInitializerRemover;
-import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.ir.ast.JMethod;
@@ -449,8 +448,6 @@ public class Options {
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
-      configBuilder.set(ReflectAnnotationsAdder.EMIT_ANNOTATION_THROWS,
-          flags.keepAttribute("Exceptions"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
           flags.keepAttribute("RuntimeInvisibleAnnotations"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,

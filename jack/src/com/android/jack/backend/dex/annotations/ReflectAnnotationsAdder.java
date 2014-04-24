@@ -60,8 +60,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.With;
 import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +81,7 @@ import javax.annotation.Nonnull;
     unprotect = @With(remove = ReflectAnnotations.class))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private class Visitor extends JVisitor {
+  private static class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest request;
@@ -167,9 +165,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     @Override
     public void endVisit(@Nonnull JMethod x) {
-      if (addAnnotationThrows) {
-        addThrows(x);
-      }
+      addThrows(x);
       GenericSignature marker = x.getMarker(GenericSignature.class);
       if (marker != null) {
         String genericSignature = marker.getGenericSignature();
@@ -373,18 +369,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       return new JArrayLiteral(info, pieces);
     }
   }
-
-  @Nonnull
-  public static final BooleanPropertyId EMIT_ANNOTATION_SIG = BooleanPropertyId.create(
-      "jack.annotation.signature", "Emit annotation signature")
-      .addDefaultValue(Boolean.TRUE);
-
-  @Nonnull
-  public static final BooleanPropertyId EMIT_ANNOTATION_THROWS = BooleanPropertyId.create(
-      "jack.annotation.throws", "Emit annotation throws").addDefaultValue(Boolean.TRUE);
-
-  private final boolean addAnnotationThrows =
-      ThreadConfig.get(EMIT_ANNOTATION_THROWS).booleanValue();
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {

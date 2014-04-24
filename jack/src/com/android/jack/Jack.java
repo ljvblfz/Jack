@@ -119,6 +119,8 @@ import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
+import com.android.jack.shrob.obfuscation.annotation.ThrownExceptionRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingTypeRemover;
@@ -427,6 +429,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
             request.addFeature(RemoveLocalVariableGenericSignature.class);
+          }
+          if (!options.flags.keepAttribute("Exceptions")) {
+            request.addFeature(RemoveThrownException.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1308,6 +1313,9 @@ public abstract class Jack {
         }
         if (features.contains(RemoveAnnotationDefaultValue.class)) {
           methodPlan.append(AnnotationDefaultValueRemover.class);
+        }
+        if (features.contains(RemoveThrownException.class)) {
+          methodPlan.append(ThrownExceptionRemover.class);
         }
       }
     }
