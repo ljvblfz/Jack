@@ -117,12 +117,12 @@ class JAstBuilder extends JavaParser {
       try {
         super.process(unit, i);
 
-        loadLocalClasses(unit);
-
-        if (unit.hasErrors()) {
+        if (unit.hasErrors() || unit.compilationResult().hasErrors()) {
           // An error has already been detected, don't even try to handle the unit.
           return;
         }
+
+        loadLocalClasses(unit);
 
         // Generate GWT IR after each compilation of CompilationUnitDeclaration.
         // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
