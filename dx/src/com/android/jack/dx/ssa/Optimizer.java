@@ -34,7 +34,7 @@ public class Optimizer {
 
   /** optional optimizer steps */
   public enum OptionalStep {
-    SCCP, LITERAL_UPGRADE, CONST_COLLECTOR, ESCAPE_ANALYSIS
+    SCCP, LITERAL_UPGRADE, CONST_COLLECTOR
   }
 
   /**
@@ -160,16 +160,6 @@ public class Optimizer {
 
     if (steps.contains(OptionalStep.LITERAL_UPGRADE)) {
       LiteralOpUpgrader.process(ssaMeth);
-      DeadCodeRemover.process(ssaMeth);
-      needsDeadCodeRemover = false;
-    }
-
-    /*
-     * ESCAPE_ANALYSIS impacts debuggability, so left off by default
-     */
-    steps.remove(OptionalStep.ESCAPE_ANALYSIS);
-    if (steps.contains(OptionalStep.ESCAPE_ANALYSIS)) {
-      EscapeAnalysis.process(ssaMeth);
       DeadCodeRemover.process(ssaMeth);
       needsDeadCodeRemover = false;
     }
