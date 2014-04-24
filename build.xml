@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2014 The Android Open Source Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="jack" default="dist">
+
+  <target name="dist" depends="dexcomparator-lib,jack,jackunittests-lib,jack-tests,dx-lib,
+    sched-lib,schedtests-lib"/>
+
+  <target name="clean" depends="jack-clean,
+    jackunittests-lib-clean,
+    jack-tests-clean,
+    antlr-clean,
+    args4j-lib-clean,
+    dx-lib-clean,
+    ecj-clean,
+    freemarker-lib-clean,
+    guava-lib-clean,
+    jsr305-lib-clean,
+    maths-lib-clean,
+    sched-lib-clean,
+    sched-build-lib-clean,
+    sched-build-clean,
+    schedtests-lib-clean,
+    watchmaker-lib-clean,
+    antlr-rt-lib-clean,
+    allocation-lib-clean,
+    junit4-lib-clean,
+    junit4-clean,
+    hamcrest-core-lib-clean,
+    dexcomparator-lib-clean,
+    dex-lib-clean,
+    dx-ref-lib-clean" />
+
+  <property name="jack.dir" value="jack" />
+  <property name="jack-tests.dir" value="jack-tests" />
+  <property name="antlr.dir"  value="antlr"/>
+  <property name="args4j.dir" value="args4j"/>
+  <property name="dx.dir" value="dx"/>
+  <property name="ecj.dir" value="ecj"/>
+  <property name="freemarker.dir" value="freemarker"/>
+  <property name="guava.dir" value="guava"/>
+  <property name="jsr305.dir" value="jsr305"/>
+  <property name="maths.dir" value="maths"/>
+  <property name="sched.dir" value="sched"/>
+  <property name="watchmaker.dir" value="watchmaker"/>
+  <property name="antlr-rt.dir" value="antlr-runtime"/>
+  <property name="allocation.dir" value="java-allocation-instrumenter"/>
+  <property name="junit4.dir" value="junit4"/>
+  <property name="hamcrest-core.dir" value="hamcrest-core"/>
+  <property name="dexcomparator.dir" value="dexcomparator"/>
+  <property name="dexlib.dir" value="dexlib"/>
+  <property name="tools.dir" value="tools"/>
+  <property name="dx-ref.dir" value="dx-ref"/>
+
+
+  <!-- ******************* -->
+  <!-- Jack-lib            -->
+  <!-- ******************* -->
+  <property name="jack.base.version.name" value="0.1" />
+  <property name="jack.base.version.code" value="001" />
+
+  <property name="jack.build.dir" value="${jack.dir}/build/jack-lib" />
+  <property name="jack.libs.dir" value="${jack.dir}/libs" />
+  <property name="jack.build.outdir" value="${jack.build.dir}/classes" />
+  <property name="jack.tools.dir" value="${jack.dir}/tools" />
+  <property name="jack.dist.dir" value="${jack.dir}/dist" />
+  <property name="jack.libname" value="jack-lib.jar" />
+
+  <target name="jack-clean">
+    <delete dir="${jack.build.dir}"/>
+    <delete dir="${jack.libs.dir}"/>
+    <delete dir="${jack.tools.dir}"/>
+    <delete dir="${jack.dist.dir}"/>
+  </target>
+
+  <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
+    junit4,dex-lib,dx-ref-lib">
+    <copy todir="${jack.libs.dir}" flatten="true">
+      <filelist dir="." >
+        <file name="${ecj.dist.dir}/${ecj.libname}"/>
+        <file name="${guava.dist.dir}/${guava.libname}"/>
+        <file name="${dx.dist.dir}/${dx.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+        <file name="${antlr-rt.dist.dir}/${antlr-rt.libname}"/>
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${junit4.dist.dir}/${junit4.execname}"/>
+        <file name="${dexlib.dist.dir}/${dexlib.libname}"/>
+        <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jack-lib-compile"
+    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,antlr-rt-lib,
+    args4j-lib,dx-lib,ecj,freemarker-lib,guava-lib,jsr305-lib,maths-lib,sched-lib,watchmaker-lib">
+    <!-- project layout -->
+    <mkdir dir="${jack.build.outdir}"/>
+    <mkdir dir="${jack.libs.dir}"/>
+    <mkdir dir="${jack.dist.dir}"/>
+    <mkdir dir="${jack.tools.dir}"/>
+    <!-- fetch dependencies -->
+    <filelist id="jack.link.libs.fileset" dir=".">
+      <file name="${sched-build.dist.dir}/${sched-build.libname}" />
+      <file name="${allocation.dist.dir}/${allocation.libname}" />
+    </filelist>
+    <filelist id="jack.static.libs.fileset" dir=".">
+      <file name="${ecj.dist.dir}/${ecj.libname}" />
+      <file name="${guava.dist.dir}/${guava.libname}" />
+      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+      <file name="${dx.dist.dir}/${dx.libname}" />
+      <file name="${args4j.dist.dir}/${args4j.libname}" />
+      <file name="${antlr-rt.dist.dir}/${antlr-rt.libname}" />
+      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
+      <file name="${freemarker.dist.dir}/${freemarker.libname}" />
+      <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
+      <file name="${maths.dist.dir}/${maths.libname}" />
+    </filelist>
+    <copy todir="${jack.tools.dir}" flatten="true">
+      <filelist dir="." >
+        <file name="${sched-build.dist.dir}/${sched-build.execname}" />
+        <file name="${antlr.dist.dir}/${antlr.execname}" />
+      </filelist>
+    </copy>
+    <!-- generate parser -->
+    <java jar="${jack.tools.dir}/${antlr.execname}" fork="true">
+      <arg line="-fo" />
+      <arg line="${jack.dir}/src/com/android/jack/shrob/proguard"/>
+      <arg line="${jack.dir}/src/com/android/jack/shrob/proguard/Proguard.g"/>
+    </java>
+    <!-- compile -->
+    <javac srcdir="${jack.dir}/src"
+      destdir="${jack.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="jack.link.libs.fileset" />
+        <filelist refid="jack.static.libs.fileset" />
+      </classpath>
+      <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
+    </javac>
+  </target>
+
+  <target name="jack-lib" depends="jack-lib-compile">
+    <!-- package -->
+    <copy todir="${jack.build.outdir}">
+      <fileset dir="${jack.dir}/rsc" includes="**"/>
+    </copy>
+    <jar destfile="${jack.dist.dir}/${jack.libname}"
+      basedir="${jack.build.outdir}" includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jack                -->
+  <!-- ******************* -->
+  <property name="jack.exec.build.dir" value="${jack.dir}/build/jack"/>
+  <property name="jack.exec.build.outdir" value="${jack.exec.build.dir}/classes"/>
+  <property name="jack.execname" value="jack.jar"/>
+
+  <target name="jack" depends="jack-lib-compile">
+    <copy todir="${jack.exec.build.outdir}">
+      <fileset dir="${jack.build.outdir}" includes="**/*.class" />
+    </copy>
+    <!-- generate jack.properties -->
+    <property environment="env"/>
+    <property name="jack.version.name.tag" value="eng.${env.USER}"/>
+    <echo message="${jack.base.version.name}.${jack.base.version.code}.${jack.version.name.tag}"
+           file="${jack.build.outdir}/jack.properties"/>
+    <!-- package -->
+    <copy todir="${jack.exec.build.outdir}">
+      <fileset dir="${jack.dir}/rsc" includes="**"/>
+    </copy>
+    <jar destfile="${jack.exec.build.dir}/${jack.execname}"
+       manifest="${jack.dir}/etc/manifest.txt" basedir="${jack.exec.build.outdir}" includes="**"/>
+    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
+    <!-- add sched support -->
+    <java jar="${jack.tools.dir}/${sched-build.execname}" fork="true">
+      <arg value="${jack.exec.build.dir}/${jack.execname}" />
+      <arg line="${jack.static.libs.list}" />
+      <arg value="${jack.dist.dir}/${jack.execname}" />
+    </java>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jackunittests-lib   -->
+  <!-- ******************* -->
+  <property name="jackunittests.build.dir" value="${jack.dir}/build/jackunittests" />
+  <property name="jackunittests.libs.dir" value="${jack.dir}/libs" />
+  <property name="jackunittests.build.outdir" value="${jackunittests.build.dir}/classes" />
+  <property name="jackunittests.dist.dir" value="${jack.dir}/dist" />
+  <property name="jackunittests.tools.dir" value="${jack.dir}/tools" />
+  <property name="jackunittests.libname" value="jackunittests-lib.jar" />
+
+  <target name="jackunittests-lib-clean">
+    <delete dir="${jackunittests.build.dir}" />
+    <delete dir="${jackunittests.libs.dir}" />
+    <delete file="${jackunittests.dist.dir}/${jackunittests.libname}" />
+  </target>
+
+  <target name="jackunittests-lib" depends="jack-copy-libs,jack-lib,junit4-lib,dex-lib,dx-ref-lib,dexcomparator-lib,
+    sched-build,sched-build-lib">
+    <!-- project layout -->
+    <mkdir dir="${jackunittests.build.outdir}" />
+    <mkdir dir="${jackunittests.libs.dir}" />
+    <mkdir dir="${jackunittests.dist.dir}" />
+    <!-- fetch dependencies -->
+    <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
+    <filelist id="jackunittests.link.libs.fileset" dir=".">
+      <file name="${sched-build.dist.dir}/${sched-build.libname}" />
+    </filelist>
+    <filelist id="jackunittests.static.libs.fileset" dir=".">
+      <file name="${jack.dist.dir}/${jack.libname}" />
+      <file name="${junit4.dist.dir}/${junit4.libname}" />
+      <file name="${dexlib.dist.dir}/${dexlib.libname}" />
+      <file name="${dx-ref.dist.dir}/${dx-ref.libname}" />
+      <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
+    </filelist>
+    <!-- compile -->
+    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}" source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="jackunittests.link.libs.fileset"/>
+        <filelist refid="jack.static.libs.fileset"/>
+        <filelist refid="jackunittests.static.libs.fileset"/>
+      </classpath>
+      <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
+    </javac>
+    <!-- package -->
+    <jar destfile="${jackunittests.build.dir}/${jackunittests.libname}"
+      basedir="${jackunittests.build.outdir}" includes="**" />
+    <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
+    <!-- add sched support -->
+    <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true">
+      <arg value="${jackunittests.build.dir}/${jackunittests.libname}" />
+      <arg line="${jackunittests.static.libs.list}" />
+      <arg line="${jack.static.libs.list}" />
+      <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
+    </java>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jack-tests          -->
+  <!-- ******************* -->
+  <property name="jack-tests.libs.dir" value="${jack-tests.dir}/libs" />
+
+  <target name="jack-tests-clean">
+    <delete dir="${jack-tests.libs.dir}" />
+  </target>
+
+  <target name="jack-tests" depends="junit4-lib">
+    <!-- project layout -->
+    <mkdir dir="${jack-tests.libs.dir}" />
+    <!-- fetch dependencies -->
+    <copy file="${junit4.dist.dir}/${junit4.libname}" todir="${jack-tests.libs.dir}" />
+
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- antlr               -->
+  <!-- ******************* -->
+  <property name="antlr.dist.dir" value="${antlr.dir}/dist" />
+  <property name="antlr.execname" value="antlr.jar"/>
+
+  <target name="antlr-clean">
+    <delete dir="${antlr.dist.dir}"/>
+  </target>
+
+  <target name="antlr">
+    <mkdir dir="${antlr.dist.dir}"/>
+    <copy file="${antlr.dir}/antlr-3.4-complete.jar" tofile="${antlr.dist.dir}/${antlr.execname}"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- args4j-lib         -->
+  <!-- ******************* -->
+  <property name="args4j.build.dir" value="${args4j.dir}/build"/>
+  <property name="args4j.build.outdir" value="${args4j.build.dir}/classes"/>
+  <property name="args4j.dist.dir" value="${args4j.dir}/dist"/>
+  <property name="args4j.libname" value="args4j-lib.jar"/>
+
+  <target name="args4j-lib-clean">
+    <delete dir="${args4j.build.dir}"/>
+    <delete dir="${args4j.dist.dir}"/>
+  </target>
+
+  <target name="args4j-lib">
+    <!-- project layout -->
+    <mkdir dir="${args4j.build.outdir}"/>
+    <mkdir dir="${args4j.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${args4j.dir}/args4j/src"
+      destdir="${args4j.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${args4j.dist.dir}/${args4j.libname}"
+      basedir="${args4j.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- dx-lib              -->
+  <!-- ******************* -->
+  <property name="dx.build.dir" value="${dx.dir}/build"/>
+  <property name="dx.libs.dir" value="${dx.dir}/libs"/>
+  <property name="dx.build.outdir" value="${dx.build.dir}/classes"/>
+  <property name="dx.dist.dir" value="${dx.dir}/dist"/>
+  <property name="dx.libname" value="dx-lib.jar"/>
+
+  <target name="dx-lib-clean">
+    <delete dir="${dx.build.dir}" />
+    <delete dir="${dx.libs.dir}" />
+    <delete dir="${dx.dist.dir}" />
+  </target>
+
+  <target name="dx-lib" depends="jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${dx.build.outdir}"/>
+    <mkdir dir="${dx.dist.dir}"/>
+    <!-- fetch dependencies -->
+    <copy file="${jsr305.dist.dir}/${jsr305.libname}" todir="${dx.libs.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${dx.dir}/src"
+      destdir="${dx.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${dx.dist.dir}/${dx.libname}"
+      basedir="${dx.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- ecj                 -->
+  <!-- ******************* -->
+  <property name="ecj.libname" value="ecj.jar"/>
+  <property name="ecj.dist.dir" value="${ecj.dir}/dist"/>
+
+  <target name="ecj-clean">
+    <delete dir="${ecj.dist.dir}"/>
+  </target>
+
+  <target name="ecj">
+    <mkdir dir="${ecj.dist.dir}"/>
+    <copy file="${ecj.dir}/ecj-4.4M5.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- dx-ref-lib          -->
+  <!-- ******************* -->
+  <property name="dx-ref.libname" value="dx-ref.jar" />
+  <property name="dx-ref.dist.dir" value="${dx-ref.dir}/dist" />
+
+  <target name="dx-ref-lib-clean">
+    <delete dir="${dx-ref.dist.dir}" />
+  </target>
+
+  <target name="dx-ref-lib">
+    <mkdir dir="${dx-ref.dist.dir}" />
+    <copy file="${dx-ref.dir}/dx.jar" tofile="${dx-ref.dist.dir}/${dx-ref.libname}" />
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- freemarker-lib          -->
+  <!-- ******************* -->
+  <property name="freemarker.libname" value="freemarker-lib.jar"/>
+  <property name="freemarker.dist.dir" value="${freemarker.dir}/dist"/>
+
+  <target name="freemarker-lib-clean">
+    <delete dir="${freemarker.dist.dir}"/>
+  </target>
+
+  <target name="freemarker-lib">
+    <mkdir dir="${freemarker.dist.dir}"/>
+    <copy file="${freemarker.dir}/freemarker-2.3.19.jar" tofile="${freemarker.dist.dir}/${freemarker.libname}"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- guava-lib           -->
+  <!-- ******************* -->
+  <property name="guava.build.dir" value="${guava.dir}/build"/>
+  <property name="guava.build.outdir" value="${guava.build.dir}/classes"/>
+  <property name="guava.dist.dir" value="${guava.dir}/dist"/>
+  <property name="guava.libname" value="guava-lib.jar"/>
+
+  <target name="guava-lib-clean">
+    <delete dir="${guava.build.dir}"/>
+    <delete dir="${guava.dist.dir}"/>
+  </target>
+
+  <target name="guava-lib" depends="jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${guava.build.outdir}"/>
+    <mkdir dir="${guava.dist.dir}"/>
+    <javac source="1.5" target="1.5"
+      srcdir="${guava.dir}/src"
+      destdir="${guava.build.outdir}"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir=".">
+          <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${guava.dist.dir}/${guava.libname}"
+      basedir="${guava.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jsr305-lib          -->
+  <!-- ******************* -->
+  <property name="jsr305.build.dir" value="${jsr305.dir}/build"/>
+  <property name="jsr305.build.outdir" value="${jsr305.build.dir}/classes"/>
+  <property name="jsr305.dist.dir" value="${jsr305.dir}/dist"/>
+  <property name="jsr305.libname" value="jsr305-lib.jar"/>
+
+  <target name="jsr305-lib-clean">
+    <delete dir="${jsr305.build.dir}"/>
+    <delete dir="${jsr305.dist.dir}"/>
+  </target>
+
+  <target name="jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${jsr305.build.outdir}"/>
+    <mkdir dir="${jsr305.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${jsr305.dir}/ri/src/main/java"
+      destdir="${jsr305.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${jsr305.dist.dir}/${jsr305.libname}"
+        basedir="${jsr305.build.outdir}"
+        includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- maths-lib           -->
+  <!-- ******************* -->
+  <property name="maths.build.dir" value="${maths.dir}/build" />
+  <property name="maths.build.outdir" value="${maths.build.dir}/classes" />
+  <property name="maths.dist.dir" value="${maths.dir}/dist" />
+  <property name="maths.libname" value="maths-lib.jar" />
+
+  <target name="maths-lib-clean">
+    <delete dir="${maths.build.dir}"/>
+    <delete dir="${maths.dist.dir}"/>
+  </target>
+
+  <target name="maths-lib">
+    <!-- project layout -->
+    <mkdir dir="${maths.build.outdir}"/>
+    <mkdir dir="${maths.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${maths.dir}/core/src/java/main"
+    destdir="${maths.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${maths.dist.dir}/${maths.libname}"
+      basedir="${maths.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- sched-lib           -->
+  <!-- ******************* -->
+  <property name="schedlib.build.dir" value="${sched.dir}/build/sched-lib" />
+  <property name="schedlib.libs.dir" value="${sched.dir}/libs" />
+  <property name="schedlib.build.outdir" value="${schedlib.build.dir}/classes" />
+  <property name="schedlib.dist.dir" value="${sched.dir}/dist" />
+  <property name="schedlib.libname" value="sched-lib.jar" />
+
+  <target name="sched-lib-clean">
+    <delete dir="${schedlib.build.dir}" />
+    <delete dir="${schedlib.libs.dir}" />
+    <delete dir="${schedlib.dist.dir}/${schedlib.libname}" />
+  </target>
+
+  <target name="sched-copy-libs" depends="guava-lib,jsr305-lib,allocation-lib,freemarker-lib,
+    watchmaker-lib,maths-lib,junit4">
+    <copy todir="${schedlib.libs.dir}" flatten="true">
+      <filelist dir=".">
+        <file name="${guava.dist.dir}/${guava.libname}" />
+        <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+        <file name="${allocation.dist.dir}/${allocation.libname}" />
+        <file name="${freemarker.dist.dir}/${freemarker.libname}" />
+        <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
+        <file name="${maths.dist.dir}/${maths.libname}" />
+        <file name="${junit4.dist.dir}/${junit4.execname}" />
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="sched-lib" depends="sched-copy-libs,sched-build-lib,guava-lib,jsr305-lib,
+    allocation-lib,freemarker-lib,watchmaker-lib,maths-lib">
+    <!-- project layout -->
+    <mkdir dir="${schedlib.build.outdir}"/>
+    <mkdir dir="${schedlib.libs.dir}"/>
+    <mkdir dir="${schedlib.dist.dir}"/>
+    <filelist id="schedlib.link.libs.fileset" dir=".">
+      <file name="${sched-build.dist.dir}/${sched-build.libname}" />
+      <file name="${guava.dist.dir}/${guava.libname}" />
+      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+      <file name="${allocation.dist.dir}/${allocation.libname}" />
+      <file name="${freemarker.dist.dir}/${freemarker.libname}" />
+      <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
+      <file name="${maths.dist.dir}/${maths.libname}" />
+    </filelist>
+
+    <!-- compile -->
+    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}" source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="schedlib.link.libs.fileset"/>
+      </classpath>
+      <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
+    </javac>
+    <!-- package -->
+    <copy todir="${schedlib.build.outdir}" >
+      <fileset dir="${sched.dir}/rsc">
+        <include name="**"/>
+      </fileset>
+    </copy>
+    <jar destfile="${schedlib.dist.dir}/${schedlib.libname}"
+      basedir="${schedlib.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- sched-build-lib     -->
+  <!-- ******************* -->
+  <property name="sched-build.build.dir" value="${sched.dir}/build/sched-build-lib" />
+  <property name="sched-build.libs.dir" value="${sched.dir}/libs" />
+  <property name="sched-build.build.outdir" value="${sched-build.build.dir}/classes" />
+  <property name="sched-build.dist.dir" value="${sched.dir}/dist" />
+  <property name="sched-build.libname" value="sched-build-lib.jar" />
+
+  <target name="sched-build-lib-clean">
+    <delete dir="${sched-build.build.dir}" />
+    <delete dir="${sched-build.libs.dir}" />
+    <delete dir="${sched-build.dist.dir}/${sched-build.libname}" />
+  </target>
+
+  <target name="sched-build-lib-compile" depends="sched-copy-libs,jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${sched-build.build.outdir}"/>
+    <mkdir dir="${sched-build.libs.dir}"/>
+    <mkdir dir="${sched-build.dist.dir}"/>
+    <!-- compile -->
+    <javac
+       srcdir="${sched.dir}/src"
+       destdir="${sched-build.build.outdir}"
+       source="1.5" target="1.5"
+       createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <fileset dir="${sched-build.libs.dir}">
+          <include name="**/*.jar" />
+        </fileset>
+      </classpath>
+      <include name="com/android/sched/build/SchedAnnotationProcessor.java" />
+      <include name="com/android/sched/build/JarMerger.java"/>
+    </javac>
+  </target>
+
+  <target name="sched-build-lib" depends="sched-build-lib-compile">
+    <!-- package -->
+    <copy todir="${sched-build.build.outdir}">
+      <fileset dir="${sched.dir}/rsc-ap">
+        <include name="**" />
+      </fileset>
+    </copy>
+    <jar destfile="${sched-build.dist.dir}/${sched-build.libname}"
+      basedir="${sched-build.build.outdir}" includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- sched-build        -->
+  <!-- ******************* -->
+  <property name="sched-build.execname" value="sched-build.jar" />
+  <property name="sched-build.exec.build.dir" value="${sched.dir}/build/sched-build" />
+  <property name="sched-build.exec.build.outdir" value="${sched-build.exec.build.dir}/classes" />
+
+  <target name="sched-build-clean" depends="sched-build-lib-clean">
+    <delete dir="${sched-build.exec.build.dir}" />
+    <delete dir="${sched-build.dist.dir}/${sched-build.execname}" />
+    <delete file="${sched.dir}/tools/${sched-build.execname}" />
+  </target>
+
+  <target name="sched-build" depends="sched-build-lib-compile">
+    <!-- package -->
+    <copy todir="${sched-build.exec.build.outdir}">
+      <fileset dir="${sched-build.build.outdir}" includes="**/*.class" />
+    </copy>
+    <copy todir="${sched-build.exec.build.outdir}">
+      <fileset dir="${sched.dir}/rsc-ap">
+        <include name="**" />
+      </fileset>
+    </copy>
+    <jar destfile="${sched-build.dist.dir}/${sched-build.execname}"
+      basedir="${sched-build.exec.build.outdir}" includes="**" manifest="${sched.dir}/etc/manifest.txt" />
+    <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${sched.dir}/tools"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- schedtests-lib      -->
+  <!-- ******************* -->
+  <property name="schedtests.build.dir" value="${sched.dir}/build/schedtests" />
+  <property name="schedtests.build.outdir" value="${schedtests.build.dir}/classes" />
+  <property name="schedtests.dist.dir" value="${sched.dir}/dist" />
+  <property name="schedtests.libname" value="schedtests-lib.jar" />
+
+  <target name="schedtests-lib-clean">
+    <delete dir="${schedtests.build.dir}" />
+    <delete dir="${schedtests.dist.dir}" />
+  </target>
+
+  <target name="schedtests-lib" depends="sched-copy-libs,sched-lib,guava-lib,jsr305-lib,junit4-lib">
+    <!-- project layout -->
+    <mkdir dir="${schedtests.build.outdir}" />
+    <mkdir dir="${schedtests.dist.dir}" />
+    <filelist id="schedtests.link.libs.fileset" dir=".">
+      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
+      <file name="${guava.dist.dir}/${guava.libname}" />
+      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+      <file name="${junit4.dist.dir}/${junit4.libname}" />
+    </filelist>
+    <!-- compile -->
+    <javac srcdir="${sched.dir}/tests"
+      destdir="${schedtests.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="schedtests.link.libs.fileset"/>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${schedtests.dist.dir}/${schedtests.libname}"
+      basedir="${schedtests.build.outdir}" includes="**" />
+  </target>
+
+
+
+  <!-- ******************* -->
+  <!-- watchmaker-lib     -->
+  <!-- ******************* -->
+  <property name="watchmaker.build.dir" value="${watchmaker.dir}/build"/>
+  <property name="watchmaker.libs.dir" value="${watchmaker.dir}/libs"/>
+  <property name="watchmaker.build.outdir" value="${watchmaker.build.dir}/classes"/>
+  <property name="watchmaker.dist.dir" value="${watchmaker.dir}/dist" />
+  <property name="watchmaker.libname" value="watchmaker-lib.jar"/>
+
+  <target name="watchmaker-lib-clean">
+    <delete dir="${watchmaker.build.dir}"/>
+    <delete dir="${watchmaker.dist.dir}"/>
+  </target>
+
+  <target name="watchmaker-lib" depends="maths-lib,guava-lib">
+    <!-- project layout -->
+    <mkdir dir="${watchmaker.build.outdir}"/>
+    <mkdir dir="${watchmaker.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${watchmaker.dir}/framework/src/java/main"
+      destdir="${watchmaker.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir=".">
+          <file name="${maths.dist.dir}/${maths.libname}" />
+          <file name="${guava.dist.dir}/${guava.libname}" />
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${watchmaker.dist.dir}/${watchmaker.libname}"
+      basedir="${watchmaker.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- antlr-runtime-lib   -->
+  <!-- ******************* -->
+  <property name="antlr-rt.build.dir" value="${antlr-rt.dir}/build" />
+  <property name="antlr-rt.build.outdir" value="${antlr-rt.build.dir}/classes" />
+  <property name="antlr-rt.dist.dir" value="${antlr-rt.dir}/dist" />
+  <property name="antlr-rt.libname" value="antlr-runtime-lib.jar" />
+
+  <target name="antlr-rt-lib-clean">
+    <delete dir="${antlr-rt.build.dir}" />
+    <delete dir="${antlr-rt.dist.dir}" />
+  </target>
+
+  <target name="antlr-rt-lib">
+    <!-- project layout -->
+    <mkdir dir="${antlr-rt.build.outdir}"/>
+    <mkdir dir="${antlr-rt.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java"
+      destdir="${antlr-rt.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <exclude name="org/antlr/runtime/tree/DOTTreeGenerator.java" />
+    </javac>
+    <!-- package -->
+    <jar destfile="${antlr-rt.dist.dir}/${antlr-rt.libname}"
+      basedir="${antlr-rt.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- allocation-lib      -->
+  <!-- ******************* -->
+  <property name="allocation.build.dir" value="${allocation.dir}/build" />
+  <property name="allocation.build.outdir" value="${allocation.build.dir}/classes" />
+  <property name="allocation.dist.dir" value="${allocation.dir}/dist" />
+  <property name="allocation.libname" value="allocation-lib.jar" />
+
+  <target name="allocation-lib-clean">
+    <delete dir="${allocation.build.dir}" />
+    <delete dir="${allocation.dist.dir}" />
+  </target>
+
+  <target name="allocation-lib" depends="guava-lib">
+    <!-- project layout -->
+    <mkdir dir="${allocation.build.outdir}"/>
+    <mkdir dir="${allocation.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${allocation.dir}/src/main/java"
+      destdir="${allocation.build.outdir}"
+      source="1.5" target="1.5"
+      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir=".">
+          <file name="${guava.dist.dir}/${guava.libname}" />
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${allocation.dist.dir}/${allocation.libname}"
+      basedir="${allocation.build.outdir}"
+      includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- junit4-lib           -->
+  <!-- ******************* -->
+  <property name="junit4.build.dir" value="${junit4.dir}/build/junit4-lib" />
+  <property name="junit4.build.outdir" value="${junit4.build.dir}/classes" />
+  <property name="junit4.dist.dir" value="${junit4.dir}/dist" />
+  <property name="junit4.libname" value="junit4-lib.jar" />
+
+  <target name="junit4-lib-clean">
+    <delete dir="${junit4.build.dir}" />
+    <delete file="${junit4.dist.dir}/${junit4.libname}" />
+  </target>
+
+  <target name="junit4-lib-compile" depends="hamcrest-core-lib">
+    <!-- project layout -->
+    <mkdir dir="${junit4.build.outdir}"/>
+    <mkdir dir="${junit4.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${junit4.dir}/src/main/java"
+        destdir="${junit4.build.outdir}"
+        source="1.5" target="1.5"
+        createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir=".">
+          <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
+        </filelist>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="junit4-lib" depends="junit4-lib-compile">
+    <!-- package -->
+    <jar destfile="${junit4.dist.dir}/${junit4.libname}"
+        basedir="${junit4.build.outdir}"
+        includes="**"/>
+  </target>
+
+  <!-- ******************* -->
+  <!-- junit4              -->
+  <!-- ******************* -->
+  <property name="junit4.execname" value="junit4.jar" />
+  <property name="junit4.exec.build.dir" value="${junit4.dir}/build/junit4" />
+  <property name="junit4.exec.build.outdir" value="${junit4.exec.build.dir}/classes" />
+
+  <target name="junit4-clean" depends="junit4-lib-clean">
+    <delete file="${junit4.dist.dir}/${junit4.execname}" />
+    <delete dir="${junit4.exec.build.dir}"/>
+  </target>
+
+  <target name="junit4" depends="junit4-lib-compile">
+    <!-- package -->
+    <copy todir="${junit4.exec.build.outdir}">
+      <fileset dir="${junit4.build.outdir}" includes="**/*.class" />
+    </copy>
+    <unzip dest="${junit4.exec.build.outdir}">
+      <filelist dir=".">
+        <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
+      </filelist>
+    </unzip>
+    <jar destfile="${junit4.dist.dir}/${junit4.execname}"
+        basedir="${junit4.exec.build.outdir}"
+        includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- hamcrest-core-lib       -->
+  <!-- ******************* -->
+  <property name="hamcrest-core.build.dir" value="${hamcrest-core.dir}/build" />
+  <property name="hamcrest-core.build.outdir" value="${hamcrest-core.build.dir}/classes" />
+  <property name="hamcrest-core.dist.dir" value="${hamcrest-core.dir}/dist" />
+  <property name="hamcrest-core.libname" value="hamcrest-core-lib.jar" />
+
+  <target name="hamcrest-core-lib-clean">
+    <delete dir="${hamcrest-core.build.dir}" />
+    <delete dir="${hamcrest-core.dist.dir}" />
+  </target>
+
+  <target name="hamcrest-core-lib">
+    <!-- project layout -->
+    <mkdir dir="${hamcrest-core.build.outdir}"/>
+    <mkdir dir="${hamcrest-core.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${hamcrest-core.dir}/src"
+          destdir="${hamcrest-core.build.outdir}"
+          source="1.5" target="1.5"
+          createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${hamcrest-core.dist.dir}/${hamcrest-core.libname}"
+          basedir="${hamcrest-core.build.outdir}"
+          includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- dexcomparator-lib       -->
+  <!-- ******************* -->
+  <property name="dexcomparator.build.dir" value="${dexcomparator.dir}/build" />
+  <property name="dexcomparator.libs.dir" value="${dexcomparator.dir}/libs" />
+  <property name="dexcomparator.build.outdir" value="${dexcomparator.build.dir}/classes" />
+  <property name="dexcomparator.dist.dir" value="${dexcomparator.dir}/dist" />
+  <property name="dexcomparator.libname" value="dexcomparator-lib.jar" />
+
+  <target name="dexcomparator-lib-clean">
+    <delete dir="${dexcomparator.build.dir}" />
+    <delete dir="${dexcomparator.libs.dir}" />
+    <delete dir="${dexcomparator.dist.dir}" />
+  </target>
+
+  <target name="dexcomparator-lib" depends="dx-lib,dex-lib,jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${dexcomparator.build.outdir}"/>
+    <mkdir dir="${dexcomparator.libs.dir}"/>
+    <mkdir dir="${dexcomparator.dist.dir}"/>
+    <!-- fetch dependencies -->
+    <copy todir="${dexcomparator.libs.dir}" flatten="true">
+      <filelist dir=".">
+        <file name="${dx.dist.dir}/${dx.libname}" />
+        <file name="${dexlib.dist.dir}/${dexlib.libname}" />
+        <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+      </filelist>
+    </copy>
+    <!-- compile -->
+    <javac srcdir="${dexcomparator.dir}/src"
+            destdir="${dexcomparator.build.outdir}"
+            source="1.5" target="1.5"
+            createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <fileset dir="${dexcomparator.libs.dir}">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${dexcomparator.dist.dir}/${dexcomparator.libname}"
+            basedir="${dexcomparator.build.outdir}"
+            includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- dex-lib             -->
+  <!-- ******************* -->
+  <property name="dexlib.build.dir" value="${dexlib.dir}/build" />
+  <property name="dexlib.build.outdir" value="${dexlib.build.dir}/classes" />
+  <property name="dexlib.dist.dir" value="${dexlib.dir}/dist" />
+  <property name="dexlib.libname" value="dex-lib.jar" />
+  <property name="dexlib.version" value="1.4.2" />
+
+  <target name="dex-lib-clean">
+    <delete dir="${dexlib.build.dir}" />
+    <delete dir="${dexlib.dist.dir}" />
+  </target>
+
+  <target name="dex-lib" depends="guava-lib,jsr305-lib">
+    <!-- project layout -->
+    <mkdir dir="${dexlib.build.outdir}"/>
+    <mkdir dir="${dexlib.dist.dir}"/>
+    <!-- compile -->
+    <javac srcdir="${dexlib.dir}/src/main/java"
+            destdir="${dexlib.build.outdir}"
+            source="1.5" target="1.5"
+            createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir=".">
+          <file name="${guava.dist.dir}/${guava.libname}"/>
+          <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- generate dexlib.properties -->
+    <echo message="application.version=${dexlib.version}"
+           file="${dexlib.build.outdir}/dexlib.properties"/>
+    <!-- package -->
+    <jar destfile="${dexlib.dist.dir}/${dexlib.libname}"
+            basedir="${dexlib.build.outdir}"
+            includes="**"/>
+  </target>
+
+
+</project>
+
+
