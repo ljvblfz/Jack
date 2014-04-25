@@ -18,11 +18,10 @@ package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.signature.GenericSignatureParser;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -34,23 +33,20 @@ import javax.annotation.Nonnull;
  */
 @Description("Split method generic signature into more specific string literals.")
 @Name("MethodGenericSignatureSplitter")
-@Constraint(need = {OriginalTypeInfo.class})
-@Transform(modify = OriginalTypeInfo.class)
+@Transform(modify = GenericSignature.class)
 @Use(GenericSignatureRefiner.class)
 public class MethodGenericSignatureSplitter implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    OriginalTypeInfo marker = method.getMarker(OriginalTypeInfo.class);
+    GenericSignature marker = method.getMarker(GenericSignature.class);
     if (marker != null) {
       String oldSignature = marker.getGenericSignature();
-      if (oldSignature != null) {
-        GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
-        GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
-        parser.parseMethodSignature(oldSignature);
-        assert parserActions.getNewSignature().toString().equals(oldSignature);
-        marker.setGenericSignature(parserActions.getNewSignature());
-      }
+      GenericSignatureRefiner parserActions = new GenericSignatureRefiner();
+      GenericSignatureParser<JType> parser = new GenericSignatureParser<JType>(parserActions);
+      parser.parseMethodSignature(oldSignature);
+      assert parserActions.getNewSignature().toString().equals(oldSignature);
+      marker.setGenericSignature(parserActions.getNewSignature());
     }
   }
 

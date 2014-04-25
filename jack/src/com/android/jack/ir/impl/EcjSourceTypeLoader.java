@@ -28,7 +28,8 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
+import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.util.NamingTools;
@@ -238,16 +239,14 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding();
-      OriginalTypeInfo marker = new OriginalTypeInfo();
       char [] genSignature = binding.genericSignature();
       if (genSignature != null) {
         if (CharOperation.contains('<', genSignature)) {
           assert CharOperation.contains('>', genSignature);
-          marker.setGenericSignature(ReferenceMapper.intern(genSignature));
+          loaded.addMarker(new GenericSignature(ReferenceMapper.intern(genSignature)));
         }
       }
-      marker.setSourceName(new String(binding.sourceName));
-      loaded.addMarker(marker);
+      loaded.addMarker(new SourceName(new String(binding.sourceName)));
       markLoaded(Scope.MARKERS);
     }
   }
@@ -255,7 +254,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   @Override
   public void ensureMarker(@Nonnull JDefinedClassOrInterface loaded,
       @Nonnull Class<? extends Marker> cls) {
-    if (cls == OriginalTypeInfo.class) {
+    if (cls == GenericSignature.class || cls == SourceName.class) {
       ensureMarkers(loaded);
     }
   }

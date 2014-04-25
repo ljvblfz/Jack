@@ -18,12 +18,11 @@ package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
-import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
 
@@ -32,16 +31,12 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes signatures from fields")
 @Constraint(no = ReflectAnnotations.class)
-@Transform(modify = OriginalTypeInfo.class)
 @Support(RemoveGenericSignature.class)
 public class FieldGenericSignatureRemover implements RunnableSchedulable<JField> {
 
   @Override
   public void run(@Nonnull JField field) throws Exception {
-    OriginalTypeInfo info = field.getMarker(OriginalTypeInfo.class);
-    if (info != null) {
-      info.setGenericSignature(null);
-    }
+    field.removeMarker(GenericSignature.class);
   }
 
 }

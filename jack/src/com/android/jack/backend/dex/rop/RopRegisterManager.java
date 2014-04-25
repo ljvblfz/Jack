@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 
 import java.util.ArrayList;
@@ -134,12 +134,9 @@ class RopRegisterManager {
     RegisterSpec reg;
     if (emitDebugInfo && (emitSyntheticDebugInfo || !var.isSynthetic())) {
       CstString cstSignature = null;
-      OriginalTypeInfo infoMarker = var.getMarker(OriginalTypeInfo.class);
+      GenericSignature infoMarker = var.getMarker(GenericSignature.class);
       if (infoMarker != null) {
-        String genericSignature = infoMarker.getGenericSignature();
-        if (genericSignature != null) {
-          cstSignature = new CstString(genericSignature);
-        }
+        cstSignature = new CstString(infoMarker.getGenericSignature());
       }
       LocalItem localItem =
           LocalItem.make(new CstString(var.getName()), RopHelper.getCstType(type), cstSignature);

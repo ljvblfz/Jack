@@ -73,6 +73,7 @@ import com.android.jack.jayce.v0002.nodes.NFieldInitializer;
 import com.android.jack.jayce.v0002.nodes.NFieldRef;
 import com.android.jack.jayce.v0002.nodes.NFloatLiteral;
 import com.android.jack.jayce.v0002.nodes.NForStatement;
+import com.android.jack.jayce.v0002.nodes.NGenericSignature;
 import com.android.jack.jayce.v0002.nodes.NGoto;
 import com.android.jack.jayce.v0002.nodes.NGtOperation;
 import com.android.jack.jayce.v0002.nodes.NGteOperation;
@@ -101,7 +102,6 @@ import com.android.jack.jayce.v0002.nodes.NNewArray;
 import com.android.jack.jayce.v0002.nodes.NNewInstance;
 import com.android.jack.jayce.v0002.nodes.NNullLiteral;
 import com.android.jack.jayce.v0002.nodes.NOrOperation;
-import com.android.jack.jayce.v0002.nodes.NOriginalTypeInfo;
 import com.android.jack.jayce.v0002.nodes.NParameter;
 import com.android.jack.jayce.v0002.nodes.NParameterRef;
 import com.android.jack.jayce.v0002.nodes.NPostfixDecOperation;
@@ -118,6 +118,7 @@ import com.android.jack.jayce.v0002.nodes.NShlOperation;
 import com.android.jack.jayce.v0002.nodes.NShortLiteral;
 import com.android.jack.jayce.v0002.nodes.NShrOperation;
 import com.android.jack.jayce.v0002.nodes.NShruOperation;
+import com.android.jack.jayce.v0002.nodes.NSourceName;
 import com.android.jack.jayce.v0002.nodes.NStringLiteral;
 import com.android.jack.jayce.v0002.nodes.NSubOperation;
 import com.android.jack.jayce.v0002.nodes.NSwitchStatement;
@@ -540,6 +541,13 @@ public enum Token {
       return new NForStatement();
     }
   },
+  GENERIC_SIGNATURE("generic-signature", NodeLevel.TYPES) {
+    @Override
+    @Nonnull
+    public NNode newNode() {
+      return new NGenericSignature();
+    }
+  },
   GOTO("goto") {
     @Nonnull
     @Override
@@ -736,13 +744,6 @@ public enum Token {
       return new NOrOperation();
     }
   },
-  ORIGINAL_TYPE_INFO("type-info", NodeLevel.TYPES) {
-    @Override
-    @Nonnull
-    public NNode newNode() {
-      return new NOriginalTypeInfo();
-    }
-  },
   PARAMETER("parameter", NodeLevel.STRUCTURE) {
     @Nonnull
     @Override
@@ -853,6 +854,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NShruOperation();
+    }
+  },
+  SOURCE_NAME("source-name", NodeLevel.TYPES) {
+    @Override
+    @Nonnull
+    public NNode newNode() {
+      return new NSourceName();
     }
   },
   SUB_OPERATION("-") {

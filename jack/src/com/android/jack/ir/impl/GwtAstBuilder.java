@@ -117,7 +117,7 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.util.NamingTools;
@@ -2309,9 +2309,7 @@ public class GwtAstBuilder {
       // Check if the generic signature really contains generic types i.e. is different from the
       // non-generic signature
       if (!CharOperation.equals(signature, genericSignature)) {
-        OriginalTypeInfo infoMarker = new OriginalTypeInfo();
-        infoMarker.setGenericSignature(ReferenceMapper.intern(genericSignature));
-        newLocal.addMarker(infoMarker);
+        newLocal.addMarker(new GenericSignature(ReferenceMapper.intern(genericSignature)));
       }
       curMethod.locals.put(b, newLocal);
       return newLocal;

@@ -36,7 +36,7 @@ import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JShortLiteral;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
@@ -133,12 +133,9 @@ class LoaderUtils {
 
   @CheckForNull
   static <T extends JNode & Annotable> char[] getGenericSignature(@Nonnull T annotableNode) {
-    OriginalTypeInfo typeInfo = annotableNode.getMarker(OriginalTypeInfo.class);
+    GenericSignature typeInfo = annotableNode.getMarker(GenericSignature.class);
     if (typeInfo != null) {
-      String genericSignature = typeInfo.getGenericSignature();
-      if (genericSignature != null) {
-        return genericSignature.toCharArray();
-      }
+      return typeInfo.getGenericSignature().toCharArray();
     }
 
     JAnnotationLiteral signatureAnnotation =

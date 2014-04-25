@@ -129,7 +129,8 @@ import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
+import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
@@ -187,6 +188,7 @@ import com.android.jack.jayce.v0002.nodes.NFieldInitializer;
 import com.android.jack.jayce.v0002.nodes.NFieldRef;
 import com.android.jack.jayce.v0002.nodes.NFloatLiteral;
 import com.android.jack.jayce.v0002.nodes.NForStatement;
+import com.android.jack.jayce.v0002.nodes.NGenericSignature;
 import com.android.jack.jayce.v0002.nodes.NGoto;
 import com.android.jack.jayce.v0002.nodes.NGtOperation;
 import com.android.jack.jayce.v0002.nodes.NGteOperation;
@@ -216,7 +218,6 @@ import com.android.jack.jayce.v0002.nodes.NNewArray;
 import com.android.jack.jayce.v0002.nodes.NNewInstance;
 import com.android.jack.jayce.v0002.nodes.NNullLiteral;
 import com.android.jack.jayce.v0002.nodes.NOrOperation;
-import com.android.jack.jayce.v0002.nodes.NOriginalTypeInfo;
 import com.android.jack.jayce.v0002.nodes.NParameter;
 import com.android.jack.jayce.v0002.nodes.NParameterRef;
 import com.android.jack.jayce.v0002.nodes.NPostfixDecOperation;
@@ -233,6 +234,7 @@ import com.android.jack.jayce.v0002.nodes.NShlOperation;
 import com.android.jack.jayce.v0002.nodes.NShortLiteral;
 import com.android.jack.jayce.v0002.nodes.NShrOperation;
 import com.android.jack.jayce.v0002.nodes.NShruOperation;
+import com.android.jack.jayce.v0002.nodes.NSourceName;
 import com.android.jack.jayce.v0002.nodes.NStringLiteral;
 import com.android.jack.jayce.v0002.nodes.NSubOperation;
 import com.android.jack.jayce.v0002.nodes.NSwitchStatement;
@@ -778,8 +780,10 @@ public class NodeFactory {
 
   @Nonnull
   private NMarker createMarkerNode(@Nonnull Marker from) {
-    if (from instanceof OriginalTypeInfo) {
-      return new NOriginalTypeInfo();
+    if (from instanceof GenericSignature) {
+      return new NGenericSignature();
+    } else if (from instanceof SourceName) {
+      return new NSourceName();
     } else if (from instanceof ThisRefTypeInfo) {
       return new NThisRefTypeInfo();
     } else if (from instanceof ThrownExceptionMarker) {
