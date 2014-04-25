@@ -16,5 +16,5 @@
 
 package com.android.sched.marker;
 
-public class MarkedC extends MarkerManager {
+public class MarkedC extends StaticMarkerManager {
 }

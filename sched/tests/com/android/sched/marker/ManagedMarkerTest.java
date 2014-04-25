@@ -24,7 +24,7 @@ import org.junit.Test;
 public class ManagedMarkerTest {
   @Before
   public void setUp() {
-    MarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
+    StaticMarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
   @Test

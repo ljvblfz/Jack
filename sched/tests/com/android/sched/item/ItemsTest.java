@@ -24,7 +24,7 @@ import com.android.sched.marker.Marker3;
 import com.android.sched.marker.Marker4;
 import com.android.sched.marker.Marker5;
 import com.android.sched.marker.Marker6;
-import com.android.sched.marker.MarkerManager;
+import com.android.sched.marker.StaticMarkerManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class ItemsTest {
 
   @Before
   public void setUp() throws Exception {
-    MarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
+    StaticMarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
   @After

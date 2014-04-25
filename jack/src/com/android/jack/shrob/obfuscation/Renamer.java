@@ -35,7 +35,7 @@ import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.PackageCodec;
 import com.android.sched.item.Description;
-import com.android.sched.marker.AbstractMarkerManager;
+import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -141,7 +141,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
       "All members with the same name must have the same obfuscated name")
       .addDefaultValue(Boolean.FALSE);
 
-  public static boolean mustBeRenamed(@Nonnull AbstractMarkerManager node) {
+  public static boolean mustBeRenamed(@Nonnull MarkerManager node) {
     return !node.containsMarker(KeepNameMarker.class)
         && !node.containsMarker(OriginalNameMarker.class);
   }
@@ -165,9 +165,9 @@ public class Renamer implements RunnableSchedulable<JSession> {
   }
 
   private static void rename(@Nonnull CanBeRenamed node, @Nonnull NameProvider nameProvider) {
-    if (mustBeRenamed((AbstractMarkerManager) node)) {
+    if (mustBeRenamed((MarkerManager) node)) {
       String newName = nameProvider.getNewName(getKey(node));
-      ((AbstractMarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
+      ((MarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
       node.setName(newName);
     }
   }
@@ -267,10 +267,10 @@ public class Renamer implements RunnableSchedulable<JSession> {
           nameProviderFactory.getClassNameProvider(packageForRenamedClasses.getTypes());
 
       for (JClassOrInterface type : pack.getTypes()) {
-        if (mustBeRenamed((AbstractMarkerManager) type)) {
+        if (mustBeRenamed((MarkerManager) type)) {
           JPackage oldEnclosingPackage = type.getEnclosingPackage();
           assert oldEnclosingPackage != null;
-          ((AbstractMarkerManager) type).addMarker(
+          ((MarkerManager) type).addMarker(
               new OriginalPackageMarker(oldEnclosingPackage));
           request.append(new ChangeEnclosingPackage(type, packageForRenamedClasses));
           rename((JDefinedClassOrInterface) type, classNameProvider);

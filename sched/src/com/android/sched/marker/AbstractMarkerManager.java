@@ -44,9 +44,9 @@ import javax.annotation.Nonnull;
 /**
  * Provides {@link Marker}-managing abilities to its subclasses.
  * <p>This is a skeletal implementation. Two full implementations are available:
- * {@link MarkerManager} and {@link LocalMarkerManager}.
+ * {@link StaticMarkerManager} and {@link LocalMarkerManager}.
  */
-public abstract class AbstractMarkerManager {
+abstract class AbstractMarkerManager implements MarkerManager {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
@@ -64,16 +64,21 @@ public abstract class AbstractMarkerManager {
     assert map != null;
   }
 
+  @Override
   @CheckForNull
   public abstract <T extends Marker> T removeMarker(@Nonnull Class<T> c);
 
+  @Override
   public abstract <T extends Marker> boolean containsMarker(@Nonnull Class<T> c);
 
+  @Override
   public abstract void addMarker(@Nonnull Marker m);
 
+  @Override
   @Nonnull
   public abstract Collection<Marker> getAllMarkers();
 
+  @Override
   @CheckForNull
   public abstract <T extends Marker> T getMarker(@Nonnull Class<T> c);
 

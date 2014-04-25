@@ -38,7 +38,7 @@ import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.Rename;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
-import com.android.sched.marker.AbstractMarkerManager;
+import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -271,7 +271,7 @@ public class MappingApplier {
   }
 
   private void rename(@Nonnull CanBeRenamed renamable, @Nonnull String newName) {
-    AbstractMarkerManager markerManager = (AbstractMarkerManager) renamable;
+    MarkerManager markerManager = (MarkerManager) renamable;
     if (!markerManager.containsMarker(OriginalNameMarker.class)) {
       markerManager.addMarker(new OriginalNameMarker(((HasName) renamable).getName()));
       request.append(new Rename(renamable, newName));
