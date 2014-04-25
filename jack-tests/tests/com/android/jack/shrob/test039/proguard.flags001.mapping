@@ -1,0 +1,4 @@
+com.android.jack.shrob.test039.jack.Value -> com.android.jack.shrob.test039.jack.RenamedValue:
+com.android.jack.shrob.test039.jack.DefaultValue -> com.android.jack.shrob.test039.jack.RenamedDefaultValue:
+com.android.jack.shrob.test039.jack.Annotation -> com.android.jack.shrob.test039.jack.RenamedAnnotation:
+    java.lang.Class value() -> renamedValue

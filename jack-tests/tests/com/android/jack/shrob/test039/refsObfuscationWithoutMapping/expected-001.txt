@@ -1,0 +1,8 @@
+com.android.jack.shrob.test039.jack.Value -> com.android.jack.shrob.test039.jack.Jnyir:
+    void <init>() -> <init>
+com.android.jack.shrob.test039.jack.AnnotatedClass -> com.android.jack.shrob.test039.jack.AnnotatedClass:
+    void <init>() -> <init>
+com.android.jack.shrob.test039.jack.DefaultValue -> com.android.jack.shrob.test039.jack.QrsniyhJnyir:
+    void <init>() -> <init>
+com.android.jack.shrob.test039.jack.Annotation -> com.android.jack.shrob.test039.jack.Nbbchnhvcb:
+    java.lang.Class value() -> jnyir__

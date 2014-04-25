@@ -1,0 +1,8 @@
+Lcom/android/jack/shrob/test039/jack/Value;:
+<init>()V
+Lcom/android/jack/shrob/test039/jack/AnnotatedClass;:
+<init>()V
+Lcom/android/jack/shrob/test039/jack/DefaultValue;:
+<init>()V
+Lcom/android/jack/shrob/test039/jack/Annotation;:
+value()Ljava/lang/Class;

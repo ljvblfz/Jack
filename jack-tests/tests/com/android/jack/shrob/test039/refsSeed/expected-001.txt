@@ -1,0 +1,1 @@
+com.android.jack.shrob.test039.jack.AnnotatedClass
