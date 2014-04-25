@@ -49,7 +49,7 @@ public class ManagedMarker {
 
   // @ValidOn
   @Nonnull
-  private Class<? extends AbstractMarkerManager>[] staticValidOn;
+  private Class<? extends MarkerManager>[] staticValidOn;
 
   // @DynamicValidOn
   @Nonnull
@@ -59,7 +59,7 @@ public class ManagedMarker {
    * Represents an extracted {@link DynamicValidOn} annotation.
    */
   public static class InternalDynamicValidOn {
-    public Class<? extends AbstractMarkerManager> getValidOn() {
+    public Class<? extends MarkerManager> getValidOn() {
       return validOn;
     }
 
@@ -67,7 +67,7 @@ public class ManagedMarker {
       return method;
     }
 
-    private Class<? extends AbstractMarkerManager> validOn;
+    private Class<? extends MarkerManager> validOn;
     private Method method;
 
     @Override
@@ -111,7 +111,7 @@ public class ManagedMarker {
   }
 
   @Nonnull
-  public Class<? extends AbstractMarkerManager>[] getStaticValidOn() {
+  public Class<? extends MarkerManager>[] getStaticValidOn() {
     return staticValidOn.clone();
   }
 
@@ -120,8 +120,8 @@ public class ManagedMarker {
     return dynamicValidOn;
   }
 
-  public boolean isValidMarker(@Nonnull AbstractMarkerManager marked) {
-    for (Class<? extends AbstractMarkerManager> cls : staticValidOn) {
+  public boolean isValidMarker(@Nonnull MarkerManager marked) {
+    for (Class<? extends MarkerManager> cls : staticValidOn) {
       if (cls.isAssignableFrom(marked.getClass())) {
         return true;
       }
@@ -136,8 +136,8 @@ public class ManagedMarker {
     return false;
   }
 
-  public boolean isValidMarker(@Nonnull AbstractMarkerManager marked, @Nonnull Marker m) {
-    for (Class<? extends AbstractMarkerManager> cls : staticValidOn) {
+  public boolean isValidMarker(@Nonnull MarkerManager marked, @Nonnull Marker m) {
+    for (Class<? extends MarkerManager> cls : staticValidOn) {
       if (cls.isAssignableFrom(marked.getClass())) {
         return true;
       }
@@ -181,7 +181,7 @@ public class ManagedMarker {
     sb.append("), static valid on [");
 
     boolean first = true;
-    for (Class<? extends AbstractMarkerManager> cls : staticValidOn) {
+    for (Class<? extends MarkerManager> cls : staticValidOn) {
       if (!first) {
         sb.append(", ");
       } else {
@@ -239,13 +239,13 @@ public class ManagedMarker {
               + DynamicValidOn.class.getSimpleName() + " must have a single parameter");
         }
 
-        if (!AbstractMarkerManager.class.isAssignableFrom(method.getParameterTypes()[0])) {
+        if (!MarkerManager.class.isAssignableFrom(method.getParameterTypes()[0])) {
           throw new MarkerNotConformException("Annotated method '" + method + "' with @"
               + DynamicValidOn.class.getSimpleName() + " must have a parameter assignable from "
-              + AbstractMarkerManager.class.getSimpleName());
+              + MarkerManager.class.getSimpleName());
         }
 
-        for (Class<? extends AbstractMarkerManager> marked : staticValidOn) {
+        for (Class<? extends MarkerManager> marked : staticValidOn) {
           if (marked.isAssignableFrom(method.getParameterTypes()[0])) {
             throw new MarkerNotConformException("Marker '" + name + "' cannot have both a static @'"
                 + ValidOn.class.getName() + " (on class '" + marker.getCanonicalName()
@@ -264,7 +264,7 @@ public class ManagedMarker {
 
         InternalDynamicValidOn dvo = new InternalDynamicValidOn();
 
-        dvo.validOn = (Class<? extends AbstractMarkerManager>) (method.getParameterTypes()[0]);
+        dvo.validOn = (Class<? extends MarkerManager>) (method.getParameterTypes()[0]);
         dvo.method = method;
         dynamicValidOn.add(dvo);
       }

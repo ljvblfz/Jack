@@ -31,18 +31,18 @@ import java.util.List;
 
 public class MarkerManagerTest {
 
-  MarkerManager[] markeds;
+  StaticMarkerManager[] markeds;
   Class<? extends Marker>[] markers;
   boolean[][] compatible;
 
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
-    MarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
+    StaticMarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
 
-    new MarkerManager();
+    new StaticMarkerManager();
 
-    markeds = new MarkerManager[] {new MarkedA(), new MarkedB(), new MarkedC(), new MarkedB1()};
+    markeds = new StaticMarkerManager[] {new MarkedA(), new MarkedB(), new MarkedC(), new MarkedB1()};
     markers = (Class<? extends Marker>[]) new Class<?>[] {
         Marker1.class, Marker2.class, Marker3.class};
     compatible = new boolean[markeds.length][markers.length];

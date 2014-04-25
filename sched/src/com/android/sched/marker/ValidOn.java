@@ -29,5 +29,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ValidOn {
-  public Class<? extends AbstractMarkerManager>[] value();
+  public Class<? extends MarkerManager>[] value();
 }

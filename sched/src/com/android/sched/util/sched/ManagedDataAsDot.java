@@ -22,9 +22,9 @@ import com.android.sched.item.ItemManager;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
 import com.android.sched.item.Production;
-import com.android.sched.marker.AbstractMarkerManager;
 import com.android.sched.marker.ManagedMarker;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.MarkerManager;
 import com.android.sched.marker.MarkerNotConformException;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ManagedRunnable;
@@ -193,7 +193,7 @@ public class ManagedDataAsDot implements ManagedDataListener {
     out.println("      <TR><TD PORT=\"header\" BGCOLOR=\"black\"><FONT COLOR=\"white\">"
         + marker.getName() + "</FONT></TD></TR>");
 
-    for (Class<? extends AbstractMarkerManager> cls : marker.getStaticValidOn()) {
+    for (Class<? extends MarkerManager> cls : marker.getStaticValidOn()) {
       out.println("      <TR><TD>" + cls.getSimpleName() + "</TD></TR>");
     }
 

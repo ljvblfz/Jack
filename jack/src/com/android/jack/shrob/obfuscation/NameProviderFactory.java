@@ -26,7 +26,7 @@ import com.android.jack.shrob.obfuscation.nameprovider.DictionaryNameProvider;
 import com.android.jack.shrob.obfuscation.nameprovider.MappingNameProvider;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
 import com.android.jack.shrob.obfuscation.nameprovider.UniqueNameProvider;
-import com.android.sched.marker.AbstractMarkerManager;
+import com.android.sched.marker.MarkerManager;
 import com.android.sched.util.codec.DefaultFactorySelector;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.HasKeyId;
@@ -93,7 +93,7 @@ public class NameProviderFactory {
   private void fillExistingName(@Nonnull Collection<? extends HasName> namedElements,
       @Nonnull Collection<String> existingNames) {
     for (HasName namedElement : namedElements) {
-      if (!Renamer.mustBeRenamed((AbstractMarkerManager) namedElement)) {
+      if (!Renamer.mustBeRenamed((MarkerManager) namedElement)) {
         existingNames.add(Renamer.getKey(namedElement));
       }
     }

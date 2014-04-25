@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Provides {@link Marker}-managing abilities to its subclasses.
- * Similar to {@link MarkerManager} but its data structures are stored in each instance.
+ * Similar to {@link StaticMarkerManager} but its data structures are stored in each instance.
  */
 public class LocalMarkerManager extends AbstractMarkerManager {
   @Nonnull

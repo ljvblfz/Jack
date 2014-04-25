@@ -31,7 +31,7 @@ import com.android.jack.shrob.spec.ClassSpecification;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
-import com.android.sched.marker.AbstractMarkerManager;
+import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -157,7 +157,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
     }
   }
 
-  private boolean markIfNecessary(@Nonnull AbstractMarkerManager node) {
+  private boolean markIfNecessary(@Nonnull MarkerManager node) {
     synchronized (node) {
       if (!isMarked(node)) {
         node.addMarker(new KeepNameMarker());
@@ -167,7 +167,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
     }
   }
 
-  private boolean isMarked(@Nonnull AbstractMarkerManager node) {
+  private boolean isMarked(@Nonnull MarkerManager node) {
     synchronized (node) {
       return node.containsMarker(KeepNameMarker.class);
     }
