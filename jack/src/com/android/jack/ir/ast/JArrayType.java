@@ -24,8 +24,6 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -42,6 +40,9 @@ public class JArrayType extends JDefinedReferenceType {
     super(elementType.getSourceInfo().makeChild(SourceOrigin.UNKNOWN), elementType.getName()
         + "[]");
     this.elementType = elementType;
+    JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
+    superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));
+    superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_LANG_CLONEABLE));
   }
 
   public int getDims() {
@@ -117,17 +118,5 @@ public class JArrayType extends JDefinedReferenceType {
     }
 
     return false;
-  }
-
-  @Override
-  @Nonnull
-  public List<JInterface> getImplements() {
-    // TODO(mikaelpeltier): Move init of superInterfaces into constructor (Bug:9652410)
-    if (superInterfaces.isEmpty()) {
-      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-      superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));
-      superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_LANG_CLONEABLE));
-    }
-    return super.getImplements();
   }
 }
