@@ -1,0 +1,24 @@
+com.android.jack.shrob.test040.jack.Annotated2 -> com.android.jack.shrob.test040.jack.Annotated2:
+    void <init>() -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByEnum -> FrsrfrbprqOmRbiz:
+    void <init>() -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences -> FrsrfrbprqOmNbbchnhvcbKvhuChurfFrsrfrbprg:
+    com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences A -> N:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzBoopubujpoXjuiPuifsSfgfsfodft;
+    com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences B -> O:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzBoopubujpoXjuiPuifsSfgfsfodft;
+    com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences[] $VALUES -> $JNYIRG:[Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzBoopubujpoXjuiPuifsSfgfsfodft;
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences[] values() -> jnyirg__
+    void <clinit>() -> <clinit>
+    void <init>(java.lang.String,int,com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$1 -> FrsrfrbprqOmNbbchnhvcbKvhuChurfFrsrfrbprg$1:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum a -> n:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzFovn;
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$2 -> FrsrfrbprqOmNbbchnhvcbKvhuChurfFrsrfrbprg$2:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum b -> o:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzFovn;
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.Annotated -> com.android.jack.shrob.test040.jack.Annotated:
+    void <init>() -> <init>
+com.android.jack.shrob.test040.jack.AnnotationWithClass -> NbbchnhvcbKvhuPyngg:
+    java.lang.Class value() -> jnyir__
+com.android.jack.shrob.test040.jack.AnnotationWithEnum2 -> NbbchnhvcbKvhuRbiz2:
+    com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences value() -> jnyir__

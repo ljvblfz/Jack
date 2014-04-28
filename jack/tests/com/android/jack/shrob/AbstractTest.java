@@ -548,4 +548,10 @@ public abstract class AbstractTest {
   public void test39_001() throws Exception {
     runTest(defaultBootclasspath, null, "039", "001", "");
   }
+
+  @Test
+  @Category(SlowTests.class)
+  public void test40_001() throws Exception {
+    runTest(defaultBootclasspath, null, "040", "001", "");
+  }
 }
