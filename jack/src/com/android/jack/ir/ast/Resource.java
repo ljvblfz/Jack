@@ -33,7 +33,7 @@ public class Resource {
   private VPath path;
 
   @Nonnull
-  private final InputVFile vFile;
+  private InputVFile vFile;
 
   public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile) {
     this.vFile = vFile;
@@ -43,6 +43,10 @@ public class Resource {
   @Nonnull
   public InputVFile getVFile() {
     return vFile;
+  }
+
+  public void setVFile(@Nonnull InputVFile vFile) {
+    this.vFile = vFile;
   }
 
   @Nonnull

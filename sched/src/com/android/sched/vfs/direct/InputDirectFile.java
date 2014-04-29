@@ -30,7 +30,7 @@ import java.io.InputStream;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code VFile} directly backed but a {@code java.io.File}.
+ * A {@code VFile} directly backed by a {@code java.io.File}.
  */
 public class InputDirectFile extends AbstractVElement implements InputVFile {
 

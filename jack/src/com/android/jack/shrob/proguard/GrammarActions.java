@@ -60,6 +60,8 @@ import javax.annotation.Nonnull;
 // the generated grammar code does not allow the code analyzer to validate it.
 public class GrammarActions {
 
+  public static final char SHROB_REGEX_PATH_SEPARATOR = '/';
+
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
@@ -566,5 +568,10 @@ public class GrammarActions {
       newSourceFileName = "";
     }
     flags.setRenameSourceFileAttribute(newSourceFileName);
+  }
+
+  public static void adaptResourceFileContents(@Nonnull Flags flags,
+      @Nonnull FilterSpecification filter) {
+    flags.adaptResourceFileContents(filter);
   }
 }

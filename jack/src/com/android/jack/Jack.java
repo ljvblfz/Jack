@@ -138,6 +138,8 @@ import com.android.jack.shrob.obfuscation.remover.FieldKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.MethodKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeOriginalNameMarkerRemover;
+import com.android.jack.shrob.obfuscation.resource.AdaptResourceFileContent;
+import com.android.jack.shrob.obfuscation.resource.ResourceContentRefiner;
 import com.android.jack.shrob.obfuscation.resource.ResourceRefiner;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.seed.SeedFile;
@@ -461,6 +463,9 @@ public abstract class Jack {
           }
           if (options.flags.getRenameSourceFileAttribute() != null) {
             request.addFeature(SourceFileRenaming.class);
+          }
+          if (options.flags.getAdaptResourceFileContents() != null) {
+            request.addFeature(AdaptResourceFileContent.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1340,6 +1345,9 @@ public abstract class Jack {
       packagePlan.append(NameKeeper.class);
     }
     planBuilder.append(ResourceRefiner.class);
+    if (features.contains(AdaptResourceFileContent.class)) {
+      planBuilder.append(ResourceContentRefiner.class);
+    }
     planBuilder.append(Renamer.class);
     if (features.contains(RemoveSourceFile.class)) {
       planBuilder.append(SourceFileRemover.class);

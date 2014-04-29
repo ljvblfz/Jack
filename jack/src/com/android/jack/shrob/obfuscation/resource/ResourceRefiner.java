@@ -28,6 +28,7 @@ import com.android.jack.ir.naming.PackageName;
 import com.android.jack.ir.naming.TypeName;
 import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.FilterSpecification;
 import com.android.jack.shrob.spec.Flags;
 import com.android.sched.item.Description;
@@ -52,8 +53,6 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
   private final Flags flags = ThreadConfig.get(Options.FLAGS);
 
   private static final char BINARY_QN_SEPARATOR = '/';
-
-  private static final char SHROB_PATH_SEPARATOR = '/';
 
   @CheckForNull
   private CharSequence getResourceRefinedName(@Nonnull VPath resPath,
@@ -118,7 +117,8 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
     if (adaptResourceFileNames != null) {
       for (Resource res : session.getResources()) {
         VPath resName = res.getPath();
-        if (adaptResourceFileNames.matches(resName.getPathAsString(SHROB_PATH_SEPARATOR))) {
+        if (adaptResourceFileNames.matches(
+            resName.getPathAsString(GrammarActions.SHROB_REGEX_PATH_SEPARATOR))) {
           CharSequence refinedName = getResourceRefinedName(resName, session.getTopLevelPackage());
           if (refinedName != null) {
             VPath vPath = new VPath(refinedName, BINARY_QN_SEPARATOR);

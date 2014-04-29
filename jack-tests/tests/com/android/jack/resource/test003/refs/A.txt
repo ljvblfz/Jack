@@ -1,4 +1,4 @@
-com.android.jack.resource.test003.jack.A
+pcz.nbqfcvq.wnpx.frgcifpr.hrgh003.wnpx.N
 Lcom.android.jack.resource.test003.jack.A;
 com/android/jack/resource/test003/jack/A
 Lcom/android/jack/resource/test003/jack/A;
@@ -8,4 +8,4 @@ fgjgLcom.android.jack.resource.test003.jack.A;
 sddtcom/android/jack/resource/test003/jack/A
 fdhdhLcom/android/jack/resource/test003/jack/A;
 estsrtA
- com.android.jack.resource.test003.jack.A Lcom.android.jack.resource.test003.jack.A; com/android/jack/resource/test003/jack/A Lcom/android/jack/resource/test003/jack/A; A
+ pcz.nbqfcvq.wnpx.frgcifpr.hrgh003.wnpx.N Lcom.android.jack.resource.test003.jack.A; com/android/jack/resource/test003/jack/A Lcom/android/jack/resource/test003/jack/A; A

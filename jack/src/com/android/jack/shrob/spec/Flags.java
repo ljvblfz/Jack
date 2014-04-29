@@ -102,6 +102,9 @@ public class Flags {
   @CheckForNull
   private FilterSpecification adaptResourceFileNames;
 
+  @CheckForNull
+  private FilterSpecification adaptResourceFileContents;
+
   public void setShrink(boolean shrink) {
     this.shrink = shrink;
   }
@@ -362,5 +365,14 @@ public class Flags {
   @CheckForNull
   public FilterSpecification getAdaptResourceFileNames() {
     return adaptResourceFileNames;
+  }
+
+  public void adaptResourceFileContents(@CheckForNull FilterSpecification filter) {
+    this.adaptResourceFileContents = filter;
+  }
+
+  @CheckForNull
+  public FilterSpecification getAdaptResourceFileContents() {
+    return adaptResourceFileContents;
   }
 }

@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -252,19 +253,12 @@ public class ResourceTest {
         Collections.singletonList(flags),
         false /* non-zipped */);
 
-        // check that resources are contained in Jack dir
-        String expected = "pbz.naqebvq.wnpx.fuebo.grfg003.wnpx.N\n"
-        + "Lcom.android.jack.shrob.test003.jack.A;\n"
-        + "com/android/jack/shrob/test003/jack/A\n"
-        + "Lcom/android/jack/shrob/test003/jack/A;\n" + "A\n"
-        + "fddfcom.android.jack.shrob.test003.jack.A"
-        + "fgjgLcom.android.jack.shrob.test003.jack.A;"
-        + "sddtcom/android/jack/shrob/test003/jack/A\n"
-        + "fdhdhLcom/android/jack/shrob/test003/jack/A;\n" + "estsrtA\n"
-        + " pbz.naqebvq.wnpx.fuebo.grfg003.wnpx.N Lcom.android.jack.shrob.test003.jack.A; "
-        + "com/android/jack/shrob/test003/jack/A Lcom/android/jack/shrob/test003/jack/A; A";
-        checkResourceContent(shrobbedJackDir, "pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/A", expected);
-        checkResourceContent(shrobbedJackDir, "pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/N.txt", expected);
+    // check that resources are contained in Jack dir and check their contents
+    File referenceFileContent = new File(testFolder, "refs/A.txt");
+    checkResourceContent(new File(shrobbedJackDir, "pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/A"),
+        referenceFileContent);
+    checkResourceContent(new File(shrobbedJackDir, "pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/N.txt"),
+        referenceFileContent);
   }
 
   @Nonnull
@@ -298,15 +292,19 @@ public class ResourceTest {
       @Nonnull String expectedContent) throws IOException {
     ZipEntry entry = zipFile.getEntry(entryName);
     Assert.assertNotNull(entry);
-    BufferedReader reader = null;
+    BufferedReader candidateReader = null;
+    BufferedReader referenceReader = null;
     try {
       InputStream in = zipFile.getInputStream(entry);
-      reader = new BufferedReader(new InputStreamReader(in));
-      String line = reader.readLine();
-      Assert.assertEquals(expectedContent, line);
+      candidateReader = new BufferedReader(new InputStreamReader(in));
+      referenceReader = new BufferedReader(new StringReader(expectedContent));
+      compareReadLines(referenceReader, candidateReader);
     } finally {
-      if (reader != null) {
-        reader.close();
+      if (candidateReader != null) {
+        candidateReader.close();
+      }
+      if (referenceReader != null) {
+        referenceReader.close();
       }
     }
   }
@@ -316,17 +314,51 @@ public class ResourceTest {
     assert dir.isDirectory();
     File file = new File(dir, path);
     Assert.assertTrue(file.exists());
-    BufferedReader reader = null;
+    BufferedReader candidateReader = null;
+    BufferedReader referenceReader = null;
     try {
       InputStream in = new FileInputStream(file);
-      reader = new BufferedReader(new InputStreamReader(in));
-      String line = reader.readLine();
-      Assert.assertEquals(expectedContent, line);
+      candidateReader = new BufferedReader(new InputStreamReader(in));
+      referenceReader = new BufferedReader(new StringReader(expectedContent));
+      compareReadLines(referenceReader, candidateReader);
     } finally {
-      if (reader != null) {
-        reader.close();
+      if (candidateReader != null) {
+        candidateReader.close();
+      }
+      if (referenceReader != null) {
+        referenceReader.close();
       }
     }
+  }
+
+  private void checkResourceContent(@Nonnull File candidateFileContent,
+      @Nonnull File referenceFileContent) throws IOException {
+    Assert.assertTrue(candidateFileContent.exists());
+    BufferedReader candidateReader = null;
+    BufferedReader referenceReader = null;
+    try {
+      candidateReader = new BufferedReader(new InputStreamReader(new FileInputStream(candidateFileContent)));
+      referenceReader = new BufferedReader(new InputStreamReader(new FileInputStream(referenceFileContent)));
+      compareReadLines(referenceReader, candidateReader);
+    } finally {
+      if (candidateReader != null) {
+        candidateReader.close();
+      }
+      if (referenceReader != null) {
+        referenceReader.close();
+      }
+    }
+  }
+
+  private void compareReadLines(@Nonnull BufferedReader referenceReader,
+      @Nonnull BufferedReader candidateReader) throws IOException {
+      String candidateLine = candidateReader.readLine();
+      while (candidateLine != null) {
+        String referenceLine = referenceReader.readLine();
+        Assert.assertEquals(referenceLine, candidateLine);
+        candidateLine = candidateReader.readLine();
+      }
+      Assert.assertNull(referenceReader.readLine());
   }
 
   private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
