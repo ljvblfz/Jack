@@ -461,13 +461,13 @@ public abstract class Jack {
           } else {
             fillJavaToJaycePlan(planBuilder);
           }
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-          typePlan.append(JayceSingleTypeWriter.class);
-
+          {
+            SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+            typePlan.append(JayceSingleTypeWriter.class);
+          }
           if (features.contains(Resources.class)) {
-            SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
-            packagePlan.append(ResourceWriter.class);
+            planBuilder.append(ResourceWriter.class);
           }
         } else if (options.ecjArguments == null) {
           assert targetProduction.contains(DexFileProduct.class);
@@ -1244,8 +1244,8 @@ public abstract class Jack {
     {
       SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
       packagePlan.append(NameKeeper.class);
-      packagePlan.append(ResourceRefiner.class);
     }
+    planBuilder.append(ResourceRefiner.class);
     planBuilder.append(Renamer.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =

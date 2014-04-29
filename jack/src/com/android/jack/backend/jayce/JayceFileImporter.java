@@ -24,6 +24,8 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
 import com.android.sched.util.codec.EnumCodec;
@@ -128,7 +130,7 @@ public class JayceFileImporter {
       if (isJackFileName(file.getName())) {
         addImportedTypes(session, file.getName(), pack, file.getLocation());
       } else {
-        addImportedResource(file, pack);
+        addImportedResource(file, session, pack);
       }
     } else {
       throw new AssertionError();
@@ -164,11 +166,13 @@ public class JayceFileImporter {
     }
   }
 
-  private void addImportedResource(@Nonnull InputVFile file, @Nonnull JPackage pack)
-      throws ResourceImportConflictException {
-    Resource newResource = new Resource(file);
-    for (Resource existingResource : pack.getResources()) {
-      if (existingResource.getName().equals(newResource.getName())) {
+  private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
+      @Nonnull JPackage pack) throws ResourceImportConflictException {
+    TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
+    String resourceName = formatter.getName(pack, file.getName());
+    Resource newResource = new Resource(resourceName, file);
+    for (Resource existingResource : session.getResources()) {
+      if (existingResource.getName().equals(resourceName)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
           throw new ResourceImportConflictException(newResource.getLocation(),
               existingResource.getLocation());
@@ -181,7 +185,7 @@ public class JayceFileImporter {
         return;
       }
     }
-    pack.addResource(new Resource(file));
+    session.addResource(newResource);
   }
 
   public static boolean isJackFileName(@Nonnull String name) {

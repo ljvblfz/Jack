@@ -62,6 +62,9 @@ public class JSession extends JNode {
   @CheckForNull
   private OutputVDir outputVDir;
 
+  @Nonnull
+  private final List<Resource> resources = new ArrayList<Resource>();
+
   @CheckForNull
   public OutputVDir getOutputVDir() {
     return outputVDir;
@@ -110,7 +113,7 @@ public class JSession extends JNode {
     assert removed;
   }
 
-@Nonnull
+  @Nonnull
   public List<JDefinedClassOrInterface> getTypesToEmit() {
     return typesToEmit;
   }
@@ -118,6 +121,15 @@ public class JSession extends JNode {
   @Nonnull
   public JPackage getTopLevelPackage() {
     return topLevelPackage;
+  }
+
+  public void addResource(@Nonnull Resource resource) {
+    resources.add(resource);
+  }
+
+  @Nonnull
+  public List<Resource> getResources() {
+    return resources;
   }
 
   @Override

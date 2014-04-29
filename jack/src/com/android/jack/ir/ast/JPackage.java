@@ -87,9 +87,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final List<JPhantomAnnotation> phantomAnnotations = new ArrayList<JPhantomAnnotation>();
 
   @Nonnull
-  private final List<Resource> resources = new ArrayList<Resource>();
-
-  @Nonnull
   private String name;
 
   @Nonnull
@@ -129,10 +126,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     subPackages.add(newPackage);
   }
 
-  public void addResource(@Nonnull Resource resource) {
-    resources.add(resource);
-  }
-
   public void add(@Nonnull HasEnclosingPackage node) {
     if (node instanceof JDefinedClassOrInterface) {
       addType((JDefinedClassOrInterface) node);
@@ -153,11 +146,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   public List<JDefinedClassOrInterface> getTypes() {
     loadClassesAndInterfaces();
     return declaredTypes;
-  }
-
-  @Nonnull
-  public List<Resource> getResources() {
-    return resources;
   }
 
   @Override

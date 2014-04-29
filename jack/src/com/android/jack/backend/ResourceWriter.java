@@ -16,7 +16,7 @@
 
 package com.android.jack.backend;
 
-import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.util.BytesStreamSucker;
@@ -42,17 +42,16 @@ import javax.annotation.Nonnull;
 @Name("ResourceWriter")
 @Support(Resources.class)
 @Synchronized
-public class ResourceWriter implements RunnableSchedulable<JPackage> {
+public class ResourceWriter implements RunnableSchedulable<JSession> {
 
   @Override
-  public synchronized void run(@Nonnull JPackage pack) throws Exception {
-    OutputVDir outputVDir = pack.getSession().getOutputVDir();
+  public synchronized void run(@Nonnull JSession session) throws Exception {
+    OutputVDir outputVDir = session.getOutputVDir();
     assert outputVDir != null;
-    VDirPathFormatter formatter = new VDirPathFormatter(outputVDir);
-    List<Resource> resources = pack.getResources();
+    List<Resource> resources = session.getResources();
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
-      String path = formatter.getName(pack, resource.getName());
+      String path = resource.getName();
       OutputVFile outputFile = outputVDir.createOutputVFile(path);
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();

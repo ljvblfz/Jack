@@ -18,11 +18,8 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.JackFileException;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.scheduling.tags.DexFileProduct;
@@ -52,8 +49,6 @@ public class DexZipWriter extends DexFileWriter {
 
   @Nonnull
   private static final String DEX_NAME = "classes.dex";
-  @Nonnull
-  private static final TypeFormatter formatter = new ZipEntryFormatter();
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
@@ -66,7 +61,9 @@ public class DexZipWriter extends DexFileWriter {
       zos.putNextEntry(entry);
       dexFile.writeTo(zos, null, false);
       zos.closeEntry();
-      writeResourcesInPackages(session.getTopLevelPackage(), zos);
+      for (Resource resource : session.getResources()) {
+        writeResource(resource, zos);
+      }
     } catch (IOException e) {
       throw new JackFileException(
           "Could not write Dex archive to output '" + outputFile.getAbsolutePath() + "'", e);
@@ -77,33 +74,11 @@ public class DexZipWriter extends DexFileWriter {
     }
   }
 
-  private void writeResourcesInPackages(@Nonnull JPackage pack, @Nonnull ZipOutputStream zos)
+  private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
       throws IOException {
-    for (Resource resource : pack.getResources()) {
-      writeResource(pack, resource, zos);
-    }
-    for (JPackage subpack : pack.getSubPackages()) {
-      writeResourcesInPackages(subpack, zos);
-    }
-  }
-
-  private void writeResource(@Nonnull JPackage pack, @Nonnull Resource resource,
-      @Nonnull ZipOutputStream zos) throws IOException {
-    String entryName = formatter.getName(pack, resource.getName());
-    ZipEntry resourceEntry = new ZipEntry(entryName);
+    ZipEntry resourceEntry = new ZipEntry(resource.getName());
     zos.putNextEntry(resourceEntry);
     BytesStreamSucker sucker = new BytesStreamSucker(resource.getVFile().openRead(), zos);
     sucker.suck();
-  }
-
-  private static class ZipEntryFormatter extends BinaryQualifiedNameFormatter {
-
-    private static final char PACKAGE_SEPARATOR = '/';
-
-    @Override
-    protected char getPackageSeparator() {
-      return PACKAGE_SEPARATOR;
-    }
-
   }
 }

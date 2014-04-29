@@ -34,9 +34,9 @@ public class Resource implements HasName {
   @Nonnull
   private final InputVFile vFile;
 
-  public Resource(@Nonnull InputVFile vFile) {
+  public Resource(@Nonnull CharSequence resourceName, @Nonnull InputVFile vFile) {
     this.vFile = vFile;
-    name = vFile.getName();
+    name = resourceName;
   }
 
   @Nonnull
