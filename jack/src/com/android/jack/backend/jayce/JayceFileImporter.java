@@ -72,7 +72,7 @@ public class JayceFileImporter {
 
   @Nonnull
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
-      "jack.jackimport.policy",
+      "jack.import.jackfile.policy",
       "Defines the policy to follow concerning type collision from imported jack files",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL);
@@ -82,7 +82,7 @@ public class JayceFileImporter {
 
   @Nonnull
   public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId.create(
-      "jack.jackimport.resource.policy",
+      "jack.import.resource.policy",
       "Defines the policy to follow concerning resource collision in imported jack containers",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL);
