@@ -18,6 +18,8 @@ package com.android.jack.jayce;
 
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -28,7 +30,8 @@ import javax.annotation.Nonnull;
 public interface MethodNode extends Node {
 
   @CheckForNull
-  JAbstractMethodBody loadBody(@Nonnull JMethod loading);
+  JAbstractMethodBody loadBody(@Nonnull JMethod loading) throws JTypeLookupException,
+      JMethodLookupException;
 
   @Nonnull
   NodeLevel getLevel();

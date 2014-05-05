@@ -24,12 +24,14 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -105,7 +107,8 @@ public class NMethodCall extends NExpression {
 
   @Override
   @Nonnull
-  public JMethodCall exportAsJast(@Nonnull ExportSession exportSession) {
+  public JMethodCall exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert receiverType != null;
     assert receiverKind != null;

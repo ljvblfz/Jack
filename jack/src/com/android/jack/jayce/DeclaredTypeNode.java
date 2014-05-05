@@ -19,6 +19,8 @@ package com.android.jack.jayce;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.Nonnull;
 
@@ -28,7 +30,8 @@ import javax.annotation.Nonnull;
 public interface DeclaredTypeNode extends Node {
 
   void updateToStructure(@Nonnull JDefinedClassOrInterface loaded,
-      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader);
+      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader) throws JTypeLookupException,
+      JMethodLookupException;
 
   @Nonnull
   JDefinedClassOrInterface create(

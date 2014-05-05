@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -23,6 +24,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -60,7 +62,8 @@ public class NUnlock extends NStatement {
 
   @Override
   @Nonnull
-  public JUnlock exportAsJast(@Nonnull ExportSession exportSession) {
+  public JUnlock exportAsJast(@Nonnull ExportSession exportSession) throws JMethodLookupException,
+      JTypeLookupException {
     assert sourceInfo != null;
     assert lockExpr != null;
     JUnlock jStatement = new JUnlock(sourceInfo.exportAsJast(),

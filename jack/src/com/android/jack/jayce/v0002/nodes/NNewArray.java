@@ -20,11 +20,13 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +66,8 @@ public class NNewArray extends NExpression {
 
   @Override
   @Nonnull
-  public JNewArray exportAsJast(@Nonnull ExportSession exportSession) {
+  public JNewArray exportAsJast(@Nonnull ExportSession exportSession) throws JMethodLookupException,
+      JTypeLookupException {
     assert sourceInfo != null;
     assert type != null;
     JArrayType jType = (JArrayType) exportSession.getLookup().getType(type);
@@ -96,7 +99,7 @@ public class NNewArray extends NExpression {
     type = in.readId();
     dims = in.readNodes(NExpression.class);
     initializers = in.readNodes(NExpression.class);
-    
+
   }
 
   @Override

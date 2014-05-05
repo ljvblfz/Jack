@@ -19,12 +19,14 @@ package com.android.jack.jayce.v0002.nodes;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JLocal;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,7 +76,8 @@ public class NCatchBlock extends NStatement {
 
   @Override
   @Nonnull
-  public JCatchBlock exportAsJast(@Nonnull ExportSession exportSession) {
+  public JCatchBlock exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     List<JClass> jCatchTypes = new ArrayList<JClass>(catchTypes.size());
     for (String catchedType : catchTypes) {

@@ -20,11 +20,13 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JReferenceType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -57,7 +59,8 @@ public class NInstanceOf extends NExpression {
 
   @Override
   @Nonnull
-  public JInstanceOf exportAsJast(@Nonnull ExportSession exportSession) {
+  public JInstanceOf exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert expr != null;
     assert testType != null;
@@ -78,7 +81,7 @@ public class NInstanceOf extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     expr = in.readNode(NExpression.class);
     testType = in.readId();
-    
+
   }
 
   @Override

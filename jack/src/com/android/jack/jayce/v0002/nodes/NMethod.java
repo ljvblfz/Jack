@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
@@ -34,6 +35,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -102,7 +104,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @Nonnull
   public JMethod exportAsJast(@Nonnull ExportSession exportSession,
-      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) {
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
+      JMethodLookupException {
     assert name != null;
     assert returnType != null;
     assert methodKind != null;
@@ -136,7 +139,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @CheckForNull
   @Override
-  public JAbstractMethodBody loadBody(@Nonnull JMethod method) {
+  public JAbstractMethodBody loadBody(@Nonnull JMethod method) throws JTypeLookupException,
+      JMethodLookupException {
     if (body != null) {
       JSession session = method.getParent(JSession.class);
       ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,

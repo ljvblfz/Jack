@@ -18,6 +18,7 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JCaseStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.linker.CaseStatementLinker;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -25,6 +26,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,7 +77,8 @@ public class NSwitchStatement extends NStatement {
 
   @Override
   @Nonnull
-  public JSwitchStatement exportAsJast(@Nonnull ExportSession exportSession) {
+  public JSwitchStatement exportAsJast(@Nonnull ExportSession exportSession)
+      throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert expr != null;
     assert body != null;

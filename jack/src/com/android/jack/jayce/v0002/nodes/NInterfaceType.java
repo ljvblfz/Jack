@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -30,6 +31,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.util.NamingTools;
 
 import java.io.IOException;
@@ -110,7 +112,8 @@ public class NInterfaceType extends NDeclaredType {
 
   @Override
   public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader loader) {
+      @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
+      JMethodLookupException {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedInterface jInterfaceType = (JDefinedInterface) loading;

@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.NodeLevel;
@@ -30,6 +31,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -64,7 +66,8 @@ public class NConstructor extends NMethod {
 @Override
   @Nonnull
   public JMethod exportAsJast(@Nonnull ExportSession exportSession,
-      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) {
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
+      JMethodLookupException {
     assert sourceInfo != null;
     exportSession.getLocalResolver().clear();
     SourceInfo jSourceInfo = sourceInfo.exportAsJast();

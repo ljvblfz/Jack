@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -86,7 +87,8 @@ public class NEnumType extends NClassType {
   }
   @Override
   public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader loader) {
+      @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
+      JMethodLookupException {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedEnum jEnumType = (JDefinedEnum) loading;

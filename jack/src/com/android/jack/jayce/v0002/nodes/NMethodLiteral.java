@@ -20,11 +20,13 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodLiteral;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -59,7 +61,8 @@ public class NMethodLiteral extends NLiteral {
 
   @Override
   @Nonnull
-  public JMethodLiteral exportAsJast(@Nonnull ExportSession exportSession) {
+  public JMethodLiteral exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert methodEnclosingType != null;
     assert method != null;

@@ -18,12 +18,14 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JStatement;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -63,7 +65,8 @@ public class NDoStatement extends NStatement {
 
   @Override
   @Nonnull
-  public JDoStatement exportAsJast(@Nonnull ExportSession exportSession) {
+  public JDoStatement exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert testExpression != null;
     assert sourceInfo != null;
     JStatement jBody = body != null ? body.exportAsJast(exportSession) : null;

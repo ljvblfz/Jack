@@ -17,11 +17,13 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JConcatOperation;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -58,7 +60,8 @@ public class NConcatOperation extends NExpression {
 
   @Override
   @Nonnull
-  public JConcatOperation exportAsJast(@Nonnull ExportSession exportSession) {
+  public JConcatOperation exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
@@ -78,7 +81,7 @@ public class NConcatOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     lhs = in.readNode(NExpression.class);
     rhs = in.readNode(NExpression.class);
-    
+
   }
 
   @Override

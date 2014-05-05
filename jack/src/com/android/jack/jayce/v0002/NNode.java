@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0002;
 
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.jayce.Node;
@@ -24,6 +25,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -40,7 +42,8 @@ public abstract class NNode implements Node {
   public abstract void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node);
 
   @Nonnull
-  public abstract Object exportAsJast(@Nonnull ExportSession exportSession);
+  public abstract Object exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException;
 
   public abstract void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException;
 

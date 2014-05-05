@@ -18,11 +18,13 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -57,7 +59,8 @@ public class NMethodBody extends NAbstractMethodBody {
 
   @Override
   @Nonnull
-  public JMethodBody exportAsJast(@Nonnull ExportSession exportSession) {
+  public JMethodBody exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert block != null;
     assert sourceInfo != null;
     JMethodBody jMethodBody =

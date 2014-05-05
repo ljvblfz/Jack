@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JFieldId;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -60,7 +61,8 @@ public class NEnumLiteral extends NLiteral {
 
   @Override
   @Nonnull
-  public JEnumLiteral exportAsJast(@Nonnull ExportSession exportSession) {
+  public JEnumLiteral exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException {
     assert sourceInfo != null;
     assert enumFieldDeclaringType != null;
     assert enumFieldName != null;

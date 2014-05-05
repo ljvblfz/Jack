@@ -18,12 +18,14 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -64,7 +66,8 @@ public class NAssertStatement extends NStatement {
 
   @Override
   @Nonnull
-  public JAssertStatement exportAsJast(@Nonnull ExportSession exportSession) {
+  public JAssertStatement exportAsJast(@Nonnull ExportSession exportSession)
+      throws JMethodLookupException, JTypeLookupException {
     assert testExpression != null;
     assert sourceInfo != null;
     JExpression jArg = null;

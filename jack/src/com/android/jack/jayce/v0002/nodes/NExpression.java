@@ -17,8 +17,10 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.Nonnull;
 
@@ -29,5 +31,6 @@ public abstract class NExpression extends NNode implements HasSourceInfo{
 
   @Override
   @Nonnull
-  public abstract JExpression exportAsJast(@Nonnull ExportSession exportSession);
+  public abstract JExpression exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException;
 }

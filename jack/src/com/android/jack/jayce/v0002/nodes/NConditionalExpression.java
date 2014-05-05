@@ -19,11 +19,13 @@ package com.android.jack.jayce.v0002.nodes;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -61,7 +63,8 @@ public class NConditionalExpression extends NExpression {
 
   @Override
   @Nonnull
-  public JConditionalExpression exportAsJast(@Nonnull ExportSession exportSession) {
+  public JConditionalExpression exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert ifTest != null;
     assert thenExpr != null;

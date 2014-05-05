@@ -20,11 +20,13 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -57,7 +59,8 @@ public class NDynamicCastOperation extends NExpression {
 
   @Override
   @Nonnull
-  public JDynamicCastOperation exportAsJast(@Nonnull ExportSession exportSession) {
+  public JDynamicCastOperation exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
     assert castType != null;
     assert expr != null;
@@ -79,7 +82,7 @@ public class NDynamicCastOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     castType = in.readId();
     expr = in.readNode(NExpression.class);
-    
+
   }
 
   @Override

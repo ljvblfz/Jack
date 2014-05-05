@@ -20,12 +20,14 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewInstance;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -54,7 +56,8 @@ public class NNewInstance extends NMethodCall {
 
   @Override
   @Nonnull
-  public JNewInstance exportAsJast(@Nonnull ExportSession exportSession) {
+  public JNewInstance exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert instance == null;
     assert dispatchKind == null;
     assert methodName == null;

@@ -17,7 +17,9 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JLiteral;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.Nonnull;
 
@@ -29,6 +31,7 @@ public abstract class NLiteral extends NExpression {
 
   @Override
   @Nonnull
-  public abstract JLiteral exportAsJast(@Nonnull ExportSession exportSession);
+  public abstract JLiteral exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException;
 
 }

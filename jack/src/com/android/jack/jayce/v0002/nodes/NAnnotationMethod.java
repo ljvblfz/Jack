@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
@@ -29,6 +30,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -69,8 +71,9 @@ public class NAnnotationMethod extends NMethod {
 
   @Override
     @Nonnull
-    public JMethod exportAsJast(@Nonnull ExportSession exportSession,
-        @Nonnull JayceClassOrInterfaceLoader enclosingLoader) {
+  public JMethod exportAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
+      JMethodLookupException {
     assert name != null;
     assert returnType != null;
     assert sourceInfo != null;

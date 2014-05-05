@@ -20,12 +20,14 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JSynchronizedBlock;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -67,7 +69,8 @@ public class NSynchronizedBlock extends NStatement {
 
   @Override
   @Nonnull
-  public JSynchronizedBlock exportAsJast(@Nonnull ExportSession exportSession) {
+  public JSynchronizedBlock exportAsJast(@Nonnull ExportSession exportSession)
+      throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert lockExpr != null;
     assert synchronizedBlock != null;

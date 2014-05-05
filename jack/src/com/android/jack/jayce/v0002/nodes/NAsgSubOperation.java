@@ -17,11 +17,13 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JAsgSubOperation;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -55,7 +57,8 @@ public class NAsgSubOperation extends NExpression {
 
   @Override
   @Nonnull
-  public JAsgSubOperation exportAsJast(@Nonnull ExportSession exportSession) {
+  public JAsgSubOperation exportAsJast(@Nonnull ExportSession exportSession)
+      throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
@@ -74,7 +77,7 @@ public class NAsgSubOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     lhs = in.readNode(NExpression.class);
     rhs = in.readNode(NExpression.class);
-    
+
   }
 
   @Override

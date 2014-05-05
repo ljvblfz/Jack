@@ -30,9 +30,11 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.SymbolResolver;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.sched.util.collect.Lists;
 
 import java.util.ArrayList;
@@ -158,7 +160,8 @@ public class ExportSession {
   }
 
   @Nonnull
-  public List<JType> getTypeListFromSignatureList(@Nonnull List<String> typeSignatures) {
+  public List<JType> getTypeListFromSignatureList(@Nonnull List<String> typeSignatures)
+      throws JTypeLookupException {
     List<JType> argsType;
     if (typeSignatures.isEmpty()) {
       argsType = Lists.create();
@@ -174,7 +177,7 @@ public class ExportSession {
 
   @Nonnull
   public JMethod getDeclaredMethod(@Nonnull JDefinedClassOrInterface receiver,
-      @Nonnull String methodsignature) {
+      @Nonnull String methodsignature) throws JMethodLookupException, JTypeLookupException {
     int argStart = methodsignature.indexOf('(');
     int argEnd = methodsignature.indexOf(')');
     assert argStart > 0 && argEnd > 0 && argStart < argEnd
@@ -189,7 +192,7 @@ public class ExportSession {
   }
 
   @Nonnull
-  private List<JType> getTypeList(@Nonnull String argsTypeSignatures) {
+  private List<JType> getTypeList(@Nonnull String argsTypeSignatures) throws JTypeLookupException {
     List<JType> argsType = new ArrayList<JType>();
     int index = 0;
     int len = argsTypeSignatures.length();

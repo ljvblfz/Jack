@@ -20,11 +20,13 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -66,7 +68,8 @@ public class NAnnotationLiteral extends NLiteral {
 
   @Override
   @Nonnull
-  public JAnnotationLiteral exportAsJast(@Nonnull ExportSession exportSession) {
+  public JAnnotationLiteral exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
     assert retentionPolicy != null;
     assert sourceInfo != null;
     assert annotationType != null;

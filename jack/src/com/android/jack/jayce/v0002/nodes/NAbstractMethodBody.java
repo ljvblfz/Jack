@@ -17,8 +17,10 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JAbstractMethodBody;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.Nonnull;
 
@@ -30,6 +32,7 @@ public abstract class NAbstractMethodBody extends NNode
 
   @Override
   @Nonnull
-  public abstract JAbstractMethodBody exportAsJast(@Nonnull ExportSession exportSession);
+  public abstract JAbstractMethodBody exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException;
 
 }

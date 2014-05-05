@@ -20,6 +20,7 @@ import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -27,6 +28,7 @@ import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
+import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 
@@ -61,7 +63,8 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
 
   @Override
   @Nonnull
-  public JNameValuePair exportAsJast(@Nonnull ExportSession exportSession) {
+  public JNameValuePair exportAsJast(@Nonnull ExportSession exportSession)
+      throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert value != null;
     assert name != null;

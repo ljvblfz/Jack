@@ -18,6 +18,7 @@ package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -51,7 +52,8 @@ public class NExceptionRuntimeValue extends NExpression {
 
   @Override
   @Nonnull
-  public JExceptionRuntimeValue exportAsJast(@Nonnull ExportSession exportSession) {
+  public JExceptionRuntimeValue exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException {
     assert sourceInfo != null;
     assert catchedType != null;
     return new JExceptionRuntimeValue(

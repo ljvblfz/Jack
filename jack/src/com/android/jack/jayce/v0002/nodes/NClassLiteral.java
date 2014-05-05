@@ -17,6 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JClassLiteral;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -54,7 +55,8 @@ public class NClassLiteral extends NLiteral {
 
   @Override
   @Nonnull
-  public JClassLiteral exportAsJast(@Nonnull ExportSession exportSession) {
+  public JClassLiteral exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException {
     assert sourceInfo != null;
     assert refType != null;
     return new JClassLiteral(
@@ -71,7 +73,7 @@ public class NClassLiteral extends NLiteral {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     refType = in.readId();
-    
+
   }
 
   @Override
