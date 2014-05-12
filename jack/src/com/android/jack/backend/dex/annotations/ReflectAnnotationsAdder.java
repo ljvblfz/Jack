@@ -177,8 +177,9 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
       if (marker != null) {
         String genericSignature = marker.getGenericSignature();
-        assert genericSignature != null;
-        addSignature(x, genericSignature, x.getSourceInfo());
+        if (genericSignature != null) {
+          addSignature(x, genericSignature, x.getSourceInfo());
+        }
       }
     }
 
