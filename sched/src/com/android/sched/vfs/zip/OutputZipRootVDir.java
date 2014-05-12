@@ -16,7 +16,7 @@
 
 package com.android.sched.vfs.zip;
 
-import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.AbstractVElement;
@@ -26,9 +26,6 @@ import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
@@ -48,18 +45,21 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
   @Nonnull
   protected final ZipOutputStream zos;
   @Nonnull
-  private final File zipFile;
+  private final String fileName;
+  @Nonnull
+  private final OutputZipFile zipFile;
 
-  public OutputZipRootVDir(@Nonnull File zipFile) throws FileNotFoundException {
+  public OutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
+    fileName = zipFile.getName();
+    location = new ZipLocation(zipFile.getLocation(), new ZipEntry(""));
+    zos = zipFile.getOutputStream();
     this.zipFile = zipFile;
-    location = new ZipLocation(new FileLocation(zipFile), new ZipEntry(""));
-    zos = new ZipOutputStream(new FileOutputStream(zipFile));
   }
 
   @Nonnull
   @Override
   public String getName() {
-    return zipFile.getName();
+    return fileName;
   }
 
   @Override

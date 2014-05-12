@@ -35,6 +35,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.OutputVDirCodec;
 import com.android.sched.util.codec.PathCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
@@ -55,6 +56,8 @@ import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
+import com.android.sched.vfs.Container;
+import com.android.sched.vfs.OutputVDir;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -84,15 +87,6 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public class Options {
 
-  /**
-   * Container types.
-   */
-  public enum Container {
-    FILE,
-    DIR,
-    ZIP
-  }
-
   @Nonnull
   public static final
       JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId.create(
@@ -117,17 +111,16 @@ public class Options {
       .ignoreCase().requiredIf(GENERATE_JACK_FILE.getValue().isTrue());
 
   @Nonnull
-  public static final
-      PropertyId<File> JACK_FILE_OUTPUT_ZIP = PropertyId.create("jack.jackfile.output.zip",
-          "Output zip archive for jack files", new PathCodec()).requiredIf(
-          GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
+  public static final PropertyId<OutputVDir> JACK_FILE_OUTPUT_ZIP = PropertyId.create(
+      "jack.jackfile.output.zip", "Output zip archive for jack files",
+      new OutputVDirCodec(Existence.MAY_EXIST, Container.ZIP)).requiredIf(
+      GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
-  public static final PropertyId<Directory> JACK_FILE_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<OutputVDir> JACK_FILE_OUTPUT_DIR = PropertyId.create(
       "jack.jackfile.output.dir", "Output folder for jack files",
-      new DirectoryCodec(Existence.MAY_EXIST, Permission.READ | Permission.WRITE))
-      .requiredIf(GENERATE_JACK_FILE.getValue().isTrue()
-          .and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
+      new OutputVDirCodec(Existence.MAY_EXIST, Container.DIR)).requiredIf(
+      GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_ONE_DEX_PER_TYPE = BooleanPropertyId.create(

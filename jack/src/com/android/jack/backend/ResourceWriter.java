@@ -16,6 +16,7 @@
 
 package com.android.jack.backend;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.scheduling.feature.Resources;
@@ -25,6 +26,8 @@ import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
@@ -45,9 +48,21 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class ResourceWriter implements RunnableSchedulable<JSession> {
 
+  @Nonnull
+  private final OutputVDir outputVDir;
+
+  {
+    assert ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue();
+    Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
+    if (containerType == Container.DIR) {
+      outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+    } else {
+      outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
+    }
+  }
+
   @Override
   public synchronized void run(@Nonnull JSession session) throws Exception {
-    OutputVDir outputVDir = session.getOutputVDir();
     assert outputVDir != null;
     List<Resource> resources = session.getResources();
     for (Resource resource : resources) {

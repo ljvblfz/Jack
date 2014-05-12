@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +17,45 @@
 package com.android.sched.util.codec;
 
 
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.direct.InputDirectDir;
+import com.android.sched.vfs.zip.InputZipRootVDir;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link Directory}.
+ * This {@link StringCodec} is used to create an instance of {@link InputVDir}.
  */
-public class DirectoryCodec extends FileOrDirCodec
-    implements StringCodec<Directory> {
+public class InputVDirCodec extends FileOrDirCodec
+    implements StringCodec<InputVDir> {
 
-  public DirectoryCodec(@Nonnull Existence existence, int permissions) {
-    super(existence, permissions);
+  @Nonnull
+  private final Logger logger = LoggerFactory.getLogger();
 
-    assert (permissions & Permission.EXECUTE)
-        == 0 : "Execute permission is not supported by " + DirectoryCodec.class.getSimpleName();
+  public InputVDirCodec() {
+    super(Existence.MUST_EXIST, Permission.READ);
   }
 
   @Nonnull
-  public DirectoryCodec changeOwnerPermission() {
+  public InputVDirCodec changeOwnerPermission() {
     setChangePermission(ChangePermission.OWNER);
 
     return this;
   }
 
   @Nonnull
-  public DirectoryCodec changeAllPermission() {
+  public InputVDirCodec changeAllPermission() {
     setChangePermission(ChangePermission.EVERYBODY);
 
     return this;
@@ -59,7 +66,7 @@ public class DirectoryCodec extends FileOrDirCodec
   public String getUsage() {
     StringBuilderAppender sb = new StringBuilderAppender(", ");
 
-    sb.append("a path to a directory");
+    sb.append("a path to an input directory or zip archive");
     sb.append(" (must ");
 
     sb.append(existence == Existence.MUST_EXIST, "exist");
@@ -75,22 +82,42 @@ public class DirectoryCodec extends FileOrDirCodec
 
   @Override
   @Nonnull
-  public Directory checkString(@Nonnull CodecContext context, @Nonnull String string)
+  public InputVDir checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
+    InputVDir dir;
     try {
-      return new Directory(string, context.getRunnableHooks(), existence, permissions, change);
+      File dirOrZip = new File(string);
+      if (dirOrZip.isDirectory()) {
+        dir = new InputDirectDir(dirOrZip);
+      } else { // zip
+        final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
+        dir = zipArchive;
+        RunnableHooks hooks = context.getRunnableHooks();
+        assert hooks != null;
+        hooks.addHook(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              zipArchive.close();
+            } catch (IOException e) {
+              logger.log(Level.FINE, "Failed to close zip for '" + string + "'.", e);
+            }
+          }
+        });
+      }
+      return dir;
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }
 
   @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull Directory dir) {
+  public void checkValue(@Nonnull CodecContext context, @Nonnull InputVDir dir) {
   }
 
   @Override
   @Nonnull
-  public Directory parseString(@Nonnull CodecContext context, @Nonnull String string) {
+  public InputVDir parseString(@Nonnull CodecContext context, @Nonnull String string) {
     try {
       return checkString(context, string);
     } catch (ParsingException e) {
@@ -100,7 +127,7 @@ public class DirectoryCodec extends FileOrDirCodec
 
   @Override
   @Nonnull
-  public String formatValue(@Nonnull Directory directory) {
-    return directory.getPath();
+  public String formatValue(@Nonnull InputVDir directory) {
+    return directory.getLocation().getDescription();
   }
 }

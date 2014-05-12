@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 /**
  * An {@link OutputVFile} directly backed by a {@link File} directory.
  */
-class OutputDirectFile extends AbstractVElement implements OutputVFile {
+public class OutputDirectFile extends AbstractVElement implements OutputVFile {
 
   private static boolean checkIfFileAlreadyExists = false;
 
@@ -62,5 +62,10 @@ class OutputDirectFile extends AbstractVElement implements OutputVFile {
   @Nonnull
   public Location getLocation() {
     return new FileLocation(file);
+  }
+
+  @Nonnull
+  public File getFile() {
+    return file;
   }
 }

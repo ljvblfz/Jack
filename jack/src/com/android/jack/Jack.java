@@ -16,7 +16,6 @@
 
 package com.android.jack;
 
-import com.android.jack.Options.Container;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
 import com.android.jack.analysis.UsedVariableAdder;
@@ -256,9 +255,7 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.direct.InputDirectDir;
-import com.android.sched.vfs.direct.OutputDirectDir;
 import com.android.sched.vfs.zip.InputZipRootVDir;
-import com.android.sched.vfs.zip.OutputZipRootVDir;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -566,35 +563,6 @@ public abstract class Jack {
               || targetProduction.contains(DexFileProduct.class)
               || plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
                   JackFormatIr.class);
-        }
-
-        if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
-          Container outputContainer = config.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
-          if (outputContainer == Container.DIR) {
-            session.setOutputVDir(new OutputDirectDir(config.get(Options.JACK_FILE_OUTPUT_DIR)));
-          } else if (outputContainer == Container.ZIP) {
-            try {
-              final OutputZipRootVDir vDir =
-                  new OutputZipRootVDir(config.get(Options.JACK_FILE_OUTPUT_ZIP));
-              final File jayceOutZip = options.jayceOutZip;
-              hooks.addHook(new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    vDir.close();
-                  } catch (IOException e) {
-                    logger.log(Level.WARNING,
-                        "Failed to close zip for '" + jayceOutZip.getAbsolutePath() + "'.", e);
-                  }
-                }
-              });
-              session.setOutputVDir(vDir);
-            } catch (IOException e) {
-              throw new JackFileException(
-                  "Error initializing jack output zip: " + options.jayceOutZip.getAbsolutePath(),
-                  e);
-            }
-          }
         }
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);

@@ -16,14 +16,13 @@
 
 package com.android.sched.vfs.zip;
 
-import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.OutputVFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
@@ -40,10 +39,11 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
   @Nonnull
   private final Location location;
 
-  OutputZipVFile(@Nonnull ZipOutputStream zos, @Nonnull ZipEntry entry, @Nonnull File zipFile) {
+  OutputZipVFile(@Nonnull ZipOutputStream zos, @Nonnull ZipEntry entry,
+      @Nonnull OutputZipFile zipFile) {
     this.zos = zos;
     this.entry = entry;
-    location = new ZipLocation(new FileLocation(zipFile), entry);
+    location = new ZipLocation(zipFile.getLocation(), entry);
   }
 
   @Nonnull

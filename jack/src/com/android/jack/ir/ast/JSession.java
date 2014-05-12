@@ -27,12 +27,10 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.vfs.OutputVDir;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -63,20 +61,8 @@ public class JSession extends JNode {
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory = new SourceInfoFactory();
 
-  @CheckForNull
-  private OutputVDir outputVDir;
-
   @Nonnull
   private final List<Resource> resources = new ArrayList<Resource>();
-
-  @CheckForNull
-  public OutputVDir getOutputVDir() {
-    return outputVDir;
-  }
-
-  public void setOutputVDir(@Nonnull OutputVDir outputVDir) {
-    this.outputVDir = outputVDir;
-  }
 
   public JSession() {
     super(SourceInfo.UNKNOWN);

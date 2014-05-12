@@ -23,6 +23,7 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.util.ExecuteFile;
 import com.android.sched.scheduler.ScheduleInstance;
+import com.android.sched.vfs.Container;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,10 +72,10 @@ public class MergerTestTools {
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     File jackOutputFolder = TestTools.createTempDir("jackOutput","folder");
     options.addProperty(
-        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Options.Container.DIR.toString());
+        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
     options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackOutputFolder.getAbsolutePath());
     options.addProperty(
-        Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Options.Container.DIR.toString());
+        Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
     options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
     options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
     options.addProperty(CodeItemBuilder.FORCE_JUMBO.getName(), "true");
