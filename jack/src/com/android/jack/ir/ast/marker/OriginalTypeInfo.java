@@ -40,7 +40,7 @@ public class OriginalTypeInfo implements Marker {
   @CheckForNull
   private String sourceName;
 
-  public void setGenericSignature(@Nonnull CharSequence genericSignature) {
+  public void setGenericSignature(@CheckForNull CharSequence genericSignature) {
     this.genericSignature = genericSignature;
   }
 
