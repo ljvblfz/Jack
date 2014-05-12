@@ -19,8 +19,6 @@ package com.android.jack.cfg;
 import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.cfg.ForwardBranchResolver.ForwardBranchKind;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JBreakStatement;
@@ -41,7 +39,6 @@ import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
@@ -54,8 +51,6 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.ast.RefAsStatement;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
-import com.android.jack.transformations.request.AppendStatement;
-import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
 import com.android.jack.util.filter.Filter;
@@ -154,14 +149,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public void endVisit(@Nonnull JMethodBody methodBody) {
       assert cfg != null;
 
-      if (cfg.getNodes().isEmpty() || (!virtualStmts.isEmpty()
-          && methodBody.getMethod().getType() == JPrimitiveTypeEnum.VOID.getType())) {
-        // Generate implicit return if there is no node or if virtualStmts is not empty (indeed, it
-        // could be targeted by a branch instruction). Take virtualStmts into account only if method
-        // return type is VOID, otherwise it is dead code, don't take care about it.
-        generateImplicitReturn(methodBody);
-      }
-
       // Generate all edges by resolving forward branch.
       forwardBranchResolver.resolve();
     }
@@ -182,8 +169,12 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
               catchBlock.getCatchVar());
       setBlockOfStatement(catchBasicBlock);
 
-      forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, catchBasicBlock,
-          getNextStatement(getConcreteStatement(catchBlock)));
+      JStatement nextStatement =
+          ControlFlowHelper.getNextStatement(getConcreteStatement(catchBlock));
+      if (nextStatement != null) {
+        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, catchBasicBlock,
+            nextStatement);
+      }
 
       accept(catchStmts.subList(1, catchStmts.size()));
 
@@ -196,8 +187,10 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       NormalBasicBlock endOfBlock = new NormalBasicBlock(cfg, currentStmts);
       setBlockOfStatement(endOfBlock);
 
-      forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, endOfBlock,
-          getNextStatement(block));
+      JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
+      if (nextStatement != null) {
+        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, endOfBlock, nextStatement);
+      }
     }
 
     @Override
@@ -213,8 +206,11 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         BasicBlock endOfBlock = new NormalBasicBlock(cfg, currentStmts);
         setBlockOfStatement(endOfBlock);
 
-        forwardBranchResolver.addForwardBranch(
-            ForwardBranchKind.BRANCH, endOfBlock, getNextStatement(block));
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
+        if (nextStatement != null) {
+          forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, endOfBlock,
+              nextStatement);
+        }
       }
     }
 
@@ -259,8 +255,11 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
             ifStmt.getElseStmt());
         accept(ifStmt.getElseStmt());
       } else {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.IF_ELSE, condBlock,
-            getNextStatement(ifStmt));
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
+        if (nextStatement != null) {
+          forwardBranchResolver.addForwardBranch(ForwardBranchKind.IF_ELSE, condBlock,
+              nextStatement);
+        }
       }
 
       return false;
@@ -334,8 +333,11 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_DEFAULT, switchBlock,
             defaultCase);
       } else {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_DEFAULT, switchBlock,
-            getNextStatement(switchStatement));
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(switchStatement);
+        if (nextStatement != null) {
+          forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_DEFAULT, switchBlock,
+              nextStatement);
+        }
       }
 
       return true;
@@ -409,37 +411,13 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     }
 
     @Nonnull
-    private JStatement generateImplicitReturn(@Nonnull JMethodBody methodBody) {
-      assert currentStmts.isEmpty();
-      JStatement stmt = null;
-
-      if (methodBody.getMethod().getType() != JPrimitiveTypeEnum.VOID.getType()) {
-        stmt = forwardBranchResolver.deadCodeStatement;
-      } else {
-        SourceInfo methodInfo = methodBody.getSourceInfo();
-        stmt = new JReturnStatement(SourceOrigin.create(methodInfo.getEndLine(),
-            methodInfo.getEndLine(), methodInfo.getFileName()), null);
-        currentStmts.add(stmt);
-
-        assert cfg != null;
-        BasicBlock returnBlock = new ReturnBasicBlock(cfg, currentStmts);
-        setBlockOfStatement(returnBlock);
-
-        // Commit the transformation directly allows to generate only one time the implicit return,
-        // since following needs will find it.
-        TransformationRequest tr = new TransformationRequest(methodBody);
-        tr.append(new AppendStatement(methodBody.getBlock(), stmt));
-        tr.commit();
-      }
-      return stmt;
-    }
-
-    @Nonnull
     private JStatement getConcreteStatement(@Nonnull JStatementList block) {
       List<JStatement> statements = block.getStatements();
 
       if (statements.isEmpty()) {
-        return (getNextStatement(block));
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
+        assert nextStatement != null;
+        return (nextStatement);
       }
 
       JStatement firstStmt = statements.get(0);
@@ -452,15 +430,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       }
 
       return firstStmt;
-    }
-
-    @Nonnull
-    private JStatement getNextStatement(@Nonnull JStatement statement) {
-      JStatement nextStmt = ControlFlowHelper.getNextStatement(statement);
-      if (nextStmt == null) {
-         nextStmt = generateImplicitReturn(statement.getParent(JMethodBody.class));
-      }
-      return nextStmt;
     }
 
     private boolean expressionCanThrow(@Nonnull JExpression expression) {
@@ -494,8 +463,10 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       PeiBasicBlock peiBlock = new PeiBasicBlock(cfg, currentStmts);
       setBlockOfStatement(peiBlock);
 
-      forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, peiBlock,
-          getNextStatement(peiInst));
+      JStatement nextStatement = ControlFlowHelper.getNextStatement(peiInst);
+      if (nextStatement != null) {
+        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, peiBlock, nextStatement);
+      }
 
       setExceptionEdges(peiBlock, peiInst);
     }

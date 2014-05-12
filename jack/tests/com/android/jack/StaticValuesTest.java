@@ -23,7 +23,9 @@ import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JStatement;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
 import com.android.jack.scheduling.adapter.JFieldAdaptor;
 import com.android.sched.scheduler.PlanBuilder;
@@ -36,6 +38,8 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * JUnit test for compilation of static field access.
@@ -52,31 +56,31 @@ public class StaticValuesTest {
   @Test
   public void testGeneratedClinit1() throws Exception {
     Assert.assertTrue(
-        isEmptyMethod(compileAndGetClinit("com/android/jack/field/static004/jack/Data1")));
+        containsOnlyReturn(compileAndGetClinit("com/android/jack/field/static004/jack/Data1")));
   }
 
   @Test
   public void testGeneratedClinit2() throws Exception {
     Assert.assertTrue(
-        isEmptyMethod(compileAndGetClinit("com/android/jack/field/static004/jack/Data2")));
+        containsOnlyReturn(compileAndGetClinit("com/android/jack/field/static004/jack/Data2")));
   }
 
   @Test
   public void testGeneratedClinit3() throws Exception {
     Assert.assertFalse(
-        isEmptyMethod(compileAndGetClinit("com/android/jack/field/static004/jack/Data3")));
+        containsOnlyReturn(compileAndGetClinit("com/android/jack/field/static004/jack/Data3")));
   }
 
   @Test
   public void testGeneratedClinit4() throws Exception {
     Assert.assertTrue(
-        isEmptyMethod(compileAndGetClinit("com/android/jack/field/static004/jack/Data4")));
+        containsOnlyReturn(compileAndGetClinit("com/android/jack/field/static004/jack/Data4")));
   }
 
   @Test
   public void testGeneratedClinit5() throws Exception {
     Assert.assertFalse(
-        isEmptyMethod(compileAndGetClinit("com/android/jack/field/static004/jack/Data5")));
+        containsOnlyReturn(compileAndGetClinit("com/android/jack/field/static004/jack/Data5")));
   }
 
   @Test
@@ -86,13 +90,13 @@ public class StaticValuesTest {
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
     options.dxLegacy = false;
     Assert.assertTrue(
-        isEmptyMethod(compileAndGetClinit(classBinaryName, options)));
+        containsOnlyReturn(compileAndGetClinit(classBinaryName, options)));
 
     options = TestTools
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
     options.dxLegacy = true;
     Assert.assertFalse(
-        isEmptyMethod(compileAndGetClinit(classBinaryName, options)));
+        containsOnlyReturn(compileAndGetClinit(classBinaryName, options)));
   }
 
   private static JMethod compileAndGetClinit(String classBinaryName) throws Exception {
@@ -131,9 +135,10 @@ public class StaticValuesTest {
     return declaredType.getMethod(CLINIT, JPrimitiveTypeEnum.VOID.getType());
   }
 
-  private static boolean isEmptyMethod(JMethod method) {
+  private static boolean containsOnlyReturn(JMethod method) {
     JMethodBody body = (JMethodBody) method.getBody();
     assert body != null;
-    return body.getBlock().getStatements().isEmpty();
+    List<JStatement> statements = body.getBlock().getStatements();
+    return statements.size() == 1 && statements.get(0) instanceof JReturnStatement;
   }
 }

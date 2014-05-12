@@ -34,7 +34,6 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.scheduling.feature.DxLegacy;
@@ -118,14 +117,13 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
       callToSuper.addArg(new JParameterRef(sourceInfo, param));
     }
 
-    JStatement stmt;
     if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
-      stmt = new JReturnStatement(sourceInfo, callToSuper);
+      bodyBlock.addStmt(new JReturnStatement(sourceInfo, callToSuper));
     } else {
-      stmt = new JExpressionStatement(sourceInfo, callToSuper);
+      bodyBlock.addStmt(new JExpressionStatement(sourceInfo, callToSuper));
+      bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
     }
 
-    bodyBlock.addStmt(stmt);
     bridge.setBody(body);
 
     TransformationRequest tr = new TransformationRequest(jClass);

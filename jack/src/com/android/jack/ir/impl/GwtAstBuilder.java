@@ -706,6 +706,11 @@ public class GwtAstBuilder {
 
         // user code (finally!)
         block.addStmts(statements);
+
+        if ((x.bits & ASTNode.NeedFreeReturn) != 0) {
+          generateImplicitReturn();
+        }
+
         popMethodInfo();
       } catch (Throwable e) {
         throw translateException(x, e);
@@ -1306,6 +1311,9 @@ public class GwtAstBuilder {
         } else {
           List<JStatement> statements = pop(x.statements);
           curMethod.body.getBlock().addStmts(statements);
+          if ((x.bits & ASTNode.NeedFreeReturn) != 0) {
+            generateImplicitReturn();
+          }
         }
         popMethodInfo();
       } catch (Throwable e) {
@@ -1968,6 +1976,14 @@ public class GwtAstBuilder {
         addBridgeMethods(x.binding);
       }
 
+      JMethod method =
+          type.getMethod(NamingTools.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
+      JAbstractMethodBody body = method.getBody();
+      assert body != null;
+      ((JMethodBody) body).getBlock().addStmt(new JReturnStatement(SourceOrigin.create(
+          method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
+          method.getSourceInfo().getFileName()), null));
+
       curClass = classStack.pop();
     }
 
@@ -2227,6 +2243,7 @@ public class GwtAstBuilder {
 
       if (bridgeMethod.getType() == JPrimitiveTypeEnum.VOID.getType()) {
         body.getBlock().addStmt(call.makeStatement());
+        body.getBlock().addStmt(new JReturnStatement(info, null));
       } else {
         body.getBlock().addStmt(new JReturnStatement(info, call));
       }
@@ -2937,6 +2954,13 @@ public class GwtAstBuilder {
       // return $VALUES;
       JFieldRef valuesRef = new JFieldRef(method.getSourceInfo(), null, valuesField.getId(), type);
       implementMethod(method, valuesRef);
+    }
+
+    private void generateImplicitReturn() {
+      curMethod.body.getBlock().addStmt(new JReturnStatement(SourceOrigin.create(
+          curMethod.method.getSourceInfo().getEndLine(),
+          curMethod.method.getSourceInfo().getEndLine(),
+          curMethod.method.getSourceInfo().getFileName()), null));
     }
   }
 
