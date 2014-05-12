@@ -16,12 +16,14 @@
 
 package com.android.jack;
 
+import com.android.jack.category.KnownBugs;
 import com.android.jack.util.BytesStreamSucker;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -218,6 +220,51 @@ public class ResourceTest {
     checkResourceContent(shrobbedJackDir, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(shrobbedJackDir, RESOURCE3_LONGPATH, "Res3");
     checkResourceContent(shrobbedJackDir, RESOURCE4_LONGPATH, "Res4");
+  }
+
+  @Test
+  @Category(KnownBugs.class)
+  public void testResourceContentAdaptation() throws Exception {
+    /// compile source file to a Jack dir
+    File jackOutputFolder = TestTools.createTempDir("tempjack", "dir");
+    String testName = "resource/test003";
+    File testFolder = TestTools.getJackTestFolder(testName);
+    File jackTestFolder = TestTools.getJackTestsWithJackFolder(testName);
+    TestTools.compileSourceToJack(new Options(), testFolder, TestTools.getDefaultBootclasspathString(),
+        jackOutputFolder, false /* non-zipped */);
+
+    String resource1LongPath = "com/android/jack/resource/test003/jack/A";
+    String resource2LongPath = "com/android/jack/resource/test003/jack/A.txt";
+
+    // add resources to Jack dir
+    copyFileToDir(new File(jackTestFolder, "A.txt"), resource1LongPath, jackOutputFolder);
+    copyFileToDir(new File(jackTestFolder, "A.txt"), resource2LongPath, jackOutputFolder);
+
+    // run shrobbing from Jack dir to Jack dir
+    Options options = new Options();
+    options.nameProvider = "rot13";
+    File shrobbedJackDir = TestTools.createTempDir("shrobbedJack", "dir");
+    ProguardFlags flags = new ProguardFlags(new File(testFolder, "proguard.flags001"));
+    TestTools.shrobJackToJack(options,
+        jackOutputFolder,
+        TestTools.getDefaultBootclasspathString(),
+        shrobbedJackDir,
+        Collections.singletonList(flags),
+        false /* non-zipped */);
+
+        // check that resources are contained in Jack dir
+        String expected = "pbz.naqebvq.wnpx.fuebo.grfg003.wnpx.N\n"
+        + "Lcom.android.jack.shrob.test003.jack.A;\n"
+        + "com/android/jack/shrob/test003/jack/A\n"
+        + "Lcom/android/jack/shrob/test003/jack/A;\n" + "A\n"
+        + "fddfcom.android.jack.shrob.test003.jack.A"
+        + "fgjgLcom.android.jack.shrob.test003.jack.A;"
+        + "sddtcom/android/jack/shrob/test003/jack/A\n"
+        + "fdhdhLcom/android/jack/shrob/test003/jack/A;\n" + "estsrtA\n"
+        + " pbz.naqebvq.wnpx.fuebo.grfg003.wnpx.N Lcom.android.jack.shrob.test003.jack.A; "
+        + "com/android/jack/shrob/test003/jack/A Lcom/android/jack/shrob/test003/jack/A; A";
+        checkResourceContent(shrobbedJackDir, "pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/A", expected);
+        checkResourceContent(shrobbedJackDir, "pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/N.txt", expected);
   }
 
   @Nonnull

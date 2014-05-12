@@ -1,0 +1,11 @@
+com.android.jack.shrob.test003.jack.A
+Lcom.android.jack.shrob.test003.jack.A;
+com/android/jack/shrob/test003/jack/A
+Lcom/android/jack/shrob/test003/jack/A;
+A
+fddfcom.android.jack.shrob.test003.jack.A
+fgjgLcom.android.jack.shrob.test003.jack.A;
+sddtcom/android/jack/shrob/test003/jack/A
+fdhdhLcom/android/jack/shrob/test003/jack/A;
+estsrtA
+ com.android.jack.shrob.test003.jack.A Lcom.android.jack.shrob.test003.jack.A; com/android/jack/shrob/test003/jack/A Lcom/android/jack/shrob/test003/jack/A; A
