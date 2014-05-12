@@ -19,7 +19,6 @@ package com.android.jack.shrob;
 import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
@@ -544,7 +543,6 @@ public abstract class AbstractTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void test39_001() throws Exception {
     runTest(defaultBootclasspath, null, "039", "001", "");
   }

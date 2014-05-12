@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JClass;
@@ -41,6 +42,7 @@ import com.android.jack.ir.ast.JFieldNameLiteral;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
@@ -100,7 +102,7 @@ public abstract class Tracer extends JVisitor {
 
   private void traceAnnotations(@Nonnull Annotable annotable) {
     for (JAnnotationLiteral a : annotable.getAnnotations()) {
-      trace(a);
+      accept(a);
     }
   }
 
@@ -277,6 +279,10 @@ public abstract class Tracer extends JVisitor {
       for (JMethod method : pair.getMethodId().getMethods()) {
         if (method.getEnclosingType() == type) {
           trace(method);
+          JLiteral defaultValue = ((JAnnotationMethod) method).getDefaultValue();
+          if (defaultValue != null) {
+            this.accept(defaultValue);
+          }
         }
       }
     }
@@ -435,7 +441,7 @@ public abstract class Tracer extends JVisitor {
 
   @Override
   public void endVisit(@Nonnull JAnnotationLiteral annotationLiteral) {
-    trace(annotationLiteral.getType());
+    trace(annotationLiteral);
   }
 
   @Override
