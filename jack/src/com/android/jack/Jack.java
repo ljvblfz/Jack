@@ -84,6 +84,7 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.scheduling.adapter.JDcoiExcludeJackFileAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -781,9 +782,6 @@ public abstract class Jack {
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
         }
-        if (features.contains(SourceVersion7.class)) {
-          methodPlan.append(TryWithResourcesTransformer.class);
-        }
       }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
@@ -803,12 +801,12 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       typePlan.append(UsedEnumFieldCollector.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       {
         if (features.contains(DxLegacy.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
@@ -817,12 +815,15 @@ public abstract class Jack {
             typePlan2.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(NotSimplifier.class);
         methodPlan.append(AssertionTransformer.class);
+        if (features.contains(SourceVersion7.class)) {
+          methodPlan.append(TryWithResourcesTransformer.class);
+        }
       }
     }
     planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
 
       {
         {
@@ -850,7 +851,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
@@ -861,7 +862,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
@@ -887,6 +888,8 @@ public abstract class Jack {
       }
     }
     {
+      // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
+      // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 

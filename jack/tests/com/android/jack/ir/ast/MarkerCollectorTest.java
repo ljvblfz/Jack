@@ -44,7 +44,8 @@ public class MarkerCollectorTest {
     JMethod method =
         new JMethod(SourceOrigin.UNKNOWN, new JMethodId("test", MethodKind.STATIC), classTest,
             JPrimitiveTypeEnum.VOID.getType(), JModifier.PUBLIC | JModifier.STATIC);
-    param = new JParameter(SourceOrigin.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
+    param =
+        new JParameter(SourceOrigin.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
   }
 
   @BeforeClass

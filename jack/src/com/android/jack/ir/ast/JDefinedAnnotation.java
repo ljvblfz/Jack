@@ -33,8 +33,7 @@ public class JDefinedAnnotation extends JDefinedInterface implements JAnnotation
   private JRetentionPolicy retentionPolicy;
 
   public JDefinedAnnotation(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
-      @Nonnull JPackage enclosingPackage,
-      @Nonnull ClassOrInterfaceLoader loader) {
+      @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name, modifier, enclosingPackage, loader);
   }
 

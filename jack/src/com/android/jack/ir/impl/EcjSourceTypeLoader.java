@@ -119,8 +119,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     } else if (binding.isInterface()) {
       if (binding.isAnnotationType()) {
         assert JModifier.isAnnotation(accessFlags);
-        type = new JDefinedAnnotation(info, name, accessFlags,
-            enclosingPackage, loader);
+        type = new JDefinedAnnotation(info, name, accessFlags, enclosingPackage, loader);
       } else {
         type = new JDefinedInterface(info, name, accessFlags, enclosingPackage, loader);
       }
@@ -384,6 +383,11 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       loaded.setModifier(accessFlags);
       markLoaded(Scope.MODIFIER);
     }
+  }
+
+  @Override
+  public boolean isJackFileLoader() {
+    return false;
   }
 
   private boolean isLoaded(@Nonnull Scope range) {

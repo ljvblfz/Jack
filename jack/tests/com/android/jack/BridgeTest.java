@@ -22,6 +22,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.File;
+import java.util.ArrayList;
+
 /**
  * JUnit test for compilation of bridges.
  */
@@ -94,5 +97,32 @@ public class BridgeTest {
   public void test007() throws Exception {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
         TestTools.getJackTestsWithJackFolder("bridge/test007")));
+  }
+
+  @Test
+  public void test008() throws Exception {
+    Options options = new Options();
+    File srcFolder = TestTools.getJackTestsWithJackFolder("bridge/test008");
+    File jackZipOfGenericPackageProtected = TestTools.createTempFile("tmpBridge", ".zip");
+
+    // Build jack file from GenericPackageProtected.java
+    TestTools.compileSourceToJack(options, new File(srcFolder, "sub/GenericPackageProtected.java"),
+        TestTools.getDefaultBootclasspathString(), jackZipOfGenericPackageProtected, true /* zip */
+        );
+
+    // Build jack file from PublicExtendsGeneric.java
+    File jackZipOfPublicExtendsGeneric = TestTools.createTempFile("tmpBridge", ".zip");
+    TestTools.compileSourceToJack(options, new File(srcFolder, "sub/PublicExtendsGeneric.java"),
+        TestTools.getDefaultBootclasspathString() + File.pathSeparator
+        + jackZipOfGenericPackageProtected.getAbsolutePath(), jackZipOfPublicExtendsGeneric, true /* zip */
+        );
+
+    // Build dex file representing Caller.java
+    options = new Options();
+    options.jayceImport = new ArrayList<File>(1);
+    options.jayceImport.add(jackZipOfPublicExtendsGeneric);
+    File outDexFile = TestTools.createTempFile("tmpBridge", ".dex");
+    TestTools.compileSourceToDex(options, new File(srcFolder, "Caller.java"),
+        TestTools.getDefaultBootclasspathString(), outDexFile, false /* zip */);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package com.android.jack.scheduling.adapter;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
@@ -28,11 +31,11 @@ import javax.annotation.Nonnull;
 
 /**
  * Adapts a process on {@code JSession} onto one or several processes on each
- * {@code JDefinedClassOrInterface} to emit during this session.
+ * {@code JDefinedClassOrInterface} to emit respecting a filter during this session.
  */
 @Description("Adapts process on JSession to one or several processes on each of its " +
-  "JDefinedClassOrInterface")
-public class JDefinedClassOrInterfaceAdapter
+  "JDefinedClassOrInterface respecting a filter")
+public class JDcoiExcludeJackFileAdapter
     implements AdapterSchedulable<JSession, JDefinedClassOrInterface> {
 
   /**
@@ -43,6 +46,13 @@ public class JDefinedClassOrInterfaceAdapter
   public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JSession session)
       throws Exception {
     // Use a copy to scan types in order to support concurrent modification.
-    return new ArrayList<JDefinedClassOrInterface>(session.getTypesToEmit()).iterator();
+    return (Iterators.filter(
+        new ArrayList<JDefinedClassOrInterface>(session.getTypesToEmit()).iterator(),
+        new Predicate<JDefinedClassOrInterface>() {
+          @Override
+          public boolean apply(JDefinedClassOrInterface clOrI) {
+            return !clOrI.isLoadedFromJackFile();
+          }
+        }));
   }
 }

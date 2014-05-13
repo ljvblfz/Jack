@@ -19,7 +19,6 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.jack.ir.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
-import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.JMethodIdLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
@@ -88,15 +87,10 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   @Nonnull
   private final Location location;
 
-  public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
-      @Nonnull JPackage enclosingPackage) {
-    this(info, name, modifier, enclosingPackage, NopClassOrInterfaceLoader.INSTANCE);
-    assert NamingTools.isIdentifier(name);
-
-  }
+  private final boolean loadedFromJackFile;
 
   public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
-        @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
+      @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name);
     assert NamingTools.isIdentifier(name) || "package-info".equals(name);
     assert JModifier.isTypeModifier(modifier);
@@ -107,6 +101,11 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.loader = loader;
     location = loader.getLocation(this);
     updateParents(enclosingPackage);
+    this.loadedFromJackFile = loader.isJackFileLoader();
+  }
+
+  public boolean isLoadedFromJackFile() {
+    return loadedFromJackFile;
   }
 
   public void setModifier(int modifier) {
