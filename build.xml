@@ -65,6 +65,7 @@
   <property name="dexlib.dir" value="dexlib"/>
   <property name="tools.dir" value="tools"/>
   <property name="dx-ref.dir" value="dx-ref"/>
+  <property name="core-stubs-mini.dir" value="core-stubs-mini"/>
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
@@ -960,6 +961,33 @@
             includes="**"/>
   </target>
 
+  <target name="core-stubs-mini" depends="jack">
+    <property name="core-stubs-mini.dist.dir" value="${core-stubs-mini.dir}/dist"/>
+    <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
+    <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
+
+    <mkdir dir="${core-stubs-mini.dist.dir}"/>
+    <fileset dir="${core-stubs-mini.dir}/src">
+      <include name="**/*.java"/>
+    </fileset>
+    <java fork="true" jar="${jack.dist.dir}/${jack.execname}">
+      <arg value="--jack-output"/>
+      <arg value="${core-stubs-mini.build.dir}"/>
+      <arg value="--ecj"/>
+      <arg value="${core-stubs-mini.dir}/src"/>
+    </java>
+    <javac srcdir="${core-stubs-mini.dir}/src"
+      destdir="${core-stubs-mini.build.dir}"
+      source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+    <jar destfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"
+            basedir="${core-stubs-mini.build.dir}"
+            includes="**"/>
+    <copy todir="${jack.libs.dir}" flatten="true">
+      <filelist dir=".">
+        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+      </filelist>
+    </copy>
+  </target>
 </project>
 
 
