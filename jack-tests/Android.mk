@@ -235,6 +235,7 @@ $(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test030/test.mk)
 # String
 $(call declare-test-with-name,string/concat001)
 $(call declare-test-with-name,string/concat002)
+$(call declare-test-with-name,string/concat003)
 
 # Switches
 $(call declare-test-with-name,switchstatement/test001)

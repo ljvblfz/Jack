@@ -37,4 +37,10 @@ public class ConcatTest {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
         TestTools.getJackTestsWithJackFolder("string/concat002")));
   }
+
+  @Test
+  public void testCompile003() throws Exception {
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+        TestTools.getJackTestsWithJackFolder("string/concat003")));
+  }
 }
