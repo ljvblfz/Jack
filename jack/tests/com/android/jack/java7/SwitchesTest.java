@@ -23,6 +23,10 @@ import com.android.jack.TestTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * JUnit test for compilation of Java 7 features
  */
@@ -55,5 +59,25 @@ public class SwitchesTest {
         .getJackTestsWithJackFolder("java7/switches/test003"));
     options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), "1.7");
     TestTools.runCompilation(options);
+  }
+
+  @Test
+  public void java7Switches004() throws Exception {
+    File jackZipFile = TestTools.createTempFile("tmp", ".zip");
+
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), "1.7");
+
+    TestTools.compileSourceToJack(options,
+        TestTools.getJackTestsWithJackFolder("java7/switches/test001"),
+        TestTools.getDefaultBootclasspathString(), jackZipFile, true /* zip */
+    );
+
+    options = new Options();
+    List<File> imports = new ArrayList<File>(1);
+    imports.add(jackZipFile);
+    options.setJayceImports(imports);
+    File outDexFile = TestTools.createTempFile("tmp", ".dex");
+    TestTools.compileJackToDex(options, jackZipFile, outDexFile, false /* zip */);
   }
 }
