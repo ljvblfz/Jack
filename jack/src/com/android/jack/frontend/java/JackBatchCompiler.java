@@ -196,6 +196,8 @@ public class JackBatchCompiler extends Main {
       throw new TransportExceptionAroundEcjError(e);
     } finally {
       logger.endLoggingSources();
+      // Clean up environment
+      environment.cleanup();
     }
 
     // Update compiler statistics and log them.
@@ -203,8 +205,5 @@ public class JackBatchCompiler extends Main {
       compilerStats[currentRepetition] = batchCompiler.stats;
     }
     logger.printStats();
-
-    // Clean up environment
-    environment.cleanup();
   }
 }
