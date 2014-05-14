@@ -1127,8 +1127,11 @@ public abstract class Jack {
       {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan4.appendSubPlan(JMethodAdaptor.class);
-        methodPlan.append(EnumMappingMarkerRemover.class);
         methodPlan.append(FlowNormalizer.class);
+        if (features.contains(SourceVersion7.class)) {
+          methodPlan.append(SwitchStringSupport.class);
+        }
+        methodPlan.append(EnumMappingMarkerRemover.class);
         methodPlan.append(EmptyClinitRemover.class);
       }
       typePlan4.append(FlowNormalizerSchedulingSeparator.class);
