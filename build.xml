@@ -66,7 +66,6 @@
   <property name="tools.dir" value="tools"/>
   <property name="dx-ref.dir" value="dx-ref"/>
 
-
   <!-- ******************* -->
   <!-- Jack-lib            -->
   <!-- ******************* -->
@@ -108,6 +107,8 @@
     depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,antlr-rt-lib,
     args4j-lib,dx-lib,ecj,freemarker-lib,guava-lib,jsr305-lib,maths-lib,sched-lib,watchmaker-lib">
     <!-- project layout -->
+    <!-- avoid incremental compilation with annotation processor -->
+    <delete dir="${jack.build.outdir}"/>
     <mkdir dir="${jack.build.outdir}"/>
     <mkdir dir="${jack.libs.dir}"/>
     <mkdir dir="${jack.dist.dir}"/>
@@ -173,13 +174,13 @@
 
   <target name="jack" depends="jack-lib-compile">
     <copy todir="${jack.exec.build.outdir}">
-      <fileset dir="${jack.build.outdir}" includes="**/*.class" />
+      <fileset dir="${jack.build.outdir}"/>
     </copy>
     <!-- generate jack.properties -->
     <property environment="env"/>
     <property name="jack.version.name.tag" value="eng.${env.USER}"/>
     <echo message="${jack.base.version.name}.${jack.base.version.code}.${jack.version.name.tag}"
-           file="${jack.build.outdir}/jack.properties"/>
+           file="${jack.exec.build.outdir}/jack.properties"/>
     <!-- package -->
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.dir}/rsc" includes="**"/>
@@ -310,6 +311,11 @@
       source="1.5" target="1.5"
       createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
     <!-- package -->
+    <copy todir="${args4j.build.outdir}">
+      <fileset dir="${args4j.dir}/args4j/src">
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
     <jar destfile="${args4j.dist.dir}/${args4j.libname}"
       basedir="${args4j.build.outdir}"
       includes="**"/>
@@ -522,6 +528,8 @@
   <target name="sched-lib" depends="sched-copy-libs,sched-build-lib,guava-lib,jsr305-lib,
     allocation-lib,freemarker-lib,watchmaker-lib,maths-lib">
     <!-- project layout -->
+    <!-- avoid incremental compilation with annotation processor -->
+    <delete dir="${schedlib.build.outdir}"/>
     <mkdir dir="${schedlib.build.outdir}"/>
     <mkdir dir="${schedlib.libs.dir}"/>
     <mkdir dir="${schedlib.dist.dir}"/>
@@ -951,7 +959,6 @@
             basedir="${dexlib.build.outdir}"
             includes="**"/>
   </target>
-
 
 </project>
 
