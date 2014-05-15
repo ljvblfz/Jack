@@ -542,7 +542,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   @CheckForNull
-  public JPrimitiveType getWrappedType() {
+  public JPrimitiveType getWrappedType() throws JTypeLookupException {
     return getWrappedType(this);
   }
 
