@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.lookup.CommonTypes.CommonType;
 import com.android.jack.util.NamingTools;
 
 import java.util.Map;
@@ -200,6 +201,36 @@ public class JPhantomLookup extends JLookup {
       }
     }
     return type;
+  }
+
+  @Override
+  @Nonnull
+  public JClass getClass(@Nonnull CommonType type) {
+    try {
+      return super.getClass(type);
+    } catch (JTypeLookupException e) {
+      throw new AssertionError(e);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public JInterface getInterface(@Nonnull CommonType type) {
+    try {
+      return super.getInterface(type);
+    } catch (JTypeLookupException e) {
+      throw new AssertionError(e);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public JType getType(@Nonnull CommonType type) {
+    try {
+      return super.getType(type);
+    } catch (JTypeLookupException e) {
+      throw new AssertionError(e);
+    }
   }
 
   @Override
