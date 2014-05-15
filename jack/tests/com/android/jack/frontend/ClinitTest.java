@@ -56,7 +56,7 @@ public class ClinitTest {
     JMethodBody body = (JMethodBody) clinit.getBody();
     assert body != null;
     List<JStatement> stmts = body.getStatements();
-    Assert.assertEquals(1, stmts.size());
+    Assert.assertEquals(2, stmts.size());
     Assert.assertTrue(stmts.get(0) instanceof JBlock);
     stmts = ((JBlock) stmts.get(0)).getStatements();
     Assert.assertEquals(1, stmts.size());
@@ -78,6 +78,6 @@ public class ClinitTest {
         TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME),
         "L" + CLASS_BINARY_NAME + ";", NamingTools.STATIC_INIT_NAME + "()V");
 
-    Assert.assertEquals(0, ((JMethodBody)clinit.getBody()).getStatements().size());
+    Assert.assertEquals(1, ((JMethodBody) clinit.getBody()).getStatements().size());
   }
 }

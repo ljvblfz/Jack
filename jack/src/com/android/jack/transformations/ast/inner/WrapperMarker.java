@@ -31,7 +31,6 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
@@ -205,13 +204,12 @@ public class WrapperMarker implements Marker {
 
       assert methodCall.getArgs().size() == methodCall.getMethodId().getParamTypes().size();
 
-      JStatement callSt;
       if (method.getType() == JPrimitiveTypeEnum.VOID.getType()) {
-        callSt = methodCall.makeStatement();
+        bodyBlock.addStmt(methodCall.makeStatement());
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
       } else {
-        callSt = new JReturnStatement(sourceInfo, methodCall);
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, methodCall));
       }
-      bodyBlock.addStmt(callSt);
       wrapper.setBody(body);
       addWrapper(method, wrapper, isSuper);
     }
