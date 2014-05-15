@@ -608,6 +608,8 @@ public class Options {
         }
       } catch (IllegalArgumentException e) {
         throw new IllegalOptionsException(e.getMessage(), e);
+      } finally {
+        compiler.getLibraryAccess().cleanup();
       }
     }
 
