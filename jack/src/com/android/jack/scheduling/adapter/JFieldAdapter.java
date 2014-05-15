@@ -17,7 +17,7 @@
 package com.android.jack.scheduling.adapter;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JField;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
@@ -27,21 +27,19 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on
- * each {@code JMethod} declared by this type.
+ * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on each
+ * {@code JField} declared by this type.
  */
-@Description("Adapts process on JDefinedClassOrInterface to one or several processes on each of " +
-    "its JMethod")
-public class JMethodAdaptor
-  implements AdapterSchedulable<JDefinedClassOrInterface, JMethod> {
+@Description("Adapts process on JDefinedClassOrInterface to one or several processes on each" +
+  " of its JField")
+public class JFieldAdapter implements AdapterSchedulable<JDefinedClassOrInterface, JField> {
 
   /**
-   * Returns every {@code JMethod} declared in the given {@code JDefinedClassOrInterface}.
+   * Returns every {@code JField} declared in the given {@code JDefinedClassOrInterface}.
    */
   @Override
   @Nonnull
-  public Iterator<JMethod> adapt(@Nonnull JDefinedClassOrInterface declaredType)
-      throws Exception {
-    return new ArrayList<JMethod>(declaredType.getMethods()).iterator();
+  public Iterator<JField> adapt(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+    return new ArrayList<JField>(declaredType.getFields()).iterator();
   }
 }

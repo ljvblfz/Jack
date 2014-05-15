@@ -84,9 +84,9 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
-import com.android.jack.scheduling.adapter.JFieldAdaptor;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
+import com.android.jack.scheduling.adapter.JFieldAdapter;
+import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.feature.DexZipOutput;
@@ -461,7 +461,7 @@ public abstract class Jack {
             fillJavaToJaycePlan(planBuilder);
           }
           SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
           typePlan.append(JayceSingleTypeWriter.class);
 
           if (features.contains(Resources.class)) {
@@ -769,14 +769,14 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
 
         if (productions.contains(CompilerStateProduct.class)) {
           typePlan.append(UsageFinder.class);
         }
 
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
 
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
@@ -786,7 +786,7 @@ public abstract class Jack {
         }
       }
       {
-        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
+        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldInitializerRemover.class);
       }
     }
@@ -803,18 +803,18 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(UsedEnumFieldCollector.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         if (features.contains(DxLegacy.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
         }
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan2.appendSubPlan(JMethodAdaptor.class);
+            typePlan2.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(NotSimplifier.class);
         methodPlan.append(AssertionTransformer.class);
       }
@@ -822,17 +822,17 @@ public abstract class Jack {
     planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
       {
         {
           SubPlanBuilder<JField> fieldPlan =
-              typePlan3.appendSubPlan(JFieldAdaptor.class);
+              typePlan3.appendSubPlan(JFieldAdapter.class);
           fieldPlan.append(FieldInitializer.class);
         }
         {
           SubPlanBuilder<JMethod> methodPlan2 =
-              typePlan3.appendSubPlan(JMethodAdaptor.class);
+              typePlan3.appendSubPlan(JMethodAdapter.class);
           methodPlan2.append(ImplicitBlocks.class);
           if (hasSanityChecks) {
             methodPlan2.append(ImplicitBlocksChecker.class);
@@ -850,8 +850,8 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
 
@@ -861,12 +861,12 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan4.appendSubPlan(JMethodAdaptor.class);
+            typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(FlowNormalizer.class);
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(SwitchStringSupport.class);
@@ -878,7 +878,7 @@ public abstract class Jack {
       typePlan4.append(FlowNormalizerSchedulingSeparator.class);
       {
         SubPlanBuilder<JMethod> methodPlan3 =
-            typePlan4.appendSubPlan(JMethodAdaptor.class);
+            typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan3.append(FieldInitMethodCallRemover.class);
       }
       typePlan4.append(FieldInitMethodRemover.class);
@@ -888,10 +888,10 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(ConditionalAndOrRemover.class);
         if (hasSanityChecks) {
           methodPlan.append(ConditionalAndOrRemoverChecker.class);
@@ -943,27 +943,27 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(DefaultValueAnnotationAdder.class);
       }
     }
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ClassDefItemBuilder.class);
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
-            typePlan5.appendSubPlan(JMethodAdaptor.class);
+            typePlan5.appendSubPlan(JMethodAdapter.class);
         methodPlan4.append(RefAsStatementRemover.class);
         methodPlan4.append(CfgBuilder.class);
         methodPlan4.append(DefinitionMarkerAdder.class);
@@ -1002,7 +1002,7 @@ public abstract class Jack {
         }
         {
           SubPlanBuilder<JField> fieldPlan2 =
-              typePlan5.appendSubPlan(JFieldAdaptor.class);
+              typePlan5.appendSubPlan(JFieldAdapter.class);
           fieldPlan2.append(EncodedFieldBuilder.class);
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
@@ -1013,7 +1013,7 @@ public abstract class Jack {
       planBuilder.append(ParentSetterChecker.class);
       {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(DeclaredTypePackageChecker.class);
       }
       {
@@ -1056,31 +1056,31 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan7.append(UsedEnumFieldCollector.class);
 
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan7.appendSubPlan(JMethodAdaptor.class);
+            typePlan7.appendSubPlan(JMethodAdapter.class);
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
         }
       }
       {
         SubPlanBuilder<JField> fieldPlan =
-            typePlan7.appendSubPlan(JFieldAdaptor.class);
+            typePlan7.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldInitializerRemover.class);
       }
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(DxLegacy.class)) {
         typePlan2.append(VisibilityBridgeAdder.class);
       }
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan2.appendSubPlan(JMethodAdaptor.class);
+            typePlan2.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(NotSimplifier.class);
         methodPlan.append(AssertionTransformer.class);
         if (features.contains(SourceVersion7.class)) {
@@ -1091,16 +1091,16 @@ public abstract class Jack {
     planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         {
           SubPlanBuilder<JField> fieldPlan =
-              typePlan3.appendSubPlan(JFieldAdaptor.class);
+              typePlan3.appendSubPlan(JFieldAdapter.class);
           fieldPlan.append(FieldInitializer.class);
         }
         {
           SubPlanBuilder<JMethod> methodPlan2 =
-              typePlan3.appendSubPlan(JMethodAdaptor.class);
+              typePlan3.appendSubPlan(JMethodAdapter.class);
           methodPlan2.append(ImplicitBlocks.class);
           if (hasSanityChecks) {
             methodPlan2.append(ImplicitBlocksChecker.class);
@@ -1116,8 +1116,8 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
 
@@ -1126,12 +1126,12 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan4.appendSubPlan(JMethodAdaptor.class);
+            typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(FlowNormalizer.class);
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(SwitchStringSupport.class);
@@ -1142,7 +1142,7 @@ public abstract class Jack {
       typePlan4.append(FlowNormalizerSchedulingSeparator.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan4.appendSubPlan(JMethodAdaptor.class);
+            typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(FieldInitMethodCallRemover.class);
       }
       typePlan4.append(FieldInitMethodRemover.class);
@@ -1171,19 +1171,19 @@ public abstract class Jack {
   private static void appendStringRefiningPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(TypeGenericSignatureSplitter.class);
       typePlan.append(TypeStringLiteralRefiner.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
-            typePlan.appendSubPlan(JMethodAdaptor.class);
+            typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(MethodGenericSignatureSplitter.class);
         methodPlan.append(ReflectionStringLiteralRefiner.class);
         methodPlan.append(MethodStringLiteralRefiner.class);
       }
       {
         SubPlanBuilder<JField> fieldPlan =
-            typePlan.appendSubPlan(JFieldAdaptor.class);
+            typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldGenericSignatureSplitter.class);
         fieldPlan.append(FieldStringLiteralRefiner.class);
       }
@@ -1193,17 +1193,17 @@ public abstract class Jack {
   private static void appendShrobMarkerRemoverPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan4.append(TypeShrinkMarkerRemover.class);
       typePlan4.append(TypeKeepNameMarkerRemover.class);
       typePlan4.append(TypeOriginalNameMarkerRemover.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(MethodKeepMarkerRemover.class);
         methodPlan.append(MethodKeepNameMarkerRemover.class);
       }
       {
-        SubPlanBuilder<JField> fieldPlan = typePlan4.appendSubPlan(JFieldAdaptor.class);
+        SubPlanBuilder<JField> fieldPlan = typePlan4.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldKeepMarkerRemover.class);
         fieldPlan.append(FieldKeepNameMarkerRemover.class);
       }
@@ -1213,24 +1213,24 @@ public abstract class Jack {
   private static void appendShrinkingPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ExtendingOrImplementingClassFinder.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(Keeper.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(TypeShrinker.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(MethodShrinker.class);
       }
       {
-        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
+        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldShrinker.class);
       }
     }
@@ -1246,7 +1246,7 @@ public abstract class Jack {
     planBuilder.append(Renamer.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(TypeAnnotationRemover.class);
       if (features.contains(RemoveEnclosingMethod.class)) {
         typePlan.append(TypeEnclosingMethodRemover.class);
@@ -1258,14 +1258,14 @@ public abstract class Jack {
         typePlan.append(TypeGenericSignatureRemover.class);
       }
       {
-        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
+        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldAnnotationRemover.class);
         if (features.contains(RemoveGenericSignature.class)) {
           fieldPlan.append(FieldGenericSignatureRemover.class);
         }
       }
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(MethodAnnotationRemover.class);
         methodPlan.append(ParameterAnnotationRemover.class);
         if (features.contains(RemoveGenericSignature.class)) {
@@ -1314,11 +1314,11 @@ public abstract class Jack {
     planBuilder.append(DexFileBuilder.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         {
           SubPlanBuilder<JMethod> methodPlan2 =
-              typePlan3.appendSubPlan(JMethodAdaptor.class);
+              typePlan3.appendSubPlan(JMethodAdapter.class);
           methodPlan2.append(UselessSwitchesRemover.class);
           methodPlan2.append(UselessIfRemover.class);
           if (hasSanityChecks) {
@@ -1335,21 +1335,21 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(DefaultValueAnnotationAdder.class);
       }
     }
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan4.append(ClassDefItemBuilder.class);
       typePlan4.append(ClassAnnotationBuilder.class);
       {
-        SubPlanBuilder<JMethod> methodPlan3 = typePlan4.appendSubPlan(JMethodAdaptor.class);
+        SubPlanBuilder<JMethod> methodPlan3 = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan3.append(ConditionalAndOrRemover.class);
         if (hasSanityChecks) {
           methodPlan3.append(ConditionalAndOrRemoverChecker.class);
@@ -1392,10 +1392,10 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
-            typePlan5.appendSubPlan(JMethodAdaptor.class);
+            typePlan5.appendSubPlan(JMethodAdapter.class);
         methodPlan4.append(RefAsStatementRemover.class);
         methodPlan4.append(CfgBuilder.class);
         methodPlan4.append(DefinitionMarkerAdder.class);
@@ -1434,7 +1434,7 @@ public abstract class Jack {
         }
         {
           SubPlanBuilder<JField> fieldPlan2 =
-              typePlan5.appendSubPlan(JFieldAdaptor.class);
+              typePlan5.appendSubPlan(JFieldAdapter.class);
           fieldPlan2.append(EncodedFieldBuilder.class);
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }

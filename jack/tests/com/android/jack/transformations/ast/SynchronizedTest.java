@@ -30,8 +30,8 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
+import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.transformations.parent.ParentSetterChecker;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
@@ -156,8 +156,8 @@ public class SynchronizedTest {
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
     planBuilder.append(ParentSetterChecker.class);
     SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
     methodPlan.append(ImplicitBlocks.class);
     methodPlan.append(SynchronizeTransformer.class);
 
