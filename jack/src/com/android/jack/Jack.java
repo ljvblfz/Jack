@@ -107,6 +107,7 @@ import com.android.jack.shrob.obfuscation.Renamer;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
+import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
@@ -114,6 +115,7 @@ import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValu
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingTypeRemover;
@@ -403,6 +405,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("AnnotationDefault")) {
             request.addFeature(RemoveAnnotationDefaultValue.class);
+          }
+          if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
+            request.addFeature(RemoveLocalVariableGenericSignature.class);
           }
         }
         if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
@@ -1264,7 +1269,10 @@ public abstract class Jack {
         methodPlan.append(MethodAnnotationRemover.class);
         methodPlan.append(ParameterAnnotationRemover.class);
         if (features.contains(RemoveGenericSignature.class)) {
-            methodPlan.append(MethodGenericSignatureRemover.class);
+          methodPlan.append(MethodGenericSignatureRemover.class);
+        }
+        if (features.contains(RemoveLocalVariableGenericSignature.class)) {
+          methodPlan.append(LocalVariableGenericSignatureRemover.class);
         }
         if (features.contains(RemoveAnnotationDefaultValue.class)) {
           methodPlan.append(AnnotationDefaultValueRemover.class);
