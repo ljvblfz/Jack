@@ -16,10 +16,12 @@
 
 package com.android.jack.dx.dex.file;
 
+import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
+import com.android.jack.dx.util.DexIndexOverflowException;
 import com.android.jack.dx.util.Hex;
 
 import java.util.Collection;
@@ -81,8 +83,9 @@ public final class TypeIdsSection extends UniformItemSection {
     int sz = typeIds.size();
     int offset = (sz == 0) ? 0 : getFileOffset();
 
-    if (sz > 65536) {
-      throw new UnsupportedOperationException("too many type ids");
+    if (sz > DexFormat.MAX_TYPE_IDX + 1) {
+      throw new DexIndexOverflowException("Too many type references: " + sz +
+          "; max is " + (DexFormat.MAX_TYPE_IDX + 1) + ".");
     }
 
     if (out.annotates()) {

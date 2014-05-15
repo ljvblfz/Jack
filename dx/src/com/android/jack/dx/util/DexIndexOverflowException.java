@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@
 package com.android.jack.dx.util;
 
 /**
- * Thrown when there's a format problem reading, writing, or generally
- * processing a dex file.
+ * Thrown when there's an index overflow writing a dex file.
  */
-public class DexException extends ExceptionWithContext {
+public final class DexIndexOverflowException extends DexException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public DexException(String message) {
-    super(message);
-  }
+    public DexIndexOverflowException(String message) {
+        super(message);
+    }
 
-  public DexException(Throwable cause) {
-    super(cause);
-  }
+    public DexIndexOverflowException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -28,6 +28,7 @@ import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.io.MethodId;
 import com.android.jack.dx.io.ProtoId;
 import com.android.jack.dx.util.DexException;
+import com.android.jack.dx.util.DexIndexOverflowException;
 
 import java.io.File;
 import java.io.IOException;
@@ -644,7 +645,7 @@ public final class DexMerger {
 
   private void checkIndex16(int index) {
     if (index > Character.MAX_VALUE || index < 0) {
-      throw new DexException("Too many IDs in dex");
+      throw new DexIndexOverflowException("Too many IDs in dex");
     }
   }
 

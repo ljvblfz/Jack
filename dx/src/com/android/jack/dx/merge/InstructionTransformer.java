@@ -21,6 +21,7 @@ import com.android.jack.dx.io.Opcodes;
 import com.android.jack.dx.io.instructions.DecodedInstruction;
 import com.android.jack.dx.io.instructions.ShortArrayCodeOutput;
 import com.android.jack.dx.util.DexException;
+import com.android.jack.dx.util.DexIndexOverflowException;
 
 final class InstructionTransformer {
   private final IndexMap indexMap;
@@ -109,7 +110,7 @@ final class InstructionTransformer {
 
   private static void jumboCheck(boolean isJumbo, int newIndex) {
     if (!isJumbo && (newIndex > 0xffff)) {
-      throw new DexException(
+      throw new DexIndexOverflowException(
           "Cannot merge new index " + newIndex + " into a non-jumbo instruction!");
     }
   }
