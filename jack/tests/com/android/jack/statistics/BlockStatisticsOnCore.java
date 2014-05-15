@@ -22,8 +22,8 @@ import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
+import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.transformations.parent.ParentSetterChecker;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
@@ -83,8 +83,8 @@ public class BlockStatisticsOnCore {
 
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
     planBuilder.append(ParentSetterChecker.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
     methodPlan.append(BlockStatistics.class);
 
     planBuilder.getPlan().getScheduleInstance().process(session);

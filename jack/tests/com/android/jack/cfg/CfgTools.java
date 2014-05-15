@@ -29,8 +29,8 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTryStatement;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
-import com.android.jack.scheduling.adapter.JMethodAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
+import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.ast.ImplicitBlocks;
 import com.android.jack.transformations.ast.ImplicitBlocksChecker;
@@ -75,8 +75,8 @@ public class CfgTools {
     sr.addInitialTagsOrMarkers(set);
 
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdaptor.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+    SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
     methodPlan.append(ImplicitBlocks.class);
     methodPlan.append(ImplicitBlocksChecker.class);
     methodPlan.append(FinallyRemover.class);

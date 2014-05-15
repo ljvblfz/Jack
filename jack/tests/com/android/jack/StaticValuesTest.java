@@ -26,8 +26,8 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
-import com.android.jack.scheduling.adapter.JFieldAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
+import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
@@ -124,8 +124,8 @@ public class StaticValuesTest {
 
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
     SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
-    SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdaptor.class);
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+    SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
     fieldPlan.append(FieldInitializerRemover.class);
 
     planBuilder.getPlan().getScheduleInstance().process(session);

@@ -22,7 +22,7 @@ import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdaptor;
+import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
@@ -68,7 +68,7 @@ public class Main {
     // Currently, plan is manually built by adding RunnableSchedulable(s) and sub-plans
     // corresponding to visitors.
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
     SubPlanBuilder<JNode> nodePlan = typePlan.appendSubPlan(JNodeAdapter.class);
     nodePlan.append(JNodeVisitor1.class);
     nodePlan.append(JNodeVisitor2.class);

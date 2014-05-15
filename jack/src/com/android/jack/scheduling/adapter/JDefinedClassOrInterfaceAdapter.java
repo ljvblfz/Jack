@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Adapts process on JSession to one or several processes on each of its " +
   "JDefinedClassOrInterface")
-public class JDefinedClassOrInterfaceAdaptor
+public class JDefinedClassOrInterfaceAdapter
     implements AdapterSchedulable<JSession, JDefinedClassOrInterface> {
 
   /**
