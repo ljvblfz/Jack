@@ -149,7 +149,7 @@ test-jack-$(JACKTEST_MODULE): $(JACKTEST_WITHDX_DEX) $(JACKTEST_WITHJACK_DEX) $(
 	$(hide) mkdir -p /tmp/android-data/dalvik-cache
 	$(hide) find /tmp/android-data/ -name "*$(subst /,@,$(PRIVATE_MODULE))*.dex" | xargs rm -f
 ifneq ($(ART_ANDROID_BUILD_TOP),)
-	ANDROID_BUILD_TOP=$(ART_ANDROID_BUILD_TOP) ANDROID_HOST_OUT=$(ART_ANDROID_BUILD_TOP)/out/host/linux-x86 $(ART_ANDROID_BUILD_TOP)/art/tools/art $(PRIVATE_DALVIK_FLAGS) -classpath $(call normalize-path-list,$(PRIVATE_CLASSPATH)) org.junit.runner.JUnitCore $(PRIVATE_JUNIT) && echo $@ PASSED || (echo $@ FAILED with ART; exit 42)
+	ANDROID_BUILD_TOP=$(ART_ANDROID_BUILD_TOP) ANDROID_HOST_OUT=$(ART_ANDROID_BUILD_TOP)/out/host/linux-x86 $(ART_ANDROID_BUILD_TOP)/out/host/linux-x86/bin/art $(PRIVATE_DALVIK_FLAGS) -classpath $(call normalize-path-list,$(PRIVATE_CLASSPATH)) org.junit.runner.JUnitCore $(PRIVATE_JUNIT) && echo $@ PASSED || (echo $@ FAILED with ART; exit 42)
 else
 	$(hide) dalvik $(PRIVATE_DALVIK_FLAGS) -Xint:fast -classpath $(call normalize-path-list,$(PRIVATE_CLASSPATH)) org.junit.runner.JUnitCore $(PRIVATE_JUNIT) \
           || (echo $@ FAILED with fast interpreter; exit 42)
