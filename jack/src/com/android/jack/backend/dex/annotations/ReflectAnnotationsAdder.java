@@ -43,7 +43,8 @@ import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
+import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
@@ -77,8 +78,9 @@ import javax.annotation.Nonnull;
 @Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
     JNullLiteral.class, JIntLiteral.class, ClassAnnotationSchedulingSeparator.SeparatorTag.class})
-@Constraint(need = {OriginalTypeInfo.class, FinalNames.class})
-@Protect(add = OriginalTypeInfo.class, unprotect = @With(remove = ReflectAnnotations.class))
+@Constraint(need = {GenericSignature.class, SourceName.class, FinalNames.class})
+@Protect(add = {GenericSignature.class, SourceName.class},
+    unprotect = @With(remove = ReflectAnnotations.class))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private class Visitor extends JVisitor {
@@ -149,23 +151,17 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
           addEnclosingClass(x);
         }
       }
-      OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
-      String genericSignature = null;
+      GenericSignature marker = x.getMarker(GenericSignature.class);
       if (marker != null) {
-        genericSignature = marker.getGenericSignature();
-      }
-      if (genericSignature != null) {
-        addSignature(x, genericSignature, x.getSourceInfo());
+        addSignature(x, marker.getGenericSignature(), x.getSourceInfo());
       }
     }
 
     @Override
     public void endVisit(@Nonnull JField x) {
-      OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
+      GenericSignature marker = x.getMarker(GenericSignature.class);
       if (marker != null) {
-        String genericSignature = marker.getGenericSignature();
-        assert genericSignature != null;
-        addSignature(x, genericSignature, x.getSourceInfo());
+        addSignature(x, marker.getGenericSignature(), x.getSourceInfo());
       }
     }
 
@@ -174,7 +170,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       if (addAnnotationThrows) {
         addThrows(x);
       }
-      OriginalTypeInfo marker = x.getMarker(OriginalTypeInfo.class);
+      GenericSignature marker = x.getMarker(GenericSignature.class);
       if (marker != null) {
         String genericSignature = marker.getGenericSignature();
         if (genericSignature != null) {
@@ -255,10 +251,9 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     private void addInnerClass(@Nonnull JDefinedClassOrInterface innerType) {
       SourceInfo info = innerType.getSourceInfo();
       JAnnotationLiteral annotation = createAnnotation(innerType, innerAnnotation, info);
-      OriginalTypeInfo marker = innerType.getMarker(OriginalTypeInfo.class);
+      SourceName marker = innerType.getMarker(SourceName.class);
       assert marker != null;
       String innerShortName = marker.getSourceName();
-      assert innerShortName != null;
       JLiteral newValue;
       if (!innerShortName.isEmpty()) {
         newValue = new JStringLiteral(info, innerShortName);

@@ -33,7 +33,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.util.NamingTools;
 
@@ -280,12 +280,9 @@ class JAstBinaryType implements IBinaryType {
   @Override
   public char[] getSourceName() {
 
-    OriginalTypeInfo typeInfo = jDeclaredType.getMarker(OriginalTypeInfo.class);
+    SourceName typeInfo = jDeclaredType.getMarker(SourceName.class);
     if (typeInfo != null) {
-      String sourceName = typeInfo.getSourceName();
-      if (sourceName != null) {
-        return sourceName.toCharArray();
-      }
+      return typeInfo.getSourceName().toCharArray();
     }
 
     char[] sourceNameArray;
@@ -360,12 +357,9 @@ class JAstBinaryType implements IBinaryType {
   @Override
   public boolean isAnonymous() {
     boolean isAnonymous = false;
-    OriginalTypeInfo originalTypeInfo = jDeclaredType.getMarker(OriginalTypeInfo.class);
-    if (originalTypeInfo != null) {
-      String sourceName = originalTypeInfo.getSourceName();
-      if (sourceName != null) {
-        isAnonymous = sourceName.isEmpty();
-      }
+    SourceName sourceNameInfo = jDeclaredType.getMarker(SourceName.class);
+    if (sourceNameInfo != null) {
+      isAnonymous = sourceNameInfo.getSourceName().isEmpty();
     } else {
       JAnnotationLiteral enclosingAnnotation =
           AnnotationUtils.getAnnotation(jDeclaredType, AnnotationUtils.INNER_CLASS_ANNOTATION);

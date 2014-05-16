@@ -24,42 +24,30 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link Marker} holds generic signature and source name retrieved from ecj.
+ * This {@link Marker} holds generic signature retrieved from ecj.
  */
-@Description("Holds generic signature and source name retrieved from ecj")
+@Description("Holds generic signature retrieved from ecj")
 @ValidOn({JDefinedClassOrInterface.class, JVariable.class, JMethod.class, JField.class})
-public class OriginalTypeInfo implements Marker {
+public class GenericSignature implements Marker {
 
-  @CheckForNull
+  @Nonnull
   private CharSequence genericSignature;
 
-  @CheckForNull
-  private String sourceName;
-
-  public void setGenericSignature(@CheckForNull CharSequence genericSignature) {
+  public GenericSignature(@Nonnull CharSequence genericSignature) {
     this.genericSignature = genericSignature;
   }
 
-  public void setSourceName(@Nonnull String sourceName) {
-    this.sourceName = sourceName;
+
+  public void setGenericSignature(@Nonnull CharSequence genericSignature) {
+    this.genericSignature = genericSignature;
   }
 
-  @CheckForNull
-  public String getSourceName() {
-    return sourceName;
-  }
-
-  @CheckForNull
+  @Nonnull
   public String getGenericSignature() {
-    if (genericSignature == null) {
-      return null;
-    } else {
-      return genericSignature.toString();
-    }
+    return genericSignature.toString();
   }
 
   @Override

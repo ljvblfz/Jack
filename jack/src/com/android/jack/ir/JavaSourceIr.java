@@ -131,7 +131,8 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JWhileStatement;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
+import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -282,7 +283,8 @@ import com.android.sched.item.Name;
     JVoidType.class,
     JWhileStatement.class,
     MultiDimensionNewArray.class,
-    OriginalTypeInfo.class,
+    GenericSignature.class,
+    SourceName.class,
     ThisRefTypeInfo.class,
     ThrownExceptionMarker.class,
     UselessSwitches.class})

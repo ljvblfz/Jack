@@ -19,11 +19,10 @@ package com.android.jack.shrob.obfuscation.annotation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
-import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +30,6 @@ import javax.annotation.Nonnull;
  * A {@link RunnableSchedulable} that removes signatures from local variables.
  */
 @Description("Removes signatures from local variables")
-@Transform(modify = OriginalTypeInfo.class)
 @Support(RemoveLocalVariableGenericSignature.class)
 public class LocalVariableGenericSignatureRemover implements
     RunnableSchedulable<JMethod> {
@@ -39,10 +37,7 @@ public class LocalVariableGenericSignatureRemover implements
   private static class Visitor extends JVisitor {
     @Override
     public boolean visit(@Nonnull JVariable var) {
-      OriginalTypeInfo info = var.getMarker(OriginalTypeInfo.class);
-      if (info != null) {
-        info.setGenericSignature(null);
-      }
+      var.removeMarker(GenericSignature.class);
       return false;
     }
   }

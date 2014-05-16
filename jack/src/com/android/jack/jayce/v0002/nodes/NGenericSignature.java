@@ -16,7 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -29,50 +29,37 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link NMarker} holds generic signature and source name retrieved from ecj.
+ * This {@link NMarker} holds generic signature retrieved from ecj.
  */
-public class NOriginalTypeInfo extends NMarker {
+public class NGenericSignature extends NMarker {
 
   @Nonnull
-  public static final Token TOKEN = Token.ORIGINAL_TYPE_INFO;
+  public static final Token TOKEN = Token.GENERIC_SIGNATURE;
 
   @CheckForNull
   public String genericSignature;
 
-  @CheckForNull
-  public String sourceName;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    OriginalTypeInfo marker = (OriginalTypeInfo) node;
+    GenericSignature marker = (GenericSignature) node;
     genericSignature = marker.getGenericSignature();
-    sourceName = marker.getSourceName();
   }
 
   @Override
   @Nonnull
-  public OriginalTypeInfo exportAsJast(@Nonnull ExportSession exportSession) {
-    OriginalTypeInfo marker = new OriginalTypeInfo();
-    if (genericSignature != null) {
-      marker.setGenericSignature(genericSignature);
-    }
-    if (sourceName != null) {
-      marker.setSourceName(sourceName);
-    }
-
-    return marker;
+  public GenericSignature exportAsJast(@Nonnull ExportSession exportSession) {
+    assert genericSignature != null;
+    return new GenericSignature(genericSignature);
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
     out.writeString(genericSignature);
-    out.writeString(sourceName);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     genericSignature = in.readString();
-    sourceName = in.readString();
   }
 
   @Override

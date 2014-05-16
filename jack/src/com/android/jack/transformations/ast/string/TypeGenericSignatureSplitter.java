@@ -18,7 +18,7 @@ package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.signature.GenericSignatureParser;
 import com.android.sched.item.Description;
@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Split type generic signature into more specific string literals.")
 @Name("TypeGenericSignatureSplitter")
-@Constraint(need = {OriginalTypeInfo.class, ThisRefTypeInfo.class})
+@Constraint(need = GenericSignature.class)
 @Use(GenericSignatureRefiner.class)
 public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
@@ -46,7 +46,7 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
       return;
     }
 
-    OriginalTypeInfo marker = declaredType.getMarker(OriginalTypeInfo.class);
+    GenericSignature marker = declaredType.getMarker(GenericSignature.class);
     if (marker != null) {
       CharSequence newSignature = getSplittedSignature(marker.getGenericSignature());
       if (newSignature != null) {

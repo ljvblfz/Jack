@@ -37,7 +37,7 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.ast.marker.OriginalTypeInfo;
+import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
@@ -275,11 +275,9 @@ public class ReferenceMapper {
       method.setSynthetic();
     }
     enclosingType.addMethod(method);
-    char [] genSignature = b.genericSignature();
+    char[] genSignature = b.genericSignature();
     if (genSignature != null) {
-      OriginalTypeInfo marker = new OriginalTypeInfo();
-      marker.setGenericSignature(ReferenceMapper.intern(genSignature));
-      method.addMarker(marker);
+      method.addMarker(new GenericSignature(intern(genSignature)));
     }
 
     method.updateParents(enclosingType);
@@ -318,9 +316,7 @@ public class ReferenceMapper {
       // Check if the generic signature really contains generic types i.e. is different from the
       // non-generic signature
       if (!genericSignature.equals(Jack.getLookupFormatter().getName(type))) {
-        OriginalTypeInfo infoMarker = new OriginalTypeInfo();
-        infoMarker.setGenericSignature(ReferenceMapper.intern(genericSignature));
-        param.addMarker(infoMarker);
+        param.addMarker(new GenericSignature(intern(genericSignature)));
       }
     }
     method.addParam(param);
@@ -373,9 +369,7 @@ public class ReferenceMapper {
     enclosingType.addField(field);
     char [] genSignature = binding.genericSignature();
     if (genSignature != null) {
-      OriginalTypeInfo marker = new OriginalTypeInfo();
-      marker.setGenericSignature(ReferenceMapper.intern(genSignature));
-      field.addMarker(marker);
+      field.addMarker(new GenericSignature(intern(genSignature)));
     }
 
     field.updateParents(enclosingType);
