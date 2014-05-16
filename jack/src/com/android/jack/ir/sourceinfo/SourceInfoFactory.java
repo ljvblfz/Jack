@@ -119,4 +119,14 @@ public class SourceInfoFactory {
   public Set<FileSourceInfo> getFileSourceInfos() {
     return canonicalFileSourceInfos.keySet();
   }
+
+  @Nonnull
+  public Set<ColumnSourceInfo> getColumnSourceInfos() {
+    return canonicalColumnSourceInfos.keySet();
+  }
+
+  @Nonnull
+  public Set<LineSourceInfo> getLineSourceInfos() {
+    return canonicalLineSourceInfos.keySet();
+  }
 }

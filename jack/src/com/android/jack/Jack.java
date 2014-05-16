@@ -115,6 +115,7 @@ import com.android.jack.shrob.obfuscation.SourceFileRenaming;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
+import com.android.jack.shrob.obfuscation.annotation.LineNumberRemover;
 import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
@@ -124,6 +125,7 @@ import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValu
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLineNumber;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
@@ -450,6 +452,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("SourceFile")) {
             request.addFeature(RemoveSourceFile.class);
+          }
+          if (!options.flags.keepAttribute("LineNumberTable")) {
+            request.addFeature(RemoveLineNumber.class);
           }
           if (!options.flags.getKeepParameterNames()) {
             request.addFeature(RemoveParameterName.class);
@@ -1351,6 +1356,9 @@ public abstract class Jack {
       }
       if (features.contains(RemoveGenericSignature.class)) {
         typePlan.append(TypeGenericSignatureRemover.class);
+      }
+      if (features.contains(RemoveLineNumber.class)) {
+        typePlan.append(LineNumberRemover.class);
       }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
