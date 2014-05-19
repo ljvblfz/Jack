@@ -780,7 +780,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       {
 
         if (productions.contains(CompilerStateProduct.class)) {
