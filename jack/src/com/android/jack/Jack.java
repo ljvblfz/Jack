@@ -90,6 +90,7 @@ import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
+import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.feature.DxLegacy;
@@ -141,6 +142,8 @@ import com.android.jack.shrob.shrink.remover.MethodKeepMarkerRemover;
 import com.android.jack.shrob.shrink.remover.TypeShrinkMarkerRemover;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.statistics.BinaryOperationWithCst;
+import com.android.jack.statistics.FieldStats;
+import com.android.jack.statistics.MethodStats;
 import com.android.jack.transformations.AssertionTransformer;
 import com.android.jack.transformations.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.EmptyClinitRemover;
@@ -379,6 +382,10 @@ public abstract class Jack {
         JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
         if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
           request.addFeature(SourceVersion7.class);
+        }
+
+        if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
+          request.addFeature(CompiledTypeStats.class);
         }
 
         if (options.hasSanityChecks()) {
@@ -789,13 +796,18 @@ public abstract class Jack {
         }
 
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-
+        if (features.contains(CompiledTypeStats.class)) {
+          methodPlan.append(MethodStats.class);
+        }
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
         }
       }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
+        if (features.contains(CompiledTypeStats.class)) {
+          fieldPlan.append(FieldStats.class);
+        }
         fieldPlan.append(FieldInitializerRemover.class);
       }
     }
@@ -1076,6 +1088,9 @@ public abstract class Jack {
       {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan7.appendSubPlan(JMethodAdapter.class);
+        if (features.contains(CompiledTypeStats.class)) {
+          methodPlan.append(MethodStats.class);
+        }
         if (features.contains(LineDebugInfo.class)) {
           methodPlan.append(ThisRefDebugInfoAdder.class);
         }
@@ -1083,6 +1098,9 @@ public abstract class Jack {
       {
         SubPlanBuilder<JField> fieldPlan =
             typePlan7.appendSubPlan(JFieldAdapter.class);
+        if (features.contains(CompiledTypeStats.class)) {
+          fieldPlan.append(FieldStats.class);
+        }
         fieldPlan.append(FieldInitializerRemover.class);
       }
     }
