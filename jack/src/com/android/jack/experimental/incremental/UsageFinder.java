@@ -20,6 +20,7 @@ import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.HasType;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -113,6 +114,12 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
         addStructUsage(interf);
       }
       return super.visit(definedInterface);
+    }
+
+    @Override
+    public boolean visit(@Nonnull JClassLiteral classLiteral) {
+      addCodeUsage(classLiteral.getRefType());
+      return super.visit(classLiteral);
     }
 
     @Override
