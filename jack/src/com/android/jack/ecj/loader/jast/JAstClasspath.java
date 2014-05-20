@@ -19,6 +19,7 @@ package com.android.jack.ecj.loader.jast;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.util.NamingTools;
@@ -130,7 +131,8 @@ public class JAstClasspath extends ClasspathLocation {
   @Override
   public boolean isPackage(@CheckForNull String qualifiedPackageName) {
     assert (qualifiedPackageName != null);
-    return lookup.isPackageOnPath(qualifiedPackageName);
+    return lookup.isPackageOnPath(
+        qualifiedPackageName.replace(File.separatorChar, JLookup.PACKAGE_SEPARATOR));
   }
 
   /**
