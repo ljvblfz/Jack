@@ -66,6 +66,8 @@ class JAstBuilder extends JavaParser {
   @Nonnull
   private final JayceFileImporter jayceImporter;
 
+  private boolean hasErrors = false;
+
   /**
    * Creates ecj {@code Compiler} for jack.
    * Forwards all arguments to the constructor of the super class
@@ -117,8 +119,9 @@ class JAstBuilder extends JavaParser {
       try {
         super.process(unit, i);
 
-        if (unit.hasErrors() || unit.compilationResult().hasErrors()) {
+        if (hasErrors || unit.hasErrors() || unit.compilationResult().hasErrors()) {
           // An error has already been detected, don't even try to handle the unit.
+          hasErrors = true;
           return;
         }
 
