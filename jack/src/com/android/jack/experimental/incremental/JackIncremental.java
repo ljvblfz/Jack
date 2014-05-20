@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -260,9 +261,21 @@ public class JackIncremental extends CommandLine {
       newEcjArguments.add(fileToRecompile);
     }
 
-    // Compile
-    options.setClasspath(options.getClasspathAsString() + File.pathSeparator
+    // Move imported jack files from import to classpath option
+    StringBuilder newClasspath = new StringBuilder(options.getClasspathAsString()
+        + File.pathSeparator
         + ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR).getFile().getAbsolutePath());
+
+    List<File> jayceImport = options.getJayceImport();
+    if (!jayceImport.isEmpty()) {
+      for (File importedJackFiles : jayceImport) {
+        newClasspath.append(File.pathSeparator);
+        newClasspath.append(importedJackFiles.getAbsolutePath());
+      }
+      options.setJayceImports(Collections.<File>emptyList());
+    }
+    options.setClasspath(newClasspath.toString());
+
     if (!newEcjArguments.isEmpty()) {
       options.setEcjArguments(newEcjArguments);
     }

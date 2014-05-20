@@ -734,4 +734,9 @@ public class Options {
   public void disableDxOptimizations() {
     properties.put(CodeItemBuilder.DEX_OPTIMIZE.getName(), "false");
   }
+
+  @Nonnull
+  public List<File> getJayceImport() {
+    return jayceImport;
+  }
 }
