@@ -20,14 +20,12 @@ import com.android.jack.Jack;
 import com.android.jack.JackEventType;
 import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
+import com.android.jack.lookup.JLookup;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
@@ -40,6 +38,7 @@ import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VElement;
+import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
 import java.util.List;
@@ -66,6 +65,8 @@ public class JayceFileImporter {
 
   @Nonnull
   private final List<InputVDir> jayceContainers;
+
+  private static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
   private enum CollisionPolicy {
     KEEP_FIRST,
@@ -107,9 +108,8 @@ public class JayceFileImporter {
     for (InputVDir jayceContainer : jayceContainers) {
       try {
         logger.log(Level.FINE, "Importing {0}", jayceContainer.getLocation().getDescription());
-        JPackage topLevelPackage = session.getTopLevelPackage();
         for (VElement subFile : jayceContainer.list()) {
-          importJayceFile(subFile, session, topLevelPackage);
+          importJayceFile(subFile, session, "");
         }
       } catch (IOException e) {
         throw new JackFileException(
@@ -119,18 +119,19 @@ public class JayceFileImporter {
   }
 
   private void importJayceFile(@Nonnull VElement element, @Nonnull JSession session,
-      @Nonnull JPackage pack) throws IOException, JayceFormatException, JayceVersionException,
+      @Nonnull String currentPath) throws IOException, JayceFormatException, JayceVersionException,
       JPackageLookupException, TypeImportConflictException, ResourceImportConflictException {
+    String path = currentPath + element.getName();
     if (element instanceof InputVDir) {
       for (VElement subFile : ((InputVDir) element).list()) {
-        importJayceFile(subFile, session, pack.getSubPackage(element.getName()));
+        importJayceFile(subFile, session, path + VPATH_SEPARATOR);
       }
     } else if (element instanceof InputVFile) {
       InputVFile file = (InputVFile) element;
       if (isJackFileName(file.getName())) {
-        addImportedTypes(session, file.getName(), pack, file.getLocation());
+        addImportedTypes(session, path, file.getLocation());
       } else {
-        addImportedResource(file, session, pack);
+        addImportedResource(file, session, path);
       }
     } else {
       throw new AssertionError();
@@ -138,14 +139,13 @@ public class JayceFileImporter {
   }
 
   private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
-      @Nonnull JPackage pack, @Nonnull Location expectedLoadSource)
-      throws TypeImportConflictException {
+      @Nonnull Location expectedLoadSource) throws TypeImportConflictException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
     try {
-      logger.log(Level.FINEST, "Importing jack file ''{0}'' in package ''{1}''",
-          new Object[] {path, Jack.getUserFriendlyFormatter().getName(pack)});
-      String simpleName = path.substring(0, path.length() - JAYCE_FILE_EXTENSION.length());
-      JDefinedClassOrInterface declaredType = pack.getType(simpleName);
+      logger.log(Level.FINEST, "Importing jack file ''{0}''", expectedLoadSource.getDescription());
+      String signature = convertJackFilePathToSignature(path);
+      JDefinedClassOrInterface declaredType =
+          (JDefinedClassOrInterface) session.getLookup().getType(signature);
       Location existingSource = declaredType.getLocation();
       if (!expectedLoadSource.equals(existingSource)) {
         if (collisionPolicy == CollisionPolicy.FAIL) {
@@ -166,13 +166,18 @@ public class JayceFileImporter {
     }
   }
 
+  @Nonnull
+  private String convertJackFilePathToSignature(String path) {
+    String pathWithoutExt = path.substring(0, path.length() - JAYCE_FILE_EXTENSION.length());
+    return "L" + pathWithoutExt.replace(VPATH_SEPARATOR, JLookup.PACKAGE_SEPARATOR) + ";";
+  }
+
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull JPackage pack) throws ResourceImportConflictException {
-    TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
-    String resourceName = formatter.getName(pack, file.getName());
-    Resource newResource = new Resource(resourceName, file);
+      @Nonnull String currentPath) throws ResourceImportConflictException {
+    VPath path = new VPath(currentPath, VPATH_SEPARATOR);
+    Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
-      if (existingResource.getName().equals(resourceName)) {
+      if (existingResource.getPath().equals(path)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
           throw new ResourceImportConflictException(newResource.getLocation(),
               existingResource.getLocation());

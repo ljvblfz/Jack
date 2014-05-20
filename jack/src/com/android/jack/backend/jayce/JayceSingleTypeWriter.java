@@ -20,13 +20,14 @@ import com.android.jack.Jack;
 import com.android.jack.JackFileException;
 import com.android.jack.Options;
 import com.android.jack.Options.Container;
-import com.android.jack.backend.VDirPathFormatter;
 import com.android.jack.experimental.incremental.CompilerState;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.ir.naming.CompositeName;
+import com.android.jack.ir.naming.TypeName;
+import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.sched.item.Description;
@@ -40,6 +41,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.Directory;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.direct.OutputDirectDir;
 
 import java.io.BufferedOutputStream;
@@ -77,10 +79,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
   public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVDir vDir = type.getSession().getOutputVDir();
     assert vDir != null;
-    VDirPathFormatter formatter = new VDirPathFormatter(vDir);
-    String filePath = getFilePath(type, formatter);
+    VPath filePath = getFilePath(type);
     OutputVFile vFile = vDir.createOutputVFile(filePath);
-
 
     try {
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
@@ -94,8 +94,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
           assert outputDir != null;
           CompilerState csm = JackIncremental.getCompilerState();
           assert csm != null;
-          csm.addMappingBetweenJavaAndJackFile(type.getSourceInfo().getFileName(),
-              new File(outputDir.getFile(), filePath).getAbsolutePath());
+          csm.addMappingBetweenJavaAndJackFile(type.getSourceInfo().getFileName(), new File(
+              outputDir.getFile(), filePath.getPathAsString(File.separatorChar)).getAbsolutePath());
         }
       } finally {
         out.close();
@@ -106,8 +106,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
   }
 
   @Nonnull
-  protected static String getFilePath(@Nonnull JDefinedClassOrInterface type,
-      @Nonnull TypeFormatter formatter) {
-    return formatter.getName(type) + JayceFileImporter.JAYCE_FILE_EXTENSION;
+  protected static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
+    return new VPath(new CompositeName(new TypeName(Kind.BINARY_QN, type),
+        JayceFileImporter.JAYCE_FILE_EXTENSION), '/');
   }
 }

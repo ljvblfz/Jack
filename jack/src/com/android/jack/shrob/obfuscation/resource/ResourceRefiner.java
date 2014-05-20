@@ -16,8 +16,6 @@
 
 package com.android.jack.shrob.obfuscation.resource;
 
-import com.google.common.base.Splitter;
-
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
@@ -36,6 +34,7 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.vfs.VPath;
 
 import java.util.Iterator;
 
@@ -52,16 +51,15 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
   @Nonnull
   private final Flags flags = ThreadConfig.get(Options.FLAGS);
 
-  private static final char RESOURCE_SEPARATOR = '/';
+  private static final char BINARY_QN_SEPARATOR = '/';
 
-  @Nonnull
-  protected static final Splitter resourceNameSplitter = Splitter.on(RESOURCE_SEPARATOR);
+  private static final char SHROB_PATH_SEPARATOR = '/';
 
   @CheckForNull
-  private CharSequence getResourceRefinedName(@Nonnull String resName,
+  private CharSequence getResourceRefinedName(@Nonnull VPath resPath,
       @Nonnull JPackage topLevelPackage) {
     JPackage currentPackage = topLevelPackage;
-    Iterator<String> iterator = resourceNameSplitter.split(resName).iterator();
+    Iterator<String> iterator = resPath.split().iterator();
     String name = null;
     while (iterator.hasNext()) {
       name = iterator.next();
@@ -101,11 +99,11 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
 
     // Construct remaining resource name
     StringBuilder sb = new StringBuilder();
-    sb.append(RESOURCE_SEPARATOR);
+    sb.append(BINARY_QN_SEPARATOR);
     assert name != null;
     sb.append(name);
     while (iterator.hasNext()) {
-      sb.append(RESOURCE_SEPARATOR);
+      sb.append(BINARY_QN_SEPARATOR);
       sb.append(iterator.next());
     }
     CompositeName refinedName = new CompositeName(
@@ -119,12 +117,13 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
     FilterSpecification adaptResourceFileNames = flags.getAdaptResourceFileNames();
     if (adaptResourceFileNames != null) {
       for (Resource res : session.getResources()) {
-        String resName = res.getName().toString();
-        if (adaptResourceFileNames.matches(resName)) {
+        VPath resName = res.getPath();
+        if (adaptResourceFileNames.matches(resName.getPathAsString(SHROB_PATH_SEPARATOR))) {
           CharSequence refinedName = getResourceRefinedName(resName, session.getTopLevelPackage());
           if (refinedName != null) {
-            assert refinedName.toString().equals(resName);
-            res.setName(refinedName);
+            VPath vPath = new VPath(refinedName, BINARY_QN_SEPARATOR);
+            assert vPath.equals(resName);
+            res.setPath(vPath);
           }
         }
       }

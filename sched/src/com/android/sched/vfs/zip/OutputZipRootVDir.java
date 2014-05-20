@@ -23,6 +23,7 @@ import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VElement;
+import com.android.sched.vfs.VPath;
 
 import java.io.Closeable;
 import java.io.File;
@@ -69,8 +70,8 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
 
   @Override
   @Nonnull
-  public OutputVFile createOutputVFile(@Nonnull String filePath) {
-    return new OutputZipVFile(zos, new ZipEntry(filePath), zipFile);
+  public OutputVFile createOutputVFile(@Nonnull VPath path) {
+    return new OutputZipVFile(zos, new ZipEntry(path.getPathAsString(getSeparator())), zipFile);
   }
 
   @Override

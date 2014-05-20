@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public interface OutputVDir extends VElement {
 
   @Nonnull
-  OutputVFile createOutputVFile(@Nonnull String filePath) throws IOException;
+  OutputVFile createOutputVFile(@Nonnull VPath path) throws IOException;
 
   char getSeparator();
 

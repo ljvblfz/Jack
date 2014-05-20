@@ -25,6 +25,7 @@ import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.io.File;
 
@@ -56,9 +57,9 @@ public class OutputDirectDir extends AbstractVElement implements OutputVDir {
 
   @Override
   @Nonnull
-  public OutputVFile createOutputVFile(@Nonnull String filePath) throws CannotCreateFileException,
+  public OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException,
       FileAlreadyExistsException {
-    File file = new File(dir, filePath);
+    File file = new File(dir, path.getPathAsString(getSeparator()));
     if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
       throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));
     }
@@ -69,4 +70,5 @@ public class OutputDirectDir extends AbstractVElement implements OutputVDir {
   public char getSeparator() {
     return File.separatorChar;
   }
+
 }

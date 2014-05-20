@@ -29,6 +29,7 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.Support;
+import com.android.sched.vfs.VPath;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,7 +77,8 @@ public class DexZipWriter extends DexFileWriter {
 
   private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
       throws IOException {
-    ZipEntry resourceEntry = new ZipEntry(resource.getName());
+    VPath path = resource.getPath();
+    ZipEntry resourceEntry = new ZipEntry(path.getPathAsString('/'));
     zos.putNextEntry(resourceEntry);
     BytesStreamSucker sucker = new BytesStreamSucker(resource.getVFile().openRead(), zos);
     sucker.suck();

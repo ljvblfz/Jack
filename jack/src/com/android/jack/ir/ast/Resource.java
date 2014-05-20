@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.sched.item.Description;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
@@ -26,17 +27,17 @@ import javax.annotation.Nonnull;
  * Represents a resource.
  */
 @Description("Represents a resource")
-public class Resource implements HasName {
+public class Resource {
 
   @Nonnull
-  private CharSequence name;
+  private VPath path;
 
   @Nonnull
   private final InputVFile vFile;
 
-  public Resource(@Nonnull CharSequence resourceName, @Nonnull InputVFile vFile) {
+  public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile) {
     this.vFile = vFile;
-    name = resourceName;
+    this.path = path;
   }
 
   @Nonnull
@@ -49,13 +50,12 @@ public class Resource implements HasName {
     return vFile.getLocation();
   }
 
-  @Override
   @Nonnull
-  public String getName() {
-    return name.toString();
+  public VPath getPath() {
+    return path;
   }
 
-  public void setName(@Nonnull CharSequence name) {
-    this.name = name;
+  public void setPath(@Nonnull VPath path) {
+    this.path = path;
   }
 }

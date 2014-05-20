@@ -28,6 +28,7 @@ import com.android.sched.schedulable.Support;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +52,7 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
     List<Resource> resources = session.getResources();
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
-      String path = resource.getName();
+      VPath path = resource.getPath();
       OutputVFile outputFile = outputVDir.createOutputVFile(path);
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();
