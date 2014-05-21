@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * Exception representing a problem during conversion of java source file to GWT IR.
+ * Exception representing a problem during conversion of java source file to Jack IR.
  */
 public class FrontendCompilationException extends RuntimeException {
 

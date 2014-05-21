@@ -176,10 +176,10 @@ public class RopHelper {
   }
 
   /**
-   * Converts a {@code JType} of GWT IR into a {@code Type} of dx.
+   * Converts a {@code JType} into a {@code Type} of dx.
    *
-   * @param type The GWT type to convert.
-   * @return The dx type representing the GWT Type.
+   * @param type The {@code JType} to convert.
+   * @return The dx type representing the {@code JType}.
    */
   @Nonnull
   public static Type convertTypeToDx(@Nonnull JType type) {

@@ -212,7 +212,7 @@ public abstract class JNode extends LocalMarkerManager
     int indexOfExisting = list.indexOf(existingNode);
     if (indexOfExisting != -1) {
       // TODO(jmhenaff): Rethink how this is done eventually.
-      // The fact that GWT uses Lists lead to this implementation.
+      // The fact that Jack uses Lists lead to this implementation.
       switch (transformation) {
         case INSERT_AFTER:
           assert newNode != null;

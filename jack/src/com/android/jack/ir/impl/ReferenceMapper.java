@@ -193,7 +193,7 @@ public class ReferenceMapper {
     Set<String> alreadyNamedVariables = new HashSet<String>();
     JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) get(declaringClass);
     JMethod method;
-    boolean isNested = GwtAstBuilder.isNested(declaringClass);
+    boolean isNested = JackIrBuilder.isNested(declaringClass);
     int flags = b.getAccessFlags();
 
     if (b.isDeprecated()) {
@@ -552,7 +552,7 @@ public class ReferenceMapper {
 
   @Nonnull
   static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x) {
-    return GwtAstBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
+    return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
   }
 
   static boolean isCompileTimeConstant(@Nonnull FieldBinding binding) {

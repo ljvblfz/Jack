@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.impl.EcjSourceTypeLoader;
-import com.android.jack.ir.impl.GwtAstBuilder;
+import com.android.jack.ir.impl.JackIrBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Event;
@@ -61,7 +61,7 @@ class JAstBuilder extends JavaParser {
   private final JSession session;
 
   @Nonnull
-  private final GwtAstBuilder astBuilder;
+  private final JackIrBuilder astBuilder;
 
   @Nonnull
   private final JayceFileImporter jayceImporter;
@@ -92,7 +92,7 @@ class JAstBuilder extends JavaParser {
         out,
         progress);
     this.session = session;
-    astBuilder = new GwtAstBuilder(lookupEnvironment, session);
+    astBuilder = new JackIrBuilder(lookupEnvironment, session);
     this.jayceImporter = jayceImporter;
   }
 
@@ -127,16 +127,16 @@ class JAstBuilder extends JavaParser {
 
         loadLocalClasses(unit);
 
-        // Generate GWT IR after each compilation of CompilationUnitDeclaration.
+        // Generate Jack IR after each compilation of CompilationUnitDeclaration.
         // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
         // reset method of ecj was called by super.compile(sourceUnits) and after the lookup
         // environment is no longer usable.
-        Event gwtEvent = tracer.start(JackEventType.GWT_AST_BUILDER);
+        Event jackIrBuilderEvent = tracer.start(JackEventType.JACK_IR_BUILDER);
         List<JDefinedClassOrInterface> types;
         try {
           types = astBuilder.process(unit);
         } finally {
-          gwtEvent.end();
+          jackIrBuilderEvent.end();
         }
 
         for (JDefinedClassOrInterface type : types) {

@@ -35,7 +35,7 @@ public enum JackEventType implements EventType {
   METHOD_ID_MERGER("Method id merger"),
   PRELOOKUP("Pre-lookup"),
   ECJ_COMPILATION("ECJ compilation"),
-  GWT_AST_BUILDER("GwtAstBuilder"),
+  JACK_IR_BUILDER("Jack IR Builder"),
   J_AST_BUILDER("JAstBuilder"),
   DX_OPTIMIZATION("Dx optimizations on RopMethod"),
   REMOVE_DEAD_CODE("Remove dead code"),

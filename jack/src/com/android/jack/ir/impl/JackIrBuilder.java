@@ -240,11 +240,11 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Constructs a GWT Java AST from a single isolated compilation unit. The AST is
+ * Constructs a Jack IR from a single isolated compilation unit. The AST is
  * not associated with any {@link com.android.jack.ir.ast.JSession} and will
  * contain unresolved references.
  */
-public class GwtAstBuilder {
+public class JackIrBuilder {
 
   /**
    * Visit the JDT AST and produce our own AST. By the end of this pass, the
@@ -2171,12 +2171,12 @@ public class GwtAstBuilder {
      *
      * <p>
      * This method should only be called once all regular, non-bridge methods
-     * have been installed on the GWT types.
+     * have been installed on the Jack types.
      * </p>
      */
     private void addBridgeMethods(SourceTypeBinding clazzBinding) {
       /*
-       * JDT adds bridge methods in all the places GWT needs them. Use JDT's
+       * JDT adds bridge methods in all the places Jack needs them. Use JDT's
        * bridge methods.
        */
       if (clazzBinding.syntheticMethods() != null) {
@@ -3219,7 +3219,7 @@ public class GwtAstBuilder {
   @Nonnull
   private final JSession session;
 
-  public GwtAstBuilder(@Nonnull LookupEnvironment lookupEnvironment,
+  public JackIrBuilder(@Nonnull LookupEnvironment lookupEnvironment,
       @Nonnull JSession session) {
     this.lookupEnvironment = lookupEnvironment;
     typeMap = new ReferenceMapper(session.getLookup(), lookupEnvironment);
@@ -3303,7 +3303,7 @@ public class GwtAstBuilder {
 
   @Nonnull
   static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x) {
-    return GwtAstBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
+    return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
   }
 
   @Nonnull

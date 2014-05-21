@@ -45,7 +45,7 @@ public class JModifier {
   public static final int CLASS_COMPILED_WITH_JACK = 0x80000;
   public static final int DEPRECATED   = 0x100000;
 
-  // Extra GWT modifiers
+  // Extra Jack modifiers
   public static final int COMPILE_TIME_CONSTANT = 0x20000;
   public static final int ANONYMOUS_TYPE        = 0x40000;
 

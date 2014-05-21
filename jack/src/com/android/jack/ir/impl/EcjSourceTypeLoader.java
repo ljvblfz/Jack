@@ -261,7 +261,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
 
   @Override
   public void ensureAnnotations(@Nonnull JDefinedClassOrInterface loaded) {
-    // Not yet supported here, only done by GwtAstBuilder in full pass
+    // Not yet supported here, only done by JackIrBuilder in full pass
   }
 
   @Override
@@ -368,7 +368,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (binding.isAnonymousType()) {
         accessFlags |= JModifier.ANONYMOUS_TYPE;
         // add missing static flag on static anonymous classes
-        if (GwtAstBuilder.isNested(binding)) {
+        if (JackIrBuilder.isNested(binding)) {
           NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
           accessFlags |= JModifier.STATIC;
           if (nestedBinding.enclosingInstances != null) {

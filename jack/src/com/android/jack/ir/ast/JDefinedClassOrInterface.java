@@ -49,8 +49,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   /**
    * The type which originally enclosed this type. Null if this class was a
    * top-level type. Note that all classes are converted to top-level types in
-   * {@code com.android.gwt.dev.jjs.impl.GenerateJavaAST}; this information is
-   * for tracking purposes.
+   * {@code JackIrBuilder}; this information is for tracking purposes.
    */
   private JClassOrInterface enclosingType;
 
