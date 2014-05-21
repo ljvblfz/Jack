@@ -132,6 +132,11 @@ public class Options {
       "jack.dex.output", "Dex output file", new PathCodec())
       .requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
 
+  @Nonnull
+  public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
+      "jack.statistic.source", "Enable compiled files statistics").addDefaultValue(
+      Boolean.FALSE);
+
   @Option(name = "-v", aliases = "--version", usage = "display options")
   protected boolean version;
 
