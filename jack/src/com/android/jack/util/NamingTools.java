@@ -33,8 +33,6 @@ public class NamingTools {
 
   public static final char PACKAGE_SOURCE_SEPARATOR = '.';
 
-  public static final char SIGNATURE_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
-
   public static final String STATIC_INIT_NAME = "<clinit>";
 
   public static final String INIT_NAME = "<init>";
@@ -58,7 +56,7 @@ public class NamingTools {
   @Nonnull
   public static String getValidName(@Nonnull String name) {
     // TODO(mikaelpeltier): Update method to reflect generated files specification.
-    return (name.replace(SIGNATURE_SEPARATOR, GENERATED_FILE_SUPPORTED_CHAR));
+    return (name.replace(JLookup.PACKAGE_SEPARATOR, GENERATED_FILE_SUPPORTED_CHAR));
   }
 
   @Nonnull
@@ -68,7 +66,7 @@ public class NamingTools {
 
   @Nonnull
   public static String getBinaryName(@Nonnull String srcTypeName) {
-    return srcTypeName.replace('.', SIGNATURE_SEPARATOR);
+    return srcTypeName.replace('.', JLookup.PACKAGE_SEPARATOR);
   }
 
   @Nonnull
@@ -80,7 +78,7 @@ public class NamingTools {
 
   @Nonnull
   public static String getSimpleClassNameFromBinaryName(@Nonnull String classBinaryName) {
-    int simpleNameIndex = classBinaryName.lastIndexOf(SIGNATURE_SEPARATOR);
+    int simpleNameIndex = classBinaryName.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
     return (simpleNameIndex < 0) ? classBinaryName : classBinaryName.substring(simpleNameIndex + 1);
   }
 
@@ -92,7 +90,7 @@ public class NamingTools {
 
   @Nonnull
   public static String getPackageNameFromBinaryName(@Nonnull String binaryName) {
-    int nameIndex = binaryName.lastIndexOf(SIGNATURE_SEPARATOR);
+    int nameIndex = binaryName.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
     return (nameIndex < 0) ? "" : binaryName.substring(0, nameIndex);
   }
 

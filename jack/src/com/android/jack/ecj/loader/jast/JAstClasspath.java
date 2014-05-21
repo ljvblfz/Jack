@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JNodeLookup;
-import com.android.jack.util.NamingTools;
 
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -102,8 +101,8 @@ public class JAstClasspath extends ClasspathLocation {
       searchedDescriptor = "L" + simpleName + ";";
     } else {
       searchedDescriptor =
-          "L" + qualifiedPackageName.replace(File.separatorChar, NamingTools.SIGNATURE_SEPARATOR)
-              + NamingTools.SIGNATURE_SEPARATOR + simpleName + ";";
+          "L" + qualifiedPackageName.replace(File.separatorChar, JLookup.PACKAGE_SEPARATOR)
+              + JLookup.PACKAGE_SEPARATOR + simpleName + ";";
     }
 
     try {
