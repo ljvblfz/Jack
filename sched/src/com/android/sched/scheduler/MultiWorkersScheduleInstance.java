@@ -29,6 +29,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.lang.management.LockInfo;
@@ -111,11 +112,11 @@ public class MultiWorkersScheduleInstance<T extends Component>
     }
 
     /*
-     * FINDBUGS
      * Synchronized blocks are to maintain atomicity when writing currentTask and currentTaskStartOn
      * fields. By this way, the synchronized getStatus() method retrieves a coherent view. No other
      * concurrent access to currentTask and currentTaskStartOn fields are allowed.
      */
+    @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
     @Override
     public void run() {
       while (true) {

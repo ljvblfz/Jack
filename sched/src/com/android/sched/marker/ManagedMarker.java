@@ -18,6 +18,7 @@ package com.android.sched.marker;
 
 import com.android.sched.item.Description;
 import com.android.sched.item.Items;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
@@ -83,6 +84,8 @@ public class ManagedMarker {
     }
   }
 
+  // Nonnull field is actually initialized during construction, in a private method
+  @SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
   public ManagedMarker(@Nonnull Class<? extends Marker> marker) throws MarkerNotConformException {
     this.marker = marker;
     this.name = Items.getName(marker);

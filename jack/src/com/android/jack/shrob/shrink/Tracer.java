@@ -61,6 +61,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 
@@ -272,6 +273,10 @@ public abstract class Tracer extends JVisitor {
     }
   }
 
+  /* Ignore: "Using pointer equality to compare a com.android.jack.ir.ast.JAnnotation with a
+   * com.android.jack.ir.ast.JDefinedClassOrInterface"
+   */
+  @SuppressFBWarnings("EC")
   protected void trace(@Nonnull JAnnotationLiteral al) {
     JAnnotation type = al.getType();
     trace(type);

@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.jack.shrob.obfuscation.annotation;
+package com.android.sched.util.findbugs;
 
-import com.android.sched.item.Description;
-import com.android.sched.item.Feature;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Represents the removal of thrown exceptions of a method.
+ * Indicate to FindBugs that a warning should be ignored.
  */
-// Ignore: "Class <> is not derived from an Exception, even though it is named as such"
-@SuppressFBWarnings("Nm")
-@Description("The removal of thrown exceptions of a method")
-public class RemoveThrownException implements Feature {
-
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,
+  ElementType.CONSTRUCTOR, ElementType.PACKAGE})
+public @interface SuppressFBWarnings {
+  /** Names of the warnings to ignore */
+  String[] value();
+  String justification() default "";
 }
