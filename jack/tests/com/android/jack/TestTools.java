@@ -219,7 +219,7 @@ public class TestTools {
     } else {
       options.jayceOutDir = out;
     }
-    options.ecjArguments = buildEcjArgs(false);
+    options.ecjArguments = buildEcjArgs();
     addFile(sourceFolderOrSourceList, options.ecjArguments);
     options.emitLocalDebugInfo = withDebugInfos;
     Jack.run(options);
@@ -281,7 +281,7 @@ public class TestTools {
       @CheckForNull JarJarRules jarjarRules,
       @CheckForNull ProguardFlags[] flagFiles,
       boolean withDebugInfo) throws Exception {
-    options.ecjArguments = buildEcjArgs(false);
+    options.ecjArguments = buildEcjArgs();
     addFile(sourceFolderOrSourceList, options.ecjArguments);
     options.classpath = classpath;
     if (zip) {
@@ -387,14 +387,9 @@ public class TestTools {
   }
 
   @Nonnull
-  protected static List<String> buildEcjArgs(
-      boolean useOnlyCompatible) {
+  protected static List<String> buildEcjArgs() {
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add("-nowarn");
-
-    if (!useOnlyCompatible) {
-      ecjArgs.add("-noExit");
-    }
 
     return ecjArgs;
   }
@@ -423,7 +418,7 @@ public class TestTools {
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
       @CheckForNull File jarjarRules) {
     Options options = buildCommandLineArgs(null /* bootclasspath */, null /* classpath */,
-        new File[]{fileOrSourcelist}, false /* useOnlyCompatibleOptions */);
+        new File[]{fileOrSourcelist});
     options.jarjarRulesFile = jarjarRules;
 
     return options;
@@ -432,7 +427,7 @@ public class TestTools {
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File[] filesOrSourcelists) {
     return buildCommandLineArgs(null /* bootclasspath */, null /* classpath */,
-        filesOrSourcelists, false /* useOnlyCompatibleOptions */);
+        filesOrSourcelists);
   }
 
   @Nonnull
@@ -440,16 +435,7 @@ public class TestTools {
       @CheckForNull File[] bootclasspath, @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList, @CheckForNull ProguardFlags[] proguardFlagsFiles,
       boolean runDxOptimizations, boolean emitDebugInfo) {
-    return buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList, proguardFlagsFiles,
-        runDxOptimizations, emitDebugInfo, false);
-  }
-
-  @Nonnull
-  public static Options buildCommandLineArgs(
-      @CheckForNull File[] bootclasspath, @CheckForNull File[] classpath,
-      @Nonnull File fileOrSourceList, @CheckForNull ProguardFlags[] proguardFlagsFiles,
-      boolean runDxOptimizations, boolean emitDebugInfo, boolean useOnlyCompatibleOptions) {
-    Options options = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList, useOnlyCompatibleOptions);
+    Options options = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
     options.proguardFlagsFiles = new ArrayList<File>();
     options.emitLocalDebugInfo = emitDebugInfo;
     if (runDxOptimizations) {
@@ -467,15 +453,12 @@ public class TestTools {
 
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File fileOrSourcelist,
-      boolean useOnlyCompatibleOptions) {
-    return buildCommandLineArgs(bootclasspath, classpath, new File[]{fileOrSourcelist},
-        useOnlyCompatibleOptions);
+      @CheckForNull File[] classpath, @Nonnull File fileOrSourcelist) {
+    return buildCommandLineArgs(bootclasspath, classpath, new File[]{fileOrSourcelist});
   }
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File[] filesOrSourcelists,
-      boolean useOnlyCompatibleOptions) {
+      @CheckForNull File[] classpath, @Nonnull File[] filesOrSourcelists) {
     Options options = new Options();
 
     if (bootclasspath == null) {
@@ -493,19 +476,13 @@ public class TestTools {
       options.classpath = classpathStr;
     }
 
-    List<String> ecjArgs = buildEcjArgs(useOnlyCompatibleOptions);
+    List<String> ecjArgs = buildEcjArgs();
     for (File file : filesOrSourcelists) {
       addFile(file, ecjArgs);
     }
     options.ecjArguments = ecjArgs;
 
     return options;
-  }
-
-  @Nonnull
-  public static Options buildCommandLineArgs(
-      @CheckForNull File[] bootclasspath, @CheckForNull File[] classpath, @Nonnull File fileOrSourceList) {
-    return buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList, false);
   }
 
   @Nonnull
@@ -649,8 +626,7 @@ public class TestTools {
         proguardFlagFiles,
         withDebugInfo);
 
-    Options refOptions = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList,
-        true /* useOnlyCompatibleOptions */);
+    Options refOptions = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
 
     TestTools.compareDexToReference(jackDex,
         refOptions,

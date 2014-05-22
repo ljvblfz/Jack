@@ -46,8 +46,7 @@ public class AnnotationTestTools {
         proguardFlags,
         false /* withDebugInfo */);
 
-    Options refOptions = TestTools.buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList,
-        true /* useOnlyCompatibleOptions */);
+    Options refOptions = TestTools.buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
 
     compareDexToReference(jackDex,
         refOptions,

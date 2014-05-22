@@ -212,7 +212,7 @@ public class IncrementalTestingEnvironment extends TestTools {
       @Nonnull File sourceFolderOrSourceList,
       @CheckForNull String classpath,
       @Nonnull File out) throws Exception {
-    options.setEcjArguments(TestTools.buildEcjArgs(false));
+    options.setEcjArguments(TestTools.buildEcjArgs());
     addFile(sourceFolderOrSourceList, options.getEcjArguments());
     options.setClasspath(classpath);
     options.setOutputFile(out);

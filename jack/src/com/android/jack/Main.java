@@ -27,8 +27,6 @@ import javax.annotation.Nonnull;
  * Command line to run the jack compiler.
  */
 public abstract class Main extends CommandLine {
-  @Nonnull
-  private static final String[] EXTRA_ARGS = new String[]{"-noExit"};
 
   /**
    * Runs the jack compiler from the command line
@@ -96,9 +94,6 @@ public abstract class Main extends CommandLine {
 
     parser.parseArgument(args);
     parser.stopOptionParsing();
-    if (options.ecjArguments != null) {
-      parser.parseArgument(EXTRA_ARGS);
-    }
 
     return options;
   }

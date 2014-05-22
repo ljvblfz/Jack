@@ -61,9 +61,6 @@ public class JackBatchCompiler extends Main {
   }
 
   @Nonnull
-  public static final String JACK_LOGICAL_PATH_ENTRY = "<jack-logical-entry>";
-
-  @Nonnull
   private static final String USE_SINGLE_THREAD_SYSPROP = "jdt.compiler.useSingleThread";
 
   @Nonnull
@@ -78,12 +75,14 @@ public class JackBatchCompiler extends Main {
 
   public JackBatchCompiler(@Nonnull JSession session,
       @Nonnull JayceFileImporter jayceFileImporter) {
-    super(new PrintWriter(System.out), new PrintWriter(System.err), true, null, null);
+    super(new PrintWriter(System.out), new PrintWriter(System.err),
+        false /* systemExitWhenFinished */, null /* customDefaultOptions */,
+        null /* compilationProgress */);
     this.session = session;
     jayceImporter = jayceFileImporter;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes"})
   @Override
   protected void addNewEntry(ArrayList paths,
       String currentClasspathName,
@@ -102,8 +101,6 @@ public class JackBatchCompiler extends Main {
           destPath,
           isSourceOnly,
           rejectDestinationPathOnJars);
-    } else if (JACK_LOGICAL_PATH_ENTRY.equals(currentClasspathName)) {
-      paths.add(new JAstClasspath(currentClasspathName, session.getLookup(), null));
     } else {
 
       /* Call super so that it make the required checks and prepare ClasspathDex
@@ -205,5 +202,12 @@ public class JackBatchCompiler extends Main {
       compilerStats[currentRepetition] = batchCompiler.stats;
     }
     logger.printStats();
+  }
+
+  @Override
+  public void configure(String[] argv) {
+    super.configure(argv);
+    checkedClasspaths = new FileSystem.Classpath[] {
+        new JAstClasspath("<jack-logical-entry>", session.getLookup(), null)};
   }
 }

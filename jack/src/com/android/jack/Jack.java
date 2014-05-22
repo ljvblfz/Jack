@@ -621,17 +621,6 @@ public abstract class Jack {
     putInJackClasspath(options.getClasspath(), rootPackage, phantomLookup, hooks);
 
     if (ecjArguments != null) {
-      String bootclasspathOption = "-bootclasspath";
-
-      int bootclasspathIndex = ecjArguments.indexOf(bootclasspathOption);
-      if (bootclasspathIndex != -1) {
-        String previousBootclasspath = ecjArguments.get(bootclasspathIndex + 1);
-        ecjArguments.set(bootclasspathIndex + 1, previousBootclasspath + File.pathSeparatorChar
-            + JackBatchCompiler.JACK_LOGICAL_PATH_ENTRY);
-      } else {
-        ecjArguments.add(bootclasspathOption);
-        ecjArguments.add(JackBatchCompiler.JACK_LOGICAL_PATH_ENTRY);
-      }
 
       JackBatchCompiler jbc = new JackBatchCompiler(session, jayceImporter);
 
