@@ -33,7 +33,8 @@ import javax.annotation.Nonnull;
  */
 public class JayceWriter extends JayceProcessor {
 
-  private static final int DEFAULT_MAJOR_VERSION = 2;
+  public static final int DEFAULT_MAJOR_VERSION = 2;
+
   @Nonnull
   private static final Charset encoding = Charset.forName("UTF-8");
   @Nonnull

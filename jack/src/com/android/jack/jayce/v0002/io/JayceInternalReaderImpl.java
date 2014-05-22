@@ -17,6 +17,7 @@
 package com.android.jack.jayce.v0002.io;
 
 import com.android.jack.jayce.DeclaredTypeNode;
+import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceInternalReader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.NNode;
@@ -210,7 +211,10 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       statistic = tracer.getStatistic(SKIPED_NDECLARED_TYPE);
     }
 
-    assert nodeClass.isAssignableFrom(node.getClass());
+    if (!nodeClass.isAssignableFrom(node.getClass())) {
+      throw new JayceFormatException("Unexpected node " + node.getClass().getSimpleName() + ", "
+          + nodeClass.getSimpleName() + " was expected.");
+    }
 
     if (node instanceof HasSourceInfo) {
       NSourceInfo sourceInfo = new NSourceInfo();
