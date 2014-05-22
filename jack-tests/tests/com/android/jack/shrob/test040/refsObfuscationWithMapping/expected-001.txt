@@ -16,6 +16,20 @@ com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$1 
 com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$2 -> com.android.jack.shrob.test040.jack.RenamedReferencedByAnnotationWithOtherReferences$2:
     com.android.jack.shrob.test040.jack.ReferencedByEnum b -> renamedB
     void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation -> com.android.jack.shrob.test040.jack.RenamedReferencedByClassInAnnotation:
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation A -> renamedA
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation B -> renamedB
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation[] $VALUES -> renamed$VALUES
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation[] values() -> renamedValues
+    void <clinit>() -> <clinit>
+    void <init>(java.lang.String,int,com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation$1 -> com.android.jack.shrob.test040.jack.RenamedReferencedByClassInAnnotation$1:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum a -> renamedA
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation$2 -> com.android.jack.shrob.test040.jack.RenamedReferencedByClassInAnnotation$2:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum b -> renamedB
+    void <init>(java.lang.String,int) -> <init>
 com.android.jack.shrob.test040.jack.Annotated -> com.android.jack.shrob.test040.jack.Annotated:
     void <init>() -> <init>
 com.android.jack.shrob.test040.jack.AnnotationWithClass -> com.android.jack.shrob.test040.jack.RenamedAnnotationWithClass:
