@@ -243,7 +243,7 @@ public class JackIncremental extends CommandLine {
       throws IOException {
     DexBuffer merged =
         new DexMerger(new DexBuffer(options.getOutputFile()), new DexBuffer(outDexFile),
-            CollisionPolicy.KEEP_FIRST).merge();
+            CollisionPolicy.KEEP_FIRST).merge(false);
     merged.writeTo(outDexFile);
   }
 

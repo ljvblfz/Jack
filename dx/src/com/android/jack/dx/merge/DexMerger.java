@@ -182,7 +182,7 @@ public final class DexMerger {
     return dexOut;
   }
 
-  public DexBuffer merge() throws IOException {
+  public DexBuffer merge(boolean verbose) throws IOException {
     long start = System.nanoTime();
     DexBuffer result = mergeDexBuffers();
 
@@ -197,22 +197,26 @@ public final class DexMerger {
       DexMerger compacter =
           new DexMerger(dexOut, new DexBuffer(), CollisionPolicy.FAIL, compactedSizes);
       result = compacter.mergeDexBuffers();
-      System.out.printf("Result compacted from %.1fKiB to %.1fKiB to save %.1fKiB%n",
-          Float.valueOf(dexOut.getLength() / 1024f),
-          Float.valueOf(result.getLength() / 1024f),
-          Float.valueOf(wastedByteCount / 1024f));
+      if (verbose) {
+        System.out.printf("Result compacted from %.1fKiB to %.1fKiB to save %.1fKiB%n",
+            Float.valueOf(dexOut.getLength() / 1024f),
+            Float.valueOf(result.getLength() / 1024f),
+            Float.valueOf(wastedByteCount / 1024f));
+      }
     }
 
-    long elapsed = System.nanoTime() - start;
-    System.out.printf("Merged dex A (%d defs/%.1fKiB) with dex B "
-        + "(%d defs/%.1fKiB). Result is %d defs/%.1fKiB. Took %.1fs%n",
-        Integer.valueOf(dexA.getTableOfContents().classDefs.size),
-        Float.valueOf(dexA.getLength() / 1024f),
-        Integer.valueOf(dexB.getTableOfContents().classDefs.size),
-        Float.valueOf(dexB.getLength() / 1024f),
-        Integer.valueOf(result.getTableOfContents().classDefs.size),
-        Float.valueOf(result.getLength() / 1024f),
-        Float.valueOf(elapsed / 1000000000f));
+    if (verbose) {
+      long elapsed = System.nanoTime() - start;
+      System.out.printf("Merged dex A (%d defs/%.1fKiB) with dex B "
+          + "(%d defs/%.1fKiB). Result is %d defs/%.1fKiB. Took %.1fs%n",
+          Integer.valueOf(dexA.getTableOfContents().classDefs.size),
+          Float.valueOf(dexA.getLength() / 1024f),
+          Integer.valueOf(dexB.getTableOfContents().classDefs.size),
+          Float.valueOf(dexB.getLength() / 1024f),
+          Integer.valueOf(result.getTableOfContents().classDefs.size),
+          Float.valueOf(result.getLength() / 1024f),
+          Float.valueOf(elapsed / 1000000000f));
+      }
 
     return result;
   }
@@ -1097,7 +1101,7 @@ public final class DexMerger {
     DexBuffer merged = new DexBuffer(new File(args[1]));
     for (int i = 2; i < args.length; i++) {
       DexBuffer toMerge = new DexBuffer(new File(args[i]));
-      merged = new DexMerger(merged, toMerge, CollisionPolicy.KEEP_FIRST).merge();
+      merged = new DexMerger(merged, toMerge, CollisionPolicy.KEEP_FIRST).merge(true);
     }
     merged.writeTo(new File(args[0]));
   }
