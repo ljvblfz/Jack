@@ -16,6 +16,20 @@ com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$1 
 com.android.jack.shrob.test040.jack.ReferencedByAnnotationWithOtherReferences$2 -> FrsrfrbprqOmNbbchnhvcbKvhuChurfFrsrfrbprg$2:
     com.android.jack.shrob.test040.jack.ReferencedByEnum b -> o:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzFovn;
     void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation -> FrsrfrbprqOmPynggVbNbbchnhvcb:
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation A -> N:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzDmbttJoBoopubujpo;
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation B -> O:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzDmbttJoBoopubujpo;
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation[] $VALUES -> $JNYIRG:[Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzDmbttJoBoopubujpo;
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation[] values() -> jnyirg__
+    void <clinit>() -> <clinit>
+    void <init>(java.lang.String,int,com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation$1 -> FrsrfrbprqOmPynggVbNbbchnhvcb$1:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum a -> n:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzFovn;
+    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test040.jack.ReferencedByClassInAnnotation$2 -> FrsrfrbprqOmPynggVbNbbchnhvcb$2:
+    com.android.jack.shrob.test040.jack.ReferencedByEnum b -> o:Ypcz/nbqfcvq/wnpx/gufco/hrgh040/wnpx/SfgfsfodfeCzFovn;
+    void <init>(java.lang.String,int) -> <init>
 com.android.jack.shrob.test040.jack.Annotated -> com.android.jack.shrob.test040.jack.Annotated:
     void <init>() -> <init>
 com.android.jack.shrob.test040.jack.AnnotationWithClass -> NbbchnhvcbKvhuPyngg:

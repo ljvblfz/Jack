@@ -16,6 +16,20 @@ Lcom/android/jack/shrob/test040/jack/ReferencedByEnum; a
 Lcom/android/jack/shrob/test040/jack/ReferencedByAnnotationWithOtherReferences$2;:
 Lcom/android/jack/shrob/test040/jack/ReferencedByEnum; b
 <init>(Ljava/lang/String;I)V
+Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation;:
+Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation; A
+Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation; B
+[Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation; $VALUES
+<init>(Ljava/lang/String;I)V
+values()[Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation;
+<clinit>()V
+<init>(Ljava/lang/String;ILcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation;)V
+Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation$1;:
+Lcom/android/jack/shrob/test040/jack/ReferencedByEnum; a
+<init>(Ljava/lang/String;I)V
+Lcom/android/jack/shrob/test040/jack/ReferencedByClassInAnnotation$2;:
+Lcom/android/jack/shrob/test040/jack/ReferencedByEnum; b
+<init>(Ljava/lang/String;I)V
 Lcom/android/jack/shrob/test040/jack/Annotated;:
 <init>()V
 Lcom/android/jack/shrob/test040/jack/AnnotationWithClass;:
