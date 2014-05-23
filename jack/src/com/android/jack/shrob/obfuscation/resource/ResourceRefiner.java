@@ -16,15 +16,19 @@
 
 package com.android.jack.shrob.obfuscation.resource;
 
+import com.google.common.base.Splitter;
+
 import com.android.jack.Options;
+import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.naming.CompositeName;
+import com.android.jack.ir.naming.PackageName;
 import com.android.jack.ir.naming.TypeName;
 import com.android.jack.ir.naming.TypeName.Kind;
-import com.android.jack.lookup.JLookup;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.spec.FilterSpecification;
 import com.android.jack.shrob.spec.Flags;
@@ -33,6 +37,9 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 
+import java.util.Iterator;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,26 +52,79 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
   @Nonnull
   private final Flags flags = ThreadConfig.get(Options.FLAGS);
 
+  private static final char RESOURCE_SEPARATOR = '/';
+
+  @Nonnull
+  protected static final Splitter resourceNameSplitter = Splitter.on(RESOURCE_SEPARATOR);
+
+  @CheckForNull
+  private CharSequence getResourceRefinedName(@Nonnull String resName,
+      @Nonnull JPackage topLevelPackage) {
+    JPackage currentPackage = topLevelPackage;
+    Iterator<String> iterator = resourceNameSplitter.split(resName).iterator();
+    String name = null;
+    while (iterator.hasNext()) {
+      name = iterator.next();
+      if (iterator.hasNext()) {
+        // All but the last entry can only be matched with a package
+        try {
+          currentPackage = currentPackage.getSubPackage(name);
+        } catch (JPackageLookupException e) {
+          // The package does not exist, no need to search further.
+          break;
+        }
+      } else {
+        // The last split entry is the resource name which can only be matched with a type
+        int index = name.indexOf('.');
+        if (index != -1) {
+          String typeName = name.substring(0, index);
+          String extension = name.substring(index);
+          try {
+            JType type = currentPackage.getType(typeName);
+            CompositeName refinedName =
+                new CompositeName(new TypeName(Kind.BINARY_QN, type), extension);
+            return refinedName;
+          } catch (JTypeLookupException typeException) {
+            // The type does not exist, no need to search further.
+          }
+        }
+      }
+    }
+    // No type refining was possible, currentPackage is the deepest package found that matches the
+    // beginning of the resource name and the iterator points to the renaming name parts of the
+    // resource.
+
+    if (currentPackage == topLevelPackage) {
+      // No package was found, no need to refine.
+      return null;
+    }
+
+    // Construct remaining resource name
+    StringBuilder sb = new StringBuilder();
+    sb.append(RESOURCE_SEPARATOR);
+    assert name != null;
+    sb.append(name);
+    while (iterator.hasNext()) {
+      sb.append(RESOURCE_SEPARATOR);
+      sb.append(iterator.next());
+    }
+    CompositeName refinedName = new CompositeName(
+        new PackageName(com.android.jack.ir.naming.PackageName.Kind.BINARY_QN, currentPackage),
+        sb.toString());
+    return refinedName;
+  }
+
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     FilterSpecification adaptResourceFileNames = flags.getAdaptResourceFileNames();
     if (adaptResourceFileNames != null) {
-      JLookup lookup = session.getLookup();
       for (Resource res : session.getResources()) {
         String resName = res.getName().toString();
         if (adaptResourceFileNames.matches(resName)) {
-          int index = resName.indexOf('.');
-          if (index != -1) {
-            String typeName = resName.substring(0, index);
-            String extension = resName.substring(index, resName.length());
-            try {
-              JType type = lookup.getType(typeName);
-              res.setName(
-                  new CompositeName(new TypeName(Kind.BINARY_QN, type), extension));
-              assert res.getName().toString().equals(resName);
-            } catch (JTypeLookupException e) {
-              // Ignored
-            }
+          CharSequence refinedName = getResourceRefinedName(resName, session.getTopLevelPackage());
+          if (refinedName != null) {
+            assert refinedName.toString().equals(resName);
+            res.setName(refinedName);
           }
         }
       }
