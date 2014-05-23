@@ -121,7 +121,7 @@ public class FileAccessErrorTest {
       ite.compile(options);
       Assert.fail();
     } finally {
-      Assert.assertEquals("", ite.endErrorRedirection());
+      Assert.assertEquals("", ite.endErrRedirection());
       if (!jackOutputFile.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
       }
@@ -204,7 +204,7 @@ public class FileAccessErrorTest {
     } catch (JackIOException e) {
       // Failure is ok since jack file is not readable
     } finally {
-      Assert.assertEquals("", ite.endErrorRedirection());
+      Assert.assertEquals("", ite.endErrRedirection());
       for (File jackFile : ite.getJackFiles(ite.getJackFolder())) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());

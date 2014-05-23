@@ -31,6 +31,7 @@ import com.android.sched.util.config.ConfigurationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,7 +44,13 @@ import javax.annotation.Nonnull;
 public class TestingEnvironment {
 
   @CheckForNull
-  ByteArrayOutputStream baos = null;
+  ByteArrayOutputStream baosOut = null;
+
+  @CheckForNull
+  PrintStream outRedirectStream = null;
+
+  @CheckForNull
+  ByteArrayOutputStream baosErr = null;
 
   @CheckForNull
   PrintStream errRedirectStream = null;
@@ -131,19 +138,36 @@ public class TestingEnvironment {
     }
   }
 
+  public void startErrRedirection() {
+    baosErr = new ByteArrayOutputStream();
+    errRedirectStream = new PrintStream(baosErr);
+    System.setErr(errRedirectStream);
+  }
+
   @Nonnull
-  public String endErrorRedirection() {
-    assert baos != null;
-    String err = baos.toString();
+  public String endErrRedirection() {
+    assert baosErr != null;
+    String err = baosErr.toString();
     assert errRedirectStream != null;
     errRedirectStream.close();
+    System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
     return err;
   }
 
-  public void startErrRedirection() {
-    baos = new ByteArrayOutputStream();
-    errRedirectStream = new PrintStream(baos);
-    System.setErr(errRedirectStream);
+  public void startOutRedirection() {
+    baosOut = new ByteArrayOutputStream();
+    outRedirectStream = new PrintStream(baosOut);
+    System.setOut(outRedirectStream);
+  }
+
+  @Nonnull
+  public String endOutRedirection() {
+    assert baosOut != null;
+    String out = baosOut.toString();
+    assert outRedirectStream != null;
+    outRedirectStream.close();
+    System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+    return out;
   }
 
   @Nonnull
