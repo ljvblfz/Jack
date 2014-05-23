@@ -33,6 +33,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.schedulable.With;
 import com.android.sched.util.Reflect;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
@@ -101,6 +102,8 @@ public class ManagedRunnable extends ManagedSchedulable {
   @Nonnull
   private Class<? extends Component> schedulableOn;
 
+  // Nonnull field is actually initialized during construction, in a private method
+  @SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
   public ManagedRunnable(
       @Nonnull Class<? extends ProcessorSchedulable<? extends Component>> runnable)
       throws SchedulableNotConformException {

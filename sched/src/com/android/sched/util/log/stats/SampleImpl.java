@@ -18,6 +18,7 @@ package com.android.sched.util.log.stats;
 
 import com.google.common.collect.Iterators;
 
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.table.DataHeader;
 import com.android.sched.util.table.DataRow;
 
@@ -30,6 +31,8 @@ import javax.annotation.Nonnull;
 /**
  * Simple statistic computation on a set of values.
  */
+// Ignore: "Inconsistent synchronization"
+@SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
 public class SampleImpl extends Sample implements DataRow, DataHeader {
   @Nonnegative
   private int    count;

@@ -17,6 +17,7 @@
 package com.android.sched.util.table;
 
 import com.android.sched.util.codec.Formatter;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.util.Iterator;
 
@@ -52,6 +53,7 @@ public abstract class AbstractTable implements Table {
    * formatters outside. These modifications are only local to this table and will not be reflected
    * in any other Table or DataHeader.
    */
+  @SuppressFBWarnings("EI_EXPOSE_REP")
   @Override
   @Nonnull
   public Formatter<?>[] getFormatters() {

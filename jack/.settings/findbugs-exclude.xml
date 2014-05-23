@@ -1,38 +1,9 @@
 <FindBugsFilter>
-<Match>
-    <Class name="com.android.jack.Options"/>
-    <Bug code="UrF"/>
-</Match>
-<Match>
-    <Class name="com.android.jack.shrob.shrink.Tracer"/>
-    <Bug code="EC"/>
-</Match>
-<Match>
-    <Class name="com.android.jack.shrob.obfuscation.annotation.RemoveThrownException"/>
-    <Bug code="Nm"/>
-</Match>
 <!-- Ignore Antlr generated files -->
 <Match>
     <Class name="~com\.android\.jack\.shrob\.proguard\.ProguardLexer.*"/>
 </Match>
 <Match>
     <Class name="~com\.android\.jack\.shrob\.proguard\.ProguardParser.*"/>
-</Match>
-<!-- Removes bugs detected in test directory -->
-<Match>
-    <Class name="com.android.jack.statistics.BlockStatisticsOnCore"/>
-    <Bug code="RCN"/>
-</Match>
-<Match>
-    <Class name="com.android.jack.TestTools"/>
-    <Bug code="RCN"/>
-</Match>
-<Match>
-    <Class name="com.android.jack.FibonacciThreeAddressTest"/>
-    <Bug code="RCN"/>
-</Match>
-<!-- Weak ref in OpenJDK loggers. -->
-<Match>
-    <Bug code="LG"/>
 </Match>
 </FindBugsFilter>

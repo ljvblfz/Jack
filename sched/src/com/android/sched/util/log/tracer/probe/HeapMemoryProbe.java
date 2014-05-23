@@ -17,6 +17,7 @@
 package com.android.sched.util.log.tracer.probe;
 
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -42,6 +43,8 @@ public class HeapMemoryProbe extends MemoryBytesProbe {
     }
   }
 
+  // We want to call System.gc() for memory measurement purposes
+  @SuppressFBWarnings("DM_GC")
   @Override
   @Nonnegative
   public long read() {

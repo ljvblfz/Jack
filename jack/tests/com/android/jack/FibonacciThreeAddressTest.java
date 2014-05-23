@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.util.FileUtils;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import junit.framework.Assert;
 
@@ -64,6 +65,8 @@ public class FibonacciThreeAddressTest {
    * Verifies that FibonacciThreeAddress can be compiled into a {@code DexFile} containing
    * {@code ClassDefItem}.
    */
+  // Ignore: "Nullcheck <> of value previously dereferenced"
+  @SuppressFBWarnings("RCN")
   @Test
   public void testBuildFiboDexFile() throws Exception {
     Options fiboArgs = TestTools.buildCommandLineArgs(JAVA_FILEPATH);

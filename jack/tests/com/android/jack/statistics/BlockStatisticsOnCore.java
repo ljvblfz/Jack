@@ -30,6 +30,7 @@ import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.SchedulableManager;
 import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import junit.framework.Assert;
 
@@ -45,6 +46,8 @@ public class BlockStatisticsOnCore {
     BlockStatisticsOnCore.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
+  // Ignore: "Nullcheck of value previously dereferenced"
+  @SuppressFBWarnings("RCN")
   @Test
   public void computeBlockStatOnCore() throws Exception {
     Options compilerArgs = TestTools.buildCommandLineArgs(null, null,
