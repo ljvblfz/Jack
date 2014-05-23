@@ -23,6 +23,7 @@ import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.util.NamingTools;
@@ -33,6 +34,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -141,5 +144,23 @@ public class TestingEnvironment {
     baos = new ByteArrayOutputStream();
     errRedirectStream = new PrintStream(baos);
     System.setErr(errRedirectStream);
+  }
+
+  @Nonnull
+  public List<File> getJackFiles(@Nonnull File folder) {
+    assert folder.isDirectory();
+    List<File> jackFiles = new ArrayList<File>();
+    fillJackFiles(folder, jackFiles);
+    return jackFiles;
+  }
+
+  private void fillJackFiles(@Nonnull File file, @Nonnull List<File> jackFiles) {
+    if (file.isDirectory()) {
+      for (File subFile : file.listFiles()) {
+        fillJackFiles(subFile, jackFiles);
+      }
+    } else if (file.getName().endsWith(JayceFileImporter.JAYCE_FILE_EXTENSION)) {
+        jackFiles.add(file);
+    }
   }
 }
