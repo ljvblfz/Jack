@@ -16,6 +16,8 @@
 
 package com.android.sched.util;
 
+import com.google.common.collect.Lists;
+
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ObjectId;
@@ -63,7 +65,8 @@ public class RunnableHooks {
   }
 
   public synchronized void runHooks() {
-    for (Runnable hook : hooks) {
+
+    for (Runnable hook : Lists.reverse(hooks)) {
       hook.run();
     }
 
