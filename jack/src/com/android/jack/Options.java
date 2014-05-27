@@ -613,10 +613,9 @@ public class Options {
         if (!compiler.proceed) {
           throw new NothingToDoException();
         }
+        compiler.getLibraryAccess().cleanup();
       } catch (IllegalArgumentException e) {
         throw new IllegalOptionsException(e.getMessage(), e);
-      } finally {
-        compiler.getLibraryAccess().cleanup();
       }
     }
 

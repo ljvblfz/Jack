@@ -20,6 +20,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {JackFormatErrorTest.class, FileAccessErrorTest.class})
+@SuiteClasses(
+    value = {JackFormatErrorTest.class, FileAccessErrorTest.class, CommandLineErrorTest.class})
 public class ErrorHandlingAllTests {
 }

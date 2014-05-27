@@ -71,7 +71,7 @@ public class JackFormatErrorTest {
     } catch (JayceFormatException e) {
       // Failure is ok since jack file is corrupted.
     } finally {
-      Assert.assertEquals("", ite.endErrorRedirection());
+      Assert.assertEquals("", ite.endErrRedirection());
     }
   }
 
@@ -103,7 +103,7 @@ public class JackFormatErrorTest {
     } catch (JayceFormatException e) {
       // Failure is ok since jack file header is corrupted.
     } finally {
-      Assert.assertEquals("", ite.endErrorRedirection());
+      Assert.assertEquals("", ite.endErrRedirection());
     }
   }
 
@@ -135,7 +135,7 @@ public class JackFormatErrorTest {
     } catch (JayceVersionException e) {
       // Failure is ok since jack file header is corrupted.
     } finally {
-      Assert.assertEquals("", ite.endErrorRedirection());
+      Assert.assertEquals("", ite.endErrRedirection());
     }
   }
 }
