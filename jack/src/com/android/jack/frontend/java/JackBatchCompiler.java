@@ -181,6 +181,10 @@ public class JackBatchCompiler extends Main {
     batchCompiler.remainingIterations = maxRepetition - currentRepetition;
     batchCompiler.useSingleThread = Boolean.getBoolean(USE_SINGLE_THREAD_SYSPROP);
 
+    if (compilerOptions.processAnnotations) {
+      initializeAnnotationProcessorManager();
+    }
+
     // Compiles every compilation units with logging support.
     logger.startLoggingSources();
     try {
