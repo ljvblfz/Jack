@@ -49,15 +49,15 @@ public class FileAccessErrorTest {
    */
   @Test
   public void testFileAccessError001() throws Exception {
-    TestingEnvironment ite = new TestingEnvironment();
+    TestingEnvironment te = new TestingEnvironment();
 
-    ite.addFile(ite.getSourceFolder(), "jack.incremental", "A.java",
+    te.addFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
 
     Options options = new Options();
     List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString());
     File jackOutputFile = TestTools.createTempDir("ErrorHandlingTest_", "001");
@@ -67,7 +67,7 @@ public class FileAccessErrorTest {
     }
 
     try {
-      ite.compile(options);
+      te.compile(options);
       Assert.fail();
     } catch (PropertyIdException e) {
       // Failure is ok since jack output folder is not readable
@@ -84,30 +84,30 @@ public class FileAccessErrorTest {
   @Test
   @Category(KnownBugs.class)
   public void testFileAccessError002() throws Exception {
-    TestingEnvironment ite = new TestingEnvironment();
+    TestingEnvironment te = new TestingEnvironment();
 
-    ite.addFile(ite.getSourceFolder(), "jack.incremental", "A.java",
+    te.addFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
 
     Options options = new Options();
     List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString());
     File jackOutputFile = TestTools.createTempDir("ErrorHandlingTest_", "001");
     options.setJayceOutputDir(jackOutputFile);
 
-    ite.compile(options);
+    te.compile(options);
 
-    ite.deleteJavaFile(ite.getSourceFolder(), "jack.incremental", "A.java");
-    ite.addFile(ite.getSourceFolder(), "jack.incremental", "B.java",
+    te.deleteJavaFile(te.getSourceFolder(), "jack.incremental", "A.java");
+    te.addFile(te.getSourceFolder(), "jack.incremental", "B.java",
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
     options = new Options();
     ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString());
     options.addJayceImport(jackOutputFile);
@@ -117,11 +117,11 @@ public class FileAccessErrorTest {
       Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
     }
     try {
-      ite.startErrRedirection();
-      ite.compile(options);
+      te.startErrRedirection();
+      te.compile(options);
       Assert.fail();
     } finally {
-      Assert.assertEquals("", ite.endErrRedirection());
+      Assert.assertEquals("", te.endErrRedirection());
       if (!jackOutputFile.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
       }
@@ -133,9 +133,9 @@ public class FileAccessErrorTest {
    */
   @Test
   public void testFileAccessError003() throws Exception {
-    TestingEnvironment ite = new TestingEnvironment();
+    TestingEnvironment te = new TestingEnvironment();
 
-    File a = ite.addFile(ite.getSourceFolder(), "jack.incremental", "A.java",
+    File a = te.addFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
     if (!a.setReadable(false)) {
@@ -144,12 +144,12 @@ public class FileAccessErrorTest {
 
     Options options = new Options();
     List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString());
 
     try {
-      ite.compile(options);
+      te.compile(options);
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Failure is ok since source file is not readable
@@ -165,51 +165,75 @@ public class FileAccessErrorTest {
    */
   @Test
   public void testFileAccessError004() throws Exception {
-    TestingEnvironment ite = new TestingEnvironment();
+    TestingEnvironment te = new TestingEnvironment();
 
-    ite.addFile(ite.getSourceFolder(), "jack.incremental", "A.java",
+    te.addFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
 
     Options options = new Options();
     List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString());
-    options.setJayceOutputDir(ite.getJackFolder());
+    options.setJayceOutputDir(te.getJackFolder());
 
-    ite.compile(options);
+    te.compile(options);
 
-    ite.deleteJavaFile(ite.getSourceFolder(), "jack.incremental", "A.java");
+    te.deleteJavaFile(te.getSourceFolder(), "jack.incremental", "A.java");
 
-    ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
+    te.addFile(te.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
     options = new Options();
     ecjArgs = new ArrayList<String>();
-    ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
+    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(
-        TestTools.getDefaultBootclasspathString() + File.pathSeparator + ite.getJackFolder());
+        TestTools.getDefaultBootclasspathString() + File.pathSeparator + te.getJackFolder());
 
     try {
-      for (File jackFile : ite.getJackFiles(ite.getJackFolder())) {
+      for (File jackFile : te.getJackFiles(te.getJackFolder())) {
         if (!jackFile.setReadable(false)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
         }
       }
-      ite.startErrRedirection();
-      ite.compile(options);
+      te.startErrRedirection();
+      te.compile(options);
     } catch (JackIOException e) {
       // Failure is ok since jack file is not readable
     } finally {
-      Assert.assertEquals("", ite.endErrRedirection());
-      for (File jackFile : ite.getJackFiles(ite.getJackFolder())) {
+      Assert.assertEquals("", te.endErrRedirection());
+      for (File jackFile : te.getJackFiles(te.getJackFolder())) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
         }
       }
+    }
+  }
+
+  /**
+   * Checks that compilation fails correctly when source file does not exist.
+   */
+  @Test
+  public void testFileAccessError005() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    Options options = new Options();
+    List<String> ecjArgs = new ArrayList<String>();
+    ecjArgs.add(te.getSourceFolder() + File.separator + "A.java");
+    options.setEcjArguments(ecjArgs);
+    options.setClasspath(TestTools.getDefaultBootclasspathString());
+
+    try {
+      te.startErrRedirection();
+      te.compile(options);
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      // Failure is ok since source file is not readable
+    } finally {
+      Assert.assertTrue(te.endErrRedirection().contains("A.java is missing"));
     }
   }
 }
