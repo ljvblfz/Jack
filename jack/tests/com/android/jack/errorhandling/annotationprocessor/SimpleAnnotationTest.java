@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.jack.errorhandling;
 
-import com.android.jack.category.KnownBugs;
+package com.android.jack.errorhandling.annotationprocessor;
 
-import org.junit.experimental.categories.Categories;
-import org.junit.experimental.categories.Categories.ExcludeCategory;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@RunWith(Categories.class)
-@SuiteClasses(
-value = {JackFormatErrorTest.class, FileAccessErrorTest.class,
-    CommandLineErrorTest.class, AnnotationProcessorErrorTest.class})
-@ExcludeCategory(KnownBugs.class)
-public class ErrorHandlingAllTests {
-}
+/**
+ * Annotates a class or interface with an annotation used by tests.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface SimpleAnnotationTest {}

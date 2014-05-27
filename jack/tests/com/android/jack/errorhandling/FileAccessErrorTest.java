@@ -149,6 +149,7 @@ public class FileAccessErrorTest {
     options.setClasspath(TestTools.getDefaultBootclasspathString());
 
     try {
+      te.startErrRedirection();
       te.compile(options);
       Assert.fail();
     } catch (FrontendCompilationException e) {
@@ -157,6 +158,7 @@ public class FileAccessErrorTest {
       if (!a.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + a.getAbsolutePath());
       }
+      Assert.assertTrue(te.endErrRedirection().contains("Permission denied"));
     }
   }
 
@@ -201,6 +203,7 @@ public class FileAccessErrorTest {
       }
       te.startErrRedirection();
       te.compile(options);
+      Assert.fail();
     } catch (JackIOException e) {
       // Failure is ok since jack file is not readable
     } finally {
