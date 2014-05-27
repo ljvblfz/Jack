@@ -18,7 +18,9 @@ package com.android.jack.frontend.java;
 
 
 import com.android.jack.JackEventType;
+import com.android.jack.JackUserException;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
@@ -214,6 +216,14 @@ class JAstBuilder extends JavaParser {
   @Override
   protected void handleInternalException(@Nonnull Throwable internalException,
       @CheckForNull CompilationUnitDeclaration unit, @CheckForNull CompilationResult result) {
-    // do nothing here, let JackBatchCompiler do the appropriate handling
+    if (internalException instanceof IllegalArgumentException) {
+      throw new JackUserException(internalException);
+    } else if (internalException instanceof RuntimeException) {
+      throw (RuntimeException) internalException;
+    } else if (internalException instanceof Error) {
+      throw (Error) internalException;
+    } else {
+      throw new InternalCompilerException(internalException);
+    }
   }
 }

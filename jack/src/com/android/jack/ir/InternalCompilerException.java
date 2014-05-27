@@ -103,6 +103,13 @@ public class InternalCompilerException extends RuntimeException {
   }
 
   /**
+   * Constructs a new exception with the specified cause.
+   */
+  public InternalCompilerException(Throwable cause) {
+    super(cause);
+  }
+
+  /**
    * Constructs a new exception with the specified message and cause.
    */
   public InternalCompilerException(String message, Throwable cause) {
