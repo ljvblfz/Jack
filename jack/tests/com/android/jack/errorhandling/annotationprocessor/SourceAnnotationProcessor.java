@@ -17,12 +17,8 @@
 package com.android.jack.errorhandling.annotationprocessor;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -37,71 +33,67 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic.Kind;
-import javax.tools.StandardLocation;
+import javax.tools.JavaFileObject;
 
 /**
- * Annotation processor generating a dedicated resource file called {@code rscGeneratedFile}.
+ * Annotation processor to generate a new source file.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("*")
-public class SimpleAnnotationProcessor extends AbstractProcessor {
+public class SourceAnnotationProcessor extends AbstractProcessor {
   @CheckForNull
   private ProcessingEnvironment env;
-
-  @Nonnull
-  private final List<String> data = new ArrayList<String>();
-
-  @Nonnull
-  public final static String FILENAME = "rscGeneratedFile";
 
   @Override
   public synchronized void init(ProcessingEnvironment env) {
     this.env = env;
-    try {
-      env.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", FILENAME);
-    } catch (IOException e) {
-      // Best effort
-    }
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    if (roundEnv.processingOver()) {
-      try {
-        assert env != null;
-
-        OutputStream os = env.getFiler()
-            .createResource(StandardLocation.CLASS_OUTPUT, "", FILENAME)
-            .openOutputStream();
-        Writer writer = new OutputStreamWriter(os);
-        try {
-          for (String val : data) {
-            writer.write(val);
-            writer.write("\n");
-          }
-        } finally {
-          writer.close();
-        }
-      } catch (IOException e) {
-        env.getMessager().printMessage(Kind.ERROR,
-            "Can not write resource file for '" + FILENAME + "': " + e.getMessage());
-      }
-    } else {
+    if (!roundEnv.processingOver()) {
       //
-      // @SimpleAnnotationTest
+      // @SourceErrorAnnotationTest
       //
 
-      for (Element element : getElementsAnnotatedWith(roundEnv, SimpleAnnotationTest.class)) {
-        assert data != null;
-
+      for (Element element : getElementsAnnotatedWith(roundEnv, SourceErrorAnnotationTest.class)) {
         TypeMirror type = element.asType();
 
         if (type.getKind() == TypeKind.DECLARED) {
-          data.add(SimpleAnnotationTest.class.getCanonicalName());
-          assert env != null;
-          data.add(env.getElementUtils().getBinaryName((TypeElement) element).toString());
+          TypeElement classElement = (TypeElement) element;
+          try {
+            assert env != null;
+            JavaFileObject jfo =
+                env.getFiler().createSourceFile(classElement.getQualifiedName() + "Duplicated");
+            Writer writer = jfo.openWriter();
 
+            writer.write("Bad java source.");
+            writer.close();
+          } catch (IOException e) {
+            throw new AssertionError(e);
+          }
+        }
+      }
+
+      //
+      // @SourceAnnotationTest
+      //
+
+      for (Element element : getElementsAnnotatedWith(roundEnv, SourceAnnotationTest.class)) {
+        TypeMirror type = element.asType();
+
+        if (type.getKind() == TypeKind.DECLARED) {
+          TypeElement classElement = (TypeElement) element;
+          try {
+            assert env != null;
+            JavaFileObject jfo =
+                env.getFiler().createSourceFile(classElement.getQualifiedName() + "Duplicated");
+            Writer writer = jfo.openWriter();
+            writer.write("public class " + classElement.getSimpleName() + "Duplicated {}");
+            writer.close();
+          } catch (IOException e) {
+            throw new AssertionError(e);
+          }
         }
       }
     }

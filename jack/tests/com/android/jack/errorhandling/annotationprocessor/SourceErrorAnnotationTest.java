@@ -22,8 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a class or interface with an annotation used by tests.
+ * Annotates a class or interface with an annotation used by tests to generate source code that will
+ * not compile.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface SimpleAnnotationTest {}
+public @interface SourceErrorAnnotationTest {}
