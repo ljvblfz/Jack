@@ -22,12 +22,15 @@ import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -38,7 +41,9 @@ import javax.annotation.Nonnull;
  */
 @Description("Compute the number of block and extra block created to manage stand alone statement.")
 @Name("BlockStatistics")
+@Constraint(need = {JMethodBody.class})
 @Transform(add = BlockCountMarker.class)
+@Synchronized
 public class BlockStatistics implements RunnableSchedulable<JMethod> {
 
   private static class BlockStatisticsVisitor extends JVisitor {
@@ -109,7 +114,7 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) throws Exception {
     if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()) {
       return;
     }

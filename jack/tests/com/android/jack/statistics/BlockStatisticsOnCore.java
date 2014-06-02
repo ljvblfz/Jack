@@ -30,7 +30,6 @@ import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.SchedulableManager;
 import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import junit.framework.Assert;
 
@@ -46,8 +45,6 @@ public class BlockStatisticsOnCore {
     BlockStatisticsOnCore.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
-  // Ignore: "Nullcheck of value previously dereferenced"
-  @SuppressFBWarnings("RCN")
   @Test
   public void computeBlockStatOnCore() throws Exception {
     Options compilerArgs = TestTools.buildCommandLineArgs(null, null,
@@ -58,7 +55,6 @@ public class BlockStatisticsOnCore {
 
     BlockCountMarker bcm = session.getMarker(BlockCountMarker.class);
     Assert.assertNotNull(bcm);
-    assert bcm != null; // Find Bugs will be happy
 
     System.out.println("Existing block : " + bcm.getExistingBlockCount());
     System.out.println("Extra block : " + bcm.getExtraBlockCount());
@@ -73,7 +69,7 @@ public class BlockStatisticsOnCore {
 
   @Nonnull
   private static JSession buildSession(@Nonnull Options options) throws Exception {
-    JSession session = TestTools.buildSession(options);
+    JSession session = TestTools.buildJAst(options);
     Assert.assertNotNull(session);
 
     Scheduler scheduler = Scheduler.getScheduler();
