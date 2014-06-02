@@ -166,8 +166,6 @@ public class SynchronizedTest {
     JDefinedClassOrInterface type = (JDefinedClassOrInterface)
         session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(type);
-    // FINDBUGS
-    assert type != null;
 
     JMethod foundMethod = TestTools.getMethod(type, methodSignature);
 

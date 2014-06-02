@@ -43,7 +43,6 @@ public class SeedsComparator extends AbstractListingComparator {
         while (currentReferenceLine != null) {
           BufferedReader candidateReader = createStreamReader(candidate);
           try {
-            assert currentReferenceLine != null; // FINDBUGS
             if (!findLine(currentReferenceLine, candidateReader)) {
               if (isTypeLine(currentReferenceLine)) {
                 missingType(currentReferenceLine, false /* missingInReference */);
@@ -71,7 +70,6 @@ public class SeedsComparator extends AbstractListingComparator {
         while (currentCandidateLine != null) {
           BufferedReader referenceReader = createStreamReader(reference);
           try {
-            assert currentCandidateLine != null; // FINDBUGS
             if (!findLine(currentCandidateLine, referenceReader)) {
               if (isTypeLine(currentCandidateLine)) {
                 missingType(currentCandidateLine, true /* missingInReference */);

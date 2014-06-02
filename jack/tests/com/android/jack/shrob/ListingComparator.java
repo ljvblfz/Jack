@@ -63,7 +63,6 @@ public class ListingComparator extends AbstractListingComparator {
           candidateTypesList.remove(currentReferenceLine);
           BufferedReader candidateReader = createStreamReader(candidate);
           try {
-            assert currentReferenceLine != null; // FINDBUGS
             if (findLine(currentReferenceLine, candidateReader)) {
               currentReferenceLine = checkMembers(referenceReader, candidateReader, currentType);
             } else {

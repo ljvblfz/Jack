@@ -283,7 +283,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
             valuesId.canBeVirtual()));
         List<JExpression> dimensions = new ArrayList<JExpression>();
         dimensions.add(valuesLength);
-        assert switchValuesArrayType != null; // FINDBUGS will be happy
         bodyBlock.addStmt(new JAsgOperation(dbgInfo, new JLocalRef(dbgInfo, arrayVar),
             JNewArray.createWithDims(dbgInfo, switchValuesArrayType, dimensions)).makeStatement());
 
