@@ -205,10 +205,7 @@ public class JackBatchCompiler extends Main {
       loggingExtraProblems();
       extraProblems = null;
     }
-    // Update compiler statistics and log them.
-    if (compilerStats != null && compilerStats.length > currentRepetition) {
-      compilerStats[currentRepetition] = batchCompiler.stats;
-    }
+
     logger.printStats();
   }
 

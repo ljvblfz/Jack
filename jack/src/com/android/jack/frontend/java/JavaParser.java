@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import java.io.PrintWriter;
 
 public class JavaParser extends Compiler {
+
   public JavaParser(INameEnvironment environment, IErrorHandlingPolicy policy,
       CompilerOptions options, ICompilerRequestor requestor, IProblemFactory problemFactory,
       PrintWriter out, CompilationProgress progress) {
@@ -39,20 +40,14 @@ public class JavaParser extends Compiler {
   public void process(CompilationUnitDeclaration unit, int i) {
     lookupEnvironment.unitBeingCompleted = unit;
 
-    long start = System.currentTimeMillis();
     parser.getMethodBodies(unit);
-    stats.parseTime = System.currentTimeMillis() - start;
 
-    start = System.currentTimeMillis();
     if (unit.scope != null) {
       unit.scope.faultInTypes();
       unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
     }
     unit.resolve();
-    stats.resolveTime = System.currentTimeMillis() - start;
 
-    start = System.currentTimeMillis();
     unit.analyseCode();
-    stats.analyzeTime = System.currentTimeMillis() - start;
   }
 }
