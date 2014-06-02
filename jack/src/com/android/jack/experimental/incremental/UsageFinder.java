@@ -19,6 +19,7 @@ package com.android.jack.experimental.incremental;
 import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.HasType;
 import com.android.jack.ir.ast.JArrayLiteral;
+import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -76,6 +77,9 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
     }
 
     private void addCodeUsage(@Nonnull JType usedType) {
+      if (usedType instanceof JArrayType) {
+        usedType = ((JArrayType) usedType).getLeafType();
+      }
       if (usedType.getSourceInfo() == SourceOrigin.UNKNOWN) {
         return;
       }
