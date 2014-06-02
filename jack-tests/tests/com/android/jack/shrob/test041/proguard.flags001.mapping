@@ -1,0 +1,2 @@
+com.android.jack.shrob.test041.jack.ReflectionClass -> com.android.jack.shrob.test041.jack.RenamedReflectionClass:
+    int reflectionMethod() -> renamedReflectionMethod

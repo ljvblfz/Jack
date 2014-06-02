@@ -1,0 +1,6 @@
+com.android.jack.shrob.test041.jack.Kept -> com.android.jack.shrob.test041.jack.Kept:
+    void <init>() -> <init>
+    int kept() -> kept
+com.android.jack.shrob.test041.jack.ReflectionClass -> FrsyrphvcbPyngg:
+    void <init>() -> <init>
+    int reflectionMethod() -> frsyrphvcbZrhucq__
