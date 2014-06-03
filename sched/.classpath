@@ -3,18 +3,18 @@
 	<classpathentry excluding="com/android/sched/util/log/tracer/SpeedTracer.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="rsc"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/guava-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/guava/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/freemarker-jack_intermediates/javalib.jar"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/allocation-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/java-allocation-instrumenter/src/main"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/watchmaker-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/watchmaker/framework/src"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/maths-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/maths/core/src"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/jsr305lib-jack_intermediates/javalib.jar"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/junit4-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/junit4/src/main/java"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/allocation-lib.jar"/>
+	<classpathentry kind="lib" path="libs/freemarker-lib.jar"/>
+	<classpathentry kind="lib" path="libs/guava-lib.jar"/>
+	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
+	<classpathentry kind="lib" path="libs/junit4.jar"/>
+	<classpathentry kind="lib" path="libs/maths-lib.jar"/>
+	<classpathentry kind="lib" path="libs/watchmaker-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

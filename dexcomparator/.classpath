@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/dexlib-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/dexlib/src/main/java"/>
-	<classpathentry kind="var" path="ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/jsr305lib-jack_intermediates/javalib.jar" sourcepath="/ANDROID_BUILD_TOP/toolchain/jack/jsr305/ri/src/main/java"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/dex-lib.jar"/>
+	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
