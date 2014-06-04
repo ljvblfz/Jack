@@ -146,7 +146,7 @@
     <javac srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="jack.link.libs.fileset" />
         <filelist refid="jack.static.libs.fileset" />
@@ -232,7 +232,7 @@
       <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
     </filelist>
     <!-- compile -->
-    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}" source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}" source="1.5" target="1.5" debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="jackunittests.link.libs.fileset"/>
         <filelist refid="jack.static.libs.fileset"/>
@@ -309,7 +309,7 @@
     <javac srcdir="${args4j.dir}/args4j/src"
       destdir="${args4j.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"/>
     <!-- package -->
     <copy todir="${args4j.build.outdir}">
       <fileset dir="${args4j.dir}/args4j/src">
@@ -347,7 +347,7 @@
     <javac srcdir="${dx.dir}/src"
       destdir="${dx.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"/>
     <!-- package -->
     <jar destfile="${dx.dist.dir}/${dx.libname}"
       basedir="${dx.build.outdir}"
@@ -423,7 +423,7 @@
     <javac source="1.5" target="1.5"
       srcdir="${guava.dir}/src"
       destdir="${guava.build.outdir}"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <classpath>
         <filelist dir=".">
           <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -458,7 +458,7 @@
     <javac srcdir="${jsr305.dir}/ri/src/main/java"
       destdir="${jsr305.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"/>
     <!-- package -->
     <jar destfile="${jsr305.dist.dir}/${jsr305.libname}"
         basedir="${jsr305.build.outdir}"
@@ -487,7 +487,7 @@
     <javac srcdir="${maths.dir}/core/src/java/main"
     destdir="${maths.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"/>
     <!-- package -->
     <jar destfile="${maths.dist.dir}/${maths.libname}"
       basedir="${maths.build.outdir}"
@@ -544,7 +544,7 @@
     </filelist>
 
     <!-- compile -->
-    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}" source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}" source="1.5" target="1.5" debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
       </classpath>
@@ -587,7 +587,7 @@
        srcdir="${sched.dir}/src"
        destdir="${sched-build.build.outdir}"
        source="1.5" target="1.5"
-       createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+       debug="true" includeantruntime="false">
       <classpath>
         <fileset dir="${sched-build.libs.dir}">
           <include name="**/*.jar" />
@@ -666,7 +666,7 @@
     <javac srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="schedtests.link.libs.fileset"/>
       </classpath>
@@ -700,7 +700,7 @@
     <javac srcdir="${watchmaker.dir}/framework/src/java/main"
       destdir="${watchmaker.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <classpath>
         <filelist dir=".">
           <file name="${maths.dist.dir}/${maths.libname}" />
@@ -736,7 +736,7 @@
     <javac srcdir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java"
       destdir="${antlr-rt.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <exclude name="org/antlr/runtime/tree/DOTTreeGenerator.java" />
     </javac>
     <!-- package -->
@@ -767,7 +767,7 @@
     <javac srcdir="${allocation.dir}/src/main/java"
       destdir="${allocation.build.outdir}"
       source="1.5" target="1.5"
-      createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false">
       <classpath>
         <filelist dir=".">
           <file name="${guava.dist.dir}/${guava.libname}" />
@@ -802,7 +802,7 @@
     <javac srcdir="${junit4.dir}/src/main/java"
         destdir="${junit4.build.outdir}"
         source="1.5" target="1.5"
-        createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+        debug="true" includeantruntime="false">
       <classpath>
         <filelist dir=".">
           <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
@@ -867,7 +867,7 @@
     <javac srcdir="${hamcrest-core.dir}/src"
           destdir="${hamcrest-core.build.outdir}"
           source="1.5" target="1.5"
-          createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+          debug="true" includeantruntime="false"/>
     <!-- package -->
     <jar destfile="${hamcrest-core.dist.dir}/${hamcrest-core.libname}"
           basedir="${hamcrest-core.build.outdir}"
@@ -907,7 +907,7 @@
     <javac srcdir="${dexcomparator.dir}/src"
             destdir="${dexcomparator.build.outdir}"
             source="1.5" target="1.5"
-            createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+            debug="true" includeantruntime="false">
       <classpath>
         <fileset dir="${dexcomparator.libs.dir}">
           <include name="**/*.jar"/>
@@ -943,7 +943,7 @@
     <javac srcdir="${dexlib.dir}/src/main/java"
             destdir="${dexlib.build.outdir}"
             source="1.5" target="1.5"
-            createmissingpackageinfoclass="false" debug="true" includeantruntime="false">
+            debug="true" includeantruntime="false">
       <classpath>
         <filelist dir=".">
           <file name="${guava.dist.dir}/${guava.libname}"/>
