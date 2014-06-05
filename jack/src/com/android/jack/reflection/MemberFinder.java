@@ -64,17 +64,18 @@ public class MemberFinder {
       return fieldFound;
     }
     for (JInterface interfaceType : declaringType.getImplements()) {
-      fieldFound = getField((JDefinedInterface) interfaceType, name);
-      if (fieldFound != null) {
-        return fieldFound;
+      if (interfaceType instanceof JDefinedInterface) {
+        fieldFound = getField((JDefinedInterface) interfaceType, name);
+        if (fieldFound != null) {
+          return fieldFound;
+        }
       }
     }
     JClass superClass = declaringType.getSuperClass();
-    if (superClass != null) {
+    if (superClass instanceof JDefinedClass) {
       fieldFound = getField((JDefinedClass) superClass, name);
-      return fieldFound;
     }
-    return null;
+    return fieldFound;
   }
 
   @CheckForNull
@@ -104,18 +105,18 @@ public class MemberFinder {
       return methodFound;
     }
     JClass superClass = declaringType.getSuperClass();
-    if (superClass != null) {
-      methodFound = getMethod(
-          (JDefinedClass) superClass, methodNameWithParam);
+    if (superClass instanceof JDefinedClass) {
+      methodFound = getMethod((JDefinedClass) superClass, methodNameWithParam);
       if (methodFound != null) {
         return methodFound;
       }
     }
     for (JInterface interfaceType : declaringType.getImplements()) {
-      methodFound = getMethod(
-          (JDefinedInterface) interfaceType, methodNameWithParam);
-      if (methodFound != null) {
-        return methodFound;
+      if (interfaceType instanceof JDefinedInterface) {
+        methodFound = getMethod((JDefinedInterface) interfaceType, methodNameWithParam);
+        if (methodFound != null) {
+          return methodFound;
+        }
       }
     }
     return null;
