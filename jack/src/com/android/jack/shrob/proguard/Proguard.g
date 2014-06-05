@@ -118,7 +118,7 @@ private unsupportedFlag
   ;
 
 private classpath
-  :  NAME (':' classpath)?
+  :  NAME ((':'|';') classpath)?
   ;
 
 private filter [FilterSpecification filter]
@@ -259,7 +259,7 @@ private keepOptionModifier returns [KeepModifier modifier]
   | 'allowobfuscation' {modifier = KeepModifier.ALLOW_OBFUSCATION;})
   ;
 
-private NAME  : ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'?'|'$'|'.'|'*'|'/'|'-'|'<'|'>')+ ;
+private NAME  : ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'?'|'$'|'.'|'*'|'/'|'\\'|'-'|'<'|'>')+ ;
 
 LINE_COMMENT
   :  '#' ~( '\r' | '\n' )* {$channel=HIDDEN;}
