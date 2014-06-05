@@ -265,12 +265,16 @@
     <delete dir="${jack-tests.libs.dir}" />
   </target>
 
-  <target name="jack-tests" depends="junit4-lib">
+  <target name="jack-tests" depends="core-stubs-mini,junit4-lib">
     <!-- project layout -->
     <mkdir dir="${jack-tests.libs.dir}" />
     <!-- fetch dependencies -->
-    <copy file="${junit4.dist.dir}/${junit4.libname}" todir="${jack-tests.libs.dir}" />
-
+    <copy todir="${jack-tests.libs.dir}" flatten="true">
+      <filelist dir="." >
+        <file name="${junit4.dist.dir}/${junit4.libname}"/>
+        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+      </filelist>
+    </copy>
   </target>
 
 
@@ -979,7 +983,7 @@
     </java>
     <javac srcdir="${core-stubs-mini.dir}/src"
       destdir="${core-stubs-mini.build.dir}"
-      source="1.5" target="1.5" createmissingpackageinfoclass="false" debug="true" includeantruntime="false"/>
+      source="1.5" target="1.5" debug="true" includeantruntime="false"/>
     <jar destfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"
             basedir="${core-stubs-mini.build.dir}"
             includes="**"/>
