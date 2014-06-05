@@ -64,7 +64,8 @@ public class NNewInstance extends NMethodCall {
     assert methodArgsType != null;
     assert args != null;
     JClassOrInterface jReceiverType = exportSession.getLookup().getClass(receiverType);
-    JMethodId methodId = exportSession.getMethodId(jReceiverType, INIT_NAME, methodArgsType,
+    JMethodId methodId = jReceiverType.getOrCreateMethodId(INIT_NAME,
+        exportSession.getTypeListFromSignatureList(methodArgsType),
         MethodKind.INSTANCE_NON_VIRTUAL);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JNewInstance jNewInstance = new JNewInstance(jSourceInfo, jReceiverType, methodId);

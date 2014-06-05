@@ -121,8 +121,8 @@ public class NMethodCall extends NExpression {
     } else {
       jReceiverType = exportSession.getLookup().getInterface(receiverType);
     }
-    JMethodId methodId = exportSession.getMethodId(jReceiverType, methodName, methodArgsType,
-        methodKind);
+    JMethodId methodId = jReceiverType.getOrCreateMethodId(methodName,
+        exportSession.getTypeListFromSignatureList(methodArgsType), methodKind);
     JType jReturnType = exportSession.getLookup().getType(returnType);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast();
     JMethodCall jMethodCall = new JMethodCall(jSourceInfo, jInstance, jReceiverType, methodId,
