@@ -179,8 +179,9 @@
     <!-- generate jack.properties -->
     <property environment="env"/>
     <property name="jack.version.name.tag" value="eng.${env.USER}"/>
-    <echo message="${jack.base.version.name}.${jack.base.version.code}.${jack.version.name.tag}"
-           file="${jack.exec.build.outdir}/jack.properties"/>
+    <propertyfile file="${jack.exec.build.outdir}/jack.properties">
+      <entry key="jack.version" value="${jack.base.version.name}.${jack.base.version.code}.${jack.version.name.tag}"/>
+    </propertyfile>
     <!-- package -->
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.dir}/rsc" includes="**"/>
