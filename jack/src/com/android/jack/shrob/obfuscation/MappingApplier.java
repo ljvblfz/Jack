@@ -413,7 +413,7 @@ public class MappingApplier {
           reader.close();
         } catch (IOException e) {
           logger.log(Level.WARNING,
-              "Failed to closed reader while reading mapping {0}", mappingFile.getAbsolutePath());
+              "Failed to close reader while reading mapping {0}", mappingFile.getAbsolutePath());
         }
       }
     }
