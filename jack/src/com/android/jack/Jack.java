@@ -743,7 +743,7 @@ public abstract class Jack {
     if (productions.contains(SeedFile.class)) {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(SeedFinder.class);
       }
       planBuilder.append(SeedPrinter.class);
@@ -819,7 +819,7 @@ public abstract class Jack {
     if (productions.contains(SeedFile.class)) {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(SeedFinder.class);
       }
       planBuilder.append(SeedPrinter.class);
@@ -1078,7 +1078,7 @@ public abstract class Jack {
     if (productions.contains(SeedFile.class)) {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(SeedFinder.class);
       }
       planBuilder.append(SeedPrinter.class);
@@ -1349,7 +1349,7 @@ public abstract class Jack {
     if (productions.contains(SeedFile.class)) {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(SeedFinder.class);
       }
       planBuilder.append(SeedPrinter.class);
