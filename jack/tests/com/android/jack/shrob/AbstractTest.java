@@ -503,6 +503,11 @@ public abstract class AbstractTest {
   }
 
   @Test
+  public void test31_002() throws Exception {
+    runTest(defaultBootclasspath, null, "031", "002", "");
+  }
+
+  @Test
   public void test32_001() throws Exception {
     runTest(defaultBootclasspath, null, "032", "001", "");
   }

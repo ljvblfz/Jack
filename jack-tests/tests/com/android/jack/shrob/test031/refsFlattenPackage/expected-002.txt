@@ -1,0 +1,6 @@
+com.android.jack.shrob.test031.jack.F -> com.android.jack.shrob.test031.jack.S:
+    void <init>() -> <init>
+com.android.jack.shrob.test031.jack.B -> com.android.jack.shrob.test031.jack.B:
+    void <init>() -> <init>
+com.android.jack.shrob.test031.jack.A -> com.android.jack.shrob.test031.jack.N:
+    void <init>() -> <init>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.shrob;
+package com.android.jack.shrob.seed;
 
 import com.android.sched.item.Description;
 import com.android.sched.item.Production;

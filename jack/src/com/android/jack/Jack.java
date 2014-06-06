@@ -98,8 +98,6 @@ import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.scheduling.tags.DexFileProduct;
-import com.android.jack.shrob.SeedFile;
-import com.android.jack.shrob.SeedPrinter;
 import com.android.jack.shrob.obfuscation.Mapping;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameFinalizer;
@@ -131,6 +129,9 @@ import com.android.jack.shrob.obfuscation.remover.TypeKeepNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.remover.TypeOriginalNameMarkerRemover;
 import com.android.jack.shrob.obfuscation.resource.ResourceRefiner;
 import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.shrob.seed.SeedFile;
+import com.android.jack.shrob.seed.SeedFinder;
+import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.shrink.ExtendingOrImplementingClassFinder;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
@@ -740,6 +741,11 @@ public abstract class Jack {
       appendStringRefiningPlan(planBuilder);
     }
     if (productions.contains(SeedFile.class)) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+        typePlan.append(SeedFinder.class);
+      }
       planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
@@ -811,6 +817,11 @@ public abstract class Jack {
     }
 
     if (productions.contains(SeedFile.class)) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+        typePlan.append(SeedFinder.class);
+      }
       planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
@@ -1065,6 +1076,11 @@ public abstract class Jack {
     }
 
     if (productions.contains(SeedFile.class)) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+        typePlan.append(SeedFinder.class);
+      }
       planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
@@ -1331,6 +1347,11 @@ public abstract class Jack {
     }
 
     if (productions.contains(SeedFile.class)) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdaptor.class);
+        typePlan.append(SeedFinder.class);
+      }
       planBuilder.append(SeedPrinter.class);
     }
     if (features.contains(Shrinking.class)) {
