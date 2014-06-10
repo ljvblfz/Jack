@@ -17,9 +17,6 @@
 package com.android.jack.ir.ast.marker;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JVariable;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -30,19 +27,23 @@ import javax.annotation.Nonnull;
  * This {@link Marker} holds source name retrieved from ecj.
  */
 @Description("Holds source name retrieved from ecj")
-@ValidOn({JDefinedClassOrInterface.class, JVariable.class, JMethod.class, JField.class})
+@ValidOn(JDefinedClassOrInterface.class)
 public class SourceName implements Marker {
 
   @Nonnull
-  private final String sourceName;
+  private CharSequence sourceName;
 
   public SourceName(@Nonnull String sourceName) {
     this.sourceName = sourceName;
   }
 
+  public void setSourceName(@Nonnull CharSequence sourceName) {
+    this.sourceName = sourceName;
+  }
+
   @Nonnull
   public String getSourceName() {
-    return sourceName;
+    return sourceName.toString();
   }
 
   @Override

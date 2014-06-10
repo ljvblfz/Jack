@@ -49,7 +49,8 @@ public class TypeName extends AbstractName {
     SRC_SIGNATURE,      // means Ljava.lang.Object;
     BINARY_QN,          // means java/lang/Object
     SRC_QN,             // means java.lang.Object
-    SIMPLE_NAME         // means d when type name is a/b/c/d or a/b/c/e$d or a.b.c.d or a.b.c$d
+    SIMPLE_NAME         // means d when type name is a/b/c/e$1d or a/b/c/e$1d or a.b.c$1d
+                        // or d when type name is a/b/c/e$d or a/b/c/e$d or a.b.c.d or a.b.c$d
   }
 
   @Nonnull
@@ -73,7 +74,6 @@ public class TypeName extends AbstractName {
           return "[" + getValue(((JArrayType) type).getElementType(), kind);
         case BINARY_QN:
         case SRC_QN:
-        case SIMPLE_NAME:
           return getValue(((JArrayType) type).getElementType(), kind) + "[]";
         default: {
           throw new AssertionError();
@@ -119,7 +119,13 @@ public class TypeName extends AbstractName {
     if (simpleNameBeginIndex == -1) {
       return typeName;
     } else {
-      return typeName.substring(simpleNameBeginIndex + 1);
+      int length = typeName.length();
+      simpleNameBeginIndex++;
+      while (simpleNameBeginIndex < length
+          && Character.isDigit(typeName.charAt(simpleNameBeginIndex))) {
+        simpleNameBeginIndex++;
+      }
+      return typeName.substring(simpleNameBeginIndex);
     }
   }
 }

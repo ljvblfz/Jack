@@ -88,6 +88,14 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
       try {
         JType type = jlookup.getType(NamingTools.getTypeSignatureName(
             formatter.getName(enclosingType) + '$' + name));
+        // Append inner classes name discriminating id (e.g. 1 in La/b$1c;)
+        int index = 0;
+        char c = name.charAt(index);
+        while (index < name.length() && Character.isDigit(c)) {
+          strBuf.append(c);
+          index++;
+          c = name.charAt(index);
+        }
         updateRefinedSequence(new TypeName(Kind.SIMPLE_NAME, type));
         return type;
       } catch (JLookupException e) {
