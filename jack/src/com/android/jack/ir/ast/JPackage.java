@@ -188,7 +188,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   @Nonnull
-  public synchronized JDefinedClassOrInterface getType(@Nonnull String typeName) {
+  public synchronized JDefinedClassOrInterface getType(@Nonnull String typeName)
+      throws JTypeLookupException {
     for (JDefinedClassOrInterface type : declaredTypes) {
       if (type.getName().equals(typeName)) {
         return type;
@@ -459,13 +460,18 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
 
     for (String name : subNames) {
-      getSubPackage(name);
+      try {
+        getSubPackage(name);
+      } catch (JPackageLookupException e) {
+        // We know the packages exist so this should not happen
+        throw new AssertionError(e);
+      }
     }
   }
 
   @Nonnull
   protected JDefinedClassOrInterface loadClassOrInterface(
-      @Nonnull String simpleName) throws JLookupException {
+      @Nonnull String simpleName) throws JTypeLookupException {
     for (PackageLoader loader : loaders) {
       try {
         return loader.loadClassOrInterface(this, simpleName);
@@ -483,7 +489,12 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
 
     for (String name : subNames) {
-      getType(name);
+      try {
+        getType(name);
+      } catch (JTypeLookupException e) {
+        // We know the packages exist so this should not happen
+        throw new AssertionError(e);
+      }
     }
   }
 }

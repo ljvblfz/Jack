@@ -88,7 +88,7 @@ public class TestTools {
 
   @Nonnull
   public static JMethod getMethod(@Nonnull JDefinedClassOrInterface declaringClass,
-      @Nonnull final String signature) {
+      @Nonnull final String signature) throws JMethodSignatureLookupException {
     MethodFormatter formatter = Jack.getLookupFormatter();
     for (JMethod m : declaringClass.getMethods()) {
       if (formatter.getName(m).equals(signature)) {

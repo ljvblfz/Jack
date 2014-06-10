@@ -26,8 +26,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
@@ -60,7 +63,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupJavaLangString() {
+  public void lookupJavaLangString() throws JTypeLookupException {
     JType jls = lookup.getType(CommonTypes.JAVA_LANG_STRING);
 
     Assert.assertTrue(Jack.getLookupFormatter().getName(jls).equals("Ljava/lang/String;"));
@@ -73,7 +76,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupJavaLangStringArray() {
+  public void lookupJavaLangStringArray() throws JTypeLookupException {
     JType jls = lookup.getType("[[[Ljava/lang/String;");
 
     Assert.assertTrue(Jack.getLookupFormatter().getName(jls).equals("[[[Ljava/lang/String;"));
@@ -82,7 +85,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupJavaLangStringError1() {
+  public void lookupJavaLangStringError1() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getInterface(CommonTypes.JAVA_LANG_STRING);
@@ -95,7 +98,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupJavaLangStringError2() {
+  public void lookupJavaLangStringError2() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("java/lang/String;");
@@ -108,7 +111,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupTypeError1() {
+  public void lookupTypeError1() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("L;");
@@ -121,7 +124,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupTypeError2() {
+  public void lookupTypeError2() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("");
@@ -134,7 +137,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupTypeError3() {
+  public void lookupTypeError3() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("L/C;");
@@ -147,7 +150,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupTypeError4() {
+  public void lookupTypeError4() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("Lp/;");
@@ -160,7 +163,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupTypeError5() {
+  public void lookupTypeError5() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("E");
@@ -173,7 +176,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupArrayError1() {
+  public void lookupArrayError1() throws JTypeLookupException {
     boolean fail = false;
     try {
       lookup.getType("[[[[");
@@ -186,17 +189,22 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupMethodAppendLong() {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) lookup.getType("Ljava/lang/StringBuilder;");
+  public void lookupMethodAppendLong() throws JTypeLookupException,
+      JMethodSignatureLookupException {
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) lookup.getType("Ljava/lang/StringBuilder;");
     JMethod append = TestTools.getMethod(type, "append(J)Ljava/lang/StringBuilder;");
 
     Assert.assertTrue(append.getName().equals("append"));
   }
 
   @Test
-  public void lookupMethodAppendString() {
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) lookup.getType("Ljava/lang/StringBuilder;");
-    JMethod append = TestTools.getMethod(type, "append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+  public void lookupMethodAppendString() throws JTypeLookupException,
+      JMethodSignatureLookupException {
+    JDefinedClassOrInterface type =
+        (JDefinedClassOrInterface) lookup.getType("Ljava/lang/StringBuilder;");
+    JMethod append =
+        TestTools.getMethod(type, "append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
 
     Assert.assertTrue(append.getName().equals("append"));
     Assert.assertTrue(append.getParams().get(0).getType() ==
@@ -204,7 +212,7 @@ public class BinaryLookup {
   }
 
   @Test
-  public void lookupConstructor() {
+  public void lookupConstructor() throws JTypeLookupException, JMethodLookupException {
     JDefinedClassOrInterface type = (JDefinedClassOrInterface) lookup.getType("Ljava/lang/StringBuilder;");
     JMethod cons = type.getMethod("<init>", JPrimitiveTypeEnum.VOID.getType());
 

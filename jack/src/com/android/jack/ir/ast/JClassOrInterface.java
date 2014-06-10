@@ -100,8 +100,7 @@ public interface JClassOrInterface extends JReferenceType, HasEnclosingPackage {
   /**
    * Get the primitive type that can be wrapped by this type if any.
    * @return null if this class is not a wrapper type.
-   * @throws JTypeLookupException
    */
   @CheckForNull
-  public JPrimitiveType getWrappedType() throws JTypeLookupException;
+  public JPrimitiveType getWrappedType();
 }
