@@ -90,12 +90,16 @@ public class GenericSignatureRefiner implements GenericSignatureAction<JType> {
             formatter.getName(enclosingType) + '$' + name));
         // Append inner classes name discriminating id (e.g. 1 in La/b$1c;)
         int index = 0;
-        char c = name.charAt(index);
-        while (index < name.length() && Character.isDigit(c)) {
-          strBuf.append(c);
-          index++;
-          c = name.charAt(index);
-        }
+        do {
+          char c = name.charAt(index);
+          if (Character.isDigit(c)) {
+            strBuf.append(c);
+            index++;
+          } else {
+            break;
+          }
+        } while (index < name.length());
+
         updateRefinedSequence(new TypeName(Kind.SIMPLE_NAME, type));
         return type;
       } catch (JLookupException e) {
