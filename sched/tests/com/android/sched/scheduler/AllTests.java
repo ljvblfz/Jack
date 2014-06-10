@@ -17,15 +17,12 @@
 package com.android.sched.scheduler;
 
 
-import com.android.sched.item.ComposeOfTest;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-    ManagedVisitorTest.class, ManagedRunnerTest.class, SchedulerTests.class, SubPlanTest.class,
-    ComposeOfTest.class})
+    ManagedVisitorTest.class, SchedulerTests.class})
 public class AllTests {
 }
