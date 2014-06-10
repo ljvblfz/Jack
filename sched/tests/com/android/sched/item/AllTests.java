@@ -21,6 +21,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {ItemsTest.class, ItemSetTest.class})
+@SuiteClasses(value = {ItemsTest.class})
 public class AllTests {
 }

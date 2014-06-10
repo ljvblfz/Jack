@@ -21,6 +21,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {MarkerManagerTest.class, ManagedMarkerTest.class})
+@SuiteClasses(value = {ManagedMarkerTest.class})
 public class AllTests {
 }
