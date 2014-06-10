@@ -24,26 +24,31 @@ import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 public class BouncycastleCompilationTest {
 
-  private static final File[] BOOTCLASSPATH = new File[] {
-    TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
-  };
+  private static File[] BOOTCLASSPATH;
 
-  private static final File SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
+  private static File SOURCELIST;
 
-  private static final JarJarRules JARJAR_RULES = new JarJarRules(
-      TestTools.getFromAndroidTree("external/bouncycastle/jarjar-rules.txt"));
+  private static JarJarRules JARJAR_RULES;
 
   @BeforeClass
   public static void setUpClass() {
     BouncycastleCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+      };
+    SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
+    JARJAR_RULES = new JarJarRules(
+        TestTools.getFromAndroidTree("external/bouncycastle/jarjar-rules.txt"));
   }
 
   @Test

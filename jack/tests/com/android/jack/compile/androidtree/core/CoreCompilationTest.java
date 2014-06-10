@@ -26,18 +26,21 @@ import com.android.jack.category.SlowTests;
 import com.android.sched.vfs.Container;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 public class CoreCompilationTest {
 
-  private static final File SOURCELIST = TestTools.getTargetLibSourcelist("core");
+  private static File SOURCELIST;
 
   @BeforeClass
   public static void setUpClass() {
     CoreCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    SOURCELIST = TestTools.getTargetLibSourcelist("core");
   }
 
   @Test

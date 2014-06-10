@@ -24,23 +24,27 @@ import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 public class ExtCompilationTest {
 
-  private static final File[] BOOTCLASSPATH = new File[] {
-    TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
-  };
+  private static File[] BOOTCLASSPATH;
 
-  private static final File SOURCELIST = TestTools.getTargetLibSourcelist("ext");
+  private static File SOURCELIST;
 
   @BeforeClass
   public static void setUpClass() {
     ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+      };
+    SOURCELIST = TestTools.getTargetLibSourcelist("ext");
   }
 
   @Test

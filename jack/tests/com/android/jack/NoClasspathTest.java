@@ -19,50 +19,64 @@ package com.android.jack;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 @Category(SlowTests.class)
 public class NoClasspathTest {
 
-  private static final Sourcelist CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+  private static Sourcelist CORE_SOURCELIST;
 
-  private static final Sourcelist BOUNCY_SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
+  private static Sourcelist BOUNCY_SOURCELIST;
 
-  private static final Sourcelist EXT_SOURCELIST = TestTools.getTargetLibSourcelist("ext");
+  private static Sourcelist EXT_SOURCELIST;
 
-  private static final Sourcelist CORE_JUNIT_SOURCELIST =
-      TestTools.getTargetLibSourcelist("core-junit");
+  private static Sourcelist CORE_JUNIT_SOURCELIST;
 
-  private static final Sourcelist FRAMEWORK_SOURCELIST =
-      TestTools.getTargetLibSourcelist("framework");
+  private static Sourcelist FRAMEWORK_SOURCELIST;
 
-  protected static final File FRAMEWORK_JAR = TestTools
-      .getFromAndroidTree("/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/"
-          + "classes.jar");
+  protected static File FRAMEWORK_JAR ;
 
-  private static final File GUAVA_JAR = TestTools
-      .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/"
-          + "classes.jar");
+  private static File GUAVA_JAR;
 
-  private static final File SERVICES_JAR = TestTools
-      .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/services_intermediates/"
-          + "classes.jar");
+  private static File SERVICES_JAR;
 
-  private static final File ARITY_JAR = TestTools
-      .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/libarity_intermediates/"
-          + "classes.jar");
+  private static File ARITY_JAR;
 
-  private static final File PLAY_SERVICE_JAR = TestTools
-      .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/google-play-services-first-party_intermediates/"
-          + "classes.jar");
+  private static File PLAY_SERVICE_JAR;
 
   private static String corePath;
 
   @BeforeClass
   public static void setup() throws Exception {
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    BOUNCY_SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
+    EXT_SOURCELIST = TestTools.getTargetLibSourcelist("ext");
+    CORE_JUNIT_SOURCELIST =
+        TestTools.getTargetLibSourcelist("core-junit");
+    FRAMEWORK_SOURCELIST =
+        TestTools.getTargetLibSourcelist("framework");
+
+    FRAMEWORK_JAR = TestTools.getFromAndroidTree(
+        "/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/" + "classes.jar");
+
+    GUAVA_JAR = TestTools
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/"
+            + "classes.jar");
+    SERVICES_JAR = TestTools
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/services_intermediates/"
+            + "classes.jar");
+    ARITY_JAR = TestTools
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/libarity_intermediates/"
+            + "classes.jar");
+    PLAY_SERVICE_JAR = TestTools
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/google-play-services-first-party_intermediates/"
+            + "classes.jar");
+
     File coreOut = TestTools.createTempFile("core", ".zip");
     TestTools.compileSourceToJack(new Options(), CORE_SOURCELIST, null, coreOut, true);
     corePath = coreOut.getAbsolutePath();

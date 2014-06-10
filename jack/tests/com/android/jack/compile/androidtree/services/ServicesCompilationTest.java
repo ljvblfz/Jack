@@ -24,35 +24,40 @@ import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 public class ServicesCompilationTest {
 
-  private static final File[] BOOTCLASSPATH = new File[] {
-    TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
-  };
+  private static File[] BOOTCLASSPATH;
 
-  private static final File[] CLASSPATH = new File[] {
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/android.policy_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/telephony-common_intermediates/classes.jar")};
+  private static File[] CLASSPATH;
 
-  private static final File SOURCELIST = TestTools.getTargetLibSourcelist("services");
+  private static File SOURCELIST;
 
   @BeforeClass
   public static void setUpClass() {
     ServicesCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+      };
+    CLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/android.policy_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/telephony-common_intermediates/classes.jar")};
+    SOURCELIST = TestTools.getTargetLibSourcelist("services");
   }
 
   @Test

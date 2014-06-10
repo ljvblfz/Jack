@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,19 +29,24 @@ import java.util.List;
  * These tests only rely on the Android tree for source lists.
  * They are supposed to be run in test-jack (ideally before each commit).
  */
+@Ignore("Tree")
 public class ToolchainTest {
 
-  private static final Sourcelist CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+  private static Sourcelist CORE_SOURCELIST;
 
-  private static final Sourcelist BOUNCY_SOURCELIST =
-      TestTools.getTargetLibSourcelist("bouncycastle");
+  private static Sourcelist BOUNCY_SOURCELIST;
 
-  private static final Sourcelist JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-jack");
+  private static Sourcelist JUNIT_SOURCELIST;
 
   private static File corePath;
 
   @BeforeClass
   public static void setup() throws Exception {
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    BOUNCY_SOURCELIST =
+        TestTools.getTargetLibSourcelist("bouncycastle");
+    JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-jack");
+
     File coreOut = TestTools.createTempFile("core", ".zip");
     TestTools.compileSourceToJack(new Options(), CORE_SOURCELIST, null, coreOut, true);
     corePath = coreOut;

@@ -23,6 +23,7 @@ import com.android.jack.tools.merger.MergerTestTools;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -108,6 +109,7 @@ public class MergerTest006 extends MergerTestTools {
         false /* withDebug */));
   }
 
+  @Ignore("Tree")
   @Test
   public void testMergerFromBridgeTest() throws Exception {
     Assert.assertFalse(compareMonoDexWithOneDexPerType(

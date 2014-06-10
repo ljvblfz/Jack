@@ -17,11 +17,13 @@
 package com.android.jack;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * JUnit test for compilation of comparisons.
  */
+@Ignore("Tree")
 public class ComparisonTest {
 
   @BeforeClass

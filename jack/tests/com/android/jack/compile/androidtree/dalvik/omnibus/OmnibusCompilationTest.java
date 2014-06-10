@@ -20,8 +20,10 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Tree")
 public class OmnibusCompilationTest {
 
   @BeforeClass
