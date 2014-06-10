@@ -19,17 +19,30 @@ package com.android.jack.shrob.seed;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
+import javax.annotation.CheckForNull;
+
 @ValidOn(value = {JDefinedClassOrInterface.class, JField.class, JMethod.class})
 @Description("Indicates that a node is a seed")
 public class SeedMarker implements Marker {
-  private static final SeedMarker INSTANCE = new SeedMarker();
+  @CheckForNull
+  private KeepModifier modifier;
 
-  public static SeedMarker getInstance() {
-    return INSTANCE;
+  public SeedMarker(@CheckForNull KeepModifier modifier) {
+    this.modifier = modifier;
+  }
+
+  @CheckForNull
+  public KeepModifier getModifier() {
+    return modifier;
+  }
+
+  public void setModifier(@CheckForNull KeepModifier modifier) {
+    this.modifier = modifier;
   }
 
   @Override

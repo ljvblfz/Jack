@@ -26,8 +26,7 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.proguard.GrammarActions;
-import com.android.jack.shrob.shrink.NodeFinder;
-import com.android.jack.shrob.spec.ClassSpecification;
+import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
@@ -35,11 +34,8 @@ import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -79,18 +75,23 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         }
         return false;
       } else {
-        // Handle "keep names" rules
-        findSeeds(clOrI, flags.getKeepClassSpecs(), false /* allSpecsMustMatch */,
-            true /* markType */);
+        SeedMarker marker = clOrI.getMarker(SeedMarker.class);
+        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+          keepName(clOrI);
+        }
+        for (JField field : clOrI.getFields()) {
+          marker = field.getMarker(SeedMarker.class);
+          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+            keepName(field);
+          }
+        }
 
-        // Handle "keep classes with member names" rules
-        findSeeds(clOrI, flags.getKeepClassesWithMembersSpecs(), true /* allSpecsMustMatch */,
-            true /* markType */);
-
-        // Handle "keep class member names" rules
-        findSeeds(clOrI, flags.getKeepClassMembersSpecs(), false /* allSpecsMustMatch */,
-            false /* markType */);
-
+        for (JMethod method : clOrI.getMethods()) {
+          marker = method.getMarker(SeedMarker.class);
+          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+            keepName(method);
+          }
+        }
         return super.visit(clOrI);
       }
     }
@@ -101,59 +102,6 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         keepName(m);
       }
       return false;
-    }
-  }
-
-  private void findSeeds(@Nonnull JDefinedClassOrInterface declaredType,
-      @Nonnull List<ClassSpecification> specs, boolean allSpecsMustMatch,
-      boolean markType) {
-    for (ClassSpecification classSpec : specs) {
-      boolean classMatches;
-
-      Event findingClassSeedsEvent = tracer.start(ObfuscationEventType.FINDING_OBFUSCATION_SEEDS);
-      try {
-        classMatches = classSpec.getKeepModifier() != KeepModifier.ALLOW_OBFUSCATION
-            && classSpec.matches(declaredType);
-      } finally {
-        findingClassSeedsEvent.end();
-      }
-
-      if (classMatches) {
-        NodeFinder<JField> fieldFinder;
-        List<JField> fieldsFound;
-        NodeFinder<JMethod> methodFinder;
-        List<JMethod> methodsFound;
-
-        Event findingMemberSeedsEvent =
-            tracer.start(ObfuscationEventType.FINDING_OBFUSCATION_SEEDS);
-        try {
-          fieldFinder = new NodeFinder<JField>(declaredType.getFields());
-          fieldsFound = fieldFinder.find(classSpec.getFieldSpecs());
-
-          methodFinder = new NodeFinder<JMethod>(declaredType.getMethods());
-          methodsFound = methodFinder.find(classSpec.getMethodSpecs());
-        } finally {
-          findingMemberSeedsEvent.end();
-        }
-
-        // If all member specifications must be matched, we have to check that the field and
-        // the method finder have matched all their respective specifications before keeping the
-        // name of the fields and methods found and their enclosing type.
-        if (!allSpecsMustMatch || (fieldFinder.allSpecificationsMatched()
-            && methodFinder.allSpecificationsMatched())) {
-          if (markType) {
-            keepName(declaredType);
-          }
-
-          for (JField node : fieldsFound) {
-            keepName(node);
-          }
-
-          for (JMethod node : methodsFound) {
-            keepName(node);
-          }
-        }
-      }
     }
   }
 
@@ -185,6 +133,20 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   private void keepName(@Nonnull JDefinedClassOrInterface type) {
     if (markIfNecessary(type)) {
       keepName(type.getEnclosingPackage());
+
+      for (JField field : type.getFields()) {
+        SeedMarker marker = field.getMarker(SeedMarker.class);
+        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+          keepName(field);
+        }
+      }
+
+      for (JMethod method : type.getMethods()) {
+        SeedMarker marker = method.getMarker(SeedMarker.class);
+        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+          keepName(method);
+        }
+      }
     }
   }
 

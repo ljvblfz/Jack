@@ -16,14 +16,11 @@
 
 package com.android.jack.shrob.shrink;
 
-import com.android.jack.Options;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JType;
-import com.android.jack.shrob.spec.ClassSpecification;
-import com.android.jack.shrob.spec.Flags;
+import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -32,9 +29,6 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.log.Event;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -44,74 +38,34 @@ import javax.annotation.Nonnull;
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
 @Transform(add = KeepMarker.class)
-@Constraint(need = ExtendingOrImplementingClassMarker.class)
+@Constraint(need = {ExtendingOrImplementingClassMarker.class, SeedMarker.class})
 @HasKeyId
 public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private class Visitor extends Tracer {
+  private static class Visitor extends Tracer {
 
     private Visitor() {
       super(ThreadConfig.get(KEEP_ENCLOSING_METHOD).booleanValue());
     }
 
-    private void findSeeds(@Nonnull JDefinedClassOrInterface declaredType,
-        @Nonnull List<ClassSpecification> specs, boolean allSpecsMustMatch) {
-      for (ClassSpecification classSpec : specs) {
-        boolean classMatches;
-
-        Event findingClassSeedsEvent = tracer.start(ShrinkEventType.FINDING_SEEDS);
-        try {
-          classMatches = classSpec.getKeepModifier() != KeepModifier.ALLOW_SHRINKING
-              && classSpec.matches(declaredType);
-        } finally {
-          findingClassSeedsEvent.end();
-        }
-
-        if (classMatches) {
-          NodeFinder<JField> fieldFinder;
-          List<JField> fieldsFound;
-          NodeFinder<JMethod> methodFinder;
-          List<JMethod> methodsFound;
-
-          Event findingMemberSeedsEvent = tracer.start(ShrinkEventType.FINDING_SEEDS);
-          try {
-            fieldFinder = new NodeFinder<JField>(declaredType.getFields());
-            fieldsFound = fieldFinder.find(classSpec.getFieldSpecs());
-
-            methodFinder = new NodeFinder<JMethod>(declaredType.getMethods());
-            methodsFound = methodFinder.find(classSpec.getMethodSpecs());
-          } finally {
-            findingMemberSeedsEvent.end();
-          }
-
-          // If all member specifications must be matched, we have to check that the field and
-          // the method finder have matched all their respective specifications before keeping the
-          // fields and methods found and their enclosing type.
-          if (!allSpecsMustMatch || (fieldFinder.allSpecificationsMatched()
-              && methodFinder.allSpecificationsMatched())) {
-            trace(declaredType);
-
-            for (JField node : fieldsFound) {
-              trace(node);
-            }
-
-            for (JMethod node : methodsFound) {
-              trace(node);
-              for (JType paramType : node.getMethodId().getParamTypes()) {
-                trace(paramType);
-              }
-            }
-          }
-        }
-      }
-    }
-
     @Override
-    public void trace(@Nonnull JDefinedClassOrInterface t) {
-      if (!isMarked(t)) {
-        super.trace(t);
-        // Handle "keepclassmember" rules
-        findSeeds(t, flags.getKeepClassMembersSpecs(), false /* allSpecsMustMatch */);
+    public void trace(@Nonnull JDefinedClassOrInterface type) {
+      if (!isMarked(type)) {
+        super.trace(type);
+
+        for (JField field : type.getFields()) {
+          SeedMarker marker = field.getMarker(SeedMarker.class);
+          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING) {
+            trace(field);
+          }
+        }
+
+        for (JMethod method : type.getMethods()) {
+          SeedMarker marker = method.getMarker(SeedMarker.class);
+          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING) {
+            trace(method);
+          }
+        }
       }
 
     }
@@ -174,17 +128,12 @@ public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {
       "jack.shrink.keep.enclosing.method",
       "Keep the enclosing method of annonymous classes").addDefaultValue(Boolean.FALSE);
 
-  @Nonnull
-  private final Flags flags = ThreadConfig.get(Options.FLAGS);
-
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    Visitor visitor = new Visitor();
-    // Handle "keep" rules
-    visitor.findSeeds(type, flags.getKeepClassSpecs(), false /* allSpecsMustMatch */);
-
-    // Handle "keep classes with members" rules
-    visitor.findSeeds(type, flags.getKeepClassesWithMembersSpecs(),
-        true /* allSpecsMustMatch */);
+    SeedMarker marker = type.getMarker(SeedMarker.class);
+    if (marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING) {
+      Visitor visitor = new Visitor();
+      visitor.trace(type);
+    }
   }
 }
