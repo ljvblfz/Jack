@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
+import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.location.Location;
@@ -49,7 +50,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * {@code ClassOrInterfaceLoader} for jayce files.
+ * {@link ClassOrInterfaceLoader} for jayce files.
  */
 public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   @Nonnull
