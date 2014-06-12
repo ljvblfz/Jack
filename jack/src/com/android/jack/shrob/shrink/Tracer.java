@@ -59,10 +59,8 @@ import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
-import com.android.jack.shrob.seed.SeedFinder;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
@@ -83,10 +81,6 @@ public abstract class Tracer extends JVisitor {
   protected static final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
   private final boolean traceEnclosingMethod;
-
-  @Nonnull
-  private final boolean searchInHierarchy =
-      ThreadConfig.get(SeedFinder.SEARCH_SEEDS_IN_HIERARCHY).booleanValue();
 
   @Nonnull
   public Logger logger = LoggerFactory.getLogger();

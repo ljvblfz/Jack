@@ -37,7 +37,6 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -313,12 +312,6 @@ public class GrammarActions {
       logger.log(Level.SEVERE, "Error while creating parser for file {0}", file.getAbsolutePath());
     }
     return null;
-  }
-
-  @Nonnull
-  private static ProguardParser createParserFromArgString(@Nonnull String argString) {
-    ProguardParser parser = createParserCommon(new ANTLRStringStream(argString));
-    return parser;
   }
 
   @Nonnull

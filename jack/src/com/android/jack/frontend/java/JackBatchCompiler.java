@@ -17,7 +17,6 @@
 package com.android.jack.frontend.java;
 
 import com.android.jack.JackUserException;
-import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.util.log.LoggerFactory;
@@ -64,22 +63,17 @@ public class JackBatchCompiler extends Main {
   private static final String USE_SINGLE_THREAD_SYSPROP = "jdt.compiler.useSingleThread";
 
   @Nonnull
-  private final JayceFileImporter jayceImporter;
-
-  @Nonnull
   private final java.util.logging.Logger jackLogger =
     LoggerFactory.getLogger();
 
   @Nonnull
   private final JSession session;
 
-  public JackBatchCompiler(@Nonnull JSession session,
-      @Nonnull JayceFileImporter jayceFileImporter) {
+  public JackBatchCompiler(@Nonnull JSession session) {
     super(new PrintWriter(System.out), new PrintWriter(System.err),
         false /* systemExitWhenFinished */, null /* customDefaultOptions */,
         null /* compilationProgress */);
     this.session = session;
-    jayceImporter = jayceFileImporter;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -176,7 +170,6 @@ public class JackBatchCompiler extends Main {
         getProblemFactory(),
         out,
         progress,
-        jayceImporter,
         session);
     batchCompiler.remainingIterations = maxRepetition - currentRepetition;
     batchCompiler.useSingleThread = Boolean.getBoolean(USE_SINGLE_THREAD_SYSPROP);

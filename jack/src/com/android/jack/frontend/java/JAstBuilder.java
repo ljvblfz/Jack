@@ -19,7 +19,6 @@ package com.android.jack.frontend.java;
 
 import com.android.jack.JackEventType;
 import com.android.jack.JackUserException;
-import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
@@ -65,9 +64,6 @@ class JAstBuilder extends JavaParser {
   @Nonnull
   private final JackIrBuilder astBuilder;
 
-  @Nonnull
-  private final JayceFileImporter jayceImporter;
-
   private boolean hasErrors = false;
 
   /**
@@ -84,7 +80,6 @@ class JAstBuilder extends JavaParser {
       @Nonnull IProblemFactory problemFactory,
       @CheckForNull PrintWriter out,
       @CheckForNull CompilationProgress progress,
-      @Nonnull JayceFileImporter jayceImporter,
       @Nonnull JSession session) {
     super(environment,
         policy,
@@ -95,7 +90,6 @@ class JAstBuilder extends JavaParser {
         progress);
     this.session = session;
     astBuilder = new JackIrBuilder(lookupEnvironment, session);
-    this.jayceImporter = jayceImporter;
   }
 
   @Nonnull

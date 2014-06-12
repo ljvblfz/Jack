@@ -19,9 +19,6 @@ package com.android.jack.shrob.obfuscation.annotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.log.LoggerFactory;
-
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -41,9 +38,6 @@ public abstract class AnnotationRemover {
   public static final BooleanPropertyId EMIT_RUNTIME_VISIBLE_ANNOTATION = BooleanPropertyId.create(
       "jack.annotation.runtimevisible", "Emit annotations that are runtime visible")
       .addDefaultValue(Boolean.TRUE);
-
-  @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
 
   private final boolean addRuntimeVisibleAnnotations;
   private final boolean addRuntimeInvisibleAnnotations;

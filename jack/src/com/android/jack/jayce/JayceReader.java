@@ -21,7 +21,6 @@ import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 
 import javax.annotation.CheckForNull;
@@ -42,8 +41,6 @@ public class JayceReader extends JayceProcessor {
   private static final String UNKNOWN_VERSION_STRING = "UNKNOWN";
 
   private static final int UNKNOWN_VERSION = -1;
-  @Nonnull
-  private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
   private int majorVersion = UNKNOWN_VERSION;
 
@@ -52,8 +49,6 @@ public class JayceReader extends JayceProcessor {
   private final String readerClassName;
   @CheckForNull
   private final String emitterId;
-  @Nonnull
-  private Charset encoding = DEFAULT_CHARSET;
 
   public JayceReader(@Nonnull InputStream in)
       throws IOException, JayceFormatException {
@@ -65,10 +60,6 @@ public class JayceReader extends JayceProcessor {
     emitterId = jayceHeader.getEmitterId();
     readerClassName =
         "com.android.jack.jayce.v" + majorVersionString + ".io.JayceInternalReaderImpl";
-    Charset headerEncoding = jayceHeader.getEncoding();
-    if (headerEncoding != null) {
-      encoding = headerEncoding;
-    }
   }
 
   /**
