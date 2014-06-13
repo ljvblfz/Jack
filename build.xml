@@ -979,6 +979,7 @@
       <arg value="--jack-output"/>
       <arg value="${core-stubs-mini.build.dir}"/>
       <arg value="--ecj"/>
+      <arg value="-nowarn"/>
       <arg value="${core-stubs-mini.dir}/src"/>
     </java>
     <javac srcdir="${core-stubs-mini.dir}/src"
