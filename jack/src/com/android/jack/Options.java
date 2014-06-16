@@ -127,9 +127,20 @@ public class Options {
           .and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<File> DEX_FILE_OUTPUT = PropertyId.create(
-      "jack.dex.output", "Dex output file", new PathCodec())
-      .requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
+  public static final BooleanPropertyId GENERATE_ONE_DEX_PER_TYPE = BooleanPropertyId.create(
+      "jack.dex.generate.onepertype", "Generate one dex file per type").addDefaultValue(
+      Boolean.FALSE);
+
+  @Nonnull
+  public static final PropertyId<Directory> DEX_FILE_FOLDER = PropertyId.create(
+      "jack.dex.output.folder", "Dex output folder",
+      new DirectoryCodec(Existence.MAY_EXIST, Permission.READ | Permission.WRITE)).requiredIf(
+      GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue());
+
+  @Nonnull
+  public static final PropertyId<File> DEX_FILE_OUTPUT = PropertyId.create("jack.dex.output",
+      "Dex output file", new PathCodec()).requiredIf(
+      GENERATE_DEX_FILE.getValue().isTrue().or(GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue()));
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
