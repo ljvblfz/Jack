@@ -21,9 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
-import java.util.Locale;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -62,23 +60,15 @@ public class JayceHeader {
   @Nonnegative
   private int minorVersion;
   @CheckForNull
-  private Charset encoding = null;
-  @CheckForNull
   private String emitterId = null;
 
   private char previousChar;
 
 
   public JayceHeader(@Nonnegative int majorVersion, @Nonnegative int minorVersion,
-      @CheckForNull Charset encoding, @CheckForNull String emitterId) throws JayceFormatException {
-    if (emitterId != null) {
-      if (encoding == null) {
-        throw new JayceFormatException("If emitterId is set, encoding should also be.");
-      }
-    }
+      @CheckForNull String emitterId) throws JayceFormatException {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
-    this.encoding = encoding;
     this.emitterId = emitterId;
   }
 
@@ -101,11 +91,7 @@ public class JayceHeader {
     if (checkIfRightBracket(getPreviousChar())) {
       return;
     }
-    encoding = readEncoding(in);
 
-    if (checkIfRightBracket(readChar(in))) {
-      return;
-    }
     emitterId = readString(in, EMITTER_ID_MAX_LENGTH);
 
     if (!checkIfRightBracket(readChar(in))) {
@@ -144,15 +130,6 @@ public class JayceHeader {
       }
     } else {
       throw new JayceFormatException("No Jayce header found");
-    }
-  }
-
-  private Charset readEncoding(@Nonnull InputStream in)
-      throws IOException, JayceFormatException {
-    try {
-      return Charset.forName(readString(in, CHARSET_NAME_MAX_LENGTH));
-    } catch (IllegalCharsetNameException e) {
-      throw new JayceFormatException(STANDARD_ERROR_MESSAGE);
     }
   }
 
@@ -204,17 +181,11 @@ public class JayceHeader {
     writer.append(String.valueOf(majorVersion));
     writer.append(VERSION_SEPARATOR);
     writer.append(String.valueOf(minorVersion));
-    if (encoding != null) {
+    if (emitterId != null) {
       writer.append(VALUE_SEPARATOR);
       writer.append(STRING_DELIMITER);
-      writer.append(encoding.displayName(Locale.US));
+      writer.append(emitterId);
       writer.append(STRING_DELIMITER);
-      if (emitterId != null) {
-        writer.append(VALUE_SEPARATOR);
-        writer.append(STRING_DELIMITER);
-        writer.append(emitterId);
-        writer.append(STRING_DELIMITER);
-      }
     }
     writer.append(RIGHT_BRACKET);
     writer.flush();
@@ -243,11 +214,6 @@ public class JayceHeader {
   @CheckForNull
   public String getEmitterId() {
     return emitterId;
-  }
-
-  @CheckForNull
-  public Charset getEncoding() {
-    return encoding;
   }
 
   private char readChar(@Nonnull InputStream in) throws IOException, JayceFormatException {

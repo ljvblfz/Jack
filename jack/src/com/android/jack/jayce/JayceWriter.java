@@ -24,7 +24,6 @@ import com.android.sched.util.log.TracerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
@@ -35,8 +34,6 @@ public class JayceWriter extends JayceProcessor {
 
   public static final int DEFAULT_MAJOR_VERSION = 2;
 
-  @Nonnull
-  private static final Charset encoding = Charset.forName("UTF-8");
   @Nonnull
   private static final Tracer tracer = TracerFactory.getTracer();
 
@@ -85,7 +82,7 @@ public class JayceWriter extends JayceProcessor {
             new Class[] {OutputStream.class}, new Object[] {out},
             String.valueOf(majorVersion));
     int currentMinor = jayceInternalWriter.getCurrentMinor();
-    JayceHeader jayceHeader = new JayceHeader(majorVersion, currentMinor, encoding, emitterId);
+    JayceHeader jayceHeader = new JayceHeader(majorVersion, currentMinor, emitterId);
 
     Event event = tracer.start(JackEventType.NNODE_WRITING);
 

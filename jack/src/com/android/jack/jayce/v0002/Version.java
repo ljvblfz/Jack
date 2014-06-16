@@ -21,7 +21,7 @@ package com.android.jack.jayce.v0002;
  */
 public class Version {
 
-  public static final int MINOR_MIN = 13;
+  public static final int MINOR_MIN = 14;
 
-  public static final int CURRENT_MINOR = 13;
+  public static final int CURRENT_MINOR = 14;
 }
