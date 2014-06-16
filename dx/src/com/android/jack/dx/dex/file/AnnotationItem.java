@@ -27,6 +27,9 @@ import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * Single annotation, which consists of a type and a set of name-value
  * element pairs.
@@ -220,5 +223,22 @@ public final class AnnotationItem extends OffsettedItem {
     } else {
       out.write(encodedForm);
     }
+  }
+
+  @Nonnull
+  public static AnnotationVisibility getAnnotationVisibility(@Nonnegative byte visibility) {
+    switch (visibility) {
+      case VISIBILITY_BUILD: {
+        return AnnotationVisibility.BUILD;
+      }
+      case VISIBILITY_RUNTIME: {
+        return AnnotationVisibility.RUNTIME;
+      }
+      case VISIBILITY_SYSTEM: {
+        return AnnotationVisibility.SYSTEM;
+      }
+    }
+
+    throw new AssertionError("Unsupported annotation visibility");
   }
 }
