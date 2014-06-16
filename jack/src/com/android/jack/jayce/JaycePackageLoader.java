@@ -17,14 +17,14 @@
 package com.android.jack.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
+import com.android.jack.JackFileException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.load.JackLoadingException;
 import com.android.jack.load.PackageLoader;
-import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
@@ -60,16 +60,18 @@ public class JaycePackageLoader implements PackageLoader {
   @Override
   @Nonnull
   public JDefinedClassOrInterface loadClassOrInterface(
-      @Nonnull JPackage loading, @Nonnull String simpleName) throws JLookupException {
+      @Nonnull JPackage loading, @Nonnull String simpleName) {
+    String errorMessage = "Failed to load class '"
+        + Jack.getUserFriendlyFormatter().getName(loading, simpleName) + "'";
     for (VElement sub : dir.list()) {
       if (sub instanceof InputVFile && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
           return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
             .loadClassOrInterface(loading, simpleName);
         } catch (IOException e) {
-          throw new JackIOException("Failed to load class " +
-              Jack.getUserFriendlyFormatter().getName(loading, simpleName) +
-              ": " + e.getMessage() , e);
+          throw new JackLoadingException(errorMessage , e);
+        } catch (JackFileException e) {
+          throw new JackLoadingException(errorMessage , e);
         }
       }
     }
@@ -92,7 +94,7 @@ public class JaycePackageLoader implements PackageLoader {
   @Nonnull
   @Override
   public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
-      @Nonnull String simpleName) {
+      @Nonnull String simpleName) throws JPackageLookupException {
       for (VElement sub : dir.list()) {
         if (sub instanceof InputVDir && sub.getName().equals(simpleName)) {
           return new JaycePackageLoader((InputVDir) sub, lookup, defaultLoadLevel);

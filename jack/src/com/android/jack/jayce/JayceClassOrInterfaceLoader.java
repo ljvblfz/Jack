@@ -17,7 +17,7 @@
 package com.android.jack.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
+import com.android.jack.JackFileException;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -25,6 +25,8 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
+import com.android.jack.load.JackLoadingException;
+import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.location.Location;
@@ -86,14 +88,6 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
-  @Nonnull
-  public static JDefinedClassOrInterface load(@Nonnull InputVFile source, @Nonnull JSession session,
-      @Nonnull NodeLevel maxLevel)
-      throws JayceFormatException, IOException {
-    return new JayceClassOrInterfaceLoader(source, session.getPhantomLookup(),
-        maxLevel).create(session);
-  }
-
   JayceClassOrInterfaceLoader(@Nonnull InputVFile source, @Nonnull JPhantomLookup lookup,
       @Nonnull NodeLevel defaultLoadLevel) {
     this.source = source;
@@ -135,7 +129,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
 
   @Nonnull
  JDefinedClassOrInterface loadClassOrInterface(@Nonnull JPackage enclosingPackage,
-     @Nonnull String simpleName) throws JayceFormatException, IOException {
+     @Nonnull String simpleName) throws JayceFormatException, JayceVersionException, IOException {
 
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
 
@@ -150,9 +144,10 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
 
   @Nonnull
   private JDefinedClassOrInterface create(@Nonnull JSession session)
-      throws JayceFormatException, IOException {
+      throws JayceFormatException, JayceVersionException, IOException {
 
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
+
     String packageQualifiedName = NamingTools.getPackageNameFromBinaryName(
         NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
     JPackage pack = session.getLookup().getOrCreatePackage(packageQualifiedName);
@@ -161,7 +156,8 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   }
 
   @Nonnull
-  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws IOException {
+  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws IOException,
+      JayceFormatException, JayceVersionException {
     DeclaredTypeNode type = nnode.get();
     if (type == null || !type.getLevel().keep(minimumLevel)) {
       InputStream in = new BufferedInputStream(source.openRead());
@@ -192,13 +188,20 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
       if (!structureLoaded) {
         structureLoaded = true;
         DeclaredTypeNode type;
+        String errorMessage =
+            "Failed to load structure of '" + Jack.getUserFriendlyFormatter().getName(loaded) + "'";
         try {
           type = getNNode(NodeLevel.STRUCTURE);
         } catch (IOException e) {
-          throw new JackIOException("Failed to load structure of '" +
-              Jack.getUserFriendlyFormatter().getName(loaded) + "'", e);
+          throw new JackLoadingException(errorMessage, e);
+        } catch (JackFileException e) {
+          throw new JackLoadingException(errorMessage, e);
         }
-        type.updateToStructure(loaded, this);
+        try {
+          type.updateToStructure(loaded, this);
+        } catch (JLookupException e) {
+          throw new JackLoadingException(errorMessage, e);
+        }
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);
         tracer.getStatistic(STRUCTURE_LOAD).incValue();

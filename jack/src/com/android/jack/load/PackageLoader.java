@@ -18,6 +18,7 @@ package com.android.jack.load;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.lookup.JLookupException;
 import com.android.sched.util.location.Location;
 
@@ -36,7 +37,7 @@ public interface PackageLoader {
 
   @Nonnull
   PackageLoader getLoaderForSubPackage(@Nonnull JPackage enclosing,
-      @Nonnull String simpleName);
+      @Nonnull String simpleName) throws JPackageLookupException;
 
   @Nonnull
   Collection<String> getSubPackageNames(@Nonnull JPackage enclosing);

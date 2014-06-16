@@ -23,6 +23,7 @@ import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceVersionException;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.jayce.v0002.Version;
+import com.android.jack.load.JackLoadingException;
 
 import junit.framework.Assert;
 
@@ -68,8 +69,9 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JayceFormatException e) {
+    } catch (JackLoadingException e) {
       // Failure is ok since jack file is corrupted.
+      Assert.assertTrue(e.getCause() instanceof JayceFormatException);
     } finally {
       Assert.assertEquals("", ite.endErrRedirection());
     }
@@ -100,8 +102,9 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JayceFormatException e) {
+    } catch (JackLoadingException e) {
       // Failure is ok since jack file header is corrupted.
+      Assert.assertTrue(e.getCause() instanceof JayceFormatException);
     } finally {
       Assert.assertEquals("", ite.endErrRedirection());
     }
@@ -132,8 +135,9 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JayceVersionException e) {
+    } catch (JackLoadingException e) {
       // Failure is ok since jack file header is corrupted.
+      Assert.assertTrue(e.getCause() instanceof JayceVersionException);
     } finally {
       Assert.assertEquals("", ite.endErrRedirection());
     }

@@ -16,13 +16,13 @@
 
 package com.android.jack.errorhandling;
 
-import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.category.KnownBugs;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.config.PropertyIdException;
 
 import junit.framework.Assert;
@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -205,8 +206,9 @@ public class FileAccessErrorTest {
       te.startErrRedirection();
       te.compile(options);
       Assert.fail();
-    } catch (JackIOException e) {
+    } catch (JackLoadingException e) {
       // Failure is ok since jack file is not readable
+      Assert.assertTrue(e.getCause() instanceof IOException);
     } finally {
       Assert.assertEquals("", te.endErrRedirection());
       for (File jackFile : te.getJackFiles(te.getJackFolder())) {

@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.config.ChainedException;
@@ -74,6 +75,10 @@ public abstract class CommandLine {
     } catch (JackUserException e) {
       System.err.println(e.getMessage());
       logger.log(Level.FINE, "Jack user exception:", e);
+      System.exit(ExitStatus.FAILURE_COMPILATION);
+    } catch (JackLoadingException e) {
+      System.err.println(e.getMessage());
+      logger.log(Level.FINE, "Jack loading exception:", e);
       System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (OutOfMemoryError e) {
       printExceptionMessage(e, "Out of memory error.");

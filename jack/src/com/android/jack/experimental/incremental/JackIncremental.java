@@ -28,6 +28,7 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.merge.CollisionPolicy;
 import com.android.jack.dx.merge.DexMerger;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.load.JackLoadingException;
 import com.android.jack.util.TextUtils;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.UnrecoverableException;
@@ -112,6 +113,10 @@ public class JackIncremental extends CommandLine {
     } catch (JackUserException e) {
       System.err.println(e.getMessage());
       logger.log(Level.FINE, "Jack user exception:", e);
+      System.exit(ExitStatus.FAILURE_COMPILATION);
+    } catch (JackLoadingException e) {
+      System.err.println(e.getMessage());
+      logger.log(Level.FINE, "Jack loading exception:", e);
       System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (OutOfMemoryError e) {
       printExceptionMessage(e, "Out of memory error.");

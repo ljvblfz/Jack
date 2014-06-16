@@ -27,11 +27,12 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
-import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
@@ -199,12 +200,12 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding();
-      JLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
+      JPhantomLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
       if (loaded instanceof JDefinedClass) {
         ReferenceBinding superclass = binding.superclass();
         if (superclass != null) {
-          ((JDefinedClass) loaded).setSuperClass(lookup.getClass(
-              new String(superclass.signature())));
+          ((JDefinedClass) loaded).setSuperClass(
+              lookup.getClass(new String(superclass.signature())));
         }
       }
       ReferenceBinding[] superInterfaces = binding.superInterfaces();
@@ -213,7 +214,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           loaded.addImplements(lookup.getInterface(new String(intf.signature())));
         }
       }
-     markLoaded(Scope.HIERARCHY);
+      markLoaded(Scope.HIERARCHY);
    }
   }
 
@@ -225,10 +226,16 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       }
       ReferenceBinding enclosingBinding = getBinding().enclosingType();
       if (enclosingBinding != null) {
-        JDefinedClassOrInterface enclosing =
-            (JDefinedClassOrInterface) getRefMap().get(enclosingBinding);
-        loaded.setEnclosingType(enclosing);
-        enclosing.addMemberType(loaded);
+        try {
+          JDefinedClassOrInterface enclosing =
+              (JDefinedClassOrInterface) getRefMap().get(enclosingBinding);
+          loaded.setEnclosingType(enclosing);
+          enclosing.addMemberType(loaded);
+        } catch (JTypeLookupException e) {
+          // this cannot happen because an inner class and its enclosing class are in the same java
+          // source file
+          throw new AssertionError(e);
+        }
       }
       markLoaded(Scope.ENCLOSING);
     }
@@ -284,7 +291,14 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         if (declaration.memberTypes != null) {
           ReferenceMapper referenceMapper = refMap.get();
           for (TypeDeclaration memberType : declaration.memberTypes) {
-            ((JDefinedClassOrInterface) referenceMapper.get(memberType.binding)).getEnclosingType();
+            try {
+              ((JDefinedClassOrInterface) referenceMapper.get(memberType.binding))
+                  .getEnclosingType();
+            } catch (JTypeLookupException e) {
+              // this cannot happen because an inner class and its enclosing class are in the same
+              // java source file
+              throw new AssertionError(e);
+            }
           }
         }
       }

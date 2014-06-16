@@ -17,10 +17,12 @@
 package com.android.jack.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
+import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.load.AbstractMethodLoader;
+import com.android.jack.load.JackLoadingException;
+import com.android.jack.lookup.JLookupException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
@@ -60,8 +62,22 @@ public class JayceMethodLoader extends AbstractMethodLoader {
       if (isLoaded) {
         return;
       }
-      MethodNode methodNode = getNNode(loaded);
-      JNode body = methodNode.loadBody(loaded);
+      MethodNode methodNode;
+      String errorMessage =
+          "Failed to load body of method '" + Jack.getUserFriendlyFormatter().getName(loaded) + "'";
+      try {
+        methodNode = getNNode(loaded);
+      } catch (JackFileException e) {
+        throw new JackLoadingException(errorMessage, e);
+      } catch (IOException e) {
+        throw new JackLoadingException(errorMessage, e);
+      }
+      JNode body;
+      try {
+        body = methodNode.loadBody(loaded);
+      } catch (JLookupException e) {
+        throw new JackLoadingException(errorMessage, e);
+      }
       if (body != null) {
         body.updateParents(loaded);
       }
@@ -75,16 +91,12 @@ public class JayceMethodLoader extends AbstractMethodLoader {
   }
 
   @Nonnull
-  private MethodNode getNNode(@Nonnull JMethod loaded) {
+  private MethodNode getNNode(@Nonnull JMethod loaded) throws JayceFormatException,
+      JayceVersionException, IOException {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
-      try {
-        DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
-        methodNode = declaredTypeNode.getMethodNode(loaded);
-      } catch (IOException e) {
-        throw new JackIOException("Failed to load method '" +
-            Jack.getUserFriendlyFormatter().getName(loaded) + "'.", e);
-      }
+      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
+      methodNode = declaredTypeNode.getMethodNode(loaded);
     }
     return methodNode;
   }
