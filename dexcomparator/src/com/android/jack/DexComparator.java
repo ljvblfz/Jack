@@ -71,11 +71,6 @@ public class DexComparator {
 
   private static final List<String> skippedMethods = new ArrayList<String>();
 
-  static {
-    skippedMethods.add("Ljava/lang/Throwable;."
-        + "countDuplicates([Ljava/lang/StackTraceElement;[Ljava/lang/StackTraceElement;)I");
-  }
-
   @Nonnull
   private static final String INIT_NAME = "<init>";
   @Nonnull
