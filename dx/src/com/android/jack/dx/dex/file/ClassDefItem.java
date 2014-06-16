@@ -96,7 +96,7 @@ public final class ClassDefItem extends IndexedItem {
      * least for easily-checked stuff?
      */
 
-if (interfaces == null) {
+    if (interfaces == null) {
       throw new NullPointerException("interfaces == null");
     }
 

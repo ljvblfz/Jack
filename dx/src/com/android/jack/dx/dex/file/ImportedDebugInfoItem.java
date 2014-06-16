@@ -27,12 +27,18 @@ import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_SET_PROLOGUE_E
 import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL;
 import static com.android.jack.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED;
 
+import com.android.jack.dx.io.ClassDef;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.util.AnnotatedOutput;
+import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 
 import java.io.PrintWriter;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 /**
  * TODO(jack team)
@@ -42,20 +48,24 @@ public class ImportedDebugInfoItem extends OffsettedItem {
   /** the required alignment for instances of this class */
   private static final int ALIGNMENT = 1;
 
+  @Nonnull
   private final DexBuffer dexBuffer;
 
+  @Nonnegative
   private final int debugInfoOffset;
 
-  private final int debugInfoSize;
+  @CheckForNull
+  private byte[] encodedDebugInfo;
 
   /**
    * {@code non-null;} map index values used into debug information that references {@link Constant}
    * from one dex file into index values compliant with another dex file.
    */
+  @Nonnull
   private CstIndexMap cstIndexMap;
 
-  public ImportedDebugInfoItem(DexBuffer dexBuffer, int debugInfoOffset, int debugInfoSize,
-      CstIndexMap cstIndexMap) {
+  public ImportedDebugInfoItem(@Nonnull DexBuffer dexBuffer, @Nonnegative int debugInfoOffset,
+      @Nonnull CstIndexMap cstIndexMap) {
     // We don't know the write size yet.
     super(ALIGNMENT, -1);
 
@@ -64,8 +74,6 @@ public class ImportedDebugInfoItem extends OffsettedItem {
     this.dexBuffer = dexBuffer;
 
     this.debugInfoOffset = debugInfoOffset;
-
-    this.debugInfoSize = debugInfoSize;
 
     this.cstIndexMap = cstIndexMap;
   }
@@ -79,14 +87,16 @@ public class ImportedDebugInfoItem extends OffsettedItem {
   /** {@inheritDoc} */
   @Override
   public void addContents(DexFile file) {
-    // Nothing to do
+    ByteArrayAnnotatedOutput out = new ByteArrayAnnotatedOutput();
+    encodeAndRemapDebugInfoItem(file, out);
+    encodedDebugInfo = out.toByteArray();
   }
 
 
   /** {@inheritDoc} */
   @Override
   protected void place0(Section addedTo, int offset) {
-    setWriteSize(debugInfoSize);
+    setWriteSize(encodedDebugInfo.length);
   }
 
   /** {@inheritDoc} */
@@ -119,7 +129,7 @@ public class ImportedDebugInfoItem extends OffsettedItem {
   /** {@inheritDoc} */
   @Override
   protected void writeTo0(DexFile file, AnnotatedOutput out) {
-    encodeAndRemapDebugInfoItem(file, out);
+    out.write(encodedDebugInfo);
   }
 
   private void encodeAndRemapDebugInfoItem(DexFile file, AnnotatedOutput out) {
@@ -133,7 +143,11 @@ public class ImportedDebugInfoItem extends OffsettedItem {
 
     for (int p = 0; p < parametersSize; p++) {
       int parameterName = in.readUleb128p1();
-      out.writeUleb128(cstIndexMap.getRemappedCstStringIndex(file, parameterName) + 1);
+      if (parameterName != ClassDef.NO_INDEX) {
+        out.writeUleb128(cstIndexMap.getRemappedCstStringIndex(file, parameterName) + 1);
+      } else {
+        out.writeUleb128(0);
+      }
     }
 
     int addrDiff; // uleb128 address delta.
