@@ -32,7 +32,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
@@ -280,9 +280,9 @@ class JAstBinaryType implements IBinaryType {
   @Override
   public char[] getSourceName() {
 
-    SourceName typeInfo = jDeclaredType.getMarker(SourceName.class);
+    SimpleName typeInfo = jDeclaredType.getMarker(SimpleName.class);
     if (typeInfo != null) {
-      return typeInfo.getSourceName().toCharArray();
+      return typeInfo.getSimpleName().toCharArray();
     }
 
     char[] sourceNameArray;
@@ -357,9 +357,9 @@ class JAstBinaryType implements IBinaryType {
   @Override
   public boolean isAnonymous() {
     boolean isAnonymous = false;
-    SourceName sourceNameInfo = jDeclaredType.getMarker(SourceName.class);
-    if (sourceNameInfo != null) {
-      isAnonymous = sourceNameInfo.getSourceName().isEmpty();
+    SimpleName simpleNameInfo = jDeclaredType.getMarker(SimpleName.class);
+    if (simpleNameInfo != null) {
+      isAnonymous = simpleNameInfo.getSimpleName().isEmpty();
     } else {
       JAnnotationLiteral enclosingAnnotation =
           AnnotationUtils.getAnnotation(jDeclaredType, AnnotationUtils.INNER_CLASS_ANNOTATION);

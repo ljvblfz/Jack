@@ -28,25 +28,26 @@ import javax.annotation.Nonnull;
  */
 @Description("Holds source name retrieved from ecj")
 @ValidOn(JDefinedClassOrInterface.class)
-public class SourceName implements Marker {
+public class SimpleName implements Marker {
 
   @Nonnull
-  private CharSequence sourceName;
+  private CharSequence simpleName;
 
-  public SourceName(@Nonnull String sourceName) {
-    this.sourceName = sourceName;
+  public SimpleName(@Nonnull String simpleName) {
+    this.simpleName = simpleName;
   }
 
-  public void setSourceName(@Nonnull CharSequence sourceName) {
-    this.sourceName = sourceName;
+  public void setSimpleName(@Nonnull CharSequence simpleName) {
+    this.simpleName = simpleName;
   }
 
   @Nonnull
-  public String getSourceName() {
-    return sourceName.toString();
+  public String getSimpleName() {
+    return simpleName.toString();
   }
 
   @Override
+  @Nonnull
   public Marker cloneIfNeeded() {
     return this;
   }

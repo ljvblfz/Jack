@@ -17,7 +17,7 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.naming.TypeName;
 import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.sched.item.Description;
@@ -31,16 +31,16 @@ import javax.annotation.Nonnull;
  * charsequences.
  */
 @Description("Refines source names of types into more specific charsequences")
-@Transform(modify = SourceName.class)
-public class SourceNameRefiner implements RunnableSchedulable<JDefinedClassOrInterface> {
+@Transform(modify = SimpleName.class)
+public class SimpleNameRefiner implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    SourceName marker = type.getMarker(SourceName.class);
+    SimpleName marker = type.getMarker(SimpleName.class);
     if (marker != null) {
       TypeName newName = new TypeName(Kind.SIMPLE_NAME, type);
-      assert marker.getSourceName().equals(newName.toString());
-      marker.setSourceName(newName);
+      assert marker.getSimpleName().equals(newName.toString());
+      marker.setSimpleName(newName);
     }
   }
 

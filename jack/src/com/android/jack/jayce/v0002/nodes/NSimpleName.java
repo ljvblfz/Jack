@@ -16,7 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -32,35 +32,35 @@ import javax.annotation.Nonnull;
 /**
  * This {@link NMarker} holds source name retrieved from ecj.
  */
-public class NSourceName extends NMarker {
+public class NSimpleName extends NMarker {
 
   @Nonnull
-  public static final Token TOKEN = Token.SOURCE_NAME;
+  public static final Token TOKEN = Token.SIMPLE_NAME;
 
   @CheckForNull
-  public String sourceName;
+  public String simpleName;
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    SourceName marker = (SourceName) node;
-    sourceName = marker.getSourceName();
+    SimpleName marker = (SimpleName) node;
+    simpleName = marker.getSimpleName();
   }
 
   @Override
   @Nonnull
-  public SourceName exportAsJast(@Nonnull ExportSession exportSession) {
-    assert sourceName != null;
-    return new SourceName(sourceName);
+  public SimpleName exportAsJast(@Nonnull ExportSession exportSession) {
+    assert simpleName != null;
+    return new SimpleName(simpleName);
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(sourceName);
+    out.writeString(simpleName);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
-    sourceName = in.readString();
+    simpleName = in.readString();
   }
 
   @Override

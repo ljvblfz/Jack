@@ -28,7 +28,7 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.GenericSignature;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JLookup;
@@ -248,7 +248,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           loaded.addMarker(new GenericSignature(ReferenceMapper.intern(genSignature)));
         }
       }
-      loaded.addMarker(new SourceName(new String(binding.sourceName)));
+      loaded.addMarker(new SimpleName(new String(binding.sourceName)));
       markLoaded(Scope.MARKERS);
     }
   }
@@ -256,7 +256,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   @Override
   public void ensureMarker(@Nonnull JDefinedClassOrInterface loaded,
       @Nonnull Class<? extends Marker> cls) {
-    if (cls == GenericSignature.class || cls == SourceName.class) {
+    if (cls == GenericSignature.class || cls == SimpleName.class) {
       ensureMarkers(loaded);
     }
   }

@@ -43,7 +43,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.GenericSignature;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
@@ -76,8 +76,8 @@ import javax.annotation.Nonnull;
 @Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
     JNullLiteral.class, JIntLiteral.class, ClassAnnotationSchedulingSeparator.SeparatorTag.class})
-@Constraint(need = {GenericSignature.class, SourceName.class, FinalNames.class})
-@Protect(add = {GenericSignature.class, SourceName.class},
+@Constraint(need = {GenericSignature.class, SimpleName.class, FinalNames.class})
+@Protect(add = {GenericSignature.class, SimpleName.class},
     unprotect = @With(remove = ReflectAnnotations.class))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
@@ -247,9 +247,9 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     private void addInnerClass(@Nonnull JDefinedClassOrInterface innerType) {
       SourceInfo info = innerType.getSourceInfo();
       JAnnotationLiteral annotation = createAnnotation(innerType, innerAnnotation, info);
-      SourceName marker = innerType.getMarker(SourceName.class);
+      SimpleName marker = innerType.getMarker(SimpleName.class);
       assert marker != null;
-      String innerShortName = marker.getSourceName();
+      String innerShortName = marker.getSimpleName();
       JLiteral newValue;
       if (!innerShortName.isEmpty()) {
         newValue = new JStringLiteral(info, innerShortName);

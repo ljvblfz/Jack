@@ -191,7 +191,7 @@ import com.android.jack.transformations.ast.string.FieldStringLiteralRefiner;
 import com.android.jack.transformations.ast.string.MethodGenericSignatureSplitter;
 import com.android.jack.transformations.ast.string.MethodStringLiteralRefiner;
 import com.android.jack.transformations.ast.string.ReflectionStringLiteralRefiner;
-import com.android.jack.transformations.ast.string.SourceNameRefiner;
+import com.android.jack.transformations.ast.string.SimpleNameRefiner;
 import com.android.jack.transformations.ast.string.TypeGenericSignatureSplitter;
 import com.android.jack.transformations.ast.string.TypeStringLiteralRefiner;
 import com.android.jack.transformations.ast.switches.SwitchStringSupport;
@@ -1243,7 +1243,7 @@ public abstract class Jack {
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(TypeGenericSignatureSplitter.class);
       typePlan.append(TypeStringLiteralRefiner.class);
-      typePlan.append(SourceNameRefiner.class);
+      typePlan.append(SimpleNameRefiner.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan.appendSubPlan(JMethodAdapter.class);

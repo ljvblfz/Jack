@@ -110,7 +110,7 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.marker.GenericSignature;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
@@ -237,7 +237,7 @@ import com.android.sched.item.Name;
     NoImplicitBlock.class,
     NotSimplifier.NotExpressionsSimplified.class,
     GenericSignature.class,
-    SourceName.class,
+    SimpleName.class,
     ThisRefTypeInfo.class,
     UselessSwitches.class})
 public class JackFormatIr implements AbstractComponent {

@@ -130,7 +130,7 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.marker.GenericSignature;
-import com.android.jack.ir.ast.marker.SourceName;
+import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
@@ -234,7 +234,7 @@ import com.android.jack.jayce.v0002.nodes.NShlOperation;
 import com.android.jack.jayce.v0002.nodes.NShortLiteral;
 import com.android.jack.jayce.v0002.nodes.NShrOperation;
 import com.android.jack.jayce.v0002.nodes.NShruOperation;
-import com.android.jack.jayce.v0002.nodes.NSourceName;
+import com.android.jack.jayce.v0002.nodes.NSimpleName;
 import com.android.jack.jayce.v0002.nodes.NStringLiteral;
 import com.android.jack.jayce.v0002.nodes.NSubOperation;
 import com.android.jack.jayce.v0002.nodes.NSwitchStatement;
@@ -782,8 +782,8 @@ public class NodeFactory {
   private NMarker createMarkerNode(@Nonnull Marker from) {
     if (from instanceof GenericSignature) {
       return new NGenericSignature();
-    } else if (from instanceof SourceName) {
-      return new NSourceName();
+    } else if (from instanceof SimpleName) {
+      return new NSimpleName();
     } else if (from instanceof ThisRefTypeInfo) {
       return new NThisRefTypeInfo();
     } else if (from instanceof ThrownExceptionMarker) {

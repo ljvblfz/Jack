@@ -118,7 +118,7 @@ import com.android.jack.jayce.v0002.nodes.NShlOperation;
 import com.android.jack.jayce.v0002.nodes.NShortLiteral;
 import com.android.jack.jayce.v0002.nodes.NShrOperation;
 import com.android.jack.jayce.v0002.nodes.NShruOperation;
-import com.android.jack.jayce.v0002.nodes.NSourceName;
+import com.android.jack.jayce.v0002.nodes.NSimpleName;
 import com.android.jack.jayce.v0002.nodes.NStringLiteral;
 import com.android.jack.jayce.v0002.nodes.NSubOperation;
 import com.android.jack.jayce.v0002.nodes.NSwitchStatement;
@@ -856,11 +856,11 @@ public enum Token {
       return new NShruOperation();
     }
   },
-  SOURCE_NAME("source-name", NodeLevel.TYPES) {
+  SIMPLE_NAME("simple-name", NodeLevel.TYPES) {
     @Override
     @Nonnull
     public NNode newNode() {
-      return new NSourceName();
+      return new NSimpleName();
     }
   },
   SUB_OPERATION("-") {
