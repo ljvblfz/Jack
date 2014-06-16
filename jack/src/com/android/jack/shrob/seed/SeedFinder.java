@@ -42,7 +42,6 @@ import com.android.sched.util.log.TracerFactory;
 
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -69,14 +68,14 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
       ThreadConfig.get(SEARCH_SEEDS_IN_HIERARCHY).booleanValue();
 
   private synchronized void markIfNecessary(@Nonnull JNode node,
-      @CheckForNull KeepModifier modifier) {
+      @Nonnull KeepModifier modifier) {
     SeedMarker marker = node.getMarker(SeedMarker.class);
     if (marker == null) {
       node.addMarker(new SeedMarker(modifier));
     } else {
       KeepModifier previousModifier = marker.getModifier();
       if (previousModifier != modifier) {
-        marker.setModifier(null);
+        marker.setModifier(KeepModifier.NONE);
       }
     }
   }

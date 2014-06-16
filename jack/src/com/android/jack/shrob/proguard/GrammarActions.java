@@ -350,6 +350,9 @@ public class GrammarActions {
       /*@Nonnull*/ ClassSpecification classSpecification,
       @CheckForNull KeepModifier keepModifier) {
     assert classSpecification != null;
+    if (keepModifier == null) {
+      keepModifier = KeepModifier.NONE;
+    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassMembers(classSpecification);
   }
@@ -359,6 +362,9 @@ public class GrammarActions {
       /*@Nonnull*/ ClassSpecification classSpecification,
       @CheckForNull KeepModifier keepModifier) {
     assert classSpecification != null;
+    if (keepModifier == null) {
+      keepModifier = KeepModifier.NONE;
+    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassSpecification(classSpecification);
   }
@@ -368,6 +374,9 @@ public class GrammarActions {
       /*@Nonnull*/ ClassSpecification classSpecification,
       @CheckForNull KeepModifier keepModifier) {
     assert classSpecification != null;
+    if (keepModifier == null) {
+      keepModifier = KeepModifier.NONE;
+    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassesWithMembers(classSpecification);
   }

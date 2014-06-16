@@ -20,5 +20,5 @@ package com.android.jack.shrob.spec;
  * Modifier for keep rules
  */
 public enum KeepModifier {
-  ALLOW_SHRINKING, ALLOW_OBFUSCATION
+  ALLOW_SHRINKING, ALLOW_OBFUSCATION, NONE
 }

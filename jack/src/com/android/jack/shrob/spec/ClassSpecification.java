@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 public class ClassSpecification implements Specification<JDefinedClassOrInterface>{
 
-  @CheckForNull
+  @Nonnull
   private KeepModifier keepModifier;
 
   @CheckForNull
@@ -62,6 +62,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
     this.name = name;
     this.classType = classType;
     this.annotationType = annotation;
+    this.keepModifier = KeepModifier.NONE;
   }
 
   @Nonnull
@@ -78,11 +79,11 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
     this.annotationType = annotationType;
   }
 
-  public void setKeepModifier(@CheckForNull KeepModifier keepModifier) {
+  public void setKeepModifier(@Nonnull KeepModifier keepModifier) {
     this.keepModifier = keepModifier;
   }
 
-  @CheckForNull
+  @Nonnull
   public KeepModifier getKeepModifier() {
     return keepModifier;
   }

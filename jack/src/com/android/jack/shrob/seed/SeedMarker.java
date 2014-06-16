@@ -24,24 +24,24 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 @ValidOn(value = {JDefinedClassOrInterface.class, JField.class, JMethod.class})
 @Description("Indicates that a node is a seed")
 public class SeedMarker implements Marker {
-  @CheckForNull
+  @Nonnull
   private KeepModifier modifier;
 
-  public SeedMarker(@CheckForNull KeepModifier modifier) {
+  public SeedMarker(@Nonnull KeepModifier modifier) {
     this.modifier = modifier;
   }
 
-  @CheckForNull
+  @Nonnull
   public KeepModifier getModifier() {
     return modifier;
   }
 
-  public void setModifier(@CheckForNull KeepModifier modifier) {
+  public void setModifier(@Nonnull KeepModifier modifier) {
     this.modifier = modifier;
   }
 
