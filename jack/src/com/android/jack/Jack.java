@@ -1105,7 +1105,8 @@ public abstract class Jack {
       }
     }
 
-    if (!productions.contains(OneDexPerTypeProduct.class)) {
+    if (productions.contains(DexFileProduct.class)) {
+      assert !productions.contains(OneDexPerTypeProduct.class);
       planBuilder.append(DexFilePreparer.class);
     }
   }

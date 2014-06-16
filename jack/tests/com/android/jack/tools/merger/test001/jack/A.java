@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.backend.dex;
+package com.android.jack.tools.merger.test001.jack;
 
-import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JType;
-import com.android.sched.item.Description;
-import com.android.sched.item.Production;
 
-/**
- * Represents the production of one {@link DexFile} per {@link JType}.
- */
-@Description("Produce one dex file per type")
-public class OneDexPerTypeProduct implements Production {
-
+public class A {
+  public final static boolean fs1 = true;
+  public final static byte fs2 = 1;
+  public final static short fs3 = 2;
+  public final static int fs4 = Integer.MIN_VALUE;
+  public final static float fs5 = 1.23f;
+  public final static double fs6 = 123456789.123456789;
+  public final static long fs7 = Long.MAX_VALUE;
+  public final static boolean fs8 = false;
 }

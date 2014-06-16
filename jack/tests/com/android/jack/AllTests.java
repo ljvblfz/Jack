@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.UselessVariableCopyTest;
+import com.android.jack.tools.merger.MergerAllTests;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
 import com.android.jack.transformations.flow.CompileFlowTest;
@@ -83,6 +84,7 @@ import org.junit.runners.Suite.SuiteClasses;
     JarjarTest.class,
     MainTest.class,
     MarkerCollectorTest.class,
+    MergerAllTests.class,
     NoClasspathTest.class,
     NoPackageTest.class,
     OpcodesTest.class,

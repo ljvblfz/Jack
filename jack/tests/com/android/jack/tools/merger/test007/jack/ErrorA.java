@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.backend.dex;
+package com.android.jack.tools.merger.test007.jack;
 
-import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JType;
-import com.android.sched.item.Description;
-import com.android.sched.item.Production;
+public class ErrorA extends RuntimeException {
 
-/**
- * Represents the production of one {@link DexFile} per {@link JType}.
- */
-@Description("Produce one dex file per type")
-public class OneDexPerTypeProduct implements Production {
-
+  private static final long serialVersionUID = 1L;
 }

@@ -165,7 +165,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean runDxOptimizations =
       ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
-  private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
+  private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue()
+      | ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 

@@ -13,18 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.jack.tools.merger;
 
-package com.android.jack.backend.dex;
+import javax.annotation.Nonnull;
 
-import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JType;
-import com.android.sched.item.Description;
-import com.android.sched.item.Production;
+public class MergeOverflow extends Exception {
 
-/**
- * Represents the production of one {@link DexFile} per {@link JType}.
- */
-@Description("Produce one dex file per type")
-public class OneDexPerTypeProduct implements Production {
+  private static final long serialVersionUID = 1L;
 
+  public MergeOverflow() {
+    super();
+  }
+
+  public MergeOverflow(@Nonnull String message) {
+    super(message);
+  }
+
+  public MergeOverflow(@Nonnull String message, @Nonnull Throwable cause) {
+    super(message, cause);
+  }
+
+  public MergeOverflow(@Nonnull Throwable cause) {
+    super(cause);
+  }
 }

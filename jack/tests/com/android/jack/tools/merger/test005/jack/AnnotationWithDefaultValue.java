@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.backend.dex;
+package com.android.jack.tools.merger.test005.jack;
 
-import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.ir.ast.JType;
-import com.android.sched.item.Description;
-import com.android.sched.item.Production;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-/**
- * Represents the production of one {@link DexFile} per {@link JType}.
- */
-@Description("Produce one dex file per type")
-public class OneDexPerTypeProduct implements Production {
-
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AnnotationWithDefaultValue {
+//  byte[] value() default {1, 2, 3, 4};
+  boolean value() default false;
 }
