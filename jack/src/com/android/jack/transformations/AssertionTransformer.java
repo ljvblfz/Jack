@@ -18,8 +18,6 @@ package com.android.jack.transformations;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAssertStatement;
@@ -43,6 +41,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -127,11 +126,11 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
     @Nonnull
     private JFieldId addAssertionStatusToType(@Nonnull JDefinedClassOrInterface type,
         @Nonnull TransformationRequest request) {
-      SourceInfo sourceInfo = SourceOrigin.UNKNOWN;
+      SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
       // Create field $assertionsDisabled
       int modifier = JModifier.FINAL | JModifier.STATIC | JModifier.SYNTHETIC;
-      JField assertionStatus = new JField(SourceOrigin.UNKNOWN, ASSERTION_FIELD_NAME,
+      JField assertionStatus = new JField(SourceInfo.UNKNOWN, ASSERTION_FIELD_NAME,
           currentType, JPrimitiveTypeEnum.BOOLEAN.getType(), modifier);
       JFieldId assertionStatusId = assertionStatus.getId();
       request.append(new AppendField(currentType, assertionStatus));
@@ -146,7 +145,7 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
               javaLangClass.getOrCreateMethodId("desiredAssertionStatus",
                   Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL),
               JPrimitiveTypeEnum.BOOLEAN.getType(), true /* isVirtualDispatch */));
-      JAsgOperation asg = new JAsgOperation(SourceOrigin.UNKNOWN, lhs, rhs);
+      JAsgOperation asg = new JAsgOperation(SourceInfo.UNKNOWN, lhs, rhs);
 
       assertionStatus.addMarker(new InitializationExpression(asg.makeStatement()));
 

@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -48,7 +48,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   private final List<JMethodId> methodIds = new ArrayList<JMethodId>();
 
   public JPhantomClassOrInterface(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
-    super(SourceOrigin.UNKNOWN, name);
+    super(SourceInfo.UNKNOWN, name);
     assert NamingTools.isIdentifier(name);
     this.enclosingPackage = enclosingPackage;
   }

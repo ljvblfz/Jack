@@ -65,7 +65,7 @@ public class NEnumField extends NField {
     JDefinedEnum enclosingType = (JDefinedEnum) exportSession.getCurrentType();
     assert enclosingType != null;
     JEnumField jField = new JEnumField(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         name,
         ordinal,
         enclosingType,

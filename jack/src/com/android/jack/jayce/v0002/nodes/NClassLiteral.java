@@ -60,7 +60,7 @@ public class NClassLiteral extends NLiteral {
     assert sourceInfo != null;
     assert refType != null;
     return new JClassLiteral(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         exportSession.getLookup().getType(refType),
         exportSession.getLookup().getClass(JAVA_LANG_CLASS));
   }

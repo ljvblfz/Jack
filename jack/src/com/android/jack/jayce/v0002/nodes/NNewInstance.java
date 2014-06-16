@@ -16,12 +16,12 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -70,7 +70,7 @@ public class NNewInstance extends NMethodCall {
     JMethodId methodId = jReceiverType.getOrCreateMethodId(INIT_NAME,
         exportSession.getTypeListFromSignatureList(methodArgsType),
         MethodKind.INSTANCE_NON_VIRTUAL);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JNewInstance jNewInstance = new JNewInstance(jSourceInfo, jReceiverType, methodId);
     for (NExpression arg : args) {
       jNewInstance.addArg(arg.exportAsJast(exportSession));

@@ -17,8 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JFloatingPointType;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.ir.types.JIntegralType64;
@@ -69,7 +68,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   protected final String name;
 
   private JPrimitiveType(@Nonnull String name) {
-    super(SourceOrigin.UNKNOWN);
+    super(SourceInfo.UNKNOWN);
     this.name = name;
   }
 

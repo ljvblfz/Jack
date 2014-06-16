@@ -18,7 +18,6 @@ package com.android.jack.transformations.exceptions;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
@@ -32,6 +31,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
@@ -163,7 +163,7 @@ public class TryCatchRemover implements RunnableSchedulable<JMethod> {
         JLabeledStatement labeledStmt =
             new JLabeledStatement(nextStatement.getSourceInfo(), label, labeledBlock);
 
-        JGoto branchOnNextStatement = new JGoto(SourceOrigin.UNKNOWN, labeledStmt);
+        JGoto branchOnNextStatement = new JGoto(SourceInfo.UNKNOWN, labeledStmt);
 
         tr.append(new Replace(nextStatement, labeledStmt));
         tr.append(new AppendStatement(jTry.getTryBlock(), branchOnNextStatement));

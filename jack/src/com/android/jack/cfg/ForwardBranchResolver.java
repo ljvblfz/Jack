@@ -16,9 +16,9 @@
 
 package com.android.jack.cfg;
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -49,7 +49,7 @@ class ForwardBranchResolver {
   static class JDeadCodeStatement extends JStatement {
 
       public JDeadCodeStatement() {
-      super(SourceOrigin.UNKNOWN);
+      super(SourceInfo.UNKNOWN);
     }
 
     @Override

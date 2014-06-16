@@ -17,7 +17,6 @@
 package com.android.jack.transformations.exceptions;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAsgOperation.NonReusedAsg;
 import com.android.jack.ir.ast.JCatchBlock;
@@ -27,6 +26,7 @@ import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.Filter;

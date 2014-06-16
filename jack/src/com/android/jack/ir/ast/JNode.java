@@ -17,9 +17,9 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.ir.HasSourceInfo;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.impl.SourceGenerationVisitor;
 import com.android.jack.ir.impl.ToStringGenerationVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.jack.util.DefaultTextOutput;
 import com.android.sched.item.Component;
@@ -88,7 +88,7 @@ public abstract class JNode extends LocalMarkerManager
   }
 
   @Nonnull
-  private SourceInfo info;
+  protected SourceInfo info;
 
   private JNode parent = null;
 

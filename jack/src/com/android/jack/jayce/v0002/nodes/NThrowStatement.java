@@ -66,7 +66,7 @@ public class NThrowStatement extends NStatement {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert expr != null;
-    JThrowStatement jStatement = new JThrowStatement(sourceInfo.exportAsJast(),
+    JThrowStatement jStatement = new JThrowStatement(sourceInfo.exportAsJast(exportSession),
         expr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));

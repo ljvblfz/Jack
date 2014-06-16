@@ -18,8 +18,6 @@ package com.android.jack.transformations.enums;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -61,6 +59,7 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -193,8 +192,8 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         JMethodId ordinalMethodId = enumType.getOrCreateMethodId(
             ORDINAL, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
 
-          tr.append(new Replace(expr, new JArrayRef(SourceOrigin.UNKNOWN, callSwitchValues,
-            new JMethodCall(SourceOrigin.UNKNOWN, expr, enumType, ordinalMethodId,
+          tr.append(new Replace(expr, new JArrayRef(SourceInfo.UNKNOWN, callSwitchValues,
+            new JMethodCall(SourceInfo.UNKNOWN, expr, enumType, ordinalMethodId,
                 JPrimitiveTypeEnum.INT.getType(), ordinalMethodId.canBeVirtual()))));
       }
       return super.visit(switchStmt);
@@ -226,7 +225,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private JMethod getSwitchValuesMethod(@Nonnull JDefinedEnum enumType) {
-      SourceInfo dbgInfo = SourceOrigin.UNKNOWN;
+      SourceInfo dbgInfo = SourceInfo.UNKNOWN;
       String enumName = enumType.getName();
       String methodName =
           NamingTools.getNonSourceConflictingName("get" + enumName + "SwitchesValues");

@@ -15,6 +15,8 @@
  */
 package com.android.jack.ir;
 
+import com.android.jack.ir.sourceinfo.SourceInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 

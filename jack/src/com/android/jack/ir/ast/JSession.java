@@ -16,8 +16,9 @@
 package com.android.jack.ir.ast;
 
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.item.Component;
@@ -59,6 +60,9 @@ public class JSession extends JNode {
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
+  @Nonnull
+  private final SourceInfoFactory sourceInfoFactory = new SourceInfoFactory();
+
   @CheckForNull
   private OutputVDir outputVDir;
 
@@ -75,7 +79,7 @@ public class JSession extends JNode {
   }
 
   public JSession() {
-    super(SourceOrigin.create(0, 0, JSession.class.getName()));
+    super(SourceInfo.UNKNOWN);
     topLevelPackage = new JPackage("", this, null);
     topLevelPackage.updateParents(this);
     lookup = new JNodeLookup(topLevelPackage);
@@ -101,6 +105,11 @@ public class JSession extends JNode {
   @Nonnull
   public JPhantomLookup getPhantomLookup() {
     return phantomLookup;
+  }
+
+  @Nonnull
+  public SourceInfoFactory getSourceInfoFactory() {
+    return sourceInfoFactory;
   }
 
   public void addTypeToEmit(@Nonnull JDefinedClassOrInterface type) {

@@ -17,8 +17,6 @@ package com.android.jack.ir.impl;
 
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JClass;
@@ -39,6 +37,8 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JNodeLookup;
@@ -96,15 +96,24 @@ public class ReferenceMapper {
   @Nonnull
   private final LookupEnvironment lookupEnvironment;
 
+  @Nonnull
+  private final SourceInfoFactory sourceInfoFactory;
+
   public ReferenceMapper(@Nonnull JNodeLookup lookup,
-      @Nonnull LookupEnvironment lookupEnvironment) {
+      @Nonnull LookupEnvironment lookupEnvironment, @Nonnull SourceInfoFactory sourceInfoFactory) {
     this.lookup = lookup;
     this.lookupEnvironment = lookupEnvironment;
+    this.sourceInfoFactory = sourceInfoFactory;
   }
 
   @Nonnull
   public LookupEnvironment getLookupEnvironment() {
     return lookupEnvironment;
+  }
+
+  @Nonnull
+  public SourceInfoFactory getSourceInfoFactory() {
+    return sourceInfoFactory;
   }
 
   @Nonnull
@@ -183,10 +192,10 @@ public class ReferenceMapper {
     if (declaration != null) {
       cuInfo = new CudInfo(declaration.scope.referenceCompilationUnit());
       b = declaration.binding;
-      info = makeSourceInfo(cuInfo, declaration);
+      info = makeSourceInfo(cuInfo, declaration, sourceInfoFactory);
     } else {
       cuInfo = null;
-      info = SourceOrigin.UNKNOWN;
+      info = SourceInfo.UNKNOWN;
     }
 
     ReferenceBinding declaringClass = (ReferenceBinding) b.declaringClass.erasure();
@@ -327,7 +336,7 @@ public class ReferenceMapper {
       @Nonnull CudInfo cuInfo) {
     if (x.arguments != null) {
       for (Argument argument : x.arguments) {
-        SourceInfo info = makeSourceInfo(cuInfo, argument);
+        SourceInfo info = makeSourceInfo(cuInfo, argument, sourceInfoFactory);
         LocalVariableBinding binding = argument.binding;
         createParameter(info, binding, method);
       }
@@ -343,9 +352,9 @@ public class ReferenceMapper {
   JField createField(@Nonnull FieldBinding binding) {
     FieldDeclaration sourceField = binding.sourceField();
 
-    CudInfo cuInfo = new CudInfo(
-        ((SourceTypeBinding) binding.declaringClass).scope.referenceCompilationUnit());
-    SourceInfo info = makeSourceInfo(cuInfo, sourceField);
+    CudInfo cuInfo =
+        new CudInfo(((SourceTypeBinding) binding.declaringClass).scope.referenceCompilationUnit());
+    SourceInfo info = makeSourceInfo(cuInfo, sourceField, sourceInfoFactory);
     JType type = get(binding.type);
     JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) get(binding.declaringClass);
 
@@ -550,9 +559,9 @@ public class ReferenceMapper {
     return method;
   }
 
-  @Nonnull
-  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x) {
-    return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
+  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x,
+      @Nonnull SourceInfoFactory factory) {
+    return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd, factory);
   }
 
   static boolean isCompileTimeConstant(@Nonnull FieldBinding binding) {

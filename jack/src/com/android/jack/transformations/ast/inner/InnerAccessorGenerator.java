@@ -18,7 +18,6 @@ package com.android.jack.transformations.ast.inner;
 
 import com.android.jack.Options;
 import com.android.jack.ir.SideEffectOperation;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
@@ -40,6 +39,7 @@ import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.impl.ResolutionTargetMarker;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -170,8 +170,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       JDefinedClassOrInterface accessorClass = getAccessorClass(field.getModifier(),
           field.getEnclosingType());
       if (accessorClass != currentType) {
-        assert accessorClass.getSourceInfo().getFileName()
-        .equals(currentType.getSourceInfo().getFileName());
+        assert accessorClass.getSourceInfo().getFileSourceInfo()
+            .equals(currentType.getSourceInfo().getFileSourceInfo());
         if (parent instanceof JAsgOperation
             && ((JAsgOperation) parent).getLhs() == x) {
           // writing access
@@ -245,8 +245,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
         }
 
         if (accessorClass != currentType) {
-          assert accessorClass.getSourceInfo().getFileName()
-            .equals(currentType.getSourceInfo().getFileName());
+          assert accessorClass.getSourceInfo().getFileSourceInfo()
+            .equals(currentType.getSourceInfo().getFileSourceInfo());
 
           WrapperMarker marker = accessorClass.getMarker(WrapperMarker.class);
           if (marker == null) {

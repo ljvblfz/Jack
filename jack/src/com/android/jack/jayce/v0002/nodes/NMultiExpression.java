@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -61,7 +61,7 @@ public class NMultiExpression extends NExpression {
   public JMultiExpression exportAsJast(@Nonnull ExportSession exportSession)
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     List<JExpression> jExprs = new ArrayList<JExpression>(exprs.size());
     for (NExpression expr : exprs) {
       jExprs.add(expr.exportAsJast(exportSession));

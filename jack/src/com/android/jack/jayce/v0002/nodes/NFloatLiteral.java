@@ -16,9 +16,9 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JLiteral;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -54,7 +54,7 @@ public class NFloatLiteral extends NLiteral {
   @Nonnull
   public JLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JFloatLiteral jFloatLiteral = new JFloatLiteral(jSourceInfo, value);
     return jFloatLiteral;
   }

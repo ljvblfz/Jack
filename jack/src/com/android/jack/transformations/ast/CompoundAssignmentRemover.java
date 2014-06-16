@@ -18,7 +18,6 @@ package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
 import com.android.jack.ir.CompoundAssignment;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAddOperation;
 import com.android.jack.ir.ast.JAsgOperation;
@@ -40,6 +39,7 @@ import com.android.jack.ir.ast.JShrOperation;
 import com.android.jack.ir.ast.JShruOperation;
 import com.android.jack.ir.ast.JSubOperation;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;

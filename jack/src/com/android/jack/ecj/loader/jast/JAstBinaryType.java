@@ -16,7 +16,6 @@
 
 package com.android.jack.ecj.loader.jast;
 
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.HasEnclosingMethod;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotationLiteral;
@@ -35,6 +34,7 @@ import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.marker.SourceName;
 import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -397,7 +397,7 @@ class JAstBinaryType implements IBinaryType {
   @CheckForNull
   @Override
   public char[] sourceFileName() {
-    if (jDeclaredType.getSourceInfo() == SourceOrigin.UNKNOWN) {
+    if (jDeclaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return null;
     }
     String fileName = jDeclaredType.getSourceInfo().getFileName();

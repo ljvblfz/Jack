@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
@@ -25,6 +24,7 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.MethodNode;
@@ -110,7 +110,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert returnType != null;
     assert methodKind != null;
     assert sourceInfo != null;
-    SourceInfo info = sourceInfo.exportAsJast();
+    SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JMethodId id = new JMethodId(name, methodKind);

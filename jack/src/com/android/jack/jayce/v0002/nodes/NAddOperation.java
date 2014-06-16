@@ -62,7 +62,7 @@ public class NAddOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAddOperation(sourceInfo.exportAsJast(),
+    return new JAddOperation(sourceInfo.exportAsJast(exportSession),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

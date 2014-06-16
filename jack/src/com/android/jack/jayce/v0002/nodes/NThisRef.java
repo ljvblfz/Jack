@@ -16,9 +16,9 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -55,7 +55,7 @@ public class NThisRef extends NExpression {
   public JThisRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert type != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JThis jThis = exportSession.getCurrentMethod().getThis();
     assert jThis != null;
     JThisRef jThisRef = new JThisRef(jSourceInfo, jThis);

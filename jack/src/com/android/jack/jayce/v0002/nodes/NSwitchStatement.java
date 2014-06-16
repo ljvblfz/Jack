@@ -82,7 +82,7 @@ public class NSwitchStatement extends NStatement {
     assert sourceInfo != null;
     assert expr != null;
     assert body != null;
-    final JSwitchStatement jSwitch = new JSwitchStatement(sourceInfo.exportAsJast(),
+    final JSwitchStatement jSwitch = new JSwitchStatement(sourceInfo.exportAsJast(exportSession),
         expr.exportAsJast(exportSession),
         body.exportAsJast(exportSession),
         new ArrayList<JCaseStatement>(1),

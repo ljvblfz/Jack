@@ -17,7 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
-import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.lookup.JMethodIdLookupException;
 import com.android.jack.lookup.JMethodLookupException;
@@ -549,5 +549,4 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public Location getLocation() {
     return location;
   }
-
 }

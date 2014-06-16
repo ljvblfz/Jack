@@ -62,7 +62,7 @@ public class NAsgBitAndOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgBitAndOperation(sourceInfo.exportAsJast(),
+    return new JAsgBitAndOperation(sourceInfo.exportAsJast(exportSession),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }

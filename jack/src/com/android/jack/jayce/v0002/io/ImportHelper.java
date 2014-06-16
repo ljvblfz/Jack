@@ -16,8 +16,6 @@
 
 package com.android.jack.jayce.v0002.io;
 
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JCaseStatement;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JField;
@@ -28,6 +26,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.SymbolManager;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.NodeFactory;
@@ -114,7 +113,7 @@ public class ImportHelper {
     if (sourceInfo == null) {
       return null;
     }
-    if (sourceInfo == SourceOrigin.UNKNOWN) {
+    if (sourceInfo == SourceInfo.UNKNOWN) {
       return NSourceInfo.UNKNOWN;
     }
     NSourceInfo nSourceInfo = new NSourceInfo();

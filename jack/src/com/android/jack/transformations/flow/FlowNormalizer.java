@@ -17,8 +17,6 @@
 package com.android.jack.transformations.flow;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JBreakStatement;
@@ -39,6 +37,7 @@ import com.android.jack.ir.ast.JStatementList;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.PrependAfter;
@@ -177,7 +176,7 @@ public class FlowNormalizer implements RunnableSchedulable<JMethod> {
         incBlock.addStmt(increment);
       }
 
-      incBlock.addStmt(new JGoto(SourceOrigin.UNKNOWN, condLabeledStmt));
+      incBlock.addStmt(new JGoto(SourceInfo.UNKNOWN, condLabeledStmt));
       loopBody.addStmt(incLabeledBlock);
 
       trRequest.append(new Remove(forStmt));
@@ -204,7 +203,7 @@ public class FlowNormalizer implements RunnableSchedulable<JMethod> {
       SourceInfo condInfo = cond.getSourceInfo();
       JBlock branchBlock = new JBlock(condInfo);
       JLabeledStatement labeledCond = createLabeledBlock("do.cond", condInfo);
-      JGoto gotoStmt = new JGoto(SourceOrigin.UNKNOWN, labeledBody);
+      JGoto gotoStmt = new JGoto(SourceInfo.UNKNOWN, labeledBody);
 
       if (cond instanceof JBooleanLiteral) {
         if (((JBooleanLiteral) cond).getValue()) {
@@ -247,7 +246,7 @@ public class FlowNormalizer implements RunnableSchedulable<JMethod> {
         condLabeledBlock.addStmt(ifStmt);
       }
 
-      newBody.addStmt(new JGoto(SourceOrigin.UNKNOWN, condLabeledStmt));
+      newBody.addStmt(new JGoto(SourceInfo.UNKNOWN, condLabeledStmt));
 
       trRequest.append(new Replace(whileStmt, condLabeledStmt));
 

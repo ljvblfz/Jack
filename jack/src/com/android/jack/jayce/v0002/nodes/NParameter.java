@@ -80,7 +80,7 @@ public class NParameter extends NVariable {
     assert sourceInfo != null;
     assert type != null;
     JParameter jParameter = new JParameter(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         name,
         exportSession.getLookup().getType(type),
         modifiers,

@@ -93,7 +93,7 @@ public class NForStatement extends NStatement {
       jIncrements.add(increment.exportAsJast(exportSession));
     }
     JForStatement jForStatement = new JForStatement(
-      sourceInfo.exportAsJast(), jInitializers, jTestExpression, jIncrements, jBody);
+      sourceInfo.exportAsJast(exportSession), jInitializers, jTestExpression, jIncrements, jBody);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jForStatement));
     }

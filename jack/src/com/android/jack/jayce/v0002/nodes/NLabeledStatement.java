@@ -16,10 +16,10 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
@@ -77,7 +77,7 @@ public class NLabeledStatement extends NStatement {
     assert body != null;
     assert id != null;
     assert label != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JLabeledStatement jLabeled = new JLabeledStatement(jSourceInfo,
         new JLabel(jSourceInfo, label), body.exportAsJast(exportSession));
     exportSession.getLabelResolver().addTarget(id, jLabeled);

@@ -17,8 +17,6 @@
 package com.android.jack.frontend;
 
 import com.android.jack.TestTools;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JLabel;
@@ -27,6 +25,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
@@ -59,7 +58,7 @@ public class GotoTest {
     SourceInfo srcInfo = stmts.get(0).getSourceInfo();
     String label = "label";
     try {
-    block.addStmt(0, new JGoto(SourceOrigin.UNKNOWN, new JLabeledStatement(
+    block.addStmt(0, new JGoto(SourceInfo.UNKNOWN, new JLabeledStatement(
         srcInfo, new JLabel(srcInfo, label), stmts.get(0))));
     Assert.fail();
     }
@@ -77,7 +76,7 @@ public class GotoTest {
     }
     JBlock gotoTargetBlock = new JBlock(srcInfo);
     gotoTargetBlock.addStmt(stmts.get(0));
-    block.addStmt(0, new JGoto(SourceOrigin.UNKNOWN, new JLabeledStatement(
+    block.addStmt(0, new JGoto(SourceInfo.UNKNOWN, new JLabeledStatement(
         srcInfo, new JLabel(srcInfo, label), gotoTargetBlock)));
     stmts = body.getStatements();
     Assert.assertEquals(2, stmts.size());

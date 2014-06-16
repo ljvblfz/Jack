@@ -17,7 +17,6 @@
 package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
@@ -31,6 +30,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;

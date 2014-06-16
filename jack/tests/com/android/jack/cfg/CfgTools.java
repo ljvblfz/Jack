@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTryStatement;
+import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -65,6 +66,7 @@ public class CfgTools {
     set.add(ThreeAddressCodeForm.class);
     set.add(JExceptionRuntimeValue.class);
     set.add(OriginalNames.class);
+    set.add(SourceInfoCreation.class);
     set.remove(JLoop.class);
     set.remove(UselessSwitches.class);
     set.remove(JBreakStatement.class);

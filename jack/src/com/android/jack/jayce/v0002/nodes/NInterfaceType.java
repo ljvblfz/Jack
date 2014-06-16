@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -24,6 +23,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.io.ExportSession;
@@ -104,7 +104,8 @@ public class NInterfaceType extends NDeclaredType {
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
+        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.STRUCTURE));
     JDefinedInterface jInterfaceType =
         new JDefinedInterface(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
     return jInterfaceType;

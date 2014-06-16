@@ -63,7 +63,7 @@ public class NBlock extends NStatement {
   public JBlock exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException,
       JMethodLookupException {
     assert sourceInfo != null;
-    JBlock jBlock = new JBlock(sourceInfo.exportAsJast());
+    JBlock jBlock = new JBlock(sourceInfo.exportAsJast(exportSession));
     for (NStatement nStatement : statements) {
       jBlock.addStmt(nStatement.exportAsJast(exportSession));
     }

@@ -17,7 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.HasSourceInfo;
-import com.android.jack.ir.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 

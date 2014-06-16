@@ -16,9 +16,9 @@
 package com.android.jack.ir.ast;
 
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
 import java.util.Collection;

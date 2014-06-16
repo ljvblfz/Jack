@@ -17,8 +17,6 @@
 package com.android.jack.transformations.ast.switches;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -43,6 +41,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.scheduling.feature.SourceVersion7;
@@ -151,8 +150,8 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
 
         JCaseStatement defaultCase = switchStmt.getDefaultCase();
         JLabeledStatement defaultLabelStmt =
-            new JLabeledStatement(dbgInfo, new JLabel(SourceOrigin.UNKNOWN, "label_default_"
-                + switchCount), new JBlock(SourceOrigin.UNKNOWN));
+            new JLabeledStatement(dbgInfo, new JLabel(SourceInfo.UNKNOWN, "label_default_"
+                + switchCount), new JBlock(SourceInfo.UNKNOWN));
         tr.append(new AppendBefore(switchStmt, new JGoto(dbgInfo, defaultLabelStmt)));
 
         if (defaultCase != null) {

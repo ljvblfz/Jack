@@ -16,11 +16,11 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
@@ -76,7 +76,7 @@ public class NSynchronizedBlock extends NStatement {
     assert synchronizedBlock != null;
     JExpression jLockExpr = lockExpr.exportAsJast(exportSession);
     JBlock jBlock = synchronizedBlock.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JSynchronizedBlock jSynchronizedBlock = new JSynchronizedBlock(jSourceInfo, jLockExpr, jBlock);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()

@@ -16,11 +16,11 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -66,7 +66,7 @@ public class NInstanceOf extends NExpression {
     assert testType != null;
     JExpression jExpr = expr.exportAsJast(exportSession);
     JReferenceType jType = (JReferenceType) exportSession.getLookup().getType(testType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JInstanceOf jInstanceOf = new JInstanceOf(jSourceInfo, jType, jExpr);
     return jInstanceOf;
   }

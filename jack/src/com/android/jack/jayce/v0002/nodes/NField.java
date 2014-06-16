@@ -85,7 +85,7 @@ public class NField extends NNode implements HasSourceInfo {
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JField jField = new JField(
-        sourceInfo.exportAsJast(),
+        sourceInfo.exportAsJast(exportSession),
         name,
         enclosingType,
         exportSession.getLookup().getType(type),

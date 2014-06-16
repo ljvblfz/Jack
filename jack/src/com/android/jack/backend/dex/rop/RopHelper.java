@@ -25,7 +25,6 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JField;
@@ -41,6 +40,7 @@ import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 
 import java.util.List;
 
@@ -166,7 +166,7 @@ public class RopHelper {
    */
   @Nonnull
   public static SourcePosition getSourcePosition(@Nonnull JNode stmt) {
-    if (stmt.getSourceInfo() != SourceOrigin.UNKNOWN) {
+    if (stmt.getSourceInfo() != SourceInfo.UNKNOWN) {
       return (new SourcePosition(new CstString(stmt.getSourceInfo().getFileName()), -1,
           stmt.getSourceInfo().getStartLine()));
     } else {

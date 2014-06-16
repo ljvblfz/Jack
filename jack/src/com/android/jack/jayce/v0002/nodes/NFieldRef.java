@@ -84,7 +84,7 @@ public class NFieldRef extends NExpression {
     JExpression jInstance = instance != null ? instance.exportAsJast(exportSession) : null;
     JType jReceiverType = exportSession.getLookup().getType(receiverType);
     JType jFieldType = exportSession.getLookup().getType(fieldType);
-    return new JFieldRef(sourceInfo.exportAsJast(), jInstance,
+    return new JFieldRef(sourceInfo.exportAsJast(exportSession), jInstance,
         exportSession.getFieldId((JClassOrInterface) jReceiverType, field, jFieldType, kind),
         (JClassOrInterface) jReceiverType);
   }

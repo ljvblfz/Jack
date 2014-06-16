@@ -16,13 +16,13 @@
 
 package com.android.jack.transformations;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.AddJLocalInMethodBody;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;

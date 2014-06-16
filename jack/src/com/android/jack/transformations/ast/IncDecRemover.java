@@ -17,7 +17,6 @@
 package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAddOperation;
 import com.android.jack.ir.ast.JArrayRef;
@@ -45,6 +44,7 @@ import com.android.jack.ir.ast.JSubOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;

@@ -66,7 +66,7 @@ public class NLock extends NStatement {
       JMethodLookupException {
     assert sourceInfo != null;
     assert lockExpr != null;
-    JLock jStatement = new JLock(sourceInfo.exportAsJast(),
+    JLock jStatement = new JLock(sourceInfo.exportAsJast(exportSession),
         lockExpr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));

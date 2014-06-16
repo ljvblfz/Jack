@@ -19,8 +19,6 @@ import com.android.jack.Jack;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.InternalCompilerException;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
@@ -118,6 +116,8 @@ import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.config.ThreadConfig;
@@ -314,7 +314,7 @@ public class JackIrBuilder {
             JExpression dimension = pop(x.dimensions[i]);
             // can be null if index expression was empty
             if (dimension == null) {
-              dimension = new JAbsentArrayDimension(SourceOrigin.UNKNOWN);
+              dimension = new JAbsentArrayDimension(SourceInfo.UNKNOWN);
             }
             dims.add(dimension);
           }
@@ -1979,9 +1979,10 @@ public class JackIrBuilder {
           type.getMethod(NamingTools.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
       JAbstractMethodBody body = method.getBody();
       assert body != null;
-      ((JMethodBody) body).getBlock().addStmt(new JReturnStatement(SourceOrigin.create(
-          method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
-          method.getSourceInfo().getFileName()), null));
+      ((JMethodBody) body).getBlock().addStmt(
+          new JReturnStatement(session.getSourceInfoFactory().create(
+              method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
+              method.getSourceInfo().getFileName()), null));
 
       curClass = classStack.pop();
     }
@@ -2638,7 +2639,7 @@ public class JackIrBuilder {
          * Weird case: if JDT determines that this local class is totally
          * uninstantiable, it won't bother allocating a local name.
          */
-        push(new JNullLiteral(SourceOrigin.UNKNOWN));
+        push(new JNullLiteral(SourceInfo.UNKNOWN));
         return;
       }
       assert typeBinding.isClass() || typeBinding.isEnum();
@@ -2950,7 +2951,7 @@ public class JackIrBuilder {
     }
 
     private void generateImplicitReturn() {
-      curMethod.body.getBlock().addStmt(new JReturnStatement(SourceOrigin.create(
+      curMethod.body.getBlock().addStmt(new JReturnStatement(session.getSourceInfoFactory().create(
           curMethod.method.getSourceInfo().getEndLine(),
           curMethod.method.getSourceInfo().getEndLine(),
           curMethod.method.getSourceInfo().getFileName()), null));
@@ -3222,7 +3223,8 @@ public class JackIrBuilder {
   public JackIrBuilder(@Nonnull LookupEnvironment lookupEnvironment,
       @Nonnull JSession session) {
     this.lookupEnvironment = lookupEnvironment;
-    typeMap = new ReferenceMapper(session.getLookup(), lookupEnvironment);
+    typeMap =
+        new ReferenceMapper(session.getLookup(), lookupEnvironment, session.getSourceInfoFactory());
     this.session = session;
   }
 
@@ -3287,7 +3289,8 @@ public class JackIrBuilder {
   }
 
   @Nonnull
-  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, int start, int end) {
+  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, int start, int end,
+      @Nonnull SourceInfoFactory factory) {
     int startLine =
         Util.getLineNumber(start, cuInfo.separatorPositions, 0,
             cuInfo.separatorPositions.length - 1);
@@ -3298,22 +3301,17 @@ public class JackIrBuilder {
             cuInfo.separatorPositions.length - 1);
     int endCol =
         Util.searchColumnNumber(cuInfo.separatorPositions, endLine, end);
-    return SourceOrigin.create(startCol, endCol, startLine, endLine, cuInfo.fileName);
+    return factory.create(startCol, endCol, startLine, endLine, cuInfo.fileName);
   }
 
   @Nonnull
-  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x) {
-    return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd);
-  }
-
-  @Nonnull
-  SourceInfo makeSourceInfo(int start, int end) {
-    return makeSourceInfo(curCud, start, end);
+  SourceInfo makeSourceInfo(int start, int end, @Nonnull SourceInfoFactory factory) {
+    return makeSourceInfo(curCud, start, end, factory);
   }
 
   @Nonnull
   SourceInfo makeSourceInfo(@Nonnull ASTNode x) {
-    return makeSourceInfo(x.sourceStart, x.sourceEnd);
+    return makeSourceInfo(x.sourceStart, x.sourceEnd, session.getSourceInfoFactory());
   }
 
   InternalCompilerException translateException(Throwable e) {

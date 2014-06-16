@@ -17,8 +17,6 @@
 package com.android.jack.transformations.ast;
 
 import com.android.jack.frontend.ParentSetter;
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpression;
@@ -27,6 +25,7 @@ import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.TransformationRequest;
 
 import org.junit.BeforeClass;
@@ -44,7 +43,7 @@ public class TypeLegalizerTest {
 
   @Test
   public void testNewArrayWithJLongLiteralAsDimension() throws Exception {
-    SourceInfo info = SourceOrigin.UNKNOWN;
+    SourceInfo info = SourceInfo.UNKNOWN;
     JBlock bodyBlock = new JBlock(info);
     JMethodBody methodBody = new JMethodBody(info, bodyBlock);
     JArrayType type = JPrimitiveTypeEnum.INT.getType().getArray();

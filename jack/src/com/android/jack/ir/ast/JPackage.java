@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JLookupException;
 import com.android.sched.item.Component;
@@ -106,7 +106,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   public JPackage(@Nonnull String name, @Nonnull JSession session,
       @CheckForNull JPackage enclosingPackage,
       @Nonnull List<PackageLoader> loaders) {
-    super(SourceOrigin.UNKNOWN);
+    super(SourceInfo.UNKNOWN);
     this.session = session;
     this.name = name;
     this.loaders.addAll(loaders);

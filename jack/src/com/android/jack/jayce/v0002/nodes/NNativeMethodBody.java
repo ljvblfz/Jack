@@ -16,8 +16,8 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JNativeMethodBody;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -50,7 +50,7 @@ public class NNativeMethodBody extends NAbstractMethodBody {
   @Nonnull
   public JNativeMethodBody exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JNativeMethodBody jNativeMethodBody = new JNativeMethodBody(jSourceInfo);
     return jNativeMethodBody;
   }

@@ -16,13 +16,13 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.NodeLevel;
@@ -70,7 +70,7 @@ public class NConstructor extends NMethod {
       JMethodLookupException {
     assert sourceInfo != null;
     exportSession.getLocalResolver().clear();
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast();
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
     JConstructor jConstructor = new JConstructor(jSourceInfo,

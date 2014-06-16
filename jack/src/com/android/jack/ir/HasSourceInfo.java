@@ -15,6 +15,8 @@
  */
 package com.android.jack.ir;
 
+import com.android.jack.ir.sourceinfo.SourceInfo;
+
 /**
  * Abstract view of a class that has source info.
  */

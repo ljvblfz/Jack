@@ -17,7 +17,6 @@
 package com.android.jack.transformations.booleanoperators;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
@@ -25,6 +24,7 @@ import com.android.jack.ir.ast.JConditionalOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.optimizations.NotSimplifier.NotExpressionsSimplified;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker.FallThroughEnum;
 import com.android.jack.transformations.request.Replace;

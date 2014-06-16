@@ -17,7 +17,6 @@
 package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
-import com.android.jack.ir.SourceInfo;
 import com.android.jack.ir.ast.JAsgConcatOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -36,6 +35,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;

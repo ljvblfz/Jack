@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.SourceOrigin;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -33,7 +33,7 @@ public class JThis extends JVariable implements HasEnclosingMethod {
   private final JMethod enclosingMethod;
 
   public JThis(@Nonnull JMethod enclosingMethod) {
-    super(SourceOrigin.UNKNOWN, "this", enclosingMethod.getEnclosingType(), JModifier.DEFAULT);
+    super(SourceInfo.UNKNOWN, "this", enclosingMethod.getEnclosingType(), JModifier.DEFAULT);
     assert enclosingMethod.getEnclosingType() instanceof JDefinedClass;
     this.enclosingMethod = enclosingMethod;
   }

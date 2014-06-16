@@ -62,7 +62,7 @@ public class NAsgModOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgModOperation(sourceInfo.exportAsJast(),
+    return new JAsgModOperation(sourceInfo.exportAsJast(exportSession),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -77,7 +77,6 @@ public class NAsgModOperation extends NExpression {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     lhs = in.readNode(NExpression.class);
     rhs = in.readNode(NExpression.class);
-
   }
 
   @Override

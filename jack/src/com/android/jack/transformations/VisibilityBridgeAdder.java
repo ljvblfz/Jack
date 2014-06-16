@@ -16,8 +16,6 @@
 
 package com.android.jack.transformations;
 
-import com.android.jack.ir.SourceInfo;
-import com.android.jack.ir.SourceOrigin;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
@@ -36,6 +34,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.feature.DxLegacy;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -95,7 +94,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
   }
 
   private void synthesizeBridge(@Nonnull JDefinedClass jClass, @Nonnull JMethod method) {
-    SourceInfo sourceInfo = SourceOrigin.UNKNOWN;
+    SourceInfo sourceInfo = SourceInfo.UNKNOWN;
     JMethodId methodId = method.getMethodId();
     JMethod bridge = new JMethod(sourceInfo, methodId, jClass, method.getType(),
         (method.getModifier() & ~JModifier.SYNCHRONIZED) | JModifier.SYNTHETIC | JModifier.BRIDGE);

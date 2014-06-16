@@ -66,7 +66,7 @@ public class NUnlock extends NStatement {
       JTypeLookupException {
     assert sourceInfo != null;
     assert lockExpr != null;
-    JUnlock jStatement = new JUnlock(sourceInfo.exportAsJast(),
+    JUnlock jStatement = new JUnlock(sourceInfo.exportAsJast(exportSession),
         lockExpr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));

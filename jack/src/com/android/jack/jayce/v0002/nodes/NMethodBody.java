@@ -64,7 +64,7 @@ public class NMethodBody extends NAbstractMethodBody {
     assert block != null;
     assert sourceInfo != null;
     JMethodBody jMethodBody =
-        new JMethodBody(sourceInfo.exportAsJast(), block.exportAsJast(exportSession));
+        new JMethodBody(sourceInfo.exportAsJast(exportSession), block.exportAsJast(exportSession));
     for (NLocal local : locals) {
       JLocal jLocal = local.exportAsJast(exportSession);
       jLocal.setEnclosingMethodBody(jMethodBody);

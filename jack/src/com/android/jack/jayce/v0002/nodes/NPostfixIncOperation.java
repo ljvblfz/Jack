@@ -57,7 +57,7 @@ public class NPostfixIncOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPostfixIncOperation(sourceInfo.exportAsJast(),
+    return new JPostfixIncOperation(sourceInfo.exportAsJast(exportSession),
         arg.exportAsJast(exportSession));
   }
 
