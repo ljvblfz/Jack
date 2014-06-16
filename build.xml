@@ -45,27 +45,29 @@
     dex-lib-clean,
     dx-ref-lib-clean" />
 
-  <property name="jack.dir" value="jack" />
-  <property name="jack-tests.dir" value="jack-tests" />
-  <property name="antlr.dir"  value="antlr"/>
-  <property name="args4j.dir" value="args4j"/>
-  <property name="dx.dir" value="dx"/>
-  <property name="ecj.dir" value="ecj"/>
-  <property name="freemarker.dir" value="freemarker"/>
-  <property name="guava.dir" value="guava"/>
-  <property name="jsr305.dir" value="jsr305"/>
-  <property name="maths.dir" value="maths"/>
-  <property name="sched.dir" value="sched"/>
-  <property name="watchmaker.dir" value="watchmaker"/>
-  <property name="antlr-rt.dir" value="antlr-runtime"/>
-  <property name="allocation.dir" value="java-allocation-instrumenter"/>
-  <property name="junit4.dir" value="junit4"/>
-  <property name="hamcrest-core.dir" value="hamcrest-core"/>
-  <property name="dexcomparator.dir" value="dexcomparator"/>
-  <property name="dexlib.dir" value="dexlib"/>
-  <property name="tools.dir" value="tools"/>
-  <property name="dx-ref.dir" value="dx-ref"/>
-  <property name="core-stubs-mini.dir" value="core-stubs-mini"/>
+  <dirname property="jack-project.dir" file="${ant.file.jack}"/>
+
+  <property name="jack.dir" value="${jack-project.dir}/jack" />
+  <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
+  <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
+  <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
+  <property name="dx.dir" value="${jack-project.dir}/dx"/>
+  <property name="ecj.dir" value="${jack-project.dir}/ecj"/>
+  <property name="freemarker.dir" value="${jack-project.dir}/freemarker"/>
+  <property name="guava.dir" value="${jack-project.dir}/guava"/>
+  <property name="jsr305.dir" value="${jack-project.dir}/jsr305"/>
+  <property name="maths.dir" value="${jack-project.dir}/maths"/>
+  <property name="sched.dir" value="${jack-project.dir}/sched"/>
+  <property name="watchmaker.dir" value="${jack-project.dir}/watchmaker"/>
+  <property name="antlr-rt.dir" value="${jack-project.dir}/antlr-runtime"/>
+  <property name="allocation.dir" value="${jack-project.dir}/java-allocation-instrumenter"/>
+  <property name="junit4.dir" value="${jack-project.dir}/junit4"/>
+  <property name="hamcrest-core.dir" value="${jack-project.dir}/hamcrest-core"/>
+  <property name="dexcomparator.dir" value="${jack-project.dir}/dexcomparator"/>
+  <property name="dexlib.dir" value="${jack-project.dir}/dexlib"/>
+  <property name="tools.dir" value="${jack-project.dir}/tools"/>
+  <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
+  <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
@@ -90,7 +92,7 @@
   <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
     junit4,dex-lib,dx-ref-lib">
     <copy todir="${jack.libs.dir}" flatten="true">
-      <filelist dir="." >
+      <filelist dir="/" >
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
         <file name="${guava.dist.dir}/${guava.libname}"/>
         <file name="${dx.dist.dir}/${dx.libname}"/>
@@ -115,11 +117,11 @@
     <mkdir dir="${jack.dist.dir}"/>
     <mkdir dir="${jack.tools.dir}"/>
     <!-- fetch dependencies -->
-    <filelist id="jack.link.libs.fileset" dir=".">
+    <filelist id="jack.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
       <file name="${allocation.dist.dir}/${allocation.libname}" />
     </filelist>
-    <filelist id="jack.static.libs.fileset" dir=".">
+    <filelist id="jack.static.libs.fileset" dir="/">
       <file name="${ecj.dist.dir}/${ecj.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -132,7 +134,7 @@
       <file name="${maths.dist.dir}/${maths.libname}" />
     </filelist>
     <copy todir="${jack.tools.dir}" flatten="true">
-      <filelist dir="." >
+      <filelist dir="/" >
         <file name="${sched-build.dist.dir}/${sched-build.execname}" />
         <file name="${antlr.dist.dir}/${antlr.execname}" />
       </filelist>
@@ -223,10 +225,10 @@
     <mkdir dir="${jackunittests.dist.dir}" />
     <!-- fetch dependencies -->
     <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
-    <filelist id="jackunittests.link.libs.fileset" dir=".">
+    <filelist id="jackunittests.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
     </filelist>
-    <filelist id="jackunittests.static.libs.fileset" dir=".">
+    <filelist id="jackunittests.static.libs.fileset" dir="/">
       <file name="${jack.dist.dir}/${jack.libname}" />
       <file name="${junit4.dist.dir}/${junit4.libname}" />
       <file name="${dexlib.dist.dir}/${dexlib.libname}" />
@@ -270,7 +272,7 @@
     <mkdir dir="${jack-tests.libs.dir}" />
     <!-- fetch dependencies -->
     <copy todir="${jack-tests.libs.dir}" flatten="true">
-      <filelist dir="." >
+      <filelist dir="/" >
         <file name="${junit4.dist.dir}/${junit4.libname}"/>
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
       </filelist>
@@ -437,7 +439,7 @@
       destdir="${guava.build.outdir}"
       debug="true" includeantruntime="false">
       <classpath>
-        <filelist dir=".">
+        <filelist dir="/">
           <file name="${jsr305.dist.dir}/${jsr305.libname}" />
         </filelist>
       </classpath>
@@ -525,7 +527,7 @@
   <target name="sched-copy-libs" depends="guava-lib,jsr305-lib,allocation-lib,freemarker-lib,
     watchmaker-lib,maths-lib,junit4">
     <copy todir="${schedlib.libs.dir}" flatten="true">
-      <filelist dir=".">
+      <filelist dir="/">
         <file name="${guava.dist.dir}/${guava.libname}" />
         <file name="${jsr305.dist.dir}/${jsr305.libname}" />
         <file name="${allocation.dist.dir}/${allocation.libname}" />
@@ -545,7 +547,7 @@
     <mkdir dir="${schedlib.build.outdir}"/>
     <mkdir dir="${schedlib.libs.dir}"/>
     <mkdir dir="${schedlib.dist.dir}"/>
-    <filelist id="schedlib.link.libs.fileset" dir=".">
+    <filelist id="schedlib.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -668,7 +670,7 @@
     <!-- project layout -->
     <mkdir dir="${schedtests.build.outdir}" />
     <mkdir dir="${schedtests.dist.dir}" />
-    <filelist id="schedtests.link.libs.fileset" dir=".">
+    <filelist id="schedtests.link.libs.fileset" dir="/">
       <file name="${schedlib.dist.dir}/${schedlib.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -714,7 +716,7 @@
       source="1.5" target="1.5"
       debug="true" includeantruntime="false">
       <classpath>
-        <filelist dir=".">
+        <filelist dir="/">
           <file name="${maths.dist.dir}/${maths.libname}" />
           <file name="${guava.dist.dir}/${guava.libname}" />
         </filelist>
@@ -781,7 +783,7 @@
       source="1.5" target="1.5"
       debug="true" includeantruntime="false">
       <classpath>
-        <filelist dir=".">
+        <filelist dir="/">
           <file name="${guava.dist.dir}/${guava.libname}" />
         </filelist>
       </classpath>
@@ -816,7 +818,7 @@
         source="1.5" target="1.5"
         debug="true" includeantruntime="false">
       <classpath>
-        <filelist dir=".">
+        <filelist dir="/">
           <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
         </filelist>
       </classpath>
@@ -848,7 +850,7 @@
       <fileset dir="${junit4.build.outdir}" includes="**/*.class" />
     </copy>
     <unzip dest="${junit4.exec.build.outdir}">
-      <filelist dir=".">
+      <filelist dir="/">
         <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
       </filelist>
     </unzip>
@@ -909,7 +911,7 @@
     <mkdir dir="${dexcomparator.dist.dir}"/>
     <!-- fetch dependencies -->
     <copy todir="${dexcomparator.libs.dir}" flatten="true">
-      <filelist dir=".">
+      <filelist dir="/">
         <file name="${dx.dist.dir}/${dx.libname}" />
         <file name="${dexlib.dist.dir}/${dexlib.libname}" />
         <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -957,7 +959,7 @@
             source="1.5" target="1.5"
             debug="true" includeantruntime="false">
       <classpath>
-        <filelist dir=".">
+        <filelist dir="/">
           <file name="${guava.dist.dir}/${guava.libname}"/>
           <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
         </filelist>
@@ -995,7 +997,7 @@
             basedir="${core-stubs-mini.build.dir}"
             includes="**"/>
     <copy todir="${jack.libs.dir}" flatten="true">
-      <filelist dir=".">
+      <filelist dir="/">
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
       </filelist>
     </copy>
