@@ -353,7 +353,13 @@
     <javac srcdir="${dx.dir}/src"
       destdir="${dx.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false">
+      <classpath>
+        <filelist>
+          <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        </filelist>
+      </classpath>
+    </javac>
     <!-- package -->
     <jar destfile="${dx.dist.dir}/${dx.libname}"
       basedir="${dx.build.outdir}"
