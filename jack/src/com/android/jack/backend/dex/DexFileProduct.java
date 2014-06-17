@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.scheduling.tags;
+package com.android.jack.backend.dex;
 
 import com.android.sched.item.Description;
 import com.android.sched.item.Production;

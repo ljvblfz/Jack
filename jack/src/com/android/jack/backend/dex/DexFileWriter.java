@@ -22,7 +22,6 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
-import com.android.jack.scheduling.tags.DexFileProduct;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;

@@ -30,7 +30,6 @@ import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.scheduling.marker.DexFileMarker;
-import com.android.jack.scheduling.tags.OneDexPerTypeProduct;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
