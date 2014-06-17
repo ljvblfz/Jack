@@ -31,6 +31,8 @@ import com.android.jack.jayce.linker.SymbolManager;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.NodeFactory;
 import com.android.jack.jayce.v0002.nodes.NSourceInfo;
+import com.android.sched.marker.SerializableMarker;
+import com.android.sched.marker.Marker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,7 +106,11 @@ public class ImportHelper {
       return null;
     }
     NNode node = factory.createNNode(jElement);
-    node.importFromJast(this, jElement);
+    if (node != null) {
+      node.importFromJast(this, jElement);
+    } else {
+      assert jElement instanceof Marker && !(jElement instanceof SerializableMarker);
+    }
     return node;
   }
 
@@ -128,9 +134,10 @@ public class ImportHelper {
     List<T> nodes = new ArrayList<T>();
     for (Object jElement : jElements) {
       NNode node = load(jElement);
-      assert node != null;
-      assert nodeClass.isAssignableFrom(node.getClass());
-      nodes.add((T) node);
+      if (node != null) {
+        assert nodeClass.isAssignableFrom(node.getClass());
+        nodes.add((T) node);
+      }
     }
     return nodes;
   }

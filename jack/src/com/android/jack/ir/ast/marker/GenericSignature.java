@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVariable;
 import com.android.sched.item.Description;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Holds generic signature retrieved from ecj")
 @ValidOn({JDefinedClassOrInterface.class, JVariable.class, JMethod.class, JField.class})
-public class GenericSignature implements Marker {
+public class GenericSignature implements SerializableMarker {
 
   @Nonnull
   private CharSequence genericSignature;

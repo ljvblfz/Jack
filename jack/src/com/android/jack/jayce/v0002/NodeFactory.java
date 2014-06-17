@@ -247,6 +247,7 @@ import com.android.jack.jayce.v0002.nodes.NTryStatement;
 import com.android.jack.jayce.v0002.nodes.NUnlock;
 import com.android.jack.jayce.v0002.nodes.NWhileStatement;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -764,7 +765,7 @@ public class NodeFactory {
   public NodeFactory() {
   }
 
-  @Nonnull
+  @CheckForNull
   public NNode createNNode(@Nonnull Object from) {
     if (from instanceof JNode) {
       Creator creator = new Creator();
@@ -778,18 +779,21 @@ public class NodeFactory {
     throw new AssertionError("Not yet implemented (" + from.getClass() + ")");
   }
 
-  @Nonnull
+  @CheckForNull
   private NMarker createMarkerNode(@Nonnull Marker from) {
+    NMarker nMarker = null;
     if (from instanceof GenericSignature) {
-      return new NGenericSignature();
+      nMarker = new NGenericSignature();
     } else if (from instanceof SimpleName) {
-      return new NSimpleName();
+      nMarker = new NSimpleName();
     } else if (from instanceof ThisRefTypeInfo) {
-      return new NThisRefTypeInfo();
+      nMarker = new NThisRefTypeInfo();
     } else if (from instanceof ThrownExceptionMarker) {
-      return new NThrownExceptionMarker();
+      nMarker = new NThrownExceptionMarker();
     }
-    throw new AssertionError("Not yet implemented (" + from.getClass() + ")");
+    // no NMarker if and only if the given Marker was not Jayce capable.
+    assert (nMarker == null) == (!(from instanceof SerializableMarker)) : from.getClass();
+    return nMarker;
   }
 
 }

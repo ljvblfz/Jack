@@ -19,6 +19,7 @@ package com.android.jack.ir.ast.marker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;
@@ -28,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Holds source name retrieved from ecj")
 @ValidOn(JDefinedClassOrInterface.class)
-public class SimpleName implements Marker {
+public class SimpleName implements SerializableMarker {
 
   @Nonnull
   private CharSequence simpleName;

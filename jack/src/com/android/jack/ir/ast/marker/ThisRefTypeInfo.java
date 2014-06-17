@@ -18,6 +18,7 @@ package com.android.jack.ir.ast.marker;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
@@ -28,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Holds generic signature for 'this', retrieved from ecj")
 @ValidOn({JDefinedClassOrInterface.class})
-public class ThisRefTypeInfo implements Marker {
+public class ThisRefTypeInfo implements SerializableMarker {
 
   @Nonnull
   private CharSequence genericSignature;
