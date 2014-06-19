@@ -151,37 +151,85 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
         inputData = currentStream.read();
         if (inputData == -1) {
           // The entry has already been completely read
-          assert currentRefinedEntry != null;
-          // Set the base inputstream position to the refined entry end position
-          int toSkip = currentRefinedEntry.endPosition - position;
-          while (toSkip > 0) {
-            assert baseInputStream.available() != 0;
-            toSkip -= baseInputStream.skip(toSkip);
-          }
-          position = currentRefinedEntry.endPosition;
-          currentRefinedEntries.remove(currentRefinedEntry);
-          currentRefinedEntry = null;
-          currentStream = null;
+          closeCurrentRefinedEntry();
         } else {
           return inputData;
         }
       }
-      position++;
-      inputData = baseInputStream.read();
-      for (RefinedEntry entry : refinedEntries) {
-        if (entry.startPosition <= position) {
-          if (entry.endPosition >= position) {
-            // A refined entry should be read
-            currentRefinedEntry = entry;
-            currentStream = entry.openRead();
-            return currentStream.read();
-          }
-        } else {
-          break;
-        }
+      if (openNextRefinedEntryIfNecessary()) {
+        assert currentStream != null;
+        return currentStream.read();
       }
       // No refined entry was found, read the base stream normally.
-      return inputData;
+      position++;
+      return baseInputStream.read();
+    }
+
+    private boolean openNextRefinedEntryIfNecessary() {
+      assert currentRefinedEntry == null;
+      if (!currentRefinedEntries.isEmpty()) {
+        RefinedEntry entry = currentRefinedEntries.first();
+        if (entry.startPosition <= position + 1) {
+          assert entry.endPosition >= position;
+          // A refined entry should be read
+          currentRefinedEntry = entry;
+          currentRefinedEntries.remove(currentRefinedEntry);
+          currentStream = currentRefinedEntry.openRead();
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private void closeCurrentRefinedEntry() throws IOException {
+      assert currentRefinedEntry != null;
+      // Set the base inputstream position to the refined entry end position
+      int toSkip = currentRefinedEntry.endPosition - position;
+      while (toSkip > 0) {
+        assert baseInputStream.available() != 0;
+        toSkip -= baseInputStream.skip(toSkip);
+      }
+      position = currentRefinedEntry.endPosition;
+      currentRefinedEntry = null;
+      currentStream = null;
+    }
+
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      if (available() == 0) {
+        return -1;
+      }
+
+      int totalRead = 0;
+      while (available() != 0 && totalRead < len) {
+        // Read current refined entry if any
+        if (currentStream != null) {
+          totalRead += currentStream.read(b, off + totalRead, len - totalRead);
+          if (currentStream.available() == 0) {
+            closeCurrentRefinedEntry();
+          }
+        }
+
+        // Read until next refined entry
+        // Calculate the length of bytes that can be read without refining
+        int baseLength;
+        if (!currentRefinedEntries.isEmpty()) {
+          RefinedEntry nextEntry = currentRefinedEntries.first();
+          baseLength = Math.min(nextEntry.startPosition - (position + 1), len - totalRead);
+        } else {
+          baseLength = len - totalRead;
+        }
+        int read = baseInputStream.read(b, off + totalRead, baseLength);
+        totalRead += read;
+        position += read;
+
+        if (totalRead < len) {
+          openNextRefinedEntryIfNecessary();
+        }
+      }
+
+      return totalRead;
     }
 
     @Override
