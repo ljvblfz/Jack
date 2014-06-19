@@ -221,10 +221,6 @@ public abstract class Tracer extends JVisitor {
    */
   protected void trace(@Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType,
       @Nonnull JType returnType, boolean mustTraceOverridingMethods) {
-    for (JType paramType : mid.getParamTypes()) {
-      trace(paramType);
-    }
-
     JMethod foundMethod = findMethod(mid, receiverType, returnType);
     if (foundMethod != null) {
       trace(foundMethod);
