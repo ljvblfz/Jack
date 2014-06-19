@@ -119,6 +119,7 @@ LOCAL_JAVA_LIBRARIES := \
   $(TEST_STATIC_JAVA_LIBRARIES)
 
 LOCAL_REQUIRED_MODULES:= \
+  core-stubs-mini \
   core \
   bouncycastle \
   ext \
