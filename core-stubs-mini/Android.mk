@@ -15,7 +15,7 @@
 LOCAL_PATH := $(call my-dir)
 
 #
-# core-stubs-mini-jack library
+# core-stubs-mini library
 #
 
 include $(CLEAR_VARS)
@@ -23,6 +23,10 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= core-stubs-mini
-LOCAL_MODULE_PATH := $(LOCAL_PATH)/../jack/libs
 
 include $(BUILD_JAVA_LIBRARY)
+$(LOCAL_BUILT_MODULE):PRIVATE_DEST:=$(LOCAL_PATH)
+$(LOCAL_BUILT_MODULE):PRIVATE_CLASSES_JAR:=$(full_classes_jar)
+$(LOCAL_BUILT_MODULE):
+	mkdir -p $(dir $(PRIVATE_DEST)/../jack/libs/)
+	cp $(PRIVATE_CLASSES_JAR) $(PRIVATE_DEST)/../jack/libs/core-stubs-mini.jar
