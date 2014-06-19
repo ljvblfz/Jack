@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.shrob.obfuscation.Renamer;
+import com.android.jack.shrob.obfuscation.SourceFileRenamer;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
@@ -544,6 +545,15 @@ public class Options {
         configBuilder.set(Renamer.PACKAGE_FOR_RENAMED_PACKAGES, packageForRenamedPackages);
       } else {
         configBuilder.set(Renamer.FLATTEN_PACKAGE, false);
+      }
+
+      String renameSourceFileAttribute = flags.getRenameSourceFileAttribute();
+      if (renameSourceFileAttribute != null) {
+        configBuilder.set(SourceFileRenamer.RENAME_SOURCEFILE, true);
+        configBuilder.set(SourceFileRenamer.NEW_SOURCEFILE_NAME,
+            new File(renameSourceFileAttribute));
+      } else {
+        configBuilder.set(SourceFileRenamer.RENAME_SOURCEFILE, false);
       }
     }
 
