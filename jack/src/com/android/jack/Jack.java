@@ -605,6 +605,8 @@ public abstract class Jack {
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
           plan.getScheduleInstance().process(session);
+        } catch (RuntimeException e) {
+          throw e;
         } catch (Exception e) {
           throw new AssertionError(e);
         }
