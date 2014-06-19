@@ -107,7 +107,9 @@ import com.android.jack.shrob.obfuscation.NameFinalizer;
 import com.android.jack.shrob.obfuscation.NameKeeper;
 import com.android.jack.shrob.obfuscation.Obfuscation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.jack.shrob.obfuscation.RemoveSourceFile;
 import com.android.jack.shrob.obfuscation.Renamer;
+import com.android.jack.shrob.obfuscation.SourceFileRemover;
 import com.android.jack.shrob.obfuscation.SourceFileRenamer;
 import com.android.jack.shrob.obfuscation.SourceFileRenaming;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
@@ -268,6 +270,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+
 /**
  * Executable class to run the jack compiler.
  */
@@ -444,6 +447,9 @@ public abstract class Jack {
           }
           if (!options.flags.keepAttribute("Exceptions")) {
             request.addFeature(RemoveThrownException.class);
+          }
+          if (!options.flags.keepAttribute("SourceFile")) {
+            request.addFeature(RemoveSourceFile.class);
           }
           if (!options.flags.getKeepParameterNames()) {
             request.addFeature(RemoveParameterName.class);
@@ -1330,6 +1336,9 @@ public abstract class Jack {
     }
     planBuilder.append(ResourceRefiner.class);
     planBuilder.append(Renamer.class);
+    if (features.contains(RemoveSourceFile.class)) {
+      planBuilder.append(SourceFileRemover.class);
+    }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
