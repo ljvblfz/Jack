@@ -23,6 +23,6 @@ import com.android.sched.item.Production;
  * Represents the listing of all the types and members.
  */
 @Description("Type and member listing")
-public class TypeAndMemberListing implements Production {
+public class StructurePrinting implements Production {
 
 }

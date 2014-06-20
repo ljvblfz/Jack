@@ -153,8 +153,8 @@ import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
 import com.android.jack.shrob.shrink.MethodShrinker;
 import com.android.jack.shrob.shrink.Shrinking;
-import com.android.jack.shrob.shrink.TypeAndMemberLister;
-import com.android.jack.shrob.shrink.TypeAndMemberListing;
+import com.android.jack.shrob.shrink.StructurePrinter;
+import com.android.jack.shrob.shrink.StructurePrinting;
 import com.android.jack.shrob.shrink.TypeShrinker;
 import com.android.jack.shrob.shrink.remover.FieldKeepMarkerRemover;
 import com.android.jack.shrob.shrink.remover.MethodKeepMarkerRemover;
@@ -468,8 +468,8 @@ public abstract class Jack {
             request.addFeature(AdaptResourceFileContent.class);
           }
         }
-        if (config.get(TypeAndMemberLister.TYPE_AND_MEMBER_LISTING).booleanValue()) {
-          request.addProduction(TypeAndMemberListing.class);
+        if (config.get(StructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
+          request.addProduction(StructurePrinting.class);
         }
 
         if (options.outputToZip()) {
@@ -809,8 +809,8 @@ public abstract class Jack {
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
-    if (productions.contains(TypeAndMemberListing.class)) {
-      planBuilder.append(TypeAndMemberLister.class);
+    if (productions.contains(StructurePrinting.class)) {
+      planBuilder.append(StructurePrinter.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendShrobMarkerRemoverPlan(planBuilder);
@@ -1021,8 +1021,8 @@ public abstract class Jack {
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
-    if (productions.contains(TypeAndMemberListing.class)) {
-      planBuilder.append(TypeAndMemberLister.class);
+    if (productions.contains(StructurePrinting.class)) {
+      planBuilder.append(StructurePrinter.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1260,8 +1260,8 @@ public abstract class Jack {
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
-    if (productions.contains(TypeAndMemberListing.class)) {
-      planBuilder.append(TypeAndMemberLister.class);
+    if (productions.contains(StructurePrinting.class)) {
+      planBuilder.append(StructurePrinter.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendShrobMarkerRemoverPlan(planBuilder);
@@ -1514,8 +1514,8 @@ public abstract class Jack {
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }
-    if (productions.contains(TypeAndMemberListing.class)) {
-      planBuilder.append(TypeAndMemberLister.class);
+    if (productions.contains(StructurePrinting.class)) {
+      planBuilder.append(StructurePrinter.class);
     }
 
     {
