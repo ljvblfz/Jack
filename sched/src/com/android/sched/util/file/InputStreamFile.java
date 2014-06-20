@@ -17,14 +17,12 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.stream.UncloseableInputStream;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -32,8 +30,6 @@ import javax.annotation.Nonnull;
  */
 public class InputStreamFile extends StreamFile {
   public InputStreamFile(@Nonnull String name,
-      @CheckForNull RunnableHooks hooks,
-      @Nonnull Existence existence,
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
@@ -41,7 +37,7 @@ public class InputStreamFile extends StreamFile {
       WrongPermissionException,
       NoSuchFileException,
       NotFileOrDirectoryException {
-    super(name, hooks, existence, Permission.READ, change);
+    super(name, null /* hooks */, Existence.MUST_EXIST, Permission.READ, change);
   }
 
   public InputStreamFile() {

@@ -32,8 +32,8 @@ import javax.annotation.Nonnull;
  */
 public class InputStreamCodec extends StreamCodec
     implements StringCodec<InputStreamFile> {
-  public InputStreamCodec(@Nonnull Existence existence) {
-    super(existence, Permission.READ);
+  public InputStreamCodec() {
+    super(Existence.MUST_EXIST, Permission.READ);
   }
 
   @Nonnull
@@ -89,7 +89,7 @@ public class InputStreamCodec extends StreamCodec
       return new InputStreamFile();
     } else {
       try {
-        return new InputStreamFile(string, context.getRunnableHooks(), existence, change);
+        return new InputStreamFile(string, change);
       } catch (IOException e) {
         throw new ParsingException(e.getMessage(), e);
       }
