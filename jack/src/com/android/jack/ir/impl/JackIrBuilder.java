@@ -875,13 +875,11 @@ public class JackIrBuilder {
     public void endVisit(FieldDeclaration x, MethodScope scope) {
       try {
         JExpression initialization = pop(x.initialization);
-        JField field = getTypeMap().get(x.binding);
-        if (field instanceof JEnumField) {
-          // An enum field must be initialized!
-          assert (initialization instanceof JNewInstance);
-        }
 
         if (initialization != null) {
+          JField field = getTypeMap().get(x.binding);
+          assert !(field instanceof JEnumField) || (initialization instanceof JNewInstance);
+
           SourceInfo info = makeSourceInfo(x);
           JExpression instance = null;
           if (!x.isStatic()) {
