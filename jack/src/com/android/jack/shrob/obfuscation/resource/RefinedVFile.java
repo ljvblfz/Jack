@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 import javax.annotation.CheckForNull;
@@ -128,19 +129,25 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
     @CheckForNull
     private InputStream currentStream;
 
+    /**
+     * Current or next refined entry that we are reading or will be reading.
+     */
     @CheckForNull
     private RefinedEntry currentRefinedEntry;
 
     /**
-     * The set of refined entries. Entries already read are removed.
+     * Iterator representing the position in the refinedEntries. Entries before this iterator have
+     * already been read.
      */
     @Nonnull
-    private final TreeSet<RefinedEntry> currentRefinedEntries;
+    private final Iterator<RefinedEntry> refinedEntryIterator;
 
-    @SuppressWarnings("unchecked")
     public RefinedInputStream(@Nonnull InputStream baseInputStream) {
       this.baseInputStream = baseInputStream;
-      currentRefinedEntries = (TreeSet<RefinedEntry>) RefinedVFile.this.refinedEntries.clone();
+      refinedEntryIterator = RefinedVFile.this.refinedEntries.iterator();
+      if (refinedEntryIterator.hasNext()) {
+        currentRefinedEntry = refinedEntryIterator.next();
+      }
     }
 
     @Override
@@ -166,14 +173,12 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
     }
 
     private boolean openNextRefinedEntryIfNecessary() {
-      assert currentRefinedEntry == null;
-      if (!currentRefinedEntries.isEmpty()) {
-        RefinedEntry entry = currentRefinedEntries.first();
-        if (entry.startPosition <= position + 1) {
-          assert entry.endPosition >= position;
+      // Check that previous refined entry was completely read
+      assert currentStream == null;
+      if (currentRefinedEntry != null) {
+        if (currentRefinedEntry.startPosition <= position + 1) {
+          assert currentRefinedEntry.endPosition >= position;
           // A refined entry should be read
-          currentRefinedEntry = entry;
-          currentRefinedEntries.remove(currentRefinedEntry);
           currentStream = currentRefinedEntry.openRead();
           return true;
         }
@@ -182,6 +187,11 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
     }
 
     private void closeCurrentRefinedEntry() throws IOException {
+      // Reset current stream
+      assert currentStream != null;
+      currentStream.close();
+      currentStream = null;
+
       assert currentRefinedEntry != null;
       // Set the base inputstream position to the refined entry end position
       int toSkip = currentRefinedEntry.endPosition - position;
@@ -190,8 +200,13 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
         toSkip -= baseInputStream.skip(toSkip);
       }
       position = currentRefinedEntry.endPosition;
-      currentRefinedEntry = null;
-      currentStream = null;
+
+      // Next refined entry
+      if (refinedEntryIterator.hasNext()) {
+        currentRefinedEntry = refinedEntryIterator.next();
+      } else {
+        currentRefinedEntry = null;
+      }
     }
 
 
@@ -214,9 +229,9 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
         // Read until next refined entry
         // Calculate the length of bytes that can be read without refining
         int baseLength;
-        if (!currentRefinedEntries.isEmpty()) {
-          RefinedEntry nextEntry = currentRefinedEntries.first();
-          baseLength = Math.min(nextEntry.startPosition - (position + 1), len - totalRead);
+        if (currentRefinedEntry != null) {
+          baseLength =
+              Math.min(currentRefinedEntry.startPosition - (position + 1), len - totalRead);
         } else {
           baseLength = len - totalRead;
         }
