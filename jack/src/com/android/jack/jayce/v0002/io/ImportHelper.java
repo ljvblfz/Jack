@@ -31,8 +31,8 @@ import com.android.jack.jayce.linker.SymbolManager;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.NodeFactory;
 import com.android.jack.jayce.v0002.nodes.NSourceInfo;
-import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 
 import java.util.ArrayList;
 import java.util.Collections;

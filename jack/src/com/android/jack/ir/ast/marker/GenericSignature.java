@@ -21,8 +21,8 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVariable;
 import com.android.sched.item.Description;
-import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;

@@ -18,8 +18,8 @@ package com.android.jack.ir.ast.marker;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
-import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;

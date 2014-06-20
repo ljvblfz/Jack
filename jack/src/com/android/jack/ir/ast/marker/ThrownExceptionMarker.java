@@ -21,8 +21,8 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.jayce.v0002.nodes.NMarker;
 import com.android.sched.item.Description;
-import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.Marker;
+import com.android.sched.marker.SerializableMarker;
 import com.android.sched.marker.ValidOn;
 
 import java.util.List;
