@@ -56,6 +56,7 @@ import org.junit.runners.Suite.SuiteClasses;
     com.android.jack.transformations.ast.AllTests.class,
     ComparisonTest.class,
     CompileFlowTest.class,
+    CompileTimeTest.class,
     ConcatTest.class,
     ConditionalTest.class,
     ConstantTest.class,

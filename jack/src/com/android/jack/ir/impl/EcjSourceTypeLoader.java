@@ -161,7 +161,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
 
 
   private void load(@Nonnull FieldBinding binding) {
-    getRefMap().createField(binding);
+    getRefMap().get(binding);
   }
 
   @Nonnull
