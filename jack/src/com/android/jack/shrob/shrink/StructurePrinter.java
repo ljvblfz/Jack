@@ -44,20 +44,20 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 @Description("lists all members and types")
-@Produce(TypeAndMemberListing.class)
-public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
+@Produce(StructurePrinting.class)
+public class StructurePrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  public static final BooleanPropertyId TYPE_AND_MEMBER_LISTING = BooleanPropertyId.create(
-      "jack.listing",
+  public static final BooleanPropertyId STRUCTURE_PRINTING = BooleanPropertyId.create(
+      "jack.internal.structure.print",
       "List all types and members")
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> TYPE_AND_MEMBER_LISTING_FILE = PropertyId.create(
-      "jack.listing.file", "File containing the list of all types and members",
+  public static final PropertyId<OutputStreamFile> STRUCTURE_PRINTING_FILE = PropertyId.create(
+      "jack.internal.structure.print.file", "File containing the list of all types and members",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
-      .addDefaultValue("-").requiredIf(TYPE_AND_MEMBER_LISTING.getValue().isTrue());
+      .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
 
   private static final TypeAndMethodFormatter formatter = BinarySignatureFormatter.getFormatter();
 
@@ -85,8 +85,8 @@ public class TypeAndMemberLister implements RunnableSchedulable<JSession> {
   @Nonnull
   private final PrintStream stream;
 
-  public TypeAndMemberLister() {
-    stream = ThreadConfig.get(TYPE_AND_MEMBER_LISTING_FILE).getPrintStream();
+  public StructurePrinter() {
+    stream = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintStream();
   }
 
   private class Visitor extends JVisitor {
