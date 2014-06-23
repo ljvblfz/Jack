@@ -127,11 +127,19 @@ public class ReferenceMapper {
     String key = signature(binding);
     JField field = fields.get(key);
     if (field == null) {
-      JDefinedClassOrInterface enclosingType =
-          (JDefinedClassOrInterface) get(binding.declaringClass);
-      field = findField(binding, enclosingType);
-      if (field == null) {
+      // Call createField on FieldBinding having a declaring class that is not a SourceTypeBinding
+      // will result in NPE. If field is not already cached and the declaring class is a
+      // SourceTypeBinding, no need to search the field since it does not exists, thus  create
+      // it automatically. In other cases, for instance with BinaryTypeBinding, fields can be
+      // created by the Jack file loader, and the cache will not yet be filled, thus search
+      // the field and fill the cache.
+      if (binding.declaringClass instanceof SourceTypeBinding) {
         field = createField(binding);
+      } else {
+        JDefinedClassOrInterface enclosingType =
+            (JDefinedClassOrInterface) get(binding.declaringClass);
+        field = findField(binding, enclosingType);
+        assert field != null;
       }
       cacheField(key, field);
     }
@@ -180,8 +188,7 @@ public class ReferenceMapper {
   }
 
   void setField(@Nonnull FieldBinding binding, @Nonnull JField field) {
-    String key = signature(binding);
-    cacheField(key, field);
+    cacheField(signature(binding), field);
   }
 
   @Nonnull
@@ -349,7 +356,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  JField createField(@Nonnull FieldBinding binding) {
+  private JField createField(@Nonnull FieldBinding binding) {
     FieldDeclaration sourceField = binding.sourceField();
 
     CudInfo cuInfo =
