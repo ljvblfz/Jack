@@ -33,13 +33,31 @@ public final class VPath {
 
   /**
    * Creates an instance of VFS-relative path. The {@link CharSequence} is evaluated lazily at each
-   * usage.
+   * usage. The separator must not be contained twice consecutively, nor be at the start or the
+   * beginning of the path.
    * @param path the relative path
    * @param separator the separator used as file separator in the path
    */
   public VPath(@Nonnull CharSequence path, char separator) {
     this.path = path;
     this.separator = separator;
+    assert isValidPath();
+  }
+
+  private boolean isValidPath() {
+    String toString = path.toString();
+    String stringSeparator = String.valueOf(separator);
+    String doubleSeparator = stringSeparator + separator;
+    if (toString.contains(doubleSeparator)) {
+      return false;
+    }
+    if (toString.startsWith(stringSeparator)) {
+      return false;
+    }
+    if (toString.endsWith(stringSeparator)) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -47,7 +65,7 @@ public final class VPath {
    */
   @Nonnull
   public Iterable<String> split() {
-    Splitter splitter = Splitter.on(separator);
+    Splitter splitter = Splitter.on(separator).omitEmptyStrings();
     return splitter.split(path);
   }
 
@@ -77,5 +95,11 @@ public final class VPath {
   @Nonnull
   private String getInternalPath() {
     return path.toString().replace(separator, '/');
+  }
+
+  @Nonnull
+  public String getLastPathElement() {
+    String toString = path.toString();
+    return toString.substring(toString.lastIndexOf(separator) + 1);
   }
 }

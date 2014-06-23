@@ -22,8 +22,10 @@ import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
-import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VElement;
+import com.android.sched.vfs.VPath;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ import javax.annotation.Nonnull;
 /**
  * Directory in the file system.
  */
-public class InputDirectDir extends AbstractVElement implements InputVDir {
+public class InputDirectDir extends AbstractVElement implements InputRootVDir {
 
   @Nonnull
   private final File dir;
@@ -90,5 +92,11 @@ public class InputDirectDir extends AbstractVElement implements InputVDir {
   @Nonnull
   public Location getLocation() {
     return new FileLocation(dir);
+  }
+
+  @Override
+  @Nonnull
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException {
+    return new InputDirectFile(new File(dir, path.getPathAsString(File.separatorChar)));
   }
 }

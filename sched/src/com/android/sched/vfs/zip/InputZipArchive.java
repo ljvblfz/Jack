@@ -16,10 +16,17 @@
 
 package com.android.sched.vfs.zip;
 
+import com.google.common.base.Splitter;
+
+import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -28,10 +35,10 @@ import javax.annotation.Nonnull;
 /**
  * Virtual directory for viewing the content of a zip file.
  */
-public class InputZipArchive extends InputZipVDir implements Closeable {
+public class InputZipArchive extends InputZipVDir implements Closeable, InputRootVDir {
 
   @Nonnull
-  public static final String IN_ZIP_SEPARATOR = "/";
+  public static final char IN_ZIP_SEPARATOR = '/';
 
   @Nonnull
   private final ZipFile zip;
@@ -40,26 +47,29 @@ public class InputZipArchive extends InputZipVDir implements Closeable {
     super("", zipFile, new ZipEntry(""));
 
     zip = new ZipFile(zipFile);
+    Splitter splitter = Splitter.on(IN_ZIP_SEPARATOR);
 
     for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
       ZipEntry entry = entries.nextElement();
       if (!entry.isDirectory()) {
         String entryName = entry.getName();
-        String[] names = entryName.split(IN_ZIP_SEPARATOR);
+        Iterator<String> names = splitter.split(entryName).iterator();
         @SuppressWarnings("resource")
         InputZipVDir dir = this;
         StringBuilder inZipPath = new StringBuilder();
-        for (int i = 0; i < names.length - 1; i++) {
-          String simpleName = names[i];
-          inZipPath.append(IN_ZIP_SEPARATOR).append(simpleName);
-          InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
-          if (nextDir == null) {
-            nextDir = new InputZipVDir(simpleName, zipFile, new ZipEntry(inZipPath.toString()));
-            dir.subs.put(simpleName, nextDir);
+        String simpleName = null;
+        while (names.hasNext()) {
+          simpleName = names.next();
+          if (names.hasNext()) {
+            inZipPath.append(IN_ZIP_SEPARATOR).append(simpleName);
+            InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
+            if (nextDir == null) {
+              nextDir = new InputZipVDir(simpleName, zipFile, new ZipEntry(inZipPath.toString()));
+              dir.subs.put(simpleName, nextDir);
+            }
+            dir = nextDir;
           }
-          dir = nextDir;
         }
-        String simpleName = names[names.length - 1];
         dir.subs.put(simpleName, new InputZipVFile(simpleName, zip, entry));
       }
     }
@@ -68,5 +78,12 @@ public class InputZipArchive extends InputZipVDir implements Closeable {
   @Override
   public void close() throws IOException {
     zip.close();
+  }
+
+  @Override
+  @Nonnull
+  public InputVFile getInputVFile(@Nonnull VPath path) {
+    ZipEntry entry = zip.getEntry(path.getPathAsString(IN_ZIP_SEPARATOR));
+    return new InputZipVFile(path.getLastPathElement(), zip, entry);
   }
 }
