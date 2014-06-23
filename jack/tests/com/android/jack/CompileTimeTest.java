@@ -16,8 +16,6 @@
 
 package com.android.jack;
 
-import com.android.jack.Main;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,5 +33,11 @@ public class CompileTimeTest {
   public void testCompileClassWithALotOfFields() throws Exception {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
         TestTools.getJackTestsWithJackFolder("compiletime/test001")));
+  }
+
+  @Test
+  public void testCompileClassWithALotOfMethods() throws Exception {
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+        TestTools.getJackTestsWithJackFolder("compiletime/test002")));
   }
 }
