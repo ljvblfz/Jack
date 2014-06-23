@@ -52,15 +52,58 @@ public class MergerTestTools {
             monoDex, false /* zip */, null /* jarjarRules */, null /* flagFiles */,
             withDebug /* withDebugInfo */);
 
-    File multiDex = buildOneDexPerType(sourceFolder, withDebug);
+    File oneDexPerTypeMerged = buildOneDexPerType(sourceFolder, withDebug);
 
 
-    new DexComparator().compare(monoDex, multiDex, false, true,
+    new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
         false /* compareDebugInfoBinary */, true, 0);
 
-    new DexAnnotationsComparator(monoDex, multiDex).compare();
+    new DexAnnotationsComparator(monoDex, oneDexPerTypeMerged).compare();
 
-    return diff(monoDex, multiDex);
+    return diff(monoDex, oneDexPerTypeMerged);
+  }
+
+  public boolean compareMonoDexWithOneDexPerTypeByUsingJackFiles(@Nonnull File sourceFolder,
+      boolean withDebug) throws Exception {
+    File monoDex = TestTools.createTempFile("mono", ".dex");
+
+    Options options = new Options();
+    options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
+    File jackOutputFolder = TestTools.createTempDir("jackOutput","folder");
+    options.addProperty(
+        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Options.Container.DIR.toString());
+    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackOutputFolder.getAbsolutePath());
+    options.addProperty(
+        Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Options.Container.DIR.toString());
+    options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
+    options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
+    options.addProperty(CodeItemBuilder.FORCE_JUMBO.getName(), "true");
+    TestTools.compileSourceToDex(options, sourceFolder, null, monoDex, false);
+
+
+    File oneDexPerTypeMerged = buildOneDexPerTypeFromJack(jackOutputFolder, true);
+
+    new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
+        false /* compareDebugInfoBinary */, true, 0);
+
+    new DexAnnotationsComparator(monoDex, oneDexPerTypeMerged).compare();
+
+    return diff(monoDex, oneDexPerTypeMerged);
+  }
+
+  public File buildOneDexPerTypeFromJack(@Nonnull File sourceFolder, boolean withDebug)
+      throws Exception {
+    File multiDex = TestTools.createTempFile("multi", ".dex");
+    File multiDexFolder = TestTools.createTempDir("multi", "dex");
+    Options options = new Options();
+    options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
+    options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
+    options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
+    options.addProperty(Options.DEX_FILE_FOLDER.getName(), multiDexFolder.getAbsolutePath());
+
+    TestTools.compileJackToDex(options, sourceFolder, multiDex, false);
+
+    return multiDex;
   }
 
   public File buildOneDexPerType(@Nonnull File sourceFolder, boolean withDebug) throws Exception {
