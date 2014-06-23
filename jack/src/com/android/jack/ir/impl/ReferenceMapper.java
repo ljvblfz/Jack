@@ -152,14 +152,18 @@ public class ReferenceMapper {
     String key = signature(binding);
     JMethod method = methods.get(key);
     if (method == null) {
-      JDefinedClassOrInterface enclosingType =
-          (JDefinedClassOrInterface) get(binding.declaringClass);
-      method = findMethod(binding, enclosingType);
-      if (method == null) {
-        // because synthetic bindings are not automatically loaded but may be requested by
-        // createSyntheticMethodFromBinding
-        assert binding instanceof SyntheticMethodBinding;
-        method = createMethod(binding, null);
+      if (binding.declaringClass instanceof SourceTypeBinding) {
+        method = createMethod(binding);
+      } else {
+        JDefinedClassOrInterface enclosingType =
+            (JDefinedClassOrInterface) get(binding.declaringClass);
+        method = findMethod(binding, enclosingType);
+        if (method == null) {
+          // because synthetic bindings are not automatically loaded but may be requested by
+          // createSyntheticMethodFromBinding
+          assert binding instanceof SyntheticMethodBinding;
+          method = createMethod(binding);
+        }
       }
       cacheMethod(key, method);
     }
@@ -192,7 +196,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  JMethod createMethod(@Nonnull MethodBinding b, @CheckForNull String[] paramNames) {
+  private JMethod createMethod(@Nonnull MethodBinding b) {
     AbstractMethodDeclaration declaration = getDeclaration(b);
     CudInfo cuInfo;
     SourceInfo info;
@@ -259,11 +263,7 @@ public class ReferenceMapper {
       assert cuInfo != null;
       createParameters(method, declaration, cuInfo);
     } else {
-      if (paramNames == null) {
-        mapParameters(info, method, b, 0);
-      } else {
-        mapParameters(info, method, b, paramNames);
-      }
+      mapParameters(info, method, b, 0);
     }
 
     if (b.isConstructor()) {
@@ -305,6 +305,7 @@ public class ReferenceMapper {
     if (b instanceof SyntheticMethodBinding) {
       return null;
     }
+
     AbstractMethodDeclaration declaration = b.sourceMethod();
     if (declaration == null) { // happens at least for clone() of arrays, see UpdatedMethodBinding
       SourceTypeBinding sourceType = (SourceTypeBinding) b.declaringClass;
@@ -446,16 +447,6 @@ public class ReferenceMapper {
       }
     }
     return argPosition;
-  }
-
-  private void mapParameters(SourceInfo info, JMethod method, MethodBinding binding,
-      String[] paramNames) {
-    if (binding.parameters != null) {
-      int i = 0;
-      for (TypeBinding argType : binding.parameters) {
-        createParameter(info, argType, method, paramNames[i++]);
-      }
-    }
   }
 
   private String signature(FieldBinding binding) {
