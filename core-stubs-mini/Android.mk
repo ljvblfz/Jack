@@ -27,6 +27,7 @@ LOCAL_MODULE:= core-stubs-mini
 include $(BUILD_JAVA_LIBRARY)
 $(LOCAL_BUILT_MODULE):PRIVATE_DEST:=$(LOCAL_PATH)
 $(LOCAL_BUILT_MODULE):PRIVATE_CLASSES_JAR:=$(full_classes_jar)
-$(LOCAL_BUILT_MODULE):
+$(LOCAL_BUILT_MODULE): $(common_javalib.jar)
+	$(copy-file-to-target)
 	mkdir -p $(dir $(PRIVATE_DEST)/../jack/libs/)
 	cp $(PRIVATE_CLASSES_JAR) $(PRIVATE_DEST)/../jack/libs/core-stubs-mini.jar
