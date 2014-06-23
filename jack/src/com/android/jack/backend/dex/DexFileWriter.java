@@ -29,10 +29,10 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.OutputStreamFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
 
@@ -47,25 +47,25 @@ import javax.annotation.Nonnull;
 public class DexFileWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  protected File outputFile = ThreadConfig.get(Options.DEX_FILE_OUTPUT);
+  private final OutputStreamFile outputFile = ThreadConfig.get(Options.DEX_FILE_OUTPUT);
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     DexFile dexFile = getDexFile(session);
 
-    FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+    OutputStream outputStream = outputFile.getOutputStream();
     try {
-      dexFile.writeTo(fileOutputStream, null, false);
+      dexFile.writeTo(outputStream, null, false);
     } catch (IOException e) {
       throw new JackFileException(
-          "Could not write Dex file to output '" + outputFile.getAbsolutePath() + "'", e);
+          "Could not write Dex file to output '" + outputFile.getLocation() + "'", e);
     } finally {
-      fileOutputStream.close();
+      outputStream.close();
     }
   }
 
   @Nonnull
-  protected DexFile getDexFile(@Nonnull JSession session) {
+  private DexFile getDexFile(@Nonnull JSession session) {
     DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
     DexFile dexFile = dexFileMarker.getDexFile();

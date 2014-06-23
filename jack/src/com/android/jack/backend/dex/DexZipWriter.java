@@ -17,6 +17,7 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.JackFileException;
+import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
@@ -27,9 +28,12 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
+import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.VPath;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -45,10 +49,13 @@ import javax.annotation.Nonnull;
 @Constraint(need = {DexFileMarker.Prepared.class})
 @Produce(DexFileProduct.class)
 @Support(DexZipOutput.class)
-public class DexZipWriter extends DexFileWriter {
+public class DexZipWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   private static final String DEX_NAME = "classes.dex";
+
+  @Nonnull
+  private final File outputFile = ThreadConfig.get(Options.DEX_ZIP_OUTPUT);
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
@@ -72,6 +79,15 @@ public class DexZipWriter extends DexFileWriter {
         zos.close();
       }
     }
+  }
+
+  @Nonnull
+  private DexFile getDexFile(@Nonnull JSession session) {
+    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
+    assert dexFileMarker != null;
+    DexFile dexFile = dexFileMarker.getDexFile();
+    assert dexFile != null;
+    return dexFile;
   }
 
   private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
