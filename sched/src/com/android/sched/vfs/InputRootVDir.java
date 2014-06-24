@@ -16,16 +16,15 @@
 
 package com.android.sched.vfs;
 
-import java.util.Collection;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 
 import javax.annotation.Nonnull;
 
 /**
- * Virtual directory to be read.
+ * An {@link InputVDir} that is the root of a VFS.
  */
-public interface InputVDir extends VElement {
+public interface InputRootVDir extends InputVDir {
 
   @Nonnull
-  Collection<? extends VElement> list();
-
+  InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException;
 }
