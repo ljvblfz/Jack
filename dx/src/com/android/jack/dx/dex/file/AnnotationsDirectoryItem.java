@@ -235,18 +235,21 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
     }
 
     if (fieldAnnotations != null) {
+      Collections.sort(fieldAnnotations);
       for (FieldAnnotationStruct item : fieldAnnotations) {
         item.addContents(file);
       }
     }
 
     if (methodAnnotations != null) {
+      Collections.sort(methodAnnotations);
       for (MethodAnnotationStruct item : methodAnnotations) {
         item.addContents(file);
       }
     }
 
     if (parameterAnnotations != null) {
+      Collections.sort(parameterAnnotations);
       for (ParameterAnnotationStruct item : parameterAnnotations) {
         item.addContents(file);
       }
@@ -292,8 +295,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
     out.writeInt(parametersSize);
 
     if (fieldsSize != 0) {
-      Collections.sort(fieldAnnotations);
-      if (annotates) {
+       if (annotates) {
         out.annotate(0, "  fields:");
       }
       for (FieldAnnotationStruct item : fieldAnnotations) {
@@ -302,7 +304,6 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
     }
 
     if (methodsSize != 0) {
-      Collections.sort(methodAnnotations);
       if (annotates) {
         out.annotate(0, "  methods:");
       }
@@ -312,7 +313,6 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
     }
 
     if (parametersSize != 0) {
-      Collections.sort(parameterAnnotations);
       if (annotates) {
         out.annotate(0, "  parameters:");
       }
