@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 /**
  * Virtual directory for viewing the content of a zip file.
  */
-public class InputZipArchive extends InputZipVDir implements Closeable, InputRootVDir {
+public class InputZipRootVDir extends InputZipVDir implements Closeable, InputRootVDir {
 
   @Nonnull
   public static final char IN_ZIP_SEPARATOR = '/';
@@ -43,7 +43,7 @@ public class InputZipArchive extends InputZipVDir implements Closeable, InputRoo
   @Nonnull
   private final ZipFile zip;
 
-  public InputZipArchive(@Nonnull File zipFile) throws IOException {
+  public InputZipRootVDir(@Nonnull File zipFile) throws IOException {
     super("", zipFile, new ZipEntry(""));
 
     zip = new ZipFile(zipFile);
