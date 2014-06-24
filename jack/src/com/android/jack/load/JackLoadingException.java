@@ -16,6 +16,8 @@
 
 package com.android.jack.load;
 
+import com.android.sched.util.location.Location;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -25,17 +27,22 @@ public class JackLoadingException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public JackLoadingException(@Nonnull Exception cause) {
-    super(cause);
-  }
+  @Nonnull
+  private final Location location;
 
-  public JackLoadingException(@Nonnull String message, @Nonnull Exception cause) {
-    super(message, cause);
+  public JackLoadingException(@Nonnull Location location, @Nonnull Exception cause) {
+    super(cause);
+    this.location = location;
   }
 
   @Override
   @Nonnull
   public String getMessage() {
-    return super.getMessage() + ": " + getCause().getMessage();
+    return "Failed to load " + location.getDescription() + ": " + getCause().getMessage();
+  }
+
+  @Nonnull
+  public Location getLocation() {
+    return location;
   }
 }

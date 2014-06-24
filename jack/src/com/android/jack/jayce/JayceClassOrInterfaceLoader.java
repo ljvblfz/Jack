@@ -188,19 +188,17 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
       if (!structureLoaded) {
         structureLoaded = true;
         DeclaredTypeNode type;
-        String errorMessage =
-            "Failed to load structure of '" + Jack.getUserFriendlyFormatter().getName(loaded) + "'";
         try {
           type = getNNode(NodeLevel.STRUCTURE);
         } catch (IOException e) {
-          throw new JackLoadingException(errorMessage, e);
+          throw new JackLoadingException(getLocation(), e);
         } catch (JackFileException e) {
-          throw new JackLoadingException(errorMessage, e);
+          throw new JackLoadingException(getLocation(), e);
         }
         try {
           type.updateToStructure(loaded, this);
         } catch (JLookupException e) {
-          throw new JackLoadingException(errorMessage, e);
+          throw new JackLoadingException(getLocation(), e);
         }
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);

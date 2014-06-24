@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.Jack;
 import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
@@ -63,20 +62,18 @@ public class JayceMethodLoader extends AbstractMethodLoader {
         return;
       }
       MethodNode methodNode;
-      String errorMessage =
-          "Failed to load body of method '" + Jack.getUserFriendlyFormatter().getName(loaded) + "'";
       try {
         methodNode = getNNode(loaded);
       } catch (JackFileException e) {
-        throw new JackLoadingException(errorMessage, e);
+        throw new JackLoadingException(getLocation(loaded), e);
       } catch (IOException e) {
-        throw new JackLoadingException(errorMessage, e);
+        throw new JackLoadingException(getLocation(loaded), e);
       }
       JNode body;
       try {
         body = methodNode.loadBody(loaded);
       } catch (JLookupException e) {
-        throw new JackLoadingException(errorMessage, e);
+        throw new JackLoadingException(getLocation(loaded), e);
       }
       if (body != null) {
         body.updateParents(loaded);

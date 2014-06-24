@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.Jack;
 import com.android.jack.JackFileException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -61,17 +60,15 @@ public class JaycePackageLoader implements PackageLoader {
   @Nonnull
   public JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage loading, @Nonnull String simpleName) {
-    String errorMessage = "Failed to load class '"
-        + Jack.getUserFriendlyFormatter().getName(loading, simpleName) + "'";
     for (VElement sub : dir.list()) {
       if (sub instanceof InputVFile && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
           return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
             .loadClassOrInterface(loading, simpleName);
         } catch (IOException e) {
-          throw new JackLoadingException(errorMessage , e);
+          throw new JackLoadingException(sub.getLocation(), e);
         } catch (JackFileException e) {
-          throw new JackLoadingException(errorMessage , e);
+          throw new JackLoadingException(sub.getLocation() , e);
         }
       }
     }
