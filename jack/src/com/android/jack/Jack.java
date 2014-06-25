@@ -531,12 +531,17 @@ public abstract class Jack {
             planBuilder.append(ResourceWriter.class);
           }
         } else if (options.ecjArguments == null) {
-          assert targetProduction.contains(DexFileProduct.class);
+          assert targetProduction.contains(DexFileProduct.class)
+              || targetProduction.contains(OneDexPerTypeProduct.class);
           fillJayceToDexPlan(options, planBuilder);
           if (features.contains(DexZipOutput.class)) {
             planBuilder.append(DexZipWriter.class);
           } else {
-            planBuilder.append(DexFileWriter.class);
+            if (targetProduction.contains(OneDexPerTypeProduct.class)) {
+              planBuilder.append(OneDexPerTypeWriter.class);
+            } else {
+              planBuilder.append(DexFileWriter.class);
+            }
           }
         } else {
           assert targetProduction.contains(DexFileProduct.class)
@@ -1574,7 +1579,10 @@ public abstract class Jack {
       planBuilder.append(ParentSetterChecker.class);
     }
 
-    planBuilder.append(DexFilePreparer.class);
+    if (productions.contains(DexFileProduct.class)) {
+      assert !productions.contains(OneDexPerTypeProduct.class);
+      planBuilder.append(DexFilePreparer.class);
+    }
   }
 
   @Nonnull
