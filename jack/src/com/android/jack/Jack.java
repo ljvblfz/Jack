@@ -258,7 +258,7 @@ import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.direct.InputDirectDir;
 import com.android.sched.vfs.direct.OutputDirectDir;
-import com.android.sched.vfs.zip.InputZipArchive;
+import com.android.sched.vfs.zip.InputZipRootVDir;
 import com.android.sched.vfs.zip.OutputZipRootVDir;
 
 import org.antlr.runtime.RecognitionException;
@@ -752,7 +752,7 @@ public abstract class Jack {
     if (dirOrZip.isDirectory()) {
       dir = new InputDirectDir(dirOrZip);
     } else { // zip
-      final InputZipArchive zipArchive = new InputZipArchive(dirOrZip);
+      final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
       dir = zipArchive;
       hooks.addHook(new Runnable() {
         @Override
