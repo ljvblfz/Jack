@@ -75,6 +75,25 @@ by Joshua Bloch in his book Effective Java -->
 
     <!--
 
+    JAVADOC CHECKS
+
+    -->
+
+    <module name="JavadocType">
+      <!-- Item 28 - Write doc comments for all exposed API elements. -->
+      <!-- Ensure all classes with visability greater than or equal to
+        protected have class level documentation. -->
+      <property name="scope" value="protected"/>
+      <property name="severity" value="error"/>
+      <!-- Style guide doesn't prohibit custom tags. Typos will be caught by other tools. -->
+      <property name="allowUnknownTags" value="true"/>
+      <property name="allowMissingParamTags" value="true"/>
+      <message key="javadoc.missing"
+               value="Missing a Javadoc comment."/>
+    </module>
+
+    <!--
+
     NAMING CHECKS
 
     -->
