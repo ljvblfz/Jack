@@ -61,7 +61,12 @@ public class TokenIteratorTest {
     Location loc = new StringLocation("Default location");
 
     try {
+      testBeforeNext(new TokenIterator(loc, "0-1", "0-2", "0-3"));
       test(
+          new TokenIterator(loc, "0-1", "0-2", "0-3"),
+          new String[]   {"0-1", "0-2", "0-3"},
+          new Location[] {loc,   loc,   loc});
+      testWithoutHasNext(
           new TokenIterator(loc, "0-1", "0-2", "0-3"),
           new String[]   {"0-1", "0-2", "0-3"},
           new Location[] {loc,   loc,   loc});
@@ -180,6 +185,22 @@ public class TokenIteratorTest {
     } catch (CannotReadException e) {
       fail(e.getMessage());
     }
+
+    try {
+      testWithoutHasNext(ti = new TokenIterator(loc, "@<wrong-file>"),
+          new String[] {""}, new Location[] {new NoLocation()});
+      fail();
+    } catch (NoSuchElementException e) {
+      fail(e.getMessage());
+    } catch (WrongPermissionException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFileException e) {
+      // Good
+    } catch (NotFileOrDirectoryException e) {
+      fail(e.getMessage());
+    } catch (CannotReadException e) {
+      fail(e.getMessage());
+    }
   }
 
   @Test
@@ -198,6 +219,22 @@ public class TokenIteratorTest {
       fail(e.getMessage());
     } catch (WrongPermissionException e) {
       testInError(ti, e);
+    } catch (NoSuchFileException e) {
+      fail(e.getMessage());
+    } catch (NotFileOrDirectoryException e) {
+      fail(e.getMessage());
+    } catch (CannotReadException e) {
+      fail(e.getMessage());
+    }
+
+    try {
+      testWithoutHasNext(ti = new TokenIterator(loc, "@" + file.getAbsolutePath()),
+          new String[] {""}, new Location[] {new NoLocation()});
+      fail();
+    } catch (NoSuchElementException e) {
+      fail(e.getMessage());
+    } catch (WrongPermissionException e) {
+      // Good
     } catch (NoSuchFileException e) {
       fail(e.getMessage());
     } catch (NotFileOrDirectoryException e) {
@@ -226,6 +263,22 @@ public class TokenIteratorTest {
       fail(e.getMessage());
     } catch (NotFileOrDirectoryException e) {
       testInError(ti, e);
+    } catch (CannotReadException e) {
+      fail(e.getMessage());
+    }
+
+    try {
+      testWithoutHasNext(ti = new TokenIterator(loc, "@" + dir.getAbsolutePath()),
+          new String[] {""}, new Location[] {new NoLocation()});
+      fail();
+    } catch (NoSuchElementException e) {
+      fail(e.getMessage());
+    } catch (WrongPermissionException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFileException e) {
+      fail(e.getMessage());
+    } catch (NotFileOrDirectoryException e) {
+      // Good
     } catch (CannotReadException e) {
       fail(e.getMessage());
     }
@@ -295,16 +348,61 @@ public class TokenIteratorTest {
     }
   }
 
-  private void test(@Nonnull TokenIterator ti, @Nonnull String[] expectedArgs,
-      @Nonnull Location[] expectedLocs) throws NoSuchElementException, WrongPermissionException,
+  private void testBeforeNext(@Nonnull TokenIterator ti) throws WrongPermissionException,
       NoSuchFileException, NotFileOrDirectoryException, CannotReadException {
-    assert expectedArgs.length == expectedLocs.length;
-
     assertNull(ti.getToken());
     assertNull(ti.getLocation());
     assertTrue(ti.hasNext());
     assertNull(ti.getToken());
     assertNull(ti.getLocation());
+    assertTrue(ti.hasNext());
+  }
+
+
+  private void testWithoutHasNext(@Nonnull TokenIterator ti, @Nonnull String[] expectedArgs,
+      @Nonnull Location[] expectedLocs) throws NoSuchElementException, WrongPermissionException,
+      NoSuchFileException, NotFileOrDirectoryException, CannotReadException {
+    assert expectedArgs.length == expectedLocs.length;
+
+    for (int idx = 0; idx < expectedArgs.length; idx++) {
+      assertEquals(expectedArgs[idx], ti.next());
+      assertEquals(expectedArgs[idx], ti.getToken());
+      assertEquals(expectedArgs[idx], ti.getToken());
+
+      Location loc = ti.getLocation();
+      if (loc instanceof LineLocation) {
+        loc = ((LineLocation) loc).getSubLocation();
+      }
+      assertNotNull(loc);
+      assertEquals(
+          "for <" + expectedArgs[idx] + ">, expected: <" + expectedLocs[idx].getDescription()
+              + "> but was: <" + loc.getDescription() + ">", expectedLocs[idx], loc);
+    }
+    assertEquals(expectedArgs[expectedArgs.length -  1], ti.getToken());
+
+    try {
+      ti.next();
+      fail();
+    } catch (NoSuchElementException e) {
+    }
+
+    assertNull(ti.getToken());
+    assertNull(ti.getLocation());
+
+    try {
+      ti.next();
+      fail();
+    } catch (NoSuchElementException e) {
+    }
+
+    assertNull(ti.getToken());
+    assertNull(ti.getLocation());
+  }
+
+  private void test(@Nonnull TokenIterator ti, @Nonnull String[] expectedArgs,
+      @Nonnull Location[] expectedLocs) throws NoSuchElementException, WrongPermissionException,
+      NoSuchFileException, NotFileOrDirectoryException, CannotReadException {
+    assert expectedArgs.length == expectedLocs.length;
 
     for (int idx = 0; idx < expectedArgs.length; idx++) {
       assertTrue(ti.hasNext());
