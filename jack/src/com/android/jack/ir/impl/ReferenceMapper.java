@@ -257,7 +257,6 @@ public class ReferenceMapper {
           get(b.returnType), ReferenceMapper.removeSynchronizedOnBridge(flags));
     }
 
-    b.sourceMethod();
     // User args.
     if (declaration != null) {
       assert cuInfo != null;
