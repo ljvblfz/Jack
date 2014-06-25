@@ -51,7 +51,7 @@ public class EncodedValueReader {
     this(in.asByteInput());
   }
 
-  public final void readArray() {
+  public void readArray() {
     int size = Leb128Utils.readUnsignedLeb128(in);
     visitArray(size);
 
@@ -60,7 +60,7 @@ public class EncodedValueReader {
     }
   }
 
-  public final void readAnnotation() {
+  public void readAnnotation() {
     int typeIndex = Leb128Utils.readUnsignedLeb128(in);
     int size = Leb128Utils.readUnsignedLeb128(in);
     visitAnnotation(typeIndex, size);

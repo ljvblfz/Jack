@@ -119,6 +119,11 @@ public class TestTools {
   }
 
   @Nonnull
+  public static File getJackUnitTestSrc(@Nonnull String path) {
+    return getFromAndroidTree(JACK_UNIT_TESTS_PATH + path);
+  }
+
+  @Nonnull
   public static File getJackUnitTestFromBinaryName(@Nonnull String signature) {
     return getFromAndroidTree(JACK_UNIT_TESTS_PATH + signature + ".java");
   }

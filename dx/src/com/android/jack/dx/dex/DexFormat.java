@@ -68,7 +68,7 @@ public final class DexFormat {
    */
   public static final int MAX_TYPE_IDX = 0xFFFF;
 
-    /**
+  /**
    * Returns the API level corresponding to the given magic number,
    * or {@code -1} if the given array is not a well-formed dex file
    * magic number.

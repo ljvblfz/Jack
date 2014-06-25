@@ -87,15 +87,15 @@ public class ImportedDebugInfoItem extends OffsettedItem {
   /** {@inheritDoc} */
   @Override
   public void addContents(DexFile file) {
-    ByteArrayAnnotatedOutput out = new ByteArrayAnnotatedOutput();
-    encodeAndRemapDebugInfoItem(file, out);
-    encodedDebugInfo = out.toByteArray();
   }
 
 
   /** {@inheritDoc} */
   @Override
   protected void place0(Section addedTo, int offset) {
+    ByteArrayAnnotatedOutput out = new ByteArrayAnnotatedOutput();
+    encodeAndRemapDebugInfoItem(addedTo.getFile(), out);
+    encodedDebugInfo = out.toByteArray();
     setWriteSize(encodedDebugInfo.length);
   }
 
