@@ -24,6 +24,7 @@ import com.android.jack.util.NamingTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -40,10 +41,16 @@ import javax.annotation.Nonnull;
 public class IncrementalTestingEnvironment extends TestTools {
 
   @CheckForNull
-  ByteArrayOutputStream baos = null;
+  ByteArrayOutputStream baosOut = null;
+
+  @CheckForNull
+  ByteArrayOutputStream baosErr = null;
 
   @CheckForNull
   PrintStream errRedirectStream = null;
+
+  @CheckForNull
+  PrintStream outRedirectStream = null;
 
   @Nonnull
   private final File testingFolder;
@@ -109,19 +116,25 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   public void incrementalBuildFromFolder() throws Exception {
+    startOutRedirection();
+    startErrRedirection();
+
     Options options = TestTools.buildCommandLineArgs(testingFolder);
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
     options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), new File(testingFolder,
         "jackIncrementalOutput").getAbsolutePath());
     options.addProperty(JackIncremental.GENERATE_COMPILER_STATE.getName(), "true");
-    options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT.getName(),
-        getCompilerStateFile().getAbsolutePath());
+    options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT.getName(), getCompilerStateFile()
+        .getAbsolutePath());
 
-    compileSourceToDex(options, sourceFolder, TestTools
-        .getClasspathAsString(TestTools.getDefaultBootclasspath()), dexFile);
+    compileSourceToDex(options, sourceFolder,
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), dexFile);
 
     Thread.sleep(1000);
+
+    System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+    System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
   }
 
   @Nonnull
@@ -130,17 +143,18 @@ public class IncrementalTestingEnvironment extends TestTools {
     ef.run();
 
     ef = new ExecuteFile("dalvik -classpath " + dexFile.getAbsolutePath() + " " + mainClass);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ef.setOut(baos);
-    ef.setErr(System.out);
+    ByteArrayOutputStream baosOut = new ByteArrayOutputStream();
+    ef.setOut(baosOut);
+    // Be careful, Output on Err is forgotten
+    ef.setErr(new ByteArrayOutputStream());
     if (!ef.run()) {
       throw new AssertionError("Execution failed");
     }
 
-    baos.flush();
-    baos.close();
+    baosOut.flush();
+    baosOut.close();
 
-    return (baos.toString());
+    return (baosOut.toString());
   }
 
   public List<String> getFQNOfRebuiltTypes() {
@@ -177,18 +191,21 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   @Nonnull
-  public String endErrorRedirection() {
-    assert baos != null;
-    String err = baos.toString();
+  public String getStringRepresentingOut() {
+    assert baosOut != null;
+    String out = baosOut.toString();
+    assert outRedirectStream != null;
+    outRedirectStream.close();
+    return out;
+  }
+
+  @Nonnull
+  public String getStringRepresentingErr() {
+    assert baosErr != null;
+    String err = baosErr.toString();
     assert errRedirectStream != null;
     errRedirectStream.close();
     return err;
-  }
-
-  public void startErrRedirection() {
-    baos = new ByteArrayOutputStream();
-    errRedirectStream = new PrintStream(baos);
-    System.setErr(errRedirectStream);
   }
 
   @Nonnull
@@ -196,6 +213,18 @@ public class IncrementalTestingEnvironment extends TestTools {
     List<File> jackFiles = new ArrayList<File>();
     fillJackFiles(new File(testingFolder, "jackIncrementalOutput"), jackFiles);
     return (jackFiles);
+  }
+
+  private void startErrRedirection() {
+    baosErr = new ByteArrayOutputStream();
+    errRedirectStream = new PrintStream(baosErr);
+    System.setErr(errRedirectStream);
+  }
+
+  private void startOutRedirection() {
+    baosOut = new ByteArrayOutputStream();
+    outRedirectStream = new PrintStream(baosOut);
+    System.setOut(outRedirectStream);
   }
 
   private void fillJackFiles(@Nonnull File file, @Nonnull List<File> jackFiles) {

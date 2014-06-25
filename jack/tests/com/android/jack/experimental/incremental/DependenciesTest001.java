@@ -523,12 +523,11 @@ public class DependenciesTest001 {
         "public interface I { public void m(int i); } \n");
 
     try {
-      ite.startErrRedirection();
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e)  {
       // Error is ok
-      Assert.assertTrue(ite.endErrorRedirection().contains("2 problems (2 errors)"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains("2 problems (2 errors)"));
     }
 
     ite.addJavaFile("jack.incremental", "B.java",
@@ -536,12 +535,11 @@ public class DependenciesTest001 {
         "public class B implements I { @Override public void m(int i) {}  } \n");
 
     try {
-      ite.startErrRedirection();
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e)  {
       // Error is ok
-      Assert.assertTrue(ite.endErrorRedirection().contains("1 problem (1 error)"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains("1 problem (1 error)"));
     }
 
     ite.addJavaFile("jack.incremental", "A.java",
