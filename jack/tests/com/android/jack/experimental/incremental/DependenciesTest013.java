@@ -61,13 +61,12 @@ public class DependenciesTest013 {
     ite.deleteJavaFile("jack.incremental", "B.java");
 
     try {
-      ite.startErrRedirection();
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Ok
     } finally {
-      Assert.assertTrue(ite.endErrorRedirection().contains("B cannot be resolved to a type"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains("B cannot be resolved to a type"));
     }
   }
 
@@ -102,13 +101,12 @@ public class DependenciesTest013 {
     ite.deleteJavaFile("jack.incremental", "C.java");
 
     try {
-      ite.startErrRedirection();
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Ok
     } finally {
-      Assert.assertTrue(ite.endErrorRedirection().contains("C cannot be resolved to a type"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains("C cannot be resolved to a type"));
     }
   }
 
@@ -143,13 +141,12 @@ public class DependenciesTest013 {
     ite.deleteJavaFile("jack.incremental", "C.java");
 
     try {
-      ite.startErrRedirection();
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Ok
     } finally {
-      Assert.assertTrue(ite.endErrorRedirection().contains("C cannot be resolved to a type"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains("C cannot be resolved to a type"));
     }
   }
 }
