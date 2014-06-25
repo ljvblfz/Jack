@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.sched;
+package com.android.sched.util.config.cli;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {
-    com.android.sched.item.AllTests.class, com.android.sched.marker.AllTests.class,
-    com.android.sched.scheduler.AllTests.class, com.android.sched.config.AllTests.class,
-    com.android.sched.util.config.cli.AllTests.class})
+@SuiteClasses(value = {TokenIteratorTest.class})
 public class AllTests {
 }
