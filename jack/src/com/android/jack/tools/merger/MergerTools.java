@@ -46,6 +46,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+/**
+ * Tools to merge dex structures.
+ */
 public class MergerTools {
 
   @Nonnull
@@ -137,6 +140,9 @@ public class MergerTools {
   }
 
 
+  /**
+   * A tool to build {@link Constant} arrays.
+   */
   protected static final class ConstantValueArrayBuilder extends EncodedValueReader {
 
     @Nonnegative

@@ -27,6 +27,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import java.io.PrintWriter;
 
+/**
+ * An ECJ {@link Compiler} for Jack.
+ */
 public class JavaParser extends Compiler {
 
   public JavaParser(INameEnvironment environment, IErrorHandlingPolicy policy,

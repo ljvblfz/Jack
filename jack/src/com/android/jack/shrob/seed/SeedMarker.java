@@ -26,6 +26,9 @@ import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A {@link Marker} that indicates that a node is a seed.
+ */
 @ValidOn(value = {JDefinedClassOrInterface.class, JField.class, JMethod.class})
 @Description("Indicates that a node is a seed")
 public class SeedMarker implements Marker {

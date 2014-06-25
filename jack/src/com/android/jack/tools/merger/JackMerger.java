@@ -44,6 +44,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A tool to merge several dex files.
+ */
 public class JackMerger extends MergerTools {
 
   @Nonnull
