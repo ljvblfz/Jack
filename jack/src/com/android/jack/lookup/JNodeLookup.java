@@ -35,9 +35,9 @@ import com.android.sched.util.log.stats.Percent;
 import com.android.sched.util.log.stats.PercentImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
@@ -51,7 +51,7 @@ public class JNodeLookup extends JLookup {
       PercentImpl.class, Percent.class);
 
   @Nonnull
-  private final Map<String, JType> types = new ConcurrentHashMap<String, JType>();
+  private final Map<String, JType> types = new HashMap<String, JType>();
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
@@ -159,8 +159,10 @@ public class JNodeLookup extends JLookup {
 
   @Override
   public void clear() {
-    types.clear();
-    init();
+    synchronized (types) {
+      types.clear();
+      init();
+    }
   }
 
   private void init() {
