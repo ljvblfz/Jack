@@ -76,6 +76,7 @@ public class JPhantomLookup extends JLookup {
     JType type;
     try {
       type = jackLookup.getType(signature);
+      assert !doesCacheContain(typeCache, signature);
     } catch (JLookupException e) {
       synchronized (typeCache) {
         type = typeCache.get(signature);
@@ -125,6 +126,7 @@ public class JPhantomLookup extends JLookup {
     JClass type;
     try {
       type = jackLookup.getClass(signature);
+      assert !classCache.containsKey(signature);
     } catch (JLookupException e) {
       synchronized (classCache) {
         type = classCache.get(signature);
@@ -146,6 +148,7 @@ public class JPhantomLookup extends JLookup {
     JInterface type;
     try {
       type = jackLookup.getInterface(signature);
+      assert !doesCacheContain(interfaceCache, signature);
     } catch (JLookupException e) {
       synchronized (interfaceCache) {
         type = interfaceCache.get(signature);
@@ -167,6 +170,7 @@ public class JPhantomLookup extends JLookup {
     JAnnotation type;
     try {
       type = jackLookup.getAnnotation(signature);
+      assert !doesCacheContain(annotationCache, signature);
     } catch (JLookupException e) {
       synchronized (annotationCache) {
         type = annotationCache.get(signature);
@@ -188,6 +192,7 @@ public class JPhantomLookup extends JLookup {
     JEnum type;
     try {
       type = jackLookup.getEnum(signature);
+      assert !doesCacheContain(enumCache, signature);
     } catch (JLookupException e) {
       synchronized (enumCache) {
         type = enumCache.get(signature);
@@ -239,5 +244,12 @@ public class JPhantomLookup extends JLookup {
     enumCache.clear();
     interfaceCache.clear();
     annotationCache.clear();
+  }
+
+  private boolean doesCacheContain(@Nonnull Map<String, ? extends JReferenceType> cache,
+      @Nonnull String signature) {
+    synchronized (cache) {
+      return cache.containsKey(signature);
+    }
   }
 }
