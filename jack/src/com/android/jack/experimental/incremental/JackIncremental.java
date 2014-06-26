@@ -138,7 +138,7 @@ public class JackIncremental extends CommandLine {
   }
 
   public static void run(@Nonnull Options options) throws ConfigurationException,
-      IllegalOptionsException, NothingToDoException, IOException {
+      IllegalOptionsException, NothingToDoException, JackUserException {
 
     RunnableHooks hooks = new RunnableHooks();
     List<String> ecjArgsSave = new ArrayList<String>(options.getEcjArguments());
@@ -189,7 +189,7 @@ public class JackIncremental extends CommandLine {
   }
 
   @Nonnull
-  public static CompilerState getCompilerState() {
+  public static CompilerState getCompilerState() throws JackUserException {
     if (compilerState == null) {
       throw new JackUserException(
           "Incremental support must be used with experimental Main class from "
@@ -240,11 +240,17 @@ public class JackIncremental extends CommandLine {
   }
 
   private static void mergeDexFiles(@Nonnull Options options, @Nonnull File outDexFile)
-      throws IOException {
-    DexBuffer merged =
-        new DexMerger(new DexBuffer(options.getOutputFile()), new DexBuffer(outDexFile),
-            CollisionPolicy.KEEP_FIRST).merge(false);
-    merged.writeTo(outDexFile);
+      throws JackIOException {
+    try {
+      DexBuffer merged =
+          new DexMerger(new DexBuffer(options.getOutputFile()), new DexBuffer(outDexFile),
+              CollisionPolicy.KEEP_FIRST).merge(false);
+      merged.writeTo(outDexFile);
+    } catch (IOException e) {
+      throw new JackIOException("Failed to merge dex files: \""
+          + options.getOutputFile().getAbsolutePath() + "\" and \"" + outDexFile.getAbsolutePath()
+          + "\"", e);
+    }
   }
 
   private static void updateOptions(@Nonnull Options options,
@@ -285,7 +291,7 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getFilesToRecompile(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull Options options, @Nonnull List<String> javaFileNames) {
+      @Nonnull Options options, @Nonnull List<String> javaFileNames) throws JackUserException {
     Set<String> filesToRecompile = new HashSet<String>();
 
     filesToRecompile.addAll(getModifiedFiles(fileDependencies, options, javaFileNames));
@@ -297,7 +303,7 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getDeletedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull List<String> javaFileNames) {
+      @Nonnull List<String> javaFileNames) throws JackUserException {
     Set<String> deletedFiles = new HashSet<String>();
     Iterator<String> previousFilesIt = getCompilerState().getJavaFilename().iterator();
 
@@ -314,7 +320,8 @@ public class JackIncremental extends CommandLine {
     return deletedFiles;
   }
 
-  private static void deleteJackFilesFromJavaFiles(@Nonnull String javaFileName) {
+  private static void deleteJackFilesFromJavaFiles(@Nonnull String javaFileName)
+      throws JackUserException {
     for (String jackFileToRemove :
         getCompilerState().getJacksFileNameFromJavaFileName(javaFileName)) {
       File jackFile = new File(jackFileToRemove);
@@ -342,7 +349,7 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getModifiedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull Options options, @Nonnull List<String> javaFileNames) {
+      @Nonnull Options options, @Nonnull List<String> javaFileNames) throws JackUserException {
     Set<String> modifiedFiles = new HashSet<String>();
 
     for (Map.Entry<String, Set<String>> previousFileEntry : fileDependencies.entrySet()) {

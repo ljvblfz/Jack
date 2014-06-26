@@ -16,6 +16,7 @@
 
 package com.android.jack.experimental.incremental;
 
+import com.android.jack.JackUserException;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 public class CompilerStateWriter implements RunnableSchedulable<JSession>{
 
   @Override
-  public void run(@Nonnull JSession program) {
+  public void run(@Nonnull JSession program) throws JackUserException {
     JackIncremental.getCompilerState().write(
         ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT));
   }
