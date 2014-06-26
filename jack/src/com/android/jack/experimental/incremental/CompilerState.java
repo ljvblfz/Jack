@@ -16,7 +16,7 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.JackUserException;
+import com.android.jack.JackIOException;
 import com.android.jack.util.TextUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -101,7 +101,7 @@ public final class CompilerState {
     addUsage(codeFileToUsedFiles, filename, nameOfUsedFile);
   }
 
-  public void write(@Nonnull File compilerStateFile) {
+  public void write(@Nonnull File compilerStateFile) throws JackIOException {
     PrintStream ps = null;
 
     try {
@@ -116,7 +116,7 @@ public final class CompilerState {
       ps.print(sb.toString());
 
     } catch (FileNotFoundException e) {
-      throw new JackUserException("Could not write compiler state file to output '"
+      throw new JackIOException("Could not write compiler state file to output '"
           + compilerStateFile.getAbsolutePath() + "'", e);
     } finally {
       if (ps != null) {
@@ -126,7 +126,7 @@ public final class CompilerState {
   }
 
   @Nonnull
-  public static CompilerState read(@Nonnull File compilerStateFile) {
+  public static CompilerState read(@Nonnull File compilerStateFile) throws JackIOException {
     CompilerState csm = new CompilerState();
     BufferedReader br = null;
 
@@ -137,7 +137,7 @@ public final class CompilerState {
       csm.cstFileToUsedFiles = readMap(br);
       csm.structFileToUsedFiles = readMap(br);
     } catch (IOException e) {
-      throw new JackUserException(
+      throw new JackIOException(
           "Could not read compiler state file '" + compilerStateFile.getAbsolutePath() + "'", e);
     } finally {
       try {
@@ -145,7 +145,7 @@ public final class CompilerState {
           br.close();
         }
       } catch (IOException e) {
-        throw new JackUserException(
+        throw new JackIOException(
             "Could not read compiler state file '" + compilerStateFile.getAbsolutePath() + "'", e);
       }
     }
