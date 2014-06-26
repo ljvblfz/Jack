@@ -19,10 +19,10 @@ package com.android.jack.shrob.obfuscation;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 
-@Description("Remove source file information")
 /**
  * A feature which remove source file information.
  */
+@Description("Remove source file information")
 public class RemoveSourceFile implements Feature {
 
 }

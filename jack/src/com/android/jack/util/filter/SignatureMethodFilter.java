@@ -28,6 +28,9 @@ import com.android.sched.util.config.id.PropertyId;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A {@link Filter} that filters {@link JMethod}s according to their signature.
+ */
 @HasKeyId
 @ImplementationName(iface = Filter.class, name = "method-with-signature")
 public class SignatureMethodFilter implements Filter<JMethod> {

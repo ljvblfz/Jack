@@ -19,10 +19,10 @@ package com.android.jack.shrob.obfuscation;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 
-@Description("Rename source files")
 /**
  * A feature which renames source files.
  */
+@Description("Rename source files")
 public class SourceFileRenaming implements Feature {
 
 }

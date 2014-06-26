@@ -17,6 +17,9 @@ package com.android.jack.tools.merger;
 
 import javax.annotation.Nonnull;
 
+/**
+ * An {@link Exception} thrown when an overflow happens during dex merging.
+ */
 public class MergeOverflow extends Exception {
 
   private static final long serialVersionUID = 1L;

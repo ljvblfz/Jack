@@ -39,6 +39,9 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public interface UnmodifiableCollections {
 
+  /**
+   * {@link UnmodifiableCollections} with checks enabled.
+   */
   @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-enabled")
   public class ChecksEnabledUnmodifiableCollection implements UnmodifiableCollections {
 
@@ -66,6 +69,9 @@ public interface UnmodifiableCollections {
     }
   }
 
+  /**
+   * {@link UnmodifiableCollections} with checks disabled.
+   */
   @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-disabled")
   public class ChecksdisabledUnmodifiableCollection implements UnmodifiableCollections {
 

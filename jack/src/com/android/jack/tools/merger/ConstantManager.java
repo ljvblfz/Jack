@@ -33,6 +33,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A tool to manage constants during dex merging.
+ */
 public class ConstantManager extends MergerTools {
 
   @Nonnull

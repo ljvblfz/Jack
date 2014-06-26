@@ -51,6 +51,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+/**
+ * A tool to merge dex annotations.
+ */
 public class AnnotationMerger extends MergerTools {
 
   public void mergeAnnotationDirectory(@Nonnull DexBuffer dex,
