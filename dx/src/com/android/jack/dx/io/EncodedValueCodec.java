@@ -21,7 +21,9 @@ import com.android.jack.dx.util.ByteInput;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-
+/**
+ * Read {@code encoded_value} primitives.
+ */
 public class EncodedValueCodec {
 
   private EncodedValueCodec() {}

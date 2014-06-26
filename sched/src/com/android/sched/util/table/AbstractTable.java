@@ -101,6 +101,9 @@ public abstract class AbstractTable implements Table {
     return header.length;
   }
 
+  /**
+   * An {@link Iterator} that applies {@link Formatter}s.
+   */
   protected class IteratorWithFormatter implements Iterator<String> {
     @Nonnegative
     private int index = 0;

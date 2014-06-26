@@ -36,6 +36,9 @@ import javax.annotation.Nonnull;
  */
 public class DebugInfo {
 
+  /**
+   * The scope of a {@link LocalVar}.
+   */
   public static class Interval {
     private int start;
     private int end;
@@ -119,6 +122,9 @@ public class DebugInfo {
     }
   }
 
+  /**
+   * Debugging information for a local variable.
+   */
   public static class LocalVar {
     @Nonnull
     private final String name;

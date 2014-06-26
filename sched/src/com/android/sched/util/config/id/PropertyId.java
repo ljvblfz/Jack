@@ -134,6 +134,9 @@ public class PropertyId<T> extends KeyId<T, String> {
     return this;
   }
 
+  /**
+   * A {@link PropertyId} value.
+   */
   public class Value {
     @Nonnull
     private IValue<T> value;
