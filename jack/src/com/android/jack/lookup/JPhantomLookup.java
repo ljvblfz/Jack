@@ -29,8 +29,8 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.CommonTypes.CommonType;
 import com.android.jack.util.NamingTools;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
@@ -41,19 +41,19 @@ public class JPhantomLookup extends JLookup {
 
   @Nonnull
   private final Map<String, JReferenceType> typeCache =
-      new ConcurrentHashMap<String, JReferenceType>();
+      new HashMap<String, JReferenceType>();
   @Nonnull
   private final Map<String, JClass> classCache =
-      new ConcurrentHashMap<String, JClass>();
+      new HashMap<String, JClass>();
   @Nonnull
   private final Map<String, JEnum> enumCache =
-      new ConcurrentHashMap<String, JEnum>();
+      new HashMap<String, JEnum>();
   @Nonnull
   private final Map<String, JInterface> interfaceCache =
-      new ConcurrentHashMap<String, JInterface>();
+      new HashMap<String, JInterface>();
   @Nonnull
   private final Map<String, JAnnotation> annotationCache =
-      new ConcurrentHashMap<String, JAnnotation>();
+      new HashMap<String, JAnnotation>();
 
   @Nonnull
   private final JNodeLookup jackLookup;
@@ -239,11 +239,21 @@ public class JPhantomLookup extends JLookup {
 
   @Override
   public void clear() {
-    typeCache.clear();
+    synchronized (typeCache) {
+      typeCache.clear();
+    }
+    synchronized (classCache) {
     classCache.clear();
-    enumCache.clear();
-    interfaceCache.clear();
-    annotationCache.clear();
+    }
+    synchronized (enumCache) {
+      enumCache.clear();
+    }
+    synchronized (interfaceCache) {
+      interfaceCache.clear();
+    }
+    synchronized (annotationCache) {
+      annotationCache.clear();
+    }
   }
 
   private boolean doesCacheContain(@Nonnull Map<String, ? extends JReferenceType> cache,
