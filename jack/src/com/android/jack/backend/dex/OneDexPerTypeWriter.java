@@ -125,13 +125,6 @@ public class OneDexPerTypeWriter implements RunnableSchedulable<JSession> {
   }
 
   @Nonnull
-  private String getNameWithoutExtension(@Nonnull File file) {
-    String fileName = file.getName();
-    int dotIndex = fileName.lastIndexOf('.');
-    return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
-  }
-
-  @Nonnull
   protected static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
     return new VPath(new CompositeName(new TypeName(Kind.BINARY_QN, type),
         ".dex"), '/');
