@@ -25,6 +25,7 @@ import com.android.jack.lookup.JMethodWithReturnLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Declared type")
 public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
-  implements JClassOrInterface, Annotable, CanBeAbstract, CanBeFinal {
+  implements JClassOrInterface, Annotable, CanBeAbstract, CanBeFinal, HasLocation {
 
   protected List<JField> fields = new ArrayList<JField>();
 
@@ -545,6 +546,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return getWrappedType(this);
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return location;

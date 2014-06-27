@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.sched.item.Description;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
  * Represents a resource.
  */
 @Description("Represents a resource")
-public class Resource {
+public class Resource implements HasLocation {
 
   @Nonnull
   private VPath path;
@@ -49,6 +50,7 @@ public class Resource {
     this.vFile = vFile;
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return vFile.getLocation();

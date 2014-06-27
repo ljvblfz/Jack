@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs;
-
-import com.android.sched.util.location.HasLocation;
+package com.android.sched.util.location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Element of a virtual file system.
+ * Interface implemented by entities capable to provide their {@link Location}.
  */
-public interface VElement extends HasLocation {
+public interface HasLocation {
 
   @Nonnull
-  String getName();
+  Location getLocation();
 
 }

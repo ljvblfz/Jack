@@ -53,6 +53,7 @@ import javax.annotation.Nonnull;
  * {@link ClassOrInterfaceLoader} for jayce files.
  */
 public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
+
   @Nonnull
   private static final StatisticId<Percent> NNODE_RELOAD = new StatisticId<
       Percent>("jayce.reload", "Jayce file reload versus total jayce file load",
