@@ -25,6 +25,6 @@ fi
 java -cp ${ANDROID_BUILD_TOP}/out/host/linux-x86/framework/junit4-jack.jar:\
 ${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/libschedtests_intermediates/classes:\
 ${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/schedlib_intermediates/classes:\
-${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/guava-jack_intermediates/classes:\
+${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/guava-jack_intermediates/classes \
 org.junit.runner.JUnitCore \
 com.android.sched.AllTests
