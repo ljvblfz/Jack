@@ -17,6 +17,7 @@
 package com.android.jack.transformations.cast;
 
 
+import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JCastOperation;
@@ -25,9 +26,15 @@ import com.android.jack.ir.ast.JVisitor;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.CodeItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.Code.Instruction;
+import org.jf.dexlib.Code.Opcode;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.File;
 
 import javax.annotation.Nonnull;
 
@@ -138,6 +145,66 @@ public class UselessCastRemoverTest {
   @Test
   public void castDueToNestedAssign() throws Exception {
     buildMethodAndCheckUselessCastRemover(CAST_USELESS003, "nestedAssign()V", true);
+  }
+
+  @Test
+  public void test001() throws Exception {
+    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    TestTools.compileSourceToDex(new Options(),
+        TestTools.getJackTestsWithJackFolder("cast/test001"),
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+
+    DexFile dexFile = new DexFile(out);
+    CodeItem ci =
+        TestTools.getEncodedMethod(dexFile,
+            "Lcom/android/jack/cast/test001/jack/Test001;", "get",
+            "(Lcom/android/jack/cast/test001/jack/Test001;)I").codeItem;
+
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST));
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST_JUMBO));
+  }
+
+  @Test
+  public void test002() throws Exception {
+    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    TestTools.compileSourceToDex(new Options(),
+        TestTools.getJackTestsWithJackFolder("cast/test002"),
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+
+    DexFile dexFile = new DexFile(out);
+    CodeItem ci =
+        TestTools.getEncodedMethod(dexFile,
+            "Lcom/android/jack/cast/test002/jack/Test002;", "get",
+            "(Lcom/android/jack/cast/test002/jack/Test002;)I").codeItem;
+
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST));
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST_JUMBO));
+  }
+
+  @Test
+  public void test003() throws Exception {
+    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    TestTools.compileSourceToDex(new Options(),
+        TestTools.getJackTestsWithJackFolder("cast/test003"),
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+
+    DexFile dexFile = new DexFile(out);
+    CodeItem ci =
+        TestTools.getEncodedMethod(dexFile,
+            "Lcom/android/jack/cast/test003/jack/Test003;", "get",
+            "(Lcom/android/jack/cast/test003/jack/A;)I").codeItem;
+
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST));
+    Assert.assertFalse(hasOpcode(ci, Opcode.CHECK_CAST_JUMBO));
+  }
+
+  private boolean hasOpcode(@Nonnull CodeItem codeItem, @Nonnull Opcode opcode) {
+    for (Instruction inst : codeItem.getInstructions()) {
+      if (inst.opcode == opcode) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static void buildMethodAndCheckUselessCastRemover(@Nonnull String classBinaryName,
