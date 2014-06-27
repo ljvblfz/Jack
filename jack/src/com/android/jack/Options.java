@@ -283,12 +283,16 @@ public class Options {
 
   protected boolean keepMethodBody = false;
 
+  @Nonnull
+  public static final BooleanPropertyId SHROB_ENABLED =
+      BooleanPropertyId.create("jack.shrob", "Enable shrink and obfuscation features")
+      .addDefaultValue(false);
+
   @CheckForNull
   protected Flags flags = null;
 
   @Nonnull
-  public static final ObjectId<Flags> FLAGS =
-      new ObjectId<Flags>("jack.shrink.flags", Flags.class);
+  public static final ObjectId<Flags> FLAGS = new ObjectId<Flags>("jack.shrob.flags", Flags.class);
 
   @Nonnull
   public static final BooleanPropertyId USE_MIXED_CASE_CLASSNAME = BooleanPropertyId.create(
@@ -456,6 +460,7 @@ public class Options {
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
+      configBuilder.set(SHROB_ENABLED, true);
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
           flags.keepAttribute("RuntimeInvisibleAnnotations"));
       configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,

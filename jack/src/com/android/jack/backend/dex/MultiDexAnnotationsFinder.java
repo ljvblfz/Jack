@@ -29,19 +29,17 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.config.HasKeyId;
 
 import javax.annotation.Nonnull;
 
 /**
- * A visitor that find the possible entry points used by multidex legacy support installation.
+ * A visitor adding markers corresponding to annotation configuring multidex.
  */
-@HasKeyId
-@Description(
-    "Visitor that find the possible entry points used by multidex legacy support installation")
+@Description("Add markers corresponding to annotation configuring multidex.")
 @Constraint(need = OriginalNames.class)
-@Transform(add = MultiDexLegacyTracerBrush.MultiDexInstallerMarker.class)
-public class MultiDexInstallerFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
+@Transform(add = {MultiDexLegacyTracerBrush.MultiDexInstallerMarker.class,
+    ForceInMainDexMarker.class})
+public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private final JVisitor visitor = new JVisitor() {
     @Override
@@ -65,13 +63,18 @@ public class MultiDexInstallerFinder implements RunnableSchedulable<JDefinedClas
       }
       return false;
     }
- };
+  };
 
+  @Nonnull
   private final JAnnotation installerAnnotation;
+  @Nonnull
+  private final JAnnotation mainDexAnnotation;
 
-  public MultiDexInstallerFinder() {
-    installerAnnotation =
-        Jack.getSession().getPhantomLookup().getAnnotation("Lcom/android/jack/MultiDexInstaller;");
+  public MultiDexAnnotationsFinder() {
+    installerAnnotation = Jack.getSession().getPhantomLookup()
+        .getAnnotation("Lcom/android/jack/annotations/MultiDexInstaller;");
+    mainDexAnnotation = Jack.getSession().getPhantomLookup()
+        .getAnnotation("Lcom/android/jack/annotations/ForceInMainDex;");
   }
 
   @Override
@@ -81,6 +84,10 @@ public class MultiDexInstallerFinder implements RunnableSchedulable<JDefinedClas
       return;
     }
     visitor.accept(type);
+
+    if (type.getAnnotation(mainDexAnnotation) != null) {
+      type.addMarker(ForceInMainDexMarker.INSTANCE);
+    }
   }
 
   private synchronized void markIfNecessary(@Nonnull JNode node) {

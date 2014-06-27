@@ -40,7 +40,7 @@ import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
-import com.android.jack.backend.dex.MultiDexInstallerFinder;
+import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.OneDexPerTypeProduct;
 import com.android.jack.backend.dex.OneDexPerTypeWriter;
@@ -790,9 +790,9 @@ public abstract class Jack {
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     FeatureSet features = planBuilder.getRequest().getFeatures();
     boolean isShrinking = features.contains(Shrinking.class);
-    boolean isMultiDex = features.contains(MultiDexLegacy.class);
+    boolean isMultiDexWithConstraints = features.contains(MultiDexLegacy.class);
     if (!(isShrinking || features.contains(Obfuscation.class)
-        || isMultiDex || productions.contains(SeedFile.class))) {
+        || isMultiDexWithConstraints || productions.contains(SeedFile.class))) {
       // nothing to do
       return;
     }
@@ -826,11 +826,11 @@ public abstract class Jack {
         }
       }
 
-      if (isMultiDex) {
-        typePlan.append(MultiDexInstallerFinder.class);
+      if (isMultiDexWithConstraints) {
+        typePlan.append(MultiDexAnnotationsFinder.class);
       }
 
-      if (isMultiDex || isShrinking) {
+      if (isMultiDexWithConstraints || isShrinking) {
         typePlan.append(ExtendingOrImplementingClassFinder.class);
 
       }
@@ -841,7 +841,7 @@ public abstract class Jack {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         Request request = planBuilder.getRequest();
-        if (isMultiDex &&
+        if (isMultiDexWithConstraints &&
             request.getTargetProductions().contains(DexFileProduct.class)) {
           typePlan.append(ShrinkAndMainDexTracer.class);
         } else {
@@ -861,13 +861,13 @@ public abstract class Jack {
           fieldPlan.append(FieldShrinker.class);
         }
       }
-    } else if (isMultiDex) {
+    } else if (isMultiDexWithConstraints) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(MainDexTracer.class);
     }
 
-    if (isMultiDex) {
+    if (isMultiDexWithConstraints) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(MainDexCollector.class);

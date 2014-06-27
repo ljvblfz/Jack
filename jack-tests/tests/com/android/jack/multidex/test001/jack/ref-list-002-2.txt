@@ -1,0 +1,2 @@
+Lcom/android/jack/multidex/test001/jack/MultiDexUpdateTest;:
+Lcom/android/jack/multidex/test001/jack/Version;:

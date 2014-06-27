@@ -1,0 +1,2 @@
+Lcom/android/jack/multidex/test001/jack/ClassForMainDex;:
+Lcom/android/jack/multidex/test001/jack/MainActivity;:

@@ -36,17 +36,23 @@ import javax.annotation.Nonnull;
  */
 @Description("Marks all classes that must be be kept in the main dex.")
 @Transform(add = MainDexMarker.class)
-@Constraint(need = MultiDexLegacyTracerBrush.TracerMarker.class)
+@Constraint(need = {MultiDexLegacyTracerBrush.TracerMarker.class, ForceInMainDexMarker.class})
 @Optional(@ToSupport(feature = Shrinking.class, add = @Constraint(need = KeepMarker.class)))
 public class MainDexCollector extends TypeReferenceCollector
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private final boolean isShrinkEnabled = ThreadConfig.get(Options.FLAGS).shrink();
+  private final boolean isShrinkEnabled = ThreadConfig.get(Options.SHROB_ENABLED).booleanValue()
+      && ThreadConfig.get(Options.FLAGS).shrink();
 
   @Override
   protected void collect(@Nonnull JType type) {
     if (type instanceof JDefinedClassOrInterface) {
-      ((JDefinedClassOrInterface) type).addMarker(MainDexMarker.INSTANCE);
+      JDefinedClassOrInterface jDefinedClassOrInterface = (JDefinedClassOrInterface) type;
+      synchronized (jDefinedClassOrInterface) {
+        if (!jDefinedClassOrInterface.containsMarker(MainDexMarker.class)) {
+          jDefinedClassOrInterface.addMarker(MainDexMarker.INSTANCE);
+        }
+      }
     }
   }
 
@@ -56,6 +62,8 @@ public class MainDexCollector extends TypeReferenceCollector
         && ((!isShrinkEnabled) || type.containsMarker(KeepMarker.class))) {
       collect(type);
       accept(type);
+    } else if (type.containsMarker(ForceInMainDexMarker.class)) {
+      collect(type);
     }
   }
 

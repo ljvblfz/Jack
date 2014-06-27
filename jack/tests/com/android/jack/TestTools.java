@@ -667,12 +667,12 @@ public class TestTools {
         false /* zip */);
   }
 
-  public static void checkListing(@Nonnull Options options,
-      @CheckForNull File[] jackBootclasspath,
+  public static void checkListing(@CheckForNull File[] jackBootclasspath,
       @CheckForNull File[] jackClasspath,
       @Nonnull File fileOrSourceList,
       @CheckForNull ProguardFlags[] proguardFlags,
       @Nonnull File refNodeListing) throws Exception {
+    Options options = new Options();
     File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
     options.typeAndMemberListing = candidateNodeListing;
     options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
@@ -684,6 +684,30 @@ public class TestTools {
         TestTools.getClasspathsAsString(jackBootclasspath, jackClasspath),
         outFolder,
         false /* zip */,
+        null /* jarjarRules */,
+        proguardFlags,
+        true /* emitDebugInfo */);
+
+    ListingComparator.compare(refNodeListing, candidateNodeListing);
+  }
+
+  public static void checkListingWhenMultiDex(@Nonnull Options options,
+      @CheckForNull File[] jackBootclasspath,
+      @CheckForNull File[] jackClasspath,
+      @Nonnull File fileOrSourceList,
+      @CheckForNull ProguardFlags[] proguardFlags,
+      @Nonnull File refNodeListing) throws Exception {
+    File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
+    options.typeAndMemberListing = candidateNodeListing;
+    options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    options.disableDxOptimizations();
+
+    File out = TestTools.createTempFile("checklisting", ".zip");
+    TestTools.compileSourceToDex(options,
+        fileOrSourceList,
+        TestTools.getClasspathsAsString(jackBootclasspath, jackClasspath),
+        out,
+        true /* zip */,
         null /* jarjarRules */,
         proguardFlags,
         true /* emitDebugInfo */);

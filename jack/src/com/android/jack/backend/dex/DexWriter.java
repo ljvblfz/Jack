@@ -16,29 +16,14 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackFileException;
-import com.android.jack.JackIOException;
-import com.android.jack.JackUserException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.scheduling.marker.DexFileMarker;
-import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.MergeOverflow;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputOutputVFile;
-import com.android.sched.vfs.InputVElement;
-import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -53,32 +38,6 @@ public abstract class DexWriter {
   protected final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
         .booleanValue();
 
-  protected void mergeDexPerType(@Nonnull DexFile dexFile, @Nonnull OutputStream os)
-      throws JackUserException {
-    JackMerger merger = new JackMerger(dexFile);
-
-    List<InputVFile> dexFiles = new ArrayList<InputVFile>();
-    InputOutputVDir dexFileVDir = ThreadConfig.get(Options.DEX_FILE_FOLDER);
-    fillDexFiles(dexFileVDir, dexFiles);
-
-    for (InputVFile dexFileToMerge : dexFiles) {
-      try {
-        merger.addDexFile(new DexBuffer(dexFileToMerge.openRead()));
-      } catch (IOException e) {
-        throw new JackIOException(
-            "Could not read Dex file '" + dexFileToMerge.getLocation().getDescription() + "'", e);
-      } catch (MergeOverflow e) {
-        throw new JackUserException("Index overflow during merge of dex files", e);
-      }
-    }
-
-    try {
-      merger.finish(os);
-    } catch (IOException e) {
-      throw new JackFileException("Could not write Dex file to output", e);
-    }
-  }
-
   @Nonnull
   protected DexFile getDexFile(@Nonnull JSession session) {
     DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
@@ -89,19 +48,8 @@ public abstract class DexWriter {
   }
 
   @Nonnull
-  protected VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
+  static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
     return new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type) + DEX_FILE_EXTENSION,
         '/');
-  }
-
-  private void fillDexFiles(@Nonnull InputOutputVDir dexFileVDir,
-      @Nonnull List<InputVFile> dexFiles) {
-    for (InputVElement subFile : dexFileVDir.list()) {
-      if (subFile.isVDir()) {
-        fillDexFiles((InputOutputVDir) subFile, dexFiles);
-      } else if (subFile.getName().endsWith(DEX_FILE_EXTENSION)) {
-        dexFiles.add((InputOutputVFile) subFile);
-      }
-    }
   }
 }

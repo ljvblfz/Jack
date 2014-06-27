@@ -32,7 +32,7 @@ public class MultiDexLegacy implements Feature {
 
   @Nonnull
   public static final BooleanPropertyId MULTIDEX_LEGACY = BooleanPropertyId.create(
-      "jack.dex.multidex.legacy",
-      "Enable multidex runtime support for devices that do not have native support")
+      "jack.dex.output.multidex.legacy",
+      "Enable multidex compatibility support for devices that do not have native runtime support")
       .addDefaultValue(false);
 }

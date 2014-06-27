@@ -1,0 +1,37 @@
+multidexInstanciable:
+  @@com.android.jack.annotations.MultiDexInstaller
+  class *
+    is {
+      public | private
+    }
+    extends {
+        class *.Instrumentation
+      | class *.Activity
+      | class *.Service
+      | class *.ContentProvider
+      | class *.BroadcastReceiver
+      | class *.BackupAgent
+      | class *.Application
+    }
+    do {
+      @@com.android.jack.annotations.MultiDexInstaller
+      method * <init>();
+    }
+
+multidexInstaller:
+  class *
+    is {
+      public
+    }
+    extends {
+      class *.Application
+    }
+    do {
+      @@com.android.jack.annotations.MultiDexInstaller
+      method void attachBaseContext(class com.android.jack.preprocessor.test001.jack.Context)
+      ;
+    }
+
+version:
+  @@com.android.jack.annotations.ForceInMainDex
+  class *.Version

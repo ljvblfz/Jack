@@ -56,8 +56,7 @@ public class ShrinkTest extends AbstractTest {
         new ProguardFlags(TestTools.getJackTestFolder("shrob"),"keepAllAttributes.flags"),
         new ProguardFlags(testFolder, "proguard.flags" + flagNumber)};
     File refFolder = new File(testFolder, "refsShrinking");
-    TestTools.checkListing(new Options(),
-        bootclasspath,
+    TestTools.checkListing(bootclasspath,
         classpath,
         TestTools.getJackTestsWithJackFolder(testName),
         proguardflagsFiles,

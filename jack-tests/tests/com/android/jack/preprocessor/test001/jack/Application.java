@@ -18,4 +18,8 @@ package com.android.jack.preprocessor.test001.jack;
 
 public class Application {
 
+  public void attachBaseContext(Context context) {
+
+  }
+
 }

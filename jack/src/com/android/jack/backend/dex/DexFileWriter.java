@@ -16,9 +16,7 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackIOException;
 import com.android.jack.Options;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
@@ -26,35 +24,42 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVDir;
-import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.VPath;
-
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 /**
  * Write dex into a file.
  */
+@HasKeyId
 @Description("Write dex into a file")
 @Name("DexFileWriter")
 @Constraint(need = {DexFileMarker.Complete.class})
 @Produce(DexFileProduct.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
-  @Nonnull
-  public static final String DEX_FILENAME = "classes.dex";
+  /**
+   * File name prefix of a {@code .dex} file automatically loaded in an
+   * archive.
+   */
+  static final String DEX_PREFIX = "classes";
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  public static final String DEX_FILENAME = DEX_PREFIX + DEX_FILE_EXTENSION;
+
+  @Nonnull
+  public static final BooleanPropertyId MULTIDEX = BooleanPropertyId.create(
+      "jack.dex.output.multidex", "Enable MultiDex output")
+      .addDefaultValue(false);
+
+  @Nonnull
+  public static final BooleanPropertyId MINIMAL_MAIN_DEX = BooleanPropertyId.create(
+      "jack.dex.output.multidex.minimalmaindex",
+      "Keep main dex file as small as possible in MultiDex mode").addDefaultValue(false);
 
   @Nonnull
   private final OutputVDir outputVDir;
@@ -71,27 +76,15 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    DexFile dexFile = getDexFile(session);
-    OutputVFile dexVFile = outputVDir.createOutputVFile(new VPath(DEX_FILENAME, '/'));
-    OutputStream osDex = new BufferedOutputStream(dexVFile.openWrite());
 
-    try {
-      if (emitOneDexPerType) {
-        mergeDexPerType(dexFile, osDex);
-      } else {
-        try {
-          dexFile.prepare();
-          dexFile.writeTo(osDex, null, false);
-        } catch (IOException e) {
-          throw new JackIOException("Could not write Dex file to output '" + dexVFile + "'", e);
-        }
-      }
-    } finally {
-      try {
-        osDex.close();
-      } catch (IOException e) {
-        logger.log(Level.WARNING, "Failed to close output stream on '" + dexVFile + "'", e);
-      }
+    DexWritingTool writingTool;
+
+    if (emitOneDexPerType) {
+      writingTool = new MergingDexWritingTool(outputVDir);
+    } else {
+      writingTool = new SimpleDexWritingTool(outputVDir);
     }
+    writingTool.write();
   }
+
 }
