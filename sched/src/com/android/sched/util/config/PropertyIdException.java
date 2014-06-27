@@ -17,6 +17,7 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception describing a problem on a {@link PropertyId}.
  */
-public class PropertyIdException extends ConfigurationException {
+public class PropertyIdException extends ConfigurationException implements HasLocation {
   private static final long serialVersionUID = 1L;
   @Nonnull
   protected static final Location NO_LOCATION = new NoLocation();
@@ -101,6 +102,7 @@ public class PropertyIdException extends ConfigurationException {
     return propertyId;
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return location;

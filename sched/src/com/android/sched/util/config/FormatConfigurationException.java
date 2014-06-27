@@ -16,6 +16,7 @@
 
 package com.android.sched.util.config;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception describing a bad formatted line in a properties file.
  */
-public class FormatConfigurationException extends ConfigurationException {
+public class FormatConfigurationException extends ConfigurationException implements HasLocation {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
@@ -42,6 +43,7 @@ public class FormatConfigurationException extends ConfigurationException {
     this.location = location;
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return location;

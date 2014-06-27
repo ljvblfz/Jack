@@ -18,6 +18,7 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
  * Abstract class for file or directory which manage the underlying state
  * of the file system.
  */
-public abstract class FileOrDirectory {
+public abstract class FileOrDirectory implements HasLocation {
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
   /**
@@ -79,6 +80,7 @@ public abstract class FileOrDirectory {
     this.hooks = hooks;
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return location;
