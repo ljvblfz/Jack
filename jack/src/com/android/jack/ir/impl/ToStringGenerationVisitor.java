@@ -154,6 +154,7 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
   private static final char[] CHARS_INTERFACE = "interface ".toCharArray();
   private static final char[] CHARS_NATIVE = "native ".toCharArray();
   private static final char[] CHARS_NEW = "new ".toCharArray();
+  private static final char[] CHARS_NONAME = "no-name ".toCharArray();
   private static final char[] CHARS_NULL = "null".toCharArray();
   private static final char[] CHARS_PRIVATE = "private ".toCharArray();
   private static final char[] CHARS_PUBLIC = "public ".toCharArray();
@@ -1257,7 +1258,12 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
   }
 
   protected void printName(HasName x) {
-    print(x.getName().replace("/", "."));
+    String name = x.getName();
+    if (name == null) {
+      print(CHARS_NONAME);
+    } else {
+      print(name.replace("/", "."));
+    }
   }
 
   protected void printNativeFlag(CanBeNative x) {
