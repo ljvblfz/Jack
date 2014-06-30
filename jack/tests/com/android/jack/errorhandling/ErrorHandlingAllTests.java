@@ -15,10 +15,7 @@
  */
 package com.android.jack.errorhandling;
 
-import com.android.jack.category.KnownBugs;
-
 import org.junit.experimental.categories.Categories;
-import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
@@ -26,6 +23,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses(
 value = {JackFormatErrorTest.class, FileAccessErrorTest.class,
     CommandLineErrorTest.class, AnnotationProcessorErrorTest.class})
-@ExcludeCategory(KnownBugs.class)
 public class ErrorHandlingAllTests {
 }
