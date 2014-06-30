@@ -201,6 +201,8 @@ public class JackBatchCompiler extends Main {
       // ECJ is throwing this one for missing source files, let them be reported correctly.
       // Most other IllegalArgumentException are wrapped by JAstBuilder.
       throw new TransportJUEAroundEcjError(new JackUserException(e));
+    } catch (TransportJUEAroundEcjError e) {
+      throw e;
     } catch (RuntimeException e) {
       throw new TransportExceptionAroundEcjError(e);
     } finally {
