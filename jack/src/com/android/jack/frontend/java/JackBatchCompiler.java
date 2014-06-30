@@ -37,13 +37,13 @@ import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
 /**
- * Entry-point to call JDT compiler.
+ * Entry-point to call ECJ compiler.
  */
 public class JackBatchCompiler extends Main {
   /**
-   * Error used to transport runtime exception through ecj catch.
+   * Error used to transport {@link RuntimeException} through ECJ catch.
    */
-  private static class TransportExceptionAroundEcjError extends Error {
+  public static class TransportExceptionAroundEcjError extends Error {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +55,25 @@ public class JackBatchCompiler extends Main {
     @Override
     public RuntimeException getCause() {
       return (RuntimeException) super.getCause();
+    }
+
+  }
+
+  /**
+   * Error used to transport {@link JackUserException} through ECJ catch.
+   */
+  public static class TransportJUEAroundEcjError extends Error {
+
+    private static final long serialVersionUID = 1L;
+
+    public TransportJUEAroundEcjError(@Nonnull JackUserException cause) {
+      super(cause);
+    }
+
+    @Nonnull
+    @Override
+    public JackUserException getCause() {
+      return (JackUserException) super.getCause();
     }
 
   }
@@ -143,15 +162,11 @@ public class JackBatchCompiler extends Main {
 
   @Override
   public boolean compile(String[] argv) {
-    try {
-      return super.compile(argv);
-    } catch (TransportExceptionAroundEcjError e) {
-      throw e.getCause();
-    }
+    return super.compile(argv);
   }
 
   @Override
-  public void performCompilation() throws JackUserException,
+  public void performCompilation() throws TransportJUEAroundEcjError,
       TransportExceptionAroundEcjError {
     startTime = System.currentTimeMillis();
 
@@ -183,9 +198,9 @@ public class JackBatchCompiler extends Main {
     try {
       batchCompiler.compile(getCompilationUnits());
     } catch (IllegalArgumentException e) {
-      // ecj is throwing this one for missing source files, let them be reported correctly
-      // most other IllegalArgumentException are wrapped by JAstBuilder
-      throw new JackUserException(e.getMessage(), e);
+      // ECJ is throwing this one for missing source files, let them be reported correctly.
+      // Most other IllegalArgumentException are wrapped by JAstBuilder.
+      throw new TransportJUEAroundEcjError(new JackUserException(e));
     } catch (RuntimeException e) {
       throw new TransportExceptionAroundEcjError(e);
     } finally {

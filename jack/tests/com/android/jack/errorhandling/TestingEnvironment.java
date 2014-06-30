@@ -18,14 +18,11 @@ package com.android.jack.errorhandling;
 
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
+import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
-import com.android.jack.ir.ast.JPackageLookupException;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.config.ConfigurationException;
 
@@ -92,13 +89,9 @@ public class TestingEnvironment {
   }
 
   public void compile(@Nonnull Options options)
-      throws JTypeLookupException,
-      JPackageLookupException,
-      JackIOException,
-      ImportConflictException,
-      ConfigurationException,
+      throws ConfigurationException,
       IllegalOptionsException,
-      NothingToDoException {
+      NothingToDoException, JackUserException {
     Jack.run(options);
   }
 

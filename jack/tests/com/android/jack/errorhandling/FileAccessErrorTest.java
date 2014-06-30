@@ -17,6 +17,7 @@
 package com.android.jack.errorhandling;
 
 import com.android.jack.JackIOException;
+import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
@@ -233,10 +234,9 @@ public class FileAccessErrorTest {
       te.startErrRedirection();
       te.compile(options);
       Assert.fail();
-    } catch (FrontendCompilationException e) {
+    } catch (JackUserException e) {
       // Failure is ok since source file is not readable
-    } finally {
-      Assert.assertTrue(te.endErrRedirection().contains("A.java is missing"));
+      Assert.assertTrue(e.getMessage().contains("A.java is missing"));
     }
   }
 }

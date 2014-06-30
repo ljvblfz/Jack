@@ -46,7 +46,6 @@ import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparat
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
-import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
@@ -63,6 +62,8 @@ import com.android.jack.frontend.MethodIdMerger;
 import com.android.jack.frontend.TypeDuplicateRemoverChecker;
 import com.android.jack.frontend.VirtualMethodsMarker;
 import com.android.jack.frontend.java.JackBatchCompiler;
+import com.android.jack.frontend.java.JackBatchCompiler.TransportExceptionAroundEcjError;
+import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JClass;
@@ -70,10 +71,8 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
@@ -343,19 +342,13 @@ public abstract class Jack {
    * @throws ConfigurationException
    * @throws IllegalOptionsException
    * @throws NothingToDoException
-   * @throws ImportConflictException
-   * @throws JackIOException
-   * @throws JPackageLookupException
-   * @throws JTypeLookupException
+   * @throws JackUserException
    */
   public static void run(@Nonnull Options options)
       throws IllegalOptionsException,
       NothingToDoException,
       ConfigurationException,
-      JTypeLookupException,
-      JPackageLookupException,
-      JackIOException,
-      ImportConflictException {
+      JackUserException {
     boolean assertEnable = false;
     // assertEnable = true if assertion is already enable
     assert true == (assertEnable = true);
@@ -655,8 +648,7 @@ public abstract class Jack {
 
   @Nonnull
   static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
-      throws JackIOException, JTypeLookupException, JPackageLookupException,
-      ImportConflictException {
+      throws JackUserException {
 
     Tracer tracer = TracerFactory.getTracer();
 
@@ -682,6 +674,10 @@ public abstract class Jack {
         if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {
           throw new FrontendCompilationException("Failed to compile.");
         }
+      } catch (TransportExceptionAroundEcjError e) {
+        throw e.getCause();
+      } catch (TransportJUEAroundEcjError e) {
+        throw e.getCause();
       } finally {
         event.end();
       }
