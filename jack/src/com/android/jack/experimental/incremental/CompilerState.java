@@ -21,6 +21,7 @@ import com.android.jack.util.TextUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Tag;
+import com.android.sched.util.file.Directory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +45,9 @@ import javax.annotation.Nonnull;
  */
 public final class CompilerState {
 
+  @Nonnull
+  private static final String COMPILER_STATE_FILENAME = "compilerState.ser";
+
   /**
    * This tag means that {@link CompilerState} is filled and could be write for later compilation.
    */
@@ -63,6 +67,18 @@ public final class CompilerState {
 
   @Nonnull
   private Map<String, Set<String>> javaFileToJackFile = new HashMap<String, Set<String>>();
+
+  @Nonnull
+  private final File compilerStateFile;
+
+  public CompilerState(@Nonnull Directory directory) {
+    compilerStateFile = new File(directory.getFile(), COMPILER_STATE_FILENAME);
+  }
+
+  @Nonnull
+  public File getCompilerStateFile() {
+    return compilerStateFile;
+  }
 
   public void updateCompilerState(@Nonnull Set<String> filesToRecompile) {
     for (String javaFileToRecompile : filesToRecompile) {
@@ -101,7 +117,12 @@ public final class CompilerState {
     addUsage(codeFileToUsedFiles, filename, nameOfUsedFile);
   }
 
-  public void write(@Nonnull File compilerStateFile) throws JackIOException {
+  public boolean exists() {
+    return compilerStateFile.exists();
+  }
+
+  public void write(@Nonnull Directory directory) throws JackIOException {
+    File compilerStateFile = new File(directory.getFile(), COMPILER_STATE_FILENAME);
     PrintStream ps = null;
 
     try {
@@ -126,19 +147,18 @@ public final class CompilerState {
   }
 
   @Nonnull
-  public static CompilerState read(@Nonnull File compilerStateFile) throws JackIOException {
-    CompilerState csm = new CompilerState();
+  public void read() throws JackIOException {
     BufferedReader br = null;
-
+    File csf = getCompilerStateFile();
     try {
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(compilerStateFile)));
-      csm.javaFileToJackFile = readMap(br);
-      csm.codeFileToUsedFiles = readMap(br);
-      csm.cstFileToUsedFiles = readMap(br);
-      csm.structFileToUsedFiles = readMap(br);
+      br = new BufferedReader(new InputStreamReader(new FileInputStream(csf)));
+      javaFileToJackFile = readMap(br);
+      codeFileToUsedFiles = readMap(br);
+      cstFileToUsedFiles = readMap(br);
+      structFileToUsedFiles = readMap(br);
     } catch (IOException e) {
       throw new JackIOException(
-          "Could not read compiler state file '" + compilerStateFile.getAbsolutePath() + "'", e);
+          "Could not read compiler state file '" + csf.getAbsolutePath() + "'", e);
     } finally {
       try {
         if (br != null) {
@@ -146,11 +166,9 @@ public final class CompilerState {
         }
       } catch (IOException e) {
         throw new JackIOException(
-            "Could not read compiler state file '" + compilerStateFile.getAbsolutePath() + "'", e);
+            "Could not read compiler state file '" + csf.getAbsolutePath() + "'", e);
       }
     }
-
-    return csm;
   }
 
   @Nonnull
