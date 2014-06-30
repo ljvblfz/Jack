@@ -22,6 +22,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Categories.class)
 @SuiteClasses(
 value = {JackFormatErrorTest.class, FileAccessErrorTest.class,
-    CommandLineErrorTest.class, AnnotationProcessorErrorTest.class})
+    CommandLineErrorTest.class, AnnotationProcessorErrorTest.class, SourceErrorTest.class})
 public class ErrorHandlingAllTests {
 }
