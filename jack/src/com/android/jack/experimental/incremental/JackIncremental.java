@@ -24,10 +24,10 @@ import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
-import com.android.jack.dx.io.DexBuffer;
-import com.android.jack.dx.merge.CollisionPolicy;
-import com.android.jack.dx.merge.DexMerger;
+import com.android.jack.backend.dex.DexWriter;
+import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.ir.naming.CompositeName;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.util.TextUtils;
 import com.android.sched.util.RunnableHooks;
@@ -43,6 +43,7 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.VPath;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,13 +81,14 @@ public class JackIncremental extends CommandLine {
   private static CompilerState compilerState = null;
 
   @Nonnull
-  private static final String INCREMENTAL_DEX_OUTPUT = "partialcompilation.dex";
-
-  @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
   @CheckForNull
+  private static File dexFilesFolder;
+
+  @CheckForNull
   private static File jackFilesFolder;
+
 
   protected static void runJackAndExitOnError(@Nonnull Options options) {
     try {
@@ -160,10 +162,16 @@ public class JackIncremental extends CommandLine {
     }
     ThreadConfig.setConfig(options.getConfig());
 
+    dexFilesFolder = new File(ThreadConfig.get(
+        JackIncremental.COMPILER_STATE_OUTPUT_DIR).getFile(), "dexFiles");
+
     jackFilesFolder = new File(ThreadConfig.get(
         JackIncremental.COMPILER_STATE_OUTPUT_DIR).getFile(), "jackFiles");
 
     // Add options to control incremental support
+    options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
+    assert dexFilesFolder != null;
+    options.addProperty(Options.DEX_FILE_FOLDER.getName(), dexFilesFolder.getAbsolutePath());
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
     assert jackFilesFolder != null;
@@ -183,13 +191,12 @@ public class JackIncremental extends CommandLine {
       logger.log(Level.FINE, "Compiler state {0}", getCompilerState());
       logger.log(Level.FINE, "File dependencies {0}", dependenciesToString(fileDependencies));
 
-      Set<String> filesToRecompile = getFilesToRecompile(fileDependencies, options, javaFilesNames);
+      Set<String> filesToRecompile = getFilesToRecompile(fileDependencies, javaFilesNames);
 
       if (!filesToRecompile.isEmpty()) {
         logger.log(Level.INFO, "{0} Files to recompile {1}",
             new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
 
-        File outDexFile = options.getOutputFile();
         updateOptions(options, filesToRecompile);
 
         logger.log(Level.INFO, "Update compiler state");
@@ -198,10 +205,6 @@ public class JackIncremental extends CommandLine {
         logger.log(Level.INFO, "Generate {0}", options.getOutputFile());
         logger.log(Level.INFO, "Ecj options {0}", options.getEcjArguments());
         Jack.run(options);
-
-        logger.log(Level.INFO, "Merge {0} with {1}",
-            new Object[] {outDexFile, options.getOutputFile()});
-        mergeDexFiles(options, outDexFile);
       } else {
         logger.log(Level.INFO, "No files to recompile");
       }
@@ -261,20 +264,6 @@ public class JackIncremental extends CommandLine {
         Integer.valueOf(minDependencyNumber), Integer.valueOf(maxDependencyNumber)});
   }
 
-  private static void mergeDexFiles(@Nonnull Options options, @Nonnull File outDexFile)
-      throws JackIOException {
-    try {
-      DexBuffer merged =
-          new DexMerger(new DexBuffer(options.getOutputFile()), new DexBuffer(outDexFile),
-              CollisionPolicy.KEEP_FIRST).merge(false);
-      merged.writeTo(outDexFile);
-    } catch (IOException e) {
-      throw new JackIOException("Failed to merge dex files: \""
-          + options.getOutputFile().getAbsolutePath() + "\" and \"" + outDexFile.getAbsolutePath()
-          + "\"", e);
-    }
-  }
-
   private static void updateOptions(@Nonnull Options options,
       @Nonnull Set<String> javaFilesToRecompile) {
     List<String> newEcjArguments = new ArrayList<String>();
@@ -309,16 +298,15 @@ public class JackIncremental extends CommandLine {
     if (!newEcjArguments.isEmpty()) {
       options.setEcjArguments(newEcjArguments);
     }
-    options
-        .setOutputFile(new File(options.getOutputFile().getParentFile(), INCREMENTAL_DEX_OUTPUT));
   }
 
   @Nonnull
-  private static Set<String> getFilesToRecompile(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull Options options, @Nonnull List<String> javaFileNames) throws JackUserException {
+  private static Set<String> getFilesToRecompile(
+      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull List<String> javaFileNames)
+      throws JackUserException {
     Set<String> filesToRecompile = new HashSet<String>();
 
-    filesToRecompile.addAll(getModifiedFiles(fileDependencies, options, javaFileNames));
+    filesToRecompile.addAll(getModifiedFiles(fileDependencies, javaFileNames));
     filesToRecompile.addAll(getAddedFiles(fileDependencies, javaFileNames));
     filesToRecompile.addAll(getDeletedFiles(fileDependencies, javaFileNames));
 
@@ -336,7 +324,10 @@ public class JackIncremental extends CommandLine {
       if (!javaFileNames.contains(previousFileName)) {
         logger.log(Level.INFO, "{0} was deleted", previousFileName);
         deletedFiles.addAll(fileDependencies.get(previousFileName));
-        deleteJackFilesFromJavaFiles(previousFileName);
+        deleteOldFilesFromJavaFiles(previousFileName);
+        for (String dependencyFile : fileDependencies.get(previousFileName)) {
+          deleteOldFilesFromJavaFiles(dependencyFile);
+        }
         previousFilesIt.remove();
       }
     }
@@ -344,13 +335,17 @@ public class JackIncremental extends CommandLine {
     return deletedFiles;
   }
 
-  private static void deleteJackFilesFromJavaFiles(@Nonnull String javaFileName)
+  private static void deleteOldFilesFromJavaFiles(@Nonnull String javaFileName)
       throws JackUserException {
-    for (String jackFileToRemove : getCompilerState()
-        .getJacksFileNameFromJavaFileName(javaFileName)) {
-      File jackFile = new File(jackFileToRemove);
+    for (String typeNameToRemove :
+      getCompilerState().getTypeNamePathFromJavaFileName(javaFileName)) {
+      File jackFile = getJackFile(typeNameToRemove);
       if (jackFile.exists() && !jackFile.delete()) {
-        throw new JackIOException("Failed to delete file " + jackFileToRemove);
+        throw new JackIOException("Failed to delete file " + jackFile.getAbsolutePath());
+      }
+      File dexFile = getDexFile(typeNameToRemove);
+      if (dexFile.exists() && !dexFile.delete()) {
+        throw new JackIOException("Failed to delete file " + dexFile.getAbsolutePath());
       }
     }
   }
@@ -373,18 +368,25 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getModifiedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull Options options, @Nonnull List<String> javaFileNames) throws JackUserException {
+      @Nonnull List<String> javaFileNames) throws JackUserException {
     Set<String> modifiedFiles = new HashSet<String>();
 
     for (Map.Entry<String, Set<String>> previousFileEntry : fileDependencies.entrySet()) {
       String javaFileName = previousFileEntry.getKey();
-      File javaFile = new File(javaFileName);
-      if (javaFileNames.contains(javaFileName) &&
-          javaFile.lastModified() > options.getOutputFile().lastModified()) {
-        logger.log(Level.INFO, "{0} was modified", javaFileName);
-        modifiedFiles.add(javaFileName);
-        modifiedFiles.addAll(previousFileEntry.getValue());
-        deleteJackFilesFromJavaFiles(javaFileName);
+      for (String typeNameToCheck : getCompilerState()
+          .getTypeNamePathFromJavaFileName(javaFileName)) {
+        File javaFile = new File(javaFileName);
+        if (javaFileNames.contains(javaFileName)
+            && javaFile.lastModified() > getDexFile(typeNameToCheck).lastModified()) {
+          logger.log(Level.INFO, "{0} was modified", new Object[] {javaFileName});
+          modifiedFiles.add(javaFileName);
+          modifiedFiles.addAll(previousFileEntry.getValue());
+          deleteOldFilesFromJavaFiles(javaFileName);
+          for (String dependencyFile : previousFileEntry.getValue()) {
+            deleteOldFilesFromJavaFiles(dependencyFile);
+          }
+          break;
+        }
       }
     }
 
@@ -436,5 +438,17 @@ public class JackIncremental extends CommandLine {
     }
 
     return false;
+  }
+
+  @Nonnull
+  protected static File getJackFile(@Nonnull String typeName) {
+    return new File(jackFilesFolder, new VPath(new CompositeName(typeName,
+        JayceFileImporter.JAYCE_FILE_EXTENSION), '/').getPathAsString(File.separatorChar));
+  }
+
+  @Nonnull
+  protected static File getDexFile(@Nonnull String typeName) {
+    return new File(dexFilesFolder, new VPath(new CompositeName(typeName,
+        DexWriter.DEX_FILE_EXTENSION), '/').getPathAsString(File.separatorChar));
   }
 }

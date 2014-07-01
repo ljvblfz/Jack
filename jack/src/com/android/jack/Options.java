@@ -343,7 +343,7 @@ public class Options {
     return sanityChecks;
   }
 
-  @Nonnull
+  @CheckForNull
   public String getClasspathAsString() {
     return classpath;
   }

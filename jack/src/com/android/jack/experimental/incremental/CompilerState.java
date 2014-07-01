@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,7 +67,7 @@ public final class CompilerState {
   private Map<String, Set<String>> cstFileToUsedFiles = new HashMap<String, Set<String>>();
 
   @Nonnull
-  private Map<String, Set<String>> javaFileToJackFile = new HashMap<String, Set<String>>();
+  private Map<String, Set<String>> javaFileToTypeNamePath = new HashMap<String, Set<String>>();
 
   @Nonnull
   private final File compilerStateFile;
@@ -82,7 +83,7 @@ public final class CompilerState {
 
   public void updateCompilerState(@Nonnull Set<String> filesToRecompile) {
     for (String javaFileToRecompile : filesToRecompile) {
-      javaFileToJackFile.remove(javaFileToRecompile);
+      javaFileToTypeNamePath.remove(javaFileToRecompile);
       codeFileToUsedFiles.remove(javaFileToRecompile);
       structFileToUsedFiles.remove(javaFileToRecompile);
       cstFileToUsedFiles.remove(javaFileToRecompile);
@@ -91,18 +92,21 @@ public final class CompilerState {
 
   @Nonnull
   public Set<String> getJavaFilename() {
-    return (javaFileToJackFile.keySet());
+    return (javaFileToTypeNamePath.keySet());
   }
 
   @Nonnull
-  public Set<String> getJacksFileNameFromJavaFileName(@Nonnull String javaFileName) {
-    assert javaFileToJackFile.containsKey(javaFileName);
-    return (javaFileToJackFile.get(javaFileName));
+  public Set<String> getTypeNamePathFromJavaFileName(@Nonnull String javaFileName) {
+    Set<String> typeNames = javaFileToTypeNamePath.get(javaFileName);
+    if (typeNames == null) {
+      typeNames = Collections.emptySet();
+    }
+    return typeNames;
   }
 
-  public synchronized void addMappingBetweenJavaAndJackFile(@Nonnull String javaFileName,
-      @Nonnull String jackFileName) {
-    getOrCreate(javaFileToJackFile, javaFileName).add(jackFileName);
+  public synchronized void addMappingBetweenJavaFileAndTypeName(@Nonnull String javaFileName,
+      @Nonnull String typeName) {
+    getOrCreate(javaFileToTypeNamePath, javaFileName).add(typeName);
   }
 
   public void addStructUsage(@Nonnull String filename, @CheckForNull String nameOfUsedFile) {
@@ -128,7 +132,7 @@ public final class CompilerState {
     try {
       StringBuffer sb = new StringBuffer();
 
-      writeMap(sb, javaFileToJackFile);
+      writeMap(sb, javaFileToTypeNamePath);
       writeMap(sb, codeFileToUsedFiles);
       writeMap(sb, cstFileToUsedFiles);
       writeMap(sb, structFileToUsedFiles);
@@ -152,7 +156,7 @@ public final class CompilerState {
     File csf = getCompilerStateFile();
     try {
       br = new BufferedReader(new InputStreamReader(new FileInputStream(csf)));
-      javaFileToJackFile = readMap(br);
+      javaFileToTypeNamePath = readMap(br);
       codeFileToUsedFiles = readMap(br);
       cstFileToUsedFiles = readMap(br);
       structFileToUsedFiles = readMap(br);
@@ -194,10 +198,10 @@ public final class CompilerState {
 
     builder.append("*File mapping*");
     builder.append(TextUtils.LINE_SEPARATOR);
-    for (String javaFileName : javaFileToJackFile.keySet()) {
+    for (String javaFileName : javaFileToTypeNamePath.keySet()) {
       builder.append(javaFileName);
       builder.append("->");
-      builder.append(javaFileToJackFile.get(javaFileName));
+      builder.append(javaFileToTypeNamePath.get(javaFileName));
       builder.append(TextUtils.LINE_SEPARATOR);
     }
 
