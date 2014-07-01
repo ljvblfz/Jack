@@ -84,6 +84,9 @@ public class JackIncremental extends CommandLine {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
+  @CheckForNull
+  private static File jackFilesFolder;
+
   protected static void runJackAndExitOnError(@Nonnull Options options) {
     try {
       run(options);
@@ -151,6 +154,15 @@ public class JackIncremental extends CommandLine {
       options.setEcjArguments(ecjArgsSave);
     }
     ThreadConfig.setConfig(options.getConfig());
+
+    jackFilesFolder = new File(ThreadConfig.get(
+        JackIncremental.COMPILER_STATE_OUTPUT_DIR).getFile(), "jackFiles");
+
+    // Add options to control incremental support
+    options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
+    options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+    assert jackFilesFolder != null;
+    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFilesFolder.getAbsolutePath());
 
     compilerState = new CompilerState(ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT_DIR));
 
@@ -273,9 +285,12 @@ public class JackIncremental extends CommandLine {
     }
 
     // Move imported jack files from import to classpath option
-    StringBuilder newClasspath = new StringBuilder(options.getClasspathAsString()
-        + File.pathSeparator
-        + ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR).getFile().getAbsolutePath());
+    StringBuilder newClasspath = new StringBuilder(options.getClasspathAsString());
+
+    if (jackFilesFolder != null) {
+      newClasspath.append(File.pathSeparator);
+      newClasspath.append(jackFilesFolder.getAbsolutePath());
+    }
 
     List<File> jayceImport = options.getJayceImport();
     if (!jayceImport.isEmpty()) {
