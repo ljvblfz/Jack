@@ -15,7 +15,6 @@
  */
 package com.android.jack.tools.merger;
 
-import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.dex.file.EncodedField;
@@ -60,10 +59,9 @@ public class JackMerger extends MergerTools {
 
   private boolean finished = false;
 
-  public JackMerger() {
-    DexOptions dexOptions = new DexOptions();
-    dexOptions.forceJumbo = true;
-    dexResult = new DexFile(dexOptions);
+  public JackMerger(@Nonnull DexFile dexResult) {
+    this.dexResult = dexResult;
+    dexResult.getDexOptions().forceJumbo = true;
   }
 
   public void addDexFile(@Nonnull DexBuffer dexToMerge) throws MergeOverflow {

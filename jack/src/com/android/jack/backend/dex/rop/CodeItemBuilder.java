@@ -496,7 +496,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         method.getEnclosingType().getSession().getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 
-    DexOptions options = dexFileMarker.getDexFile().getDexOptions();
+    DexOptions options = dexFileMarker.getFinalDexFile().getDexOptions();
     options.forceJumbo = forceJumbo;
     int paramSize = getParameterWordCount(method);
     int positionListKind;

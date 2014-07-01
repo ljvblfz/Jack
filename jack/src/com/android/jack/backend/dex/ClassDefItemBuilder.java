@@ -75,6 +75,8 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
   private final boolean emitJackFlag = ThreadConfig.get(Options.EMIT_JACK_FLAG).booleanValue();
   private final boolean emitSourceFileInfo =
       ThreadConfig.get(Options.EMIT_SOURCE_FILE_DEBUG_INFO).booleanValue();
+  private final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
+      .booleanValue();
 
   /**
    * Creates the {@code ClassDefItem} for the given {@code JDeclaredType}. The
@@ -99,7 +101,12 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
     DexFileMarker dexFileMarker = declaredType.getSession().getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 
-    DexFile dexFile = dexFileMarker.getDexFile();
+    DexFile dexFile = null;
+    if (emitOneDexPerType) {
+      dexFile = dexFileMarker.getDexFileOfType(declaredType);
+    } else {
+      dexFile = dexFileMarker.getFinalDexFile();
+    }
     ClassDefItem classDefItem = createClassDefItem(declaredType);
     dexFile.add(classDefItem);
 

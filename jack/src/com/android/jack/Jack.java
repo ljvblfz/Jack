@@ -494,9 +494,8 @@ public abstract class Jack {
           assert options.out != null || options.outZip != null;
           if (ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE).booleanValue()) {
             request.addProduction(OneDexPerTypeProduct.class);
-          } else {
-            request.addProduction(DexFileProduct.class);
           }
+          request.addProduction(DexFileProduct.class);
         }
 
         ProductionSet targetProduction = request.getTargetProductions();
@@ -527,27 +526,25 @@ public abstract class Jack {
           assert targetProduction.contains(DexFileProduct.class)
               || targetProduction.contains(OneDexPerTypeProduct.class);
           fillJayceToDexPlan(options, planBuilder);
+          if (targetProduction.contains(OneDexPerTypeProduct.class)) {
+            planBuilder.append(OneDexPerTypeWriter.class);
+          }
           if (features.contains(DexZipOutput.class)) {
             planBuilder.append(DexZipWriter.class);
           } else {
-            if (targetProduction.contains(OneDexPerTypeProduct.class)) {
-              planBuilder.append(OneDexPerTypeWriter.class);
-            } else {
-              planBuilder.append(DexFileWriter.class);
-            }
+            planBuilder.append(DexFileWriter.class);
           }
         } else {
           assert targetProduction.contains(DexFileProduct.class)
               || targetProduction.contains(OneDexPerTypeProduct.class);
           fillDexPlan(options, planBuilder);
+          if (targetProduction.contains(OneDexPerTypeProduct.class)) {
+            planBuilder.append(OneDexPerTypeWriter.class);
+          }
           if (features.contains(DexZipOutput.class)) {
             planBuilder.append(DexZipWriter.class);
           } else {
-            if (targetProduction.contains(OneDexPerTypeProduct.class)) {
-              planBuilder.append(OneDexPerTypeWriter.class);
-            } else {
-              planBuilder.append(DexFileWriter.class);
-            }
+            planBuilder.append(DexFileWriter.class);
           }
         }
 
@@ -1106,10 +1103,7 @@ public abstract class Jack {
       }
     }
 
-    if (productions.contains(DexFileProduct.class)) {
-      assert !productions.contains(OneDexPerTypeProduct.class);
-      planBuilder.append(DexFilePreparer.class);
-    }
+    planBuilder.append(DexFilePreparer.class);
   }
 
   private static void fillJavaToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
@@ -1575,10 +1569,7 @@ public abstract class Jack {
       planBuilder.append(ParentSetterChecker.class);
     }
 
-    if (productions.contains(DexFileProduct.class)) {
-      assert !productions.contains(OneDexPerTypeProduct.class);
-      planBuilder.append(DexFilePreparer.class);
-    }
+    planBuilder.append(DexFilePreparer.class);
   }
 
   @Nonnull

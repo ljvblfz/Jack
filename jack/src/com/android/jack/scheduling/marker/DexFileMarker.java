@@ -16,7 +16,9 @@
 
 package com.android.jack.scheduling.marker;
 
+import com.android.jack.Jack;
 import com.android.jack.dx.dex.file.DexFile;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
@@ -25,16 +27,25 @@ import com.android.sched.item.Tag;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 /**
- * A marker which contains a {@code DexFile} instance.
+ * A marker which contains a {@code DexFile} instances.
  */
-@Description("A marker which contains a DexFile instance.")
+@Description("A marker which contains a DexFile instances.")
 @ValidOn(JSession.class)
 public final class DexFileMarker implements Marker {
+
   @Nonnull
-  private final DexFile dexFile;
+  private final DexFile finalDexFile;
+
+  @Nonnull
+  private final Map<JDefinedClassOrInterface, DexFile> dexFilePerType =
+      new HashMap<JDefinedClassOrInterface, DexFile>();
 
   /**
    * This tag means that the {@code DexFile} contained into the {@Code DexFileMarker} is complete
@@ -101,13 +112,29 @@ public final class DexFileMarker implements Marker {
   public static final class Prepared implements Tag {
   }
 
-  public DexFileMarker(@Nonnull DexFile dexFile) {
-    this.dexFile = dexFile;
+  public DexFileMarker(@Nonnull DexFile finalDexFile) {
+    this.finalDexFile = finalDexFile;
+  }
+
+  public void addDexFilePerType(@Nonnull JDefinedClassOrInterface type, @Nonnull DexFile dexFile) {
+    dexFilePerType.put(type, dexFile);
   }
 
   @Nonnull
-  public DexFile getDexFile() {
+  public Collection<DexFile> getAllDexPerType() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(dexFilePerType.values());
+  }
+
+  @Nonnull
+  public DexFile getDexFileOfType(@Nonnull JDefinedClassOrInterface type) {
+    DexFile dexFile = dexFilePerType.get(type);
+    assert dexFile != null;
     return dexFile;
+  }
+
+  @Nonnull
+  public DexFile getFinalDexFile() {
+    return finalDexFile;
   }
 
   @Override
@@ -115,5 +142,4 @@ public final class DexFileMarker implements Marker {
   public Marker cloneIfNeeded() {
     return this;
   }
-
 }
