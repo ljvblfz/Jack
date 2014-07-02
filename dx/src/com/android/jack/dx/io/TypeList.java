@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.dx.merge;
+package com.android.jack.dx.io;
 
-import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.util.Unsigned;
 
 /**

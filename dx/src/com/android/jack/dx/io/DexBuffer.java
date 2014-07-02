@@ -21,7 +21,6 @@ import com.android.jack.dx.dex.SizeOf;
 import com.android.jack.dx.dex.TableOfContents;
 import com.android.jack.dx.io.Code.CatchHandler;
 import com.android.jack.dx.io.Code.Try;
-import com.android.jack.dx.merge.TypeList;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.ByteOutput;
 import com.android.jack.dx.util.DexException;
