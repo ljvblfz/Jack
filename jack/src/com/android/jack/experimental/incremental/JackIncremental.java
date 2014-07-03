@@ -31,19 +31,17 @@ import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.util.TextUtils;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.UnrecoverableException;
-import com.android.sched.util.codec.DirectoryCodec;
+import com.android.sched.util.codec.OutputVDirCodec;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.Container;
+import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -73,10 +71,10 @@ public class JackIncremental extends CommandLine {
   Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<Directory> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<OutputVDir> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
       "jack.experimental.compilerstate.output.dir", "Compiler state output folder",
-      new DirectoryCodec(Existence.MUST_EXIST, Permission.READ | Permission.WRITE))
-      .requiredIf(GENERATE_COMPILER_STATE.getValue().isTrue());
+      new OutputVDirCodec(Existence.MAY_EXIST, Container.DIR)).requiredIf(
+      GENERATE_COMPILER_STATE.getValue().isTrue());
 
   @CheckForNull
   private static CompilerState compilerState = null;
@@ -161,19 +159,12 @@ public class JackIncremental extends CommandLine {
   public static void run(@Nonnull Options options) throws ConfigurationException,
       IllegalOptionsException, NothingToDoException, JackUserException {
 
-    RunnableHooks hooks = new RunnableHooks();
-    List<String> ecjArgsSave = new ArrayList<String>(options.getEcjArguments());
-    options.checkValidity(hooks);
-    if (!ecjArgsSave.isEmpty()) {
-      options.setEcjArguments(ecjArgsSave);
-    }
-    ThreadConfig.setConfig(options.getConfig());
+    File incrementalFolder = options.getIncrementalFolder();
+    assert incrementalFolder != null;
 
-    dexFilesFolder = new File(ThreadConfig.get(
-        JackIncremental.COMPILER_STATE_OUTPUT_DIR).getFile(), "dexFiles");
+    dexFilesFolder = new File(incrementalFolder, "dexFiles");
 
-    jackFilesFolder = new File(ThreadConfig.get(
-        JackIncremental.COMPILER_STATE_OUTPUT_DIR).getFile(), "jackFiles");
+    jackFilesFolder = new File(incrementalFolder, "jackFiles");
 
     // Add options to control incremental support
     options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
@@ -184,7 +175,7 @@ public class JackIncremental extends CommandLine {
     assert jackFilesFolder != null;
     options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFilesFolder.getAbsolutePath());
 
-    compilerState = new CompilerState(ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT_DIR));
+    compilerState = new CompilerState(incrementalFolder);
 
     if (isIncrementalCompilation(options)) {
       logger.log(Level.INFO, "Incremental compilation");
@@ -203,14 +194,12 @@ public class JackIncremental extends CommandLine {
       if (!filesToRecompile.isEmpty()) {
         logger.log(Level.INFO, "{0} Files to recompile {1}",
             new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
-
         updateOptions(options, filesToRecompile);
 
-        logger.log(Level.INFO, "Update compiler state");
         getCompilerState().updateCompilerState(filesToRecompile);
 
-        logger.log(Level.INFO, "Generate {0}", options.getOutputFile());
         logger.log(Level.INFO, "Ecj options {0}", options.getEcjArguments());
+
         Jack.run(options);
       } else {
         logger.log(Level.INFO, "No files to recompile");
@@ -441,8 +430,6 @@ public class JackIncremental extends CommandLine {
 
   private static boolean isIncrementalCompilation(@Nonnull Options options) {
     if (!options.getEcjArguments().isEmpty()
-        && ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
-        && ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()
         && getCompilerState().exists()) {
       return true;
     }

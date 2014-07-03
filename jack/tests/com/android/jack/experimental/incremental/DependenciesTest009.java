@@ -57,7 +57,7 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    CompilerState csm = new CompilerState(ite.getCompilerStateDirectory());
+    CompilerState csm = new CompilerState(ite.getCompilerStateFolder());
     csm.read();
     Map<String, Set<String>> dependencies1 = csm.computeDependencies();
 

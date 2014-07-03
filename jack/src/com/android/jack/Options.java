@@ -19,6 +19,7 @@ package com.android.jack;
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.JavaVersionPropertyId;
+import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -189,6 +190,10 @@ public class Options {
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
       metaVar = "[error | warning | info | debug | trace]")
   protected VerbosityLevel verbose = VerbosityLevel.WARNING;
+
+  @Option(name = "--incremental-folder",
+      usage = "Folder used for incremental data", metaVar = "FILE")
+  protected File incrementalFolder = null;
 
   @Option(name = "-o", aliases = "--output",
       usage = "output to this dex file (default: ./classes.dex)", metaVar = "FILE")
@@ -581,6 +586,12 @@ public class Options {
     configBuilder.set(
         FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
+    if (incrementalFolder != null) {
+      configBuilder.set(JackIncremental.GENERATE_COMPILER_STATE, true);
+      configBuilder.setString(JackIncremental.COMPILER_STATE_OUTPUT_DIR,
+          incrementalFolder.getAbsolutePath());
+    }
+
     if (tracerDir != null) {
       configBuilder.setString(TracerFactory.TRACER, "html");
       configBuilder.setString(StatsTracerFtl.TRACER_DIR, tracerDir.getAbsolutePath());
@@ -759,5 +770,14 @@ public class Options {
   @Nonnull
   public List<File> getJayceImport() {
     return jayceImport;
+  }
+
+  @CheckForNull
+  public File getIncrementalFolder() {
+    return incrementalFolder;
+  }
+
+  public void setIncrementalFolder(@Nonnull File incrementalFolder) {
+    this.incrementalFolder = incrementalFolder;
   }
 }

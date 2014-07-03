@@ -21,7 +21,9 @@ import com.android.jack.util.TextUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Tag;
-import com.android.sched.util.file.Directory;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -72,8 +74,8 @@ public final class CompilerState {
   @Nonnull
   private final File compilerStateFile;
 
-  public CompilerState(@Nonnull Directory directory) {
-    compilerStateFile = new File(directory.getFile(), COMPILER_STATE_FILENAME);
+  public CompilerState(@Nonnull File incrementalFolder) {
+    compilerStateFile = new File(incrementalFolder, COMPILER_STATE_FILENAME);
   }
 
   @Nonnull
@@ -125,11 +127,12 @@ public final class CompilerState {
     return compilerStateFile.exists();
   }
 
-  public void write(@Nonnull Directory directory) throws JackIOException {
-    File compilerStateFile = new File(directory.getFile(), COMPILER_STATE_FILENAME);
+  public void write(@Nonnull OutputVDir outputVDir) throws JackIOException {
     PrintStream ps = null;
 
     try {
+      OutputVFile compilerStateFile =
+          outputVDir.createOutputVFile(new VPath(COMPILER_STATE_FILENAME, '/'));
       StringBuffer sb = new StringBuffer();
 
       writeMap(sb, javaFileToTypeNamePath);
@@ -137,12 +140,14 @@ public final class CompilerState {
       writeMap(sb, cstFileToUsedFiles);
       writeMap(sb, structFileToUsedFiles);
 
-      ps = new PrintStream(compilerStateFile);
+      ps = new PrintStream(compilerStateFile.openWrite());
       ps.print(sb.toString());
-
     } catch (FileNotFoundException e) {
       throw new JackIOException("Could not write compiler state file to output '"
-          + compilerStateFile.getAbsolutePath() + "'", e);
+          + compilerStateFile + "'", e);
+    } catch (IOException e) {
+      throw new JackIOException("Could not write compiler state file to output '"
+          + compilerStateFile + "'", e);
     } finally {
       if (ps != null) {
         ps.close();

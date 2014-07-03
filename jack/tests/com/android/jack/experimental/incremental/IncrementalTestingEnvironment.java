@@ -21,10 +21,6 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,7 +53,7 @@ public class IncrementalTestingEnvironment extends TestTools {
   PrintStream outRedirectStream = null;
 
   @Nonnull
-  private final Directory compilerStateDir;
+  private final File compilerStateDir;
 
   @Nonnull
   private final File testingFolder;
@@ -83,11 +79,11 @@ public class IncrementalTestingEnvironment extends TestTools {
       throw new IOException("Failed to create folder " + this.sourceFolder.getAbsolutePath());
     }
     dexFile = new File(testingFolder, "result.dex");
-    compilerStateDir =
-        new Directory(testingFolder.getAbsolutePath() + File.separatorChar + "compilerState",
-            null, Existence.MAY_EXIST, Permission.READ | Permission.WRITE,
-            ChangePermission.NOCHANGE);
-    jackFolder = new File(compilerStateDir.getFile(), "jackFiles");
+    compilerStateDir = new File(testingFolder, "compileState");
+    if (!compilerStateDir.exists() && !compilerStateDir.mkdir()) {
+      throw new IOException("Failed to create folder " + compilerStateDir.getAbsolutePath());
+    }
+    jackFolder = new File(compilerStateDir, "jackFiles");
   }
 
   public void addJavaFile(@Nonnull String packageName, @Nonnull String fileName,
@@ -126,7 +122,7 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   @Nonnull
-  public Directory getCompilerStateDirectory() {
+  public File getCompilerStateFolder() {
     return compilerStateDir;
   }
 
@@ -135,9 +131,7 @@ public class IncrementalTestingEnvironment extends TestTools {
     startErrRedirection();
 
     Options options = TestTools.buildCommandLineArgs(testingFolder);
-    options.addProperty(JackIncremental.GENERATE_COMPILER_STATE.getName(), "true");
-    options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT_DIR.getName(), getCompilerStateDirectory()
-        .getFile().getAbsolutePath());
+    options.setIncrementalFolder(getCompilerStateFolder());
 
     compileSourceToDex(options, sourceFolder,
         TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), dexFile);
