@@ -44,6 +44,7 @@ import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparat
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
@@ -69,8 +70,10 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
@@ -345,6 +348,26 @@ public abstract class Jack {
       NothingToDoException,
       ConfigurationException,
       JackUserException {
+    run(options, false);
+  }
+
+  /**
+   * Runs the jack compiler on source files and generates a dex file.
+   *
+   * @param options options for the compiler.
+   * @throws ConfigurationException
+   * @throws IllegalOptionsException
+   * @throws NothingToDoException
+   * @throws ImportConflictException
+   * @throws JackIOException
+   * @throws JPackageLookupException
+   * @throws JTypeLookupException
+   */
+  public static void run(@Nonnull Options options, boolean skipEcj)
+      throws IllegalOptionsException,
+      NothingToDoException,
+      ConfigurationException,
+      JackUserException {
     boolean assertEnable = false;
     // assertEnable = true if assertion is already enable
     assert true == (assertEnable = true);
@@ -367,7 +390,7 @@ public abstract class Jack {
 
     RunnableHooks hooks = new RunnableHooks();
     try {
-      options.checkValidity(hooks);
+      options.checkValidity(hooks, skipEcj);
 
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
@@ -384,7 +407,7 @@ public abstract class Jack {
         logger.log(Level.INFO, "Jack sanity checks {0}",
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
-        JSession session = buildSession(options, hooks);
+        JSession session = skipEcj ? getSession() : buildSession(options, hooks);
         Request request = createInitialRequest();
 
         request.addFeature(Resources.class);

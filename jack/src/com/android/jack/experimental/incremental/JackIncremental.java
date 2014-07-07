@@ -50,7 +50,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -189,18 +188,21 @@ public class JackIncremental extends CommandLine {
       logger.log(Level.FINE, "Compiler state {0}", getCompilerState());
       logger.log(Level.FINE, "File dependencies {0}", dependenciesToString(fileDependencies));
 
-      Set<String> filesToRecompile = getFilesToRecompile(fileDependencies, javaFilesNames);
+      Set<String> deletedFiles = getDeletedFiles(javaFilesNames);
+      Set<String> filesToRecompile =
+          getFilesToRecompile(fileDependencies, javaFilesNames, deletedFiles);
 
-      if (!filesToRecompile.isEmpty()) {
+      if (!filesToRecompile.isEmpty() || !deletedFiles.isEmpty()) {
         logger.log(Level.INFO, "{0} Files to recompile {1}",
             new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
         updateOptions(options, filesToRecompile);
 
-        getCompilerState().updateCompilerState(filesToRecompile);
+        // Compiler state update can be done here, if there is compilation error, modification
+        // will not be write on the disk
+        getCompilerState().updateCompilerState(filesToRecompile, deletedFiles);
 
-        logger.log(Level.INFO, "Ecj options {0}", options.getEcjArguments());
-
-        Jack.run(options);
+        logger.log(Level.FINE, "Ecj options {0}", options.getEcjArguments());
+        Jack.run(options, filesToRecompile.isEmpty());
       } else {
         logger.log(Level.INFO, "No files to recompile");
       }
@@ -301,33 +303,44 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getFilesToRecompile(
-      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull List<String> javaFileNames)
-      throws JackUserException {
+      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull List<String> javaFileNames,
+      Set<String> deletedFiles) throws JackUserException {
     Set<String> filesToRecompile = new HashSet<String>();
 
-    filesToRecompile.addAll(getModifiedFiles(fileDependencies, javaFileNames));
+    filesToRecompile.addAll(getModifiedFiles(fileDependencies, javaFileNames, deletedFiles));
     filesToRecompile.addAll(getAddedFiles(fileDependencies, javaFileNames));
-    filesToRecompile.addAll(getDeletedFiles(fileDependencies, javaFileNames));
+
+    for (String deletedFile : deletedFiles) {
+      deleteOldFilesFromJavaFiles(deletedFile);
+      addNotModifiedDependencies(fileDependencies, deletedFiles, filesToRecompile, deletedFile);
+    }
+
+    for (String fileToRecompile : filesToRecompile) {
+      deleteOldFilesFromJavaFiles(fileToRecompile);
+    }
 
     return filesToRecompile;
   }
 
-  @Nonnull
-  private static Set<String> getDeletedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull List<String> javaFileNames) throws JackUserException {
-    Set<String> deletedFiles = new HashSet<String>();
-    Iterator<String> previousFilesIt = getCompilerState().getJavaFilename().iterator();
+  private static void addNotModifiedDependencies(
+      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull Set<String> deletedFiles,
+      @Nonnull Set<String> filesToRecompile, @Nonnull String fileName) {
+    for (String dependency : fileDependencies.get(fileName)) {
+      if (!deletedFiles.contains(dependency)) {
+        filesToRecompile.add(dependency);
+      }
+    }
+  }
 
-    while (previousFilesIt.hasNext()) {
-      String previousFileName = previousFilesIt.next();
-      if (!javaFileNames.contains(previousFileName)) {
-        logger.log(Level.INFO, "{0} was deleted", previousFileName);
-        deletedFiles.addAll(fileDependencies.get(previousFileName));
-        deleteOldFilesFromJavaFiles(previousFileName);
-        for (String dependencyFile : fileDependencies.get(previousFileName)) {
-          deleteOldFilesFromJavaFiles(dependencyFile);
-        }
-        previousFilesIt.remove();
+  @Nonnull
+  private static Set<String> getDeletedFiles(@Nonnull List<String> javaFileNames)
+      throws JackUserException {
+    Set<String> deletedFiles = new HashSet<String>();
+
+    for (String javaFileName : getCompilerState().getJavaFilename()) {
+      if (!javaFileNames.contains(javaFileName)) {
+        logger.log(Level.INFO, "{0} was deleted", javaFileName);
+        deletedFiles.add(javaFileName);
       }
     }
 
@@ -367,24 +380,25 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   private static Set<String> getModifiedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull List<String> javaFileNames) throws JackUserException {
+      @Nonnull List<String> javaFileNames, @Nonnull Set<String> deletedFiles)
+      throws JackUserException {
     Set<String> modifiedFiles = new HashSet<String>();
 
     for (Map.Entry<String, Set<String>> previousFileEntry : fileDependencies.entrySet()) {
       String javaFileName = previousFileEntry.getKey();
-      for (String typeNameToCheck : getCompilerState()
-          .getTypeNamePathFromJavaFileName(javaFileName)) {
-        File javaFile = new File(javaFileName);
-        if (javaFileNames.contains(javaFileName)
-            && javaFile.lastModified() > getDexFile(typeNameToCheck).lastModified()) {
-          logger.log(Level.INFO, "{0} was modified", new Object[] {javaFileName});
-          modifiedFiles.add(javaFileName);
-          modifiedFiles.addAll(previousFileEntry.getValue());
-          deleteOldFilesFromJavaFiles(javaFileName);
-          for (String dependencyFile : previousFileEntry.getValue()) {
-            deleteOldFilesFromJavaFiles(dependencyFile);
+      if (!deletedFiles.contains(javaFileName)) {
+        for (String typeNameToCheck : getCompilerState().getTypeNamePathFromJavaFileName(
+            javaFileName)) {
+          File javaFile = new File(javaFileName);
+          File dexFile = getDexFile(typeNameToCheck);
+          if (!dexFile.exists()
+              || (javaFileNames.contains(javaFileName) && javaFile.lastModified() > dexFile
+                  .lastModified())) {
+            logger.log(Level.INFO, "{0} was modified", new Object[] {javaFileName});
+            modifiedFiles.add(javaFileName);
+            addNotModifiedDependencies(fileDependencies, deletedFiles, modifiedFiles, javaFileName);
+            break;
           }
-          break;
         }
       }
     }
