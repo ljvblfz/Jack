@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
  */
 public class DexComparator {
 
-  private Logger logger;
+  private final Logger logger;
   private DexBuffer referenceDexFile;
   private DexBuffer candidateDexFile;
   private static final Level ERROR_LEVEL = Level.SEVERE;
@@ -68,6 +68,7 @@ public class DexComparator {
   private boolean enableBinaryDebugInfoComparison = false;
   private boolean enableInstructionNumberComparison = false;
   private float instructionNumberTolerance = 0f;
+  private boolean enableBinaryCodeComparison = false;
 
   private static final List<String> skippedMethods = new ArrayList<String>();
 
@@ -75,6 +76,11 @@ public class DexComparator {
   private static final String INIT_NAME = "<init>";
   @Nonnull
   private static final String STATIC_INIT_NAME = "<clinit>";
+
+  public DexComparator() {
+    logger = Logger.getLogger(this.getClass().getName());
+    logger.setLevel(WARNING_LEVEL);
+  }
 
   /**
    * Launch the comparison between a reference Dex {@code File} and a candidate Dex {@code File}.
@@ -85,22 +91,60 @@ public class DexComparator {
    * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
    *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
    *        structures of the reference Dex
-   * @param compareDebugInfoBinary enable binary comparison of debug infos
+   * @param compareDebugInfoBinarily enable binary comparison of debug infos
    * @param compareInstructionNumber enable comparison of number of instructions
    * @param instructionNumberTolerance tolerance factor for comparison of number of instructions
    * @throws DifferenceFoundException if a difference between the two Dex files is found
    * @throws IOException if an error occurs while loading the dex files
    */
-  public void compare(File referenceFile,
-      File candidateFile,
+  public void compare(@Nonnull File referenceFile,
+      @Nonnull File candidateFile,
       boolean withDebugInfo,
       boolean strict,
-      boolean compareDebugInfoBinary,
+      boolean compareDebugInfoBinarily,
       boolean compareInstructionNumber,
       float instructionNumberTolerance) throws DifferenceFoundException, IOException {
 
-    logger = Logger.getLogger(this.getClass().getName());
-    logger.setLevel(WARNING_LEVEL);
+    this.strict = strict;
+    enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
+    enableInstructionNumberComparison = compareInstructionNumber;
+    this.instructionNumberTolerance = instructionNumberTolerance;
+    debugInfo = withDebugInfo;
+
+    compare(referenceFile, candidateFile);
+  }
+
+  /**
+   * Launch the comparison between a reference Dex {@code File} and a candidate Dex {@code File}.
+   *
+   * @param referenceFile the reference Dex {@code File}
+   * @param candidateFile the candidate Dex {@code File}
+   * @param withDebugInfo also compare debug infos
+   * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
+   *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
+   *        structures of the reference Dex
+   * @param compareDebugInfoBinarily enable binary comparison of debug infos
+   * @param compareCodeBinarily enable code binary comparison
+   * @throws DifferenceFoundException if a difference between the two Dex files is found
+   * @throws IOException if an error occurs while loading the dex files
+   */
+  public void compare(@Nonnull File referenceFile,
+      @Nonnull File candidateFile,
+      boolean withDebugInfo,
+      boolean strict,
+      boolean compareDebugInfoBinarily,
+      boolean compareCodeBinarily) throws DifferenceFoundException, IOException {
+
+    this.strict = strict;
+    enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
+    enableBinaryCodeComparison = compareCodeBinarily;
+    debugInfo = withDebugInfo;
+
+    compare(referenceFile, candidateFile);
+  }
+
+  private void compare(@Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException,
+      DifferenceFoundException {
 
     referenceDexFile = new DexBuffer(referenceFile);
     referenceData = referenceDexFile.getBytes();
@@ -108,11 +152,6 @@ public class DexComparator {
     candidateDexFile = new DexBuffer(candidateFile);
     candidateData = candidateDexFile.getBytes();
     candidateThisIndex = candidateDexFile.strings().indexOf("this");
-    this.strict = strict;
-    enableBinaryDebugInfoComparison = compareDebugInfoBinary;
-    enableInstructionNumberComparison = compareInstructionNumber;
-    this.instructionNumberTolerance = instructionNumberTolerance;
-    debugInfo = withDebugInfo;
 
     if (!IGNORE_ID_COMPARISON) {
       checkStringIds();
@@ -551,8 +590,12 @@ public class DexComparator {
               "Method {0}.{1}{2} OK", new Object[] {className, refMethodName, refMethodProto});
 
           if (enableInstructionNumberComparison) {
-            handleInstructionNumberComparison(
-                className, refMethodName, refMethodProto, encMeth, candidateEncMeth);
+            handleInstructionNumberComparison(className,
+                refMethodName,
+                refMethodProto,
+                encMeth,
+                candidateEncMeth,
+                instructionNumberTolerance);
           }
 
           /* Access flags */
@@ -579,6 +622,10 @@ public class DexComparator {
             }
             if (debugInfo) {
               checkDebugInfo(encMeth, candidateEncMeth, className);
+            }
+            if (enableBinaryCodeComparison) {
+              checkCodeBinarily(encMeth, candidateEncMeth, className, refMethodName,
+                  refMethodProto);
             }
             break;
           }
@@ -620,12 +667,57 @@ public class DexComparator {
     }
   }
 
-  private void handleInstructionNumberComparison(
-      String className, String methodName, String methodProto, Method refMeth, Method candidateMeth)
+  private void checkCodeBinarily(@Nonnull Method encMeth, @Nonnull Method candidateEncMeth,
+      @Nonnull String className, @Nonnull String methodName, @Nonnull String methodProto)
       throws DifferenceFoundException {
+    handleInstructionNumberComparison(className,
+        methodName,
+        methodProto,
+        encMeth,
+        candidateEncMeth,
+        0);
+
+    if (encMeth.getCodeOffset() == 0) {
+      // we already checked that if the reference has no code, neither does the candidate
+      assert candidateEncMeth.getCodeOffset() == 0;
+      return;
+    }
+    Code refMethCode = referenceDexFile.readCode(encMeth);
+    Code candMethCode = candidateDexFile.readCode(candidateEncMeth);
+    short[] refInstructions = refMethCode.getInstructions();
+    short[] candInstructions = candMethCode.getInstructions();
+
+    // number of instructions should have been checked already
+    assert refInstructions.length == candInstructions.length;
+    int size = refInstructions.length;
+    int index = 0;
+    while (index < size) {
+      if (refInstructions[index] != candInstructions[index]) {
+        String encMethOffset = getInstructionOffsetAsHexString(encMeth, index);
+        String candMethOffset = getInstructionOffsetAsHexString(candidateEncMeth, index);
+        throw new DifferenceFoundException("Binary instructions of '" + className + "." + methodName
+            + methodProto + "' do not match at index " + index + ". Address for reference: "
+            + encMethOffset + ". Address for candidate: " + candMethOffset + ".");
+      }
+      index++;
+    }
+
+  }
+
+  private String getInstructionOffsetAsHexString(@Nonnull Method encMeth, int index) {
+    return "0x" + Integer.toHexString(
+        encMeth.getCodeOffset() + com.android.jack.dx.dex.file.Code.HEADER_SIZE + index * 2);
+  }
+
+  private void handleInstructionNumberComparison(@Nonnull String className,
+      @Nonnull String methodName,
+      @Nonnull String methodProto,
+      @Nonnull Method refMeth,
+      @Nonnull Method candidateMeth,
+      float instructionNumberTolerance) throws DifferenceFoundException {
 
     if (refMeth.getCodeOffset() == 0 && candidateMeth.getCodeOffset() == 0) {
-      logger.log(DEBUG_LEVEL, "Method {0}.{1}{2} code comparison OK",
+      logger.log(DEBUG_LEVEL, "Method {0}.{1}{2} code existence comparison OK",
           new Object[] {className, methodName, methodProto});
       return;
     }
