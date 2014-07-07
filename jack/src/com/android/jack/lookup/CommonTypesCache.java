@@ -39,24 +39,27 @@ class CommonTypesCache {
   }
 
   public JClass getClass(@Nonnull CommonType type) throws JTypeLookupException {
-    if (commonClasses[type.ordinal()] == null) {
-      commonClasses[type.ordinal()] = lookup.getClass(type.getSignature());
+    int typeOrdinal = type.ordinal();
+    if (commonClasses[typeOrdinal] == null) {
+      commonClasses[typeOrdinal] = lookup.getClass(type.getSignature());
     }
-    return commonClasses[type.ordinal()];
+    return commonClasses[typeOrdinal];
   }
 
   public JInterface getInterface(@Nonnull CommonType type) throws JTypeLookupException {
-    if (commonInterfaces[type.ordinal()] == null) {
-      commonInterfaces[type.ordinal()] = lookup.getInterface(type.getSignature());
+    int typeOrdinal = type.ordinal();
+    if (commonInterfaces[typeOrdinal] == null) {
+      commonInterfaces[typeOrdinal] = lookup.getInterface(type.getSignature());
     }
-    return commonInterfaces[type.ordinal()];
+    return commonInterfaces[typeOrdinal];
   }
 
   public JType getType(@Nonnull CommonType type) throws JTypeLookupException {
-    if (commonTypes[type.ordinal()] == null) {
-      commonTypes[type.ordinal()] = (JClassOrInterface) lookup.getType(type.getSignature());
+    int typeOrdinal = type.ordinal();
+    if (commonTypes[typeOrdinal] == null) {
+      commonTypes[typeOrdinal] = (JClassOrInterface) lookup.getType(type.getSignature());
     }
-    return commonTypes[type.ordinal()];
+    return commonTypes[typeOrdinal];
   }
 
 }
