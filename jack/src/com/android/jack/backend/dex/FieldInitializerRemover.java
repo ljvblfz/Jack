@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
@@ -73,6 +74,10 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
   private final boolean allowStringAsObjectInit =
       ThreadConfig.get(STRING_AS_INITIALVALUE_OF_OBJECT).booleanValue();
 
+  @Nonnull
+  private final JClass stringType =
+    Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+
   @Override
   public synchronized void run(@Nonnull JField field) throws Exception {
     JFieldInitializer declaration = field.getFieldInitializer();
@@ -83,8 +88,7 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
           field.isStatic() && field.isFinal() && initialValue instanceof JLiteral
           /* Object field initialized by a String literal: don't remove unless allowed */
           && (allowStringAsObjectInit
-              || field.getType().equals(
-                        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))
+              || field.getType().equals(stringType)
               || !(initialValue instanceof JAbstractStringLiteral))
           /* Field initialized by a class literal: don't remove unless allowed */
           && (allowClassInInitialValue || !(initialValue instanceof JClassLiteral))
