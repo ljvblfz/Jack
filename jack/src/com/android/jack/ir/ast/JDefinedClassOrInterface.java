@@ -174,6 +174,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     assert enclosingPackage != null;
     this.enclosingPackage = enclosingPackage;
     updateParents(enclosingPackage);
+    assert Jack.getSession().getPhantomLookup().check(this);
   }
 
   /**
