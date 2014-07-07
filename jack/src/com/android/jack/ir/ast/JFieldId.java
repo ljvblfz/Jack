@@ -88,4 +88,15 @@ public class JFieldId extends LocalMarkerManager
     }
     return type.equals(otherType);
   }
+
+  @Override
+  public final int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj == this;
+  }
+
 }

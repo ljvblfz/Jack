@@ -187,7 +187,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return super.hashCode();
   }
 
