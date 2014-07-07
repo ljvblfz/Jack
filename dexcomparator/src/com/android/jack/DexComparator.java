@@ -840,7 +840,7 @@ public class DexComparator {
         prototype,
         thisIdx);
     decoder.decode();
-    return new DebugInfo(decoder, dex, codeItem, bai.getPosition());
+    return new DebugInfo(decoder, dex, codeItem, bai.getPosition() - codeItem.getDebugInfoOffset());
   }
 
   private static String getClassName(DexBuffer dex, ClassDef classDef) {
