@@ -39,6 +39,6 @@ public class CompilerStateWriter implements RunnableSchedulable<JSession>{
   @Override
   public void run(@Nonnull JSession program) throws JackUserException {
     JackIncremental.getCompilerState().write(
-        ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT));
+        ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT_DIR));
   }
 }

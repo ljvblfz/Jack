@@ -21,6 +21,10 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,6 +57,9 @@ public class IncrementalTestingEnvironment extends TestTools {
   PrintStream outRedirectStream = null;
 
   @Nonnull
+  private final Directory compilerStateDir;
+
+  @Nonnull
   private final File testingFolder;
 
   @Nonnull
@@ -60,6 +67,9 @@ public class IncrementalTestingEnvironment extends TestTools {
 
   @Nonnull
   private final File dexFile;
+
+  @Nonnull
+  private final File jackFolder;
 
   private final Map<String, Long> fileModificationDate = new HashMap<String, Long>();
 
@@ -73,6 +83,11 @@ public class IncrementalTestingEnvironment extends TestTools {
       throw new IOException("Failed to create folder " + this.sourceFolder.getAbsolutePath());
     }
     dexFile = new File(testingFolder, "result.dex");
+    compilerStateDir =
+        new Directory(testingFolder.getAbsolutePath() + File.separatorChar + "compilerState",
+            null, Existence.MAY_EXIST, Permission.READ | Permission.WRITE,
+            ChangePermission.NOCHANGE);
+    jackFolder = new File(compilerStateDir.getFile(), "jackFiles");
   }
 
   public void addJavaFile(@Nonnull String packageName, @Nonnull String fileName,
@@ -111,8 +126,8 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   @Nonnull
-  public File getCompilerStateFile() {
-    return new File(testingFolder, "compilerState.ser");
+  public Directory getCompilerStateDirectory() {
+    return compilerStateDir;
   }
 
   public void incrementalBuildFromFolder() throws Exception {
@@ -122,11 +137,10 @@ public class IncrementalTestingEnvironment extends TestTools {
     Options options = TestTools.buildCommandLineArgs(testingFolder);
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
-    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), new File(testingFolder,
-        "jackIncrementalOutput").getAbsolutePath());
+    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFolder.getAbsolutePath());
     options.addProperty(JackIncremental.GENERATE_COMPILER_STATE.getName(), "true");
-    options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT.getName(), getCompilerStateFile()
-        .getAbsolutePath());
+    options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT_DIR.getName(), getCompilerStateDirectory()
+        .getFile().getAbsolutePath());
 
     compileSourceToDex(options, sourceFolder,
         TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), dexFile);
@@ -162,7 +176,6 @@ public class IncrementalTestingEnvironment extends TestTools {
 
     List<String> fqnOfRebuiltTypes = new ArrayList<String>();
     List<File> jackFiles = new ArrayList<File>();
-    File jackFolder = new File(testingFolder, "jackIncrementalOutput");
     fillJackFiles(jackFolder, jackFiles);
 
     for (File jackFile : jackFiles) {
@@ -184,7 +197,7 @@ public class IncrementalTestingEnvironment extends TestTools {
 
   public void snapshotJackFilesModificationDate() {
     List<File> jackFiles = new ArrayList<File>();
-    fillJackFiles(new File(testingFolder, "jackIncrementalOutput"), jackFiles);
+    fillJackFiles(jackFolder, jackFiles);
     for (File jackFile : jackFiles) {
       fileModificationDate.put(jackFile.getAbsolutePath(), Long.valueOf(jackFile.lastModified()));
     }
@@ -211,7 +224,7 @@ public class IncrementalTestingEnvironment extends TestTools {
   @Nonnull
   public List<File> getJackFiles() {
     List<File> jackFiles = new ArrayList<File>();
-    fillJackFiles(new File(testingFolder, "jackIncrementalOutput"), jackFiles);
+    fillJackFiles(jackFolder, jackFiles);
     return (jackFiles);
   }
 

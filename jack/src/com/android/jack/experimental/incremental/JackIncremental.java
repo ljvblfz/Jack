@@ -31,13 +31,16 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.util.TextUtils;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.UnrecoverableException;
-import com.android.sched.util.codec.PathCodec;
+import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -67,8 +70,9 @@ public class JackIncremental extends CommandLine {
   Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<File> COMPILER_STATE_OUTPUT = PropertyId.create(
-      "jack.experimental.compilerstate.output", "Compiler state output file", new PathCodec())
+  public static final PropertyId<Directory> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
+      "jack.experimental.compilerstate.output.dir", "Compiler state output folder",
+      new DirectoryCodec(Existence.MUST_EXIST, Permission.READ | Permission.WRITE))
       .requiredIf(GENERATE_COMPILER_STATE.getValue().isTrue());
 
   @CheckForNull
@@ -148,17 +152,19 @@ public class JackIncremental extends CommandLine {
     }
     ThreadConfig.setConfig(options.getConfig());
 
+    compilerState = new CompilerState(ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT_DIR));
+
     if (isIncrementalCompilation(options)) {
       logger.log(Level.INFO, "Incremental compilation");
 
       List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
 
-      compilerState = CompilerState.read(ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT));
-      Map<String, Set<String>> fileDependencies = compilerState.computeDependencies();
+      getCompilerState().read();
+
+      Map<String, Set<String>> fileDependencies = getCompilerState().computeDependencies();
       printDependencyStat(fileDependencies);
-      logger.log(Level.FINE, "Compiler state {0}", new Object[] {compilerState});
-      logger.log(Level.FINE, "File dependencies {0}",
-          new Object[] {dependenciesToString(fileDependencies)});
+      logger.log(Level.FINE, "Compiler state {0}", getCompilerState());
+      logger.log(Level.FINE, "File dependencies {0}", dependenciesToString(fileDependencies));
 
       Set<String> filesToRecompile = getFilesToRecompile(fileDependencies, options, javaFilesNames);
 
@@ -172,8 +178,8 @@ public class JackIncremental extends CommandLine {
         logger.log(Level.INFO, "Update compiler state");
         getCompilerState().updateCompilerState(filesToRecompile);
 
-        logger.log(Level.INFO, "Generate {0}", new Object[] {options.getOutputFile()});
-        logger.log(Level.INFO, "Ecj options {0}", new Object[] {options.getEcjArguments()});
+        logger.log(Level.INFO, "Generate {0}", options.getOutputFile());
+        logger.log(Level.INFO, "Ecj options {0}", options.getEcjArguments());
         Jack.run(options);
 
         logger.log(Level.INFO, "Merge {0} with {1}",
@@ -183,7 +189,6 @@ public class JackIncremental extends CommandLine {
         logger.log(Level.INFO, "No files to recompile");
       }
     } else {
-      compilerState = new CompilerState();
       Jack.run(options);
     }
   }
@@ -310,7 +315,7 @@ public class JackIncremental extends CommandLine {
     while (previousFilesIt.hasNext()) {
       String previousFileName = previousFilesIt.next();
       if (!javaFileNames.contains(previousFileName)) {
-        logger.log(Level.INFO, "{0} was deleted", new Object[] {previousFileName});
+        logger.log(Level.INFO, "{0} was deleted", previousFileName);
         deletedFiles.addAll(fileDependencies.get(previousFileName));
         deleteJackFilesFromJavaFiles(previousFileName);
         previousFilesIt.remove();
@@ -322,8 +327,8 @@ public class JackIncremental extends CommandLine {
 
   private static void deleteJackFilesFromJavaFiles(@Nonnull String javaFileName)
       throws JackUserException {
-    for (String jackFileToRemove :
-        getCompilerState().getJacksFileNameFromJavaFileName(javaFileName)) {
+    for (String jackFileToRemove : getCompilerState()
+        .getJacksFileNameFromJavaFileName(javaFileName)) {
       File jackFile = new File(jackFileToRemove);
       if (jackFile.exists() && !jackFile.delete()) {
         throw new JackIOException("Failed to delete file " + jackFileToRemove);
@@ -339,7 +344,7 @@ public class JackIncremental extends CommandLine {
 
     for (String javaFileName : javaFileNames) {
       if (!previousFiles.contains(javaFileName)) {
-        logger.log(Level.INFO, "{0} was added", new Object[] {javaFileName});
+        logger.log(Level.INFO, "{0} was added", javaFileName);
         addedFiles.add(javaFileName);
       }
     }
@@ -357,7 +362,7 @@ public class JackIncremental extends CommandLine {
       File javaFile = new File(javaFileName);
       if (javaFileNames.contains(javaFileName) &&
           javaFile.lastModified() > options.getOutputFile().lastModified()) {
-        logger.log(Level.INFO, "{0} was modified", new Object[] {javaFileName});
+        logger.log(Level.INFO, "{0} was modified", javaFileName);
         modifiedFiles.add(javaFileName);
         modifiedFiles.addAll(previousFileEntry.getValue());
         deleteJackFilesFromJavaFiles(javaFileName);
@@ -407,7 +412,7 @@ public class JackIncremental extends CommandLine {
     if (!options.getEcjArguments().isEmpty()
         && ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
         && ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()
-        && ThreadConfig.get(JackIncremental.COMPILER_STATE_OUTPUT).exists()) {
+        && getCompilerState().exists()) {
       return true;
     }
 

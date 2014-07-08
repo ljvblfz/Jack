@@ -57,7 +57,8 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    CompilerState csm = CompilerState.read(ite.getCompilerStateFile());
+    CompilerState csm = new CompilerState(ite.getCompilerStateDirectory());
+    csm.read();
     Map<String, Set<String>> dependencies1 = csm.computeDependencies();
 
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
@@ -65,8 +66,7 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    csm = CompilerState.read(ite.getCompilerStateFile());
-    CompilerState.read(ite.getCompilerStateFile());
+    csm.read();
     Map<String, Set<String>> dependencies2 = csm.computeDependencies();
 
     assert dependencies1.equals(dependencies2);
