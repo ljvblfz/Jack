@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="testing"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
 	<classpathentry kind="src" path=".apt_generated">
@@ -10,5 +11,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/dex-lib.jar"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
