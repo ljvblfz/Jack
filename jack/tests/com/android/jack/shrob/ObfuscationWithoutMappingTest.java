@@ -52,7 +52,7 @@ public class ObfuscationWithoutMappingTest extends AbstractTest {
     flags.setPrintMapping(true);
 
     Options jackOptions = new Options();
-    jackOptions.nameProvider = "rot13";
+    jackOptions.setNameProvider("rot13");
     TestTools.runWithFlags(jackOptions, bootclasspath, classpath,
         TestTools.getJackTestsWithJackFolder(testName), flags);
     ListingComparator.compare(refOutputMapping, candidateOutputMapping);

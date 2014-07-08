@@ -335,7 +335,7 @@ public class FileConflictTest {
     copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
     System.out.println(jackOutput.getAbsolutePath());
     Options options = new Options();
-    options.nameProvider = "rot13";
+    options.setNameProvider("rot13");
 
     // run Jack on Jack dir
     ProguardFlags flags = new ProguardFlags(new File(testSrcDir, "proguard.flags"));

@@ -303,9 +303,6 @@ public class Options {
 
   protected File typeAndMemberListing;
 
-  @CheckForNull
-  public String nameProvider = null;
-
   @Nonnull
   protected Filter<JMethod> filter = new AllMethods();
 
@@ -456,10 +453,6 @@ public class Options {
       }
     }
 
-    for (Entry<String, String> entry : properties.entrySet()) {
-      configBuilder.setString(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
-    }
-
     configBuilder.pushDefaultLocation(new StringLocation("Options"));
 
     if (jarjarRulesFile != null) {
@@ -528,12 +521,9 @@ public class Options {
         configBuilder.setString(MappingPrinter.MAPPING_OUTPUT_FILE,
             outputmapping.getAbsolutePath());
       }
-      if (nameProvider != null) {
-        configBuilder.setString(NameProviderFactory.NAMEPROVIDER, nameProvider);
-      } else {
-        if (flags.getUseMixedCaseClassName()) {
-          configBuilder.setString(NameProviderFactory.NAMEPROVIDER, "mixed-case");
-        }
+
+      if (flags.getUseMixedCaseClassName()) {
+        configBuilder.setString(NameProviderFactory.NAMEPROVIDER, "mixed-case");
       }
 
       String packageForRenamedClasses = flags.getPackageForRenamedClasses();
@@ -611,6 +601,10 @@ public class Options {
     }
 
     configBuilder.popDefaultLocation();
+
+    for (Entry<String, String> entry : properties.entrySet()) {
+      configBuilder.setString(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
+    }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
 
@@ -756,6 +750,10 @@ public class Options {
 
   public void setProguardFlagsFile(@Nonnull List<File> proguardFlagsFiles) {
     this.proguardFlagsFiles = proguardFlagsFiles;
+  }
+
+  public void setNameProvider(@Nonnull String nameProvider) {
+    properties.put(NameProviderFactory.NAMEPROVIDER.getName(), nameProvider);
   }
 
   public void enableDxOptimizations() {
