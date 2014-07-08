@@ -135,9 +135,6 @@ public class IncrementalTestingEnvironment extends TestTools {
     startErrRedirection();
 
     Options options = TestTools.buildCommandLineArgs(testingFolder);
-    options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
-    options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
-    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFolder.getAbsolutePath());
     options.addProperty(JackIncremental.GENERATE_COMPILER_STATE.getName(), "true");
     options.addProperty(JackIncremental.COMPILER_STATE_OUTPUT_DIR.getName(), getCompilerStateDirectory()
         .getFile().getAbsolutePath());
