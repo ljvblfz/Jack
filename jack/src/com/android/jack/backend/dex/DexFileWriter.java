@@ -16,7 +16,7 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackFileException;
+import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {DexFileMarker.Prepared.class})
 @Produce(DexFileProduct.class)
 @Support(DexNonZipOutput.class)
-public class DexFileWriter implements RunnableSchedulable<JSession> {
+public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   private final OutputStreamFile outputFile = ThreadConfig.get(Options.DEX_FILE_OUTPUT);
@@ -55,21 +55,18 @@ public class DexFileWriter implements RunnableSchedulable<JSession> {
 
     OutputStream outputStream = outputFile.getOutputStream();
     try {
-      dexFile.writeTo(outputStream, null, false);
-    } catch (IOException e) {
-      throw new JackFileException(
-          "Could not write Dex file to output '" + outputFile.getLocation() + "'", e);
+      if (emitOneDexPerType) {
+        mergeDexPerType(dexFile, outputStream);
+      } else {
+        try {
+          dexFile.writeTo(outputStream, null, false);
+        } catch (IOException e) {
+          throw new JackIOException("Could not write Dex file to output '"
+              + outputFile.getLocation() + "'", e);
+        }
+      }
     } finally {
       outputStream.close();
     }
-  }
-
-  @Nonnull
-  private DexFile getDexFile(@Nonnull JSession session) {
-    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-    DexFile dexFile = dexFileMarker.getDexFile();
-    assert dexFile != null;
-    return dexFile;
   }
 }

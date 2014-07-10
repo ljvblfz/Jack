@@ -16,6 +16,7 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexCodeMarker;
@@ -25,6 +26,7 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
 
@@ -37,12 +39,22 @@ import javax.annotation.Nonnull;
 @Constraint(need = {DexCodeMarker.class, DexFileMarker.Complete.class})
 public class DexFilePreparer implements RunnableSchedulable<JSession> {
 
+  private final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
+      .booleanValue();
+
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
-    DexFile dexFile = dexFileMarker.getDexFile();
-    assert dexFile != null;
-    dexFile.prepare(null);
+
+    if (emitOneDexPerType) {
+      for (DexFile dexFile : dexFileMarker.getAllDexPerType()) {
+        dexFile.prepare(null);
+      }
+    } else {
+      DexFile dexFile = dexFileMarker.getFinalDexFile();
+      assert dexFile != null;
+      dexFile.prepare(null);
+    }
   }
 }

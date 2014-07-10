@@ -49,7 +49,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {DexFileMarker.Prepared.class})
 @Produce(DexFileProduct.class)
 @Support(DexZipOutput.class)
-public class DexZipWriter implements RunnableSchedulable<JSession> {
+public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   private static final String DEX_NAME = "classes.dex";
@@ -66,7 +66,11 @@ public class DexZipWriter implements RunnableSchedulable<JSession> {
       zos = new ZipOutputStream(new FileOutputStream(outputFile));
       ZipEntry entry = new ZipEntry(DEX_NAME);
       zos.putNextEntry(entry);
-      dexFile.writeTo(zos, null, false);
+      if (emitOneDexPerType) {
+        mergeDexPerType(dexFile, zos);
+      } else {
+        dexFile.writeTo(zos, null, false);
+      }
       zos.closeEntry();
       for (Resource resource : session.getResources()) {
         writeResource(resource, zos);
@@ -81,14 +85,6 @@ public class DexZipWriter implements RunnableSchedulable<JSession> {
     }
   }
 
-  @Nonnull
-  private DexFile getDexFile(@Nonnull JSession session) {
-    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-    DexFile dexFile = dexFileMarker.getDexFile();
-    assert dexFile != null;
-    return dexFile;
-  }
 
   private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
       throws IOException {

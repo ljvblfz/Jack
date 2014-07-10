@@ -16,14 +16,17 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.Options;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
 
@@ -40,6 +43,9 @@ import javax.annotation.Nonnull;
 @Transform(add = DexFileMarker.class)
 public class DexFileBuilder implements RunnableSchedulable<JSession> {
 
+  private final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
+      .booleanValue();
+
   @Nonnull
   private final DexFile dexFile = new DexFile(new DexOptions());
 
@@ -51,6 +57,14 @@ public class DexFileBuilder implements RunnableSchedulable<JSession> {
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     DexFileMarker dexFileMarker = new DexFileMarker(dexFile);
+
+    if (emitOneDexPerType) {
+      for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
+        DexFile file = new DexFile(new DexOptions());
+        dexFileMarker.addDexFilePerType(type, file);
+      }
+    }
+
     session.addMarker(dexFileMarker);
   }
 }
