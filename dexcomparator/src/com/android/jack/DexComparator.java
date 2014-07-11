@@ -31,6 +31,9 @@ import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.util.ByteInput;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,14 +51,18 @@ import javax.annotation.Nonnull;
  */
 public class DexComparator {
 
+  public static final int NO_DIFFERENCE = 0;
+  public static final int DIFFERENCE = 1;
+  public static final int PROBLEM = 2;
+
   private final Logger logger;
   private DexBuffer referenceDexFile;
   private DexBuffer candidateDexFile;
   private static final Level ERROR_LEVEL = Level.SEVERE;
   private static final Level WARNING_LEVEL = Level.WARNING;
   private static final Level DEBUG_LEVEL = Level.FINE;
-  private boolean strict;
-  private boolean enableDebugInfoComparison;
+  private boolean strict = false;
+  private boolean enableDebugInfoComparison = false;
   private byte[] referenceData;
   private byte[] candidateData;
   private int refThisIndex;
@@ -77,16 +84,9 @@ public class DexComparator {
   @Nonnull
   private static final String STATIC_INIT_NAME = "<clinit>";
 
-  public DexComparator() {
-    logger = Logger.getLogger(this.getClass().getName());
-    logger.setLevel(WARNING_LEVEL);
-  }
-
   /**
    * Launch the comparison between a reference Dex {@code File} and a candidate Dex {@code File}.
    *
-   * @param referenceFile the reference Dex {@code File}
-   * @param candidateFile the candidate Dex {@code File}
    * @param compareDebugInfo also compare debug infos
    * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
    *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
@@ -95,31 +95,26 @@ public class DexComparator {
    * compareDebugInfo is enabled
    * @param compareInstructionNumber enable comparison of number of instructions
    * @param instructionNumberTolerance tolerance factor for comparison of number of instructions
-   * @throws DifferenceFoundException if a difference between the two Dex files is found
-   * @throws IOException if an error occurs while loading the dex files
    */
-  public void compare(@Nonnull File referenceFile,
-      @Nonnull File candidateFile,
+  public DexComparator(
       boolean compareDebugInfo,
       boolean strict,
       boolean compareDebugInfoBinarily,
       boolean compareInstructionNumber,
-      float instructionNumberTolerance) throws DifferenceFoundException, IOException {
+      float instructionNumberTolerance) {
+    logger = Logger.getLogger(this.getClass().getName());
+    logger.setLevel(WARNING_LEVEL);
 
     this.strict = strict;
     enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
     enableInstructionNumberComparison = compareInstructionNumber;
     this.instructionNumberTolerance = instructionNumberTolerance;
     enableDebugInfoComparison = compareDebugInfo;
-
-    compare(referenceFile, candidateFile);
   }
 
   /**
    * Launch the comparison between a reference Dex {@code File} and a candidate Dex {@code File}.
    *
-   * @param referenceFile the reference Dex {@code File}
-   * @param candidateFile the candidate Dex {@code File}
    * @param compareDebugInfo also compare debug infos
    * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
    *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
@@ -127,25 +122,22 @@ public class DexComparator {
    * @param compareDebugInfoBinarily enable binary comparison of debug infos, allowed only if
    * compareDebugInfo is enabled
    * @param compareCodeBinarily enable code binary comparison
-   * @throws DifferenceFoundException if a difference between the two Dex files is found
-   * @throws IOException if an error occurs while loading the dex files
    */
-  public void compare(@Nonnull File referenceFile,
-      @Nonnull File candidateFile,
+  public DexComparator(
       boolean compareDebugInfo,
       boolean strict,
       boolean compareDebugInfoBinarily,
-      boolean compareCodeBinarily) throws DifferenceFoundException, IOException {
+      boolean compareCodeBinarily) {
+    logger = Logger.getLogger(this.getClass().getName());
+    logger.setLevel(WARNING_LEVEL);
 
     this.strict = strict;
     enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
     enableBinaryCodeComparison = compareCodeBinarily;
     enableDebugInfoComparison = compareDebugInfo;
-
-    compare(referenceFile, candidateFile);
   }
 
-  private void compare(@Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException,
+  public void compare(@Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException,
       DifferenceFoundException {
 
     if (enableBinaryDebugInfoComparison && !enableDebugInfoComparison) {
@@ -1019,6 +1011,45 @@ public class DexComparator {
 
     public int getPosition() {
       return position;
+    }
+  }
+
+  public static void main(@Nonnull String[] args) {
+    DexComparatorOptions options = new DexComparatorOptions();
+    CmdLineParser parser = new CmdLineParser(options);
+    parser.setUsageWidth(100);
+
+    try {
+      parser.parseArgument(args);
+      DexComparator dc = null;
+
+      if (options.compareInstructionNumber) {
+        if (options.enableBinaryCodeComparison) {
+          throw new CmdLineException(parser,
+              "Instruction number comparison is not allowed with binary code comparison");
+        }
+        dc =
+            new DexComparator(options.enableDebugInfoComparison, options.strict,
+                options.enableBinaryDebugInfoComparison, options.compareInstructionNumber,
+                options.instructionNumberTolerance);
+      } else {
+       dc = new DexComparator(options.enableDebugInfoComparison, options.strict,
+           options.enableBinaryDebugInfoComparison, options.enableBinaryCodeComparison);
+      }
+
+      dc.compare(options.referenceFile, options.candidateFile);
+      new DexAnnotationsComparator().compare(options.referenceFile, options.candidateFile);
+      System.exit(NO_DIFFERENCE);
+    } catch (CmdLineException e) {
+      System.err.println(e.getMessage());
+      parser.printUsage(System.err);
+      System.exit(PROBLEM);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.exit(PROBLEM);
+    } catch (DifferenceFoundException e) {
+      System.err.println(e.getMessage());
+      System.exit(DIFFERENCE);
     }
   }
 }

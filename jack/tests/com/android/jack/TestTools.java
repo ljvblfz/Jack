@@ -846,8 +846,8 @@ public class TestTools {
         jarjarRules).dexFile;
 
     // Compare Jack Dex file to reference
-    new DexComparator().compare(refDex, jackDex, withDebugInfo, strict,
-        false /* compareDebugInfoBinary */, compareInstructionNumber, instructionNumberTolerance);
+    new DexComparator(withDebugInfo, strict, false /* compareDebugInfoBinary */,
+        compareInstructionNumber, instructionNumberTolerance).compare(refDex, jackDex);
   }
 
   private static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
