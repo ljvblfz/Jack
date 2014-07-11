@@ -904,7 +904,7 @@
     <delete dir="${dexcomparator.dist.dir}" />
   </target>
 
-  <target name="dexcomparator-lib" depends="dx-lib,dex-lib,jsr305-lib">
+  <target name="dexcomparator-lib" depends="dx-lib,dex-lib,jsr305-lib,guava-lib">
     <!-- project layout -->
     <mkdir dir="${dexcomparator.build.outdir}"/>
     <mkdir dir="${dexcomparator.libs.dir}"/>
@@ -915,6 +915,7 @@
         <file name="${dx.dist.dir}/${dx.libname}" />
         <file name="${dexlib.dist.dir}/${dexlib.libname}" />
         <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+	<file name="${guava.dist.dir}/${guava.libname}" />
       </filelist>
     </copy>
     <!-- compile -->
