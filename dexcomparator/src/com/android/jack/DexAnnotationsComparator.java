@@ -69,6 +69,8 @@ public class DexAnnotationsComparator {
   @Nonnull
   private static final String MEMBER_CLASSES_DESCRIPTOR = "Ldalvik/annotation/MemberClasses;";
   @Nonnull
+  private static final String THROWS_DESCRIPTOR = "Ldalvik/annotation/Throws;";
+  @Nonnull
   private final Logger logger;
   @Nonnull
   private final DexFile referenceDexFile;
@@ -455,40 +457,24 @@ public class DexAnnotationsComparator {
         } else if (encodedValue instanceof ArrayEncodedSubValue) {
           ArrayEncodedSubValue arrayEncodedValue = (ArrayEncodedSubValue) encodedValue;
           ArrayEncodedSubValue candArrayEncodedValue = (ArrayEncodedSubValue) candEncodedValue;
-          isEqual = true;
-          boolean isMemberClass = type.equals(MEMBER_CLASSES_DESCRIPTOR);
 
           List<EncodedValue> refEncodedValues = Arrays.asList(arrayEncodedValue.values);
           List<EncodedValue> candEncodedValues = Arrays.asList(candArrayEncodedValue.values);
-          Collections.sort(refEncodedValues);
-          Collections.sort(candEncodedValues);
-          Iterator<EncodedValue> refEncodedValuesIterator = refEncodedValues.iterator();
-          Iterator<EncodedValue> candEncodedValuesIterator = candEncodedValues.iterator();
 
-          while (refEncodedValuesIterator.hasNext()) {
-            if (!candEncodedValuesIterator.hasNext()) {
-              isEqual = false;
-              break;
-            }
-            EncodedValue refValue = refEncodedValuesIterator.next();
+          // With system annotations we should not take the order of the values in the encoded array
+          // into account because it is synthetic anyway. We only need to avoid "MemberClasses" and
+          // "Throws" because they're the only ones that contain encoded arrays.
+          boolean doNotCompareWithOrder =
+              type.equals(MEMBER_CLASSES_DESCRIPTOR) || type.equals(THROWS_DESCRIPTOR);
 
-            // our reference may have synthetic anonymous classes that we should ignore
-            if (isMemberClass) {
-              TypeEncodedValue typeRefValue = (TypeEncodedValue) refValue;
-              if (isAnonymousTypeName(typeRefValue.value.getTypeDescriptor())) {
-                continue;
-              }
-            }
-
-            EncodedValue candValue = candEncodedValuesIterator.next();
-            isEqual = compareValues(refValue, candValue, elementString, type, name);
-            if (!isEqual) {
-              break;
-            }
+          if (doNotCompareWithOrder) {
+            isEqual = compareUnorderedEncodedValues(refEncodedValues, candEncodedValues,
+                elementString, type, name);
+          } else {
+            isEqual = compareOrderedEncodedValues(refEncodedValues, candEncodedValues,
+                elementString, type, name);
           }
-          if (candEncodedValuesIterator.hasNext()) {
-            isEqual = false;
-          }
+
         } else {
           isEqual = encodedValue.compareTo(candEncodedValue) == 0;
         }
@@ -513,6 +499,50 @@ public class DexAnnotationsComparator {
             + type
             + ", name = " + name
             + ", encoded values have different types");
+      }
+      return isEqual;
+    }
+
+    private boolean compareUnorderedEncodedValues(List<EncodedValue> refEncodedValues,
+        List<EncodedValue> candEncodedValues, String elementString, String type, String name)
+        throws DifferenceFoundException {
+      Collections.sort(refEncodedValues);
+      Collections.sort(candEncodedValues);
+      return compareOrderedEncodedValues(refEncodedValues, candEncodedValues, elementString, type,
+          name);
+    }
+
+    private boolean compareOrderedEncodedValues(List<EncodedValue> refEncodedValues,
+        List<EncodedValue> candEncodedValues, String elementString, String type, String name)
+        throws DifferenceFoundException {
+      boolean isEqual = true;
+      boolean isMemberClass = type.equals(MEMBER_CLASSES_DESCRIPTOR);
+      Iterator<EncodedValue> refEncodedValuesIterator = refEncodedValues.iterator();
+      Iterator<EncodedValue> candEncodedValuesIterator = candEncodedValues.iterator();
+
+      while (refEncodedValuesIterator.hasNext()) {
+        if (!candEncodedValuesIterator.hasNext()) {
+          isEqual = false;
+          break;
+        }
+        EncodedValue refValue = refEncodedValuesIterator.next();
+
+        // our reference may have additional synthetic anonymous classes that we should ignore
+        if (isMemberClass) {
+          TypeEncodedValue typeRefValue = (TypeEncodedValue) refValue;
+          if (isAnonymousTypeName(typeRefValue.value.getTypeDescriptor())) {
+            continue;
+          }
+        }
+
+        EncodedValue candValue = candEncodedValuesIterator.next();
+        isEqual = compareValues(refValue, candValue, elementString, type, name);
+        if (!isEqual) {
+          break;
+        }
+      }
+      if (candEncodedValuesIterator.hasNext()) {
+        isEqual = false;
       }
       return isEqual;
     }
