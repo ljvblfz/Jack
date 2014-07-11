@@ -73,10 +73,6 @@ public class DexAnnotationsComparator {
   @Nonnull
   private final Logger logger;
   @Nonnull
-  private final DexFile referenceDexFile;
-  @Nonnull
-  private final DexFile candidateDexFile;
-  @Nonnull
   private static final Level ERROR_LEVEL = Level.SEVERE;
   @Nonnull
   private static final Level DEBUG_LEVEL = Level.FINE;
@@ -86,17 +82,16 @@ public class DexAnnotationsComparator {
   private static final boolean TOLERATE_MISSING_INITS = true;
   private static final boolean TOLERATE_MISSING_CLINITS = true;
 
-  public DexAnnotationsComparator(
-      @Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException {
+  public DexAnnotationsComparator() {
     logger = Logger.getLogger(this.getClass().getName());
     logger.setLevel(ERROR_LEVEL);
-
-    referenceDexFile = new DexFile(referenceFile);
-    candidateDexFile = new DexFile(candidateFile);
   }
 
   @SuppressWarnings("unchecked")
-  public void compare() throws DifferenceFoundException {
+  public void compare(@Nonnull File referenceFile, @Nonnull File candidateFile)
+      throws DifferenceFoundException, IOException {
+    DexFile referenceDexFile = new DexFile(referenceFile);
+    DexFile candidateDexFile = new DexFile(candidateFile);
 
     /* Reuse delegate instance for maximum memory saving */
     CompareElementAnnotation compareElementAnnotation =

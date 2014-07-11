@@ -1021,5 +1021,4 @@ public class DexComparator {
       return position;
     }
   }
-
 }

@@ -48,7 +48,7 @@ public class AnnotationComparisonTest {
     File dex2 = File.createTempFile("dex2", ".dex");
     dex2.deleteOnExit();
     TestTools.compileToDexWithJack(a2, dex2);
-    new DexAnnotationsComparator(dex1, dex2).compare();
+    new DexAnnotationsComparator().compare(dex1, dex2);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class AnnotationComparisonTest {
     File dex2 = File.createTempFile("dex2", ".dex");
     dex2.deleteOnExit();
     TestTools.compileToDexWithJack(a2, dex2);
-    new DexAnnotationsComparator(dex1, dex2).compare();
+    new DexAnnotationsComparator().compare(dex1, dex2);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class AnnotationComparisonTest {
     sourceList2.add(new File(testSource2, sourcePath2));
     TestTools.compileToDexWithJack(sourceList2, dex2);
     try {
-      new DexAnnotationsComparator(dex1, dex2).compare();
+      new DexAnnotationsComparator().compare(dex1, dex2);
       Assert.fail();
     } catch (DifferenceFoundException e) {
     }
@@ -100,7 +100,7 @@ public class AnnotationComparisonTest {
     sourceList1.add(new File(testSource1, sourcePath1));
     sourceList1.add(new File(testSource1, sourcePath2));
     TestTools.compileToDexWithJack(sourceList1, dex1);
-    new DexAnnotationsComparator(dex1, dex1).compare();
+    new DexAnnotationsComparator().compare(dex1, dex1);
   }
 
 }
