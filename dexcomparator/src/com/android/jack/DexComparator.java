@@ -55,7 +55,7 @@ public class DexComparator {
   private static final Level WARNING_LEVEL = Level.WARNING;
   private static final Level DEBUG_LEVEL = Level.FINE;
   private boolean strict;
-  private boolean debugInfo;
+  private boolean enableDebugInfoComparison;
   private byte[] referenceData;
   private byte[] candidateData;
   private int refThisIndex;
@@ -87,11 +87,12 @@ public class DexComparator {
    *
    * @param referenceFile the reference Dex {@code File}
    * @param candidateFile the candidate Dex {@code File}
-   * @param withDebugInfo also compare debug infos
+   * @param compareDebugInfo also compare debug infos
    * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
    *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
    *        structures of the reference Dex
-   * @param compareDebugInfoBinarily enable binary comparison of debug infos
+   * @param compareDebugInfoBinarily enable binary comparison of debug infos, allowed only if
+   * compareDebugInfo is enabled
    * @param compareInstructionNumber enable comparison of number of instructions
    * @param instructionNumberTolerance tolerance factor for comparison of number of instructions
    * @throws DifferenceFoundException if a difference between the two Dex files is found
@@ -99,7 +100,7 @@ public class DexComparator {
    */
   public void compare(@Nonnull File referenceFile,
       @Nonnull File candidateFile,
-      boolean withDebugInfo,
+      boolean compareDebugInfo,
       boolean strict,
       boolean compareDebugInfoBinarily,
       boolean compareInstructionNumber,
@@ -109,7 +110,7 @@ public class DexComparator {
     enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
     enableInstructionNumberComparison = compareInstructionNumber;
     this.instructionNumberTolerance = instructionNumberTolerance;
-    debugInfo = withDebugInfo;
+    enableDebugInfoComparison = compareDebugInfo;
 
     compare(referenceFile, candidateFile);
   }
@@ -119,18 +120,19 @@ public class DexComparator {
    *
    * @param referenceFile the reference Dex {@code File}
    * @param candidateFile the candidate Dex {@code File}
-   * @param withDebugInfo also compare debug infos
+   * @param compareDebugInfo also compare debug infos
    * @param strict if false, the candidate Dex must <i>at least<i/> contain all the structures of
    *        the reference Dex; if true, the candidate Dex must <i>exactly<i/> contain all the
    *        structures of the reference Dex
-   * @param compareDebugInfoBinarily enable binary comparison of debug infos
+   * @param compareDebugInfoBinarily enable binary comparison of debug infos, allowed only if
+   * compareDebugInfo is enabled
    * @param compareCodeBinarily enable code binary comparison
    * @throws DifferenceFoundException if a difference between the two Dex files is found
    * @throws IOException if an error occurs while loading the dex files
    */
   public void compare(@Nonnull File referenceFile,
       @Nonnull File candidateFile,
-      boolean withDebugInfo,
+      boolean compareDebugInfo,
       boolean strict,
       boolean compareDebugInfoBinarily,
       boolean compareCodeBinarily) throws DifferenceFoundException, IOException {
@@ -138,13 +140,18 @@ public class DexComparator {
     this.strict = strict;
     enableBinaryDebugInfoComparison = compareDebugInfoBinarily;
     enableBinaryCodeComparison = compareCodeBinarily;
-    debugInfo = withDebugInfo;
+    enableDebugInfoComparison = compareDebugInfo;
 
     compare(referenceFile, candidateFile);
   }
 
   private void compare(@Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException,
       DifferenceFoundException {
+
+    if (enableBinaryDebugInfoComparison && !enableDebugInfoComparison) {
+      throw new IllegalArgumentException(
+          "Debug info binary comparison cannot be enabled if debug info comparison is not enabled");
+    }
 
     referenceDexFile = new DexBuffer(referenceFile);
     referenceData = referenceDexFile.getBytes();
@@ -601,7 +608,8 @@ public class DexComparator {
           /* Access flags */
           // TODO(?): remove testing of debugInfo and do something else to be able to not check
           // structure when comparing debug info
-          if ((!debugInfo) && (encMeth.getAccessFlags() != candidateEncMeth.getAccessFlags())) {
+          if ((!enableDebugInfoComparison)
+              && (encMeth.getAccessFlags() != candidateEncMeth.getAccessFlags())) {
             logger.log(ERROR_LEVEL,
                 "Method Access Flags of {0}.{1}{2} NOK: reference = {3}, candidate = {4}",
                 new Object[] {className, refMethodName, refMethodProto, Integer.valueOf(
@@ -620,7 +628,7 @@ public class DexComparator {
               assert foundMethods != null;
               foundMethods.add(candidateEncMeth);
             }
-            if (debugInfo) {
+            if (enableDebugInfoComparison) {
               checkDebugInfo(encMeth, candidateEncMeth, className);
             }
             if (enableBinaryCodeComparison) {
