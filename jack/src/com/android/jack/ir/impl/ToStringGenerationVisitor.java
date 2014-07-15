@@ -787,6 +787,7 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
       semi();
       newlineOpt();
     } else {
+      space();
       JAbstractMethodBody body = x.getBody();
       assert body != null;
       accept(body);
