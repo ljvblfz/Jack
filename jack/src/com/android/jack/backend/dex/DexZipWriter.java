@@ -16,7 +16,7 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackFileException;
+import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
@@ -31,13 +31,18 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -55,43 +60,54 @@ public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSess
   private static final String DEX_NAME = "classes.dex";
 
   @Nonnull
-  private final File outputFile = ThreadConfig.get(Options.DEX_ZIP_OUTPUT);
+  private final OutputVDir outputVDir = ThreadConfig.get(Options.DEX_ZIP_OUTPUT);
+
+  @Nonnull
+  private final Logger logger = LoggerFactory.getLogger();
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     DexFile dexFile = getDexFile(session);
+    OutputVFile vFile = outputVDir.createOutputVFile(new VPath(DEX_NAME, '/'));
+    OutputStream osDex = new BufferedOutputStream(vFile.openWrite());
 
-    ZipOutputStream zos = null;
     try {
-      zos = new ZipOutputStream(new FileOutputStream(outputFile));
-      ZipEntry entry = new ZipEntry(DEX_NAME);
-      zos.putNextEntry(entry);
       if (emitOneDexPerType) {
-        mergeDexPerType(dexFile, zos);
+        mergeDexPerType(dexFile, osDex);
       } else {
-        dexFile.writeTo(zos, null, false);
-      }
-      zos.closeEntry();
-      for (Resource resource : session.getResources()) {
-        writeResource(resource, zos);
+
+        dexFile.writeTo(osDex, null, false);
       }
     } catch (IOException e) {
-      throw new JackFileException(
-          "Could not write Dex archive to output '" + outputFile.getAbsolutePath() + "'", e);
+      throw new JackIOException("Could not write Dex file to output '" + vFile + "'", e);
     } finally {
-      if (zos != null) {
-        zos.close();
+      try {
+        osDex.close();
+      } catch (IOException e) {
+        logger.log(Level.WARNING, "Failed to close output stream on '" + vFile + "'", e);
       }
     }
-  }
 
-
-  private void writeResource(@Nonnull Resource resource, @Nonnull ZipOutputStream zos)
-      throws IOException {
-    VPath path = resource.getPath();
-    ZipEntry resourceEntry = new ZipEntry(path.getPathAsString('/'));
-    zos.putNextEntry(resourceEntry);
-    BytesStreamSucker sucker = new BytesStreamSucker(resource.getVFile().openRead(), zos);
-    sucker.suck();
+    for (Resource resource : session.getResources()) {
+      OutputVFile resourceVFile = outputVDir.createOutputVFile(resource.getPath());
+      InputStream is = new BufferedInputStream(resource.getVFile().openRead());
+      OutputStream os = new BufferedOutputStream(resourceVFile.openWrite());
+      try {
+        BytesStreamSucker sucker = new BytesStreamSucker(is, os);
+        sucker.suck();
+      } finally {
+        try {
+          is.close();
+        } catch (IOException e) {
+          logger.log(Level.WARNING,
+              "Failed to close input stream on '" + resource.getVFile() + "'", e);
+        }
+        try {
+          os.close();
+        } catch (IOException e) {
+          logger.log(Level.WARNING, "Failed to close output stream on '" + resourceVFile + "'", e);
+        }
+      }
+    }
   }
 }
