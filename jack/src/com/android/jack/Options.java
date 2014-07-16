@@ -33,7 +33,7 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.codec.DirectoryCodec;
+import com.android.sched.util.codec.InputOutputVDirCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.OutputVDirCodec;
 import com.android.sched.util.codec.PathCodec;
@@ -47,9 +47,7 @@ import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.StringLocation;
@@ -57,6 +55,7 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.OutputVDir;
 
 import org.kohsuke.args4j.Argument;
@@ -128,9 +127,9 @@ public class Options {
       Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<Directory> DEX_FILE_FOLDER = PropertyId.create(
+  public static final PropertyId<InputOutputVDir> DEX_FILE_FOLDER = PropertyId.create(
       "jack.dex.output.folder", "Dex output folder",
-      new DirectoryCodec(Existence.MAY_EXIST, Permission.READ | Permission.WRITE)).requiredIf(
+      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue());
 
   @Nonnull

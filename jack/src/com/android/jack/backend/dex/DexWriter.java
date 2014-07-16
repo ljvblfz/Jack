@@ -31,10 +31,12 @@ import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergeOverflow;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputOutputVFile;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -57,15 +59,16 @@ public abstract class DexWriter {
       throws JackUserException {
     JackMerger merger = new JackMerger(dexFile);
 
-    List<File> dexFiles = new ArrayList<File>();
-    fillDexFiles(ThreadConfig.get(Options.DEX_FILE_FOLDER).getFile(), dexFiles);
+    List<InputVFile> dexFiles = new ArrayList<InputVFile>();
+    InputOutputVDir dexFileVDir = ThreadConfig.get(Options.DEX_FILE_FOLDER);
+    fillDexFiles(dexFileVDir, dexFiles);
 
-    for (File dexFileToMerge : dexFiles) {
+    for (InputVFile dexFileToMerge : dexFiles) {
       try {
-        merger.addDexFile(new DexBuffer(new FileInputStream(dexFileToMerge)));
+        merger.addDexFile(new DexBuffer(dexFileToMerge.openRead()));
       } catch (IOException e) {
-        throw new JackIOException("Could not read Dex file '" + dexFileToMerge.getAbsolutePath()
-            + "'", e);
+        throw new JackIOException(
+            "Could not read Dex file '" + dexFileToMerge.getLocation().getDescription() + "'", e);
       } catch (MergeOverflow e) {
         throw new JackUserException("Index overflow during merge of dex files", e);
       }
@@ -93,13 +96,14 @@ public abstract class DexWriter {
         DEX_FILE_EXTENSION), '/');
   }
 
-  private void fillDexFiles(@Nonnull File file, @Nonnull List<File> dexFiles) {
-    if (file.isDirectory()) {
-      for (File subFile : file.listFiles()) {
-        fillDexFiles(subFile, dexFiles);
+  private void fillDexFiles(@Nonnull InputOutputVDir dexFileVDir,
+      @Nonnull List<InputVFile> dexFiles) {
+    for (VElement subFile : dexFileVDir.list()) {
+      if (dexFileVDir.isVDir()) {
+        fillDexFiles((InputOutputVDir) subFile, dexFiles);
+      } else if (dexFileVDir.getName().endsWith(DEX_FILE_EXTENSION)) {
+        dexFiles.add((InputOutputVFile) dexFileVDir);
       }
-    } else if (file.getName().endsWith(DEX_FILE_EXTENSION)) {
-        dexFiles.add(file);
     }
   }
 }
