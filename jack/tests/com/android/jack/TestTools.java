@@ -69,11 +69,13 @@ public class TestTools {
   @Nonnull
   private static final String JACK_PACKAGE = "com/android/jack/";
 
-  @Nonnull
-  private static final File JARJAR = getFromAndroidTree("out/host/linux-x86/framework/jarjar.jar");
+  private static class ExternalTools {
+    @Nonnull
+    private static final File JARJAR = getFromAndroidTree("out/host/linux-x86/framework/jarjar.jar");
 
-  @Nonnull
-  private static final File PROGUARD = getFromAndroidTree("prebuilts/tools/common/proguard/proguard4.7/lib/proguard.jar");
+    @Nonnull
+    private static final File PROGUARD = getFromAndroidTree("prebuilts/tools/common/proguard/proguard4.7/lib/proguard.jar");
+  }
 
   public static class ReferenceCompilerFiles {
     @Nonnull
@@ -872,7 +874,7 @@ public class TestTools {
 
   private static void processWithJarJar(@Nonnull File jarjarRules,
       @Nonnull File inJar, @Nonnull File outJar) {
-    String[] args = new String[]{"java", "-jar", JARJAR.getAbsolutePath(),
+    String[] args = new String[]{"java", "-jar", ExternalTools.JARJAR.getAbsolutePath(),
         "process", jarjarRules.getAbsolutePath(),
         inJar.getAbsolutePath(), outJar.getAbsolutePath()};
 
@@ -894,7 +896,7 @@ public class TestTools {
     int i = 0;
     args[i++] = "java";
     args[i++] = "-jar";
-    args[i++] = PROGUARD.getAbsolutePath();
+    args[i++] = ExternalTools.PROGUARD.getAbsolutePath();
     args[i++] = "-injars";
     args[i++] = inJar.getAbsolutePath();
     args[i++] = "-outjars";
