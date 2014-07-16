@@ -63,4 +63,9 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     return location;
   }
 
+  @Override
+  public boolean isVDir() {
+    return true;
+  }
+
 }

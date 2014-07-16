@@ -61,4 +61,9 @@ public class InputDirectFile extends AbstractVElement implements InputVFile {
   public Location getLocation() {
     return new FileLocation(file);
   }
+
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
 }

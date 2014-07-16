@@ -61,7 +61,7 @@ public class JaycePackageLoader implements PackageLoader {
   public JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage loading, @Nonnull String simpleName) {
     for (VElement sub : dir.list()) {
-      if (sub instanceof InputVFile && isJackFileNameOf(sub.getName(), simpleName)) {
+      if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
           return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
             .loadClassOrInterface(loading, simpleName);
@@ -81,7 +81,7 @@ public class JaycePackageLoader implements PackageLoader {
     List<String> subs = new ArrayList<String>();
     for (VElement sub : dir.list()) {
       String fileName = sub.getName();
-      if (sub instanceof InputVFile && JayceFileImporter.isJackFileName(fileName)) {
+      if (!sub.isVDir() && JayceFileImporter.isJackFileName(fileName)) {
         subs.add(fileName.substring(0, fileName.length() - 5));
       }
     }
@@ -93,7 +93,7 @@ public class JaycePackageLoader implements PackageLoader {
   public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) throws JPackageLookupException {
       for (VElement sub : dir.list()) {
-        if (sub instanceof InputVDir && sub.getName().equals(simpleName)) {
+        if (sub.isVDir() && sub.getName().equals(simpleName)) {
           return new JaycePackageLoader((InputVDir) sub, lookup, defaultLoadLevel);
         }
       }
@@ -105,7 +105,7 @@ public class JaycePackageLoader implements PackageLoader {
   public Collection<String> getSubPackageNames(@Nonnull JPackage loading) {
     List<String> subs = new ArrayList<String>();
     for (VElement sub : dir.list()) {
-      if (sub instanceof InputVDir) {
+      if (sub.isVDir()) {
         subs.add(sub.getName());
       }
     }

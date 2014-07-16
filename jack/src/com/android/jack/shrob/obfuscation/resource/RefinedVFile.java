@@ -82,6 +82,11 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
     return file.getLocation();
   }
 
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
+
   private static class RefinedEntry {
     @Nonnegative
     private final int startPosition;

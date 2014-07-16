@@ -99,4 +99,9 @@ public class InputDirectDir extends AbstractVElement implements InputRootVDir {
   public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException {
     return new InputDirectFile(new File(dir, path.getPathAsString(File.separatorChar)));
   }
+
+  @Override
+  public boolean isVDir() {
+    return true;
+  }
 }

@@ -122,19 +122,17 @@ public class JayceFileImporter {
       @Nonnull String currentPath) throws IOException, JayceFormatException, JayceVersionException,
       JPackageLookupException, TypeImportConflictException, ResourceImportConflictException {
     String path = currentPath + element.getName();
-    if (element instanceof InputVDir) {
+    if (element.isVDir()) {
       for (VElement subFile : ((InputVDir) element).list()) {
         importJayceFile(subFile, session, path + VPATH_SEPARATOR);
       }
-    } else if (element instanceof InputVFile) {
+    } else {
       InputVFile file = (InputVFile) element;
       if (isJackFileName(file.getName())) {
         addImportedTypes(session, path, file.getLocation());
       } else {
         addImportedResource(file, session, path);
       }
-    } else {
-      throw new AssertionError();
     }
   }
 
