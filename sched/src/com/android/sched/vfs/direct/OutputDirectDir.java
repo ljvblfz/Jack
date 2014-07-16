@@ -46,12 +46,6 @@ public class OutputDirectDir extends AbstractVElement implements OutputVDir {
     location = dir.getLocation();
   }
 
-  @Nonnull
-  @Override
-  public String getName() {
-    return dir.getName();
-  }
-
   @Override
   @Nonnull
   public Location getLocation() {

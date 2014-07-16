@@ -16,17 +16,14 @@
 
 package com.android.sched.vfs;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import javax.annotation.Nonnull;
 
 /**
- * Virtual file to read from.
+ * Element of a virtual file system to read from.
  */
-public interface InputVFile extends InputVElement {
+public interface InputVElement extends VElement {
 
   @Nonnull
-  InputStream openRead() throws IOException;
+  String getName();
 
 }

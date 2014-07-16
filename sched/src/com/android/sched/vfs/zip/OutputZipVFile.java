@@ -48,12 +48,6 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
 
   @Nonnull
   @Override
-  public String getName() {
-    return entry.getName();
-  }
-
-  @Nonnull
-  @Override
   public OutputStream openWrite() throws IOException {
     zos.putNextEntry(entry);
     return new UncloseableOutputStream(zos);

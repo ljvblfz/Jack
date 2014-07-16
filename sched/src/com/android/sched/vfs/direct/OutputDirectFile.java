@@ -52,12 +52,6 @@ public class OutputDirectFile extends AbstractVElement implements OutputVFile {
     return new FileOutputStream(file);
   }
 
-  @Nonnull
-  @Override
-  public String getName() {
-    return file.getPath();
-  }
-
   @Override
   @Nonnull
   public Location getLocation() {

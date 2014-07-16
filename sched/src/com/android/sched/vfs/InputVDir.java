@@ -23,9 +23,9 @@ import javax.annotation.Nonnull;
 /**
  * Virtual directory to be read.
  */
-public interface InputVDir extends VElement {
+public interface InputVDir extends InputVElement {
 
   @Nonnull
-  Collection<? extends VElement> list();
+  Collection<? extends InputVElement> list();
 
 }

@@ -34,8 +34,8 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
 import java.util.List;
@@ -100,18 +100,18 @@ public class JayceFileImporter {
 
     for (InputVDir jayceContainer : jayceContainers) {
       logger.log(Level.FINE, "Importing {0}", jayceContainer.getLocation().getDescription());
-      for (VElement subFile : jayceContainer.list()) {
+      for (InputVElement subFile : jayceContainer.list()) {
         importJayceFile(subFile, session, "");
       }
     }
   }
 
-  private void importJayceFile(@Nonnull VElement element, @Nonnull JSession session,
+  private void importJayceFile(@Nonnull InputVElement element, @Nonnull JSession session,
       @Nonnull String currentPath) throws JPackageLookupException,
       TypeImportConflictException, ResourceImportConflictException, JTypeLookupException {
     String path = currentPath + element.getName();
     if (element.isVDir()) {
-      for (VElement subFile : ((InputVDir) element).list()) {
+      for (InputVElement subFile : ((InputVDir) element).list()) {
         importJayceFile(subFile, session, path + VPATH_SEPARATOR);
       }
     } else {

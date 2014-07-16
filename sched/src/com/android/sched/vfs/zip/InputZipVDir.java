@@ -21,7 +21,7 @@ import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.VElement;
+import com.android.sched.vfs.InputVElement;
 
 import java.io.File;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Nonnull
-  protected final HashMap<String, VElement> subs = new HashMap<String, VElement>();
+  protected final HashMap<String, InputVElement> subs = new HashMap<String, InputVElement>();
   @Nonnull
   private final String name;
 
@@ -53,7 +53,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Nonnull
   @Override
-  public Collection<? extends VElement> list() {
+  public Collection<? extends InputVElement> list() {
     return subs.values();
   }
 

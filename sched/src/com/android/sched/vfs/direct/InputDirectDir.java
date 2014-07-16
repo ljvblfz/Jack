@@ -23,8 +23,8 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -43,7 +43,7 @@ public class InputDirectDir extends AbstractVElement implements InputRootVDir {
   @Nonnull
   private final File dir;
   @CheckForNull
-  private ArrayList<VElement> list;
+  private ArrayList<InputVElement> list;
 
   public InputDirectDir(@Nonnull File dir) throws NotFileOrDirectoryException {
     if (!dir.isDirectory()) {
@@ -60,7 +60,7 @@ public class InputDirectDir extends AbstractVElement implements InputRootVDir {
 
   @Nonnull
   @Override
-  public synchronized Collection<? extends VElement> list() {
+  public synchronized Collection<? extends InputVElement> list() {
     if (list == null) {
       File[] subs = dir.listFiles();
       if (subs == null) {
@@ -70,7 +70,7 @@ public class InputDirectDir extends AbstractVElement implements InputRootVDir {
         return Collections.emptyList();
       }
 
-      list = new ArrayList<VElement>(subs.length);
+      list = new ArrayList<InputVElement>(subs.length);
       for (File sub : subs) {
         try {
           if (sub.isFile()) {

@@ -27,8 +27,8 @@ import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VElement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class JaycePackageLoader implements PackageLoader {
   @Nonnull
   public JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage loading, @Nonnull String simpleName) {
-    for (VElement sub : dir.list()) {
+    for (InputVElement sub : dir.list()) {
       if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
           return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
@@ -79,7 +79,7 @@ public class JaycePackageLoader implements PackageLoader {
   @Nonnull
   public Collection<String> getSubClassNames(@Nonnull JPackage loading) {
     List<String> subs = new ArrayList<String>();
-    for (VElement sub : dir.list()) {
+    for (InputVElement sub : dir.list()) {
       String fileName = sub.getName();
       if (!sub.isVDir() && JayceFileImporter.isJackFileName(fileName)) {
         subs.add(fileName.substring(0, fileName.length() - 5));
@@ -92,7 +92,7 @@ public class JaycePackageLoader implements PackageLoader {
   @Override
   public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) throws JPackageLookupException {
-      for (VElement sub : dir.list()) {
+      for (InputVElement sub : dir.list()) {
         if (sub.isVDir() && sub.getName().equals(simpleName)) {
           return new JaycePackageLoader((InputVDir) sub, lookup, defaultLoadLevel);
         }
@@ -104,7 +104,7 @@ public class JaycePackageLoader implements PackageLoader {
   @Override
   public Collection<String> getSubPackageNames(@Nonnull JPackage loading) {
     List<String> subs = new ArrayList<String>();
-    for (VElement sub : dir.list()) {
+    for (InputVElement sub : dir.list()) {
       if (sub.isVDir()) {
         subs.add(sub.getName());
       }

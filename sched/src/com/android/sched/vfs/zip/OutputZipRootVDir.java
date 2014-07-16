@@ -56,12 +56,6 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
     this.zipFile = zipFile;
   }
 
-  @Nonnull
-  @Override
-  public String getName() {
-    return fileName;
-  }
-
   @Override
   @Nonnull
   public Location getLocation() {
