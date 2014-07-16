@@ -16,6 +16,7 @@
 
 package com.android.jack.load;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link RuntimeException} that occurs when there's a problem loading IR.
  */
-public class JackLoadingException extends RuntimeException {
+public class JackLoadingException extends RuntimeException implements HasLocation {
 
   private static final long serialVersionUID = 1L;
 
@@ -41,6 +42,7 @@ public class JackLoadingException extends RuntimeException {
     return "Failed to load " + location.getDescription() + ": " + getCause().getMessage();
   }
 
+  @Override
   @Nonnull
   public Location getLocation() {
     return location;
