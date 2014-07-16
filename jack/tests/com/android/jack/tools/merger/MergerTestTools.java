@@ -59,7 +59,7 @@ public class MergerTestTools {
     new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
         false /* compareDebugInfoBinary */, true, 0);
 
-    new DexAnnotationsComparator(monoDex, oneDexPerTypeMerged).compare();
+    new DexAnnotationsComparator().compare(monoDex, oneDexPerTypeMerged);
 
     return diff(monoDex, oneDexPerTypeMerged);
   }
@@ -87,7 +87,7 @@ public class MergerTestTools {
     new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
         false /* compareDebugInfoBinary */, true, 0);
 
-    new DexAnnotationsComparator(monoDex, oneDexPerTypeMerged).compare();
+    new DexAnnotationsComparator().compare(monoDex, oneDexPerTypeMerged);
 
     return diff(monoDex, oneDexPerTypeMerged);
   }

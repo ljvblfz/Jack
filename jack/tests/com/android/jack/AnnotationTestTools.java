@@ -79,7 +79,7 @@ public class AnnotationTestTools {
         jarjarRules).dexFile;
 
     // Compare Jack Dex file to reference
-    DexAnnotationsComparator comparator = new DexAnnotationsComparator(refDex, jackDex);
-    comparator.compare();
+    DexAnnotationsComparator comparator = new DexAnnotationsComparator();
+    comparator.compare(refDex, jackDex);
   }
 }
