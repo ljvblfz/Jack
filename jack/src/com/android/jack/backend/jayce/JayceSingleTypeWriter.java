@@ -42,7 +42,7 @@ import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.direct.OutputDirectFile;
+import com.android.sched.vfs.direct.DirectFile;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         writer.write(type, "jack " + Jack.getVersionString());
 
         if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
-          assert vFile instanceof OutputDirectFile;
+          assert vFile instanceof DirectFile;
           CompilerState csm = JackIncremental.getCompilerState();
           assert csm != null;
           csm.addMappingBetweenJavaFileAndTypeName(type.getSourceInfo().getFileName(),

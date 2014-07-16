@@ -27,7 +27,7 @@ import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVDir;
-import com.android.sched.vfs.direct.OutputDirectDir;
+import com.android.sched.vfs.direct.DirectDir;
 import com.android.sched.vfs.zip.OutputZipRootVDir;
 
 import java.io.IOException;
@@ -108,7 +108,7 @@ public class OutputVDirCodec extends FileOrDirCodec
     RunnableHooks hooks = context.getRunnableHooks();
     try {
       if (type == Container.DIR) {
-        dir = new OutputDirectDir(new Directory(string, hooks, existence, permissions, change));
+        dir = new DirectDir(new Directory(string, hooks, existence, permissions, change));
       } else if (type == Container.ZIP) {
         final OutputZipRootVDir vDir =
             new OutputZipRootVDir(new OutputZipFile(string, hooks, existence, change));

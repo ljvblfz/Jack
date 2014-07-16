@@ -28,8 +28,9 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.Directory;
+import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.direct.OutputDirectDir;
+import com.android.sched.vfs.direct.DirectDir;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,7 +50,7 @@ public class OneDexPerTypeWriter extends DexWriter implements RunnableSchedulabl
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    OutputDirectDir odd = new OutputDirectDir(outputDirectory);
+    OutputVDir odd = new DirectDir(outputDirectory);
     DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 

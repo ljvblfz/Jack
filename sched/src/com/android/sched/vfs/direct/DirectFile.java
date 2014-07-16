@@ -16,31 +16,29 @@
 
 package com.android.sched.vfs.direct;
 
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
-import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.InputOutputVFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@code VFile} directly backed by a {@code java.io.File}.
  */
-public class InputDirectFile extends AbstractVElement implements InputVFile {
+public class DirectFile extends AbstractVElement implements InputOutputVFile {
 
   @Nonnull
   private final File file;
 
-  public InputDirectFile(@Nonnull File file) throws NotFileOrDirectoryException {
-    if (!file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
-    }
+  public DirectFile(@Nonnull File file) {
     this.file = file;
   }
 
@@ -48,6 +46,12 @@ public class InputDirectFile extends AbstractVElement implements InputVFile {
   @Override
   public InputStream openRead() throws FileNotFoundException {
     return new FileInputStream(file);
+  }
+
+  @Nonnull
+  @Override
+  public OutputStream openWrite() throws FileNotFoundException {
+    return new FileOutputStream(file);
   }
 
   @Nonnull
@@ -65,5 +69,10 @@ public class InputDirectFile extends AbstractVElement implements InputVFile {
   @Override
   public boolean isVDir() {
     return false;
+  }
+
+  @Nonnull
+  public File getFile() {
+    return file;
   }
 }

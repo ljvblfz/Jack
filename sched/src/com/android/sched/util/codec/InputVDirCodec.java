@@ -24,7 +24,7 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.direct.InputDirectDir;
+import com.android.sched.vfs.direct.DirectDir;
 import com.android.sched.vfs.zip.InputZipRootVDir;
 
 import java.io.File;
@@ -88,7 +88,7 @@ public class InputVDirCodec extends FileOrDirCodec
     try {
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
-        dir = new InputDirectDir(dirOrZip);
+        dir = new DirectDir(dirOrZip);
       } else { // zip
         final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
         dir = zipArchive;
