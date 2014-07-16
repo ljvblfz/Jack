@@ -68,4 +68,9 @@ public class OutputDirectFile extends AbstractVElement implements OutputVFile {
   public File getFile() {
     return file;
   }
+
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
 }

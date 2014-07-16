@@ -78,4 +78,9 @@ public class OutputDirectDir extends AbstractVElement implements OutputVDir {
   public File getDir() {
     return dir;
   }
+
+  @Override
+  public boolean isVDir() {
+    return true;
+  }
 }

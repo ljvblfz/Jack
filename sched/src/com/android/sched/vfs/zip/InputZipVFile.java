@@ -63,4 +63,9 @@ class InputZipVFile extends AbstractVElement implements InputVFile {
     return new ZipLocation(new FileLocation(new File(zip.getName())), entry);
   }
 
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
+
 }

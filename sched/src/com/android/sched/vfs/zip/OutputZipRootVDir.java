@@ -83,4 +83,9 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
   public char getSeparator() {
     return '/';
   }
+
+  @Override
+  public boolean isVDir() {
+    return true;
+  }
 }

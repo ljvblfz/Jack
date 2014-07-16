@@ -28,4 +28,9 @@ public interface VElement extends HasLocation {
   @Nonnull
   String getName();
 
+  /**
+   * @return {@code true} if this is a VDir, {@code false} if this is a VFile.
+   */
+  boolean isVDir();
+
 }

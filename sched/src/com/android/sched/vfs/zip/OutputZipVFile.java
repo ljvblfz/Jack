@@ -65,4 +65,8 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
     return location;
   }
 
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
 }
