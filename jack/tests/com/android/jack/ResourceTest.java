@@ -243,7 +243,7 @@ public class ResourceTest {
 
     // run shrobbing from Jack dir to Jack dir
     Options options = new Options();
-    options.nameProvider = "rot13";
+    options.setNameProvider("rot13");
     File shrobbedJackDir = TestTools.createTempDir("shrobbedJack", "dir");
     ProguardFlags flags = new ProguardFlags(new File(testFolder, "proguard.flags001"));
     TestTools.shrobJackToJack(options,
