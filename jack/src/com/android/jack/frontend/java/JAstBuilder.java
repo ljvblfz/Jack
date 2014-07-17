@@ -19,6 +19,7 @@ package com.android.jack.frontend.java;
 
 import com.android.jack.JackEventType;
 import com.android.jack.JackUserException;
+import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
@@ -211,7 +212,9 @@ class JAstBuilder extends JavaParser {
   protected void handleInternalException(@Nonnull Throwable internalException,
       @CheckForNull CompilationUnitDeclaration unit, @CheckForNull CompilationResult result) {
     if (internalException instanceof IllegalArgumentException) {
-      throw new JackUserException(internalException);
+      throw new TransportJUEAroundEcjError(new JackUserException(internalException));
+    } else if (internalException instanceof JackUserException) {
+      throw new TransportJUEAroundEcjError((JackUserException) internalException);
     } else if (internalException instanceof RuntimeException) {
       throw (RuntimeException) internalException;
     } else if (internalException instanceof Error) {
