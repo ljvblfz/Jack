@@ -16,6 +16,7 @@
 
 package com.android.jack.lookup;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
@@ -26,12 +27,14 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.CommonTypes.CommonType;
 import com.android.jack.util.NamingTools;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -261,5 +264,52 @@ public class JPhantomLookup extends JLookup {
     synchronized (cache) {
       return cache.containsKey(signature);
     }
+  }
+
+  /**
+   * Check that given {@link JType} does not conflict with types already known by this lookup.
+   * This method is intended as a support for assert when modifying type's name or package.
+   *
+   * @return always return true, throws an {@link AssertionError} in case of conflict.
+   */
+  public boolean check(@Nonnull JType checkedType) {
+    String signature = Jack.getLookupFormatter().getName(checkedType);
+    JType defined;
+    try {
+      defined = jackLookup.getType(signature);
+      if (!defined.equals(checkedType)) {
+        throw getCheckError(checkedType, defined);
+      }
+    } catch (JLookupException e) {
+      defined = null;
+    }
+
+    checkCacheContent(checkedType, signature, defined, JType.class, typeCache);
+    checkCacheContent(checkedType, signature, defined, JClass.class, classCache);
+    checkCacheContent(checkedType, signature, defined, JEnum.class, enumCache);
+    checkCacheContent(checkedType, signature, defined, JInterface.class, interfaceCache);
+    checkCacheContent(checkedType, signature, defined, JAnnotation.class, annotationCache);
+    return true;
+  }
+
+  private void checkCacheContent(@Nonnull JType checkedType,
+      @Nonnull String signature,
+      @CheckForNull JType defined,
+      @Nonnull Class<?> clazz,
+      @Nonnull Map<String, ? extends JType> cache) {
+    if (!clazz.isInstance(defined)) {
+      JType phantom = cache.get(signature);
+      if (phantom != null && !phantom.equals(checkedType)) {
+        throw getCheckError(checkedType, phantom);
+      }
+    }
+  }
+
+  @Nonnull
+  private static AssertionError getCheckError(@Nonnull JType checkedType, @Nonnull JType ref) {
+    TypeFormatter formatter = Jack.getLookupFormatter();
+    return new AssertionError(formatter.getName(checkedType) + " ("
+        + checkedType.getClass().getName() + ") does not equal with " + formatter.getName(ref)
+        + " (" + ref.getClass().getName() + ")");
   }
 }

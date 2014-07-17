@@ -17,7 +17,6 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Description;
@@ -34,7 +33,8 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   @Nonnull
   protected String name;
 
-  private int hashCode = 0;
+  @CheckForNull
+  private Object id;
 
   @CheckForNull
   private JArrayType array;
@@ -54,6 +54,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   @Override
   public void setName(@Nonnull String name) {
     this.name = name;
+    assert Jack.getSession().getPhantomLookup().check(this);
   }
 
   @Nonnull
@@ -102,9 +103,11 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
    */
   @Override
   public final boolean equals(Object obj) {
-    if (obj instanceof JReferenceType) {
-      TypeFormatter lookupFormatter = Jack.getLookupFormatter();
-      return lookupFormatter.getName((JType) obj).equals(lookupFormatter.getName(this));
+    if (obj instanceof JReferenceTypeCommon) {
+      boolean equals = getId() == ((JReferenceTypeCommon) obj).getId();
+      assert equals == Jack.getLookupFormatter().getName((JType) obj).equals(
+          Jack.getLookupFormatter().getName(this));
+      return equals;
     } else {
       return false;
     }
@@ -112,12 +115,14 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   @Override
   public final int hashCode() {
-    if (hashCode == 0) {
-      hashCode = Jack.getLookupFormatter().getName(this).hashCode();
-      if (hashCode == 0) {
-        hashCode++;
-      }
+    return getId().hashCode();
+  }
+
+  @Nonnull
+  private Object getId() {
+    if (id == null) {
+      id = Jack.getLookupFormatter().getName(this).intern();
     }
-    return hashCode;
+    return id;
   }
 }
