@@ -63,7 +63,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private final JThis jThis;
 
   @Nonnull
-  private final MethodLoader loader;
+  private MethodLoader loader;
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
@@ -401,5 +401,9 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public static boolean isClinit(@Nonnull JMethod method) {
     return method.getName().equals(NamingTools.STATIC_INIT_NAME);
+  }
+
+  public void removeLoader() {
+    loader = NopMethodLoader.INSTANCE;
   }
 }
