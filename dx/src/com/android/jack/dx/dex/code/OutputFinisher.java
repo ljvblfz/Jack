@@ -827,7 +827,7 @@ while (guess != null) {
       // Since there is no need to replace CodeAddress since it does not use registers, skips it to
       // avoid to update all TargetInsn that contain a reference to CodeAddress
       if (!(insn instanceof CodeAddress)) {
-        insns.set(i, insn.withRegisters(mapper.map(insn.getRegisters())));
+        insns.set(i, insn.withMapper(mapper));
       }
     }
   }

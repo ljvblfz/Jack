@@ -19,6 +19,7 @@ package com.android.jack.dx.dex.code;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.code.SourcePosition;
+import com.android.jack.dx.ssa.RegisterMapper;
 
 /**
  * Pseudo-instruction which is used to introduce a new local variable. That
@@ -94,5 +95,11 @@ public final class LocalStart extends ZeroSizeInsn {
   @Override
   protected String listingString0(boolean noteIndices) {
     return "local-start " + localString(local);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public DalvInsn withMapper(RegisterMapper mapper) {
+    return new LocalStart(getPosition(), mapper.map(local));
   }
 }
