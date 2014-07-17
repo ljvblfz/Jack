@@ -800,6 +800,8 @@ while (guess != null) {
 
     for (int i = 0; i < insnSize; i++) {
       DalvInsn insn = insns.get(i);
+      // Since there is no need to replace CodeAddress since it does not use registers, skips it to
+      // avoid to update all TargetInsn that contain a reference to CodeAddress
       if (!(insn instanceof CodeAddress)) {
         insns.set(i, insn.withRegisterOffset(delta));
       }
@@ -822,6 +824,8 @@ while (guess != null) {
 
     for (int i = 0; i < insnSize; i++) {
       DalvInsn insn = insns.get(i);
+      // Since there is no need to replace CodeAddress since it does not use registers, skips it to
+      // avoid to update all TargetInsn that contain a reference to CodeAddress
       if (!(insn instanceof CodeAddress)) {
         insns.set(i, insn.withRegisters(mapper.map(insn.getRegisters())));
       }
