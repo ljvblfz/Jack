@@ -24,6 +24,7 @@ import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.naming.CompositeName;
 import com.android.jack.ir.naming.TypeName;
 import com.android.jack.ir.naming.TypeName.Kind;
@@ -89,9 +90,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
           assert vFile instanceof OutputDirectFile;
           CompilerState csm = JackIncremental.getCompilerState();
           assert csm != null;
-          OutputDirectFile outputDirectFile = (OutputDirectFile) vFile;
-          csm.addMappingBetweenJavaAndJackFile(type.getSourceInfo().getFileName(),
-            outputDirectFile.getFile().getAbsolutePath());
+          csm.addMappingBetweenJavaFileAndTypeName(type.getSourceInfo().getFileName(),
+              BinaryQualifiedNameFormatter.getFormatter().getName(type));
         }
       } finally {
         out.close();

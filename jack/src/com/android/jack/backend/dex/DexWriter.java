@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
 public abstract class DexWriter {
 
   @Nonnull
-  private static final String DEX_FILE_EXTENSION = ".dex";
+  public static final String DEX_FILE_EXTENSION = ".dex";
 
   protected final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
         .booleanValue();

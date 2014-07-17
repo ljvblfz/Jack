@@ -119,7 +119,7 @@ public class DependenciesTest008 {
         Assert.fail();
       } catch (FrontendCompilationException e)  {
         // Error is ok
-        Assert.assertEquals(1, ite.getJackFiles().size());
+        Assert.assertEquals(0, ite.getJackFiles().size());
       }
   }
 }
