@@ -33,8 +33,8 @@ import com.android.jack.tools.merger.MergeOverflow;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputOutputVFile;
+import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
@@ -98,11 +98,11 @@ public abstract class DexWriter {
 
   private void fillDexFiles(@Nonnull InputOutputVDir dexFileVDir,
       @Nonnull List<InputVFile> dexFiles) {
-    for (VElement subFile : dexFileVDir.list()) {
-      if (dexFileVDir.isVDir()) {
+    for (InputVElement subFile : dexFileVDir.list()) {
+      if (subFile.isVDir()) {
         fillDexFiles((InputOutputVDir) subFile, dexFiles);
-      } else if (dexFileVDir.getName().endsWith(DEX_FILE_EXTENSION)) {
-        dexFiles.add((InputOutputVFile) dexFileVDir);
+      } else if (subFile.getName().endsWith(DEX_FILE_EXTENSION)) {
+        dexFiles.add((InputOutputVFile) subFile);
       }
     }
   }
