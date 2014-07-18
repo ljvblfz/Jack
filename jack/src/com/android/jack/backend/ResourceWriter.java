@@ -23,7 +23,6 @@ import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.util.BytesStreamSucker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -45,24 +44,29 @@ import javax.annotation.Nonnull;
 @Description("Writer of resources")
 @Name("ResourceWriter")
 @Support(Resources.class)
-@Synchronized
 public class ResourceWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   private final OutputVDir outputVDir;
 
   {
-    assert ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue();
-    Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
-    if (containerType == Container.DIR) {
-      outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+    if (ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue()) {
+      Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
+      if (containerType == Container.DIR) {
+        outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+      } else {
+        outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
+      }
     } else {
-      outputVDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
+      assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
+      Container containerType = ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE);
+      assert containerType == Container.ZIP;
+      outputVDir = ThreadConfig.get(Options.DEX_ZIP_OUTPUT);
     }
   }
 
   @Override
-  public synchronized void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     assert outputVDir != null;
     List<Resource> resources = session.getResources();
     for (Resource resource : resources) {

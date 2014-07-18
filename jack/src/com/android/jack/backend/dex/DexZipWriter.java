@@ -20,10 +20,8 @@ import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.Resource;
 import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
-import com.android.jack.util.BytesStreamSucker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -36,10 +34,8 @@ import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,28 +81,6 @@ public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSess
         osDex.close();
       } catch (IOException e) {
         logger.log(Level.WARNING, "Failed to close output stream on '" + vFile + "'", e);
-      }
-    }
-
-    for (Resource resource : session.getResources()) {
-      OutputVFile resourceVFile = outputVDir.createOutputVFile(resource.getPath());
-      InputStream is = new BufferedInputStream(resource.getVFile().openRead());
-      OutputStream os = new BufferedOutputStream(resourceVFile.openWrite());
-      try {
-        BytesStreamSucker sucker = new BytesStreamSucker(is, os);
-        sucker.suck();
-      } finally {
-        try {
-          is.close();
-        } catch (IOException e) {
-          logger.log(Level.WARNING,
-              "Failed to close input stream on '" + resource.getVFile() + "'", e);
-        }
-        try {
-          os.close();
-        } catch (IOException e) {
-          logger.log(Level.WARNING, "Failed to close output stream on '" + resourceVFile + "'", e);
-        }
       }
     }
   }
