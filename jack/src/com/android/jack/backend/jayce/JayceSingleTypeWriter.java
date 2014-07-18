@@ -25,9 +25,6 @@ import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.naming.CompositeName;
-import com.android.jack.ir.naming.TypeName;
-import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.sched.item.Description;
@@ -91,7 +88,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
           CompilerState csm = JackIncremental.getCompilerState();
           assert csm != null;
           csm.addMappingBetweenJavaFileAndTypeName(type.getSourceInfo().getFileName(),
-              BinaryQualifiedNameFormatter.getFormatter().getName(type));
+              JackIncremental.getFormatter().getName(type));
         }
       } finally {
         out.close();
@@ -102,8 +99,8 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
   }
 
   @Nonnull
-  protected static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
-    return new VPath(new CompositeName(new TypeName(Kind.BINARY_QN, type),
-        JayceFileImporter.JAYCE_FILE_EXTENSION), '/');
+  protected VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
+    return new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type)
+        + JayceFileImporter.JAYCE_FILE_EXTENSION, '/');
   }
 }

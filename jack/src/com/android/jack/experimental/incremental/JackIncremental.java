@@ -27,7 +27,8 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.DexWriter;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.frontend.FrontendCompilationException;
-import com.android.jack.ir.naming.CompositeName;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.util.TextUtils;
 import com.android.sched.util.RunnableHooks;
@@ -88,6 +89,12 @@ public class JackIncremental extends CommandLine {
 
   @CheckForNull
   private static File jackFilesFolder;
+
+  @CheckForNull
+  private static final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
+
+  @CheckForNull
+  private static final char fileSeparator = '/';
 
 
   protected static void runJackAndExitOnError(@Nonnull Options options) {
@@ -440,15 +447,19 @@ public class JackIncremental extends CommandLine {
     return false;
   }
 
+  public static TypeFormatter getFormatter() {
+    return formatter;
+  }
+
   @Nonnull
   protected static File getJackFile(@Nonnull String typeName) {
-    return new File(jackFilesFolder, new VPath(new CompositeName(typeName,
-        JayceFileImporter.JAYCE_FILE_EXTENSION), '/').getPathAsString(File.separatorChar));
+    return new File(jackFilesFolder, new VPath(typeName + JayceFileImporter.JAYCE_FILE_EXTENSION,
+        fileSeparator).getPathAsString(File.separatorChar));
   }
 
   @Nonnull
   protected static File getDexFile(@Nonnull String typeName) {
-    return new File(dexFilesFolder, new VPath(new CompositeName(typeName,
-        DexWriter.DEX_FILE_EXTENSION), '/').getPathAsString(File.separatorChar));
+    return new File(dexFilesFolder, new VPath(typeName + DexWriter.DEX_FILE_EXTENSION,
+        fileSeparator).getPathAsString(File.separatorChar));
   }
 }
