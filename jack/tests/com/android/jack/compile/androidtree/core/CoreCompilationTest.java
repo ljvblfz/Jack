@@ -74,8 +74,8 @@ public class CoreCompilationTest {
         false);
 
     // Compare dex files structures and number of instructions
-    new DexComparator().compare(coreDexFromJava, coreDexFromJack, false /* withDebugInfo */,
-        false /* strict */, false /* compareDebugInfoBinary */,
-        true /* compareInstructionNumber */, 0);
+    new DexComparator(false /* withDebugInfo */, false /* strict */,
+        false /* compareDebugInfoBinary */, true /* compareInstructionNumber */, 0).compare(
+        coreDexFromJava, coreDexFromJack);
   }
 }

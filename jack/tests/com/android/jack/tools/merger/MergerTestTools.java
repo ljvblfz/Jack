@@ -56,8 +56,8 @@ public class MergerTestTools {
     File oneDexPerTypeMerged = buildOneDexPerType(sourceFolder, withDebug);
 
 
-    new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
-        false /* compareDebugInfoBinary */, true, 0);
+    new DexComparator(false, true, false /* compareDebugInfoBinary */, true, 0).compare(monoDex,
+        oneDexPerTypeMerged);
 
     new DexAnnotationsComparator().compare(monoDex, oneDexPerTypeMerged);
 
@@ -84,8 +84,8 @@ public class MergerTestTools {
 
     File oneDexPerTypeMerged = buildOneDexPerTypeFromJack(jackOutputFolder, true);
 
-    new DexComparator().compare(monoDex, oneDexPerTypeMerged, false, true,
-        false /* compareDebugInfoBinary */, true, 0);
+    new DexComparator(false, true, false /* compareDebugInfoBinary */, true, 0).compare(monoDex,
+        oneDexPerTypeMerged);
 
     new DexAnnotationsComparator().compare(monoDex, oneDexPerTypeMerged);
 

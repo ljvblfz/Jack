@@ -47,14 +47,14 @@ public class BinaryCodeComparisonTest {
     dex2.deleteOnExit();
     TestTools.compileToDexWithJack(a2, dex2);
     try {
-      new DexComparator().compare(dex1, dex2, false /* compareDebugInfo */, true /* strict */,
-          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */);
+      new DexComparator(false /* compareDebugInfo */, true /* strict */,
+          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */).compare(dex1, dex2);
       Assert.fail();
     } catch (DifferenceFoundException e) {
     }
     try {
-      new DexComparator().compare(dex2, dex1, false /* compareDebugInfo */, true /* strict */,
-          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */);
+      new DexComparator(false /* compareDebugInfo */, true /* strict */,
+          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */).compare(dex2, dex1);
       Assert.fail();
     } catch (DifferenceFoundException e) {
     }
@@ -68,8 +68,8 @@ public class BinaryCodeComparisonTest {
     dex1.deleteOnExit();
     TestTools.compileToDexWithJack(a1, dex1);
     try {
-      new DexComparator().compare(dex1, dex1, false /* compareDebugInfo */, true /* strict */,
-          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */);
+      new DexComparator(false /* compareDebugInfo */, true /* strict */,
+          false /* compareDebugInfoBinarily */, true /* compareCodeBinarily */).compare(dex1, dex1);
     } catch (DifferenceFoundException e) {
       Assert.fail(e.getMessage());
     }

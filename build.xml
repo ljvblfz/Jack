@@ -41,7 +41,7 @@
     junit4-lib-clean,
     junit4-clean,
     hamcrest-core-lib-clean,
-    dexcomparator-lib-clean,
+    dexcomparator-clean,
     dex-lib-clean,
     dx-ref-lib-clean" />
 
@@ -889,22 +889,22 @@
   </target>
 
 
-  <!-- ******************* -->
-  <!-- dexcomparator-lib       -->
-  <!-- ******************* -->
+  <!-- *************** -->
+  <!-- dexcomparator   -->
+  <!-- *************** -->
+  <property name="dexcomparator.execname" value="dexcomparator.jar" />
   <property name="dexcomparator.build.dir" value="${dexcomparator.dir}/build" />
   <property name="dexcomparator.libs.dir" value="${dexcomparator.dir}/libs" />
   <property name="dexcomparator.build.outdir" value="${dexcomparator.build.dir}/classes" />
   <property name="dexcomparator.dist.dir" value="${dexcomparator.dir}/dist" />
-  <property name="dexcomparator.libname" value="dexcomparator-lib.jar" />
 
-  <target name="dexcomparator-lib-clean">
+  <target name="dexcomparator-clean">
     <delete dir="${dexcomparator.build.dir}" />
     <delete dir="${dexcomparator.libs.dir}" />
     <delete dir="${dexcomparator.dist.dir}" />
   </target>
 
-  <target name="dexcomparator-lib" depends="dx-lib,dex-lib,jsr305-lib,guava-lib">
+  <target name="dexcomparator-compile" depends="dx-lib,dex-lib,jsr305-lib,guava-lib,args4j-lib">
     <!-- project layout -->
     <mkdir dir="${dexcomparator.build.outdir}"/>
     <mkdir dir="${dexcomparator.libs.dir}"/>
@@ -915,7 +915,8 @@
         <file name="${dx.dist.dir}/${dx.libname}" />
         <file name="${dexlib.dist.dir}/${dexlib.libname}" />
         <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-	<file name="${guava.dist.dir}/${guava.libname}" />
+        <file name="${guava.dist.dir}/${guava.libname}" />
+        <file name="${args4j.dist.dir}/${args4j.libname}" />
       </filelist>
     </copy>
     <!-- compile -->
@@ -929,6 +930,22 @@
         </fileset>
       </classpath>
     </javac>
+  </target>
+
+  <target name="dexcomparator" depends="dexcomparator-compile">
+    <jar destfile="${dexcomparator.dist.dir}/${dexcomparator.execname}"
+         manifest="${dexcomparator.dir}/etc/manifest.txt"
+         basedir="${dexcomparator.build.outdir}" includes="**">
+      <zipgroupfileset dir="${dexcomparator.dir}/libs" includes="**/*.jar" />
+   </jar>
+  </target>
+
+  <!-- ******************* -->
+  <!-- dexcomparator-lib   -->
+  <!-- ******************* -->
+  <property name="dexcomparator.libname" value="dexcomparator-lib.jar" />
+
+  <target name="dexcomparator-lib" depends="dexcomparator-compile">
     <!-- package -->
     <jar destfile="${dexcomparator.dist.dir}/${dexcomparator.libname}"
             basedir="${dexcomparator.build.outdir}"
