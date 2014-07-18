@@ -24,9 +24,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.naming.CompositeName;
-import com.android.jack.ir.naming.TypeName;
-import com.android.jack.ir.naming.TypeName.Kind;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergeOverflow;
@@ -92,8 +90,8 @@ public abstract class DexWriter {
 
   @Nonnull
   protected VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
-    return new VPath(new CompositeName(new TypeName(Kind.BINARY_QN, type),
-        DEX_FILE_EXTENSION), '/');
+    return new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type) + DEX_FILE_EXTENSION,
+        '/');
   }
 
   private void fillDexFiles(@Nonnull InputOutputVDir dexFileVDir,
