@@ -70,9 +70,4 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   public boolean isVDir() {
     return false;
   }
-
-  @Nonnull
-  public File getFile() {
-    return file;
-  }
 }
