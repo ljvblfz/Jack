@@ -36,7 +36,6 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.InputOutputVDirCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.OutputVDirCodec;
-import com.android.sched.util.codec.PathCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
@@ -140,8 +139,9 @@ public class Options {
       GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue()));
 
   @Nonnull
-  public static final PropertyId<File> DEX_ZIP_OUTPUT = PropertyId.create("jack.dex.output.zip",
-      "Output zip archive for dex", new PathCodec()).requiredIf(
+  public static final PropertyId<OutputVDir> DEX_ZIP_OUTPUT = PropertyId.create(
+      "jack.dex.output.zip", "Output zip archive for dex",
+      new OutputVDirCodec(Existence.MAY_EXIST, Container.ZIP)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
