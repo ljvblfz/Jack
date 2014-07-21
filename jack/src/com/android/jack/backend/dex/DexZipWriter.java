@@ -47,7 +47,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Write dex into a zip")
 @Name("DexZipWriter")
-@Constraint(need = {DexFileMarker.Prepared.class})
+@Constraint(need = {DexFileMarker.Complete.class})
 @Produce(DexFileProduct.class)
 @Support(DexZipOutput.class)
 public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSession> {
@@ -71,7 +71,7 @@ public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSess
       if (emitOneDexPerType) {
         mergeDexPerType(dexFile, osDex);
       } else {
-
+        dexFile.prepare();
         dexFile.writeTo(osDex, null, false);
       }
     } catch (IOException e) {

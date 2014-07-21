@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Write dex into a file")
 @Name("DexFileWriter")
-@Constraint(need = {DexFileMarker.Prepared.class})
+@Constraint(need = {DexFileMarker.Complete.class})
 @Produce(DexFileProduct.class)
 @Support(DexNonZipOutput.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
@@ -59,6 +59,7 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
         mergeDexPerType(dexFile, outputStream);
       } else {
         try {
+          dexFile.prepare();
           dexFile.writeTo(outputStream, null, false);
         } catch (IOException e) {
           throw new JackIOException("Could not write Dex file to output '"

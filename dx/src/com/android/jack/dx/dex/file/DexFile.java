@@ -491,6 +491,15 @@ public final class DexFile {
    * Prepares this instance for writing. This performs any necessary prerequisites, including
    * particularly adding stuff to other sections and places all the items in this instance at
    * particular offsets.
+   */
+  public void prepare() {
+    prepare(null);
+  }
+
+  /**
+   * Prepares this instance for writing. This performs any necessary prerequisites, including
+   * particularly adding stuff to other sections and places all the items in this instance at
+   * particular offsets.
    *
    * @param cstIndexMaps list used to map offsets from a dex file to this instance
    */

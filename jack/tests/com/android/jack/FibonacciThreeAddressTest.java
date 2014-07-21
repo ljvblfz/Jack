@@ -78,6 +78,7 @@ public class FibonacciThreeAddressTest {
 
     DexFile dexFile = marker.getFinalDexFile();
     Assert.assertNotNull(dexFile);
+    dexFile.prepare();
 
     // Check compiled class is present in the DexFile
     ClassDefItem fiboClassDefItem = dexFile.getClassOrNull(CLASS_BINARY_NAME);

@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.JackIOException;
 import com.android.jack.Options;
+import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.DexCodeMarker;
@@ -56,7 +57,9 @@ public class OneDexPerTypeWriter extends DexWriter implements RunnableSchedulabl
       OutputStream outStream = null;
       try {
         outStream = vFile.openWrite();
-        dexFileMarker.getDexFileOfType(type).writeTo(outStream, null, false);
+        DexFile dexFileOfType = dexFileMarker.getDexFileOfType(type);
+        dexFileOfType.prepare();
+        dexFileOfType.writeTo(outStream, null, false);
       } catch (IOException e) {
         throw new JackIOException("Could not write Dex file to output '" + vFile + "'", e);
       } finally {
