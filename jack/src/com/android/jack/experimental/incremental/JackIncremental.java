@@ -286,10 +286,13 @@ public class JackIncremental extends CommandLine {
     }
 
     // Move imported jack files from import to classpath option
-    StringBuilder newClasspath = new StringBuilder(options.getClasspathAsString());
-    if (jackFilesFolder != null) {
+    assert jackFilesFolder != null;
+    StringBuilder newClasspath = new StringBuilder(jackFilesFolder.getAbsolutePath());
+
+    String oldClasspath = options.getClasspathAsString();
+    if (oldClasspath != null) {
       newClasspath.append(File.pathSeparator);
-      newClasspath.append(jackFilesFolder.getAbsolutePath());
+      newClasspath.append(oldClasspath);
     }
 
     List<File> jayceImport = options.getJayceImport();
