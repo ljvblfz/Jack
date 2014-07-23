@@ -63,7 +63,7 @@ public class CoreCompilationTest {
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     File outputFile = new File("/tmp/jackIncrementalOutput");
     options.addProperty(
-        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.FILE.toString());
     options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
     options.addProperty(
         Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
