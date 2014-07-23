@@ -19,10 +19,12 @@ package com.android.sched.vfs.zip;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
-import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.vfs.AbstractVElement;
+import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.SequentialOutputVDir;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
@@ -38,19 +40,28 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
   private final ZipEntry entry;
   @Nonnull
   private final Location location;
+  @Nonnull
+  private final OutputVDir vfsRoot;
 
   OutputZipVFile(@Nonnull ZipOutputStream zos, @Nonnull ZipEntry entry,
-      @Nonnull OutputZipFile zipFile) {
+      @Nonnull OutputZipFile zipFile, @Nonnull OutputVDir vfsRoot) {
     this.zos = zos;
     this.entry = entry;
     location = new ZipLocation(zipFile.getLocation(), entry);
+    this.vfsRoot = vfsRoot;
   }
 
   @Nonnull
   @Override
   public OutputStream openWrite() throws IOException {
     zos.putNextEntry(entry);
-    return new UncloseableOutputStream(zos);
+    if (vfsRoot instanceof SequentialOutputVDir) {
+      if (((SequentialOutputVDir) vfsRoot).notifyVFileOpenAndReturnPreviousState()) {
+        throw new AssertionError(getLocation().getDescription()
+            + " cannot be written to because a previous stream has not been closed.");
+      }
+    }
+    return new UnclosableVFileOutputStream(zos, vfsRoot);
   }
 
   @Override
@@ -62,5 +73,24 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
   @Override
   public boolean isVDir() {
     return false;
+  }
+
+  private static class UnclosableVFileOutputStream extends FilterOutputStream {
+
+    private final OutputVDir vfsRoot;
+
+    public UnclosableVFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
+      super(out);
+      this.vfsRoot = vfsRoot;
+    }
+
+    @Override
+    public void close() {
+      // we do not actually close the stream
+      if (vfsRoot instanceof SequentialOutputVDir) {
+        ((SequentialOutputVDir) vfsRoot).notifyVFileClosed();
+      }
+    }
+
   }
 }
