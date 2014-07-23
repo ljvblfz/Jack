@@ -140,7 +140,7 @@
       </filelist>
     </copy>
     <!-- generate parser -->
-    <java jar="${jack.tools.dir}/${antlr.execname}" fork="true">
+    <java jar="${jack.tools.dir}/${antlr.execname}" fork="true" failonerror="true">
       <arg line="-fo" />
       <arg line="${jack.dir}/src/com/android/jack/shrob/proguard"/>
       <arg line="${jack.dir}/src/com/android/jack/shrob/proguard/Proguard.g"/>
@@ -193,7 +193,7 @@
        manifest="${jack.dir}/etc/manifest.txt" basedir="${jack.exec.build.outdir}" includes="**"/>
     <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
     <!-- add sched support -->
-    <java jar="${jack.tools.dir}/${sched-build.execname}" fork="true">
+    <java jar="${jack.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
       <arg value="${jack.exec.build.dir}/${jack.execname}" />
       <arg line="${jack.static.libs.list}" />
       <arg value="${jack.dist.dir}/${jack.execname}" />
@@ -249,7 +249,7 @@
       basedir="${jackunittests.build.outdir}" includes="**" />
     <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
     <!-- add sched support -->
-    <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true">
+    <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
       <arg value="${jackunittests.build.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
@@ -1001,7 +1001,7 @@
     <fileset dir="${core-stubs-mini.dir}/src">
       <include name="**/*.java"/>
     </fileset>
-    <java fork="true" jar="${jack.dist.dir}/${jack.execname}">
+    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
       <arg value="--jack-output"/>
       <arg value="${core-stubs-mini.build.dir}"/>
       <arg value="--ecj"/>
