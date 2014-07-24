@@ -23,8 +23,8 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.direct.DirectDir;
 
 import java.io.IOException;
 import java.util.logging.Logger;

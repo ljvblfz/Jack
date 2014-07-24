@@ -255,9 +255,9 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.direct.DirectDir;
-import com.android.sched.vfs.zip.InputZipRootVDir;
+import com.android.sched.vfs.InputZipRootVDir;
 
 import org.antlr.runtime.RecognitionException;
 

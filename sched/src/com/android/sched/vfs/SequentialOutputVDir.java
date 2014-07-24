@@ -25,17 +25,17 @@ import javax.annotation.Nonnull;
  * {@link OutputVDir} that contains {@link OutputVFile}s that must be written to and closed
  * sequentially.
  */
-public abstract class SequentialOutputVDir extends AbstractVElement implements OutputVDir {
+abstract class SequentialOutputVDir extends AbstractVElement implements OutputVDir {
 
   @Nonnull
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
 
-  public void notifyVFileClosed() {
+  void notifyVFileClosed() {
     boolean previousState = lastVFileOpen.getAndSet(false);
     assert previousState;
   }
 
-  public boolean notifyVFileOpenAndReturnPreviousState() {
+  boolean notifyVFileOpenAndReturnPreviousState() {
     return lastVFileOpen.getAndSet(true);
   }
 

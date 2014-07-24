@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs.zip;
+package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
-
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VPath;
 
 import java.io.Closeable;
 import java.io.File;

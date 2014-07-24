@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs.zip;
+package com.android.sched.vfs;
 
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
-import com.android.sched.vfs.AbstractVElement;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputVElement;
 
 import java.io.File;
 import java.util.Collection;

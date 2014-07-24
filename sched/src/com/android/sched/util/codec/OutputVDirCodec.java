@@ -26,9 +26,9 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.OutputVDir;
-import com.android.sched.vfs.direct.DirectDir;
-import com.android.sched.vfs.zip.OutputZipRootVDir;
+import com.android.sched.vfs.OutputZipRootVDir;
 
 import java.io.IOException;
 import java.util.logging.Level;

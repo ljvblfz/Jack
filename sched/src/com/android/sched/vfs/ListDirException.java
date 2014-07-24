@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs.direct;
+package com.android.sched.vfs;
 
 import java.io.File;
 import java.io.IOException;

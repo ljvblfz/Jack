@@ -36,10 +36,10 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.DirectFile;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.direct.DirectFile;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

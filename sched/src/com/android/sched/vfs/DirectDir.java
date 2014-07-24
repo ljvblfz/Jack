@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs.direct;
+package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -23,13 +23,6 @@ import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVElement;
-import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.SequentialOutputVDir;
-import com.android.sched.vfs.VPath;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -14,60 +14,65 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs.zip;
+package com.android.sched.vfs;
 
-import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.ZipLocation;
-import com.android.sched.vfs.AbstractVElement;
-import com.android.sched.vfs.OutputVDir;
-import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.SequentialOutputVDir;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
 
-class OutputZipVFile extends AbstractVElement implements OutputVFile {
+/**
+ * A {@code VFile} directly backed by a {@code java.io.File}.
+ */
+public class DirectFile extends AbstractVElement implements InputOutputVFile {
 
   @Nonnull
-  private final ZipOutputStream zos;
+  private final File file;
   @Nonnull
-  private final ZipEntry entry;
-  @Nonnull
-  private final Location location;
-  @Nonnull
-  private final OutputVDir vfsRoot;
+  private final InputOutputVDir vfsRoot;
 
-  OutputZipVFile(@Nonnull ZipOutputStream zos, @Nonnull ZipEntry entry,
-      @Nonnull OutputZipFile zipFile, @Nonnull OutputVDir vfsRoot) {
-    this.zos = zos;
-    this.entry = entry;
-    location = new ZipLocation(zipFile.getLocation(), entry);
+  DirectFile(@Nonnull File file, @Nonnull InputOutputVDir vfsRoot) {
+    this.file = file;
     this.vfsRoot = vfsRoot;
   }
 
   @Nonnull
   @Override
-  public OutputStream openWrite() throws IOException {
-    zos.putNextEntry(entry);
+  public InputStream openRead() throws FileNotFoundException {
+    return new FileInputStream(file);
+  }
+
+  @Nonnull
+  @Override
+  public OutputStream openWrite() throws FileNotFoundException {
     if (vfsRoot instanceof SequentialOutputVDir) {
       if (((SequentialOutputVDir) vfsRoot).notifyVFileOpenAndReturnPreviousState()) {
         throw new AssertionError(getLocation().getDescription()
             + " cannot be written to because a previous stream has not been closed.");
       }
     }
-    return new UnclosableVFileOutputStream(zos, vfsRoot);
+    return new VFileOutputStream(new FileOutputStream(file), vfsRoot);
+  }
+
+  @Nonnull
+  @Override
+  public String getName() {
+    return file.getName();
   }
 
   @Override
   @Nonnull
   public Location getLocation() {
-    return location;
+    return new FileLocation(file);
   }
 
   @Override
@@ -75,18 +80,18 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
     return false;
   }
 
-  private static class UnclosableVFileOutputStream extends FilterOutputStream {
+  private static class VFileOutputStream extends FilterOutputStream {
 
     private final OutputVDir vfsRoot;
 
-    public UnclosableVFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
+    public VFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
       super(out);
       this.vfsRoot = vfsRoot;
     }
 
     @Override
-    public void close() {
-      // we do not actually close the stream
+    public void close() throws IOException {
+      super.close();
       if (vfsRoot instanceof SequentialOutputVDir) {
         ((SequentialOutputVDir) vfsRoot).notifyVFileClosed();
       }
