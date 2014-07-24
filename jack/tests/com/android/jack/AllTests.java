@@ -50,6 +50,7 @@ import org.junit.runners.Suite.SuiteClasses;
     CastTest.class,
     com.android.jack.cfg.AllTests.class,
     com.android.jack.compile.androidtree.AllTests.class,
+    com.android.jack.compile.androidtree.dalvik.AllTests.class,
     com.android.jack.frontend.AllTests.class,
     com.android.jack.gwt.AllTests.class,
     com.android.jack.java7.AllTest.class,
