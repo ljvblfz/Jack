@@ -29,6 +29,7 @@ import com.android.sched.vfs.Container;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 public class MergerTestTools {
@@ -44,18 +45,25 @@ public class MergerTestTools {
 
   public boolean compareMonoDexWithOneDexPerType(@Nonnull File sourceFolder, boolean withDebug)
       throws Exception {
+    return compareMonoDexWithOneDexPerType(TestTools.getDefaultBootclasspath(), sourceFolder,
+        withDebug);
+  }
+
+  public boolean compareMonoDexWithOneDexPerType(@Nonnull File[] bootclasspath,
+      @Nonnull File sourceFolder, boolean withDebug) throws Exception {
     File monoDexFolder = TestTools.createTempDir("mono", "dex");
     File monoDex = new File(monoDexFolder, DexFileWriter.DEX_FILENAME);
     Options options = new Options();
     options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
     options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
     options.addProperty(CodeItemBuilder.FORCE_JUMBO.getName(), "true");
+    String classpathString = TestTools.getClasspathAsString(bootclasspath);
     TestTools
-        .compileSourceToDex(options, sourceFolder, TestTools.getDefaultBootclasspathString(),
+        .compileSourceToDex(options, sourceFolder, classpathString,
             monoDexFolder, false /* zip */, null /* jarjarRules */, null /* flagFiles */,
             withDebug /* withDebugInfo */);
 
-    File oneDexPerTypeMerged = buildOneDexPerType(sourceFolder, withDebug);
+    File oneDexPerTypeMerged = buildOneDexPerType(classpathString, sourceFolder, withDebug);
 
 
     new DexComparator(false, true, false /* compareDebugInfoBinary */, true, 0).compare(monoDex,
@@ -112,7 +120,9 @@ public class MergerTestTools {
     return multiDex;
   }
 
-  public File buildOneDexPerType(@Nonnull File sourceFolder, boolean withDebug) throws Exception {
+  @Nonnull
+  public File buildOneDexPerType(@CheckForNull String classpath, @Nonnull File sourceFolder,
+      boolean withDebug) throws Exception {
     Options options;
     File multiDexFolder = TestTools.createTempDir("multi", "dex");
     File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);
@@ -123,7 +133,7 @@ public class MergerTestTools {
     options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
     options.addProperty(Options.DEX_FILE_FOLDER.getName(), multiDexOnTypePerTypeFolder.getAbsolutePath());
     TestTools
-        .compileSourceToDex(options, sourceFolder, TestTools.getDefaultBootclasspathString(),
+        .compileSourceToDex(options, sourceFolder, classpath,
             multiDexFolder, false /* zip */, null /* jarjarRules */, null /* flagFiles */,
             withDebug /* withDebugInfo */);
 

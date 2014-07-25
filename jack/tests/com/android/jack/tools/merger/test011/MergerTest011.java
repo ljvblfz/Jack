@@ -60,7 +60,7 @@ public class MergerTest011 extends MergerTestTools {
     generateJavaFileWithMethods(srcFolder, fileCount, 36);
 
     try {
-      buildOneDexPerType(srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
       Assert.assertTrue(e.getCause() instanceof MergeOverflow);
@@ -77,7 +77,7 @@ public class MergerTest011 extends MergerTestTools {
     generateJavaFileWithFields(srcFolder, fileCount, 37);
 
     try {
-      buildOneDexPerType(srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
       Assert.assertTrue(e.getCause() instanceof MergeOverflow);
@@ -95,7 +95,7 @@ public class MergerTest011 extends MergerTestTools {
     generateJavaFileWithTypes(srcFolder, fileCount, 36);
 
     try {
-      buildOneDexPerType(srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
       Assert.assertTrue(e.getCause() instanceof MergeOverflow);

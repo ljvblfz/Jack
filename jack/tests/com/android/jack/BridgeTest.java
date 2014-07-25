@@ -51,7 +51,11 @@ public class BridgeTest {
   @Ignore("Tree")
   @Test
   public void test002() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+    File[] bootclasspath = new File[]{TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+        "out/host/common/obj/JAVA_LIBRARIES/junit4-hostdex-jack_intermediates/classes.jar")};
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(bootclasspath, null,
         TestTools.getJackTestsWithJackFolder("bridge/test002")));
   }
 
