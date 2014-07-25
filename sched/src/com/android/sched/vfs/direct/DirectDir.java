@@ -23,12 +23,12 @@ import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.SequentialOutputVDir;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
 /**
  * Directory in the file system.
  */
-public class DirectDir extends AbstractVElement implements InputRootVDir, InputOutputVDir {
+public class DirectDir extends SequentialOutputVDir implements InputRootVDir, InputOutputVDir {
 
   @Nonnull
   private final File dir;
@@ -50,10 +50,13 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
   private ArrayList<InputVElement> list;
   @Nonnull
   private final Location location;
+  @Nonnull
+  private final InputOutputVDir vfsRoot;
 
   public DirectDir(@Nonnull Directory directory) {
     dir = directory.getFile();
     location = directory.getLocation();
+    vfsRoot = this;
   }
 
   public DirectDir(@Nonnull File dir) throws NotFileOrDirectoryException {
@@ -62,6 +65,17 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
     }
     this.dir = dir;
     location = new FileLocation(dir);
+    vfsRoot = this;
+  }
+
+  DirectDir(@Nonnull File dir, @Nonnull InputOutputVDir vfsRoot)
+      throws NotFileOrDirectoryException {
+    if (!dir.isDirectory()) {
+      throw new NotFileOrDirectoryException(new DirectoryLocation(dir));
+    }
+    this.dir = dir;
+    location = new FileLocation(dir);
+    this.vfsRoot = vfsRoot;
   }
 
   @Nonnull
@@ -86,9 +100,9 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
       for (File sub : subs) {
         try {
           if (sub.isFile()) {
-            list.add(new DirectFile(sub));
+            list.add(new DirectFile(sub, vfsRoot));
           } else {
-            list.add(new DirectDir(sub));
+            list.add(new DirectDir(sub, vfsRoot));
           }
         } catch (NotFileOrDirectoryException e) {
           throw new ConcurrentIOException(e);
@@ -113,7 +127,7 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
     if (!file.isFile()) {
       throw new NotFileOrDirectoryException(new FileLocation(file));
     }
-    return new DirectFile(file);
+    return new DirectFile(file, vfsRoot);
   }
 
   @Override
@@ -123,7 +137,7 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
     if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
       throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));
     }
-    return new DirectFile(file);
+    return new DirectFile(file, vfsRoot);
   }
 
   @Override

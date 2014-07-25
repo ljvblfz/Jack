@@ -19,12 +19,17 @@ package com.android.sched.vfs.direct;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
+import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputOutputVFile;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.SequentialOutputVDir;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -37,9 +42,12 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
 
   @Nonnull
   private final File file;
+  @Nonnull
+  private final InputOutputVDir vfsRoot;
 
-  public DirectFile(@Nonnull File file) {
+  public DirectFile(@Nonnull File file, @Nonnull InputOutputVDir vfsRoot) {
     this.file = file;
+    this.vfsRoot = vfsRoot;
   }
 
   @Nonnull
@@ -51,7 +59,13 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Nonnull
   @Override
   public OutputStream openWrite() throws FileNotFoundException {
-    return new FileOutputStream(file);
+    if (vfsRoot instanceof SequentialOutputVDir) {
+      if (((SequentialOutputVDir) vfsRoot).notifyVFileOpenAndReturnPreviousState()) {
+        throw new AssertionError(getLocation().getDescription()
+            + " cannot be written to because a previous stream has not been closed.");
+      }
+    }
+    return new VFileOutputStream(new FileOutputStream(file), vfsRoot);
   }
 
   @Nonnull
@@ -69,5 +83,24 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Override
   public boolean isVDir() {
     return false;
+  }
+
+  private static class VFileOutputStream extends FilterOutputStream {
+
+    private final OutputVDir vfsRoot;
+
+    public VFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
+      super(out);
+      this.vfsRoot = vfsRoot;
+    }
+
+    @Override
+    public void close() throws IOException {
+      super.close();
+      if (vfsRoot instanceof SequentialOutputVDir) {
+        ((SequentialOutputVDir) vfsRoot).notifyVFileClosed();
+      }
+    }
+
   }
 }

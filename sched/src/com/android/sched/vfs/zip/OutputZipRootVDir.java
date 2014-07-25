@@ -19,9 +19,9 @@ package com.android.sched.vfs.zip;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
-import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.SequentialOutputVDir;
 import com.android.sched.vfs.VElement;
 import com.android.sched.vfs.VPath;
 
@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 /**
  * A root {@link OutputVDir} backed by a zip archive.
  */
-public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, Closeable {
+public class OutputZipRootVDir extends SequentialOutputVDir implements OutputVDir, Closeable {
 
   @Nonnull
   protected final HashMap<String, VElement> subs = new HashMap<String, VElement>();
@@ -65,7 +65,8 @@ public class OutputZipRootVDir extends AbstractVElement implements OutputVDir, C
   @Override
   @Nonnull
   public OutputVFile createOutputVFile(@Nonnull VPath path) {
-    return new OutputZipVFile(zos, new ZipEntry(path.getPathAsString(getSeparator())), zipFile);
+    return new OutputZipVFile(zos, new ZipEntry(path.getPathAsString(getSeparator())), zipFile,
+        this);
   }
 
   @Override
