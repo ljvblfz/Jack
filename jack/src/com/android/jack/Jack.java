@@ -516,9 +516,6 @@ public abstract class Jack {
                 planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
             typePlan.append(JayceSingleTypeWriter.class);
           }
-          if (features.contains(Resources.class)) {
-            planBuilder.append(ResourceWriter.class);
-          }
         } else if (options.ecjArguments == null) {
           assert targetProduction.contains(DexFileProduct.class)
               || targetProduction.contains(OneDexPerTypeProduct.class);
@@ -543,6 +540,12 @@ public abstract class Jack {
           } else {
             planBuilder.append(DexFileWriter.class);
           }
+        }
+
+        if (features.contains(Resources.class)
+            && (features.contains(DexZipOutput.class)
+                || targetProduction.contains(JackFormatProduct.class))) {
+          planBuilder.append(ResourceWriter.class);
         }
 
         Plan<JSession> plan;
