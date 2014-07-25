@@ -22,31 +22,36 @@ import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
+@Ignore("Tree")
 public class FrameworksBaseCompilationTest {
 
-  private static final File[] BOOTCLASSPATH = new File[] {
-    TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
-  };
+  private static File[] BOOTCLASSPATH;
 
-  private final static File[] CLASSPATH = new File[] {
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"),
-      TestTools.getFromAndroidTree(
-          "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar")};
+  private static File[] CLASSPATH;
 
-  private static final File SOURCELIST = TestTools.getTargetLibSourcelist("framework");
+  private static File SOURCELIST;
 
   @BeforeClass
   public static void setUpClass() {
     FrameworksBaseCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+      };
+    CLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar")};
+    SOURCELIST = TestTools.getTargetLibSourcelist("framework");
   }
 
   @Test

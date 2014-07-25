@@ -24,6 +24,7 @@ import com.android.jack.tools.merger.MergerTestTools;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -38,6 +39,7 @@ public class MergerTest009 extends MergerTestTools {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
+  @Ignore("Tree")
   @Test
   @Category(SlowTests.class)
   public void testMergerOnCore() throws Exception {

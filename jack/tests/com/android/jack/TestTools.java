@@ -336,20 +336,14 @@ public class TestTools {
   @Nonnull
   public static File[] getDefaultBootclasspath() {
     return new File[] {getFromAndroidTree(
-        "toolchain/jack/jack/libs/core-stubs-mini.jar"),
-        getFromAndroidTree(
-            "out/host/common/obj/JAVA_LIBRARIES/junit4-hostdex-jack_intermediates/classes.jar")};
+        "toolchain/jack/jack/libs/core-stubs-mini.jar")};
   }
 
   @Nonnull
   public static String getDefaultBootclasspathString() {
     return getFromAndroidTree(
         "toolchain/jack/jack/libs/core-stubs-mini.jar")
-          .getAbsolutePath() +
-        File.pathSeparator +
-        getFromAndroidTree(
-            "out/host/common/obj/JAVA_LIBRARIES/junit4-hostdex-jack_intermediates/classes.jar")
-            .getAbsolutePath();
+          .getAbsolutePath();
   }
 
   @CheckForNull

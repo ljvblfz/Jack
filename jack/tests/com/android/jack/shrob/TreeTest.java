@@ -23,6 +23,7 @@ import com.android.jack.TestTools;
 import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -31,17 +32,19 @@ import java.io.File;
 /**
  * Tests the compilation of tree projects using shrob
  */
+@Ignore("Tree")
 @Category(SlowTests.class)
 public class TreeTest {
+  private static File CORE_SOURCELIST;
+
   @BeforeClass
   public static void setUpClass() {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
   }
 
   private static ProguardFlags dontObfuscateFlagFile =
       new ProguardFlags(TestTools.getJackTestFolder("shrob"), "dontobfuscate.flags");
-
-  private static final File CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
 
   @Test
   public void testObjectEquals() throws Exception {

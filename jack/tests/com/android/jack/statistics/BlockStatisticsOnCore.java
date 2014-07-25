@@ -34,10 +34,12 @@ import com.android.sched.scheduler.SubPlanBuilder;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
 
+@Ignore("Tree")
 public class BlockStatisticsOnCore {
 
   @BeforeClass

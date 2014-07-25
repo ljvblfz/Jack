@@ -19,6 +19,7 @@ package com.android.jack;
 import com.android.jack.category.ExtraTests;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -47,6 +48,7 @@ public class BridgeTest {
   /**
    * Verifies that the test source can compiled from source to dex file.
    */
+  @Ignore("Tree")
   @Test
   public void test002() throws Exception {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
