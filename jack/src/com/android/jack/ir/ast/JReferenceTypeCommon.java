@@ -104,10 +104,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   @Override
   public final boolean equals(Object obj) {
     if (obj instanceof JReferenceTypeCommon) {
-      boolean equals = getId() == ((JReferenceTypeCommon) obj).getId();
-      assert equals == Jack.getLookupFormatter().getName((JType) obj).equals(
-          Jack.getLookupFormatter().getName(this));
-      return equals;
+      return getId() == ((JReferenceTypeCommon) obj).getId();
     } else {
       return false;
     }
