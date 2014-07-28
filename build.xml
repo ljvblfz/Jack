@@ -267,13 +267,13 @@
     <delete dir="${jack-tests.libs.dir}" />
   </target>
 
-  <target name="jack-tests" depends="core-stubs-mini,junit4-lib">
+  <target name="jack-tests" depends="core-stubs-mini,junit4">
     <!-- project layout -->
     <mkdir dir="${jack-tests.libs.dir}" />
     <!-- fetch dependencies -->
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
-        <file name="${junit4.dist.dir}/${junit4.libname}"/>
+        <file name="${junit4.dist.dir}/${junit4.execname}"/>
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
       </filelist>
     </copy>
