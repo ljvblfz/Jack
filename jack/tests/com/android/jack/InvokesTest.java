@@ -70,4 +70,10 @@ public class InvokesTest {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
             TestTools.getJackTestsWithJackFolder("invoke/test006")));
   }
+
+  @Test
+  public void testCompile007() throws Exception {
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+            TestTools.getJackTestsWithJackFolder("invoke/test007")));
+  }
 }
