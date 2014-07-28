@@ -200,6 +200,7 @@ $(call declare-test-with-name,invoke/test003)
 $(call declare-test-with-name,invoke/test004)
 $(call declare-test-with-name,invoke/test005)
 $(call declare-test-with-name,invoke/test006)
+$(call declare-test-with-name,invoke/test007)
 
 # Jarjar
 $(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/jarjar/test001/test.mk)

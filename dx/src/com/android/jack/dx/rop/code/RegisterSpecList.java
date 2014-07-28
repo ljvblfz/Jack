@@ -16,7 +16,6 @@
 
 package com.android.jack.dx.rop.code;
 
-import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.FixedSizeList;
@@ -381,27 +380,8 @@ public final class RegisterSpecList extends FixedSizeList implements TypeList {
 
     Expander expander = new Expander(this, compatRegs, base, duplicateFirst);
 
-    if (DexOptions.ALIGN_64BIT_REGS) {
-      // Numbering done into HighRegisterPrefix starts by allocating 64-bit registers and
-      // thereafter adding 32-bit registers. Since the number of the first 32-bit register is
-      // unknown, 64-bit registers must be managed first.
-      for (int regIdx = 0; regIdx < sz; regIdx++) {
-        RegisterSpec reg = (RegisterSpec) get0(regIdx);
-        if (reg.isCategory2()) {
-          expander.expandRegister(regIdx, reg);
-        }
-      }
-
-      for (int regIdx = 0; regIdx < sz; regIdx++) {
-        RegisterSpec reg = (RegisterSpec) get0(regIdx);
-        if (reg.isCategory1()) {
-          expander.expandRegister(regIdx, reg);
-        }
-      }
-    } else {
-      for (int regIdx = 0; regIdx < sz; regIdx++) {
-        expander.expandRegister(regIdx);
-      }
+    for (int regIdx = 0; regIdx < sz; regIdx++) {
+      expander.expandRegister(regIdx);
     }
 
     return expander.getResult();
