@@ -83,7 +83,16 @@ public final class CompilerState {
     return compilerStateFile;
   }
 
-  public void updateCompilerState(@Nonnull Set<String> filesToRecompile) {
+  public void updateCompilerState(@Nonnull Set<String> filesToRecompile,
+      @Nonnull Set<String> filesToDelete) {
+
+    for (String javaFileToDelete : filesToDelete) {
+      javaFileToTypeNamePath.remove(javaFileToDelete);
+      codeFileToUsedFiles.remove(javaFileToDelete);
+      structFileToUsedFiles.remove(javaFileToDelete);
+      cstFileToUsedFiles.remove(javaFileToDelete);
+    }
+
     for (String javaFileToRecompile : filesToRecompile) {
       javaFileToTypeNamePath.remove(javaFileToRecompile);
       codeFileToUsedFiles.remove(javaFileToRecompile);

@@ -9,6 +9,6 @@ import org.junit.runners.Suite.SuiteClasses;
     DependenciesTest003.class, DependenciesTest004.class, DependenciesTest005.class,
     DependenciesTest006.class, DependenciesTest007.class, DependenciesTest008.class,
     DependenciesTest009.class, DependenciesTest010.class, DependenciesTest011.class,
-    DependenciesTest012.class, DependenciesTest013.class})
+    DependenciesTest012.class, DependenciesTest013.class, DependenciesTest014.class})
 public class DependencyAllTests {
 }

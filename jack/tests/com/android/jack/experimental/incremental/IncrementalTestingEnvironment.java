@@ -219,6 +219,11 @@ public class IncrementalTestingEnvironment extends TestTools {
     return (jackFiles);
   }
 
+  @Nonnull
+  public File getDexFile() {
+    return dexFile;
+  }
+
   private void startErrRedirection() {
     baosErr = new ByteArrayOutputStream();
     errRedirectStream = new PrintStream(baosErr);
