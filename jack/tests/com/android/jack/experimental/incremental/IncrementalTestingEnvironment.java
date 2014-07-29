@@ -18,6 +18,7 @@ package com.android.jack.experimental.incremental;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
@@ -78,7 +79,8 @@ public class IncrementalTestingEnvironment extends TestTools {
     if (!this.sourceFolder.mkdirs()) {
       throw new IOException("Failed to create folder " + this.sourceFolder.getAbsolutePath());
     }
-    dexFile = new File(testingFolder, "result.dex");
+
+    dexFile = new File(testingFolder, DexFileWriter.DEX_FILENAME);
     compilerStateDir = new File(testingFolder, "compileState");
     if (!compilerStateDir.exists() && !compilerStateDir.mkdir()) {
       throw new IOException("Failed to create folder " + compilerStateDir.getAbsolutePath());
@@ -134,7 +136,7 @@ public class IncrementalTestingEnvironment extends TestTools {
     options.setIncrementalFolder(getCompilerStateFolder());
 
     compileSourceToDex(options, sourceFolder,
-        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), dexFile);
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), testingFolder);
 
     Thread.sleep(1000);
 
@@ -253,7 +255,7 @@ public class IncrementalTestingEnvironment extends TestTools {
     options.setEcjArguments(TestTools.buildEcjArgs());
     addFile(sourceFolderOrSourceList, options.getEcjArguments());
     options.setClasspath(classpath);
-    options.setOutputFile(out);
+    options.setOutputDir(out);
     JackIncremental.run(options);
   }
 }

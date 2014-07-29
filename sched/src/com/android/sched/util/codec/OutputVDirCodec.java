@@ -81,8 +81,6 @@ public class OutputVDirCodec extends FileOrDirCodec
       case ZIP:
         containerName = "a zip archive";
         break;
-      case FILE:
-        throw new AssertionError();
       default:
         throw new AssertionError();
     }

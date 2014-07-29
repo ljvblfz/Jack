@@ -94,7 +94,7 @@ public class WithPhantomTest {
             new ProguardFlags(testFolder, "obf2.flags")),
         false /* non-zipped */);
 
-    File tempOut5 = TestTools.createTempFile("jack", ".dex");
+    File tempOut5 = TestTools.createTempDir("jack", "dex");
     TestTools.compileJackToDex(new Options(), tempJackFolder, tempOut5, false /* non-zipped */);
 
   }
@@ -147,8 +147,9 @@ public class WithPhantomTest {
             new ProguardFlags(testFolder, "obf2.flags")),
         false /* non-zipped */);
 
-    File tempOut5 = TestTools.createTempFile("jack", ".dex");
-    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOut5, false /* non-zipped */);
+    File tempOutFolder = TestTools.createTempDir("jack", "dex");
+    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOutFolder,
+        false /* non-zipped */);
   }
 
   @Category(value = KnownBugs.class)
@@ -180,8 +181,9 @@ public class WithPhantomTest {
             new ProguardFlags(testFolder, "obf1.flags")),
         false /* non-zipped */);
 
-    File tempOut2 = TestTools.createTempFile("jack", ".dex");
-    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOut2, false /* non-zipped */);
+    File tempOutFolder = TestTools.createTempDir("jack", "dex");
+    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOutFolder,
+        false /* non-zipped */);
   }
 
   @Test
@@ -205,8 +207,9 @@ public class WithPhantomTest {
             new ProguardFlags(testFolder, "obf1.flags")),
         false /* non-zipped */);
 
-    File tempOut2 = TestTools.createTempFile("jack", ".dex");
-    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOut2, false /* non-zipped */);
+    File tempOutFolder = TestTools.createTempDir("jack", "dex");
+    TestTools.compileJackToDex(new Options(), tempJackFolder, tempOutFolder,
+        false /* non-zipped */);
   }
 
 }

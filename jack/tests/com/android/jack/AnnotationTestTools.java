@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -33,7 +35,7 @@ public class AnnotationTestTools {
 
     String classpathStr = TestTools.getClasspathsAsString(bootclasspath, classpath);
 
-    File jackDex = TestTools.createTempFile("jackdex", ".dex");
+    File jackDex = TestTools.createTempDir("jack", "dex");
 
     boolean useEcjAsRefCompiler = false;
 
@@ -57,7 +59,7 @@ public class AnnotationTestTools {
         null);
   }
 
-  private static void compareDexToReference(@Nonnull File jackDex,
+  private static void compareDexToReference(@Nonnull File jackDexFolder,
       @Nonnull Options compilerArgs,
       @CheckForNull ProguardFlags[] proguardFlags,
       @CheckForNull File[] bootclasspath,
@@ -80,6 +82,6 @@ public class AnnotationTestTools {
 
     // Compare Jack Dex file to reference
     DexAnnotationsComparator comparator = new DexAnnotationsComparator();
-    comparator.compare(refDex, jackDex);
+    comparator.compare(refDex, new File(jackDexFolder, DexFileWriter.DEX_FILENAME));
   }
 }

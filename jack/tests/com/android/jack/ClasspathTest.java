@@ -82,9 +82,8 @@ public class ClasspathTest {
     }
 
     {
-      File testOut = new File(outFolder, "classes.dex");
       Options testOptions = TestTools.buildCommandLineArgs(new File(testFolder, "jack"));
-      testOptions.setOutputFile(testOut);
+      testOptions.setOutputDir(outFolder);
       testOptions.addJayceImport(lib2Out);
       testOptions.setClasspath(lib1BisOut.getAbsolutePath());
       TestTools.runCompilation(testOptions);

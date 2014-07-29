@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
+
 import junit.framework.Assert;
 
 import org.jf.dexlib.CodeItem;
@@ -75,10 +77,11 @@ public class ConstantTest {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(TestTools
         .getJackTestsWithJackFolder("constant/test005")));
 
-    File out = TestTools.createTempFile("uselessConstantInstructions", ".dex");
+    File outFolder = TestTools.createTempDir("uselessConstantInstructions", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("constant/test005"),
-        TestTools.getClasspathAsString(BOOTCLASSPATH), out, false);
+        TestTools.getClasspathAsString(BOOTCLASSPATH), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     CodeItem ci =

@@ -77,7 +77,7 @@ public class SwitchesTest {
     List<File> imports = new ArrayList<File>(1);
     imports.add(jackZipFile);
     options.setJayceImports(imports);
-    File outDexFile = TestTools.createTempFile("tmp", ".dex");
-    TestTools.compileJackToDex(options, jackZipFile, outDexFile, false /* zip */);
+    File outDexFolder = TestTools.createTempDir("tmp", "dex");
+    TestTools.compileJackToDex(options, jackZipFile, outDexFolder, false /* zip */);
   }
 }

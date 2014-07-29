@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
+
 import junit.framework.Assert;
 
 import org.jf.dexlib.ClassDataItem.EncodedMethod;
@@ -70,10 +72,11 @@ public class DxTest {
    */
   @Test
   public void testRegisterOverlapping002() throws Exception {
-    File out = TestTools.createTempFile("registerOverlapping", ".dex");
+    File outFolder = TestTools.createTempDir("registerOverlapping", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("dx/overlapping"),
-        TestTools.getClasspathAsString(BOOTCLASSPATH), out, false);
+        TestTools.getClasspathAsString(BOOTCLASSPATH), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     EncodedMethod em =
@@ -89,10 +92,11 @@ public class DxTest {
    */
   @Test
   public void testRegisterOverlapping001() throws Exception {
-    File out = TestTools.createTempFile("registerOverlapping", ".dex");
+    File outFolder = TestTools.createTempDir("registerOverlapping", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("dx/overlapping"),
-        TestTools.getClasspathAsString(BOOTCLASSPATH), out, false);
+        TestTools.getClasspathAsString(BOOTCLASSPATH), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     EncodedMethod em =

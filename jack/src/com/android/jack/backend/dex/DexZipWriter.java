@@ -56,7 +56,7 @@ public class DexZipWriter extends DexWriter implements RunnableSchedulable<JSess
   private static final String DEX_NAME = "classes.dex";
 
   @Nonnull
-  private final OutputVDir outputVDir = ThreadConfig.get(Options.DEX_ZIP_OUTPUT);
+  private final OutputVDir outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_ZIP);
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

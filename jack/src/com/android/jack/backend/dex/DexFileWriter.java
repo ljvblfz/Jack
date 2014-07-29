@@ -29,8 +29,11 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -46,28 +49,30 @@ import javax.annotation.Nonnull;
 @Support(DexNonZipOutput.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
+  public static final String DEX_FILENAME = "classes.dex";
+
   @Nonnull
-  private final OutputStreamFile outputFile = ThreadConfig.get(Options.DEX_FILE_OUTPUT);
+  private final OutputVDir outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_DIR);
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     DexFile dexFile = getDexFile(session);
+    OutputVFile dexVFile = outputVDir.createOutputVFile(new VPath(DEX_FILENAME, '/'));
+    OutputStream osDex = new BufferedOutputStream(dexVFile.openWrite());
 
-    OutputStream outputStream = outputFile.getOutputStream();
     try {
       if (emitOneDexPerType) {
-        mergeDexPerType(dexFile, outputStream);
+        mergeDexPerType(dexFile, osDex);
       } else {
         try {
           dexFile.prepare();
-          dexFile.writeTo(outputStream, null, false);
+          dexFile.writeTo(osDex, null, false);
         } catch (IOException e) {
-          throw new JackIOException("Could not write Dex file to output '"
-              + outputFile.getLocation() + "'", e);
+          throw new JackIOException("Could not write Dex file to output '" + dexVFile + "'", e);
         }
       }
     } finally {
-      outputStream.close();
+      osDex.close();
     }
   }
 }

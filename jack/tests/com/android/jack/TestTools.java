@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.dx.command.dexer.Main.Arguments;
 import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -413,13 +414,13 @@ public class TestTools {
   }
 
   @Nonnull
-  public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist) {
+  public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist) throws IOException {
     return buildCommandLineArgs(fileOrSourcelist, null);
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
-      @CheckForNull File jarjarRules) {
+      @CheckForNull File jarjarRules) throws IOException {
     Options options = buildCommandLineArgs(null /* bootclasspath */, null /* classpath */,
         new File[]{fileOrSourcelist});
     options.jarjarRulesFile = jarjarRules;
@@ -428,16 +429,16 @@ public class TestTools {
   }
 
   @Nonnull
-  public static Options buildCommandLineArgs(@Nonnull File[] filesOrSourcelists) {
-    return buildCommandLineArgs(null /* bootclasspath */, null /* classpath */,
-        filesOrSourcelists);
+  public static Options buildCommandLineArgs(@Nonnull File[] filesOrSourcelists)
+      throws IOException {
+    return buildCommandLineArgs(null /* bootclasspath */, null /* classpath */, filesOrSourcelists);
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(
       @CheckForNull File[] bootclasspath, @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList, @CheckForNull ProguardFlags[] proguardFlagsFiles,
-      boolean runDxOptimizations, boolean emitDebugInfo) {
+      boolean runDxOptimizations, boolean emitDebugInfo) throws IOException {
     Options options = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
     options.proguardFlagsFiles = new ArrayList<File>();
     options.emitLocalDebugInfo = emitDebugInfo;
@@ -451,17 +452,18 @@ public class TestTools {
         options.proguardFlagsFiles.add(proguardFlagsFile);
       }
     }
+    options.setOutputDir(TestTools.createTempDir("test", "dex"));
     return options;
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File fileOrSourcelist) {
+      @CheckForNull File[] classpath, @Nonnull File fileOrSourcelist) throws IOException {
     return buildCommandLineArgs(bootclasspath, classpath, new File[]{fileOrSourcelist});
   }
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File[] filesOrSourcelists) {
+      @CheckForNull File[] classpath, @Nonnull File[] filesOrSourcelists) throws IOException {
     Options options = new Options();
 
     if (bootclasspath == null) {
@@ -484,6 +486,7 @@ public class TestTools {
       addFile(file, ecjArgs);
     }
     options.ecjArguments = ecjArgs;
+    options.setOutputDir(TestTools.createTempDir("test", "dex"));
 
     return options;
   }
@@ -521,7 +524,8 @@ public class TestTools {
    * Build a {@code JSession} by using the monolithic plan.
    */
   @Nonnull
-  public static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks) throws Exception {
+  public static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
+      throws Exception {
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();
@@ -611,7 +615,7 @@ public class TestTools {
     boolean useEcjAsRefCompiler = withDebugInfo;
     String classpathStr = getClasspathsAsString(bootclasspath, classpath);
 
-    File jackDex = TestTools.createTempFile("jackdex", ".dex");
+    File jackDexFolder = TestTools.createTempDir("jack", "dex");
 
     Options options = new Options();
     if (runDxOptimizations) {
@@ -623,7 +627,7 @@ public class TestTools {
     compileSourceToDex(options,
         fileOrSourceList,
         classpathStr,
-        jackDex,
+        jackDexFolder,
         false /* zip */,
         jarjarRules,
         proguardFlagFiles,
@@ -631,7 +635,7 @@ public class TestTools {
 
     Options refOptions = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
 
-    TestTools.compareDexToReference(jackDex,
+    TestTools.compareDexToReference(jackDexFolder,
         refOptions,
         proguardFlagFiles,
         null,
@@ -655,11 +659,11 @@ public class TestTools {
     }
     jackOptions.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 
-    File out = TestTools.createTempFile("checklisting", ".dex");
+    File outFolder = TestTools.createTempDir("checklisting", "dex");
     TestTools.compileSourceToDex(jackOptions,
         fileOrSourceList,
         TestTools.getClasspathsAsString(jackBootclasspath, jackClasspath),
-        out,
+        outFolder,
         false /* zip */);
   }
 
@@ -674,11 +678,11 @@ public class TestTools {
     jackOptions.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     jackOptions.disableDxOptimizations();
 
-    File out = TestTools.createTempFile("checklisting", ".dex");
+    File outFolder = TestTools.createTempDir("checklisting", "dex");
     TestTools.compileSourceToDex(jackOptions,
         fileOrSourceList,
         TestTools.getClasspathsAsString(jackBootclasspath, jackClasspath),
-        out,
+        outFolder,
         false /* zip */,
         null /* jarjarRules */,
         proguardFlags,
@@ -802,21 +806,22 @@ public class TestTools {
   }
 
   /**
-   * Compares the given dex {@link File} to a a dex file generated with a reference compiler and
-   * {@code dx}.
-   * <p>If {@code stopsOnError} is set to true, the comparison will stop after the first error and
-   * the test will fail. If not, the test can succeed even if there are differences found.
+   * Compares the classes.dex file into {@code jackDexFolder} to a a dex file generated with a
+   * reference compiler and {@code dx}.
+   * <p>
+   * If {@code stopsOnError} is set to true, the comparison will stop after the first error and the
+   * test will fail. If not, the test can succeed even if there are differences found.
    *
    * @param compilerArgs the arguments given to a reference compiler
    * @param withDebugInfo generate debug infos and compare them
    * @param compareInstructionNumber enable comparison of number of instructions
    * @param instructionNumberTolerance tolerance factor for comparison of number of instructions
    * @throws DifferenceFoundException if a difference between the two Dex files is found and
-   * haltOnError is set to true
+   *         haltOnError is set to true
    * @throws IOException
    * @throws InterruptedException
    */
-  private static void compareDexToReference(@Nonnull File jackDex,
+  private static void compareDexToReference(@Nonnull File jackDexFolder,
       @Nonnull Options compilerArgs,
       @CheckForNull ProguardFlags[] proguardFlags,
       @CheckForNull File[] bootclasspath,
@@ -843,7 +848,8 @@ public class TestTools {
 
     // Compare Jack Dex file to reference
     new DexComparator(withDebugInfo, strict, false /* compareDebugInfoBinary */,
-        compareInstructionNumber, instructionNumberTolerance).compare(refDex, jackDex);
+        compareInstructionNumber, instructionNumberTolerance).compare(refDex,
+        new File(jackDexFolder, DexFileWriter.DEX_FILENAME));
   }
 
   private static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {

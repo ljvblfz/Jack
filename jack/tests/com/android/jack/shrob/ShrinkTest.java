@@ -126,10 +126,10 @@ public class ShrinkTest extends AbstractTest {
       shrinkOption.addJayceImport(jackOut);
       TestTools.runCompilation(shrinkOption);
 
-      dexOut = TestTools.createTempFile("ShrinkTest", ".dex");
+      dexOut = TestTools.createTempDir("ShrinkTest", "dex");
       Options dxOption = new Options();
       dxOption.addJayceImport(shrinkOut);
-      dxOption.setOutputFile(dexOut);
+      dxOption.setOutputDir(dexOut);
       TestTools.runCompilation(dxOption);
 
     } catch (Exception e) {

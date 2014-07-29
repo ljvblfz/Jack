@@ -69,8 +69,8 @@ public class ToolchainTest {
     TestTools.shrobJackToJack(
         new Options(), shrobTestJackOut, classpath, shrobTestShrunkOut, flagFiles, false);
 
-    File shrobTestDexOut = TestTools.createTempFile("shrobbed", ".dex");
-    TestTools.compileJackToDex(new Options(), shrobTestShrunkOut, shrobTestDexOut, false);
+    File shrobTestDexOutFolder = TestTools.createTempDir("shrobbed", "dex");
+    TestTools.compileJackToDex(new Options(), shrobTestShrunkOut, shrobTestDexOutFolder, false);
   }
 
   @Test
@@ -100,14 +100,14 @@ public class ToolchainTest {
     TestTools.compileSourceToJack(
         new Options(), BOUNCY_SOURCELIST, corePath.getAbsolutePath(), bouncyCastleJack, true);
 
-    File bouncyCastle = TestTools.createTempFile("bouncy", ".dex");
-    TestTools.compileJackToDex(new Options(), bouncyCastleJack, bouncyCastle, false);
+    File bouncyCastleOutFolder = TestTools.createTempDir("bouncy", "dex");
+    TestTools.compileJackToDex(new Options(), bouncyCastleJack, bouncyCastleOutFolder, false);
   }
 
   @Test
   public void core() throws Exception {
-    File coreDex = TestTools.createTempFile("core", ".dex");
-    TestTools.compileJackToDex(new Options(), corePath, coreDex, false);
+    File coreOutFolder = TestTools.createTempDir("core", "dex");
+    TestTools.compileJackToDex(new Options(), corePath, coreOutFolder, false);
   }
 
   @Test
@@ -118,8 +118,8 @@ public class ToolchainTest {
         TestTools.getFromAndroidTree(
             "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jar"), junitJack, true);
 
-    File junit = TestTools.createTempFile("junit", ".dex");
-    TestTools.compileJackToDex(new Options(), junitJack, junit, false);
+    File junitOutFolder = TestTools.createTempDir("junit", "dex");
+    TestTools.compileJackToDex(new Options(), junitJack, junitOutFolder, false);
   }
 
   @Test
@@ -166,7 +166,7 @@ public class ToolchainTest {
     TestTools.jarjarJackToJack(
         new Options(), jarjarTestJackOut, classpath, jarjarTestRenamedOut, jarjarRules, true);
 
-    File jarjarTestDexOut = TestTools.createTempFile("jarjared", ".dex");
-    TestTools.compileJackToDex(new Options(), jarjarTestRenamedOut, jarjarTestDexOut, false);
+    File jarjarTestDexOutFolder = TestTools.createTempDir("jarjared", "dex");
+    TestTools.compileJackToDex(new Options(), jarjarTestRenamedOut, jarjarTestDexOutFolder, false);
   }
 }

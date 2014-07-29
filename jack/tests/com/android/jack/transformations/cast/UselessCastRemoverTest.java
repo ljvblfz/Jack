@@ -19,6 +19,7 @@ package com.android.jack.transformations.cast;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JMethod;
@@ -149,10 +150,12 @@ public class UselessCastRemoverTest {
 
   @Test
   public void test001() throws Exception {
-    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    File outFolder = TestTools.createTempDir("uselessCastInstructions", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
+
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("cast/test001"),
-        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     CodeItem ci =
@@ -166,10 +169,11 @@ public class UselessCastRemoverTest {
 
   @Test
   public void test002() throws Exception {
-    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    File outFolder = TestTools.createTempDir("uselessCastInstructions", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("cast/test002"),
-        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     CodeItem ci =
@@ -183,10 +187,11 @@ public class UselessCastRemoverTest {
 
   @Test
   public void test003() throws Exception {
-    File out = TestTools.createTempFile("uselessCastInstructions", ".dex");
+    File outFolder = TestTools.createTempDir("uselessCastInstructions", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("cast/test003"),
-        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), out, false);
+        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     CodeItem ci =

@@ -20,7 +20,6 @@ package com.android.sched.vfs;
  * Container types.
  */
 public enum Container {
-  FILE,
   DIR,
   ZIP
 }

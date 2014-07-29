@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
+
 import junit.framework.Assert;
 
 import org.jf.dexlib.ClassDataItem.EncodedMethod;
@@ -123,11 +125,12 @@ public class SwitchesTest {
    */
   @Test
   public void testCompile9() throws Exception {
-    File out = TestTools.createTempFile("packedSwitchPayloadTest", ".dex");
+    File outFolder = TestTools.createTempDir("packedSwitchPayloadTest", "dex");
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
     TestTools.compileSourceToDex(new Options(),
         TestTools.getJackTestsWithJackFolder("switchstatement/test009"),
-        TestTools.getClasspathAsString(BOOTCLASSPATH), out, false);
+        TestTools.getClasspathAsString(BOOTCLASSPATH), outFolder, false);
 
     DexFile dexFile = new DexFile(out);
     EncodedMethod em =

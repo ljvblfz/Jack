@@ -43,8 +43,8 @@ public class NoPackageTest {
     File sourceDir = TestTools.getJackTestsWithJackFolder(testName);
     TestTools.compileSourceToJack(
         new Options(), sourceDir, classpath, tmpDir, false);
-    File tmpDex = TestTools.createTempFile("NoPackageTest", ".dex");
-    TestTools.compileJackToDex(new Options(), tmpDir, tmpDex, false);
+    File tmpDexFolder = TestTools.createTempDir("NoPackageTest", "dex");
+    TestTools.compileJackToDex(new Options(), tmpDir, tmpDexFolder, false);
   }
 
 }

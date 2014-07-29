@@ -87,8 +87,8 @@ public class NoClasspathTest {
     File extJack = TestTools.createTempFile("ext", ".zip");
     TestTools.compileSourceToJack(new Options(), EXT_SOURCELIST, corePath, extJack, true);
 
-    File ext = TestTools.createTempFile("ext", ".dex");
-    TestTools.compileJackToDex(new Options(), extJack, ext, false);
+    File extFolder = TestTools.createTempDir("ext", "dex");
+    TestTools.compileJackToDex(new Options(), extJack, extFolder, false);
   }
 
   @Test
@@ -117,31 +117,31 @@ public class NoClasspathTest {
     TestTools.compileSourceToJack(
         new Options(), FRAMEWORK_SOURCELIST, classpath, frameworkJackZip, true);
 
-    File frameworkDex = TestTools.createTempFile("framework", ".dex");
-    TestTools.compileJackToDex(new Options(), frameworkJackZip, frameworkDex, false);
+    File frameworkDexFolder = TestTools.createTempDir("framework", "dex");
+    TestTools.compileJackToDex(new Options(), frameworkJackZip, frameworkDexFolder, false);
   }
 
   @Test
   public void guava() throws Exception {
-    File guavaDex = TestTools.createTempFile("guava", ".dex");
-    TestTools.compileJackToDex(new Options(), GUAVA_JAR, guavaDex, false);
+    File guavaDexFolder = TestTools.createTempDir("guava", "dex");
+    TestTools.compileJackToDex(new Options(), GUAVA_JAR, guavaDexFolder, false);
   }
 
   @Test
   public void services() throws Exception {
-    File servicesDex = TestTools.createTempFile("service", ".dex");
-    TestTools.compileJackToDex(new Options(), SERVICES_JAR, servicesDex, false);
+    File servicesDexFolder = TestTools.createTempDir("service", "dex");
+    TestTools.compileJackToDex(new Options(), SERVICES_JAR, servicesDexFolder, false);
   }
 
   @Test
   public void arity() throws Exception {
-    File arityDex = TestTools.createTempFile("arity", ".dex");
-    TestTools.compileJackToDex(new Options(), ARITY_JAR, arityDex, false);
+    File arityDexFolder = TestTools.createTempDir("arity", "dex");
+    TestTools.compileJackToDex(new Options(), ARITY_JAR, arityDexFolder, false);
   }
 
   @Test
   public void playservices() throws Exception {
-    File playServiceDex = TestTools.createTempFile("playservices", ".dex");
-    TestTools.compileJackToDex(new Options(), PLAY_SERVICE_JAR, playServiceDex, false);
+    File playServiceDexFolder = TestTools.createTempDir("playservices", "dex");
+    TestTools.compileJackToDex(new Options(), PLAY_SERVICE_JAR, playServiceDexFolder, false);
   }
 }

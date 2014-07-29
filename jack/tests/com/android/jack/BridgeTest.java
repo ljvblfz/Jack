@@ -123,8 +123,8 @@ public class BridgeTest {
     options = new Options();
     options.jayceImport = new ArrayList<File>(1);
     options.jayceImport.add(jackZipOfPublicExtendsGeneric);
-    File outDexFile = TestTools.createTempFile("tmpBridge", ".dex");
+    File outDexFolder = TestTools.createTempDir("tmpBridge", "dex");
     TestTools.compileSourceToDex(options, new File(srcFolder, "Caller.java"),
-        TestTools.getDefaultBootclasspathString(), outDexFile, false /* zip */);
+        TestTools.getDefaultBootclasspathString(), outDexFolder, false /* zip */);
   }
 }

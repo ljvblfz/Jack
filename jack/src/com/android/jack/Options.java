@@ -35,7 +35,6 @@ import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.InputOutputVDirCodec;
-import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.OutputVDirCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
@@ -48,7 +47,6 @@ import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -133,14 +131,13 @@ public class Options {
       GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> DEX_FILE_OUTPUT = PropertyId.create(
-      "jack.dex.output.file", "Standalone output file for dex",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard()).requiredIf(
-      DEX_OUTPUT_CONTAINER_TYPE.is(Container.FILE).or(
-      GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue()));
+  public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
+      "jack.dex.output.dir", "Output folder for dex",
+      new OutputVDirCodec(Existence.MUST_EXIST, Container.DIR)).requiredIf(DEX_OUTPUT_CONTAINER_TYPE
+      .is(Container.DIR).or(GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue()));
 
   @Nonnull
-  public static final PropertyId<OutputVDir> DEX_ZIP_OUTPUT = PropertyId.create(
+  public static final PropertyId<OutputVDir> DEX_OUTPUT_ZIP = PropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
       new OutputVDirCodec(Existence.MAY_EXIST, Container.ZIP)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
@@ -191,13 +188,13 @@ public class Options {
       metaVar = "[error | warning | info | debug | trace]")
   protected VerbosityLevel verbose = VerbosityLevel.WARNING;
 
-  @Option(name = "--incremental-folder",
-      usage = "Folder used for incremental data", metaVar = "FILE")
+  @Option(name = "--incremental-folder", usage = "Folder used for incremental data",
+      metaVar = "FILE")
   protected File incrementalFolder = null;
 
-  @Option(name = "-o", aliases = "--output",
-      usage = "output to this dex file (default: ./classes.dex)", metaVar = "FILE")
-  protected File out = new File("./classes.dex");
+  @Option(name = "-o", aliases = "--output", usage = "output to this folder",
+      metaVar = "FILE")
+  protected File out = null;
 
   @Option(name = "--output-zip", usage = "output to this zip file", metaVar = "FILE")
   protected File outZip = null;
@@ -335,11 +332,11 @@ public class Options {
   }
 
   @Nonnull
-  public File getOutputFile() {
+  public File getOutputDir() {
     return out;
   }
 
-  public void setOutputFile(File out) {
+  public void setOutputDir(File out) {
     this.out = out;
   }
 
@@ -574,12 +571,12 @@ public class Options {
       configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_FILE, true);
     } else if (outZip != null) {
-      configBuilder.setString(DEX_ZIP_OUTPUT, outZip.getAbsolutePath());
+      configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
-    } else {
-      configBuilder.setString(DEX_FILE_OUTPUT, out.getAbsolutePath());
-      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.FILE);
+    } else if (out != null) {
+      configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
+      configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);

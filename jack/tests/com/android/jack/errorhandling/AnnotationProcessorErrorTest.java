@@ -111,6 +111,7 @@ public class AnnotationProcessorErrorTest {
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString() + File.pathSeparator
         + te.getJackFolder());
+    options.setOutputDir(TestTools.createTempDir("annot", "dex"));
 
     try {
       te.startErrRedirection();
@@ -186,8 +187,9 @@ public class AnnotationProcessorErrorTest {
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString() + File.pathSeparator
         + te.getJackFolder());
+
     File dexOutput = new File(te.getTestingFolder(), "classes.dex");
-    options.setOutputFile(dexOutput);
+    options.setOutputDir(te.getTestingFolder());
 
     te.compile(options);
 
@@ -220,6 +222,7 @@ public class AnnotationProcessorErrorTest {
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString() + File.pathSeparator
         + te.getJackFolder());
+    options.setOutputDir(TestTools.createTempDir("annot", "dex"));
 
     te.compile(options);
 

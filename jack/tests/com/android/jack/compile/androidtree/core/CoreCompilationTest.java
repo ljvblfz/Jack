@@ -21,6 +21,7 @@ import com.android.jack.JarJarRules;
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 import com.android.sched.vfs.Container;
@@ -60,20 +61,22 @@ public class CoreCompilationTest {
   @Test
   @Category(SlowTests.class)
   public void compileCoreWithJackAndDex() throws Exception {
-    File coreDexFromJava = TestTools.createTempFile("coreFromJava", ".dex");
+    File coreDexFolderFromJava = TestTools.createTempDir("coreFromJava", "dex");
+    File coreDexFromJava = new File(coreDexFolderFromJava, DexFileWriter.DEX_FILENAME);
 
     Options options = new Options();
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     File outputFile = new File("/tmp/jackIncrementalOutput");
     options.addProperty(
-        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.FILE.toString());
+        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
     options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
     options.addProperty(
         Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
-    TestTools.compileSourceToDex(options, SOURCELIST, null, coreDexFromJava, false);
+    TestTools.compileSourceToDex(options, SOURCELIST, null, coreDexFolderFromJava, false);
 
-    File coreDexFromJack = TestTools.createTempFile("coreFromJack", ".dex");
-    TestTools.compileJackToDex(new Options(), outputFile, coreDexFromJack,
+    File coreDexFolderFromJack = TestTools.createTempDir("coreFromJack", "dex");
+    File coreDexFromJack = new File(coreDexFolderFromJack, DexFileWriter.DEX_FILENAME);
+    TestTools.compileJackToDex(new Options(), outputFile, coreDexFolderFromJack,
         false);
 
     // Compare dex files structures and number of instructions

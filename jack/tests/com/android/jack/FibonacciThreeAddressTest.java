@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -107,7 +108,8 @@ public class FibonacciThreeAddressTest {
 
     File outputDir = FileUtils.getWorkingDirectory();
     Options fiboArgs = TestTools.buildCommandLineArgs(JAVA_FILEPATH);
-    File outputFile = new File(outputDir, fiboArgs.getOutputFile().getName());
+    fiboArgs.setOutputDir(outputDir);
+    File outputFile = new File(outputDir, DexFileWriter.DEX_FILENAME);
     File outputDirectory = outputFile.getParentFile();
     FileUtils.createIfNotExists(outputDirectory);
 
