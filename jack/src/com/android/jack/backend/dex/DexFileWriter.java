@@ -20,15 +20,15 @@ import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.feature.DexNonZipOutput;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
@@ -36,6 +36,8 @@ import com.android.sched.vfs.VPath;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -46,13 +48,26 @@ import javax.annotation.Nonnull;
 @Name("DexFileWriter")
 @Constraint(need = {DexFileMarker.Complete.class})
 @Produce(DexFileProduct.class)
-@Support(DexNonZipOutput.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
+  @Nonnull
   public static final String DEX_FILENAME = "classes.dex";
 
   @Nonnull
-  private final OutputVDir outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_DIR);
+  private final Logger logger = LoggerFactory.getLogger();
+
+  @Nonnull
+  private final OutputVDir outputVDir;
+
+  {
+    assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
+    Container container = ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE);
+    if (container == Container.DIR) {
+      outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_DIR);
+    } else {
+      outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_ZIP);
+    }
+  }
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
@@ -72,7 +87,11 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
         }
       }
     } finally {
-      osDex.close();
+      try {
+        osDex.close();
+      } catch (IOException e) {
+        logger.log(Level.WARNING, "Failed to close output stream on '" + dexVFile + "'", e);
+      }
     }
   }
 }

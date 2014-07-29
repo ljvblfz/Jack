@@ -31,7 +31,6 @@ import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.backend.dex.DexZipWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
@@ -95,8 +94,6 @@ import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
-import com.android.jack.scheduling.feature.DexNonZipOutput;
-import com.android.jack.scheduling.feature.DexZipOutput;
 import com.android.jack.scheduling.feature.DxLegacy;
 import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.jack.scheduling.feature.Resources;
@@ -484,12 +481,6 @@ public abstract class Jack {
           request.addProduction(StructurePrinting.class);
         }
 
-        if (options.outputToZip()) {
-          request.addFeature(DexZipOutput.class);
-        } else {
-          request.addFeature(DexNonZipOutput.class);
-        }
-
         if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
           request.addFeature(JackFileOutput.class);
         }
@@ -545,11 +536,7 @@ public abstract class Jack {
           if (targetProduction.contains(OneDexPerTypeProduct.class)) {
             planBuilder.append(OneDexPerTypeWriter.class);
           }
-          if (features.contains(DexZipOutput.class)) {
-            planBuilder.append(DexZipWriter.class);
-          } else {
-            planBuilder.append(DexFileWriter.class);
-          }
+          planBuilder.append(DexFileWriter.class);
         } else {
           assert targetProduction.contains(DexFileProduct.class)
               || targetProduction.contains(OneDexPerTypeProduct.class);
@@ -557,16 +544,10 @@ public abstract class Jack {
           if (targetProduction.contains(OneDexPerTypeProduct.class)) {
             planBuilder.append(OneDexPerTypeWriter.class);
           }
-          if (features.contains(DexZipOutput.class)) {
-            planBuilder.append(DexZipWriter.class);
-          } else {
-            planBuilder.append(DexFileWriter.class);
-          }
+          planBuilder.append(DexFileWriter.class);
         }
 
-        if (features.contains(Resources.class)
-            && (features.contains(DexZipOutput.class)
-                || targetProduction.contains(JackFormatProduct.class))) {
+        if (features.contains(Resources.class)) {
           planBuilder.append(ResourceWriter.class);
         }
 

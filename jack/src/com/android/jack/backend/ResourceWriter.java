@@ -60,8 +60,11 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
     } else {
       assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
       Container containerType = ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE);
-      assert containerType == Container.ZIP;
-      outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_ZIP);
+      if (containerType == Container.DIR) {
+        outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_DIR);
+      } else {
+        outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_ZIP);
+      }
     }
   }
 
