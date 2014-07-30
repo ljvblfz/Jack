@@ -335,32 +335,17 @@ public abstract class Jack {
    * Runs the jack compiler on source files and generates a dex file.
    *
    * @param options options for the compiler.
-   * @throws ConfigurationException
-   * @throws IllegalOptionsException
-   * @throws NothingToDoException
-   * @throws JackUserException
+   * @throws ConfigurationException thrown from the configuration framework.
+   * @throws IllegalOptionsException thrown when an {@code Options} is not valid.
+   * @throws NothingToDoException thrown when there is nothing to compile.
+   * @throws ImportConflictException thrown when a conflict prevents the import of a Jack container
+   *         entry.
+   * @throws JackIOException thrown when a Jack-related {@code IOException} should be brought to the
+   *         attention of the user.
+   * @throws JPackageLookupException thrown when the lookup of a package failed.
+   * @throws JTypeLookupException thrown when the lookup of a type failed.
    */
   public static void run(@Nonnull Options options)
-      throws IllegalOptionsException,
-      NothingToDoException,
-      ConfigurationException,
-      JackUserException {
-    run(options, false);
-  }
-
-  /**
-   * Runs the jack compiler on source files and generates a dex file.
-   *
-   * @param options options for the compiler.
-   * @throws ConfigurationException
-   * @throws IllegalOptionsException
-   * @throws NothingToDoException
-   * @throws ImportConflictException
-   * @throws JackIOException
-   * @throws JPackageLookupException
-   * @throws JTypeLookupException
-   */
-  public static void run(@Nonnull Options options, boolean skipEcj)
       throws IllegalOptionsException,
       NothingToDoException,
       ConfigurationException,
@@ -387,7 +372,7 @@ public abstract class Jack {
 
     RunnableHooks hooks = new RunnableHooks();
     try {
-      options.checkValidity(hooks, skipEcj);
+      options.checkValidity(hooks);
 
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
@@ -404,7 +389,7 @@ public abstract class Jack {
         logger.log(Level.INFO, "Jack sanity checks {0}",
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
-        JSession session = skipEcj ? getSession() : buildSession(options, hooks);
+        JSession session = buildSession(options, hooks);
         Request request = createInitialRequest();
 
         request.addFeature(Resources.class);
@@ -589,7 +574,7 @@ public abstract class Jack {
   }
 
   @Nonnull
-  static Request createInitialRequest() {
+  public static Request createInitialRequest() {
     Scheduler scheduler = Scheduler.getScheduler();
     Request request = scheduler.createScheduleRequest();
 
