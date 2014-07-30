@@ -76,6 +76,22 @@ public class ResourceTest {
   }
 
   @Test
+  public void testJackArchiveToDexDir() throws Exception {
+    // compile source file to a Jack archive and add resources
+    File jackAr = createJackArchiveWithResources();
+
+    // compile Jack archive to a dex dir
+    File dexDir = TestTools.createTempDir("resourcetestdex", "dir");
+    TestTools.compileJackToDex(new Options(), jackAr, dexDir, false /* zipped */);
+
+    // check that resources are contained in dex dir
+    checkResourceContent(dexDir, RESOURCE1_LONGPATH, "Res1");
+    checkResourceContent(dexDir, RESOURCE2_LONGPATH, "Res2");
+    checkResourceContent(dexDir, RESOURCE3_LONGPATH, "Res3");
+    checkResourceContent(dexDir, RESOURCE4_LONGPATH, "Res4");
+  }
+
+  @Test
   public void testJackArchiveToDexArchive() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
