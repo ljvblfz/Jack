@@ -18,7 +18,6 @@ package com.android.jack.shrob.seed.remover;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.shrob.seed.SeedMarker;
-import com.android.jack.shrob.shrink.ExtendingOrImplementingClassMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -29,7 +28,7 @@ import javax.annotation.Nonnull;
  * A {@code Schedulable} that removes markers used for seed support on types.
  */
 @Description("Removes seed-related markers on types.")
-@Transform(remove = {SeedMarker.class, ExtendingOrImplementingClassMarker.class})
+@Transform(remove = SeedMarker.class)
 public class TypeSeedMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

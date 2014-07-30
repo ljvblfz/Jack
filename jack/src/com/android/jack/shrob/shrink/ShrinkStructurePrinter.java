@@ -16,13 +16,8 @@
 
 package com.android.jack.shrob.shrink;
 
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.formatter.BinarySignatureFormatter;
-import com.android.jack.ir.formatter.TypeAndMethodFormatter;
+import com.android.jack.util.StructurePrinter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -45,7 +40,7 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("lists all members and types")
 @Produce(StructurePrinting.class)
-public class StructurePrinter implements RunnableSchedulable<JSession> {
+public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
   public static final BooleanPropertyId STRUCTURE_PRINTING = BooleanPropertyId.create(
@@ -58,8 +53,6 @@ public class StructurePrinter implements RunnableSchedulable<JSession> {
       "jack.internal.structure.print.file", "File containing the list of all types and members",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
-
-  private static final TypeAndMethodFormatter formatter = BinarySignatureFormatter.getFormatter();
 
   static class WriteException extends RuntimeException {
 
@@ -85,38 +78,14 @@ public class StructurePrinter implements RunnableSchedulable<JSession> {
   @Nonnull
   private final PrintStream stream;
 
-  public StructurePrinter() {
+  public ShrinkStructurePrinter() {
     stream = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintStream();
-  }
-
-  private class Visitor extends JVisitor {
-
-    @Override
-    public boolean visit(@Nonnull JDefinedClassOrInterface type) {
-      stream.print(formatter.getName(type));
-      stream.println(":");
-      return true;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JField field) {
-      stream.print(formatter.getName(field.getType()));
-      stream.print(" ");
-      stream.println(field.getName());
-      return false;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JMethod method) {
-      stream.println(formatter.getName(method));
-      return false;
-    }
   }
 
   @Override
   public void run(@Nonnull JSession t) throws Exception {
     try {
-      Visitor visitor = new Visitor();
+      StructurePrinter visitor = new StructurePrinter(stream);
       visitor.accept(t.getTypesToEmit());
     } finally {
       stream.close();

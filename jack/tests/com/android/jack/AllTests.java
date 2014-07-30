@@ -25,6 +25,7 @@ import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.UselessVariableCopyTest;
 import com.android.jack.tools.merger.MergerAllTests;
+import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
 import com.android.jack.transformations.flow.CompileFlowTest;
@@ -107,6 +108,7 @@ import org.junit.runners.Suite.SuiteClasses;
     UselessCastRemoverTest.class,
     UselessVariableCopyTest.class,
     WithPhantomTest.class,
-    ClasspathTest.class})
+    ClasspathTest.class,
+    TracingTest.class})
 public class AllTests {
 }

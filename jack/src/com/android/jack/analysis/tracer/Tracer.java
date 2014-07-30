@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.shrob.shrink;
+package com.android.jack.analysis.tracer;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.Annotable;
@@ -51,7 +51,6 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
-import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
@@ -75,22 +74,26 @@ import javax.annotation.Nonnull;
  * A visitor that traces dependencies
  */
 @Description("traces dependencies")
-public abstract class Tracer extends JVisitor {
+public class Tracer extends JVisitor {
 
   @Nonnull
   protected static final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
-  private final boolean traceEnclosingMethod;
-
   @Nonnull
   public Logger logger = LoggerFactory.getLogger();
 
-  public abstract boolean markIfNecessary(@Nonnull JNode node);
+  @Nonnull
+  private final TracerBrush brush;
 
-  public abstract boolean isMarked(@Nonnull JNode node);
+  public Tracer(@Nonnull TracerBrush brush) {
+    this.brush = brush;
+  }
 
-  public Tracer(boolean traceEnclosingMethod) {
-    this.traceEnclosingMethod = traceEnclosingMethod;
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    if (brush.startTraceSeed(type)) {
+      trace(type);
+      brush.endTraceSeed(type);
+    }
   }
 
   public void trace(@Nonnull JType t) {
@@ -116,7 +119,7 @@ public abstract class Tracer extends JVisitor {
     if (superClOrI instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface definedSuperClOrI = (JDefinedClassOrInterface) superClOrI;
       for (JMethod method : definedSuperClOrI.getMethods()) {
-        if (isMarked(method) && mustTraceOverridingMethod(method)) {
+        if (brush.startTraceOverridingMethod(method)) {
           JMethodId methodId = method.getMethodId();
           JType returnType = method.getType();
           JMethod implementation =
@@ -125,6 +128,7 @@ public abstract class Tracer extends JVisitor {
             trace(methodId, implementation.getEnclosingType(), returnType,
                 true /* mustTraceOverridingMethods */);
           }
+          brush.endTraceOverridingMethod(method);
         }
       }
 
@@ -138,15 +142,11 @@ public abstract class Tracer extends JVisitor {
     }
   }
 
-  protected abstract boolean mustTraceOverridingMethod(@Nonnull JMethod method);
-
-  protected abstract void setMustTraceOverridingMethods(@Nonnull JMethod method);
-
   protected void trace(@Nonnull JDefinedClassOrInterface t) {
-    if (markIfNecessary(t)) {
+    if (brush.startTrace(t)) {
       traceAnnotations(t);
       for (JMethod m : t.getMethods()) {
-        if (!isMarked(m) && (JMethod.isClinit(m) || isNullaryConstructor(m))) {
+        if ((JMethod.isClinit(m) || isNullaryConstructor(m))) {
           trace(m);
         }
       }
@@ -166,11 +166,12 @@ public abstract class Tracer extends JVisitor {
 
         if (JModifier.isAnonymousType(t.getModifier())) {
           trace(t.getEnclosingType());
-          if (traceEnclosingMethod) {
+          if (brush.startTraceEnclosingMethod()) {
             JMethod enclosingMethod = ((JDefinedClass) t).getEnclosingMethod();
             if (enclosingMethod != null) {
               trace(enclosingMethod);
             }
+            brush.endTraceEnclosingMethod();
           }
         }
 
@@ -180,14 +181,31 @@ public abstract class Tracer extends JVisitor {
           trace(values);
         }
       }
+
+      for (JField field : t.getFields()) {
+        if (brush.startTraceSeed(field)) {
+          trace(field);
+          brush.endTraceSeed(field);
+        }
+      }
+
+      for (JMethod method : t.getMethods()) {
+        if (brush.startTraceSeed(method)) {
+          trace(method);
+          brush.endTraceSeed(method);
+        }
+      }
+
+      brush.endTrace(t);
     }
   }
 
   protected void trace(@Nonnull JField f) {
-    if (markIfNecessary(f)) {
+    if (brush.startTrace(f)) {
       trace(f.getEnclosingType());
       trace(f.getType());
       traceAnnotations(f);
+      brush.endTrace(f);
     }
   }
 
@@ -225,7 +243,7 @@ public abstract class Tracer extends JVisitor {
     if (foundMethod != null) {
       trace(foundMethod);
       if (mustTraceOverridingMethods) {
-        setMustTraceOverridingMethods(foundMethod);
+        brush.setMustTraceOverridingMethods(foundMethod);
       }
     }
 
@@ -234,12 +252,13 @@ public abstract class Tracer extends JVisitor {
           ((LocalMarkerManager) receiverType).getMarker(ExtendingOrImplementingClassMarker.class);
       if (marker != null) {
         for (JDefinedClass subClass : marker.getExtendingOrImplementingClasses()) {
-          if (isMarked(subClass)) {
+          if (brush.traceMarked(subClass)) {
             JMethod implementation = findImplementation(mid, returnType, subClass);
             if (implementation != null) {
               trace(implementation);
-              setMustTraceOverridingMethods(implementation);
+              brush.setMustTraceOverridingMethods(implementation);
             }
+            brush.endTraceMarked(subClass);
           }
         }
       }
@@ -247,7 +266,7 @@ public abstract class Tracer extends JVisitor {
   }
 
   protected void trace(@Nonnull JMethod m) {
-    if (markIfNecessary(m)) {
+    if (brush.startTrace(m)) {
       trace(m.getEnclosingType());
       traceAnnotations(m);
       for (JParameter arg : m.getParams()) {
@@ -266,6 +285,7 @@ public abstract class Tracer extends JVisitor {
           accept(body);
         }
       }
+      brush.endTrace(m);
     }
   }
 

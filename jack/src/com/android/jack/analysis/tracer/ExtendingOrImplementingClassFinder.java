@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.shrob.shrink;
+package com.android.jack.analysis.tracer;
 
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;

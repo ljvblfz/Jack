@@ -16,12 +16,12 @@
 
 package com.android.jack.shrob.shrink;
 
+import com.android.jack.analysis.tracer.BaseTracerMarker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.item.Description;
 import com.android.sched.marker.DynamicValidOn;
-import com.android.sched.marker.Marker;
 
 import javax.annotation.Nonnull;
 
@@ -29,22 +29,7 @@ import javax.annotation.Nonnull;
  * Indicates that this class or member should not be removed when shrinking.
  */
 @Description("Indicates that this class or member should not be removed when shrinking.")
-public class KeepMarker implements Marker {
-
-  private boolean mustTraceOverridingMethods = false;
-
-  public void setMustTraceOverridingMethods(boolean mustTraceOverridingMethods) {
-    this.mustTraceOverridingMethods = mustTraceOverridingMethods;
-  }
-
-  public boolean mustTraceOverridingMethods() {
-    return mustTraceOverridingMethods;
-  }
-
-  @Override
-  public Marker cloneIfNeeded() {
-    return this;
-  }
+public class KeepMarker extends BaseTracerMarker {
 
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JDefinedClassOrInterface type) {

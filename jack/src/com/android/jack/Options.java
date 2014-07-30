@@ -28,7 +28,7 @@ import com.android.jack.shrob.obfuscation.SourceFileRenamer;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
-import com.android.jack.shrob.shrink.StructurePrinter;
+import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.filter.AllMethods;
@@ -557,9 +557,9 @@ public class Options {
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
     if (typeAndMemberListing != null) {
-      configBuilder.set(StructurePrinter.STRUCTURE_PRINTING, true);
+      configBuilder.set(ShrinkStructurePrinter.STRUCTURE_PRINTING, true);
       configBuilder.setString(
-          StructurePrinter.STRUCTURE_PRINTING_FILE, typeAndMemberListing.getAbsolutePath());
+          ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE, typeAndMemberListing.getAbsolutePath());
     }
 
     if (jayceOutZip != null) {

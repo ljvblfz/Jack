@@ -25,6 +25,7 @@ import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainRemover;
 import com.android.jack.analysis.defsuses.UseDefsChecker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
+import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -145,12 +146,11 @@ import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.seed.remover.FieldSeedMarkerRemover;
 import com.android.jack.shrob.seed.remover.MethodSeedMarkerRemover;
 import com.android.jack.shrob.seed.remover.TypeSeedMarkerRemover;
-import com.android.jack.shrob.shrink.ExtendingOrImplementingClassFinder;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
 import com.android.jack.shrob.shrink.MethodShrinker;
 import com.android.jack.shrob.shrink.Shrinking;
-import com.android.jack.shrob.shrink.StructurePrinter;
+import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.shrink.StructurePrinting;
 import com.android.jack.shrob.shrink.TypeShrinker;
 import com.android.jack.shrob.shrink.remover.FieldKeepMarkerRemover;
@@ -466,7 +466,7 @@ public abstract class Jack {
             request.addFeature(AdaptResourceFileContent.class);
           }
         }
-        if (config.get(StructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
+        if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
           request.addProduction(StructurePrinting.class);
         }
 
@@ -777,7 +777,7 @@ public abstract class Jack {
       planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(StructurePrinting.class)) {
-      planBuilder.append(StructurePrinter.class);
+      planBuilder.append(ShrinkStructurePrinter.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendShrobMarkerRemoverPlan(planBuilder);
@@ -989,7 +989,7 @@ public abstract class Jack {
       planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(StructurePrinting.class)) {
-      planBuilder.append(StructurePrinter.class);
+      planBuilder.append(ShrinkStructurePrinter.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1224,7 +1224,7 @@ public abstract class Jack {
       planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(StructurePrinting.class)) {
-      planBuilder.append(StructurePrinter.class);
+      planBuilder.append(ShrinkStructurePrinter.class);
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendShrobMarkerRemoverPlan(planBuilder);
@@ -1478,7 +1478,7 @@ public abstract class Jack {
       planBuilder.append(MappingPrinter.class);
     }
     if (productions.contains(StructurePrinting.class)) {
-      planBuilder.append(StructurePrinter.class);
+      planBuilder.append(ShrinkStructurePrinter.class);
     }
 
     {

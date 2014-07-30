@@ -16,8 +16,8 @@
 
 package com.android.jack.shrob.shrink.remover;
 
+import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.shrob.shrink.ExtendingOrImplementingClassMarker;
 import com.android.jack.shrob.shrink.KeepMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
