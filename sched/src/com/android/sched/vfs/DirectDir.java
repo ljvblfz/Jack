@@ -52,15 +52,6 @@ public class DirectDir extends SequentialOutputVDir implements InputRootVDir, In
     vfsRoot = this;
   }
 
-  public DirectDir(@Nonnull File dir) throws NotFileOrDirectoryException {
-    if (!dir.isDirectory()) {
-      throw new NotFileOrDirectoryException(new DirectoryLocation(dir));
-    }
-    this.dir = dir;
-    location = new FileLocation(dir);
-    vfsRoot = this;
-  }
-
   DirectDir(@Nonnull File dir, @Nonnull InputOutputVDir vfsRoot)
       throws NotFileOrDirectoryException {
     if (!dir.isDirectory()) {

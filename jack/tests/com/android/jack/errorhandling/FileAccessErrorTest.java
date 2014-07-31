@@ -20,16 +20,15 @@ import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.file.WrongPermissionException;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +83,6 @@ public class FileAccessErrorTest {
    * Checks that compilation fails correctly when folder containing jack files is not readable.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testFileAccessError002() throws Exception {
     TestingEnvironment te = new TestingEnvironment();
 
@@ -122,6 +120,9 @@ public class FileAccessErrorTest {
       te.startErrRedirection();
       te.compile(options);
       Assert.fail();
+    } catch (JackUserException e) {
+      // Failure is ok since Jack file could not be imported since folder is not readable
+      Assert.assertTrue(e.getCause() instanceof WrongPermissionException);
     } finally {
       Assert.assertEquals("", te.endErrRedirection());
       if (!jackOutputFile.setReadable(true)) {

@@ -248,6 +248,10 @@ import com.android.sched.util.config.ReflectFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -696,8 +700,7 @@ public abstract class Jack {
         rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         // Ignore bad entry
-        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}",
-            jackFile.getAbsolutePath());
+        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", jackFile.getAbsolutePath());
       }
     }
   }
@@ -707,7 +710,14 @@ public abstract class Jack {
       @Nonnull RunnableHooks hooks) throws IOException {
     InputVDir dir;
     if (dirOrZip.isDirectory()) {
-      dir = new DirectDir(dirOrZip);
+      try {
+        dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+            Permission.READ, ChangePermission.NOCHANGE));
+      } catch (IOException e) {
+        // Error related to directory are correctly checked by Directory, directly re-throw it to
+        // the user to have the more precise message.
+        throw new JackUserException(e);
+      }
     } else { // zip
       final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
       dir = zipArchive;

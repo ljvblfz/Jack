@@ -19,6 +19,7 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -88,7 +89,8 @@ public class InputVDirCodec extends FileOrDirCodec
     try {
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
-        dir = new DirectDir(dirOrZip);
+        dir = new DirectDir(new Directory(string, context.getRunnableHooks(),
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
       } else { // zip
         final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
         dir = zipArchive;
