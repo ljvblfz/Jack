@@ -43,7 +43,8 @@
     hamcrest-core-lib-clean,
     dexcomparator-clean,
     dex-lib-clean,
-    dx-ref-lib-clean" />
+    dx-ref-lib-clean,
+    core-stubs-mini-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
 
@@ -82,11 +83,11 @@
   <property name="jack.dist.dir" value="${jack.dir}/dist" />
   <property name="jack.libname" value="jack-lib.jar" />
 
-  <target name="jack-clean">
+  <target name="jack-lib-clean">
     <delete dir="${jack.build.dir}"/>
+    <delete file="${jack.dist.dir}/${jack.libname}"/>
     <delete dir="${jack.libs.dir}"/>
     <delete dir="${jack.tools.dir}"/>
-    <delete dir="${jack.dist.dir}"/>
   </target>
 
   <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
@@ -174,6 +175,11 @@
   <property name="jack.exec.build.dir" value="${jack.dir}/build/jack"/>
   <property name="jack.exec.build.outdir" value="${jack.exec.build.dir}/classes"/>
   <property name="jack.execname" value="jack.jar"/>
+
+  <target name="jack-clean" depends="jack-lib-clean">
+    <delete dir="${jack.exec.build.dir}"/>
+    <delete file="${jack.dist.dir}/${jack.execname}"/>
+  </target>
 
   <target name="jack" depends="jack-lib-compile">
     <copy todir="${jack.exec.build.outdir}">
@@ -521,7 +527,7 @@
   <target name="sched-lib-clean">
     <delete dir="${schedlib.build.dir}" />
     <delete dir="${schedlib.libs.dir}" />
-    <delete dir="${schedlib.dist.dir}/${schedlib.libname}" />
+    <delete file="${schedlib.dist.dir}/${schedlib.libname}" />
   </target>
 
   <target name="sched-copy-libs" depends="guava-lib,jsr305-lib,allocation-lib,freemarker-lib,
@@ -588,7 +594,7 @@
   <target name="sched-build-lib-clean">
     <delete dir="${sched-build.build.dir}" />
     <delete dir="${sched-build.libs.dir}" />
-    <delete dir="${sched-build.dist.dir}/${sched-build.libname}" />
+    <delete file="${sched-build.dist.dir}/${sched-build.libname}" />
   </target>
 
   <target name="sched-build-lib-compile" depends="sched-copy-libs,jsr305-lib">
@@ -633,8 +639,8 @@
 
   <target name="sched-build-clean" depends="sched-build-lib-clean">
     <delete dir="${sched-build.exec.build.dir}" />
-    <delete dir="${sched-build.dist.dir}/${sched-build.execname}" />
     <delete file="${sched.dir}/tools/${sched-build.execname}" />
+    <delete file="${sched-build.dist.dir}/${sched-build.execname}" />
   </target>
 
   <target name="sched-build" depends="sched-build-lib-compile">
@@ -992,11 +998,20 @@
             includes="**"/>
   </target>
 
-  <target name="core-stubs-mini" depends="jack">
-    <property name="core-stubs-mini.dist.dir" value="${core-stubs-mini.dir}/dist"/>
-    <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
-    <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
 
+  <!-- ******************* -->
+  <!-- core-stubs-mini     -->
+  <!-- ******************* -->
+  <property name="core-stubs-mini.dist.dir" value="${core-stubs-mini.dir}/dist"/>
+  <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
+  <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
+
+  <target name="core-stubs-mini-clean">
+    <delete dir="${core-stubs-mini.build.dir}" />
+    <delete dir="${core-stubs-mini.dist.dir}" />
+  </target>
+
+  <target name="core-stubs-mini" depends="jack">
     <mkdir dir="${core-stubs-mini.dist.dir}"/>
     <fileset dir="${core-stubs-mini.dir}/src">
       <include name="**/*.java"/>
