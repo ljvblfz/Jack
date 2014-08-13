@@ -26,10 +26,20 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/Antlr Builder.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/Antlr Builder Proguard.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
+    <buildCommand>
+      <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+      <triggers>auto,full,incremental,</triggers>
+      <arguments>
+        <dictionary>
+          <key>LaunchConfigHandle</key>
+          <value>&lt;project&gt;/.externalToolBuilders/Antlr Builder AnnotationAdder.launch</value>
+        </dictionary>
+      </arguments>
+    </buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>

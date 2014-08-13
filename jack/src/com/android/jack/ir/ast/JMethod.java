@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
  */
 @Description("A Java method implementation")
 public class JMethod extends JNode implements HasEnclosingType, HasName, HasType, CanBeAbstract,
-    CanBeSetFinal, CanBeNative, CanBeStatic, Annotable {
+    CanBeSetFinal, CanBeNative, CanBeStatic, Annotable, HasModifier {
 
   /**
    * Special serialization treatment.
@@ -107,6 +107,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   /**
    * @return the modifier
    */
+  @Override
   public int getModifier() {
     return modifier;
   }

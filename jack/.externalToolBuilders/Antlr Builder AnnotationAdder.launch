@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramBuilderLaunchConfigurationType">
+<booleanAttribute key="org.eclipse.debug.core.ATTR_REFRESH_RECURSIVE" value="false"/>
+<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE" value="${working_set:&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;resources&gt;&#10;&lt;item path=&quot;/Jack/src/com/android/jack/annotationadder/AnnotationAdder.tokens&quot; type=&quot;1&quot;/&gt;&#10;&lt;item path=&quot;/Jack/src/com/android/jack/annotationadder/AnnotationAdderLexer.java&quot; type=&quot;1&quot;/&gt;&#10;&lt;item path=&quot;/Jack/src/com/android/jack/annotationadder/AnnotationAdderParser.java&quot; type=&quot;1&quot;/&gt;&#10;&lt;/resources&gt;}"/>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_BUILDER_ENABLED" value="true"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_BUILD_SCOPE" value="${working_set:&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;resources&gt;&#10;&lt;item path=&quot;/Jack/src/com/android/jack/annotationadder/AnnotationAdder.g&quot; type=&quot;1&quot;/&gt;&#10;&lt;/resources&gt;}"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${ee_home:JavaSE-1.6}/bin/java"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_RUN_BUILD_KINDS" value="full,incremental,auto,"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-jar tools/antlr.jar -fo src/com/android/jack/annotationadder src/com/android/jack/annotationadder/AnnotationAdder.g"/>
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${project_loc:/Jack}"/>
+</launchConfiguration>

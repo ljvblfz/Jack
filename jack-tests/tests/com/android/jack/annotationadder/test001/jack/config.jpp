@@ -1,0 +1,36 @@
+test001:
+  @@com.android.jack.annotationadder.test001.jack.MultiDexInstaller
+  class *
+    modifiers {
+      public | private
+    }
+    extends {
+        class com.android.jack.annotationadder.test001.jack.Instrumentation
+      | class com.android.jack.annotationadder.test001.jack.Activity
+      | class com.android.jack.annotationadder.test001.jack.Service
+      | class com.android.jack.annotationadder.test001.jack.ContentProvider
+      | class com.android.jack.annotationadder.test001.jack.BroadcastReceiver
+      | class com.android.jack.annotationadder.test001.jack.BackupAgent
+      | class com.android.jack.annotationadder.test001.jack.Application
+    }
+    annotate {
+      @@com.android.jack.annotationadder.test001.jack.MultiDexInstaller
+      method * <init>();
+    }
+
+test002:
+  class *
+    modifiers {
+      public
+    }
+    extends {
+      class com.android.jack.annotationadder.test001.jack.Application
+    }
+    annotate {
+      @@com.android.jack.annotationadder.test001.jack.MultiDexInstaller
+      method void attachBaseContext(class com.android.jack.annotationadder.test001.jack.Context)
+          modifiers {
+              public
+          }
+      ;
+    }

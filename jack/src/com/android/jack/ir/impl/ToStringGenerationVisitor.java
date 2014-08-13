@@ -492,6 +492,8 @@ public class ToStringGenerationVisitor extends TextOutputVisitor {
 
   @Override
   public boolean visit(@Nonnull JConstructor x) {
+    printAnnotationLiterals(x.getAnnotations());
+
     // Modifiers
     if (x.isPrivate()) {
       print(CHARS_PRIVATE);

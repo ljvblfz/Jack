@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Java field definition")
 public class JField extends JNode implements HasName, HasType, JVisitable, CanBeStatic,
-    HasEnclosingType, CanBeSetFinal, Annotable {
+    HasEnclosingType, CanBeSetFinal, Annotable, HasModifier {
 
   @CheckForNull
   private JFieldInitializer fieldInitializer = null;
@@ -177,6 +177,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   /**
    * @return the modifier
    */
+  @Override
   public int getModifier() {
     return modifier;
   }

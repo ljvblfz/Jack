@@ -6,4 +6,16 @@
 <Match>
     <Class name="~com\.android\.jack\.shrob\.proguard\.ProguardParser.*"/>
 </Match>
+<Match>
+    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdderLexer.*"/>
+</Match>
+<Match>
+    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdderParser.*"/>
+</Match>
+<Match>
+    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdder_AnnotationAdderL.*"/>
+</Match>
+<Match>
+    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdder_AnnotationAdderL_Java.*"/>
+</Match>
 </FindBugsFilter>

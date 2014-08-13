@@ -18,6 +18,7 @@ package com.android.jack.transformations.request;
 
 import com.android.jack.ir.ast.JNode;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,6 +43,14 @@ public class TransformationRequest {
     }
     assert requests != null;
     requests.add(step);
+  }
+
+  public void appendAll(Collection<TransformationStep> steps) {
+    if (requests == null) {
+      throw new IllegalStateException("The request has already been applied");
+    }
+    assert requests != null;
+    requests.addAll(steps);
   }
 
   /**

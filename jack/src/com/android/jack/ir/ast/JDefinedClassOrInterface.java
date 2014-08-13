@@ -32,6 +32,7 @@ import com.android.sched.util.location.Location;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -42,7 +43,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Declared type")
 public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
-  implements JClassOrInterface, Annotable, CanBeAbstract, CanBeFinal, HasLocation {
+  implements JClassOrInterface, Annotable, CanBeAbstract, CanBeFinal, HasLocation, HasModifier {
 
   protected List<JField> fields = new ArrayList<JField>();
 
@@ -112,6 +113,27 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public void setModifier(int modifier) {
     this.modifier = modifier;
   }
+
+  @Nonnull
+  public Collection<JClassOrInterface> getHierarchy() {
+    HashSet<JClassOrInterface> hierarchy = new HashSet<JClassOrInterface>();
+
+    for (JInterface jInterface : getImplements()) {
+      hierarchy.add(jInterface);
+      if (jInterface instanceof JDefinedInterface) {
+        hierarchy.addAll(((JDefinedInterface) jInterface).getHierarchy());
+      }
+    }
+    JClass superClass = getSuperClass();
+    if (superClass != null) {
+      hierarchy.add(superClass);
+      if (superClass instanceof JDefinedClass) {
+        hierarchy.addAll(((JDefinedClass) superClass).getHierarchy());
+      }
+    }
+    return hierarchy;
+  }
+
 
   /**
    * Adds a field to this type.
@@ -320,6 +342,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.isExternal = isExternal;
   }
 
+  @Override
   public int getModifier() {
     loader.ensureModifier(this);
     return modifier;

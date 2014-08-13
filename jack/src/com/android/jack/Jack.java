@@ -26,6 +26,8 @@ import com.android.jack.analysis.defsuses.UseDefsChecker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
+import com.android.jack.annotationadder.AnnotationAdderFile;
+import com.android.jack.annotationadder.ApplyAnnotationAdder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -149,8 +151,8 @@ import com.android.jack.shrob.seed.remover.TypeSeedMarkerRemover;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
 import com.android.jack.shrob.shrink.MethodShrinker;
-import com.android.jack.shrob.shrink.Shrinking;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
+import com.android.jack.shrob.shrink.Shrinking;
 import com.android.jack.shrob.shrink.StructurePrinting;
 import com.android.jack.shrob.shrink.TypeShrinker;
 import com.android.jack.shrob.shrink.remover.FieldKeepMarkerRemover;
@@ -419,6 +421,9 @@ public abstract class Jack {
         if (options.dxLegacy) {
           request.addFeature(DxLegacy.class);
         }
+        if (config.get(AnnotationAdderFile.HAS_FILE).booleanValue()) {
+          request.addFeature(AnnotationAdderFile.class);
+        }
         if (options.flags != null) {
           if (options.flags.shrink()) {
             request.addFeature(Shrinking.class);
@@ -504,6 +509,10 @@ public abstract class Jack {
           planBuilder = request.getPlanBuilder(JSession.class);
         } catch (IllegalRequestException e) {
           throw new AssertionError(e);
+        }
+
+        if (config.get(AnnotationAdderFile.HAS_FILE).booleanValue()) {
+          planBuilder.append(ApplyAnnotationAdder.class);
         }
 
         if (targetProduction.contains(JackFormatProduct.class)
