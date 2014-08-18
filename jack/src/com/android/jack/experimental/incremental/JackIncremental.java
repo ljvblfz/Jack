@@ -177,11 +177,11 @@ public class JackIncremental extends CommandLine {
     // Add options to control incremental support
     options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
     assert dexFilesFolder != null;
-    options.addProperty(Options.DEX_FILE_FOLDER.getName(), dexFilesFolder.getAbsolutePath());
+    options.addProperty(Options.DEX_FILE_FOLDER.getName(), dexFilesFolder.getPath());
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
     options.addProperty(Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), "dir");
     assert jackFilesFolder != null;
-    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFilesFolder.getAbsolutePath());
+    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), jackFilesFolder.getPath());
 
     compilerState = new CompilerState(incrementalFolder);
 
@@ -321,7 +321,7 @@ public class JackIncremental extends CommandLine {
 
     // Move imported jack files from import to classpath option
     assert jackFilesFolder != null;
-    StringBuilder newClasspath = new StringBuilder(jackFilesFolder.getAbsolutePath());
+    StringBuilder newClasspath = new StringBuilder(jackFilesFolder.getPath());
 
     String oldClasspath = options.getClasspathAsString();
     if (oldClasspath != null) {
@@ -333,7 +333,7 @@ public class JackIncremental extends CommandLine {
     if (!jayceImport.isEmpty()) {
       for (File importedJackFiles : jayceImport) {
         newClasspath.append(File.pathSeparator);
-        newClasspath.append(importedJackFiles.getAbsolutePath());
+        newClasspath.append(importedJackFiles.getPath());
       }
       options.setJayceImports(Collections.<File>emptyList());
     }
@@ -396,11 +396,11 @@ public class JackIncremental extends CommandLine {
       getCompilerState().getTypeNamePathFromJavaFileName(javaFileName)) {
       File jackFile = getJackFile(typeNameToRemove);
       if (jackFile.exists() && !jackFile.delete()) {
-        throw new JackIOException("Failed to delete file " + jackFile.getAbsolutePath());
+        throw new JackIOException("Failed to delete file " + jackFile.getPath());
       }
       File dexFile = getDexFile(typeNameToRemove);
       if (dexFile.exists() && !dexFile.delete()) {
-        throw new JackIOException("Failed to delete file " + dexFile.getAbsolutePath());
+        throw new JackIOException("Failed to delete file " + dexFile.getPath());
       }
     }
   }

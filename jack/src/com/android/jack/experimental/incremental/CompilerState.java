@@ -176,7 +176,7 @@ public final class CompilerState {
       structFileToUsedFiles = readMap(br);
     } catch (IOException e) {
       throw new JackIOException(
-          "Could not read compiler state file '" + csf.getAbsolutePath() + "'", e);
+          "Could not read compiler state file '" + csf.getPath() + "'", e);
     } finally {
       try {
         if (br != null) {
@@ -184,7 +184,7 @@ public final class CompilerState {
         }
       } catch (IOException e) {
         throw new JackIOException(
-            "Could not read compiler state file '" + csf.getAbsolutePath() + "'", e);
+            "Could not read compiler state file '" + csf.getPath() + "'", e);
       }
     }
   }
