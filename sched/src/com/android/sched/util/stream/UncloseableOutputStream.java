@@ -17,6 +17,7 @@
 package com.android.sched.util.stream;
 
 import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
@@ -32,5 +33,15 @@ public class UncloseableOutputStream extends FilterOutputStream {
 
   @Override
   public void close() {
+  }
+
+  @Override
+  public void write(byte[] b) throws IOException {
+    out.write(b);
+  }
+
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+    out.write(b, off, len);
   }
 }
