@@ -23,19 +23,25 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
+
 @Ignore("Tree")
 public class CompilerRegressionsTest {
+
+  private static File[] BOOTCLASSPATH;
 
   @BeforeClass
   public static void setUpClass() {
     CompilerRegressionsTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
   }
 
   @Test
   public void compileRegressions() throws Exception {
-    Options compilerArgs = TestTools.buildCommandLineArgs(
-        null, null, TestTools.getDalvikTestFolder("083-jit-regressions"));
-
-    TestTools.runCompilation(compilerArgs);
+    File out = TestTools.createTempFile("out", ".zip");
+    String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
+    TestTools.compileSourceToDex(new Options(),
+        TestTools.getDalvikTestFolder("083-jit-regressions"), classpath, out, /* zip = */ true);
   }
 }

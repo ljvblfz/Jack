@@ -23,22 +23,25 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
+
 @Ignore("Tree")
 public class FinalizerTest {
+
+  private static File[] BOOTCLASSPATH;
 
   @BeforeClass
   public static void setUpClass() {
     FinalizerTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
   }
 
   @Test
   public void compileFinalizer() throws Exception {
-    Options compilerArgs =
-        TestTools.buildCommandLineArgs(
-            null,
-            null,
-            TestTools.getDalvikTestFolder("036-finalizer"));
-
-    TestTools.runCompilation(compilerArgs);
+    File out = TestTools.createTempFile("out", ".zip");
+    String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
+    TestTools.compileSourceToDex(new Options(), TestTools.getDalvikTestFolder("036-finalizer"),
+        classpath, out, /* zip = */ true);
   }
 }

@@ -18,27 +18,33 @@ package com.android.jack.compile.androidtree.dalvik.omnibus;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.category.SlowTests;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import java.io.File;
 
 @Ignore("Tree")
 public class OmnibusCompilationTest {
 
+  private static File[] BOOTCLASSPATH;
+
   @BeforeClass
   public static void setUpClass() {
     OmnibusCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
   }
 
   @Test
+  @Category(SlowTests.class)
   public void compileOmnibus() throws Exception {
-    Options compilerArgs =
-        TestTools.buildCommandLineArgs(
-            null,
-            null,
-            TestTools.getDalvikTestFolder("003-omnibus-opcodes"));
-
-    TestTools.runCompilation(compilerArgs);
+    File out = TestTools.createTempFile("out", ".zip");
+    String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
+    TestTools.compileSourceToDex(new Options(),
+        TestTools.getDalvikTestFolder("003-omnibus-opcodes"), classpath, out, /* zip = */ true);
   }
 }
