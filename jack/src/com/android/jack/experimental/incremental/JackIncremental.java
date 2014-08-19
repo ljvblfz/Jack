@@ -24,18 +24,27 @@ import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
+import com.android.jack.backend.dex.DexFileBuilder;
+import com.android.jack.backend.dex.DexFileProduct;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexWriter;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.load.JackLoadingException;
+import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.util.TextUtils;
+import com.android.sched.scheduler.IllegalRequestException;
+import com.android.sched.scheduler.PlanBuilder;
+import com.android.sched.scheduler.Request;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.OutputVDirCodec;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -202,7 +211,41 @@ public class JackIncremental extends CommandLine {
         getCompilerState().updateCompilerState(filesToRecompile, deletedFiles);
 
         logger.log(Level.FINE, "Ecj options {0}", options.getEcjArguments());
-        Jack.run(options, filesToRecompile.isEmpty());
+        try {
+          Jack.run(options);
+        } catch (NothingToDoException e) {
+          // Even if there is nothing to compile, the output dex file must be rebuild from all dex
+          // (one dex per types) since some dex files could be removed. To rebuild output dex file,
+          // a specific plan is used.
+          ThreadConfig.setConfig(options.getConfig());
+
+          Request request = Jack.createInitialRequest();
+          request.addProduction(CompilerStateProduct.class);
+          request.addProduction(DexFileProduct.class);
+          request.addInitialTagOrMarker(DexFileMarker.Complete.class);
+          request.addInitialTagOrMarker(CompilerState.Filled.class);
+
+          PlanBuilder<JSession> planBuilder;
+          try {
+            planBuilder = request.getPlanBuilder(JSession.class);
+          } catch (IllegalRequestException illegalRequest) {
+            throw new AssertionError(illegalRequest);
+          }
+
+          planBuilder.append(DexFileBuilder.class);
+          planBuilder.append(CompilerStateWriter.class);
+          planBuilder.append(DexFileWriter.class);
+
+          try {
+            planBuilder.getPlan().getScheduleInstance().process(Jack.getSession());
+          } catch (RuntimeException runtimeExcept) {
+            throw runtimeExcept;
+          } catch (Exception except) {
+            throw new AssertionError(except);
+          }
+        } finally {
+          ThreadConfig.unsetConfig();
+        }
       } else {
         logger.log(Level.INFO, "No files to recompile");
       }

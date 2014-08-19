@@ -613,11 +613,6 @@ public class Options {
 
   public void checkValidity(@Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, NothingToDoException, ConfigurationException {
-    checkValidity(hooks, false);
-  }
-
-  public void checkValidity(@Nonnull RunnableHooks hooks, boolean skipEcj)
-      throws IllegalOptionsException, NothingToDoException, ConfigurationException {
     config = getConfigBuilder().setHooks(hooks).build();
 
     LoggerFactory.loadLoggerConfiguration(
@@ -638,13 +633,11 @@ public class Options {
           );
 
       try {
-        if (!skipEcj) {
-          compiler.configure(ecjArguments.toArray(new String[ecjArguments.size()]));
-          if (!compiler.proceed) {
-            throw new NothingToDoException();
-          }
-          compiler.getLibraryAccess().cleanup();
+        compiler.configure(ecjArguments.toArray(new String[ecjArguments.size()]));
+        if (!compiler.proceed) {
+          throw new NothingToDoException();
         }
+        compiler.getLibraryAccess().cleanup();
       } catch (IllegalArgumentException e) {
         throw new IllegalOptionsException(e.getMessage(), e);
       }
