@@ -240,6 +240,56 @@ public class ResourceTest {
   }
 
   @Test
+  public void testJackDirToDexDir() throws Exception {
+    // compile source file to a Jack dir
+    File jackFolder = TestTools.createTempDir("tempjack", "dir");
+    TestTools.compileSourceToJack(new Options(), FILE, TestTools.getDefaultBootclasspathString(),
+        jackFolder, false /* non-zipped */);
+
+    // add resources to Jack dir
+    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
+
+    // compile Jack dir to a dex dir
+    File dexDir = TestTools.createTempDir("resourcetestdex", "dir");
+    TestTools.compileJackToDex(new Options(), jackFolder, dexDir, false /* zipped */);
+
+    // check that resources are contained in dex dir
+    checkResourceContent(dexDir, RESOURCE1_LONGPATH, "Res1");
+    checkResourceContent(dexDir, RESOURCE2_LONGPATH, "Res2");
+    checkResourceContent(dexDir, RESOURCE3_LONGPATH, "Res3");
+    checkResourceContent(dexDir, RESOURCE4_LONGPATH, "Res4");
+  }
+
+  @Test
+  @Category(KnownBugs.class)
+  public void testJackToDexInSameDir() throws Exception {
+    // compile source file to a Jack dir
+    File jackFolder = TestTools.createTempDir("tempjack", "dir");
+    System.out.println(jackFolder);
+    TestTools.compileSourceToJack(new Options(), FILE, TestTools.getDefaultBootclasspathString(),
+        jackFolder, false /* non-zipped */);
+
+    // add resources to Jack dir
+    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
+    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
+
+    // compile Jack dir to same dir
+    File dexDir = jackFolder;
+    TestTools.compileJackToDex(new Options(), jackFolder, dexDir, false /* zipped */);
+
+    // check that resources are contained in dex dir
+    checkResourceContent(dexDir, RESOURCE1_LONGPATH, "Res1");
+    checkResourceContent(dexDir, RESOURCE2_LONGPATH, "Res2");
+    checkResourceContent(dexDir, RESOURCE3_LONGPATH, "Res3");
+    checkResourceContent(dexDir, RESOURCE4_LONGPATH, "Res4");
+  }
+
+  @Test
   @Category(KnownBugs.class)
   public void testResourceContentAdaptation() throws Exception {
     /// compile source file to a Jack dir
@@ -368,13 +418,13 @@ public class ResourceTest {
 
   private void compareReadLines(@Nonnull BufferedReader referenceReader,
       @Nonnull BufferedReader candidateReader) throws IOException {
-      String candidateLine = candidateReader.readLine();
-      while (candidateLine != null) {
-        String referenceLine = referenceReader.readLine();
+      String referenceLine = referenceReader.readLine();
+      while (referenceLine != null) {
+        String candidateLine = candidateReader.readLine();
         Assert.assertEquals(referenceLine, candidateLine);
-        candidateLine = candidateReader.readLine();
+        referenceLine = referenceReader.readLine();
       }
-      Assert.assertNull(referenceReader.readLine());
+      Assert.assertNull(candidateReader.readLine());
   }
 
   private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
