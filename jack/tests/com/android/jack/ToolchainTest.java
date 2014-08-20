@@ -123,31 +123,6 @@ public class ToolchainTest {
   }
 
   @Test
-  public void libOfLib() throws Exception {
-
-    String corePathString = corePath.getAbsolutePath();
-    File libOfLibOut = TestTools.createTempFile("libOfLibOut", ".zip");
-    String testName = "liboflib/lib2";
-    File sourceDir = TestTools.getJackTestsWithJackFolder(testName);
-    TestTools.compileSourceToJack(
-        new Options(), sourceDir, corePathString, libOfLibOut, true);
-
-    File libOut = TestTools.createTempFile("libOut", ".zip");
-    String testName2 = "liboflib/lib";
-    String classpath = corePathString + File.pathSeparatorChar + libOfLibOut.getAbsolutePath();
-    File sourceDir2 = TestTools.getJackTestsWithJackFolder(testName2);
-    TestTools.compileSourceToJack(
-        new Options(), sourceDir2, classpath, libOut, true);
-
-    File mainOut = TestTools.createTempFile("mainOut", ".zip");
-    String testName3 = "liboflib/main";
-    classpath = corePathString + File.pathSeparatorChar + libOut.getAbsolutePath();
-    File sourceDir3 = TestTools.getJackTestsWithJackFolder(testName3);
-    TestTools.compileSourceToJack(
-        new Options(), sourceDir3, classpath, mainOut, true);
-  }
-
-  @Test
   public void jarjarTest() throws Exception {
     File jarjarTestJackOut = TestTools.createTempFile("jarjartest", ".zip");
     String testName = "jarjar/test003";

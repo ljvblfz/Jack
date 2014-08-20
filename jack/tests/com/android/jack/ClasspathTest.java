@@ -89,4 +89,29 @@ public class ClasspathTest {
       TestTools.runCompilation(testOptions);
     }
   }
+
+  @Test
+  public void libOfLib() throws Exception {
+
+    String defaultClasspath = TestTools.getDefaultBootclasspathString();
+    File libOfLibOut = TestTools.createTempFile("libOfLibOut", ".zip");
+    String testName = "liboflib/lib2";
+    File sourceDir = TestTools.getJackTestsWithJackFolder(testName);
+    TestTools.compileSourceToJack(
+        new Options(), sourceDir, defaultClasspath, libOfLibOut, true);
+
+    File libOut = TestTools.createTempFile("libOut", ".zip");
+    String testName2 = "liboflib/lib";
+    String classpath = defaultClasspath + File.pathSeparatorChar + libOfLibOut.getAbsolutePath();
+    File sourceDir2 = TestTools.getJackTestsWithJackFolder(testName2);
+    TestTools.compileSourceToJack(
+        new Options(), sourceDir2, classpath, libOut, true);
+
+    File mainOut = TestTools.createTempFile("mainOut", ".zip");
+    String testName3 = "liboflib/main";
+    classpath = defaultClasspath + File.pathSeparatorChar + libOut.getAbsolutePath();
+    File sourceDir3 = TestTools.getJackTestsWithJackFolder(testName3);
+    TestTools.compileSourceToJack(
+        new Options(), sourceDir3, classpath, mainOut, true);
+  }
 }
