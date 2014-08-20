@@ -47,8 +47,8 @@ public class CoreCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileCore() throws Exception {
-    File out = TestTools.createTempFile("core", ".dex");
-    TestTools.compileSourceToDex(new Options(), SOURCELIST, null, out, false);
+    File outDexFolder = TestTools.createTempDir("core", ".dex");
+    TestTools.compileSourceToDex(new Options(), SOURCELIST, null, outDexFolder, false);
   }
 
   @Test

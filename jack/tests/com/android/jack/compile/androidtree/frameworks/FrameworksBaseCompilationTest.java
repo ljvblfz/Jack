@@ -57,13 +57,13 @@ public class FrameworksBaseCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileFrameworks() throws Exception {
-    File out = TestTools.createTempFile("frameworks", ".dex");
+    File outDexFolder = TestTools.createTempDir("frameworks", "dex");
     String classpathString = TestTools.getClasspathsAsString(BOOTCLASSPATH, CLASSPATH);
 
     TestTools.compileSourceToDex(new Options(),
         SOURCELIST,
         classpathString,
-        out,
+        outDexFolder,
         false);
   }
 

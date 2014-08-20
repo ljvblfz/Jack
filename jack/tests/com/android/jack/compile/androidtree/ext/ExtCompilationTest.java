@@ -50,9 +50,9 @@ public class ExtCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileExt() throws Exception {
-    File out = TestTools.createTempFile("ext", ".dex");
-    TestTools.compileSourceToDex(
-        new Options(), SOURCELIST, TestTools.getClasspathAsString(BOOTCLASSPATH), out, false);
+    File outDexFolder = TestTools.createTempDir("ext", ".dex");
+    TestTools.compileSourceToDex(new Options(), SOURCELIST,
+        TestTools.getClasspathAsString(BOOTCLASSPATH), outDexFolder, false);
   }
 
   @Test
