@@ -26,6 +26,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
+
 /**
  * JUnit test checking that merging of annotation declaration with default values works.
  */
@@ -114,7 +116,11 @@ public class MergerTest006 extends MergerTestTools {
   public void testMergerFromBridgeTest() throws Exception {
     Assert.assertFalse(compareMonoDexWithOneDexPerType(
         TestTools.getJackTestsWithJackFolder("bridge/test001"), false /* withDebug */));
-    Assert.assertFalse(compareMonoDexWithOneDexPerType(
+    File[] bootclasspath = new File[]{TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+        "out/host/common/obj/JAVA_LIBRARIES/junit4-hostdex-jack_intermediates/classes.jar")};
+    Assert.assertFalse(compareMonoDexWithOneDexPerType(bootclasspath,
         TestTools.getJackTestsWithJackFolder("bridge/test002"), false /* withDebug */));
     Assert.assertFalse(compareMonoDexWithOneDexPerType(
         TestTools.getJackTestsWithJackFolder("bridge/test003"), false /* withDebug */));

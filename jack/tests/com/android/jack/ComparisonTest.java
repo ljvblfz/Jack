@@ -20,6 +20,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
+
 /**
  * JUnit test for compilation of comparisons.
  */
@@ -36,7 +38,11 @@ public class ComparisonTest {
    */
   @Test
   public void testCompile() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+    File[] bootclasspath = new File[]{TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar"),
+        TestTools.getFromAndroidTree(
+        "out/host/common/obj/JAVA_LIBRARIES/junit4-hostdex-jack_intermediates/classes.jar")};
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(bootclasspath, null,
         TestTools.getJackTestsWithJackFolder("comparison/test001")));
   }
 }
