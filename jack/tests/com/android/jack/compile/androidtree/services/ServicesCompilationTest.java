@@ -63,9 +63,9 @@ public class ServicesCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileServices() throws Exception {
-    File out = TestTools.createTempFile("services", ".dex");
+    File outDexFolder = TestTools.createTempDir("services", ".dex");
     String classpath = TestTools.getClasspathsAsString(BOOTCLASSPATH, CLASSPATH);
-    TestTools.compileSourceToDex(new Options(), SOURCELIST, classpath, out, false);
+    TestTools.compileSourceToDex(new Options(), SOURCELIST, classpath, outDexFolder, false);
   }
 
   @Test

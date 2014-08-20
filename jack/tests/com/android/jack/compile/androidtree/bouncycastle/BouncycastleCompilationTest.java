@@ -54,13 +54,13 @@ public class BouncycastleCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileBouncycastle() throws Exception {
-    File out = TestTools.createTempFile("bouncycastle", ".dex");
+    File outDexFolder = TestTools.createTempDir("bouncycastle", ".dex");
     Options options = new Options();
     options.disableDxOptimizations();
     TestTools.compileSourceToDex(options,
         SOURCELIST,
         TestTools.getClasspathAsString(BOOTCLASSPATH),
-        out,
+        outDexFolder,
         false /* zip */,
         JARJAR_RULES,
         null /* flagFiles */,
