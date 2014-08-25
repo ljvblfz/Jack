@@ -8,4 +8,4 @@ com.android.jack.shrob.test036.jack.E -> com.android.jack.shrob.test036.jack.Ren
     void <clinit>() -> renamed<clinit>
     com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
     int[] -ESwitchesValues -> renamed-ESwitchesValues
-    int[] -getESwitchesValues() -> renamed-getESwitchesValues()
+    int[] -getESwitchesValues() -> renamed-getESwitchesValues

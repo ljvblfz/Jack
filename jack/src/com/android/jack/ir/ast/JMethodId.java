@@ -146,7 +146,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
 
   @Override
   public void setName(@Nonnull String newName) {
-    assert !(name.contains("(") || name.contains(")"));
+    assert !(newName.contains("(") || newName.contains(")"));
     this.name = StringInterner.get().intern(newName);
   }
 
