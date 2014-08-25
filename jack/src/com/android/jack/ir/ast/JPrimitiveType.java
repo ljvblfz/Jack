@@ -121,18 +121,18 @@ public abstract class JPrimitiveType extends JNode implements JType {
         || JPrimitiveTypeEnum.LONG.getType().isEquivalent(rhsType)
         || JPrimitiveTypeEnum.DOUBLE.getType().isEquivalent(rhsType);
 
-    if (lhsType.isSameType(JPrimitiveTypeEnum.DOUBLE.getType())
-        || rhsType.isSameType(JPrimitiveTypeEnum.DOUBLE.getType())
+    if (lhsType == JPrimitiveTypeEnum.DOUBLE.getType()
+        || rhsType == JPrimitiveTypeEnum.DOUBLE.getType()
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_DOUBLE, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_DOUBLE, rhsType)) {
       promotedType = JPrimitiveTypeEnum.DOUBLE.getType();
-    } else if (lhsType.isSameType(JPrimitiveTypeEnum.FLOAT.getType())
-        || rhsType.isSameType(JPrimitiveTypeEnum.FLOAT.getType())
+    } else if (lhsType == JPrimitiveTypeEnum.FLOAT.getType()
+        || rhsType == JPrimitiveTypeEnum.FLOAT.getType()
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_FLOAT, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_FLOAT, rhsType)) {
       promotedType = JPrimitiveTypeEnum.FLOAT.getType();
-    } else if (lhsType.isSameType(JPrimitiveTypeEnum.LONG.getType())
-        || rhsType.isSameType(JPrimitiveTypeEnum.LONG.getType())
+    } else if (lhsType == JPrimitiveTypeEnum.LONG.getType()
+        || rhsType == JPrimitiveTypeEnum.LONG.getType()
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_LONG, lhsType)
         || CommonTypes.isCommonType(CommonTypes.JAVA_LANG_LONG, rhsType)) {
       promotedType = JPrimitiveTypeEnum.LONG.getType();

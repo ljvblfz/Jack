@@ -2234,7 +2234,7 @@ public class JackIrBuilder {
         call.addArg(maybeCast(implParams.get(i).getType(), paramRef));
       }
 
-      if (bridgeMethod.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+      if (bridgeMethod.getType() == JPrimitiveTypeEnum.VOID.getType()) {
         body.getBlock().addStmt(call.makeStatement());
         body.getBlock().addStmt(new JReturnStatement(info, null));
       } else {

@@ -44,7 +44,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
   JVariable(SourceInfo info, @CheckForNull String name, @Nonnull JType type, int modifier) {
     super(info);
     assert (type != null);
-    assert (!type.isSameType(JPrimitiveTypeEnum.VOID.getType()));
+    assert (type != JPrimitiveTypeEnum.VOID.getType());
     this.name = name == null ? null : StringInterner.get().intern(name);
     this.type = type;
     this.modifier = modifier;

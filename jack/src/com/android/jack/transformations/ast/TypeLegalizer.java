@@ -219,8 +219,8 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
           JType expectedType = JPrimitiveType.getBinaryPromotionType(lhsType, rhsType);
           castIfNeeded(maybeUnbox(lhs), expectedType);
           castIfNeeded(maybeUnbox(rhs), expectedType);
-        } else if (rhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())
-            || lhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())) {
+        } else if (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
+            || lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()) {
           maybeUnbox(lhs);
           maybeUnbox(rhs);
         }

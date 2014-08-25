@@ -198,7 +198,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ropReg.createRegisterSpec(local);
     }
 
-    if (!method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+    if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
       ropReg.createReturnReg(method.getType());
     }
 
@@ -411,8 +411,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       paramSize += 1;
     }
     for (JParameter param : method.getParams()) {
-      if (param.getType().isSameType(JPrimitiveTypeEnum.LONG.getType())
-          || param.getType().isSameType(JPrimitiveTypeEnum.DOUBLE.getType())) {
+      if (param.getType() == JPrimitiveTypeEnum.LONG.getType()
+          || param.getType() == JPrimitiveTypeEnum.DOUBLE.getType()) {
         paramSize += 2;
       } else {
         paramSize += 1;
@@ -521,9 +521,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     int wordCount = method.isStatic() ? 0 : 1;
     for (JParameter param : parameters) {
       JType paramType = param.getType();
-      if (paramType.isSameType(JPrimitiveTypeEnum.LONG.getType())) {
+      if (paramType == JPrimitiveTypeEnum.LONG.getType()) {
         wordCount += 2;
-      } else if (paramType.isSameType(JPrimitiveTypeEnum.DOUBLE.getType())) {
+      } else if (paramType == JPrimitiveTypeEnum.DOUBLE.getType()) {
         wordCount += 2;
       } else {
         wordCount++;

@@ -203,7 +203,7 @@ public class WrapperMarker implements Marker {
 
       assert methodCall.getArgs().size() == methodCall.getMethodId().getParamTypes().size();
 
-      if (method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+      if (method.getType() == JPrimitiveTypeEnum.VOID.getType()) {
         bodyBlock.addStmt(methodCall.makeStatement());
         bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
       } else {

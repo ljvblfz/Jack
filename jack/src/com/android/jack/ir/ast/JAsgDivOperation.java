@@ -43,11 +43,11 @@ public class JAsgDivOperation extends JAsgBinaryOperation {
 
   @Override
   public boolean canThrow() {
-    return (getType().isSameType(JPrimitiveTypeEnum.BYTE.getType()))
-        || (getType().isSameType(JPrimitiveTypeEnum.CHAR.getType()))
-        || (getType().isSameType(JPrimitiveTypeEnum.SHORT.getType()))
-        || (getType().isSameType(JPrimitiveTypeEnum.INT.getType()))
-        || (getType().isSameType(JPrimitiveTypeEnum.LONG.getType()));
+    return (getType() == JPrimitiveTypeEnum.BYTE.getType())
+        || (getType() == JPrimitiveTypeEnum.CHAR.getType())
+        || (getType() == JPrimitiveTypeEnum.SHORT.getType())
+        || (getType() == JPrimitiveTypeEnum.INT.getType())
+        || (getType() == JPrimitiveTypeEnum.LONG.getType());
   }
 
   @Override

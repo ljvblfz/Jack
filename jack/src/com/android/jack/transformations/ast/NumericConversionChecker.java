@@ -212,8 +212,8 @@ public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
           checkUnboxing(rhs);
           checkCast(lhs, expectedType);
           checkCast(rhs, expectedType);
-        } else if (rhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())
-            || lhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())) {
+        } else if (rhsType == JPrimitiveTypeEnum.BOOLEAN.getType()
+            || lhsType == JPrimitiveTypeEnum.BOOLEAN.getType()) {
           checkUnboxing(lhs);
           checkUnboxing(rhs);
         }

@@ -116,7 +116,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
       callToSuper.addArg(new JParameterRef(sourceInfo, param));
     }
 
-    if (!method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+    if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
       bodyBlock.addStmt(new JReturnStatement(sourceInfo, callToSuper));
     } else {
       bodyBlock.addStmt(new JExpressionStatement(sourceInfo, callToSuper));
