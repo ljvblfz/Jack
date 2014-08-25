@@ -42,7 +42,7 @@ public abstract class JDefinedReferenceType extends JReferenceTypeCommon {
 
   boolean implementsInterface(@Nonnull JInterface jinterface) {
     for (JInterface interf : getImplements()) {
-      if (interf.equals(jinterface)) {
+      if (interf.isSameType(jinterface)) {
         return true;
       } else if (interf instanceof JDefinedInterface) {
         if (((JDefinedInterface) interf).implementsInterface(jinterface)) {

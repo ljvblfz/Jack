@@ -43,11 +43,11 @@ public class JModOperation extends JArithmeticBinaryOperation {
 
   @Override
   public boolean canThrow() {
-    return getType().equals(JPrimitiveTypeEnum.BYTE.getType())
-        || getType().equals(JPrimitiveTypeEnum.CHAR.getType())
-        || getType().equals(JPrimitiveTypeEnum.SHORT.getType())
-        || getType().equals(JPrimitiveTypeEnum.INT.getType())
-        || getType().equals(JPrimitiveTypeEnum.LONG.getType());
+    return getType().isSameType(JPrimitiveTypeEnum.BYTE.getType())
+        || getType().isSameType(JPrimitiveTypeEnum.CHAR.getType())
+        || getType().isSameType(JPrimitiveTypeEnum.SHORT.getType())
+        || getType().isSameType(JPrimitiveTypeEnum.INT.getType())
+        || getType().isSameType(JPrimitiveTypeEnum.LONG.getType());
   }
 
   @Override

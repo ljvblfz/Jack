@@ -78,7 +78,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
               method.getMethodId().getMethods(declaredType, HierarchyFilter.THIS_TYPE);
           boolean sameMethodFound = false;
           for (JMethod methodInCurrentClass : methodsInCurrentClass) {
-            if (methodInCurrentClass.getType().equals(method.getType())) {
+            if (methodInCurrentClass.getType().isSameType(method.getType())) {
               sameMethodFound = true;
               break;
             }
@@ -116,7 +116,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
       callToSuper.addArg(new JParameterRef(sourceInfo, param));
     }
 
-    if (!method.getType().equals(JPrimitiveTypeEnum.VOID.getType())) {
+    if (!method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
       bodyBlock.addStmt(new JReturnStatement(sourceInfo, callToSuper));
     } else {
       bodyBlock.addStmt(new JExpressionStatement(sourceInfo, callToSuper));

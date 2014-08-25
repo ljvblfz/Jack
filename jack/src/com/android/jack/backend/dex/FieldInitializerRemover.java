@@ -88,7 +88,7 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
           field.isStatic() && field.isFinal() && initialValue instanceof JLiteral
           /* Object field initialized by a String literal: don't remove unless allowed */
           && (allowStringAsObjectInit
-              || field.getType().equals(stringType)
+              || field.getType().isSameType(stringType)
               || !(initialValue instanceof JAbstractStringLiteral))
           /* Field initialized by a class literal: don't remove unless allowed */
           && (allowClassInInitialValue || !(initialValue instanceof JClassLiteral))

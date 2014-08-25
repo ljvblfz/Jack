@@ -346,7 +346,7 @@ public class JackIrBuilder {
             expr = simplify(expr, expressions[i]);
 
             if (type.getElementType() instanceof JPrimitiveType && expr instanceof JValueLiteral
-                && !expr.getType().equals(type.getElementType())) {
+                && !expr.getType().isSameType(type.getElementType())) {
               // We have a constant with a different type than array type, change it to the right
               // type
               values.add(changeTypeOfLiteralValue(
@@ -457,7 +457,7 @@ public class JackIrBuilder {
           op = JBinaryOperator.SHRU;
           break;
         case OperatorIds.PLUS:
-          if (javaLangString.equals(getTypeMap().get(x.resolvedType))) {
+          if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
             op = JBinaryOperator.CONCAT;
           } else {
             op = JBinaryOperator.ADD;
@@ -587,7 +587,7 @@ public class JackIrBuilder {
       JBinaryOperator op;
       switch (x.operator) {
         case OperatorIds.PLUS:
-          if (javaLangString.equals(getTypeMap().get(x.resolvedType))) {
+          if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
             op = JBinaryOperator.ASG_CONCAT;
           } else {
             op = JBinaryOperator.ASG_ADD;
@@ -1053,7 +1053,7 @@ public class JackIrBuilder {
 
           // Perform any implicit reference type casts (due to generics).
           // Note this occurs before potential unboxing.
-          if (!elementVar.getType().equals(javaLangObject)) {
+          if (!elementVar.getType().isSameType(javaLangObject)) {
             TypeBinding collectionElementType = (TypeBinding) collectionElementTypeField.get(x);
             JType toType = getTypeMap().get(collectionElementType);
             assert (toType instanceof JReferenceType);
@@ -1266,7 +1266,7 @@ public class JackIrBuilder {
 
         JType jType = getTypeMap().get(x.actualReceiverType);
         if (jType instanceof JClassOrInterface) {
-          if (jType instanceof JInterface && method.getEnclosingType().equals(javaLangObject)) {
+          if (jType instanceof JInterface && method.getEnclosingType().isSameType(javaLangObject)) {
             receiverType = method.getEnclosingType();
           } else {
             receiverType = (JDefinedClassOrInterface) jType;
@@ -1507,7 +1507,9 @@ public class JackIrBuilder {
     @Override
     public void endVisit(SuperReference x, BlockScope scope) {
       try {
-        assert getTypeMap().get(x.resolvedType).equals(curClass.classType.getSuperClass());
+        JClass superClass;
+        assert (superClass = curClass.classType.getSuperClass()) == null
+            || getTypeMap().get(x.resolvedType).isSameType(superClass);
         // Super refs can be modeled as a this ref.
         push(makeThisRef(makeSourceInfo(x)));
       } catch (Throwable e) {
@@ -1553,7 +1555,7 @@ public class JackIrBuilder {
     @Override
     public void endVisit(ThisReference x, BlockScope scope) {
       try {
-        assert getTypeMap().get(x.resolvedType).equals(curClass.type);
+        assert getTypeMap().get(x.resolvedType).isSameType(curClass.type);
         push(makeThisRef(makeSourceInfo(x)));
       } catch (Throwable e) {
         throw translateException(x, e);
@@ -2232,7 +2234,7 @@ public class JackIrBuilder {
         call.addArg(maybeCast(implParams.get(i).getType(), paramRef));
       }
 
-      if (bridgeMethod.getType().equals(JPrimitiveTypeEnum.VOID.getType())) {
+      if (bridgeMethod.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
         body.getBlock().addStmt(call.makeStatement());
         body.getBlock().addStmt(new JReturnStatement(info, null));
       } else {
@@ -2424,7 +2426,7 @@ public class JackIrBuilder {
     }
 
     private JExpression maybeCast(JType expected, JExpression expression) {
-      if (!expected.equals(expression.getType())) {
+      if (!expected.isSameType(expression.getType())) {
         // Must be a generic; insert a cast operation.
         JReferenceType toType = (JReferenceType) expected;
         return new JDynamicCastOperation(expression.getSourceInfo(), toType, expression);
@@ -2518,7 +2520,7 @@ public class JackIrBuilder {
           String varName = ReferenceMapper.intern(arg.name);
           JParameter param = null;
           for (JParameter paramIt : curMethod.method.getParams()) {
-            if (varType.equals(paramIt.getType()) && varName.equals(paramIt.getName())) {
+            if (varType.isSameType(paramIt.getType()) && varName.equals(paramIt.getName())) {
               param = paramIt;
             }
           }

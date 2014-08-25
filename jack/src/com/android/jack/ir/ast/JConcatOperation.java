@@ -51,27 +51,26 @@ public class JConcatOperation extends JBinaryOperation {
   private boolean hasValidOperand() {
     JType lhsType = getLhs().getType();
     JType rhsType = getRhs().getType();
-    return (lhsType.equals(jlString) &&
-        rhsType.equals(jlString))
-      || (lhsType.equals(jlString) &&
-            (rhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.BYTE.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.CHAR.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.SHORT.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.INT.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.LONG.getType())
-            || rhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
+    return (lhsType.isSameType(jlString) && rhsType.isSameType(jlString))
+      || (lhsType.isSameType(jlString) &&
+            (rhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.BYTE.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.CHAR.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.SHORT.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.INT.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.FLOAT.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.LONG.getType())
+            || rhsType.isSameType(JPrimitiveTypeEnum.DOUBLE.getType())
             || rhsType instanceof JReferenceType))
-      || (rhsType.equals(jlString) &&
-          (lhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.BYTE.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.CHAR.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.SHORT.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.INT.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.FLOAT.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.LONG.getType())
-          || lhsType.equals(JPrimitiveTypeEnum.DOUBLE.getType())
+      || (rhsType.isSameType(jlString) &&
+          (lhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.BYTE.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.CHAR.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.SHORT.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.INT.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.FLOAT.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.LONG.getType())
+          || lhsType.isSameType(JPrimitiveTypeEnum.DOUBLE.getType())
           || lhsType instanceof JReferenceType));
   }
 

@@ -310,13 +310,13 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     private boolean isSystemAnnotation(@Nonnull JAnnotation annotationType) {
-      if (annotationType.equals(defaultAnnotation)
-          || annotationType.equals(enclosingClassAnnotation)
-          || annotationType.equals(enclosingMethodAnnotation)
-          || annotationType.equals(innerAnnotation)
-          || annotationType.equals(memberClassAnnotation)
-          || annotationType.equals(signatureAnnotation)
-          || annotationType.equals(throwsAnnotation)) {
+      if (annotationType.isSameType(defaultAnnotation)
+          || annotationType.isSameType(enclosingClassAnnotation)
+          || annotationType.isSameType(enclosingMethodAnnotation)
+          || annotationType.isSameType(innerAnnotation)
+          || annotationType.isSameType(memberClassAnnotation)
+          || annotationType.isSameType(signatureAnnotation)
+          || annotationType.isSameType(throwsAnnotation)) {
         return true;
       }
       return false;

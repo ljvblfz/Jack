@@ -40,4 +40,5 @@ public interface JType extends HasName, HasSourceInfo, JVisitable, Component {
   @Nonnull
   JArrayType getArray();
 
+  boolean isSameType(@Nonnull JType type);
 }

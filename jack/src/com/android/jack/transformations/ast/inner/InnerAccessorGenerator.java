@@ -143,7 +143,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
      */
     private boolean isDirectlyVisibleFrom(int modifier,
         @Nonnull JDefinedClassOrInterface declaringType, @Nonnull JDefinedClassOrInterface type) {
-      if (JModifier.isPublic(modifier) || declaringType.equals(type)) {
+      if (JModifier.isPublic(modifier) || declaringType.isSameType(type)) {
         return true;
       }
 
@@ -169,7 +169,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       assert field != null;
       JDefinedClassOrInterface accessorClass = getAccessorClass(field.getModifier(),
           field.getEnclosingType());
-      if (!accessorClass.equals(currentType)) {
+      if (!accessorClass.isSameType(currentType)) {
         assert accessorClass.getSourceInfo().getFileSourceInfo()
             .equals(currentType.getSourceInfo().getFileSourceInfo());
         if (parent instanceof JAsgOperation
@@ -244,7 +244,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
               method.getEnclosingType());
         }
 
-        if (!accessorClass.equals(currentType)) {
+        if (!accessorClass.isSameType(currentType)) {
           assert accessorClass.getSourceInfo().getFileSourceInfo()
             .equals(currentType.getSourceInfo().getFileSourceInfo());
 
@@ -320,7 +320,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
   static boolean isSuperClassOf(JDefinedClass possibleSuper, JDefinedClass type) {
     JDefinedClassOrInterface superClass = (JDefinedClassOrInterface) type.getSuperClass();
     while (superClass != null) {
-      if (possibleSuper.equals(superClass)) {
+      if (possibleSuper.isSameType(superClass)) {
         return true;
       }
       superClass = (JDefinedClassOrInterface) superClass.getSuperClass();

@@ -219,8 +219,8 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
           JType expectedType = JPrimitiveType.getBinaryPromotionType(lhsType, rhsType);
           castIfNeeded(maybeUnbox(lhs), expectedType);
           castIfNeeded(maybeUnbox(rhs), expectedType);
-        } else if (rhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())
-            || lhsType.equals(JPrimitiveTypeEnum.BOOLEAN.getType())) {
+        } else if (rhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())
+            || lhsType.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType())) {
           maybeUnbox(lhs);
           maybeUnbox(rhs);
         }
@@ -353,28 +353,28 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
       JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
 
-      if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
+      if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
         methodName = "booleanValue";
         returnType = JPrimitiveTypeEnum.BOOLEAN.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
         methodName = "byteValue";
         returnType = JPrimitiveTypeEnum.BYTE.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
         methodName = "charValue";
         returnType = JPrimitiveTypeEnum.CHAR.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
         methodName = "shortValue";
         returnType = JPrimitiveTypeEnum.SHORT.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
         methodName = "intValue";
         returnType = JPrimitiveTypeEnum.INT.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
         methodName = "floatValue";
         returnType = JPrimitiveTypeEnum.FLOAT.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
         methodName = "doubleValue";
         returnType = JPrimitiveTypeEnum.DOUBLE.getType();
-      } else if (typeToUnbox.equals(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
+      } else if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
         methodName = "longValue";
         returnType = JPrimitiveTypeEnum.LONG.getType();
       } else {
@@ -402,21 +402,21 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       JClassOrInterface wrapperType = type;
       JType argType;
       JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-      if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
+      if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
         argType = JPrimitiveTypeEnum.BOOLEAN.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_BYTE))) {
         argType = JPrimitiveTypeEnum.BYTE.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_CHAR))) {
         argType = JPrimitiveTypeEnum.CHAR.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_SHORT))) {
         argType = JPrimitiveTypeEnum.SHORT.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_INTEGER))) {
         argType = JPrimitiveTypeEnum.INT.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_FLOAT))) {
         argType = JPrimitiveTypeEnum.FLOAT.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_DOUBLE))) {
         argType = JPrimitiveTypeEnum.DOUBLE.getType();
-      } else if (wrapperType.equals(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
+      } else if (wrapperType.isSameType(lookup.getType(CommonTypes.JAVA_LANG_LONG))) {
         argType = JPrimitiveTypeEnum.LONG.getType();
       } else {
         argType = pType;
@@ -470,7 +470,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       JType paramType = paramTypes.get(0);
       JType exprToBoxType = exprToBox.getType();
       JExpression arg;
-      if (exprToBoxType instanceof JNumericType && !paramType.equals(exprToBoxType)) {
+      if (exprToBoxType instanceof JNumericType && !paramType.isSameType(exprToBoxType)) {
         assert paramType instanceof JNumericType;
         arg = new JDynamicCastOperation(exprToBox.getSourceInfo(), paramType, exprToBox);
       } else {
@@ -482,7 +482,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     }
 
     private void castIfNeeded(@Nonnull JExpression exprToCast, @Nonnull JType expectedType) {
-      if (expectedType instanceof JNumericType && !exprToCast.getType().equals(expectedType)) {
+      if (expectedType instanceof JNumericType && !exprToCast.getType().isSameType(expectedType)) {
         tr.append(new Replace(exprToCast, new JDynamicCastOperation(
             exprToCast.getSourceInfo(), expectedType, exprToCast)));
       }

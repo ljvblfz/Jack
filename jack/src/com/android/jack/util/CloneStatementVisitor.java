@@ -449,7 +449,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
   public boolean visit(@Nonnull JThisRef jThisRef) {
     JThis jThis = targetMethod.getThis();
     assert jThis != null;
-    assert jThis.getType().equals(jThisRef.getType());
+    assert jThis.getType().isSameType(jThisRef.getType());
     expression = new JThisRef(jThisRef.getSourceInfo(), jThis);
     return false;
 

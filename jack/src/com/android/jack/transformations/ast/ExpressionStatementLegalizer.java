@@ -68,7 +68,7 @@ public class ExpressionStatementLegalizer implements RunnableSchedulable<JMethod
     }
 
     private boolean isLegal(@Nonnull JExpression expr) {
-      if (expr.getType().equals(JPrimitiveTypeEnum.VOID.getType())) {
+      if (expr.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
         return true;
       }
       return (expr instanceof JAsgOperation
