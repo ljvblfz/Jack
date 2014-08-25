@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.StringInterner;
 import com.android.sched.marker.LocalMarkerManager;
 
 import javax.annotation.CheckForNull;
@@ -38,7 +39,7 @@ public class JFieldId extends LocalMarkerManager
   private JField field;
 
   public JFieldId(@Nonnull String name, @Nonnull JType type, @Nonnull FieldKind kind) {
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
     this.type = type;
     this.kind = kind;
   }
@@ -63,7 +64,7 @@ public class JFieldId extends LocalMarkerManager
 
   @Override
   public void setName(@Nonnull String name) {
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
   }
 
   @Nonnull

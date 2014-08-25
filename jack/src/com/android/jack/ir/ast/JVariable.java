@@ -68,7 +68,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   @Override
   public void setName(@CheckForNull String name) {
-    this.name = name;
+    this.name = name == null ? null : StringInterner.get().intern(name);
   }
 
   @Override

@@ -17,6 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
+import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JFloatingPointType;
 import com.android.jack.ir.types.JIntegralType32;
@@ -68,7 +69,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
 
   private JPrimitiveType(@Nonnull String name) {
     super(SourceInfo.UNKNOWN);
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
   }
 
   @Override

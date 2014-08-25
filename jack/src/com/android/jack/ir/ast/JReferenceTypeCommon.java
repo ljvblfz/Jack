@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
@@ -42,7 +43,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   public JReferenceTypeCommon(@Nonnull SourceInfo info, @Nonnull String name) {
     super(info);
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
   }
 
   @Override
@@ -53,7 +54,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   @Override
   public void setName(@Nonnull String name) {
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
     assert Jack.getSession().getPhantomLookup().check(this);
   }
 

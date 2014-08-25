@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JLookupException;
@@ -108,7 +109,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       @Nonnull List<PackageLoader> loaders) {
     super(SourceInfo.UNKNOWN);
     this.session = session;
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
     this.loaders.addAll(loaders);
     if (enclosingPackage != null) {
       assert !name.isEmpty();
@@ -322,7 +323,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Override
   public void setName(@Nonnull String name) {
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
   }
 
   public boolean isDefaultPackage() {

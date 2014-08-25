@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.StringInterner;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.LocalMarkerManager;
 
@@ -58,7 +59,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
     assert !(name.contains("(") || name.contains(")"));
     assert (!(NamingTools.INIT_NAME.equals(name) || NamingTools.STATIC_INIT_NAME.equals(name)))
         || (kind != MethodKind.INSTANCE_VIRTUAL);
-    this.name = name;
+    this.name = StringInterner.get().intern(name);
     this.methodKind = kind;
   }
 
@@ -146,7 +147,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Override
   public void setName(@Nonnull String newName) {
     assert !(name.contains("(") || name.contains(")"));
-    this.name = newName;
+    this.name = StringInterner.get().intern(newName);
   }
 
   boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes) {
