@@ -69,7 +69,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   }
 
   protected boolean isTrivialCast(@Nonnull JReferenceType castTo) {
-    if (this.equals(castTo) || castTo.equals(
+    if (this.isSameType(castTo) || castTo.isSameType(
         Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT))) {
       return true;
     }
@@ -98,21 +98,13 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
     return array;
   }
 
-  /**
-   * Two reference types are considered equals if they share the same descriptor.
-   */
   @Override
-  public final boolean equals(Object obj) {
-    if (obj instanceof JReferenceTypeCommon) {
-      return getId() == ((JReferenceTypeCommon) obj).getId();
+  public final boolean isSameType(@Nonnull JType type) {
+    if (type instanceof JReferenceTypeCommon) {
+      return getId() == ((JReferenceTypeCommon) type).getId();
     } else {
       return false;
     }
-  }
-
-  @Override
-  public final int hashCode() {
-    return getId().hashCode();
   }
 
   @Nonnull

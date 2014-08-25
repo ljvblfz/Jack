@@ -298,7 +298,7 @@ public class Tracer extends JVisitor {
     trace(type);
     for (JNameValuePair pair : al.getNameValuePairs()) {
       for (JMethod method : pair.getMethodId().getMethods()) {
-        if (method.getEnclosingType().equals(type)) {
+        if (method.getEnclosingType().isSameType(type)) {
           trace(method);
           JLiteral defaultValue = ((JAnnotationMethod) method).getDefaultValue();
           if (defaultValue != null) {

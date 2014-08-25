@@ -77,16 +77,16 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JExpression expr) {
-      assert expr.getType() instanceof JBooleanType || expr.getType()
-          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
+      assert expr.getType() instanceof JBooleanType || expr.getType().isSameType(
+          Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       opAfterTransformation++;
       return false;
     }
 
     @Override
     public boolean visit(@Nonnull JBinaryOperation binaryOp) {
-      assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType()
-          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
+      assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType().isSameType(
+          Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       opBeforeTransformation++;
       JBinaryOperator op = binaryOp.getOp();
 
@@ -130,16 +130,16 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JExpression expr) {
-      assert expr.getType() instanceof JBooleanType || expr.getType()
-          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
+      assert expr.getType() instanceof JBooleanType || expr.getType().isSameType(
+          Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       tr.append(new Replace(expr, new JPrefixNotOperation(expr.getSourceInfo(), expr)));
       return false;
     }
 
     @Override
     public boolean visit(@Nonnull JBinaryOperation binaryOp) {
-      assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType()
-          .equals(Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
+      assert binaryOp.getType() instanceof JBooleanType || binaryOp.getType().isSameType(
+          Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       JBinaryOperator op = binaryOp.getOp();
 
       if (op.isComparison() || op.isConditionalOperation()

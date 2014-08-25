@@ -98,7 +98,7 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId> {
       if (node instanceof JDefinedClass) {
         return ((JDefinedClass) node).getSuperClass();
       }
-      if (!node.equals(javaLangObject)) {
+      if (!node.isSameType(javaLangObject)) {
         return javaLangObject;
       } else {
         return null;

@@ -65,7 +65,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
       getMethodMethodId = javaLangClass.getMethodId(
           GETMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
     }
-    if (call.getReceiverType().equals(javaLangClass)
+    if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(getMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);
       return true;

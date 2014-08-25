@@ -80,7 +80,7 @@ public class JConditionalExpression extends JExpression {
 
 
     // JLS-7 15.25 first bullet
-    if (thenType.equals(elseType)) {
+    if (thenType.isSameType(elseType)) {
       return thenType;
     }
 
@@ -113,18 +113,18 @@ public class JConditionalExpression extends JExpression {
       }
 
       // second sub-bullet
-      if ((thenType.equals(JPrimitiveTypeEnum.BYTE.getType())
-          || thenType.equals(JPrimitiveTypeEnum.CHAR.getType())
-          || thenType.equals(JPrimitiveTypeEnum.SHORT.getType()))
+      if ((thenType.isSameType(JPrimitiveTypeEnum.BYTE.getType())
+          || thenType.isSameType(JPrimitiveTypeEnum.CHAR.getType())
+          || thenType.isSameType(JPrimitiveTypeEnum.SHORT.getType()))
           && ((elseExpr instanceof JIntegralConstant32) && elseType instanceof JIntegralType)) {
         if (((JIntegralType32) thenType).isValidValue(
             ((JIntegralConstant32) elseExpr).getIntValue())) {
           return thenType;
         }
       }
-      if ((elseType.equals(JPrimitiveTypeEnum.BYTE.getType())
-          || elseType.equals(JPrimitiveTypeEnum.CHAR.getType())
-          || elseType.equals(JPrimitiveTypeEnum.SHORT.getType()))
+      if ((elseType.isSameType(JPrimitiveTypeEnum.BYTE.getType())
+          || elseType.isSameType(JPrimitiveTypeEnum.CHAR.getType())
+          || elseType.isSameType(JPrimitiveTypeEnum.SHORT.getType()))
           && ((thenExpr instanceof JIntegralConstant32) && thenType instanceof JIntegralType)) {
         if (((JIntegralType32) elseType).isValidValue(
             ((JIntegralConstant32) thenExpr).getIntValue())) {

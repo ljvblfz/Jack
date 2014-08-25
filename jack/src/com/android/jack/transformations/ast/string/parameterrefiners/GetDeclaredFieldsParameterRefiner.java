@@ -51,7 +51,7 @@ public class GetDeclaredFieldsParameterRefiner extends GetFieldParameterRefiner 
           GETDECLAREDFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),
           MethodKind.INSTANCE_VIRTUAL);
     }
-    if (call.getReceiverType().equals(javaLangClass)
+    if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(getFieldMethodId)) {
       assert formatter.getName(call.getType()).equals(FIELD_CLASS_SIGNATURE);
       return true;

@@ -266,7 +266,7 @@ class RopBuilderVisitor extends JVisitor {
       JType elementType = newArray.getArrayType().getElementType();
       List<JExpression> initializers = newArray.getInitializers();
       if (!initializers.isEmpty() && initializers.size() <= 5 && newArray.getDims().size() == 1
-          && elementType.equals(JPrimitiveTypeEnum.INT.getType())) {
+          && elementType.isSameType(JPrimitiveTypeEnum.INT.getType())) {
             return true;
       }
       return false;
@@ -415,7 +415,7 @@ class RopBuilderVisitor extends JVisitor {
       JExpression left = binCondExpr.getLhs();
       JType type = right.getType();
       JType leftType = left.getType();
-      assert leftType.equals(type)
+      assert leftType.isSameType(type)
           || (leftType instanceof JIntegralType32 && type instanceof JIntegralType32)
           || (leftType instanceof JReferenceType && type instanceof JReferenceType);
 
@@ -432,7 +432,7 @@ class RopBuilderVisitor extends JVisitor {
             Rop cmpOp = null;
             Type dxType = RopHelper.convertTypeToDx(type);
 
-            if (type.equals(JPrimitiveTypeEnum.LONG.getType())) {
+            if (type.isSameType(JPrimitiveTypeEnum.LONG.getType())) {
               cmpOp = Rops.opCmpl(dxType);
             } else {
               cmpOp = getCmpOperatorForFloatDouble(op, dxType);
@@ -814,7 +814,7 @@ class RopBuilderVisitor extends JVisitor {
 
       assert castedFrom instanceof JPrimitiveType;
 
-      if (castTo.equals(castedFrom)) {
+      if (castTo == castedFrom) {
         RegisterSpecList sources = RegisterSpecList.make(fromReg);
         addInstruction(new PlainInsn(
             Rops.opMove(fromReg.getTypeBearer()), sourcePosition,
@@ -829,18 +829,18 @@ class RopBuilderVisitor extends JVisitor {
        * from each group. These two instructions are created by RopCastLegalier.
        */
 
-      if (((castTo.equals(JPrimitiveTypeEnum.BYTE.getType()))
-            || (castTo.equals(JPrimitiveTypeEnum.SHORT.getType()))
-            || (castTo.equals(JPrimitiveTypeEnum.CHAR.getType()))
-            || (castTo.equals(JPrimitiveTypeEnum.INT.getType()))
-            || (castTo.equals(JPrimitiveTypeEnum.BOOLEAN.getType()))
+      if (((castTo.isSameType(JPrimitiveTypeEnum.BYTE.getType()))
+            || (castTo.isSameType(JPrimitiveTypeEnum.SHORT.getType()))
+            || (castTo.isSameType(JPrimitiveTypeEnum.CHAR.getType()))
+            || (castTo.isSameType(JPrimitiveTypeEnum.INT.getType()))
+            || (castTo.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType()))
             )
             &&
-            ((castedFrom.equals(JPrimitiveTypeEnum.INT.getType()))
-            || (castedFrom.equals(JPrimitiveTypeEnum.BYTE.getType()))
-            || (castedFrom.equals(JPrimitiveTypeEnum.CHAR.getType()))
-            || (castedFrom.equals(JPrimitiveTypeEnum.SHORT.getType()))
-            || (castedFrom.equals(JPrimitiveTypeEnum.BOOLEAN.getType()))
+            ((castedFrom.isSameType(JPrimitiveTypeEnum.INT.getType()))
+            || (castedFrom.isSameType(JPrimitiveTypeEnum.BYTE.getType()))
+            || (castedFrom.isSameType(JPrimitiveTypeEnum.CHAR.getType()))
+            || (castedFrom.isSameType(JPrimitiveTypeEnum.SHORT.getType()))
+            || (castedFrom.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType()))
             )) {
         addTruncateIntOrMoveInstruction(sourcePosition,
             ((JPrimitiveType) castTo).getPrimitiveTypeEnum(), fromReg, destReg);
@@ -987,22 +987,22 @@ class RopBuilderVisitor extends JVisitor {
 
     switch(unary.getOp()) {
       case NEG: {
-        assert unary.getType().equals(JPrimitiveTypeEnum.BYTE.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.CHAR.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.SHORT.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.INT.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.LONG.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.FLOAT.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.DOUBLE.getType());
+        assert unary.getType().isSameType(JPrimitiveTypeEnum.BYTE.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.CHAR.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.SHORT.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.INT.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.LONG.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.FLOAT.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.DOUBLE.getType());
         opcode = Rops.opNeg(srcRegisterSpec);
         break;
       }
       case BIT_NOT: {
-        assert unary.getType().equals(JPrimitiveTypeEnum.BYTE.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.CHAR.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.SHORT.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.INT.getType())
-            || unary.getType().equals(JPrimitiveTypeEnum.LONG.getType());
+        assert unary.getType().isSameType(JPrimitiveTypeEnum.BYTE.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.CHAR.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.SHORT.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.INT.getType())
+            || unary.getType().isSameType(JPrimitiveTypeEnum.LONG.getType());
         opcode = Rops.opNot(srcRegisterSpec);
         break;
       }

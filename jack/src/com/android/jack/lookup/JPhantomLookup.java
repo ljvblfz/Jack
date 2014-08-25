@@ -277,7 +277,7 @@ public class JPhantomLookup extends JLookup {
     JType defined;
     try {
       defined = jackLookup.getType(signature);
-      if (!defined.equals(checkedType)) {
+      if (!defined.isSameType(checkedType)) {
         throw getCheckError(checkedType, defined);
       }
     } catch (JLookupException e) {
@@ -299,7 +299,7 @@ public class JPhantomLookup extends JLookup {
       @Nonnull Map<String, ? extends JType> cache) {
     if (!clazz.isInstance(defined)) {
       JType phantom = cache.get(signature);
-      if (phantom != null && !phantom.equals(checkedType)) {
+      if (phantom != null && !phantom.isSameType(checkedType)) {
         throw getCheckError(checkedType, phantom);
       }
     }

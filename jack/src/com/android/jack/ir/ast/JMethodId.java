@@ -126,7 +126,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
         break;
       case THIS_TYPE:
         for (JMethod jMethod : methods) {
-          if (jMethod.getEnclosingType().equals(reference)) {
+          if (jMethod.getEnclosingType().isSameType(reference)) {
             subset.add(jMethod);
           }
         }
@@ -156,7 +156,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
 
     Iterator<? extends JType> otherParams = otherParamTypes.iterator();
     for (JType param : this.paramTypes) {
-      if (!param.equals(otherParams.next())) {
+      if (!param.isSameType(otherParams.next())) {
         return false;
       }
     }

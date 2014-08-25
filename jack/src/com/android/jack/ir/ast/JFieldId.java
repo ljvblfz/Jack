@@ -86,7 +86,7 @@ public class JFieldId extends LocalMarkerManager
     if ((this.kind != otherKind) || (!this.name.equals(otherName))) {
       return false;
     }
-    return type.equals(otherType);
+    return type.isSameType(otherType);
   }
 
   @Override

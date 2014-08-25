@@ -149,8 +149,8 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
       if (node instanceof JMethodCall) {
         JMethodCall call = (JMethodCall) node;
         return (call.getMethodName().equals(APPEND_METHOD_NAME)
-            && call.getType().equals(stringBuilder)
-            && call.getReceiverType().equals(stringBuilder));
+            && call.getType().isSameType(getStringBuilder())
+            && call.getReceiverType().isSameType(getStringBuilder()));
       } else {
         return false;
       }
@@ -225,8 +225,8 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
         default:
           throw new AssertionError();
       }
-    } else if (elementType
-        .equals(session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))) {
+    } else if (elementType.isSameType(
+        session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))) {
       appendArgType = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
     } else {
       JType charSequence = getCharSequence();
