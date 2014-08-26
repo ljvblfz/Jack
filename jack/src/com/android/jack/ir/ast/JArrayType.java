@@ -118,4 +118,14 @@ public class JArrayType extends JDefinedReferenceType {
 
     return false;
   }
+
+  @Override
+  public final boolean isSameType(@Nonnull JType type) {
+    if (type instanceof JArrayType) {
+      return getDims() == ((JArrayType) type).getDims()
+          && getLeafType().isSameType(((JArrayType) type).getLeafType());
+    } else {
+      return false;
+    }
+  }
 }

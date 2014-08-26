@@ -161,4 +161,13 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
     return Collections.unmodifiableCollection(methodIds);
   }
 
+  @Override
+  public final boolean isSameType(@Nonnull JType type) {
+    if (type instanceof HasEnclosingPackage) {
+      return this.getEnclosingPackage() == ((HasEnclosingPackage) type).getEnclosingPackage()
+          && name.equals(type.getName());
+    } else {
+      return false;
+    }
+  }
 }

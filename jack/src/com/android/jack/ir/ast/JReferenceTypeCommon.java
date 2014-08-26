@@ -35,9 +35,6 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
   protected String name;
 
   @CheckForNull
-  private Object id;
-
-  @CheckForNull
   private JArrayType array;
 
 
@@ -97,22 +94,5 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
     }
     assert array != null;
     return array;
-  }
-
-  @Override
-  public final boolean isSameType(@Nonnull JType type) {
-    if (type instanceof JReferenceTypeCommon) {
-      return getId() == ((JReferenceTypeCommon) type).getId();
-    } else {
-      return false;
-    }
-  }
-
-  @Nonnull
-  private Object getId() {
-    if (id == null) {
-      id = Jack.getLookupFormatter().getName(this).intern();
-    }
-    return id;
   }
 }

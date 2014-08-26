@@ -61,4 +61,9 @@ public class JNullType extends JReferenceTypeCommon {
   public boolean canBeSafelyUpcast(@Nonnull JReferenceType castTo) {
     return true;
   }
+
+  @Override
+  public final boolean isSameType(@Nonnull JType type) {
+    return this == type;
+  }
 }
