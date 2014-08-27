@@ -59,7 +59,7 @@ $(GEN_PP): PRIVATE_CUSTOM_TOOL = java -jar $(ANTLR_JACK_JAR) -fo $(dir $@) $<
 $(GEN_PP): $(LOCAL_PATH)/src/com/android/jack/preprocessor/PreProcessor.g
 	$(transform-generated-source)
 
-LOCAL_GENERATED_SOURCES += $(GEN) $(GEN_PP)
+LOCAL_GENERATED_SOURCES += $(GEN_PG) $(GEN_PP)
 
 LOCAL_SRC_FILES := $(filter-out %/ProguardLexer.java %/ProguardParser.java %/PreProcessorLexer.java %/PreProcessorParser.java %/PreProcessor_PreProcessorL.java %/PreProcessor_PreProcessorL_Java.java, \
   $(call all-java-files-under, src))
