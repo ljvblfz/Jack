@@ -24,12 +24,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JNodeLookup;
-import com.android.jack.preprocessor.Context;
-import com.android.jack.preprocessor.PreProcessorLexer;
-import com.android.jack.preprocessor.PreProcessorParser;
-import com.android.jack.preprocessor.Rule;
-import com.android.jack.preprocessor.Scope;
-import com.android.jack.preprocessor.TypeToEmitScope;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
@@ -42,7 +36,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Collection;
 
-public class AnnotationAdderTest {
+public class PreProcessorTest {
 
   @BeforeClass
   public static void setUpClass() throws Exception {

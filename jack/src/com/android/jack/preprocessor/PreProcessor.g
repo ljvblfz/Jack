@@ -15,7 +15,7 @@
  */
 
 grammar PreProcessor;
-import PreProcessorL;
+import Java;
 
 @header {
 package com.android.jack.preprocessor;
@@ -352,3 +352,47 @@ matchName
     |   Identifier
     ;
 
+STAR : '*';
+CONTAINS : 'contains' ;
+ANNOTATE : 'annotate' ;
+TYPE : 'type' ;
+FIELD : 'field' ;
+METHOD : 'method' ;
+KIND : 'kind' ;
+MODIFIERS : 'modifiers' ;
+CLASS : 'class' ;
+PRIVATE : 'private' ;
+PACKAGE : 'package' ;
+PROTECTED : 'protected' ;
+PUBLIC : 'public' ;
+ABSTRACT : 'abstract' ;
+FINAL : 'final' ;
+NATIVE : 'native' ;
+STATIC : 'static' ;
+STRICT : 'strictfp' ;
+SYNCHRONIZED : 'synchronized' ;
+TRANSIENT : 'transient' ;
+VOLATILE : 'volatile' ;
+VOID : 'void' ;
+BOOLEAN : 'boolean' ;
+BYTE : 'byte' ;
+CHAR : 'char' ;
+SHORT : 'short' ;
+INT : 'int' ;
+FLOAT : 'float' ;
+LONG : 'long' ;
+DOUBLE : 'double' ;
+
+NAME
+    :   (  Letter
+        |   '*'
+        |   '<'
+        |   '>'
+        )
+    (   Letter
+    |   JavaIDDigit
+    |   '*'
+    |   '<'
+    |   '>'
+    )*
+    ;

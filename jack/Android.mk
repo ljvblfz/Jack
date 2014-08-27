@@ -41,8 +41,7 @@ GEN_PG := $(addprefix $(proguard_intermediates)/, \
 GEN_PP := $(addprefix $(preprocessor_intermediates)/, \
   PreProcessorLexer.java \
   PreProcessorParser.java \
-  PreProcessor_PreProcessorL.java \
-  PreProcessor_PreProcessorL_Java.java \
+  PreProcessor_Java.java \
 )
 
 ANTLR_JACK_JAR = $(call java-lib-deps,antlr-jack,true)
@@ -61,7 +60,7 @@ $(GEN_PP): $(LOCAL_PATH)/src/com/android/jack/preprocessor/PreProcessor.g
 
 LOCAL_GENERATED_SOURCES += $(GEN_PG) $(GEN_PP)
 
-LOCAL_SRC_FILES := $(filter-out %/ProguardLexer.java %/ProguardParser.java %/PreProcessorLexer.java %/PreProcessorParser.java %/PreProcessor_PreProcessorL.java %/PreProcessor_PreProcessorL_Java.java, \
+LOCAL_SRC_FILES := $(filter-out %/ProguardLexer.java %/ProguardParser.java %/PreProcessorLexer.java %/PreProcessorParser.java %/PreProcessor_Java.java, \
   $(call all-java-files-under, src))
 
 LOCAL_JAVA_RESOURCE_DIRS  := rsc

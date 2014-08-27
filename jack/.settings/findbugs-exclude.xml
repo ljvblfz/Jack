@@ -13,9 +13,6 @@
     <Class name="~com\.android\.jack\.preprocessor\.PreProcessorParser.*"/>
 </Match>
 <Match>
-    <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_PreProcessorL.*"/>
-</Match>
-<Match>
-    <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_PreProcessorL_Java.*"/>
+    <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_Java.*"/>
 </Match>
 </FindBugsFilter>
