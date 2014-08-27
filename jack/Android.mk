@@ -27,25 +27,41 @@ LOCAL_MODULE := jack
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := EXECUTABLES
 
-antlr_intermediates := \
+proguard_intermediates := \
   $(call local-intermediates-dir,COMMON)/grammar/com/android/jack/shrob/proguard
 
-GEN := $(addprefix $(antlr_intermediates)/, \
+preprocessor_intermediates := \
+  $(call local-intermediates-dir,COMMON)/grammar/com/android/jack/preprocessor
+
+GEN_PG := $(addprefix $(proguard_intermediates)/, \
   ProguardLexer.java \
   ProguardParser.java \
 )
 
+GEN_PP := $(addprefix $(preprocessor_intermediates)/, \
+  PreProcessorLexer.java \
+  PreProcessorParser.java \
+  PreProcessor_PreProcessorL.java \
+  PreProcessor_PreProcessorL_Java.java \
+)
+
 ANTLR_JACK_JAR = $(call java-lib-deps,antlr-jack,true)
 
-$(GEN): $(ANTLR_JACK_JAR)
-$(GEN): PRIVATE_PATH := $(LOCAL_PATH)
-$(GEN): PRIVATE_CUSTOM_TOOL = java -jar $(ANTLR_JACK_JAR) -fo $(dir $@) $<
-$(GEN): $(LOCAL_PATH)/src/com/android/jack/shrob/proguard/Proguard.g
+$(GEN_PG): $(ANTLR_JACK_JAR)
+$(GEN_PG): PRIVATE_PATH := $(LOCAL_PATH)
+$(GEN_PG): PRIVATE_CUSTOM_TOOL = java -jar $(ANTLR_JACK_JAR) -fo $(dir $@) $<
+$(GEN_PG): $(LOCAL_PATH)/src/com/android/jack/shrob/proguard/Proguard.g
 	$(transform-generated-source)
 
-LOCAL_GENERATED_SOURCES += $(GEN)
+$(GEN_PP): $(ANTLR_JACK_JAR)
+$(GEN_PP): PRIVATE_PATH := $(LOCAL_PATH)
+$(GEN_PP): PRIVATE_CUSTOM_TOOL = java -jar $(ANTLR_JACK_JAR) -fo $(dir $@) $<
+$(GEN_PP): $(LOCAL_PATH)/src/com/android/jack/preprocessor/PreProcessor.g
+	$(transform-generated-source)
 
-LOCAL_SRC_FILES := $(filter-out %/ProguardLexer.java %/ProguardParser.java, \
+LOCAL_GENERATED_SOURCES += $(GEN) $(GEN_PP)
+
+LOCAL_SRC_FILES := $(filter-out %/ProguardLexer.java %/ProguardParser.java %/PreProcessorLexer.java %/PreProcessorParser.java %/PreProcessor_PreProcessorL.java %/PreProcessor_PreProcessorL_Java.java, \
   $(call all-java-files-under, src))
 
 LOCAL_JAVA_RESOURCE_DIRS  := rsc

@@ -140,11 +140,17 @@
         <file name="${antlr.dist.dir}/${antlr.execname}" />
       </filelist>
     </copy>
-    <!-- generate parser -->
+    <!-- generate ProGuard parser -->
     <java jar="${jack.tools.dir}/${antlr.execname}" fork="true" failonerror="true">
       <arg line="-fo" />
       <arg line="${jack.dir}/src/com/android/jack/shrob/proguard"/>
       <arg line="${jack.dir}/src/com/android/jack/shrob/proguard/Proguard.g"/>
+    </java>
+    <!-- generate PreProcessor parser -->
+    <java jar="${jack.tools.dir}/${antlr.execname}" fork="true" failonerror="true">
+      <arg line="-fo" />
+      <arg line="${jack.dir}/src/com/android/jack/preprocessor"/>
+      <arg line="${jack.dir}/src/com/android/jack/preprocessor/PreProcessor.g"/>
     </java>
     <!-- compile -->
     <javac srcdir="${jack.dir}/src"
