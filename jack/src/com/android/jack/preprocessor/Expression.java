@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import javax.annotation.Nonnull;
 
-public class NoAnnotation {
-  public NoAnnotation() {
-  }
-
-  public void attachBaseContext(Context context) {
-
-  }
-
+/**
+ * Expression.
+ */
+public interface Expression<T, U> {
+  T eval(@Nonnull U scope, @Nonnull Context context);
 }

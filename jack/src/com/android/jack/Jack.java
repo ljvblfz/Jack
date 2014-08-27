@@ -26,8 +26,6 @@ import com.android.jack.analysis.defsuses.UseDefsChecker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
-import com.android.jack.annotationadder.AnnotationAdderFile;
-import com.android.jack.annotationadder.ApplyAnnotationAdder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -91,6 +89,8 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.preprocessor.PreProcessorFile;
+import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.scheduling.adapter.JDcoiExcludeJackFileAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
@@ -421,8 +421,8 @@ public abstract class Jack {
         if (options.dxLegacy) {
           request.addFeature(DxLegacy.class);
         }
-        if (config.get(AnnotationAdderFile.HAS_FILE).booleanValue()) {
-          request.addFeature(AnnotationAdderFile.class);
+        if (config.get(PreProcessorFile.HAS_FILE).booleanValue()) {
+          request.addFeature(PreProcessorFile.class);
         }
         if (options.flags != null) {
           if (options.flags.shrink()) {
@@ -511,8 +511,8 @@ public abstract class Jack {
           throw new AssertionError(e);
         }
 
-        if (config.get(AnnotationAdderFile.HAS_FILE).booleanValue()) {
-          planBuilder.append(ApplyAnnotationAdder.class);
+        if (config.get(PreProcessorFile.HAS_FILE).booleanValue()) {
+          planBuilder.append(PreProcessorApplier.class);
         }
 
         if (targetProduction.contains(JackFormatProduct.class)

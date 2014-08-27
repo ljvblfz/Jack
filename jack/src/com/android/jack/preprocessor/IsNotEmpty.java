@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import java.util.Collection;
 
-public class NoAnnotation {
-  public NoAnnotation() {
+import javax.annotation.Nonnull;
+
+/**
+ * A boolean expression testing the not emptiness of a Collection expression.
+ */
+public class IsNotEmpty<T> implements Expression<Boolean, T> {
+
+  @Nonnull
+  private final Expression<Collection<?>, T> collectionExpression;
+
+  public IsNotEmpty(@Nonnull Expression<Collection<?>, T> collectionExpression) {
+    this.collectionExpression = collectionExpression;
   }
 
-  public void attachBaseContext(Context context) {
-
+  @Override
+  public Boolean eval(@Nonnull T scope, @Nonnull Context context) {
+    return Boolean.valueOf(!collectionExpression.eval(scope, context).isEmpty());
   }
 
 }

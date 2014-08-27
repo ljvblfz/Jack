@@ -1,0 +1,153 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.preprocessor;
+
+import com.android.jack.Main;
+import com.android.jack.Options;
+import com.android.jack.TestTools;
+import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JSession;
+import com.android.jack.lookup.JNodeLookup;
+import com.android.jack.preprocessor.Context;
+import com.android.jack.preprocessor.PreProcessorLexer;
+import com.android.jack.preprocessor.PreProcessorParser;
+import com.android.jack.preprocessor.Rule;
+import com.android.jack.preprocessor.Scope;
+import com.android.jack.preprocessor.TypeToEmitScope;
+import com.android.sched.util.RunnableHooks;
+
+import junit.framework.Assert;
+
+import org.antlr.runtime.ANTLRFileStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.Collection;
+
+public class AnnotationAdderTest {
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    Main.class.getClassLoader().setDefaultAssertionStatus(true);
+  }
+
+  @Test
+  public void test001() throws Exception {
+    File testDir = TestTools.getJackTestsWithJackFolder("preprocessor/test001");
+    Options args = TestTools.buildCommandLineArgs(testDir);
+    RunnableHooks hooks = new RunnableHooks();
+    JSession session = TestTools.buildSession(args, hooks);
+    ANTLRFileStream in = new ANTLRFileStream(new File(testDir, "config.jpp").getAbsolutePath());
+    PreProcessorLexer lexer = new PreProcessorLexer(in);
+    CommonTokenStream tokens = new CommonTokenStream(lexer);
+    PreProcessorParser parser = new PreProcessorParser(tokens);
+    Collection<Rule> rules = parser.rules(session);
+    Scope scope = new TypeToEmitScope(session);
+    for (Rule rule : rules) {
+      Context context = new Context();
+      if (!rule.getSet().eval(scope, context).isEmpty()) {
+        context.getRequest(session).commit();
+      }
+    }
+
+    JAnnotation installerAnnotation =
+        session.getPhantomLookup().getAnnotation(
+            "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
+    JNodeLookup lookup = session.getLookup();
+    {
+      JDefinedClassOrInterface coi = lookup.getClass(
+          "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
+      Assert.assertNotNull(coi.getAnnotation(installerAnnotation));
+      for (JMethod method : coi.getMethods()) {
+        if (method.getName().equals("noAnnotation")) {
+          Assert.assertNull(method.getAnnotation(installerAnnotation));
+        } else {
+          Assert.assertNotNull(method.getAnnotation(installerAnnotation));
+        }
+      }
+    }
+    {
+      JDefinedClassOrInterface coi = lookup.getClass(
+          "Lcom/android/jack/preprocessor/test001/jack/app1/NoAnnotation;");
+      Assert.assertNull(coi.getAnnotation(installerAnnotation));
+      for (JMethod method : coi.getMethods()) {
+        Assert.assertNull(method.getAnnotation(installerAnnotation));
+      }
+    }
+
+    hooks.runHooks();
+  }
+
+  @Test
+  public void test001_002() throws Exception {
+    File testDir = TestTools.getJackTestsWithJackFolder("preprocessor/test001");
+    Options options = TestTools.buildCommandLineArgs(testDir);
+    options.addProperty("jack.annotation.adder.hasfile", "true");
+    options.addProperty("jack.annotation.adder.file",
+        new File(testDir, "config.jpp").getAbsolutePath());
+    TestTools.compileSourceToDex(options, testDir, TestTools.getDefaultBootclasspathString(),
+        TestTools.createTempFile("annotationAdderTest", ".out.zip"), true);
+  }
+
+  @Test
+  public void test001_001() throws Exception {
+    File testDir = TestTools.getJackTestsWithJackFolder("preprocessor/test001");
+    File tempDir = TestTools.createTempDir("preprocessor", "test");
+    TestTools.compileSourceToJack(new Options(), testDir,
+        TestTools.getDefaultBootclasspathString(), tempDir, false);
+
+    Options args = TestTools.buildCommandLineArgs(
+        new File(testDir, "app1/ApplicationActivity1.java"));
+    args.setClasspath(tempDir.getPath());
+    RunnableHooks hooks = new RunnableHooks();
+    JSession session = TestTools.buildSession(args, hooks);
+    ANTLRFileStream in = new ANTLRFileStream(new File(testDir, "config.jpp").getAbsolutePath());
+    PreProcessorLexer lexer = new PreProcessorLexer(in);
+    CommonTokenStream tokens = new CommonTokenStream(lexer);
+    PreProcessorParser parser = new PreProcessorParser(tokens);
+    Collection<Rule> rules = parser.rules(session);
+    Scope scope = new TypeToEmitScope(session);
+    for (Rule rule : rules) {
+      Context context = new Context();
+      if (!rule.getSet().eval(scope, context).isEmpty()) {
+        context.getRequest(session).commit();
+      }
+    }
+
+    JAnnotation installerAnnotation =
+        session.getPhantomLookup().getAnnotation("Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
+    JNodeLookup lookup = session.getLookup();
+    {
+      JDefinedClassOrInterface coi = lookup.getClass(
+          "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
+      Assert.assertNotNull(coi.getAnnotation(installerAnnotation));
+      for (JMethod method : coi.getMethods()) {
+        if (method.getName().equals("noAnnotation")) {
+          Assert.assertNull(method.getAnnotation(installerAnnotation));
+        } else {
+          Assert.assertNotNull(method.getAnnotation(installerAnnotation));
+        }
+      }
+    }
+
+    hooks.runHooks();
+  }
+}

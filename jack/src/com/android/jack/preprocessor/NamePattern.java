@@ -14,16 +14,38 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import java.util.regex.Pattern;
 
-public class NoAnnotation {
-  public NoAnnotation() {
+import javax.annotation.Nonnull;
+
+/**
+ * Compiled name pattern.
+ */
+public class NamePattern {
+
+  @Nonnull
+  private final Pattern pattern;
+
+  @Nonnull
+  private final String rawPattern;
+
+  public NamePattern(@Nonnull String rawPattern) {
+    this.rawPattern = rawPattern;
+    String regExp = rawPattern.replace(".", "\\.").replace("*", ".*");
+
+    this.pattern = Pattern.compile(regExp);
   }
 
-  public void attachBaseContext(Context context) {
+  public boolean matches(@Nonnull String name) {
+    return pattern.matcher(name).matches();
+  }
 
+  @Nonnull
+  @Override
+  public String toString() {
+    return rawPattern;
   }
 
 }

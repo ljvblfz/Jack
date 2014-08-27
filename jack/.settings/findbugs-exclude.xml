@@ -7,15 +7,15 @@
     <Class name="~com\.android\.jack\.shrob\.proguard\.ProguardParser.*"/>
 </Match>
 <Match>
-    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdderLexer.*"/>
+    <Class name="~com\.android\.jack\.preprocessor\.PreProcessorLexer.*"/>
 </Match>
 <Match>
-    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdderParser.*"/>
+    <Class name="~com\.android\.jack\.preprocessor\.PreProcessorParser.*"/>
 </Match>
 <Match>
-    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdder_AnnotationAdderL.*"/>
+    <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_PreProcessorL.*"/>
 </Match>
 <Match>
-    <Class name="~com\.android\.jack\.annotationadder\.AnnotationAdder_AnnotationAdderL_Java.*"/>
+    <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_PreProcessorL_Java.*"/>
 </Match>
 </FindBugsFilter>

@@ -8,7 +8,9 @@
     <file-match-pattern match-pattern="^src.*\.java$" include-pattern="true"/>
     <file-match-pattern match-pattern="^src/com/android/jack/shrob/proguard/ProguardLexer\.java$" include-pattern="false"/>
     <file-match-pattern match-pattern="^src/com/android/jack/shrob/proguard/ProguardParser\.java$" include-pattern="false"/>
-    <file-match-pattern match-pattern="^src/com/android/jack/annotationadder/AnnotationAdderLexer\.java$" include-pattern="false"/>
-    <file-match-pattern match-pattern="^src/com/android/jack/annotationadder/AnnotationAdderParser\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/preprocessor/PreProcessorLexer\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/preprocessor/PreProcessorParser\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/preprocessor/PreProcessor_PreProcessorL\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern="^src/com/android/jack/preprocessor/PreProcessor_PreProcessorL_Java\.java$" include-pattern="false"/>
   </fileset>
 </fileset-config>

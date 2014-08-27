@@ -14,16 +14,36 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import java.util.Collection;
 
-public class NoAnnotation {
-  public NoAnnotation() {
+import javax.annotation.Nonnull;
+
+/**
+ * A rule in an annotation adder file.
+ */
+public class Rule {
+
+  @Nonnull
+  private final String name;
+
+  @Nonnull
+  private final Expression<Collection<?>, Scope> set;
+
+  public Rule(@Nonnull String name, @Nonnull Expression<Collection<?>, Scope> set) {
+    this.name = name;
+    this.set = set;
   }
 
-  public void attachBaseContext(Context context) {
+  @Nonnull
+  public String getName() {
+    return name;
+  }
 
+  @Nonnull
+  public Expression<Collection<?>, Scope> getSet() {
+    return set;
   }
 
 }

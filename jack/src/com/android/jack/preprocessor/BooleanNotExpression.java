@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import javax.annotation.Nonnull;
 
-public class NoAnnotation {
-  public NoAnnotation() {
+/**
+ * '!' boolean expression.
+ */
+public class BooleanNotExpression<U> implements Expression<Boolean, U> {
+
+  @Nonnull
+  private final Expression<Boolean, U> arg;
+
+  public BooleanNotExpression(@Nonnull Expression<Boolean, U> arg) {
+    this.arg = arg;
   }
 
-  public void attachBaseContext(Context context) {
-
+  @Override
+  @Nonnull
+  public Boolean eval(@Nonnull U tested, @Nonnull Context context) {
+    return Boolean.valueOf(!arg.eval(tested, context).booleanValue());
   }
-
 }

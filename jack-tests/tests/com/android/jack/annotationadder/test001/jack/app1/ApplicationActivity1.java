@@ -16,9 +16,9 @@
 
 package com.android.jack.annotationadder.test001.jack.app1;
 
-import com.android.jack.annotationadder.test001.jack.Activity;
-import com.android.jack.annotationadder.test001.jack.Application;
-import com.android.jack.annotationadder.test001.jack.Context;
+import com.android.jack.preprocessor.test001.jack.Activity;
+import com.android.jack.preprocessor.test001.jack.Application;
+import com.android.jack.preprocessor.test001.jack.Context;
 
 public class ApplicationActivity1 extends Application implements Activity {
 

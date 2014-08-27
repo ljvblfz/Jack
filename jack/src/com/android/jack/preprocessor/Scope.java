@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import java.util.Set;
 
-public class NoAnnotation {
-  public NoAnnotation() {
-  }
+import javax.annotation.Nonnull;
 
-  public void attachBaseContext(Context context) {
+/**
+ * Context for matching a boolean expression.
+ */
+public interface Scope {
 
-  }
+  @Nonnull
+  public <T> Set<T> getNodesByName(@Nonnull Class<T> nodeType, @Nonnull NamePattern name);
 
 }

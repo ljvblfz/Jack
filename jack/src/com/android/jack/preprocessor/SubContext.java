@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor;
 
-import com.android.jack.preprocessor.test001.jack.Context;
+import javax.annotation.Nonnull;
 
-public class NoAnnotation {
-  public NoAnnotation() {
+class SubContext extends Context {
+
+  @Nonnull
+  private final Context outerContext;
+
+  public SubContext(@Nonnull Context outerContext) {
+    this.outerContext = outerContext;
   }
 
-  public void attachBaseContext(Context context) {
-
+  public void push() {
+    outerContext.steps.addAll(steps);
   }
-
 }
