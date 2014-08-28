@@ -137,7 +137,7 @@ containsExpression returns [Expression<Boolean, Scope> expression]
     ;
 
 modifiers returns [Expression<Boolean, HasModifier> expression]
-    :   MODIFIERS '{' expr=modifierExpression {expression=$expr.expression;} '}'
+    :   IS '{' expr=modifierExpression {expression=$expr.expression;} '}'
     ;
 
 annotateSets returns [Collection<Expression<Collection<?>, Scope>> sets]
@@ -147,7 +147,7 @@ annotateSets returns [Collection<Expression<Collection<?>, Scope>> sets]
 @after {
     assert sets != null;
 }
-    :   ANNOTATE '{' (aSet=set ';' {sets.add($aSet.set);})* '}'
+    :   DO '{' (aSet=set ';' {sets.add($aSet.set);})* '}'
     ;
 
 modifierExpression returns [Expression<Boolean, HasModifier> expression]
@@ -342,24 +342,22 @@ booleanOrExpression returns [Expression<Boolean, Scope> expression]
 matchName
     :   STAR
     |   CONTAINS
-    |   ANNOTATE
+    |   DO
     |   TYPE
     |   FIELD
     |   METHOD
-    |   MODIFIERS
-    |   KIND
+    |   IS
     |   NAME
     |   Identifier
     ;
 
 STAR : '*';
 CONTAINS : 'contains' ;
-ANNOTATE : 'annotate' ;
+DO : 'do' ;
 TYPE : 'type' ;
 FIELD : 'field' ;
 METHOD : 'method' ;
-KIND : 'kind' ;
-MODIFIERS : 'modifiers' ;
+IS : 'is' ;
 CLASS : 'class' ;
 PRIVATE : 'private' ;
 PACKAGE : 'package' ;

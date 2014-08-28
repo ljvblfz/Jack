@@ -1,7 +1,7 @@
 test001:
   @@com.android.jack.preprocessor.test001.jack.MultiDexInstaller
   class *
-    modifiers {
+    is {
       public | private
     }
     extends {
@@ -13,20 +13,20 @@ test001:
       | class com.android.jack.preprocessor.test001.jack.BackupAgent
       | class com.android.jack.preprocessor.test001.jack.Application
     }
-    annotate {
+    do {
       @@com.android.jack.preprocessor.test001.jack.MultiDexInstaller
       method * <init>();
     }
 
 test002:
   class *
-    modifiers {
+    is {
       public
     }
     extends {
       class com.android.jack.preprocessor.test001.jack.Application
     }
-    annotate {
+    do {
       @@com.android.jack.preprocessor.test001.jack.MultiDexInstaller
       method void attachBaseContext(class com.android.jack.preprocessor.test001.jack.Context)
           modifiers {
