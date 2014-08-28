@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.annotationadder.test001.jack.app1;
+package com.android.jack.preprocessor.test001.jack.app1;
 
 import com.android.jack.preprocessor.test001.jack.Context;
 
-public interface NoAnnotationInterface {
+public class NoAnnotation {
+  public NoAnnotation() {
+  }
 
-  public void attachBaseContext(Context context);
+  public void attachBaseContext(Context context) {
+
+  }
 
 }
