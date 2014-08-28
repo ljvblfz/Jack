@@ -36,6 +36,7 @@ import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
+import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
@@ -864,6 +865,12 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(MainDexTracer.class);
+    }
+
+    if (isMultiDex) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(MainDexCollector.class);
     }
   }
 

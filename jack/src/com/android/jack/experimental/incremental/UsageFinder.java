@@ -16,23 +16,11 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.ir.ast.HasType;
-import com.android.jack.ir.ast.JArrayLiteral;
+import com.android.jack.backend.dex.TypeReferenceCollector;
 import com.android.jack.ir.ast.JArrayType;
-import com.android.jack.ir.ast.JClass;
-import com.android.jack.ir.ast.JClassLiteral;
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JDefinedInterface;
-import com.android.jack.ir.ast.JFieldRef;
-import com.android.jack.ir.ast.JInstanceOf;
-import com.android.jack.ir.ast.JInterface;
-import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -51,13 +39,15 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private static class Visitor extends JVisitor {
+  private static class Visitor extends TypeReferenceCollector {
 
     @Nonnull
     private final CompilerState compilerState;
 
     @Nonnull
     private final String currentFileName;
+
+    private boolean inBody = false;
 
     public Visitor(@Nonnull JType currentType, @Nonnull CompilerState compilerState) {
       this.compilerState = compilerState;
@@ -68,15 +58,20 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
       compilerState.addStructUsage(currentFileName, null);
     }
 
-    private void addStructUsage(@Nonnull JType usedType) {
-      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
-        return;
-      }
-      String usedTypeFileName = usedType.getSourceInfo().getFileName();
-      compilerState.addStructUsage(currentFileName, usedTypeFileName);
+    @Override
+    public boolean visit(@Nonnull JMethodBody x) {
+      inBody = true;
+      return super.visit(x);
     }
 
-    private void addCodeUsage(@Nonnull JType usedType) {
+    @Override
+    public void endVisit(@Nonnull JMethodBody x) {
+      super.endVisit(x);
+      inBody = false;
+    }
+
+    @Override
+    protected void collect(@Nonnull JType usedType) {
       if (usedType instanceof JArrayType) {
         usedType = ((JArrayType) usedType).getLeafType();
       }
@@ -84,73 +79,11 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
         return;
       }
       String usedTypeFileName = usedType.getSourceInfo().getFileName();
-      compilerState.addCodeUsage(currentFileName, usedTypeFileName);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JDefinedClass definedClass) {
-      JClass superClass = definedClass.getSuperClass();
-      if (superClass != null) {
-        addStructUsage(superClass);
+      if (inBody) {
+        compilerState.addCodeUsage(currentFileName, usedTypeFileName);
+      } else {
+        compilerState.addStructUsage(currentFileName, usedTypeFileName);
       }
-
-      for (JInterface interf : definedClass.getImplements()) {
-        addStructUsage(interf);
-      }
-
-      return super.visit(definedClass);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JMethod jmethod) {
-      ThrownExceptionMarker marker = jmethod.getMarker(ThrownExceptionMarker.class);
-      if (marker != null) {
-        for (JClass exception : marker.getThrownExceptions()) {
-          addCodeUsage(exception);
-        }
-      }
-      return super.visit(jmethod);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JDefinedInterface definedInterface) {
-      for (JInterface interf : definedInterface.getImplements()) {
-        addStructUsage(interf);
-      }
-      return super.visit(definedInterface);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JClassLiteral classLiteral) {
-      addCodeUsage(classLiteral.getRefType());
-      return super.visit(classLiteral);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JInstanceOf instanceofStmt) {
-      addCodeUsage(instanceofStmt.getTestType());
-      return super.visit(instanceofStmt);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JMethodCall methodCall) {
-      addCodeUsage(methodCall.getReceiverType());
-      return super.visit(methodCall);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JFieldRef fieldRef) {
-      addCodeUsage(fieldRef.getReceiverType());
-      return super.visit(fieldRef);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JNode node) {
-      if (node instanceof HasType && !(node instanceof JArrayLiteral)) {
-        addCodeUsage(((HasType) node).getType());
-      }
-
-      return super.visit(node);
     }
   }
 
