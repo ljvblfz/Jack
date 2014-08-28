@@ -23,8 +23,8 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -35,14 +35,14 @@ import javax.annotation.Nonnull;
 @ValidOn({JDefinedClassOrInterface.class, JPhantomClassOrInterface.class})
 public class ExtendingOrImplementingClassMarker implements Marker {
   @Nonnull
-  private final List<JDefinedClass> extendingOrImplementingClasses = new ArrayList<JDefinedClass>();
+  private final Set<JDefinedClass> extendingOrImplementingClasses = new HashSet<JDefinedClass>();
 
   public void addSubClass(@Nonnull JDefinedClass extendingOrImplementingClass) {
     extendingOrImplementingClasses.add(extendingOrImplementingClass);
   }
 
   @Nonnull
-  public List<JDefinedClass> getExtendingOrImplementingClasses() {
+  public Set<JDefinedClass> getExtendingOrImplementingClasses() {
     return extendingOrImplementingClasses;
   }
 
