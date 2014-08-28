@@ -25,6 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses(value = {
 //    AnnotationsTest.class,
     ShrinkTest.class,
+    ShrinkMultiDexTest.class,
     ObfuscationWithMappingTest.class,
 //    ObfuscationWithAttributesTest.class,
 //    ObfuscationWithDebugInfoTest.class,

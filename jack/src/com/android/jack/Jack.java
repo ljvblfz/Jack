@@ -36,8 +36,11 @@ import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
+import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
+import com.android.jack.backend.dex.MultiDexInstallerFinder;
+import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.OneDexPerTypeProduct;
 import com.android.jack.backend.dex.OneDexPerTypeWriter;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
@@ -151,6 +154,7 @@ import com.android.jack.shrob.seed.remover.TypeSeedMarkerRemover;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
 import com.android.jack.shrob.shrink.MethodShrinker;
+import com.android.jack.shrob.shrink.ShrinkAndMainDexTracer;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.shrink.Shrinking;
 import com.android.jack.shrob.shrink.StructurePrinting;
@@ -375,7 +379,6 @@ public abstract class Jack {
       options.applyShrobFlags();
     }
 
-
     RunnableHooks hooks = new RunnableHooks();
     try {
       options.checkValidity(hooks);
@@ -473,6 +476,9 @@ public abstract class Jack {
         }
         if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
           request.addProduction(StructurePrinting.class);
+        }
+        if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
+          request.addFeature(MultiDexLegacy.class);
         }
 
         if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
@@ -759,21 +765,7 @@ public abstract class Jack {
     }
 
     // Shrob
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendStringRefiningPlan(planBuilder);
-    }
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
-        || productions.contains(SeedFile.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(SeedFinder.class);
-      if (productions.contains(SeedFile.class)) {
-        planBuilder.append(SeedPrinter.class);
-      }
-    }
-    if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(planBuilder);
-    }
+    appendMultiDexAndShrobStartPlan(planBuilder);
     if (features.contains(Obfuscation.class)) {
       appendObfuscationPlan(planBuilder, features);
     } else {
@@ -790,6 +782,88 @@ public abstract class Jack {
     }
     if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
       appendShrobMarkerRemoverPlan(planBuilder);
+    }
+  }
+
+  private static void appendMultiDexAndShrobStartPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
+    ProductionSet productions = planBuilder.getRequest().getTargetProductions();
+    FeatureSet features = planBuilder.getRequest().getFeatures();
+    boolean isShrinking = features.contains(Shrinking.class);
+    boolean isMultiDex = features.contains(MultiDexLegacy.class);
+    if (!(isShrinking || features.contains(Obfuscation.class)
+        || isMultiDex || productions.contains(SeedFile.class))) {
+      // nothing to do
+      return;
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      if (isShrinking || features.contains(Obfuscation.class)) {
+        typePlan.append(TypeGenericSignatureSplitter.class);
+        typePlan.append(TypeStringLiteralRefiner.class);
+        typePlan.append(SimpleNameRefiner.class);
+        {
+          SubPlanBuilder<JMethod> methodPlan =
+              typePlan.appendSubPlan(JMethodAdapter.class);
+          methodPlan.append(MethodGenericSignatureSplitter.class);
+          methodPlan.append(ReflectionStringLiteralRefiner.class);
+          methodPlan.append(MethodStringLiteralRefiner.class);
+        }
+        {
+          SubPlanBuilder<JField> fieldPlan =
+              typePlan.appendSubPlan(JFieldAdapter.class);
+          fieldPlan.append(FieldGenericSignatureSplitter.class);
+          fieldPlan.append(FieldStringLiteralRefiner.class);
+        }
+      }
+      if (isShrinking || features.contains(Obfuscation.class)
+          || productions.contains(SeedFile.class)) {
+        typePlan.append(SeedFinder.class);
+        if (productions.contains(SeedFile.class)) {
+          planBuilder.append(SeedPrinter.class);
+        }
+      }
+
+      if (isMultiDex) {
+        typePlan.append(MultiDexInstallerFinder.class);
+      }
+
+      if (isMultiDex || isShrinking) {
+        typePlan.append(ExtendingOrImplementingClassFinder.class);
+
+      }
+    }
+
+    if (isShrinking) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        Request request = planBuilder.getRequest();
+        if (isMultiDex &&
+            request.getTargetProductions().contains(DexFileProduct.class)) {
+          typePlan.append(ShrinkAndMainDexTracer.class);
+        } else {
+          typePlan.append(Keeper.class);
+        }
+      }
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        typePlan.append(TypeShrinker.class);
+        {
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+          methodPlan.append(MethodShrinker.class);
+        }
+        {
+          SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
+          fieldPlan.append(FieldShrinker.class);
+        }
+      }
+    } else if (isMultiDex) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(MainDexTracer.class);
     }
   }
 
@@ -838,21 +912,8 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendStringRefiningPlan(planBuilder);
-    }
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
-        || productions.contains(SeedFile.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(SeedFinder.class);
-      if (productions.contains(SeedFile.class)) {
-        planBuilder.append(SeedPrinter.class);
-      }
-    }
-    if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(planBuilder);
-    }
+    appendMultiDexAndShrobStartPlan(planBuilder);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
@@ -1097,22 +1158,7 @@ public abstract class Jack {
       planBuilder.append(PackageRenamer.class);
     }
 
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendStringRefiningPlan(planBuilder);
-    }
-
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
-        || productions.contains(SeedFile.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(SeedFinder.class);
-      if (productions.contains(SeedFile.class)) {
-        planBuilder.append(SeedPrinter.class);
-      }
-    }
-    if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(planBuilder);
-    }
+    appendMultiDexAndShrobStartPlan(planBuilder);
 
     if (hasSanityChecks) {
       planBuilder.append(ParentSetterChecker.class);
@@ -1240,29 +1286,6 @@ public abstract class Jack {
     }
   }
 
-  private static void appendStringRefiningPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(TypeGenericSignatureSplitter.class);
-      typePlan.append(TypeStringLiteralRefiner.class);
-      typePlan.append(SimpleNameRefiner.class);
-      {
-        SubPlanBuilder<JMethod> methodPlan =
-            typePlan.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(MethodGenericSignatureSplitter.class);
-        methodPlan.append(ReflectionStringLiteralRefiner.class);
-        methodPlan.append(MethodStringLiteralRefiner.class);
-      }
-      {
-        SubPlanBuilder<JField> fieldPlan =
-            typePlan.appendSubPlan(JFieldAdapter.class);
-        fieldPlan.append(FieldGenericSignatureSplitter.class);
-        fieldPlan.append(FieldStringLiteralRefiner.class);
-      }
-    }
-  }
-
   private static void appendShrobMarkerRemoverPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1282,32 +1305,6 @@ public abstract class Jack {
         fieldPlan.append(FieldKeepMarkerRemover.class);
         fieldPlan.append(FieldKeepNameMarkerRemover.class);
         fieldPlan.append(FieldSeedMarkerRemover.class);
-      }
-    }
-  }
-
-  private static void appendShrinkingPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(ExtendingOrImplementingClassFinder.class);
-    }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(Keeper.class);
-    }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(TypeShrinker.class);
-      {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(MethodShrinker.class);
-      }
-      {
-        SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
-        fieldPlan.append(FieldShrinker.class);
       }
     }
   }
@@ -1388,22 +1385,7 @@ public abstract class Jack {
       planBuilder.append(PackageRenamer.class);
     }
 
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)) {
-      appendStringRefiningPlan(planBuilder);
-    }
-
-    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
-        || productions.contains(SeedFile.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(SeedFinder.class);
-      if (productions.contains(SeedFile.class)) {
-        planBuilder.append(SeedPrinter.class);
-      }
-    }
-    if (features.contains(Shrinking.class)) {
-      appendShrinkingPlan(planBuilder);
-    }
+    appendMultiDexAndShrobStartPlan(planBuilder);
 
     if (hasSanityChecks) {
       planBuilder.append(ParentSetterChecker.class);

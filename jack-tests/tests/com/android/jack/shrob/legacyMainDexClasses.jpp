@@ -1,0 +1,3 @@
+allObjectAndConstructor:
+class * extends {class java.lang.Object}
+        do {method * <init>();}
