@@ -350,10 +350,10 @@ public class Tracer extends JVisitor {
     JClassOrInterface tracingStartingPoint = null;
     if (implementationOrDefinition != null) {
       tracingStartingPoint = implementationOrDefinition.getEnclosingType();
+      trace(tracingStartingPoint);
     } else {
       tracingStartingPoint = receiverType;
     }
-    trace(tracingStartingPoint);
     trace(methodId, tracingStartingPoint, returnType, true /* mustTraceOverridingMethods */);
   }
 
