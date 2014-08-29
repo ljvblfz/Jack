@@ -124,7 +124,11 @@ public class Tracer extends JVisitor {
           JType returnType = method.getType();
           JMethod implementation =
               findImplementation(methodId, returnType, extendingOrImplementingClass);
-          if (implementation != null) {
+          // method was already marked, if implementation is the same, no need to re-trace it, and
+          // no need to mark implementation in subtypes. It was already done when the method
+          // was marked the first time, and for further subtypes that will be marked later,
+          // the case will be managed by this method.
+          if (implementation != null && implementation != method) {
             trace(methodId, implementation.getEnclosingType(), returnType,
                 true /* mustTraceOverridingMethods */);
           }
