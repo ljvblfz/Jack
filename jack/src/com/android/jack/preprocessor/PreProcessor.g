@@ -380,17 +380,3 @@ INT : 'int' ;
 FLOAT : 'float' ;
 LONG : 'long' ;
 DOUBLE : 'double' ;
-
-NAME
-    :   (  Letter
-        |   '*'
-        |   '<'
-        |   '>'
-        )
-    (   Letter
-    |   JavaIDDigit
-    |   '*'
-    |   '<'
-    |   '>'
-    )*
-    ;

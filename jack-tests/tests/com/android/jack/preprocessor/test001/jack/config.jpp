@@ -29,7 +29,7 @@ test002:
     do {
       @@com.android.jack.preprocessor.test001.jack.MultiDexInstaller
       method void attachBaseContext(class com.android.jack.preprocessor.test001.jack.Context)
-          modifiers {
+          is {
               public
           }
       ;

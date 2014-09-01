@@ -73,6 +73,20 @@ JavaIDDigit
        '\u1040'..'\u1049'
     ;
 
+NAME
+    :   (  Letter
+        |   '*'
+        |   '<'
+        |   '>'
+        )
+    (   Letter
+    |   JavaIDDigit
+    |   '*'
+    |   '<'
+    |   '>'
+    )*
+    ;
+
 WS  :  (' '|'\r'|'\t'|'\u000C'|'\n')+ {$channel=HIDDEN;}
     ;
 
