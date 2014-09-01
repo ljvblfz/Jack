@@ -96,7 +96,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  public void trace(@Nonnull JType t) {
+  private void trace(@Nonnull JType t) {
     if (t instanceof JDefinedClassOrInterface) {
       trace((JDefinedClassOrInterface) t);
     } else if (t instanceof JArrayType) {

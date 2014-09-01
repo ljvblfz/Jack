@@ -19,8 +19,6 @@ package com.android.jack.shrob.shrink;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.shrob.seed.SeedMarker;
-import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -42,9 +40,6 @@ public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    SeedMarker marker = type.getMarker(SeedMarker.class);
-    if (marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING) {
-      tracer.trace(type);
-    }
+    tracer.run(type);
   }
 }
