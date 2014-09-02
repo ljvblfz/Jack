@@ -27,20 +27,20 @@ import com.android.sched.util.file.InputStreamFile;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link Feature} that applies rule of annotation adder file.
+ * A {@link Feature} that represents Preprocessor support.
  */
-@Description("Applies rule of annotation adder file")
+@Description("Preprocessor support")
 @HasKeyId
-public class PreProcessorFile implements Feature {
+public class PreProcessor implements Feature {
 
   @Nonnull
-  public static final BooleanPropertyId HAS_FILE = BooleanPropertyId.create(
-      "jack.annotation.adder.hasfile", "Read an annotation file")
+  public static final BooleanPropertyId ENABLE = BooleanPropertyId.create(
+      "jack.preprocessor", "Enable the Jack preprocessor")
       .addDefaultValue(false);
 
   @Nonnull
   public static final PropertyId<InputStreamFile> FILE = PropertyId.create(
-      "jack.annotation.adder.file", "The file to read the annotation file from",
-      new InputStreamCodec()).requiredIf(HAS_FILE.getValue().isTrue());
+      "jack.preprocessor.file", "Preprocessor source file",
+      new InputStreamCodec()).requiredIf(ENABLE.getValue().isTrue());
 
 }
