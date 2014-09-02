@@ -316,10 +316,6 @@ public class Tracer extends JVisitor {
   @Override
   public void endVisit(@Nonnull JFieldRef fr) {
     trace(fr.getFieldId(), fr.getReceiverType());
-    JField field = fr.getFieldId().getField();
-    if (field != null) {
-      trace(field);
-    }
   }
 
   @Override
