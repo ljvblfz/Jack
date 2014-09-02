@@ -16,23 +16,12 @@
 
 package com.android.sched.build;
 
-import com.android.sched.item.Description;
-import com.android.sched.item.Feature;
-import com.android.sched.item.Production;
-import com.android.sched.item.TagOrMarkerOrComponent;
-import com.android.sched.marker.Marker;
-import com.android.sched.schedulable.Schedulable;
-import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.id.KeyId;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -68,22 +57,19 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
   @CheckForNull
   private ProcessingEnvironment env;
 
+  private static class AbortException extends Exception {
+    private static final long serialVersionUID = 1L;
+  }
+
   private enum Items {
-    HASKEYID(HasKeyId.class) {
+    KEY_ID("com.android.sched.util.config.id.KeyId"),
+    HASKEYID("com.android.sched.util.config.HasKeyId") {
       @Override
-      public void check(@Nonnull Element element, @Nonnull ProcessingEnvironment env) {
+      public void check(@Nonnull ProcessingEnvironment env, @Nonnull Element element)
+          throws AbortException {
+        TypeMirror keyIdType = env.getTypeUtils().erasure(Items.KEY_ID.getTypeMirror());
+
         boolean noKeyId = true;
-
-        TypeMirror keyIdType =
-            env.getTypeUtils().erasure(
-                env.getElementUtils().getTypeElement(KeyId.class.getCanonicalName()).asType());
-
-        if (keyIdType == null) {
-          env.getMessager().printMessage(
-              Kind.ERROR, "Can not get element type '" + KeyId.class.getCanonicalName() + "'");
-          return;
-        }
-
         for (Element enclosedElement : element.getEnclosedElements()) {
           if (enclosedElement.getKind() == ElementKind.FIELD
               && env.getTypeUtils().isSubtype(env.getTypeUtils().erasure(enclosedElement.asType()),
@@ -107,26 +93,58 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
         }
       }
     },
-
-    MARKER(Marker.class),
-    FEATURE(Feature.class),
-    PRODUCTION(Production.class),
-    TOMOC(TagOrMarkerOrComponent.class),
-    SCHEDULABLE(Schedulable.class);
+    DESCRIPTION("com.android.sched.item.Description"),
+    MARKER("com.android.sched.marker.Marker"),
+    FEATURE("com.android.sched.item.Feature"),
+    PRODUCTION("com.android.sched.item.Production"),
+    TOMOC("com.android.sched.item.TagOrMarkerOrComponent"),
+    SCHEDULABLE("com.android.sched.schedulable.Schedulable"),
+    IMPLEMENTATION_NAME("com.android.sched.util.codec.ImplementationName");
 
     @Nonnull
-    private final Class<?> cls;
+    private final String fqName;
+    @CheckForNull
+    private TypeElement typeElement;
 
-    private Items(@Nonnull Class<?> cls) {
-      this.cls = cls;
+    @CheckForNull
+    private static ProcessingEnvironment env;
+
+    static void init(@Nonnull ProcessingEnvironment env) {
+      Items.env = env;
+    }
+
+    private Items(@Nonnull String fqName) {
+      this.fqName = fqName;
     }
 
     @Nonnull
     public String getFQName() {
-      return cls.getCanonicalName();
+      return fqName;
     }
 
-    public void check(@Nonnull Element element, @Nonnull ProcessingEnvironment env) {}
+    @Nonnull
+    public TypeElement getTypeElement() throws AbortException {
+      assert env != null;
+
+      if (typeElement == null) {
+        typeElement = env.getElementUtils().getTypeElement(fqName);
+        if (typeElement == null) {
+          env.getMessager().printMessage(Kind.ERROR, "Can not get element type '" + fqName + "'");
+          throw new AbortException();
+        }
+      }
+
+      return typeElement;
+    }
+
+    @Nonnull
+    public TypeMirror getTypeMirror() throws AbortException {
+      return getTypeElement().asType();
+    }
+
+    @SuppressWarnings("unused")
+    public void check(@Nonnull ProcessingEnvironment env, @Nonnull Element element)
+        throws AbortException {}
   }
 
   @CheckForNull
@@ -192,11 +210,14 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     } catch (IOException e) {
       // Best effort
     }
+
+    Items.init(env);
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     if (roundEnv.processingOver()) {
+      // Dump resource file
       assert data != null;
       assert env != null;
 
@@ -215,143 +236,130 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
             "Can not write resource file for '" + data.getResourceName() + "': " + e.getMessage());
       }
     } else {
-      assert env != null;
-
-      TypeMirror[] types = new TypeMirror[Items.values().length];
-
-      for (Items item : Items.values()) {
-        TypeElement element = env.getElementUtils().getTypeElement(item.getFQName());
-        if (element != null) {
-          assert types != null;
-          types[item.ordinal()] = element.asType();
-        } else {
-          env.getMessager().printMessage(
-              Kind.ERROR, "Can not get element type '" + Marker.class.getCanonicalName() + "'");
-        }
-      }
-
-      //
-      // @Description
-      //
-
-      for (Element element : getElementsAnnotatedWith(roundEnv, Description.class)) {
-        assert data != null;
-
-        TypeMirror type = element.asType();
-
-        if (type.getKind() == TypeKind.DECLARED) {
-          for (Items item : Items.values()) {
-            assert types != null;
-            TypeMirror sup = types[item.ordinal()];
-
-            assert env != null;
-            if (sup != null && env.getTypeUtils().isAssignable(type, sup)) {
-              item.check(element, env);
-              data.add(item.getFQName(), (TypeElement) element);
-            } else {
-              data.remove(item.getFQName(), (TypeElement) element);
-            }
-          }
-        }
-      }
-
-      //
-      // @HasKeyId
-      //
-
-      for (Element element : getElementsAnnotatedWith(roundEnv, HasKeyId.class)) {
-        assert data != null;
-
-        TypeMirror type = element.asType();
-
-        if (type.getKind() == TypeKind.DECLARED) {
-          Items.HASKEYID.check(element, env);
-          data.add(Items.HASKEYID.getFQName(), (TypeElement) element);
-        }
-      }
-
-      //
-      // @ImplementationName
-      //
-
-      for (Element element : getElementsAnnotatedWith(roundEnv, ImplementationName.class)) {
-        assert env != null;
-        assert data != null;
-
-        TypeMirror elementType = element.asType();
-
-        if (elementType.getKind() == TypeKind.DECLARED) {
-          TypeMirror implementationNameType = env.getElementUtils()
-              .getTypeElement(ImplementationName.class.getCanonicalName()).asType();
-
-          for (AnnotationMirror am : element.getAnnotationMirrors()) {
-            if (env.getTypeUtils().isSameType(am.getAnnotationType(), implementationNameType)) {
-              // Found annotation
-              AnnotationValue name = null;
-              TypeMirror iface = null;
-
-              // Search for attributes
-              for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
-                  am.getElementValues().entrySet()) {
-                String attributeName = entry.getKey().getSimpleName().toString();
-
-                if (attributeName.equals("name")) {
-                  // Found @Implementation.name()
-                  name = entry.getValue();
-                }
-
-                if (attributeName.equals("iface")) {
-                  // Found @Implementation.iface()
-                  iface = (TypeMirror) entry.getValue().getValue();
-                }
-              }
-
-              if (iface != null && name != null) {
-                String ifaceName = iface.toString();
-
-                data.remove(ifaceName, (TypeElement) element);
-
-                // Search for duplicate name
-                for (com.android.sched.build.SchedDiscover.SchedData elt : data.get(ifaceName)) {
-                  if (name.getValue().equals(elt.getExtra())) {
-                    env.getMessager().printMessage(Kind.ERROR,
-                        "Same name '" + name.getValue() + "' on '" + elt.getName() + "'", element,
-                        am, name);
-                  }
-                }
-
-                // Check inheritance
-                if (!env.getTypeUtils().isAssignable(element.asType(), iface)) {
-                  env.getMessager().printMessage(
-                      Kind.ERROR, "Must extends or implements '" + ifaceName + "'", element);
-                }
-
-                data.add(ifaceName, (TypeElement) element, name.getValue().toString());
-              } else {
-                env.getMessager().printMessage(Kind.ERROR, "Wrong @"
-                    + ImplementationName.class.getCanonicalName()
-                    + " annotation, must have 'iface' and 'name' attributes");
-              }
-            }
-          }
-        }
+      // Process annotations
+      try {
+        processAnnotations(annotations, roundEnv);
+      } catch (AbortException e) {
       }
     }
 
     return false;
   }
 
-  @Nonnull
-  private Set<? extends Element> getElementsAnnotatedWith(@Nonnull RoundEnvironment roundEnv,
-      @Nonnull Class<? extends Annotation> cls) {
+  private void processAnnotations(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
+      throws AbortException {
+
     assert env != null;
 
-    String name = cls.getCanonicalName();
-    assert name != null;
+    //
+    // @Description
+    //
 
-    TypeElement element = env.getElementUtils().getTypeElement(name);
-    assert element != null;
+    for (Element element : getElementsAnnotatedWith(roundEnv, Items.DESCRIPTION)) {
+      assert data != null;
 
-    return roundEnv.getElementsAnnotatedWith(element);
+      TypeMirror type = element.asType();
+
+      if (type.getKind() == TypeKind.DECLARED) {
+        for (Items item : Items.values()) {
+          assert env != null;
+          if (env.getTypeUtils().isAssignable(type, item.getTypeMirror())) {
+            item.check(env, element);
+            data.add(item.getFQName(), (TypeElement) element);
+          } else {
+            data.remove(item.getFQName(), (TypeElement) element);
+          }
+        }
+      }
+    }
+
+    //
+    // @HasKeyId
+    //
+
+    for (Element element : getElementsAnnotatedWith(roundEnv, Items.HASKEYID)) {
+      assert data != null;
+
+      TypeMirror type = element.asType();
+
+      if (type.getKind() == TypeKind.DECLARED) {
+        Items.HASKEYID.check(env, element);
+        data.add(Items.HASKEYID.getFQName(), (TypeElement) element);
+      }
+    }
+
+    //
+    // @ImplementationName
+    //
+
+    for (Element element : getElementsAnnotatedWith(roundEnv, Items.IMPLEMENTATION_NAME)) {
+      assert env != null;
+      assert data != null;
+
+      TypeMirror elementType = element.asType();
+
+      if (elementType.getKind() == TypeKind.DECLARED) {
+        for (AnnotationMirror am : element.getAnnotationMirrors()) {
+          if (env.getTypeUtils().isSameType(am.getAnnotationType(),
+              Items.IMPLEMENTATION_NAME.getTypeMirror())) {
+            // Found annotation
+            AnnotationValue name = null;
+            TypeMirror iface = null;
+
+            // Search for attributes
+            for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am
+                .getElementValues().entrySet()) {
+              String attributeName = entry.getKey().getSimpleName().toString();
+
+              if (attributeName.equals("name")) {
+                // Found @Implementation.name()
+                name = entry.getValue();
+              }
+
+              if (attributeName.equals("iface")) {
+                // Found @Implementation.iface()
+                iface = (TypeMirror) entry.getValue().getValue();
+              }
+            }
+
+            if (iface != null && name != null) {
+              String ifaceName = iface.toString();
+
+              data.remove(ifaceName, (TypeElement) element);
+
+              // Search for duplicate name
+              for (com.android.sched.build.SchedDiscover.SchedData elt : data.get(ifaceName)) {
+                if (name.getValue().equals(elt.getExtra())) {
+                  env.getMessager().printMessage(Kind.ERROR,
+                      "Same name '" + name.getValue() + "' on '" + elt.getName() + "'", element,
+                      am, name);
+                }
+              }
+
+              // Check inheritance
+              if (!env.getTypeUtils().isAssignable(element.asType(), iface)) {
+                env.getMessager().printMessage(Kind.ERROR,
+                    "Must extends or implements '" + ifaceName + "'", element);
+              }
+
+              data.add(ifaceName, (TypeElement) element, name.getValue().toString());
+            } else {
+              env.getMessager().printMessage(
+                  Kind.ERROR,
+                  "Wrong @" + Items.IMPLEMENTATION_NAME.getFQName()
+                      + " annotation, must have 'iface' and 'name' attributes");
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Nonnull
+  private Set<? extends Element> getElementsAnnotatedWith(@Nonnull RoundEnvironment roundEnv,
+      @Nonnull Items item) throws AbortException {
+    assert env != null;
+
+    return roundEnv.getElementsAnnotatedWith(item.getTypeElement());
   }
 }
