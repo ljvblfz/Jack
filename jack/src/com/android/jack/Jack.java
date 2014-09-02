@@ -93,7 +93,7 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
-import com.android.jack.preprocessor.PreProcessorFile;
+import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.scheduling.adapter.JDcoiExcludeJackFileAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
@@ -425,8 +425,8 @@ public abstract class Jack {
         if (options.dxLegacy) {
           request.addFeature(DxLegacy.class);
         }
-        if (config.get(PreProcessorFile.HAS_FILE).booleanValue()) {
-          request.addFeature(PreProcessorFile.class);
+        if (config.get(PreProcessor.ENABLE).booleanValue()) {
+          request.addFeature(PreProcessor.class);
         }
         if (options.flags != null) {
           if (options.flags.shrink()) {
@@ -518,7 +518,7 @@ public abstract class Jack {
           throw new AssertionError(e);
         }
 
-        if (config.get(PreProcessorFile.HAS_FILE).booleanValue()) {
+        if (config.get(PreProcessor.ENABLE).booleanValue()) {
           planBuilder.append(PreProcessorApplier.class);
         }
 

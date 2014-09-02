@@ -21,7 +21,7 @@ import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.preprocessor.PreProcessorFile;
+import com.android.jack.preprocessor.PreProcessor;
 
 import org.junit.BeforeClass;
 
@@ -60,8 +60,8 @@ public class ShrinkMultiDexTest extends AbstractTest {
     File refFolder = new File(testFolder, "refsShrinking");
     Options options = new Options();
     options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
-    options.addProperty(PreProcessorFile.HAS_FILE.getName(), "true");
-    options.addProperty(PreProcessorFile.FILE.getName(),
+    options.addProperty(PreProcessor.ENABLE.getName(), "true");
+    options.addProperty(PreProcessor.FILE.getName(),
         new File(TestTools.getJackTestFolder("shrob"),"legacyMainDexClasses.jpp").getAbsolutePath());
     TestTools.checkListing(options,
         bootclasspath,

@@ -41,12 +41,12 @@ import javax.annotation.Nonnull;
  * This {@link RunnableSchedulable} applies the rules defined in the PreProcessor file.
  */
 @Description("Apply the rules defined in the PreProcessor file.")
-@Support(PreProcessorFile.class)
+@Support(PreProcessor.class)
 public class PreProcessorApplier implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    InputStreamFile input = ThreadConfig.get(PreProcessorFile.FILE);
+    InputStreamFile input = ThreadConfig.get(PreProcessor.FILE);
     InputStream inputStream = input.getInputStream();
     ANTLRInputStream in = new ANTLRInputStream(inputStream);
     try {
