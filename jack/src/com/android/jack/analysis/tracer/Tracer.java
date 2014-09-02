@@ -113,7 +113,7 @@ public class Tracer extends JVisitor {
     return m instanceof JConstructor && m.getParams().isEmpty();
   }
 
-  protected void traceImplementation(
+  private void traceImplementation(
       @Nonnull JDefinedClass extendingOrImplementingClass, @Nonnull JClassOrInterface superClOrI) {
     if (superClOrI instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface definedSuperClOrI = (JDefinedClassOrInterface) superClOrI;
@@ -145,7 +145,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  protected void trace(@Nonnull JDefinedClassOrInterface t) {
+  private void trace(@Nonnull JDefinedClassOrInterface t) {
     if (brush.startTrace(t)) {
       traceAnnotations(t);
       for (JMethod m : t.getMethods()) {
@@ -203,7 +203,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  protected void trace(@Nonnull JField f) {
+  private void trace(@Nonnull JField f) {
     if (brush.startTrace(f)) {
       trace(f.getEnclosingType());
       trace(f.getType());
@@ -212,7 +212,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  protected void trace(@Nonnull JFieldId fid, @Nonnull JClassOrInterface receiverType) {
+  private void trace(@Nonnull JFieldId fid, @Nonnull JClassOrInterface receiverType) {
     trace(receiverType);
     JField field = fid.getField();
     if (field != null) {
@@ -221,7 +221,7 @@ public class Tracer extends JVisitor {
   }
 
   @CheckForNull
-  protected JMethod findMethod(@Nonnull JMethodId methodId,
+  private JMethod findMethod(@Nonnull JMethodId methodId,
       @Nonnull JClassOrInterface enclosingType, @Nonnull JType returnType) {
     for (JMethod m : methodId.getMethods()) {
       if (m.getEnclosingType() == enclosingType && m.getType() == returnType) {
@@ -240,7 +240,7 @@ public class Tracer extends JVisitor {
    * @param mustTraceOverridingMethods indicates if the overriding methods of the traced method
    * should be traced as well
    */
-  protected void trace(@Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType,
+  private void trace(@Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType,
       @Nonnull JType returnType, boolean mustTraceOverridingMethods) {
     JMethod foundMethod = findMethod(mid, receiverType, returnType);
     if (foundMethod != null) {
@@ -268,7 +268,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  protected void trace(@Nonnull JMethod m) {
+  private void trace(@Nonnull JMethod m) {
     if (brush.startTrace(m)) {
       trace(m.getEnclosingType());
       traceAnnotations(m);
@@ -292,7 +292,7 @@ public class Tracer extends JVisitor {
     }
   }
 
-  protected void trace(@Nonnull JAnnotationLiteral al) {
+  private void trace(@Nonnull JAnnotationLiteral al) {
     JAnnotation type = al.getType();
     trace(type);
     for (JNameValuePair pair : al.getNameValuePairs()) {
