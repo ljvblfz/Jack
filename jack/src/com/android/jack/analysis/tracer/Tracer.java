@@ -477,11 +477,11 @@ public class Tracer extends JVisitor {
 
   @Override
   public void endVisit(@Nonnull JEnumLiteral enumLit) {
+    // No need to trace field since JEnumLiteral will be replace by constant
     JField field = enumLit.getFieldId().getField();
     if (field != null) {
-      this.accept(field);
+      traceAnnotations(field);
     }
-    super.endVisit(enumLit);
   }
 
   @Override
