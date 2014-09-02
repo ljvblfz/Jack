@@ -24,6 +24,7 @@ import com.android.sched.marker.Marker;
 import com.android.sched.schedulable.Schedulable;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.id.KeyId;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +48,9 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -66,7 +69,45 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
   private ProcessingEnvironment env;
 
   private enum Items {
-    HASKEYID(HasKeyId.class),
+    HASKEYID(HasKeyId.class) {
+      @Override
+      public void check(@Nonnull Element element, @Nonnull ProcessingEnvironment env) {
+        boolean noKeyId = true;
+
+        TypeMirror keyIdType =
+            env.getTypeUtils().erasure(
+                env.getElementUtils().getTypeElement(KeyId.class.getCanonicalName()).asType());
+
+        if (keyIdType == null) {
+          env.getMessager().printMessage(
+              Kind.ERROR, "Can not get element type '" + KeyId.class.getCanonicalName() + "'");
+          return;
+        }
+
+        for (Element enclosedElement : element.getEnclosedElements()) {
+          if (enclosedElement.getKind() == ElementKind.FIELD
+              && env.getTypeUtils().isSubtype(env.getTypeUtils().erasure(enclosedElement.asType()),
+                  keyIdType)) {
+            noKeyId = false;
+
+            if (!enclosedElement.getModifiers().contains(Modifier.STATIC)) {
+              env.getMessager().printMessage(
+                  Kind.WARNING, "KeyId should be declared static", enclosedElement);
+            }
+
+            if (!enclosedElement.getModifiers().contains(Modifier.FINAL)) {
+              env.getMessager().printMessage(
+                  Kind.ERROR, "KeyId must be declared final", enclosedElement);
+            }
+          }
+        }
+
+        if (noKeyId) {
+          env.getMessager().printMessage(Kind.ERROR, "Type does not contains KeyId", element);
+        }
+      }
+    },
+
     MARKER(Marker.class),
     FEATURE(Feature.class),
     PRODUCTION(Production.class),
@@ -224,6 +265,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
         TypeMirror type = element.asType();
 
         if (type.getKind() == TypeKind.DECLARED) {
+          Items.HASKEYID.check(element, env);
           data.add(Items.HASKEYID.getFQName(), (TypeElement) element);
         }
       }
