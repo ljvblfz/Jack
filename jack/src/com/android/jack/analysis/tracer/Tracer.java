@@ -148,11 +148,6 @@ public class Tracer extends JVisitor {
   private void trace(@Nonnull JDefinedClassOrInterface t) {
     if (brush.startTrace(t)) {
       traceAnnotations(t);
-      for (JMethod m : t.getMethods()) {
-        if ((JMethod.isClinit(m) || isNullaryConstructor(m))) {
-          trace(m);
-        }
-      }
 
       if (t instanceof JDefinedClass) {
         JDefinedClass definedClass = (JDefinedClass) t;
@@ -193,7 +188,11 @@ public class Tracer extends JVisitor {
       }
 
       for (JMethod method : t.getMethods()) {
-        if (brush.startTraceSeed(method)) {
+        // Clinit and constructor without parameters must always be trace without taking into
+        // account seed.
+        if ((JMethod.isClinit(method) || isNullaryConstructor(method))) {
+          trace(method);
+        } else if (brush.startTraceSeed(method)) {
           trace(method);
           brush.endTraceSeed(method);
         }
