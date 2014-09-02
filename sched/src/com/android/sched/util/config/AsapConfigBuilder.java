@@ -58,7 +58,6 @@ import javax.annotation.Nonnull;
  * This class is used to configure a {@link Config} object. All methods reporting problems throw
  * exceptions As Soon As Possible.
  */
-@HasKeyId
 public class AsapConfigBuilder {
   @Nonnull
   private static final Logger logger = Logger.getLogger(AsapConfigBuilder.class.getName());

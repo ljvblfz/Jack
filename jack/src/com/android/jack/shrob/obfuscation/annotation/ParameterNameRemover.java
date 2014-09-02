@@ -22,14 +22,12 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.config.HasKeyId;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@link RunnableSchedulable} that removes parameter names.
  */
-@HasKeyId
 @Description("Removes parameters names")
 @Constraint(need = JParameter.class)
 @Transform(modify = JParameter.class)

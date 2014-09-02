@@ -22,7 +22,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.config.HasKeyId;
 
 import java.util.Iterator;
 
@@ -34,7 +33,6 @@ import javax.annotation.Nonnull;
  * @param <T> the root <i>data</i> type
  */
 @ImplementationName(iface = ScheduleInstance.class, name = "single-threaded")
-@HasKeyId
 public class SingleScheduleInstance<T extends Component> extends ScheduleInstance<T> {
 
   public SingleScheduleInstance(Plan<T> plan) throws Exception {

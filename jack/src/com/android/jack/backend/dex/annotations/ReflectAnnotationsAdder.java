@@ -59,7 +59,6 @@ import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.With;
-import com.android.sched.util.config.HasKeyId;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +69,6 @@ import javax.annotation.Nonnull;
 /**
  * Add annotations used by reflection.
  */
-@HasKeyId
 @Description("Add annotations used by reflection")
 @Synchronized
 @Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,

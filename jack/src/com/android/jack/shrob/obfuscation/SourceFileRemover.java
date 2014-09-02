@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.sourceinfo.FileSourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.config.HasKeyId;
 
 import java.util.Set;
 
@@ -29,7 +28,6 @@ import javax.annotation.Nonnull;
 /**
  * A visitor that removes source file information.
  */
-@HasKeyId
 @Description("Remove source file information")
 public class SourceFileRemover implements RunnableSchedulable<JSession> {
 

@@ -40,7 +40,6 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collections;
@@ -72,7 +71,6 @@ import javax.annotation.Nonnull;
  * }
  * </pre>
  */
-@HasKeyId
 @Description("Add annotation methods default values as system annotation.")
 @Synchronized
 @Transform(remove = AnnotationMethodDefaultValue.class,
