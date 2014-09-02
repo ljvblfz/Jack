@@ -20,7 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.preprocessor.PreProcessorFile;
+import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.util.ExecuteFile;
 
@@ -116,8 +116,8 @@ public class MultidexMinimalTests {
     app1Options.addProperty(Options.DEX_FILE_FOLDER.getName(), tmpOut.getPath());
     app1Options.addProperty(DexFileWriter.MULTIDEX.getName(), "true");
     app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
-    app1Options.addProperty(PreProcessorFile.HAS_FILE.getName(), "true");
-    app1Options.addProperty(PreProcessorFile.FILE.getName(), configFile.getAbsolutePath());
+    app1Options.addProperty(PreProcessor.ENABLE.getName(), "true");
+    app1Options.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
     return app1Options;
   }
 
