@@ -147,10 +147,6 @@ public class StreamFile extends FileOrDirectory {
   @Override
   @Nonnull
   public String getPath() {
-    if (isStandard()) {
-      return "<standard>";
-    } else {
-      return ((FileLocation) location).getPath();
-    }
+    return ((FileLocation) location).getPath();
   }
 }

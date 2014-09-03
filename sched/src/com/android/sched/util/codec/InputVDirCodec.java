@@ -23,6 +23,7 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.InputFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.InputVDir;
@@ -90,9 +91,10 @@ public class InputVDirCodec extends FileOrDirCodec
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
         dir = new DirectDir(new Directory(string, context.getRunnableHooks(),
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+            Existence.MUST_EXIST, Permission.READ, change));
       } else { // zip
-        final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
+        final InputZipRootVDir zipArchive =
+            new InputZipRootVDir(new InputFile(string, change));
         dir = zipArchive;
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;

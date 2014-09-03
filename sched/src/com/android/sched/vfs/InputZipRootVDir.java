@@ -18,8 +18,7 @@ package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
 
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.InputFile;
 
 import java.io.Closeable;
 import java.io.File;
@@ -42,14 +41,13 @@ public class InputZipRootVDir extends InputZipVDir implements Closeable, InputRo
   @Nonnull
   private final ZipFile zip;
 
-  public InputZipRootVDir(@Nonnull File zipFile) throws IOException {
-    super("", zipFile, new ZipEntry(""));
+  public InputZipRootVDir(@Nonnull InputFile zipFile) throws IOException {
+    super("", zipFile.getFile(), new ZipEntry(""));
 
-    // Only to check existence and permission
-    new InputStreamFile(zipFile.getPath(), ChangePermission.NOCHANGE);
-    zip = new ZipFile(zipFile);
+    File file = zipFile.getFile();
+    zip = new ZipFile(file);
+
     Splitter splitter = Splitter.on(IN_ZIP_SEPARATOR);
-
     for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
       ZipEntry entry = entries.nextElement();
       if (!entry.isDirectory()) {
@@ -65,7 +63,7 @@ public class InputZipRootVDir extends InputZipVDir implements Closeable, InputRo
             inZipPath.append(IN_ZIP_SEPARATOR).append(simpleName);
             InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
             if (nextDir == null) {
-              nextDir = new InputZipVDir(simpleName, zipFile, new ZipEntry(inZipPath.toString()));
+              nextDir = new InputZipVDir(simpleName, file, new ZipEntry(inZipPath.toString()));
               dir.subs.put(simpleName, nextDir);
             }
             dir = nextDir;

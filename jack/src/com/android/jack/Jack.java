@@ -259,6 +259,7 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.InputFile;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -729,7 +730,8 @@ public abstract class Jack {
       dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ, ChangePermission.NOCHANGE));
     } else { // zip
-      final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
+      final InputZipRootVDir zipArchive =
+          new InputZipRootVDir(new InputFile(dirOrZip.getPath(), ChangePermission.NOCHANGE));
       dir = zipArchive;
       hooks.addHook(new Runnable() {
         @Override
