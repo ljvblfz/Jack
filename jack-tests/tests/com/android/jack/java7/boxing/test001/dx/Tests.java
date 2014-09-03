@@ -14,17 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.jack.java7;
+package com.android.jack.java7.boxing.test001.dx;
 
+import com.android.jack.java7.boxing.test001.jack.UnBoxObject;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import junit.framework.Assert;
 
-/**
- * JUnit test for compilation of Java 7 features
- */
-@RunWith(Suite.class)
-@SuiteClasses(value = {SwitchesTest.class, ExceptionsTest.class, BoxingTest.class})
-public class AllTest {
+import org.junit.Test;
+
+public class Tests {
+
+  @Test
+  public void testInt() {
+    try {
+      UnBoxObject.getInt(null);
+      Assert.fail();
+    } catch (NullPointerException e) {
+      // expected
+    }
+    try {
+      UnBoxObject.getInt(new Object());
+      Assert.fail();
+    } catch (ClassCastException e) {
+      // expected
+    }
+
+    UnBoxObject.getInt(Integer.valueOf(34));
+  }
+
 }
