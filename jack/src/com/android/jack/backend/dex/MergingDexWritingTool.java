@@ -21,8 +21,6 @@ import com.android.jack.JackFileException;
 import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.Options;
-import com.android.jack.dx.dex.DexOptions;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
@@ -62,7 +60,7 @@ public class MergingDexWritingTool extends DexWritingTool {
 
   public MergingDexWritingTool(@Nonnull OutputVDir outputVDir) {
     super(outputVDir);
-    merger = new JackMerger(getDexFile());
+    merger = new JackMerger(createDexFile());
     try {
       dexVFile = getNextOutputDex();
     } catch (IOException e) {
@@ -100,7 +98,7 @@ public class MergingDexWritingTool extends DexWritingTool {
         if (ThreadConfig.get(DexFileWriter.MINIMAL_MAIN_DEX).booleanValue()) {
           finishMerge(merger, dexVFile, outputVDir.getLocation());
           dexVFile = getNextOutputDex();
-          merger = new JackMerger(new DexFile(new DexOptions()));
+          merger = new JackMerger(createDexFile());
         }
 
         assert anyDexList != null;
@@ -138,7 +136,7 @@ public class MergingDexWritingTool extends DexWritingTool {
           case MULTIDEX_ANY_DEX:
             finishMerge(merger, dexVFile, outputVDir.getLocation());
             dexVFile = getNextOutputDex();
-            merger = new JackMerger(new DexFile(new DexOptions()));
+            merger = new JackMerger(createDexFile());
             break;
           default:
             throw new AssertionError();

@@ -77,13 +77,7 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   @Override
   public void run(@Nonnull JSession session) throws Exception {
 
-    DexWritingTool writingTool;
-
-    if (emitOneDexPerType) {
-      writingTool = new MergingDexWritingTool(outputVDir);
-    } else {
-      writingTool = new SimpleDexWritingTool(outputVDir);
-    }
+    DexWritingTool writingTool = new MergingDexWritingTool(outputVDir);
     writingTool.write();
   }
 

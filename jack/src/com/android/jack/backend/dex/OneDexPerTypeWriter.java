@@ -25,7 +25,6 @@ import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.InputOutputVDir;
@@ -41,7 +40,6 @@ import javax.annotation.Nonnull;
  */
 @Description("Write one dex file per types")
 @Constraint(need = {DexCodeMarker.class, DexFileMarker.Complete.class})
-@Produce(OneDexPerTypeProduct.class)
 public class OneDexPerTypeWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull

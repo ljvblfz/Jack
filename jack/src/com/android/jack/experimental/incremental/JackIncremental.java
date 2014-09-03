@@ -175,7 +175,6 @@ public class JackIncremental extends CommandLine {
     jackFilesFolder = new File(incrementalFolder, "jackFiles");
 
     // Add options to control incremental support
-    options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
     assert dexFilesFolder != null;
     options.addProperty(Options.DEX_FILE_FOLDER.getName(), dexFilesFolder.getPath());
     options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");

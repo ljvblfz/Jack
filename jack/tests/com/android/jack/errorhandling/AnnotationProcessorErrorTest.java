@@ -28,6 +28,7 @@ import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationProces
 import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationTest;
 import com.android.jack.errorhandling.annotationprocessor.SourceErrorAnnotationTest;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.util.FileUtils;
 
 import junit.framework.Assert;
 
@@ -260,6 +261,6 @@ public class AnnotationProcessorErrorTest {
 
     te.compile(options);
 
-    TestTools.deleteTempDir(te.getSourceFolder());
+    FileUtils.deleteDir(te.getSourceFolder());
   }
 }

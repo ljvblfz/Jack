@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.google.common.io.Files;
+
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.JavaVersionPropertyId;
@@ -31,6 +33,7 @@ import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
+import com.android.jack.util.FileUtils;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
@@ -46,13 +49,17 @@ import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.OutputVDir;
 
@@ -120,21 +127,14 @@ public class Options {
       GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_ONE_DEX_PER_TYPE = BooleanPropertyId.create(
-      "jack.dex.generate.onepertype", "Generate one dex file per type").addDefaultValue(
-      Boolean.FALSE);
-
-  @Nonnull
   public static final PropertyId<InputOutputVDir> DEX_FILE_FOLDER = PropertyId.create(
-      "jack.dex.output.folder", "Dex output folder",
-      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue());
+      "jack.dex.output.folder", "Dex output folder", new InputOutputVDirCodec(Existence.MAY_EXIST));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
       new OutputVDirCodec(Existence.MUST_EXIST, Container.DIR)).requiredIf(DEX_OUTPUT_CONTAINER_TYPE
-      .is(Container.DIR).or(GENERATE_ONE_DEX_PER_TYPE.getValue().isTrue()));
+      .is(Container.DIR));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_ZIP = PropertyId.create(
@@ -403,7 +403,7 @@ public class Options {
   }
 
   @Nonnull
-  public GatherConfigBuilder getConfigBuilder()
+  public GatherConfigBuilder getConfigBuilder(@CheckForNull RunnableHooks hooks)
       throws IllegalOptionsException {
     GatherConfigBuilder configBuilder;
 
@@ -605,6 +605,8 @@ public class Options {
       configBuilder.setString(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
     }
 
+    configBuilder.set(DEX_FILE_FOLDER, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+
     configBuilder.popDefaultLocation();
 
     for (Entry<String, String> entry : properties.entrySet()) {
@@ -612,13 +614,16 @@ public class Options {
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
+    if (hooks != null) {
+      configBuilder.setHooks(hooks);
+    }
 
     return configBuilder;
   }
 
   public void checkValidity(@Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, NothingToDoException, ConfigurationException {
-    config = getConfigBuilder().setHooks(hooks).build();
+    config = getConfigBuilder(hooks).build();
 
     LoggerFactory.loadLoggerConfiguration(
         this.getClass(), "/" + getVerbosityLevel().getId() + ".jack.logging.properties");
@@ -781,5 +786,38 @@ public class Options {
 
   public void setIncrementalFolder(@Nonnull File incrementalFolder) {
     this.incrementalFolder = incrementalFolder;
+  }
+
+  @Nonnull
+  private static Directory createTempDirForTypeDexFiles(
+      @CheckForNull RunnableHooks hooks) {
+    try {
+      File tmp = Files.createTempDir();
+      Directory dir = new Directory(tmp.getPath(), hooks, Existence.MUST_EXIST, Permission.WRITE,
+          ChangePermission.NOCHANGE);
+      hooks.addHook(new TypeDexDirDeleter(dir));
+      return dir;
+    } catch (IOException e) {
+      throw new JackUserException(e);
+    }
+  }
+
+  private static class TypeDexDirDeleter extends Thread {
+
+    @Nonnull
+    private final Directory dir;
+
+    public TypeDexDirDeleter(@Nonnull Directory dir) {
+      this.dir = dir;
+    }
+
+    @Override
+    public void run() {
+      try {
+        FileUtils.deleteDir(dir.getFile());
+      } catch (IOException e) {
+        throw new JackIOException("Failed to delete temporary directory " + dir, e);
+      }
+    }
   }
 }

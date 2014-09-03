@@ -155,7 +155,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
       "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
@@ -165,8 +165,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean runDxOptimizations =
       ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
-  private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue()
-      | ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE).booleanValue();
+  private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
@@ -496,7 +495,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         method.getEnclosingType().getSession().getMarker(DexFileMarker.class);
     assert dexFileMarker != null;
 
-    DexOptions options = dexFileMarker.getFinalDexFile().getDexOptions();
+    DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
     int paramSize = getParameterWordCount(method);
     int positionListKind;

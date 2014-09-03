@@ -112,7 +112,6 @@ public class MultiDexTests {
   private Options createMultiDexEnabledOption(@Nonnull File configFile) throws IOException {
     File tmpOut = TestTools.createTempDir("tmp", "");
     Options app1Options = new Options();
-    app1Options.addProperty(Options.GENERATE_ONE_DEX_PER_TYPE.getName(), "true");
     app1Options.addProperty(Options.DEX_FILE_FOLDER.getName(), tmpOut.getPath());
     app1Options.addProperty(DexFileWriter.MULTIDEX.getName(), "true");
     app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");

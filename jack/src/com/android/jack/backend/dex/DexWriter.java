@@ -16,13 +16,8 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.Options;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.scheduling.marker.DexFileMarker;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
@@ -34,18 +29,6 @@ public abstract class DexWriter {
 
   @Nonnull
   public static final String DEX_FILE_EXTENSION = ".dex";
-
-  protected final boolean emitOneDexPerType = ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE)
-        .booleanValue();
-
-  @Nonnull
-  protected DexFile getDexFile(@Nonnull JSession session) {
-    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-    DexFile dexFile = dexFileMarker.getFinalDexFile();
-    assert dexFile != null;
-    return dexFile;
-  }
 
   @Nonnull
   static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {

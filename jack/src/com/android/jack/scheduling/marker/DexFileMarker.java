@@ -16,7 +16,6 @@
 
 package com.android.jack.scheduling.marker;
 
-import com.android.jack.Jack;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
@@ -27,7 +26,6 @@ import com.android.sched.item.Tag;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +37,6 @@ import javax.annotation.Nonnull;
 @Description("A marker which contains a DexFile instances.")
 @ValidOn(JSession.class)
 public final class DexFileMarker implements Marker {
-
-  @Nonnull
-  private final DexFile finalDexFile;
 
   @Nonnull
   private final Map<JDefinedClassOrInterface, DexFile> dexFilePerType =
@@ -103,8 +98,7 @@ public final class DexFileMarker implements Marker {
   public static final class ClassAnnotation implements Tag {
   }
 
-  public DexFileMarker(@Nonnull DexFile finalDexFile) {
-    this.finalDexFile = finalDexFile;
+  public DexFileMarker() {
   }
 
   public void addDexFilePerType(@Nonnull JDefinedClassOrInterface type, @Nonnull DexFile dexFile) {
@@ -112,20 +106,10 @@ public final class DexFileMarker implements Marker {
   }
 
   @Nonnull
-  public Collection<DexFile> getAllDexPerType() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(dexFilePerType.values());
-  }
-
-  @Nonnull
   public DexFile getDexFileOfType(@Nonnull JDefinedClassOrInterface type) {
     DexFile dexFile = dexFilePerType.get(type);
     assert dexFile != null;
     return dexFile;
-  }
-
-  @Nonnull
-  public DexFile getFinalDexFile() {
-    return finalDexFile;
   }
 
   @Override

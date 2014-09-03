@@ -16,6 +16,8 @@
 
 package com.android.jack.util;
 
+import com.android.sched.util.findbugs.SuppressFBWarnings;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -62,8 +64,31 @@ public final class FileUtils {
     if (!directory.exists()) {
       if (!directory.mkdirs()) {
         throw new IOException("Could not create directory \"" +
-            directory.getAbsolutePath() + "\"");
+            directory.getPath() + "\"");
       }
     }
+  }
+
+  public static void deleteDir(@Nonnull File dir) throws IOException {
+    if (!dir.isDirectory()) {
+      throw new AssertionError();
+    }
+    for (File sub : dir.listFiles()) {
+      deleteSubElement(sub);
+    }
+    if (!dir.delete()) {
+      throw new IOException("Failed to delete directory '" + dir.getPath() + "'");
+    }
+  }
+
+  @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+  //Ignore delete return value: best effort
+  private static void deleteSubElement(@Nonnull File dir) {
+    if (dir.isDirectory()) {
+      for (File sub : dir.listFiles()) {
+        deleteSubElement(sub);
+      }
+    }
+    dir.delete();
   }
 }
