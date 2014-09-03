@@ -697,7 +697,7 @@ public abstract class Jack {
         JaycePackageLoader rootPLoader = factory.create(vDir, phantomLookup);
         rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
-        throw new JackFileException("Error importing jack container: " + jackFile.getAbsolutePath(),
+        throw new JackFileException("Error importing jack container: " + ioException.getMessage(),
             ioException);
       }
     }
@@ -716,24 +716,18 @@ public abstract class Jack {
         rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         // Ignore bad entry
-        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", jackFile.getAbsolutePath());
+        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", ioException.getMessage());
       }
     }
   }
 
   @Nonnull
-  private static InputVDir wrapAsVDir(@Nonnull final File dirOrZip,
-      @Nonnull RunnableHooks hooks) throws IOException {
+  private static InputVDir wrapAsVDir(@Nonnull final File dirOrZip, @Nonnull RunnableHooks hooks)
+      throws IOException {
     InputVDir dir;
     if (dirOrZip.isDirectory()) {
-      try {
-        dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-            Permission.READ, ChangePermission.NOCHANGE));
-      } catch (IOException e) {
-        // Error related to directory are correctly checked by Directory, directly re-throw it to
-        // the user to have the more precise message.
-        throw new JackUserException(e);
-      }
+      dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+          Permission.READ, ChangePermission.NOCHANGE));
     } else { // zip
       final InputZipRootVDir zipArchive = new InputZipRootVDir(dirOrZip);
       dir = zipArchive;

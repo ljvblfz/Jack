@@ -18,6 +18,9 @@ package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
 
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.InputStreamFile;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +45,8 @@ public class InputZipRootVDir extends InputZipVDir implements Closeable, InputRo
   public InputZipRootVDir(@Nonnull File zipFile) throws IOException {
     super("", zipFile, new ZipEntry(""));
 
+    // Only to check existence and permission
+    new InputStreamFile(zipFile.getPath(), ChangePermission.NOCHANGE);
     zip = new ZipFile(zipFile);
     Splitter splitter = Splitter.on(IN_ZIP_SEPARATOR);
 
