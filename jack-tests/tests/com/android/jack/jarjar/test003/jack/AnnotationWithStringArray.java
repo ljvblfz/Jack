@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,6 @@
 
 package com.android.jack.jarjar.test003.jack;
 
-@AnnotationWithStringArray("com.android.jack.jarjar.test003.jack.B")
-public class B {
-  public B(String arg) {
-
-  }
-
-  public static B[] getArray() {
-    @C
-    String local = "com.android.jack.jarjar.test003.jack.B";
-    return new B[] {new B(local)};
-  }
+public @interface AnnotationWithStringArray {
+  String[] value() default {};
 }

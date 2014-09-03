@@ -3031,8 +3031,9 @@ public class JackIrBuilder {
       }
 
       if (expectedType.isArrayType() && !(result instanceof JArrayLiteral)) {
-        result = new JArrayLiteral(makeSourceInfo(value),
-            Collections.singletonList(result));
+        List<JLiteral> elements = new ArrayList<JLiteral>(1);
+        elements.add(result);
+        result = new JArrayLiteral(makeSourceInfo(value), elements);
       }
       return result;
     }
@@ -3055,7 +3056,7 @@ public class JackIrBuilder {
           values.add(element);
         }
       } else {
-        values = Collections.emptyList();
+        values = new ArrayList<JLiteral>(0);
       }
       parsed = new JArrayLiteral(makeSourceInfo(arrayInitializer), values);
       return false;

@@ -61,7 +61,7 @@ public class NArrayLiteral extends NLiteral {
   public JArrayLiteral exportAsJast(@Nonnull ExportSession exportSession)
       throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
-    List<JLiteral> jValues = new ArrayList<JLiteral>();
+    List<JLiteral> jValues = new ArrayList<JLiteral>(values.size());
     for (NLiteral value : values) {
       jValues.add(value.exportAsJast(exportSession));
     }
