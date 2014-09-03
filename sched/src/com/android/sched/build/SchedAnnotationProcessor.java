@@ -246,9 +246,8 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     return false;
   }
 
-  private void processAnnotations(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
-      throws AbortException {
-
+  private void processAnnotations(@Nonnull Set<? extends TypeElement> annotations,
+      @Nonnull RoundEnvironment roundEnv) throws AbortException {
     assert env != null;
 
     //
