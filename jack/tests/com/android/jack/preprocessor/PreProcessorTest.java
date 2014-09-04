@@ -94,8 +94,8 @@ public class PreProcessorTest {
   public void test001_002() throws Exception {
     File testDir = TestTools.getJackTestsWithJackFolder("preprocessor/test001");
     Options options = TestTools.buildCommandLineArgs(testDir);
-    options.addProperty("jack.annotation.adder.hasfile", "true");
-    options.addProperty("jack.annotation.adder.file",
+    options.addProperty(PreProcessor.ENABLE.getName(), "true");
+    options.addProperty(PreProcessor.FILE.getName(),
         new File(testDir, "config.jpp").getAbsolutePath());
     TestTools.compileSourceToDex(options, testDir, TestTools.getDefaultBootclasspathString(),
         TestTools.createTempFile("annotationAdderTest", ".out.zip"), true);
@@ -126,8 +126,8 @@ public class PreProcessorTest {
       }
     }
 
-    JAnnotation installerAnnotation =
-        session.getPhantomLookup().getAnnotation("Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
+    JAnnotation installerAnnotation = session.getPhantomLookup().getAnnotation(
+        "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
     JNodeLookup lookup = session.getLookup();
     {
       JDefinedClassOrInterface coi = lookup.getClass(

@@ -149,7 +149,7 @@ public class MultidexMinimalTests {
     File annotations = TestTools.createTempDir("multidexAnnotations", "");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getFromAndroidTree(
-            "toolchain/jack/jack/src/com/android/jack/annotations/"),
+            "toolchain/jack/jack-tests/tests/com/android/jack/annotations/"),
             TestTools.getDefaultBootclasspathString(), annotations, false);
     return annotations;
   }
