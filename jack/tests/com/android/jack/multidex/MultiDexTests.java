@@ -35,7 +35,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class MultidexMinimalTests {
+public class MultiDexTests {
 
   private static File annotations;
   private static File frameworks;

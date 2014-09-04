@@ -22,8 +22,10 @@ import com.android.jack.errorhandling.ErrorHandlingAllTests;
 import com.android.jack.experimental.incremental.DependencyAllTests;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
+import com.android.jack.multidex.MultiDexTests;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.UselessVariableCopyTest;
+import com.android.jack.preprocessor.PreProcessorTest;
 import com.android.jack.tools.merger.MergerAllTests;
 import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
@@ -87,10 +89,12 @@ import org.junit.runners.Suite.SuiteClasses;
     MainTest.class,
     MarkerCollectorTest.class,
     MergerAllTests.class,
+    MultiDexTests.class,
     NoClasspathTest.class,
     NoPackageTest.class,
     OpcodesTest.class,
     OrderTest.class,
+    PreProcessorTest.class,
     ReachingDefsTest.class,
     ResourceTest.class,
     ReturnTest.class,
