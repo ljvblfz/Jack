@@ -177,7 +177,17 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
         JAsgOperation save = new JAsgOperation(
             endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
             new JLocalRef(endOfTrySourceInfos, tryException));
+
         catchBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, save));
+        // An exception is catched. It is rethrown by the code into finally block that was
+        // inside an if statement to check that the exception is not null, and then rethrow it.
+        // This code is not correct at compile time, since it required a null check analysis
+        // to verify that return instruction is not required since throw will always be executed.
+        // Force rethrow of exception here to have a correct control flow graph, even if at runtime
+        // this code will never be executed.
+        catchBlock.addStmt(new JThrowStatement(endOfTrySourceInfos,
+            new JLocalRef(endOfTrySourceInfos, exceptionToThrow)));
+
 
         JTryStatement innerTry = new JTryStatement(endOfTrySourceInfos,
             Collections.<JStatement>emptyList(),
