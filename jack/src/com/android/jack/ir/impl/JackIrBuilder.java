@@ -956,8 +956,7 @@ public class JackIrBuilder {
         JExpression collection = pop(x.collection);
         JStatement elementDecl = pop(x.elementVariable);
         assert (elementDecl == null);
-
-        JLocal elementVar = (JLocal) curMethod.locals.get(x.elementVariable.binding);
+        JLocal elementVar = (JLocal) curMethod.getJVariable(x.elementVariable.binding);
         String elementVarName = elementVar.getName();
 
         JForStatement result;
@@ -1218,7 +1217,7 @@ public class JackIrBuilder {
     public void endVisit(LocalDeclaration x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JLocal local = (JLocal) curMethod.locals.get(x.binding);
+        JLocal local = (JLocal) curMethod.getJVariable(x.binding);
         assert local != null;
         JLocalRef localRef = new JLocalRef(info, local);
         JExpression initialization = pop(x.initialization);
@@ -1595,7 +1594,7 @@ public class JackIrBuilder {
           int index = 0;
           for (JBlock b : blocks) {
             Argument argument = x.catchArguments[index];
-            JLocal local = (JLocal) curMethod.locals.get(argument.binding);
+            JLocal local = (JLocal) curMethod.getJVariable(argument.binding);
 
             List<JClass> catchTypes = new ArrayList<JClass>();
             if (argument.type instanceof UnionTypeReference) {
@@ -1769,8 +1768,7 @@ public class JackIrBuilder {
           NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
           if (nestedBinding.enclosingInstances != null) {
             for (int i = 0; i < nestedBinding.enclosingInstances.length; ++i) {
-              SyntheticArgumentBinding arg = nestedBinding.enclosingInstances[i];
-              curMethod.locals.put(arg, it.next());
+              curMethod.addVariableMapping(nestedBinding.enclosingInstances[i], it.next());
             }
           }
         }
@@ -1778,7 +1776,7 @@ public class JackIrBuilder {
         // Map user arguments.
         if (x.arguments != null) {
           for (Argument argument : x.arguments) {
-            curMethod.locals.put(argument.binding, it.next());
+            curMethod.addVariableMapping(argument.binding, it.next());
           }
         }
 
@@ -1790,7 +1788,7 @@ public class JackIrBuilder {
           if (nestedBinding.outerLocalVariables != null) {
             for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
               SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
-              curMethod.locals.put(arg, it.next());
+              curMethod.addVariableMapping(arg, it.next());
             }
           }
         }
@@ -1879,7 +1877,7 @@ public class JackIrBuilder {
         Iterator<JParameter> it = method.getParams().iterator();
         if (x.arguments != null) {
           for (Argument argument : x.arguments) {
-            curMethod.locals.put(argument.binding, it.next());
+            curMethod.addVariableMapping(argument.binding, it.next());
           }
         }
         x.statements = reduceToReachable(x.statements);
@@ -2088,7 +2086,7 @@ public class JackIrBuilder {
           annotable = getTypeMap().get((FieldBinding) recipient);
           break;
         case Binding.LOCAL:
-          annotable = curMethod.locals.get(recipient);
+          annotable = curMethod.getJVariable(((LocalVariableBinding) recipient));
           assert annotable != null;
           break;
         default:
@@ -2183,7 +2181,7 @@ public class JackIrBuilder {
     }
 
     private JBinaryOperation assignSyntheticField(SourceInfo info, SyntheticArgumentBinding arg) {
-      JParameter param = (JParameter) curMethod.locals.get(arg);
+      JParameter param = (JParameter) curMethod.getJVariable(arg);
       assert param != null;
 
       JField field = null;
@@ -2304,7 +2302,7 @@ public class JackIrBuilder {
       if (!CharOperation.equals(signature, genericSignature)) {
         newLocal.addMarker(new GenericSignature(ReferenceMapper.intern(genericSignature)));
       }
-      curMethod.locals.put(b, newLocal);
+      curMethod.addVariableMapping(b, newLocal);
       return newLocal;
     }
 
@@ -2363,7 +2361,7 @@ public class JackIrBuilder {
     }
 
     private JExpression makeLocalRef(SourceInfo info, LocalVariableBinding b) {
-      JVariable variable = curMethod.locals.get(b);
+      JVariable variable = curMethod.getJVariable(b);
       assert variable != null;
       if (variable instanceof JLocal) {
         return new JLocalRef(info, (JLocal) variable);
@@ -2400,7 +2398,7 @@ public class JackIrBuilder {
         type = (ReferenceBinding) b.type.erasure();
       } else if (path[0] instanceof SyntheticArgumentBinding) {
         SyntheticArgumentBinding b = (SyntheticArgumentBinding) path[0];
-        JParameter param = (JParameter) curMethod.locals.get(b);
+        JParameter param = (JParameter) curMethod.getJVariable(b);
         assert param != null;
         ref = new JParameterRef(info, param);
         type = (ReferenceBinding) b.type.erasure();
@@ -2548,7 +2546,7 @@ public class JackIrBuilder {
     private void processThisCallLocalArgs(ReferenceBinding binding, JMethodCall call) {
       if (binding.syntheticOuterLocalVariables() != null) {
         for (SyntheticArgumentBinding arg : binding.syntheticOuterLocalVariables()) {
-          JParameter param = (JParameter) curMethod.locals.get(arg);
+          JParameter param = (JParameter) curMethod.getJVariable(arg);
           assert param != null;
           call.addArg(new JParameterRef(call.getSourceInfo(), param));
         }
@@ -2971,15 +2969,38 @@ public class JackIrBuilder {
 
   static class MethodInfo {
     public final JMethodBody body;
-    public final Map<LocalVariableBinding, JVariable> locals =
-        new IdentityHashMap<LocalVariableBinding, JVariable>();
+    @Nonnull
+    public final Map<Object, JVariable> locals = new IdentityHashMap<Object, JVariable>();
+    @Nonnull
     public final JMethod method;
     public final MethodScope scope;
 
-    public MethodInfo(JMethod method, JMethodBody methodBody, MethodScope methodScope) {
+    public MethodInfo(@Nonnull JMethod method, @CheckForNull JMethodBody methodBody,
+        @CheckForNull MethodScope methodScope) {
       this.method = method;
       this.body = methodBody;
       this.scope = methodScope;
+    }
+
+    @Nonnull
+    public JVariable getJVariable(@Nonnull LocalVariableBinding ecjVar) {
+      JVariable jackVar = null;
+      if (ecjVar.declaration == null) {
+        jackVar = locals.get(ecjVar);
+      } else {
+        jackVar = locals.get(ecjVar.declaration);
+      }
+      assert jackVar != null;
+      return jackVar;
+    }
+
+    public void addVariableMapping(@Nonnull LocalVariableBinding ecjVar,
+        @Nonnull JVariable jackVar) {
+      if (ecjVar.declaration == null) {
+        locals.put(ecjVar, jackVar);
+      } else {
+        locals.put(ecjVar.declaration, jackVar);
+      }
     }
   }
 
