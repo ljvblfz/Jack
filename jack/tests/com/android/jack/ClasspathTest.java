@@ -16,8 +16,13 @@
 
 package com.android.jack;
 
+import com.android.jack.category.KnownBugs;
+
+import junit.framework.Assert;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -88,6 +93,42 @@ public class ClasspathTest {
       testOptions.setClasspath(lib1BisOut.getAbsolutePath());
       TestTools.runCompilation(testOptions);
     }
+  }
+
+  @Category(KnownBugs.class)
+  @Test
+  public void test003() throws Exception {
+      File libOut = TestTools.createTempDir("ClasspathTest", "lib");
+
+      Options libOptions = TestTools.buildCommandLineArgs(
+          TestTools.getJackTestLibFolder("classpath/test003"));
+      libOptions.setJayceOutputDir(libOut);
+      TestTools.runCompilation(libOptions);
+
+      {
+        // reference compilation
+        File testOut = TestTools.createTempDir("ClasspathTest", "test");
+        Options testOptions = TestTools.buildCommandLineArgs(
+            TestTools.getJackTestsWithJackFolder("classpath/test003"));
+        testOptions.setJayceOutputDir(testOut);
+        testOptions.setClasspath(libOut.getAbsolutePath());
+        TestTools.runCompilation(testOptions);
+      }
+
+      {
+        // delete unused inner in classpath and check we can still compile with it
+        boolean deleted =
+            new File(libOut,
+                "com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jack")
+              .delete();
+        Assert.assertTrue(deleted);
+        File testOut = TestTools.createTempDir("ClasspathTest", "test");
+        Options testOptions = TestTools.buildCommandLineArgs(
+            TestTools.getJackTestsWithJackFolder("classpath/test003"));
+        testOptions.setJayceOutputDir(testOut);
+        testOptions.setClasspath(libOut.getAbsolutePath());
+        TestTools.runCompilation(testOptions);
+      }
   }
 
   @Test
