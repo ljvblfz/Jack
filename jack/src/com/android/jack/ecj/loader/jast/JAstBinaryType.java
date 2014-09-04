@@ -91,8 +91,14 @@ class JAstBinaryType implements IBinaryType {
     modifiers &= ~JModifier.ANONYMOUS_TYPE;
 
     JClassOrInterface enclosingType = jDeclaredType.getEnclosingType();
-    if (enclosingType != null && !isAnonymous()) {
-      JAstBinaryType enclosing = classpathLocation.findType(enclosingType);
+    if (enclosingType != null && !isAnonymous()
+        && enclosingType instanceof JDefinedClassOrInterface) {
+      /* If the enclosing is not in the classpath, just skip. This should be with no bad consequence
+       * since ECJ is refusing to compile a source referencing an inner class when its enclosing
+       * class is missing.
+       */
+      JAstBinaryType enclosing =
+          classpathLocation.findType((JDefinedClassOrInterface) enclosingType);
       if (enclosing != null) {
         if (LoaderUtils.isDeprecated(enclosing)) {
           modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
@@ -227,14 +233,18 @@ class JAstBinaryType implements IBinaryType {
 
       for (JClassOrInterface jNested : members) {
 
-        /* According to a note in a comment on the interface, we have to filter out local types
-         * found in the member types list. Tests have shown that, in this note, "local" means also
-         * anonymous.
-         */
-        JAstBinaryType nested = classpathLocation.findType(jNested);
-        assert nested != null;
-        if (!(nested.isAnonymous() || nested.isLocal())) {
-          nestedTypes.add(new JAstBinaryNestedType(nested.jDeclaredType));
+        /* If the inner is not in the classpath, just skip it. This should not have consequence in
+         * Jack context, since we are unable to present the missing class to ECJ anyway. */
+        if (jNested instanceof JDefinedClassOrInterface) {
+          /* According to a note in a comment on the interface, we have to filter out local types
+           * found in the member types list. Tests have shown that, in this note, "local" means also
+           * anonymous.
+           */
+          JAstBinaryType nested = classpathLocation.findType((JDefinedClassOrInterface) jNested);
+          assert nested != null;
+          if (!(nested.isAnonymous() || nested.isLocal())) {
+            nestedTypes.add(new JAstBinaryNestedType(nested.jDeclaredType));
+          }
         }
       }
       if (!nestedTypes.isEmpty()) {

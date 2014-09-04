@@ -16,13 +16,10 @@
 
 package com.android.jack;
 
-import com.android.jack.category.KnownBugs;
-
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -95,7 +92,6 @@ public class ClasspathTest {
     }
   }
 
-  @Category(KnownBugs.class)
   @Test
   public void test003() throws Exception {
       File libOut = TestTools.createTempDir("ClasspathTest", "lib");
