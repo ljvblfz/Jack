@@ -1,10 +1,6 @@
-URL: http://download.eclipse.org/eclipse/downloads/drops4/S-4.4M5-201401231600/
-Tag: I20140123-1600, jdt 4.4M5, ecj version 3.10.0
+URL: http://download.eclipse.org/eclipse/downloads/drops4/S-4.5M1-201408062000/
+Tag: I20140806-2000, jdt 4.5M1, ecj version 3.11.0.v20140806-1653
 License: EPL 1
 Description: An incremental Java compiler.
 Local Modifications: None.
-
-Commit c660a0e6a2551567fa3f92ffe31ef9b52fdec6cc
-from branch master
-at http://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git
 
