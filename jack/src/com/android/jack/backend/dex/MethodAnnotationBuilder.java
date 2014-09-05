@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
@@ -45,9 +44,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Builds the rop annotations of a method")
 @Synchronized
-@Constraint(need = {ClassDefItemMarker.class, DexFileMarker.class, DexFileMarker.Method.class})
-@Transform(add = DexFileMarker.MethodAnnotation.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class})
+@Constraint(need = {ClassDefItemMarker.class, ClassDefItemMarker.Method.class})
+@Transform(add = ClassDefItemMarker.MethodAnnotation.class, modify = ClassDefItemMarker.class)
 @Use(AnnotationBuilder.class)
 public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
 

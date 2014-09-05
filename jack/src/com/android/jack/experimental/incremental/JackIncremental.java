@@ -24,7 +24,6 @@ import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
-import com.android.jack.backend.dex.DexFileBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexWriter;
@@ -34,7 +33,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.load.JackLoadingException;
-import com.android.jack.scheduling.marker.DexFileMarker;
+import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.util.TextUtils;
 import com.android.sched.scheduler.IllegalRequestException;
 import com.android.sched.scheduler.PlanBuilder;
@@ -221,7 +220,7 @@ public class JackIncremental extends CommandLine {
           Request request = Jack.createInitialRequest();
           request.addProduction(CompilerStateProduct.class);
           request.addProduction(DexFileProduct.class);
-          request.addInitialTagOrMarker(DexFileMarker.Complete.class);
+          request.addInitialTagOrMarker(ClassDefItemMarker.Complete.class);
           request.addInitialTagOrMarker(CompilerState.Filled.class);
 
           PlanBuilder<JSession> planBuilder;
@@ -231,7 +230,6 @@ public class JackIncremental extends CommandLine {
             throw new AssertionError(illegalRequest);
           }
 
-          planBuilder.append(DexFileBuilder.class);
           planBuilder.append(CompilerStateWriter.class);
           planBuilder.append(DexFileWriter.class);
 

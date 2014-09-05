@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -43,9 +42,8 @@ import javax.annotation.Nonnull;
 @Description("Builds EncodedField from JField")
 @Name("EncodedFieldBuilder")
 @Synchronized
-@Constraint(need = {ClassDefItemMarker.class, DexFileMarker.class})
-@Transform(add = DexFileMarker.Field.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class})
+@Constraint(need = ClassDefItemMarker.class)
+@Transform(add = ClassDefItemMarker.Field.class, modify = ClassDefItemMarker.class)
 @Protect(add = JField.class, modify = JField.class, remove = JField.class)
 public class EncodedFieldBuilder implements RunnableSchedulable<JField> {
 

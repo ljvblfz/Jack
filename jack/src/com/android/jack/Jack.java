@@ -29,7 +29,6 @@ import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
-import com.android.jack.backend.dex.DexFileBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
@@ -534,12 +533,10 @@ public abstract class Jack {
         } else if (options.ecjArguments == null) {
           assert targetProduction.contains(DexFileProduct.class);
           fillJayceToDexPlan(options, planBuilder);
-          planBuilder.append(OneDexPerTypeWriter.class);
           planBuilder.append(DexFileWriter.class);
         } else {
           assert targetProduction.contains(DexFileProduct.class);
           fillDexPlan(options, planBuilder);
-          planBuilder.append(OneDexPerTypeWriter.class);
           planBuilder.append(DexFileWriter.class);
         }
 
@@ -877,7 +874,6 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(ParentSetterChecker.class);
     }
-    planBuilder.append(DexFileBuilder.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1120,6 +1116,7 @@ public abstract class Jack {
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
       }
+      typePlan5.append(OneDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {
@@ -1383,7 +1380,6 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(ParentSetterChecker.class);
     }
-    planBuilder.append(DexFileBuilder.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1514,6 +1510,7 @@ public abstract class Jack {
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
       }
+      typePlan5.append(OneDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {

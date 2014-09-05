@@ -70,7 +70,6 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
@@ -117,8 +116,7 @@ import javax.annotation.Nonnull;
     NewInstanceRemoved.class,
     ThreeAddressCodeForm.class,
     RopLegalCast.class,
-    InnerAccessor.class,
-    DexFileMarker.class},
+    InnerAccessor.class},
     no = {BooleanTestOutsideIf.class,
     InitInNewArray.class,
     JAsgOperation.class,
@@ -491,10 +489,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
-    DexFileMarker dexFileMarker =
-        method.getEnclosingType().getSession().getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
     int paramSize = getParameterWordCount(method);
