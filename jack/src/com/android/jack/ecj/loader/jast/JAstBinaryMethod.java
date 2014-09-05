@@ -31,7 +31,6 @@ import com.android.jack.ir.formatter.TypeFormatter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 
 import java.util.List;
 
@@ -248,10 +247,5 @@ class JAstBinaryMethod implements IBinaryMethod {
       }
     }
     return result;
-  }
-
-  @Override
-  public IBinaryTypeAnnotation[] getTypeAnnotations() {
-    return null;
   }
 }
