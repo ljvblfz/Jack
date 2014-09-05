@@ -404,7 +404,7 @@ public class Options {
   }
 
   @Nonnull
-  public GatherConfigBuilder getConfigBuilder(@CheckForNull RunnableHooks hooks)
+  public GatherConfigBuilder getConfigBuilder(@Nonnull RunnableHooks hooks)
       throws IllegalOptionsException {
     GatherConfigBuilder configBuilder;
 
@@ -615,9 +615,7 @@ public class Options {
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
-    if (hooks != null) {
-      configBuilder.setHooks(hooks);
-    }
+    configBuilder.setHooks(hooks);
 
     return configBuilder;
   }
@@ -791,7 +789,7 @@ public class Options {
 
   @Nonnull
   private static Directory createTempDirForTypeDexFiles(
-      @CheckForNull RunnableHooks hooks) {
+      @Nonnull RunnableHooks hooks) {
     try {
       File tmp = Files.createTempDir();
       Directory dir = new Directory(tmp.getPath(), hooks, Existence.MUST_EXIST, Permission.WRITE,
