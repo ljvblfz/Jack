@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.java7;
+package com.android.jack.java7.boxing.test001.jack;
 
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+public class UnBoxObject {
 
-/**
- * JUnit test for compilation of Java 7 features
- */
-@RunWith(Suite.class)
-@SuiteClasses(value = {SwitchesTest.class, ExceptionsTest.class, BoxingTest.class})
-public class AllTest {
+  public static Object getObject(Object obj) {
+    return obj;
+  }
+
+  public static int getInt(Object obj) {
+    return (int) getObject(obj);
+  }
 }
