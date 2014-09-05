@@ -223,7 +223,7 @@ public class Tracer extends JVisitor {
   private JMethod findMethod(@Nonnull JMethodId methodId,
       @Nonnull JClassOrInterface enclosingType, @Nonnull JType returnType) {
     for (JMethod m : methodId.getMethods()) {
-      if (m.getEnclosingType() == enclosingType && m.getType() == returnType) {
+      if (m.getEnclosingType().isSameType(enclosingType) && m.getType().isSameType(returnType)) {
         return m;
       }
     }
