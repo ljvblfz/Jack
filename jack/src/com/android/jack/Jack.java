@@ -42,7 +42,6 @@ import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.backend.dex.OneDexPerTypeProduct;
 import com.android.jack.backend.dex.OneDexPerTypeWriter;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
@@ -504,9 +503,6 @@ public abstract class Jack {
           request.addProduction(JackFormatProduct.class);
         } else {
           assert options.out != null || options.outZip != null;
-          if (ThreadConfig.get(Options.GENERATE_ONE_DEX_PER_TYPE).booleanValue()) {
-            request.addProduction(OneDexPerTypeProduct.class);
-          }
           request.addProduction(DexFileProduct.class);
         }
 
@@ -536,20 +532,14 @@ public abstract class Jack {
             typePlan.append(JayceSingleTypeWriter.class);
           }
         } else if (options.ecjArguments == null) {
-          assert targetProduction.contains(DexFileProduct.class)
-              || targetProduction.contains(OneDexPerTypeProduct.class);
+          assert targetProduction.contains(DexFileProduct.class);
           fillJayceToDexPlan(options, planBuilder);
-          if (targetProduction.contains(OneDexPerTypeProduct.class)) {
-            planBuilder.append(OneDexPerTypeWriter.class);
-          }
+          planBuilder.append(OneDexPerTypeWriter.class);
           planBuilder.append(DexFileWriter.class);
         } else {
-          assert targetProduction.contains(DexFileProduct.class)
-              || targetProduction.contains(OneDexPerTypeProduct.class);
+          assert targetProduction.contains(DexFileProduct.class);
           fillDexPlan(options, planBuilder);
-          if (targetProduction.contains(OneDexPerTypeProduct.class)) {
-            planBuilder.append(OneDexPerTypeWriter.class);
-          }
+          planBuilder.append(OneDexPerTypeWriter.class);
           planBuilder.append(DexFileWriter.class);
         }
 

@@ -57,8 +57,9 @@ public class Types {
 
   public Types() throws ConfigurationException, IllegalOptionsException, NothingToDoException {
     Options options = new Options();
-    options.checkValidity(new RunnableHooks());
-    options.getConfigBuilder().setDebug();
+    RunnableHooks hooks = new RunnableHooks();
+    options.checkValidity(hooks);
+    options.getConfigBuilder(hooks).setDebug();
     ThreadConfig.setConfig(options.getConfig());
 
     JSession session = Jack.getSession();

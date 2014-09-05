@@ -52,8 +52,9 @@ public class MarkerCollectorTest {
   public static void setUp() throws Exception {
     MarkerCollectorTest.class.getClassLoader().setDefaultAssertionStatus(true);
     Options options = new Options();
-    options.checkValidity(new RunnableHooks());
-    options.getConfigBuilder().setDebug();
+    RunnableHooks hooks = new RunnableHooks();
+    options.checkValidity(hooks);
+    options.getConfigBuilder(hooks).setDebug();
     ThreadConfig.setConfig(options.getConfig());
   }
 

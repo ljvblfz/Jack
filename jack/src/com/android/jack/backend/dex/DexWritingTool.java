@@ -16,9 +16,10 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.Jack;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
-import com.android.jack.scheduling.marker.DexFileMarker;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.OutputVDir;
 
 import java.io.IOException;
@@ -32,18 +33,18 @@ public abstract class DexWritingTool {
 
   @Nonnull
   protected final OutputVDir outputVDir;
+  @Nonnull
+  private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
   public DexWritingTool(@Nonnull OutputVDir outputVDir) {
     this.outputVDir = outputVDir;
   }
 
   @Nonnull
-  protected DexFile getDexFile() {
-    DexFileMarker dexFileMarker = Jack.getSession().getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-    DexFile dexFile = dexFileMarker.getFinalDexFile();
-    assert dexFile != null;
-    return dexFile;
+  protected DexFile createDexFile() {
+    DexOptions options = new DexOptions();
+    options.forceJumbo = forceJumbo;
+    return new DexFile(options);
   }
 
   public abstract void write() throws IOException;

@@ -31,6 +31,7 @@ import com.android.jack.shrob.ListingComparator;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.util.ExecuteFile;
+import com.android.jack.util.FileUtils;
 import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
@@ -1015,21 +1016,6 @@ public class TestTools {
     }
   }
 
-  public static void deleteTempDir(@CheckForNull File tmp) throws IOException {
-    if (tmp == null) {
-      return;
-    }
-
-    if (tmp.isDirectory()) {
-      for (File sub : tmp.listFiles()) {
-        deleteTempDir(sub);
-      }
-    }
-    if (!tmp.delete()) {
-      throw new IOException("Failed to delete file " + tmp.getAbsolutePath());
-    }
-  }
-
   public static File createTempDir(String prefix, String suffix) throws IOException {
     final File tmp = File.createTempFile(prefix, suffix);
     if (!tmp.delete()) {
@@ -1042,7 +1028,7 @@ public class TestTools {
       @Override
       public void run() {
         try {
-          deleteTempDir(tmp);
+          FileUtils.deleteDir(tmp);
         } catch (IOException e) {
           System.err.println(e.getMessage());
         }

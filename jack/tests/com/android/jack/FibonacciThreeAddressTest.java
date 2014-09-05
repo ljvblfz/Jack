@@ -77,7 +77,7 @@ public class FibonacciThreeAddressTest {
     DexFileMarker marker = session.getMarker(DexFileMarker.class);
     Assert.assertNotNull(marker);
 
-    DexFile dexFile = marker.getFinalDexFile();
+    DexFile dexFile = marker.getDexFileOfType(fibo);
     Assert.assertNotNull(dexFile);
     dexFile.prepare();
 
