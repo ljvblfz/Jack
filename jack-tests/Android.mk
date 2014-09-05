@@ -292,8 +292,7 @@ $(call declare-java7-test-with-name,java7/trywithresources/test001)
 $(call declare-java7-test-with-name,java7/trywithresources/test002)
 $(call declare-java7-test-with-name,java7/parser/literals/test001)
 $(call declare-java7-test-with-name,java7/parser/literals/test002)
-# Known bug
-#$(call declare-java7-test-with-name,java7/boxing/test001)
+$(call declare-java7-test-with-name,java7/boxing/test001)
 
 # define global regression test
 include $(JACK_CLEAR_VARS)
