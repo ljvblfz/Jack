@@ -71,7 +71,7 @@ public class MergingDexWritingTool extends DexWritingTool {
   @Override
   public void write() {
 
-    InputRootVDir dexFileVDir = (InputRootVDir) ThreadConfig.get(Options.DEX_FILE_FOLDER);
+    InputRootVDir dexFileVDir = (InputRootVDir) ThreadConfig.get(Options.TYPEDEX_DIR);
     boolean isMultidex = ThreadConfig.get(DexFileWriter.MULTIDEX).booleanValue();
 
     try {

@@ -127,8 +127,9 @@ public class Options {
       GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVDir> DEX_FILE_FOLDER = PropertyId.create(
-      "jack.dex.output.folder", "Dex output folder", new InputOutputVDirCodec(Existence.MAY_EXIST));
+  public static final PropertyId<InputOutputVDir> TYPEDEX_DIR = PropertyId.create(
+      "jack.dex.output.typedex.dir", "Dex output folder",
+      new InputOutputVDirCodec(Existence.MAY_EXIST));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
@@ -605,7 +606,7 @@ public class Options {
       configBuilder.setString(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
     }
 
-    configBuilder.set(DEX_FILE_FOLDER, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+    configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
 
     configBuilder.popDefaultLocation();
 
