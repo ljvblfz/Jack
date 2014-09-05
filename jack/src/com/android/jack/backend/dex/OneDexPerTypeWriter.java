@@ -43,7 +43,7 @@ import javax.annotation.Nonnull;
 public class OneDexPerTypeWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.DEX_FILE_FOLDER);
+  protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.TYPEDEX_DIR);
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {

@@ -111,7 +111,7 @@ public class MergerTestTools {
     Options options = new Options();
     options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
     options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-    options.addProperty(Options.DEX_FILE_FOLDER.getName(),
+    options.addProperty(Options.TYPEDEX_DIR.getName(),
         multiDexOnTypePerTypeFolder.getAbsolutePath());
 
     TestTools.compileJackToDex(options, sourceFolder, multiDexFolder, false);
@@ -129,7 +129,7 @@ public class MergerTestTools {
     options = new Options();
     options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
     options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-    options.addProperty(Options.DEX_FILE_FOLDER.getName(), multiDexOnTypePerTypeFolder.getAbsolutePath());
+    options.addProperty(Options.TYPEDEX_DIR.getName(), multiDexOnTypePerTypeFolder.getAbsolutePath());
     TestTools
         .compileSourceToDex(options, sourceFolder, classpath,
             multiDexFolder, false /* zip */, null /* jarjarRules */, null /* flagFiles */,
