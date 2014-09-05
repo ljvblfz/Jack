@@ -88,6 +88,17 @@ class JAstBinaryType implements IBinaryType {
     modifiers = LoaderUtils.convertJAstModifiersToEcj(modifiers, jDeclaredType);
     modifiers &= ~JModifier.CLASS_COMPILED_WITH_JACK;
     modifiers &= ~JModifier.ANONYMOUS_TYPE;
+
+    JClassOrInterface enclosingType = jDeclaredType.getEnclosingType();
+    if (enclosingType != null && !isAnonymous()) {
+      JAstBinaryType enclosing = classpathLocation.findType(enclosingType);
+      if (enclosing != null) {
+        if (LoaderUtils.isDeprecated(enclosing)) {
+          modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+        }
+      }
+    }
+
     return modifiers;
   }
 
@@ -338,17 +349,7 @@ class JAstBinaryType implements IBinaryType {
    */
   @Override
   public long getTagBits() {
-    long tagBits = AnnotationUtils.getTagBits(jDeclaredType);
-    JClassOrInterface enclosingType = jDeclaredType.getEnclosingType();
-    if (enclosingType != null && !isAnonymous()) {
-      JAstBinaryType enclosing = classpathLocation.findType(enclosingType);
-      if (enclosing != null) {
-        if (LoaderUtils.isDeprecated(enclosing)) {
-          tagBits |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-        }
-      }
-    }
-    return tagBits;
+    return AnnotationUtils.getTagBits(jDeclaredType);
   }
 
   /**
