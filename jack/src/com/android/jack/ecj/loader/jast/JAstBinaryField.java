@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JModifier;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
-import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 import javax.annotation.CheckForNull;
@@ -118,10 +117,5 @@ class JAstBinaryField implements IBinaryField {
   @Override
   public String toString() {
     return jField.toString();
-  }
-
-  @Override
-  public IBinaryTypeAnnotation[] getTypeAnnotations() {
-    return null;
   }
 }

@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 
 import java.util.ArrayList;
@@ -436,10 +435,5 @@ class JAstBinaryType implements IBinaryType {
     }
 
     return enclosingMethodName;
-  }
-
-  @Override
-  public IBinaryTypeAnnotation[] getTypeAnnotations() {
-    return null;
   }
 }
