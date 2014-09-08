@@ -18,7 +18,9 @@ package com.android.jack.ir.impl;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
+import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JArrayLength;
+import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
@@ -37,10 +39,13 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JMultiExpression;
+import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNullLiteral;
@@ -84,7 +89,7 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Nonnull
-  public ArrayList<JExpression> cloneExpressions(@Nonnull List<JExpression> exprs) {
+  public List<JExpression> cloneExpressions(@Nonnull List<? extends JExpression> exprs) {
     ArrayList<JExpression> result = new ArrayList<JExpression>();
     for (JExpression expr : exprs) {
       result.add(cloneExpression(expr));
@@ -99,14 +104,41 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Override
+  public boolean visit(@Nonnull JAbstractStringLiteral x) {
+    expression = (JAbstractStringLiteral) x.clone();
+    return false;
+  }
+
+  @Override
   public boolean visit(@Nonnull JAlloc x) {
     expression = new JAlloc(x.getSourceInfo(), x.getInstanceType());
     return false;
   }
 
   @Override
+  public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
+    JAnnotationLiteral clonedAnnotationliteral = new JAnnotationLiteral(
+        annotationLiteral.getSourceInfo(), annotationLiteral.getRetentionPolicy(),
+        annotationLiteral.getType());
+    for (JNameValuePair nvp : annotationLiteral.getNameValuePairs()) {
+      clonedAnnotationliteral.add(new JNameValuePair(nvp.getSourceInfo(), nvp.getMethodId(),
+          cloneExpression(nvp.getValue())));
+    }
+    expression = clonedAnnotationliteral;
+    return false;
+  }
+
+  @Override
   public boolean visit(@Nonnull JArrayLength x) {
     expression = new JArrayLength(x.getSourceInfo(), cloneExpression(x.getInstance()));
+    return false;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  @Override
+  public boolean visit(@Nonnull JArrayLiteral arrayLiteral) {
+    expression = new JArrayLiteral(arrayLiteral.getSourceInfo(),
+        (ArrayList<JLiteral>) (Object) cloneExpressions(arrayLiteral.getValues()));
     return false;
   }
 
@@ -143,13 +175,6 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JDynamicCastOperation x) {
-    expression =
-        new JDynamicCastOperation(x.getSourceInfo(), x.getCastType(), cloneExpression(x.getExpr()));
-    return false;
-  }
-
-  @Override
   public boolean visit(@Nonnull JCharLiteral x) {
     expression = new JCharLiteral(x.getSourceInfo(), x.getValue());
     return false;
@@ -174,6 +199,13 @@ public class CloneExpressionVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JDoubleLiteral x) {
     expression = new JDoubleLiteral(x.getSourceInfo(), x.getValue());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JDynamicCastOperation x) {
+    expression =
+        new JDynamicCastOperation(x.getSourceInfo(), x.getCastType(), cloneExpression(x.getExpr()));
     return false;
   }
 
@@ -236,6 +268,12 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Override
+  public boolean visit(@Nonnull JMethodLiteral methodLiteral) {
+    expression = new JMethodLiteral(methodLiteral.getMethod(), methodLiteral.getSourceInfo());
+    return false;
+  }
+
+  @Override
   public boolean visit(@Nonnull JMultiExpression x) {
     JMultiExpression multi = new JMultiExpression(x.getSourceInfo(), cloneExpressions(x.exprs));
     expression = multi;
@@ -290,12 +328,6 @@ public class CloneExpressionVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JShortLiteral x) {
     expression = new JShortLiteral(x.getSourceInfo(), x.getValue());
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JAbstractStringLiteral x) {
-    expression = (JAbstractStringLiteral) x.clone();
     return false;
   }
 
