@@ -111,6 +111,13 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
 
     static void init(@Nonnull ProcessingEnvironment env) {
       Items.env = env;
+      reset();
+    }
+
+    static void reset() {
+      for (Items item : Items.values()) {
+        item.typeElement = null;
+      }
     }
 
     private Items(@Nonnull String fqName) {
@@ -249,6 +256,9 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
   private void processAnnotations(@Nonnull Set<? extends TypeElement> annotations,
       @Nonnull RoundEnvironment roundEnv) throws AbortException {
     assert env != null;
+
+    // Reset cached Items
+    Items.reset();
 
     //
     // @Description
