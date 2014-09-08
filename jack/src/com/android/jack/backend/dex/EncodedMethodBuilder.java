@@ -29,7 +29,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
 import com.android.jack.util.filter.Filter;
@@ -51,11 +50,10 @@ import javax.annotation.Nonnull;
 @Description("Builds EncodedMethod from JMethod")
 @Name("EncodedMethodBuilder")
 @Synchronized
-@Constraint(need = {
-    ClassDefItemMarker.class, DexCodeMarker.class, DexFileMarker.class},
-    no = {FieldInitMethod.class, EmptyClinit.class })
-@Transform(add = DexFileMarker.Method.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class})
+@Constraint(need = {ClassDefItemMarker.class, DexCodeMarker.class},
+    no = {FieldInitMethod.class, EmptyClinit.class})
+@Transform(add = ClassDefItemMarker.Method.class,
+    modify = ClassDefItemMarker.class)
 @Protect(add = JMethod.class, modify = JMethod.class, remove = JMethod.class)
 public class EncodedMethodBuilder implements RunnableSchedulable<JMethod> {
 

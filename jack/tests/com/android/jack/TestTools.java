@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.lookup.JMethodSignatureLookupException;
-import com.android.jack.scheduling.marker.DexFileMarker;
+import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
@@ -551,7 +551,7 @@ public class TestTools {
 
     PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
     Jack.fillDexPlan(options, planBuilder);
-    request.addTargetIncludeTagOrMarker(DexFileMarker.Complete.class);
+    request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
 
     planBuilder.getPlan().getScheduleInstance().process(session);
 

@@ -16,14 +16,17 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.Jack;
 import com.android.jack.JackIOException;
 import com.android.jack.Options;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JSession;
+import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
@@ -36,34 +39,45 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
- * Write one dex file per types.
+ * Write one dex file per type.
  */
-@Description("Write one dex file per types")
-@Constraint(need = {DexCodeMarker.class, DexFileMarker.Complete.class})
-public class OneDexPerTypeWriter extends DexWriter implements RunnableSchedulable<JSession> {
+@Description("Write one dex file per type")
+@Synchronized
+@Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
+public class OneDexPerTypeWriter extends DexWriter implements
+    RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
   protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.TYPEDEX_DIR);
 
-  @Override
-  public void run(@Nonnull JSession session) throws Exception {
-    DexFileMarker dexFileMarker = session.getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
+  private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
-    for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
-      OutputVFile vFile = outputDirectory.createOutputVFile(getFilePath(type));
-      OutputStream outStream = null;
-      try {
-        outStream = vFile.openWrite();
-        DexFile dexFileOfType = dexFileMarker.getDexFileOfType(type);
-        dexFileOfType.prepare();
-        dexFileOfType.writeTo(outStream, null, false);
-      } catch (IOException e) {
-        throw new JackIOException("Could not write Dex file to output '" + vFile + "'", e);
-      } finally {
-        if (outStream != null) {
-          outStream.close();
-        }
+  @Override
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
+    assert cdiMarker != null;
+
+    DexOptions options = new DexOptions();
+    options.forceJumbo = forceJumbo;
+    DexFile typeDex = new DexFile(options);
+    typeDex.add(cdiMarker.getClassDefItem());
+    OutputVFile vFile;
+    OutputStream outStream = null;
+    try {
+      vFile = outputDirectory.createOutputVFile(getFilePath(type));
+    } catch (IOException e) {
+      throw new JackIOException("Could not create Dex file in output " + outputDirectory
+          + " for type " + Jack.getUserFriendlyFormatter().getName(type), e);
+    }
+    try {
+      outStream = vFile.openWrite();
+      typeDex.prepare();
+      typeDex.writeTo(outStream, null, false);
+    } catch (IOException e) {
+      throw new JackIOException("Could not write Dex file to output " + vFile, e);
+    } finally {
+      if (outStream != null) {
+        outStream.close();
       }
     }
   }

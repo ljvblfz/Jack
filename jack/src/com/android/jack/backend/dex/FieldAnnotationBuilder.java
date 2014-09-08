@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
@@ -40,9 +39,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Builds the rop annotations of a field")
 @Synchronized
-@Constraint(need = {ClassDefItemMarker.class, DexFileMarker.class, DexFileMarker.Field.class})
-@Transform(add = DexFileMarker.FieldAnnotation.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class})
+@Constraint(need = {ClassDefItemMarker.class, ClassDefItemMarker.Field.class})
+@Transform(add = ClassDefItemMarker.FieldAnnotation.class, modify = ClassDefItemMarker.class)
 @Use(AnnotationBuilder.class)
 public class FieldAnnotationBuilder implements RunnableSchedulable<JField> {
 

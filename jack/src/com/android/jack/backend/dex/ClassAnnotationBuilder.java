@@ -23,7 +23,6 @@ import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -38,10 +37,8 @@ import javax.annotation.Nonnull;
  * Builds the {@link com.android.dx.rop.annotation.Annotations Annotations} of a class or interface.
  */
 @Description("Builds the rop annotations of a JDeclaredType.")
-@Constraint(need = {ClassDefItemMarker.class, DexFileMarker.class},
-    no = AnnotationMethodDefaultValue.class)
-@Transform(add = DexFileMarker.ClassAnnotation.class,
-    modify = {ClassDefItemMarker.class, DexFileMarker.class},
+@Constraint(need = ClassDefItemMarker.class, no = AnnotationMethodDefaultValue.class)
+@Transform(add = ClassDefItemMarker.ClassAnnotation.class, modify = ClassDefItemMarker.class,
     remove = ClassAnnotationSchedulingSeparator.SeparatorTag.class)
 @Use(AnnotationBuilder.class)
 public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {

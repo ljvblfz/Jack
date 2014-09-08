@@ -18,7 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.marker.DexFileMarker;
+import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Write dex into a file")
 @Name("DexFileWriter")
-@Constraint(need = {DexFileMarker.Complete.class})
+@Constraint(need = {ClassDefItemMarker.Complete.class})
 @Produce(DexFileProduct.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 

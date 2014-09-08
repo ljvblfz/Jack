@@ -20,7 +20,6 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.RopHelper;
 import com.android.jack.dx.dex.file.ClassDefItem;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
@@ -34,12 +33,10 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexFileMarker;
 import com.android.jack.util.FileUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -66,8 +63,7 @@ import javax.annotation.Nonnull;
 @Description("Builds ClassDefItem from JDeclaredType.")
 @Name("ClassDefItemBuilder")
 @Synchronized
-@Constraint(need = DexFileMarker.class)
-@Transform(add = ClassDefItemMarker.class, modify = DexFileMarker.class)
+@Transform(add = ClassDefItemMarker.class)
 @Protect(add = JDefinedClassOrInterface.class, modify = JDefinedClassOrInterface.class,
     remove = JDefinedClassOrInterface.class)
 public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
@@ -96,13 +92,7 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
       return;
     }
 
-    DexFileMarker dexFileMarker = declaredType.getSession().getMarker(DexFileMarker.class);
-    assert dexFileMarker != null;
-
-    DexFile dexFile = dexFileMarker.getDexFileOfType(declaredType);
     ClassDefItem classDefItem = createClassDefItem(declaredType);
-    dexFile.add(classDefItem);
-
     ClassDefItemMarker classDefItemMarker = new ClassDefItemMarker(classDefItem);
     declaredType.addMarker(classDefItemMarker);
   }

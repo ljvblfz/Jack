@@ -17,11 +17,12 @@
 package com.android.jack;
 
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.marker.DexFileMarker;
+import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.util.FileUtils;
 
 import junit.framework.Assert;
@@ -74,19 +75,17 @@ public class FibonacciThreeAddressTest {
     JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(fibo);
 
-    DexFileMarker marker = session.getMarker(DexFileMarker.class);
+    ClassDefItemMarker marker = fibo.getMarker(ClassDefItemMarker.class);
     Assert.assertNotNull(marker);
 
-    DexFile dexFile = marker.getDexFileOfType(fibo);
-    Assert.assertNotNull(dexFile);
+    DexFile dexFile = new DexFile(new DexOptions());
+    ClassDefItem cdi = marker.getClassDefItem();
+    Assert.assertNotNull(cdi);
+    dexFile.add(cdi);
     dexFile.prepare();
 
-    // Check compiled class is present in the DexFile
-    ClassDefItem fiboClassDefItem = dexFile.getClassOrNull(CLASS_BINARY_NAME);
-    Assert.assertNotNull(fiboClassDefItem);
-
     // Check source file
-    String sourceFilename = fiboClassDefItem.getSourceFile().getString();
+    String sourceFilename = cdi.getSourceFile().getString();
     Assert.assertEquals(JAVA_FILENAME, sourceFilename);
   }
 
