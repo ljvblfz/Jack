@@ -26,14 +26,14 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVDir;
 
 import javax.annotation.Nonnull;
 
 /**
- * Write dex into a file.
+ * Write dex to a file.
  */
 @HasKeyId
 @Description("Write dex into a file")
@@ -43,8 +43,7 @@ import javax.annotation.Nonnull;
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 
   /**
-   * File name prefix of a {@code .dex} file automatically loaded in an
-   * archive.
+   * File name prefix of a {@code .dex} file automatically loaded in an archive.
    */
   static final String DEX_PREFIX = "classes";
 
@@ -52,14 +51,10 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   public static final String DEX_FILENAME = DEX_PREFIX + DEX_FILE_EXTENSION;
 
   @Nonnull
-  public static final BooleanPropertyId MULTIDEX = BooleanPropertyId.create(
-      "jack.dex.output.multidex", "Enable MultiDex output")
-      .addDefaultValue(false);
-
-  @Nonnull
-  public static final BooleanPropertyId MINIMAL_MAIN_DEX = BooleanPropertyId.create(
-      "jack.dex.output.multidex.minimalmaindex",
-      "Keep main dex file as small as possible in MultiDex mode").addDefaultValue(false);
+  public static final
+      ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY = ImplementationPropertyId.create(
+          "jack.dex.output.policy", "Define which policy will be used to emit dex files",
+          DexWritingTool.class).addDefaultValue("single-dex");
 
   @Nonnull
   private final OutputVDir outputVDir;
@@ -77,8 +72,8 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   @Override
   public void run(@Nonnull JSession session) throws Exception {
 
-    DexWritingTool writingTool = new MergingDexWritingTool(outputVDir);
-    writingTool.write();
+    DexWritingTool writingTool = ThreadConfig.get(DEX_WRITING_POLICY);
+    writingTool.write(outputVDir);
   }
 
 }
