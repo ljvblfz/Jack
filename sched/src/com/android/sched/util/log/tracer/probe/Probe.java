@@ -16,6 +16,8 @@
 
 package com.android.sched.util.log.tracer.probe;
 
+import com.android.sched.util.HasDescription;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -23,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Abstract class for a Probe.
  */
-public abstract class Probe implements Comparable<Probe> {
+public abstract class Probe implements Comparable<Probe>, HasDescription {
   public static final int MAX_PRIORITY = 0;
   public static final int MIN_PRIORITY = 12;
 
@@ -55,6 +57,7 @@ public abstract class Probe implements Comparable<Probe> {
     this.priority = priority;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return this.description;

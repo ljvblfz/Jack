@@ -17,6 +17,7 @@
 package com.android.sched.util.config.id;
 
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
  * An instance of this type identifies a particular configuration property.
  * @param <T> Type of the configuration property.
  */
-public class PropertyId<T> extends KeyId<T, String> {
+public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
   @Nonnull
   private final String description;
 
@@ -105,6 +106,7 @@ public class PropertyId<T> extends KeyId<T, String> {
     return defaultValues;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;

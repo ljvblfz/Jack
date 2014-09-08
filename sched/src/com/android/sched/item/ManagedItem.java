@@ -16,13 +16,15 @@
 
 package com.android.sched.item;
 
+import com.android.sched.util.HasDescription;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * Represents an {@link Item} composed of other items.
  */
-public class ManagedItem {
+public class ManagedItem implements HasDescription {
   // Bitmap, representing this item in conjunction with @ComposedOf, inheritance or inner
   @CheckForNull
   protected long[] bitmap;
@@ -62,6 +64,7 @@ public class ManagedItem {
     return name;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;

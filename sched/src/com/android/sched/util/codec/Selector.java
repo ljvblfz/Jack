@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.reflections.ReflectionManager;
+import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.ReflectDefaultCtorFactory;
 
@@ -47,6 +48,8 @@ public abstract class Selector<T> {
   private final Class<T> type;
   @CheckForNull
   private Map<String, Class<? extends T>> propertyValues;
+  @CheckForNull
+  private List<ValueDescription> descriptions;
 
   public Selector(@Nonnull Class<T> type) {
     this.type = type;
@@ -69,9 +72,39 @@ public abstract class Selector<T> {
   }
 
   @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    if (descriptions == null) {
+      ensureScan();
+      assert propertyValues != null;
+
+      descriptions = new ArrayList<ValueDescription>(propertyValues.size());
+
+      for (Class<? extends T> subClass : propertyValues.values()) {
+        ImplementationName value = subClass.getAnnotation(ImplementationName.class);
+        assert value != null;
+
+        if (!value.description().isEmpty()) {
+          descriptions.add(new ValueDescription(value.name(), value.description()));
+        }
+      }
+
+      Collections.sort(descriptions, new Comparator<ValueDescription>(){
+        @Override
+        public int compare(ValueDescription o1, ValueDescription o2) {
+          return o1.getValue().compareToIgnoreCase(o2.getValue());
+        }});
+
+    }
+
+    assert descriptions != null;
+    return descriptions;
+  }
+
+  @Nonnull
   public Class<? extends T> getClass(@Nonnull String string) throws ParsingException {
     ensureScan();
     assert propertyValues != null;
+
     Class<? extends T> value = propertyValues.get(string);
 
     if (value == null) {
@@ -143,6 +176,7 @@ public abstract class Selector<T> {
   private synchronized void ensureScan() {
     if (propertyValues == null) {
       propertyValues = new HashMap<String, Class<? extends T>>();
+
       ReflectionManager reflectionManager = ReflectionFactory.getManager();
       Set<Class<? extends T>> propertyValueClasses = reflectionManager.getSubTypesOf(type);
       propertyValueClasses.add(type);

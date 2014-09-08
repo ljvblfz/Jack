@@ -89,7 +89,8 @@ public class AllocationWatcher implements ObjectWatcher<Object> {
   /**
    * Install a {@link AllocationWatcher}
    */
-  @ImplementationName(iface = WatcherInstaller.class, name = "object-alloc")
+  @ImplementationName(iface = WatcherInstaller.class, name = "object-alloc",
+      description = "record object and array allocations globally")
   public static class AllocationWatcherInstaller implements WatcherInstaller {
     @Override
     public void install(@Nonnull Tracer tracer) {

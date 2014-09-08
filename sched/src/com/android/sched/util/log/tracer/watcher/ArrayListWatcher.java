@@ -152,7 +152,8 @@ public class ArrayListWatcher implements ObjectWatcher<ArrayList<?>> {
   /**
    * Install a {@link ArrayListWatcher}
    */
-  @ImplementationName(iface = WatcherInstaller.class, name = "arraylist-capacity")
+  @ImplementationName(iface = WatcherInstaller.class, name = "arraylist-capacity",
+      description = "record state of the array backed by ArrayList")
   public static class ArrayListWatcherInstaller implements WatcherInstaller {
     @Override
     public void install(@Nonnull Tracer tracer) {

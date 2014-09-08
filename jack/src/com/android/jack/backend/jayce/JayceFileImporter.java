@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.lookup.JLookup;
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
@@ -65,9 +66,22 @@ public class JayceFileImporter {
 
   private static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
-  private enum CollisionPolicy {
-    KEEP_FIRST,
-    FAIL
+  private enum CollisionPolicy implements HasDescription {
+    KEEP_FIRST("keep the first element encountered"),
+    FAIL("fail when a collision occured");
+
+    @Nonnull
+    private String description;
+
+    private CollisionPolicy(@Nonnull String description) {
+      this.description = description;
+    }
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return description;
+    }
   }
 
   @Nonnull

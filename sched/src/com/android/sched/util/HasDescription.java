@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.log.tracer.filter;
-
-import com.android.sched.util.HasDescription;
-import com.android.sched.util.log.EventType;
+package com.android.sched.util;
 
 import javax.annotation.Nonnull;
 
 /**
- * Interface of a {@link EventType} filter.
+ * Interface implemented by descriptive classes.
  */
-public interface EventFilter extends HasDescription {
-  public boolean isEnabled(@Nonnull EventType type);
+public interface HasDescription {
+  @Nonnull
+  String getDescription();
 }

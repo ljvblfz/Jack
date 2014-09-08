@@ -84,7 +84,8 @@ public class JNodeWatcher implements ObjectWatcher<JNode> {
   /**
    * Install a {@link JNodeWatcher}
    */
-  @ImplementationName(iface = WatcherInstaller.class, name = "jnode-alloc")
+  @ImplementationName(iface = WatcherInstaller.class, name = "jnode-alloc",
+      description = "record all JNode allocations")
   public static class JNodeWatcherInstaller implements WatcherInstaller {
     @Override
     public void install(@Nonnull Tracer tracer) {

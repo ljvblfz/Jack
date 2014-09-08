@@ -16,6 +16,7 @@
 
 package com.android.sched.util.log.stats;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.config.ReflectFactory;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T> Type of the statistic.
  */
-public class StatisticId<T extends Statistic> {
+public class StatisticId<T extends Statistic> implements HasDescription {
   @Nonnull
   private static Map<Class<? extends Statistic>, Statistic> dummies =
       new ConcurrentHashMap<Class<? extends Statistic>, Statistic>();
@@ -75,6 +76,7 @@ public class StatisticId<T extends Statistic> {
     return name;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;

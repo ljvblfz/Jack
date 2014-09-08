@@ -20,6 +20,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
+import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -170,6 +172,19 @@ public abstract class CommandLine {
       sb.append(TextUtils.LINE_SEPARATOR);
       sb.append("     ");
       sb.append(property.getCodec().getUsage());
+
+      // Value descriptions
+      List<ValueDescription> descriptions = property.getCodec().getValueDescriptions();
+      if (descriptions.size() != 0) {
+        sb.append(" where");
+        for (ValueDescription entry : descriptions) {
+          sb.append(TextUtils.LINE_SEPARATOR);
+          sb.append("          ");
+          sb.append(entry.getValue());
+          sb.append(": ");
+          sb.append(entry.getDescription());
+        }
+      }
 
       System.out.println(sb);
     }

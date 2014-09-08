@@ -19,6 +19,9 @@ package com.android.jack.util.filter;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.StringCodec;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -34,6 +37,11 @@ public class SignatureCodec implements StringCodec<String>{
     return "a method signature (for instance \"methodname(ILpackage1/package2/Classname;)B\")";
   }
 
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
+  }
   @Override
   @Nonnull
   public String parseString(@Nonnull CodecContext context, @Nonnull String string) {

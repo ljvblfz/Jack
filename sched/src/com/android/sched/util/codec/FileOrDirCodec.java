@@ -16,8 +16,12 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -80,5 +84,10 @@ public abstract class FileOrDirCodec {
     public String toString() {
       return sb.toString();
     }
+  }
+
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
   }
 }

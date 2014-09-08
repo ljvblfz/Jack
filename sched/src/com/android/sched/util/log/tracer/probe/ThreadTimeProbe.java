@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Probe which take the usage of per thread CPU time.
  */
-@ImplementationName(iface = Probe.class, name = "thread-time")
+@ImplementationName(iface = Probe.class, name = "thread-cpu-time")
 public class ThreadTimeProbe extends TimeNanosProbe {
   @Nonnull
   private final ThreadMXBean threadMXBean;

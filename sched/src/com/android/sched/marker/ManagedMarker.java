@@ -18,6 +18,7 @@ package com.android.sched.marker;
 
 import com.android.sched.item.Description;
 import com.android.sched.item.Items;
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a {@link Marker} with all annotations extracted.
  */
-public class ManagedMarker {
+public class ManagedMarker implements HasDescription {
   private static final Logger logger = LoggerFactory.getLogger();
 
   // @Name
@@ -108,6 +109,7 @@ public class ManagedMarker {
     return name;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;

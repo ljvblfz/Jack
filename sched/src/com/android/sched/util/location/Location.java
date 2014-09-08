@@ -16,12 +16,10 @@
 
 package com.android.sched.util.location;
 
-import javax.annotation.Nonnull;
+import com.android.sched.util.HasDescription;
 
 /**
  * Base class to describe a location.
  */
-public abstract class Location {
-  @Nonnull
-  public abstract String getDescription();
+public abstract class Location implements HasDescription {
 }

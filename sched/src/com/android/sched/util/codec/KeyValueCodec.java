@@ -18,11 +18,14 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -34,6 +37,8 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   private boolean ignoreCase = false;
   @Nonnull
   private final Entry<T>[] entries;
+  @CheckForNull
+  private List<ValueDescription> descriptions;
 
   public KeyValueCodec(@Nonnull Entry<T>[] entries) {
     this.entries    = Arrays.copyOf(entries, entries.length);
@@ -82,6 +87,23 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     sb.append(')');
 
     return sb.toString();
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    if (descriptions == null) {
+      descriptions = new ArrayList<ValueDescription>(entries.length);
+
+      for (Entry<T> entry : entries) {
+        if (entry.description != null) {
+          descriptions.add(new ValueDescription(entry.key, entry.description));
+        }
+      }
+    }
+
+    assert descriptions != null;
+    return descriptions;
   }
 
   @Override
@@ -153,10 +175,21 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     String key;
     @Nonnull
     T      value;
+    @CheckForNull
+    String description;
 
     public Entry (@Nonnull String key, @Nonnull T value) {
       this.key   = key;
       this.value = value;
+    }
+
+    public Entry (@Nonnull String key, @Nonnull T value, @CheckForNull String description) {
+      this.key   = key;
+      this.value = value;
+
+      if (description != null && !description.isEmpty()) {
+        this.description = description;
+      }
     }
   }
 

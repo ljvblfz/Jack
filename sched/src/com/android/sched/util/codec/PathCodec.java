@@ -18,6 +18,8 @@ package com.android.sched.util.codec;
 
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -30,6 +32,12 @@ public class PathCodec implements StringCodec<File> {
   @Nonnull
   public String getUsage() {
     return "a path to a file or directory";
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
   }
 
   @Override

@@ -60,7 +60,8 @@ import javax.annotation.Nonnull;
 /**
  * Tracer implementation which only collects statistics on a pseudo-single event.
  */
-@ImplementationName(iface = Tracer.class, name = "stat-only")
+@ImplementationName(iface = Tracer.class, name = "stat-only",
+    description = "collect statistics without event information")
 public final class StatisticOnlyTracer implements Tracer {
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

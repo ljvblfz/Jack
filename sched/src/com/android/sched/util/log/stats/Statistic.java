@@ -18,6 +18,7 @@ package com.android.sched.util.log.stats;
 
 import com.google.common.collect.Iterators;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.Formatter;
 import com.android.sched.util.codec.ToStringFormatter;
 import com.android.sched.util.table.DataHeader;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a statistic.
  */
-public abstract class Statistic implements DataHeader {
+public abstract class Statistic implements DataHeader, HasDescription {
   @Nonnull
   private final StatisticId<? extends Statistic> id;
 
@@ -43,9 +44,6 @@ public abstract class Statistic implements DataHeader {
   public StatisticId<? extends Statistic> getId() {
     return id;
   }
-
-  @Nonnull
-  public abstract String getDescription();
 
   @Override
   @Nonnull

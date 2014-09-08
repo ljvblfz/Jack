@@ -18,6 +18,8 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.codec.KeyValueCodec.Entry;
 
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -29,12 +31,17 @@ public class KeywordsCodec implements StringCodec<String> {
   KeyValueCodec<String> parser;
 
   public KeywordsCodec(@Nonnull String[] keywords) {
+    this(keywords, new String[keywords.length]);
+  }
+
+  public KeywordsCodec(@Nonnull String[] keywords, @Nonnull String[] descriptions) {
     @SuppressWarnings("unchecked")
     Entry<String>[] entries = new Entry[keywords.length];
 
     int idx = 0;
     for (String keyword : keywords) {
-      entries[idx++] = new Entry<String>(keyword, keyword);
+      entries[idx] = new Entry<String>(keyword, keyword, descriptions[idx]);
+      idx++;
     }
 
     parser = new KeyValueCodec<String>(entries);
@@ -77,6 +84,12 @@ public class KeywordsCodec implements StringCodec<String> {
   @Nonnull
   public String getUsage() {
     return parser.getUsage();
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return parser.getValueDescriptions();
   }
 
   @Override

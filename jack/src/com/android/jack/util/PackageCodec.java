@@ -21,6 +21,9 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -34,6 +37,12 @@ public class PackageCodec implements StringCodec<String>{
   @Nonnull
   public String getUsage() {
     return "a java package name (e.g. com.android)";
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
   }
 
   @Override

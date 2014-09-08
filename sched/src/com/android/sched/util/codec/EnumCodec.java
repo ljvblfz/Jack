@@ -16,7 +16,10 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.KeyValueCodec.Entry;
+
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -31,12 +34,23 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   KeyValueCodec<T> parser;
 
   public EnumCodec(@Nonnull T[] values) {
+    assert values.length > 0;
+
     @SuppressWarnings("unchecked")
     Entry<T>[] entries = new Entry[values.length];
 
     int idx = 0;
-    for (T value : values) {
-      entries[idx++] = new Entry<T>(value.name().replace('_', '-'), value);
+    if (values instanceof HasDescription[]) {
+      for (T value : values) {
+        entries[idx++] =
+            new Entry<T>(value.name().replace('_', '-'), value,
+                ((HasDescription) value).getDescription());
+      }
+    } else {
+      for (T value : values) {
+
+        entries[idx++] = new Entry<T>(value.name().replace('_', '-'), value);
+      }
     }
 
     parser = new KeyValueCodec<T>(entries);
@@ -79,6 +93,12 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
   public String getUsage() {
     return parser.getUsage();
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return parser.getValueDescriptions();
   }
 
   @Override

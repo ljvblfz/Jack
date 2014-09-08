@@ -16,6 +16,8 @@
 
 package com.android.sched.util.table;
 
+import com.android.sched.util.HasDescription;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * A collection of {@link Table}s.
  */
-public class Report implements Iterable<Table> {
+public class Report implements Iterable<Table>, HasDescription {
   @Nonnull
   private final String name;
   @Nonnull
@@ -63,6 +65,7 @@ public class Report implements Iterable<Table> {
     return name;
   }
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;

@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T> the type of the root <i>data</i>
  */
-public class Plan<T extends Component> implements Iterable<PlanStep> {
+public class Plan<T extends Component> implements Iterable<PlanStep>  {
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 

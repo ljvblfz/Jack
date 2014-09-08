@@ -16,6 +16,7 @@
 
 package com.android.sched.util.table;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.Formatter;
 
 import java.util.Iterator;
@@ -26,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Interface representing a table.
  */
-public interface Table extends Iterable<Iterable<String>> {
+public interface Table extends Iterable<Iterable<String>>, HasDescription {
   @Nonnull
   public Formatter<?>[] getFormatters();
 
@@ -34,6 +35,7 @@ public interface Table extends Iterable<Iterable<String>> {
   public String getName();
   public void setName(@Nonnull String name);
 
+  @Override
   @Nonnull
   public String getDescription();
   public void setDescription(@Nonnull String description);

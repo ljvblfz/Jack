@@ -83,6 +83,12 @@ public class ProbeManagerCodec implements StringCodec<ProbeManager> {
 
   @Override
   @Nonnull
+  public List<com.android.sched.util.codec.Parser.ValueDescription> getValueDescriptions() {
+    return parser.getValueDescriptions();
+  }
+
+  @Override
+  @Nonnull
   public String formatValue(@Nonnull ProbeManager data) {
     return parser.formatValue(data.getProbes());
   }

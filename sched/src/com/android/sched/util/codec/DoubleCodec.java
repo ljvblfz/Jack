@@ -18,6 +18,9 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -44,6 +47,12 @@ public class DoubleCodec implements StringCodec<Double> {
   @Nonnull
   public String getUsage() {
     return "a real number belonging to [" + min + " .. " + max + "]";
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
   }
 
   @Override

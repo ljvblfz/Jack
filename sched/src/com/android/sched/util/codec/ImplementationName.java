@@ -29,5 +29,6 @@ import java.lang.annotation.Target;
 public @interface ImplementationName {
   Class<?> iface();
   String   name();
+  String   description() default "";
   Class<? extends ImplementationFilter> filter() default ImplementationAlwaysValid.class;
 }

@@ -18,6 +18,9 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -48,6 +51,12 @@ public class LongCodec implements StringCodec<Long>{
   @Nonnull
   public String getUsage() {
     return "an integer belonging to [" + min + " .. " + max + "]";
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return Collections.<ValueDescription> emptyList();
   }
 
   @Override

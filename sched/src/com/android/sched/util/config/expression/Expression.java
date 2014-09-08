@@ -16,6 +16,7 @@
 
 package com.android.sched.util.config.expression;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.id.PropertyId;
@@ -27,9 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Abstract class representing an expression.
  */
-public abstract class Expression {
-  @Nonnull
-  public abstract String getDescription();
+public abstract class Expression implements HasDescription {
   @Nonnull
   public abstract String getCause(@Nonnull ConfigChecker checker) throws PropertyIdException;
 

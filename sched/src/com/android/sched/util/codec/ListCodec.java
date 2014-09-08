@@ -237,6 +237,12 @@ public class ListCodec<T> implements StringCodec<List<T>> {
 
   @Override
   @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return parser.getValueDescriptions();
+  }
+
+  @Override
+  @Nonnull
   public String formatValue(@Nonnull List<T> list) {
     StringBuilder sb = new StringBuilder();
 

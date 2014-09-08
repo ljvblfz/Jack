@@ -16,6 +16,10 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.HasDescription;
+
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -49,4 +53,36 @@ public interface Parser<T> {
    */
   @Nonnull
   public String getUsage();
+
+  /**
+   * @return a description for some possible values.
+   */
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions();
+
+  /**
+   * Description of a value.
+   */
+  public static class ValueDescription implements HasDescription {
+    @Nonnull
+    private final String value;
+    @Nonnull
+    private final String description;
+
+    public ValueDescription(@Nonnull String value, @Nonnull String description) {
+      this.value = value;
+      this.description = description;
+    }
+
+    @Nonnull
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return description;
+    }
+  }
 }

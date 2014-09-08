@@ -21,13 +21,14 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Items;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Schedulable;
+import com.android.sched.util.HasDescription;
 
 import javax.annotation.Nonnull;
 
 /**
  * Represents a {@link Schedulable} with all annotations and signatures extracted.
  */
-public abstract class ManagedSchedulable {
+public abstract class ManagedSchedulable implements HasDescription {
   @Nonnull
   private final Class<? extends Schedulable> schedulable;
 
@@ -92,6 +93,7 @@ public abstract class ManagedSchedulable {
   @Nonnull
   public abstract Class<? extends Component> getRunOn();
 
+  @Override
   @Nonnull
   public String getDescription() {
     return description;
