@@ -101,8 +101,7 @@ public class SourceGenerationVisitor extends ToStringGenerationVisitor {
 
   @Override
   public boolean visit(@Nonnull JSession x) {
-    for (int i = 0; i < x.getTypesToEmit().size(); ++i) {
-      JDefinedClassOrInterface type = x.getTypesToEmit().get(i);
+    for (JDefinedClassOrInterface type : x.getTypesToEmit()) {
       if (!type.isExternal()) {
         accept(type);
         newline();

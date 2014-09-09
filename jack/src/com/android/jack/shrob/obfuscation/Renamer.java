@@ -329,7 +329,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
   private final NameProviderFactory nameProviderFactory;
 
   @CheckForNull
-  private List<JDefinedClassOrInterface> allTypes;
+  private Collection<JDefinedClassOrInterface> allTypes;
 
   public Renamer() {
     File dictionary = null;
