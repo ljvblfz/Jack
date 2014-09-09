@@ -60,11 +60,11 @@ public class ShrinkMultiDexTest extends AbstractTest {
         new ProguardFlags(testFolder, "proguard.flags" + flagNumber)};
     File refFolder = new File(testFolder, "refsShrinking");
     Options options = new Options();
-    options.addProperty(DexFileWriter.MULTIDEX.getName(), "true");
+    options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
     options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     options.addProperty(PreProcessor.ENABLE.getName(), "true");
-    options.addProperty(PreProcessor.FILE.getName(),
-        new File(TestTools.getJackTestFolder("shrob"),"legacyMainDexClasses.jpp").getAbsolutePath());
+    options.addProperty(PreProcessor.FILE.getName(), new File(TestTools.getJackTestFolder("shrob"),
+        "legacyMainDexClasses.jpp").getAbsolutePath());
     TestTools.checkListingWhenMultiDex(options,
         bootclasspath,
         classpath,

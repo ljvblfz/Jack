@@ -55,7 +55,9 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
     File out = TestTools.createTempDir("out", "");
-    Options app1Options = createMultiDexEnabledOption(new File(testFolder, "config-001.jpp"));
+    Options app1Options = createCommonOptionsForMultiDex(new File(testFolder, "config-001.jpp"));
+
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
@@ -72,9 +74,9 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
     File out = TestTools.createTempDir("out", "");
-    Options app1Options = createMultiDexEnabledOption(new File(testFolder, "config-001.jpp"));
+    Options app1Options = createCommonOptionsForMultiDex(new File(testFolder, "config-001.jpp"));
 
-    app1Options.addProperty(DexFileWriter.MINIMAL_MAIN_DEX.getName(), "true");
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
@@ -93,9 +95,9 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
     File out = TestTools.createTempDir("out", "");
-    Options app1Options = createMultiDexEnabledOption(new File(testFolder, "config-003.jpp"));
+    Options app1Options = createCommonOptionsForMultiDex(new File(testFolder, "config-003.jpp"));
 
-    app1Options.addProperty(DexFileWriter.MINIMAL_MAIN_DEX.getName(), "true");
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
@@ -109,11 +111,10 @@ public class MultiDexTests {
     return;
   }
 
-  private Options createMultiDexEnabledOption(@Nonnull File configFile) throws IOException {
+  private Options createCommonOptionsForMultiDex(@Nonnull File configFile) throws IOException {
     File tmpOut = TestTools.createTempDir("tmp", "");
     Options app1Options = new Options();
     app1Options.addProperty(Options.TYPEDEX_DIR.getName(), tmpOut.getPath());
-    app1Options.addProperty(DexFileWriter.MULTIDEX.getName(), "true");
     app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     app1Options.addProperty(PreProcessor.ENABLE.getName(), "true");
     app1Options.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
@@ -168,8 +169,9 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
     File out = TestTools.createTempDir("out", "");
-    Options app1Options = createMultiDexEnabledOption(
+    Options app1Options = createCommonOptionsForMultiDex(
         new File(testFolder,"config-001.jpp"));
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath()
@@ -186,9 +188,9 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
     File out = TestTools.createTempDir("out", "");
-    Options app1Options = createMultiDexEnabledOption(
+    Options app1Options = createCommonOptionsForMultiDex(
         new File(testFolder,"config-001.jpp"));
-    app1Options.addProperty(DexFileWriter.MINIMAL_MAIN_DEX.getName(), "true");
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     app1Options.addJayceImport(library);
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
