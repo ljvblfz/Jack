@@ -22,6 +22,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoStatement;
@@ -78,9 +79,13 @@ import javax.annotation.Nonnull;
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
+  private final JClass javaLangObject =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
+  @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  static class TypeLegalizerVisitor extends JVisitor {
+  class TypeLegalizerVisitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
@@ -146,7 +151,18 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JDynamicCastOperation cast) {
-      maybeBoxOrUnbox(cast.getExpr(), cast.getCastType());
+      JExpression expr = cast.getExpr();
+      if (cast.getExpr().getType().isSameType(javaLangObject)
+          && cast.getCastType() instanceof JPrimitiveType) {
+        assert cast.getCastType() != JPrimitiveTypeEnum.VOID.getType();
+
+        JDynamicCastOperation castToWrapperType = new JDynamicCastOperation(expr.getSourceInfo(),
+            ((JPrimitiveType) cast.getCastType()).getWrapperType(),
+            expr);
+        tr.append(new Replace(expr, castToWrapperType));
+        expr = castToWrapperType;
+      }
+      maybeBoxOrUnbox(expr, cast.getCastType());
       super.endVisit(cast);
     }
 

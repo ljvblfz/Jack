@@ -58,7 +58,7 @@ public class TypeLegalizerTest {
     parentSetter.accept(methodBody);
 
     TransformationRequest tr = new TransformationRequest(methodBody);
-    TypeLegalizer.TypeLegalizerVisitor visitor = new TypeLegalizer.TypeLegalizerVisitor(tr);
+    TypeLegalizer.TypeLegalizerVisitor visitor = new TypeLegalizer().new TypeLegalizerVisitor(tr);
     visitor.accept(methodBody);
     tr.commit();
 
