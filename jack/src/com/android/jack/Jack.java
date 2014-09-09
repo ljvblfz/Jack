@@ -226,7 +226,8 @@ import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.parent.DeclaredTypePackageChecker;
 import com.android.jack.transformations.parent.PackageChecker;
-import com.android.jack.transformations.parent.ParentSetterChecker;
+import com.android.jack.transformations.parent.ParentChecker;
+import com.android.jack.transformations.parent.TypeParentChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
@@ -872,7 +873,7 @@ public abstract class Jack {
     }
 
     if (hasSanityChecks) {
-      planBuilder.append(ParentSetterChecker.class);
+      planBuilder.append(ParentChecker.class);
     }
 
     {
@@ -1116,11 +1117,14 @@ public abstract class Jack {
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
       }
+      if (hasSanityChecks) {
+        typePlan5.append(TypeParentChecker.class);
+      }
       typePlan5.append(OneDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {
-      planBuilder.append(ParentSetterChecker.class);
+      planBuilder.append(ParentChecker.class);
       {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1151,7 +1155,7 @@ public abstract class Jack {
     appendMultiDexAndShrobStartPlan(planBuilder);
 
     if (hasSanityChecks) {
-      planBuilder.append(ParentSetterChecker.class);
+      planBuilder.append(ParentChecker.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
@@ -1378,7 +1382,7 @@ public abstract class Jack {
     appendMultiDexAndShrobStartPlan(planBuilder);
 
     if (hasSanityChecks) {
-      planBuilder.append(ParentSetterChecker.class);
+      planBuilder.append(ParentChecker.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
@@ -1510,11 +1514,14 @@ public abstract class Jack {
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
       }
+      if (hasSanityChecks) {
+        typePlan5.append(TypeParentChecker.class);
+      }
       typePlan5.append(OneDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {
-      planBuilder.append(ParentSetterChecker.class);
+      planBuilder.append(ParentChecker.class);
     }
   }
 

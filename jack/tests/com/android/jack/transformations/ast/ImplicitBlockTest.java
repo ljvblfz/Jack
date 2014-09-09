@@ -25,7 +25,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
-import com.android.jack.transformations.parent.ParentSetterChecker;
+import com.android.jack.transformations.parent.ParentChecker;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
@@ -120,7 +120,7 @@ public class ImplicitBlockTest {
     sr.addInitialTagOrMarker(JavaSourceIr.class);
 
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
-    planBuilder.append(ParentSetterChecker.class);
+    planBuilder.append(ParentChecker.class);
     SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
     SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
     methodPlan.append(ImplicitBlocks.class);
