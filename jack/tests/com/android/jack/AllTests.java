@@ -86,6 +86,7 @@ import org.junit.runners.Suite.SuiteClasses;
     InnerTest.class,
     InvokesTest.class,
     JarjarTest.class,
+    LookupTest.class,
     MainTest.class,
     MarkerCollectorTest.class,
     MergerAllTests.class,
