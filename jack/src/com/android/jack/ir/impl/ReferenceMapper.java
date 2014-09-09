@@ -35,6 +35,7 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -498,7 +499,7 @@ public class ReferenceMapper {
     }
 
     if (refBinding == null) {
-      throw new JTypeLookupException(typeName);
+      throw new MissingJTypeLookupException(typeName);
     }
 
     return (refBinding);

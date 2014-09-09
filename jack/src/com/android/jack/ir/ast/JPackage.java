@@ -480,7 +480,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
         // ignore
       }
     }
-    throw new JTypeLookupException(this, simpleName);
+    throw new MissingJTypeLookupException(this, simpleName);
   }
 
   protected void loadClassesAndInterfaces() {

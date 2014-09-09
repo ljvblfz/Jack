@@ -16,16 +16,12 @@
 
 package com.android.jack;
 
-import com.android.jack.category.KnownBugs;
-
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
 public class LookupTest {
 
-  @Category(KnownBugs.class)
   @Test
   public void test001() throws Exception {
     File lib = TestTools.createTempDir("Lookup001Lib", "");
