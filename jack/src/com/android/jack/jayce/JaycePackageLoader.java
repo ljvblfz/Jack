@@ -21,7 +21,7 @@ import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
-import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
@@ -72,7 +72,7 @@ public class JaycePackageLoader implements PackageLoader {
         }
       }
     }
-    throw new JTypeLookupException(loading, simpleName);
+    throw new MissingJTypeLookupException(loading, simpleName);
   }
 
   @Override

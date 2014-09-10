@@ -18,6 +18,8 @@ package com.android.jack.lookup;
 
 import com.android.jack.JackUserException;
 
+import javax.annotation.Nonnull;
+
 /**
  * An {@code Exception} meaning that lookup failed.
  */
@@ -29,7 +31,7 @@ public abstract class JLookupException extends JackUserException {
     super();
   }
 
-  public JLookupException(Exception cause) {
+  public JLookupException(@Nonnull Exception cause) {
     super(cause);
   }
 }

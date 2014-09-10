@@ -16,7 +16,6 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.Jack;
 import com.android.jack.lookup.JLookupException;
 
 import javax.annotation.Nonnull;
@@ -24,31 +23,15 @@ import javax.annotation.Nonnull;
 /**
  * An {@code Exception} meaning that the lookup of a type failed.
  */
-public class JTypeLookupException extends JLookupException {
+public abstract class JTypeLookupException extends JLookupException {
 
   private static final long serialVersionUID = 1L;
-  @Nonnull
-  private final String typeSignature;
 
-  public JTypeLookupException(@Nonnull String typeSignature) {
-    super();
-    this.typeSignature = typeSignature;
+  public JTypeLookupException() {
   }
 
-  public JTypeLookupException(@Nonnull String typeSignature, @Nonnull Exception cause) {
+  public JTypeLookupException(@Nonnull  Exception cause) {
     super(cause);
-    this.typeSignature = typeSignature;
-  }
-
-  public JTypeLookupException(@Nonnull JPackage pack, @Nonnull String typeName) {
-    super();
-    typeSignature = Jack.getLookupFormatter().getName(pack, typeName);
-  }
-
-  @Override
-  @Nonnull
-  public String getMessage() {
-    return "Failed to lookup type " + typeSignature;
   }
 
 }

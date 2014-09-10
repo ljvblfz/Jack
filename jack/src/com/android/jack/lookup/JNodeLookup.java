@@ -17,6 +17,7 @@
 package com.android.jack.lookup;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.IncompatibleJTypeLookupException;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -28,6 +29,7 @@ import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -113,7 +115,7 @@ public class JNodeLookup extends JLookup {
             currentPackage = getPackage(typeName.substring(1, separatorIndex));
             simpleName = typeName.substring(separatorIndex + 1, typeNameLength - 1);
           } catch (JPackageLookupException e) {
-            throw new JTypeLookupException(typeName);
+            throw new MissingJTypeLookupException(typeName);
           }
         }
         result = currentPackage.getType(simpleName);
@@ -129,16 +131,22 @@ public class JNodeLookup extends JLookup {
   @Nonnull
   public JDefinedClass getClass(@Nonnull String typeName) throws JTypeLookupException {
     JType type = getType(typeName);
-    assert type instanceof JDefinedClass;
-    return (JDefinedClass) type;
+    if (type instanceof JDefinedClass) {
+      return (JDefinedClass) type;
+    } else {
+      throw new IncompatibleJTypeLookupException(type, JDefinedEnum.class);
+    }
   }
 
   @Override
   @Nonnull
   public JDefinedInterface getInterface(@Nonnull String typeName) throws JTypeLookupException {
     JType type = getType(typeName);
-    assert type instanceof JDefinedInterface;
-    return (JDefinedInterface) type;
+    if (type instanceof JDefinedInterface) {
+      return (JDefinedInterface) type;
+    } else {
+      throw new IncompatibleJTypeLookupException(type, JDefinedInterface.class);
+    }
   }
 
   private void addType(@Nonnull JType type) {
@@ -147,14 +155,24 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedAnnotation getAnnotation(@Nonnull String signature) throws JTypeLookupException {
-    return (JDefinedAnnotation) getType(signature);
+  public JDefinedAnnotation getAnnotation(@Nonnull String typeName) throws JTypeLookupException {
+    JType type = getType(typeName);
+    if (type instanceof JDefinedAnnotation) {
+      return (JDefinedAnnotation) type;
+    } else {
+      throw new IncompatibleJTypeLookupException(type, JDefinedAnnotation.class);
+    }
   }
 
   @Override
   @Nonnull
   public JDefinedEnum getEnum(@Nonnull String typeName) throws JTypeLookupException {
-    return (JDefinedEnum) getType(typeName);
+    JType type = getType(typeName);
+    if (type instanceof JDefinedEnum) {
+      return (JDefinedEnum) type;
+    } else {
+      throw new IncompatibleJTypeLookupException(type, JDefinedEnum.class);
+    }
   }
 
   @Override
