@@ -15,16 +15,6 @@
  */
 package com.android.jack.tools.merger;
 
-import com.android.jack.tools.merger.test001.MergerTest001;
-import com.android.jack.tools.merger.test002.MergerTest002;
-import com.android.jack.tools.merger.test003.MergerTest003;
-import com.android.jack.tools.merger.test004.MergerTest004;
-import com.android.jack.tools.merger.test005.MergerTest005;
-import com.android.jack.tools.merger.test006.MergerTest006;
-import com.android.jack.tools.merger.test007.MergerTest007;
-import com.android.jack.tools.merger.test008.MergerTest008;
-import com.android.jack.tools.merger.test009.MergerTest009;
-import com.android.jack.tools.merger.test010.MergerTest010;
 import com.android.jack.tools.merger.test011.MergerTest011;
 
 import org.junit.experimental.categories.Categories;
@@ -33,8 +23,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Categories.class)
 @SuiteClasses(
-value = {MergerTest001.class, MergerTest002.class, MergerTest003.class,
-    MergerTest004.class, MergerTest005.class, MergerTest006.class, MergerTest007.class,
-    MergerTest008.class, MergerTest009.class, MergerTest010.class, MergerTest011.class})
+value = {MergerTest011.class})
 public class MergerAllTests {
 }
