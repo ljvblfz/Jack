@@ -22,6 +22,7 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -239,8 +240,8 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   }
 
   @Override
-  @CheckForNull
-  public JAnnotationLiteral getAnnotation(@Nonnull JAnnotation annotationType) {
+  @Nonnull
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
     return annotations.getAnnotation(annotationType);
   }
 
@@ -248,6 +249,12 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Nonnull
   public Collection<JAnnotationLiteral> getAnnotations() {
     return annotations.getAnnotations();
+  }
+
+  @Override
+  @Nonnull
+  public Collection<JAnnotation> getAnnotationTypes() {
+    return annotations.getAnnotationTypes();
   }
 
   @Override

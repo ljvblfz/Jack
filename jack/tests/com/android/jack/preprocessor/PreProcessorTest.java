@@ -69,21 +69,21 @@ public class PreProcessorTest {
     {
       JDefinedClassOrInterface coi = lookup.getClass(
           "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
-      Assert.assertNotNull(coi.getAnnotation(installerAnnotation));
+      Assert.assertFalse(coi.getAnnotations(installerAnnotation).isEmpty());
       for (JMethod method : coi.getMethods()) {
         if (method.getName().equals("noAnnotation")) {
-          Assert.assertNull(method.getAnnotation(installerAnnotation));
+          Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
         } else {
-          Assert.assertNotNull(method.getAnnotation(installerAnnotation));
+          Assert.assertFalse(method.getAnnotations(installerAnnotation).isEmpty());
         }
       }
     }
     {
       JDefinedClassOrInterface coi = lookup.getClass(
           "Lcom/android/jack/preprocessor/test001/jack/app1/NoAnnotation;");
-      Assert.assertNull(coi.getAnnotation(installerAnnotation));
+      Assert.assertTrue(coi.getAnnotations(installerAnnotation).isEmpty());
       for (JMethod method : coi.getMethods()) {
-        Assert.assertNull(method.getAnnotation(installerAnnotation));
+        Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
       }
     }
 
@@ -132,12 +132,12 @@ public class PreProcessorTest {
     {
       JDefinedClassOrInterface coi = lookup.getClass(
           "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
-      Assert.assertNotNull(coi.getAnnotation(installerAnnotation));
+      Assert.assertFalse(coi.getAnnotations(installerAnnotation).isEmpty());
       for (JMethod method : coi.getMethods()) {
         if (method.getName().equals("noAnnotation")) {
-          Assert.assertNull(method.getAnnotation(installerAnnotation));
+          Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
         } else {
-          Assert.assertNotNull(method.getAnnotation(installerAnnotation));
+          Assert.assertFalse(method.getAnnotations(installerAnnotation).isEmpty());
         }
       }
     }

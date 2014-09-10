@@ -22,6 +22,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -101,8 +102,8 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
   }
 
   @Override
-  @CheckForNull
-  public JAnnotationLiteral getAnnotation(@Nonnull JAnnotation annotationType) {
+  @Nonnull
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
     return annotations.getAnnotation(annotationType);
   }
 
@@ -110,6 +111,12 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
   @Nonnull
   public Collection<JAnnotationLiteral> getAnnotations() {
     return annotations.getAnnotations();
+  }
+
+  @Override
+  @Nonnull
+  public Collection<JAnnotation> getAnnotationTypes() {
+    return annotations.getAnnotationTypes();
   }
 
   @Override
