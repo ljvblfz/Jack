@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.sched.util.RunnableHooks;
@@ -86,15 +87,13 @@ public class BinaryLookup {
 
   @Test
   public void lookupJavaLangStringError1() throws JTypeLookupException {
-    boolean fail = false;
     try {
       lookup.getInterface(CommonTypes.JAVA_LANG_STRING);
-      fail = true;
+      Assert.fail();
     }
-    catch (AssertionError e) {
+    catch (JLookupException e) {
       // Exception is normal path
     }
-    Assert.assertFalse(fail);
   }
 
   @Test
