@@ -29,7 +29,10 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -40,8 +43,8 @@ import javax.annotation.Nonnull;
 public class JSession extends JNode {
 
   @Nonnull
-  private final List<JDefinedClassOrInterface> typesToEmit =
-      new ArrayList<JDefinedClassOrInterface>();
+  private final Set<JDefinedClassOrInterface> typesToEmit =
+      new HashSet<JDefinedClassOrInterface>();
 
   @Nonnull
   private final JPackage topLevelPackage;
@@ -109,7 +112,7 @@ public class JSession extends JNode {
   }
 
   @Nonnull
-  public List<JDefinedClassOrInterface> getTypesToEmit() {
+  public Collection<JDefinedClassOrInterface> getTypesToEmit() {
     return typesToEmit;
   }
 

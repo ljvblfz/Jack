@@ -19,7 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.ir.InternalCompilerException;
 import com.android.sched.transform.TransformRequest;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -63,14 +63,13 @@ public class JVisitor {
     node.traverse(this);
   }
 
-  public <T extends JNode> void accept(@Nonnull List<T> list) {
-    int i = 0;
-    try {
-      for (int c = list.size(); i < c; ++i) {
-        list.get(i).traverse(this);
+  public <T extends JNode> void accept(@Nonnull Collection<T> collection) {
+    for (T element : collection) {
+      try {
+        element.traverse(this);
+      } catch (Throwable e) {
+        throw translateException(element, e);
       }
-    } catch (Throwable e) {
-      throw translateException(list.get(i), e);
     }
   }
 

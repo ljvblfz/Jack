@@ -42,12 +42,12 @@ public class ClassMembersScope implements Scope {
   @SuppressWarnings("unchecked")
   @Override
   public <T> Set<T> getNodesByName(@Nonnull Class<T> nodeType, @Nonnull NamePattern name) {
-    Collection<Object> list = new HashSet<Object>();
+    Collection<Object> nodes = new HashSet<Object>();
     if (JField.class.isAssignableFrom(nodeType) || nodeType.isAssignableFrom(JField.class)) {
       for (JField field : root.getFields()) {
         if (nodeType.isInstance(field)
             && name.matches(field.getName())) {
-          list.add(field);
+          nodes.add(field);
         }
       }
     } else if (JMethod.class.isAssignableFrom(nodeType)
@@ -55,7 +55,7 @@ public class ClassMembersScope implements Scope {
       for (JMethod method : root.getMethods()) {
         if (nodeType.isInstance(method)
             && name.matches(method.getName())) {
-          list.add(method);
+          nodes.add(method);
         }
       }
     } else if (JClassOrInterface.class.isAssignableFrom(nodeType)
@@ -63,11 +63,11 @@ public class ClassMembersScope implements Scope {
       for (JClassOrInterface jcoi : root.getMemberTypes()) {
         if (nodeType.isInstance(jcoi)
             && name.matches(jcoi.getName())) {
-          list.add(jcoi);
+          nodes.add(jcoi);
         }
       }
     }
-    return (Set<T>) list;
+    return (Set<T>) nodes;
   }
 
 }

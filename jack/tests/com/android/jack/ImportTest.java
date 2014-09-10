@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.backend.jayce.JayceFileImporter;
 
 import junit.framework.Assert;
 
@@ -63,5 +64,30 @@ public class ImportTest {
     } catch (ImportConflictException e) {
       // expected
     }
+  }
+
+  @Test
+  public void testConflictingImport() throws Exception {
+    String testName = "inner/test015";
+    File lib = TestTools.createTempDir("inner15Lib", "");
+    TestTools.compileSourceToJack(
+        new Options(),
+        TestTools.getJackTestLibFolder(testName),
+        TestTools.getDefaultBootclasspathString(),
+        lib,
+        false);
+
+    Options options = new Options();
+    options.addJayceImport(lib);
+    // import twice the same lib
+    options.addJayceImport(lib);
+
+    options.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "keep-first");
+    TestTools.compileSourceToDex(
+        options,
+        TestTools.getJackTestsWithJackFolder(testName),
+        TestTools.getDefaultBootclasspathString(),
+        TestTools.createTempFile("inner15", ".zip"), true);
+
   }
 }

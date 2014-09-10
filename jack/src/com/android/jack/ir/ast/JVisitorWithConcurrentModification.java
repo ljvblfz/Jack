@@ -17,7 +17,7 @@
 package com.android.jack.ir.ast;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -27,17 +27,16 @@ import javax.annotation.Nonnull;
 public class JVisitorWithConcurrentModification extends JVisitor {
 
   @Override
-  public <T extends JNode> void accept(@Nonnull List<T> list) {
-    int i = 0;
-    // Duplicate the visited list since commit of transformation request can add items into the
-    // list.
-    List<T> copiedList = new ArrayList<T>(list);
-    try {
-      for (int c = copiedList.size(); i < c; ++i) {
-        copiedList.get(i).traverse(this);
+  public <T extends JNode> void accept(@Nonnull Collection<T> collection) {
+    // Duplicate the visited collection since commit of transformation request can add items into
+    // the input collection.
+    Collection<T> copiedCollection = new ArrayList<T>(collection);
+    for (T element : copiedCollection) {
+      try {
+        element.traverse(this);
+      } catch (Throwable e) {
+        throw translateException(element, e);
       }
-    } catch (Throwable e) {
-      throw translateException(copiedList.get(i), e);
     }
   }
 

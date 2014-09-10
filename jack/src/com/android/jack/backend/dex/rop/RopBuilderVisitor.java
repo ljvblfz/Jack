@@ -364,8 +364,7 @@ class RopBuilderVisitor extends JVisitor {
     return extraInstructions;
   }
 
-  @Override
-  public <T extends JNode> void accept(@Nonnull List<T> list) {
+  public void accept(@Nonnull List<JStatement> list) {
     instructions = new LinkedList<Insn>();
     extraInstructions = new LinkedList<Insn>();
     noMoreInstruction = false;
