@@ -91,4 +91,9 @@ import org.junit.Test;
     public void test013() {
        Assert.assertTrue(TryWithResourcesTest002.m13());
     }
+
+    @Test
+    public void test014() throws Exception {
+      Assert.assertTrue(TryWithResourcesTest002.m14(1));
+    }
 }

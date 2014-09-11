@@ -270,4 +270,28 @@ public class TryWithResourcesTest002 {
     return result;
   }
 
+  private static boolean getMaybeThrow(int condition) throws E1 {
+    if (condition < 5) {
+      return true;
+    } else if (condition > 15) {
+      return false;
+    }
+    throw new E1();
+  }
+
+  public static boolean m14(int condition) throws Exception {
+    Observer o1 = new Observer();
+    try (
+        AutoCloseable001 ac1 = new AutoCloseable001(o1);
+        ) {
+      if (condition < 10) {
+        return getMaybeThrow(condition + 2);
+      }
+      return getMaybeThrow(condition);
+      // No exception
+    } catch (E1 e) {
+      return getMaybeThrow(condition - 10);
+    }
+  }
+
 }
