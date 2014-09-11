@@ -69,6 +69,58 @@ import javax.annotation.Nonnull;
 /**
  * This {@link RunnableSchedulable} generates the code that will handle auto-closeable resources
  * in try-with-resources statements.
+ *
+ * try (
+ *    Res1 res1 = new Res1();
+ *    ...
+ *    ResN resN = new ResN();
+ *    )
+ *    {
+ *       // statements
+ *    }
+ * catch (...) {}
+ * finally {}
+ *
+ * =>
+ *
+ * try {
+ *    exceptionToThrow = null;
+ *    Res1 res1 = null;
+ *    ...
+ *    ResN resN = null;
+ *
+ *    try {
+ *       res1 = new Res1();
+ *       ...
+ *       resN = new ResN();
+ *
+ *       // statements
+ *
+ *    } catch (Throwable twrExceptionInTry) {
+ *       exceptionToThrow = twrExceptionInTry;
+ *       throw twrExceptionInTry;
+ *    } finally {
+ *       try {
+ *          if (resN != null) {
+ *             resN.close();
+ *          }
+ *       } catch (Throwable twrExceptionThrownByClose_) {
+ *          if (exceptionToThrow == null) {
+ *             exceptionToThrow = twrExceptionThrownByClose_;
+ *          } else if (exceptionToThrow != twrExceptionThrownByClose_) {
+ *             exceptionToThrow.addSupressed(twrExceptionThrownByClose_);
+ *          }
+ *       }
+ *       ... for all resources till res1 ...
+ *
+ *       if (exceptionToThrow != null) {
+ *          throw exceptionToThrow
+ *       }
+ *    }
+ * }
+ *  catch (...) {}
+ *  finally {}
+ *
  */
 @Description("Generates the code that will handle auto-closeable resources in try-with-resources" +
          "statements.")
@@ -179,12 +231,6 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
             new JLocalRef(endOfTrySourceInfos, tryException));
 
         catchBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, save));
-        // An exception is catched. It is rethrown by the code into finally block that was
-        // inside an if statement to check that the exception is not null, and then rethrow it.
-        // This code is not correct at compile time, since it required a null check analysis
-        // to verify that return instruction is not required since throw will always be executed.
-        // Force rethrow of exception here to have a correct control flow graph, even if at runtime
-        // this code will never be executed.
         catchBlock.addStmt(new JThrowStatement(endOfTrySourceInfos,
             new JLocalRef(endOfTrySourceInfos, exceptionToThrow)));
 
