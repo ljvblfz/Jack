@@ -1,2 +1,3 @@
 rule com.android.jack.jarjar.test003.jack.B com.android.jack.jarjar.test003.jack.relocated.B
+rule com.android.jack.jarjar.test003.jack.B* com.android.jack.jarjar.test003.jack.relocated.B@1
 rule com.android.jack.jarjar.test003.jack.C com.android.jack.jarjar.test003.jack.relocated.C
