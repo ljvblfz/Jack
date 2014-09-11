@@ -61,4 +61,12 @@ public class ImplicitCastTest {
     TestTools.runCompilation(TestTools.buildCommandLineArgs(
         TestTools.getJackTestsWithJackFolder("cast/implicit004")));
   }
+  /**
+   * Verifies that the test source can compile from source to dex file.
+   */
+  @Test
+  public void testCompile006() throws Exception {
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+        TestTools.getJackTestsWithJackFolder("cast/implicit006")));
+  }
 }

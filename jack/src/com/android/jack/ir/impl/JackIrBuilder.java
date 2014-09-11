@@ -66,7 +66,6 @@ import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
-import com.android.jack.ir.ast.JIntegralConstant32;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
@@ -88,6 +87,7 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JNullType;
+import com.android.jack.ir.ast.JNumberLiteral;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPostfixOperation;
@@ -114,6 +114,7 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.ast.Number;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -345,13 +346,13 @@ public class JackIrBuilder {
             JExpression expr = (JExpression) result.get(i);
             expr = simplify(expr, expressions[i]);
 
-            if (type.getElementType() instanceof JPrimitiveType && expr instanceof JValueLiteral
+            if (type.getElementType() instanceof JPrimitiveType && expr instanceof JNumberLiteral
                 && !expr.getType().isSameType(type.getElementType())) {
               // We have a constant with a different type than array type, change it to the right
               // type
               values.add(changeTypeOfLiteralValue(
                   ((JPrimitiveType) type.getElementType()).getPrimitiveTypeEnum(),
-                  (JValueLiteral) expr));
+                  (JNumberLiteral) expr));
             } else {
               values.add(expr);
             }
@@ -366,47 +367,37 @@ public class JackIrBuilder {
       }
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Nonnull
     private JValueLiteral changeTypeOfLiteralValue(@Nonnull JPrimitiveTypeEnum expectedType,
-        @Nonnull JValueLiteral expr) throws AssertionError {
+        @Nonnull JNumberLiteral expr) throws AssertionError {
       SourceInfo sourceInfo = expr.getSourceInfo();
+      Number number = expr.getNumber();
 
       switch (expectedType) {
         case BYTE: {
-          return (new JByteLiteral(sourceInfo, (byte) ((JIntegralConstant32) expr).getIntValue()));
+          return (new JByteLiteral(sourceInfo, number.byteValue()));
         }
         case CHAR: {
-          return (new JCharLiteral(sourceInfo, (char) ((JIntegralConstant32) expr).getIntValue()));
+          return (new JCharLiteral(sourceInfo, number.charValue()));
         }
         case SHORT: {
-          return (new JShortLiteral(sourceInfo,
-              (short) ((JIntegralConstant32) expr).getIntValue()));
+          return (new JShortLiteral(sourceInfo, number.shortValue()));
         }
         case LONG: {
-          return (new JLongLiteral(sourceInfo, ((JIntegralConstant32) expr).getIntValue()));
+          return (new JLongLiteral(sourceInfo, number.longValue()));
         }
         case FLOAT: {
-          if (expr instanceof JIntLiteral) {
-            return (new JFloatLiteral(sourceInfo, ((JIntLiteral) expr).getValue()));
-          } else if (expr instanceof JLongLiteral) {
-            return (new JFloatLiteral(sourceInfo, ((JLongLiteral) expr).getValue()));
-          }
-          break;
+          return (new JFloatLiteral(sourceInfo, number.floatValue()));
         }
         case DOUBLE: {
-          if (expr instanceof JIntLiteral) {
-            return (new JDoubleLiteral(sourceInfo, ((JIntLiteral) expr).getValue()));
-          } else if (expr instanceof JFloatLiteral) {
-            return (new JDoubleLiteral(sourceInfo, ((JFloatLiteral) expr).getValue()));
-          } else if (expr instanceof JLongLiteral) {
-            return (new JDoubleLiteral(sourceInfo, ((JLongLiteral) expr).getValue()));
-          }
-          break;
+          return (new JDoubleLiteral(sourceInfo, number.doubleValue()));
         }
-        case INT:
-        case BOOLEAN: {
-          return (expr);
+        case INT: {
+          return (new JIntLiteral(sourceInfo, number.intValue()));
+        }
+        case BOOLEAN:
+        case VOID: {
+          throw new AssertionError();
         }
       }
 
