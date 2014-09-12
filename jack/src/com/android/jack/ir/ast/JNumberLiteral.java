@@ -16,14 +16,17 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.HasSourceInfo;
+
 import javax.annotation.Nonnull;
 
 /**
  * Interface implemented by any Java literal expression that could return Object representing
  * numeric or floating point value.
  */
-public interface JNumberLiteral {
+public interface JNumberLiteral extends HasSourceInfo {
 
   @Nonnull
   public Number getNumber();
+
 }
