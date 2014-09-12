@@ -43,6 +43,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -111,17 +112,19 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   private JAnnotationLiteral getDefaultAnnotation(@Nonnull JDefinedAnnotation targetType,
       @Nonnull TransformationRequest tr) {
     JAnnotation defaultAnnotationType = getDefaultAnnotationType(targetType);
-    JAnnotationLiteral defaultAnnotation =
-        targetType.getAnnotation(defaultAnnotationType);
-    if (defaultAnnotation == null) {
-      defaultAnnotation = new JAnnotationLiteral(
-          SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM, defaultAnnotationType);
-      JMethodId methodId = defaultAnnotationType.getOrCreateMethodId(
-          "value", Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
-      defaultAnnotation
-          .add(new JNameValuePair(SourceInfo.UNKNOWN, methodId, new JAnnotationLiteral(
-              SourceInfo.UNKNOWN, targetType.getRetentionPolicy(), targetType)));
+    JAnnotationLiteral defaultAnnotation = null;
+    List<JAnnotationLiteral> defaultAnnotations = targetType.getAnnotations(defaultAnnotationType);
+    if (defaultAnnotations.isEmpty()) {
+      defaultAnnotation = new JAnnotationLiteral(SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM,
+          defaultAnnotationType);
+      JMethodId methodId = defaultAnnotationType.getOrCreateMethodId("value",
+          Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
+      defaultAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
+          new JAnnotationLiteral(SourceInfo.UNKNOWN, targetType.getRetentionPolicy(), targetType)));
       tr.append(new AddAnnotation(defaultAnnotation, targetType));
+    } else {
+      assert defaultAnnotations.size() == 1;
+      defaultAnnotation = defaultAnnotations.get(0);
     }
     return (JAnnotationLiteral) defaultAnnotation.getNameValuePairs().iterator().next().getValue();
   }

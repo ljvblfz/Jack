@@ -50,7 +50,7 @@ public class AddAnnotationStep implements TransformationStep {
       if (candidate instanceof Annotable) {
         Annotable annotable = (Annotable) candidate;
         // Do not override existing annotation
-        if (annotable.getAnnotation(annotation) == null) {
+        if (annotable.getAnnotations(annotation).isEmpty()) {
           JAnnotationLiteral literal = new JAnnotationLiteral(
               SourceInfo.UNKNOWN, annotation.getRetentionPolicy(), annotation);
           annotable.addAnnotation(literal);

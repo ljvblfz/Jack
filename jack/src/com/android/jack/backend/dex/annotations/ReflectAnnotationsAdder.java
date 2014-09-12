@@ -61,6 +61,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.With;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -324,9 +325,13 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     private JAnnotationLiteral getAnnotation(@Nonnull Annotable annotable,
         @Nonnull JAnnotation annotationType,  @Nonnull SourceInfo info) {
       assert isSystemAnnotation(annotationType);
-      JAnnotationLiteral annotation = annotable.getAnnotation(annotationType);
-      if (annotation == null) {
+      JAnnotationLiteral annotation = null;
+      Collection<JAnnotationLiteral> annotations = annotable.getAnnotations(annotationType);
+      if (annotations.isEmpty()) {
         annotation = createAnnotation(annotable, annotationType, info);
+      } else {
+        assert annotations.size() == 1;
+        annotation = annotations.iterator().next();
       }
       return annotation;
     }

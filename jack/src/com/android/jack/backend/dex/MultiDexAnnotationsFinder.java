@@ -44,21 +44,21 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
   private final JVisitor visitor = new JVisitor() {
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface node) {
-      if (node.getAnnotation(installerAnnotation) != null) {
+      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
         markIfNecessary(node);
       }
       return super.visit(node);
     }
     @Override
     public boolean visit(@Nonnull JField node) {
-      if (node.getAnnotation(installerAnnotation) != null) {
+      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
         markIfNecessary(node);
       }
       return false;
     }
     @Override
     public boolean visit(@Nonnull JMethod node) {
-      if (node.getAnnotation(installerAnnotation) != null) {
+      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
         markIfNecessary(node);
       }
       return false;
@@ -85,7 +85,7 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
     }
     visitor.accept(type);
 
-    if (type.getAnnotation(mainDexAnnotation) != null) {
+    if (!type.getAnnotations(mainDexAnnotation).isEmpty()) {
       type.addMarker(ForceInMainDexMarker.INSTANCE);
     }
   }

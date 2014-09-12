@@ -18,7 +18,6 @@ package com.android.jack.ir.ast;
 
 import java.util.Collection;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,9 +27,12 @@ public interface Annotable {
 
   void addAnnotation(@Nonnull JAnnotationLiteral annotation);
 
-  @CheckForNull
-  JAnnotationLiteral getAnnotation(@Nonnull JAnnotation annotationType);
+  @Nonnull
+  Collection<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType);
 
   @Nonnull
   Collection<JAnnotationLiteral> getAnnotations();
+
+  @Nonnull
+  Collection<JAnnotation> getAnnotationTypes();
 }
