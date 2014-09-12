@@ -29,9 +29,12 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.annotation.Nonnull;
 
@@ -121,11 +124,12 @@ public class MultiDexTests {
     return app1Options;
   }
 
-  private File getListingOfDex(File out) throws IOException, FileNotFoundException {
+  private File getListingOfDex(@Nonnull File dex) throws IOException, FileNotFoundException {
+    assert dex.isFile();
     ExecuteFile exec =
         new ExecuteFile(new String[]{
             "bash", "-c", "dexdump "
-        + out.getAbsolutePath() +
+        + dex.getAbsolutePath() +
         " | grep \"  Class descriptor  : \" | cut -d\\' -f2 | sed -e 's/$/:/'"});
 
     File outList = TestTools.createTempFile("types", ".txt");
@@ -133,6 +137,26 @@ public class MultiDexTests {
     exec.setOut(outList);
     Assert.assertTrue(exec.run());
     return outList;
+  }
+
+  private int getTypeCountInDex(@Nonnull File dex) throws IOException, FileNotFoundException {
+    assert dex.isFile();
+    ExecuteFile exec =
+        new ExecuteFile(new String[]{
+            "bash", "-c", "dexdump "
+        + dex.getAbsolutePath() +
+        " | grep \"  Class descriptor  : \" | wc -l"});
+
+    File out = TestTools.createTempFile("typeNumber", ".txt");
+
+    exec.setOut(out);
+    Assert.assertTrue(exec.run());
+    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(out)));
+    try {
+      return Integer.parseInt(reader.readLine().trim());
+    } finally {
+      reader.close();
+    }
   }
 
   @Nonnull
@@ -177,9 +201,14 @@ public class MultiDexTests {
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath()
         + File.pathSeparator + library.getPath(), out, false);
 
-    Assert.assertTrue(new File(out, "classes.dex").exists());
-    Assert.assertTrue(new File(out, "classes2.dex").exists());
-    Assert.assertFalse(new File(out, "classes3.dex").exists());
+    File classesDex = new File(out, "classes.dex");
+    Assert.assertTrue(classesDex.exists());
+    File classes2Dex = new File(out, "classes2.dex");
+    Assert.assertTrue(classes2Dex.exists());
+    File classes3Dex = new File(out, "classes3.dex");
+    Assert.assertFalse(classes3Dex.exists());
+    int totalTypeNumber = getTypeCountInDex(classesDex) + getTypeCountInDex(classes2Dex);
+    Assert.assertEquals(100, totalTypeNumber);
     return;
   }
 
