@@ -66,6 +66,12 @@ public class MinimalMultiDexWritingTool extends DexWritingTool {
         finishMerge(merger, outputDex);
         outputDex = getOutputDex(outputVDir, dexCount++);
         merger = new JackMerger(createDexFile());
+        try {
+          mergeDex(merger, currentDex);
+        } catch (MergeOverflow e1) {
+          // This should not happen, the type is not too big, we've just read it from a dex.
+          throw new AssertionError();
+        }
       }
     }
 
