@@ -1699,7 +1699,7 @@ public class JackIrBuilder {
     public boolean visit(AnnotationMethodDeclaration x, ClassScope classScope) {
       JAnnotationMethod method = (JAnnotationMethod) getTypeMap().get(x.binding);
       JMethodBody body = null;
-      pushMethodInfo(new MethodInfo(method, body, x.scope));
+      pushMethodInfo(new MethodInfo(this, method, body, x.scope));
 
       Annotation[] annotations = x.annotations;
       if (annotations != null) {
@@ -1740,7 +1740,7 @@ public class JackIrBuilder {
         SourceInfo sourceInfo = method.getSourceInfo();
         JMethodBody body = new JMethodBody(sourceInfo, new JBlock(sourceInfo));
         method.setBody(body);
-        pushMethodInfo(new MethodInfo(method, body, x.scope));
+        pushMethodInfo(new MethodInfo(this, method, body, x.scope));
 
         // Map all arguments.
         Iterator<JParameter> it = method.getParams().iterator();
@@ -1862,7 +1862,7 @@ public class JackIrBuilder {
           body = new JMethodBody(sourceInfo, new JBlock(sourceInfo));
           method.setBody(body);
         }
-        pushMethodInfo(new MethodInfo(method, body, x.scope));
+        pushMethodInfo(new MethodInfo(this, method, body, x.scope));
 
         // Map user arguments.
         Iterator<JParameter> it = method.getParams().iterator();
@@ -2212,7 +2212,7 @@ public class JackIrBuilder {
       JMethodBody body = (JMethodBody) bridgeMethod.getBody();
       assert body != null;
 
-      pushMethodInfo(new MethodInfo(bridgeMethod, body, null /* no available scope */));
+      pushMethodInfo(new MethodInfo(this, bridgeMethod, body, null /* no available scope */));
 
       // create a call and pass all arguments through, casting if necessary
       JMethodCall call = makeMethodCall(info, makeThisRef(info), implMethod.getEnclosingType(),
@@ -2589,7 +2589,7 @@ public class JackIrBuilder {
       } else {
         initMeth = curClass.type.getMethod(INIT_METHOD_NAME, JPrimitiveTypeEnum.VOID.getType());
       }
-      pushMethodInfo(new MethodInfo(initMeth, (JMethodBody) initMeth.getBody(), scope));
+      pushMethodInfo(new MethodInfo(this, initMeth, (JMethodBody) initMeth.getBody(), scope));
     }
 
     private void pushMethodInfo(MethodInfo newInfo) {
@@ -2965,12 +2965,15 @@ public class JackIrBuilder {
     @Nonnull
     public final JMethod method;
     public final MethodScope scope;
+    @Nonnull
+    private final AstVisitor ast;
 
-    public MethodInfo(@Nonnull JMethod method, @CheckForNull JMethodBody methodBody,
-        @CheckForNull MethodScope methodScope) {
+    public MethodInfo(@Nonnull AstVisitor ast, @Nonnull JMethod method,
+        @CheckForNull JMethodBody methodBody, @CheckForNull MethodScope methodScope) {
       this.method = method;
       this.body = methodBody;
       this.scope = methodScope;
+      this.ast = ast;
     }
 
     @Nonnull
@@ -2980,6 +2983,12 @@ public class JackIrBuilder {
         jackVar = locals.get(ecjVar);
       } else {
         jackVar = locals.get(ecjVar.declaration);
+        if (jackVar == null && ((ecjVar.declaration.bits & ASTNode.IsReachable) == 0)) {
+          // Variable declaration appears in dead code but the variable is used in non dead code,
+          // thus force variable declaration creation
+          body.addLocal(ast.createLocal(ecjVar.declaration));
+          jackVar = locals.get(ecjVar.declaration);
+        }
       }
       assert jackVar != null;
       return jackVar;

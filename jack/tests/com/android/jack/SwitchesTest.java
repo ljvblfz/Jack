@@ -150,4 +150,11 @@ public class SwitchesTest {
 
     Assert.assertTrue(packedSwitchDataPseudo);
   }
+
+
+  @Test
+  public void testCompile10() throws Exception {
+    TestTools.runCompilation(TestTools.buildCommandLineArgs(
+        TestTools.getJackTestsWithJackFolder("switchstatement/test010")));
+  }
 }

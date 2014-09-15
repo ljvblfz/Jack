@@ -244,12 +244,12 @@ $(call declare-test-with-name,string/concat003)
 $(call declare-test-with-name,switchstatement/test001)
 $(call declare-test-with-name,switchstatement/test002)
 $(call declare-test-with-name,switchstatement/test003)
-# TODO uncomment when bug 7439926 is corrected
-#$(call declare-test-with-name,switchstatement/test004)
+$(call declare-test-with-name,switchstatement/test004)
 $(call declare-test-with-name,switchstatement/test005)
 $(call declare-test-with-name,switchstatement/test006)
 $(call declare-test-with-name,switchstatement/test007)
 $(call declare-test-with-name,switchstatement/test008)
+$(call declare-test-with-name,switchstatement/test010)
 
 # Synchronize
 $(call declare-test-with-name,synchronize/test001)
