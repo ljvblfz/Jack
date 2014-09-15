@@ -156,7 +156,7 @@
     <javac srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
         <filelist refid="jack.link.libs.fileset" />
         <filelist refid="jack.static.libs.fileset" />
@@ -248,7 +248,9 @@
       <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
     </filelist>
     <!-- compile -->
-    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}" source="1.5" target="1.5" debug="true" includeantruntime="false">
+    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
+      source="1.5" target="1.5" debug="true"
+      includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="jackunittests.link.libs.fileset"/>
         <filelist refid="jack.static.libs.fileset"/>
@@ -329,7 +331,7 @@
     <javac srcdir="${args4j.dir}/args4j/src"
       destdir="${args4j.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <!-- package -->
     <copy todir="${args4j.build.outdir}">
       <fileset dir="${args4j.dir}/args4j/src">
@@ -367,7 +369,7 @@
     <javac srcdir="${dx.dir}/src"
       destdir="${dx.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist>
           <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
@@ -449,7 +451,7 @@
     <javac source="1.5" target="1.5"
       srcdir="${guava.dir}/src"
       destdir="${guava.build.outdir}"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist dir="/">
           <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -484,7 +486,7 @@
     <javac srcdir="${jsr305.dir}/ri/src/main/java"
       destdir="${jsr305.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <!-- package -->
     <jar destfile="${jsr305.dist.dir}/${jsr305.libname}"
         basedir="${jsr305.build.outdir}"
@@ -513,7 +515,7 @@
     <javac srcdir="${maths.dir}/core/src/java/main"
     destdir="${maths.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false"/>
+      debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <!-- package -->
     <jar destfile="${maths.dist.dir}/${maths.libname}"
       basedir="${maths.build.outdir}"
@@ -570,7 +572,8 @@
     </filelist>
 
     <!-- compile -->
-    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}" source="1.5" target="1.5" debug="true" includeantruntime="false">
+    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
+      source="1.5" target="1.5" debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
       </classpath>
@@ -592,32 +595,27 @@
   <!-- sched-build-lib     -->
   <!-- ******************* -->
   <property name="sched-build.build.dir" value="${sched.dir}/build/sched-build-lib" />
-  <property name="sched-build.libs.dir" value="${sched.dir}/libs" />
   <property name="sched-build.build.outdir" value="${sched-build.build.dir}/classes" />
   <property name="sched-build.dist.dir" value="${sched.dir}/dist" />
   <property name="sched-build.libname" value="sched-build-lib.jar" />
 
   <target name="sched-build-lib-clean">
     <delete dir="${sched-build.build.dir}" />
-    <delete dir="${sched-build.libs.dir}" />
     <delete file="${sched-build.dist.dir}/${sched-build.libname}" />
   </target>
 
-  <target name="sched-build-lib-compile" depends="sched-copy-libs,jsr305-lib">
+  <target name="sched-build-lib-compile" depends="sched-copy-libs">
     <!-- project layout -->
     <mkdir dir="${sched-build.build.outdir}"/>
-    <mkdir dir="${sched-build.libs.dir}"/>
     <mkdir dir="${sched-build.dist.dir}"/>
     <!-- compile -->
     <javac
        srcdir="${sched.dir}/src"
        destdir="${sched-build.build.outdir}"
        source="1.5" target="1.5"
-       debug="true" includeantruntime="false">
+       debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
-        <fileset dir="${sched-build.libs.dir}">
-          <include name="**/*.jar" />
-        </fileset>
+        <fileset file="${jsr305.dist.dir}/${jsr305.libname}"/>
       </classpath>
       <include name="com/android/sched/build/SchedAnnotationProcessor.java" />
       <include name="com/android/sched/build/JarMerger.java"/>
@@ -692,7 +690,7 @@
     <javac srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedtests.link.libs.fileset"/>
       </classpath>
@@ -726,7 +724,7 @@
     <javac srcdir="${watchmaker.dir}/framework/src/java/main"
       destdir="${watchmaker.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist dir="/">
           <file name="${maths.dist.dir}/${maths.libname}" />
@@ -762,7 +760,7 @@
     <javac srcdir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java"
       destdir="${antlr-rt.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <exclude name="org/antlr/runtime/tree/DOTTreeGenerator.java" />
     </javac>
     <!-- package -->
@@ -793,7 +791,7 @@
     <javac srcdir="${allocation.dir}/src/main/java"
       destdir="${allocation.build.outdir}"
       source="1.5" target="1.5"
-      debug="true" includeantruntime="false">
+      debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist dir="/">
           <file name="${guava.dist.dir}/${guava.libname}" />
@@ -828,7 +826,7 @@
     <javac srcdir="${junit4.dir}/src/main/java"
         destdir="${junit4.build.outdir}"
         source="1.5" target="1.5"
-        debug="true" includeantruntime="false">
+        debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist dir="/">
           <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
@@ -893,7 +891,7 @@
     <javac srcdir="${hamcrest-core.dir}/src"
           destdir="${hamcrest-core.build.outdir}"
           source="1.5" target="1.5"
-          debug="true" includeantruntime="false"/>
+          debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <!-- package -->
     <jar destfile="${hamcrest-core.dist.dir}/${hamcrest-core.libname}"
           basedir="${hamcrest-core.build.outdir}"
@@ -935,7 +933,7 @@
     <javac srcdir="${dexcomparator.dir}/src"
             destdir="${dexcomparator.build.outdir}"
             source="1.5" target="1.5"
-            debug="true" includeantruntime="false">
+            debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <fileset dir="${dexcomparator.libs.dir}">
           <include name="**/*.jar"/>
@@ -987,7 +985,7 @@
     <javac srcdir="${dexlib.dir}/src/main/java"
             destdir="${dexlib.build.outdir}"
             source="1.5" target="1.5"
-            debug="true" includeantruntime="false">
+            debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist dir="/">
           <file name="${guava.dist.dir}/${guava.libname}"/>
@@ -1031,7 +1029,7 @@
     </java>
     <javac srcdir="${core-stubs-mini.dir}/src"
       destdir="${core-stubs-mini.build.dir}"
-      source="1.5" target="1.5" debug="true" includeantruntime="false"/>
+      source="1.5" target="1.5" debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <jar destfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"
             basedir="${core-stubs-mini.build.dir}"
             includes="**"/>
