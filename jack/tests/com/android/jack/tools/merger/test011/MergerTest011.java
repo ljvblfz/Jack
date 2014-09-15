@@ -19,7 +19,7 @@ package com.android.jack.tools.merger.test011;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
+import com.android.jack.category.SlowTests;
 import com.android.jack.tools.merger.MergeOverflow;
 import com.android.jack.tools.merger.MergerTestTools;
 
@@ -44,6 +44,9 @@ public class MergerTest011 extends MergerTestTools {
 
   private static int fileCount = 655;
 
+  private static final String expectedExceptionMessage =
+      "Index overflow while merging dex files. Try using multidex";
+
   @BeforeClass
   public static void setUpClass() {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
@@ -63,7 +66,10 @@ public class MergerTest011 extends MergerTestTools {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
-      Assert.assertTrue(e.getCause() instanceof MergeOverflow);
+      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+      Throwable cause = e.getCause();
+      Assert.assertTrue(cause instanceof MergeOverflow);
+      Assert.assertEquals("Method ids overflow", cause.getMessage());
     }
   }
 
@@ -80,12 +86,15 @@ public class MergerTest011 extends MergerTestTools {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
-      Assert.assertTrue(e.getCause() instanceof MergeOverflow);
+      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+      Throwable cause = e.getCause();
+      Assert.assertTrue(cause instanceof MergeOverflow);
+      Assert.assertEquals("Field ids overflow", cause.getMessage());
     }
   }
 
   @Test
-  @Category(KnownBugs.class)
+  @Category(SlowTests.class)
   public void testMergerWithHighNumberOfTypes() throws Exception {
     File srcFolder = TestTools.createTempDir("oneDexPerType", "SrcFolder");
 
@@ -98,7 +107,10 @@ public class MergerTest011 extends MergerTestTools {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
     } catch (JackUserException e) {
-      Assert.assertTrue(e.getCause() instanceof MergeOverflow);
+      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+      Throwable cause = e.getCause();
+      Assert.assertTrue(cause instanceof MergeOverflow);
+      Assert.assertEquals("Type ids overflow", cause.getMessage());
     }
   }
 
