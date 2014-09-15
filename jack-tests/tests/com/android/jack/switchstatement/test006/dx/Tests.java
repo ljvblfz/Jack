@@ -19,7 +19,6 @@ package com.android.jack.switchstatement.test006.dx;
 import com.android.jack.switchstatement.test006.jack.Switch;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
