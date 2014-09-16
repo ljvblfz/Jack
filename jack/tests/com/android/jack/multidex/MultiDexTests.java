@@ -114,10 +114,8 @@ public class MultiDexTests {
     return;
   }
 
-  private Options createCommonOptionsForMultiDex(@Nonnull File configFile) throws IOException {
-    File tmpOut = TestTools.createTempDir("tmp", "");
+  private Options createCommonOptionsForMultiDex(@Nonnull File configFile) {
     Options app1Options = new Options();
-    app1Options.addProperty(Options.TYPEDEX_DIR.getName(), tmpOut.getPath());
     app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     app1Options.addProperty(PreProcessor.ENABLE.getName(), "true");
     app1Options.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
@@ -171,7 +169,7 @@ public class MultiDexTests {
   }
 
   @Nonnull
-  private static File prepareAnnotations() throws IOException, Exception {
+  protected static File prepareAnnotations() throws IOException, Exception {
     File annotations = TestTools.createTempDir("multidexAnnotations", "");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getFromAndroidTree(
