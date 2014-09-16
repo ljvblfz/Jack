@@ -123,6 +123,39 @@ public class SourceErrorTest {
     }
   }
 
+  /**
+   * Checks that compilation fails because there are too many methods in a single class.
+   */
+  @Test
+  public void testInvalidSource005() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    int methodCount = 65536;
+    StringBuilder content =
+        new StringBuilder("public class A {");
+    // -1 due to implicit init method
+    for (int mthIdx = 0; mthIdx < methodCount - 1; mthIdx++) {
+      content.append("public void m" + mthIdx + "() {} \n");
+    }
+    content.append("} \n");
+
+    te.addFile(te.getSourceFolder(), "jack.overflow", "A.java",
+        "package jack.overflow; \n" + content.toString());
+
+    try {
+      te.startErrRedirection();
+      te.startOutRedirection();
+      te.compile(getOptions(te));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      // Failure is ok, since there are too many methods.
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(
+          te.endErrRedirection().contains("Too many methods for type A. Maximum is 65535"));
+    }
+  }
+
   @Nonnull
   private Options getOptions(@Nonnull TestingEnvironment te) {
     Options options = new Options();
