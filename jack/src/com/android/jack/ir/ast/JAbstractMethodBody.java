@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -38,5 +39,12 @@ public abstract class JAbstractMethodBody extends JNode {
 
   public void setMethod(JMethod method) {
     this.method = method;
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JMethod)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

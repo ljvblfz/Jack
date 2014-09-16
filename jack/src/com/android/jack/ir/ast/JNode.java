@@ -90,7 +90,7 @@ public abstract class JNode extends LocalMarkerManager
   @Nonnull
   protected SourceInfo info;
 
-  private JNode parent = null;
+  protected JNode parent = null;
 
   protected JNode(@Nonnull SourceInfo info) {
     assert info != null : "SourceInfo must be provided for JNodes";
@@ -292,4 +292,6 @@ public abstract class JNode extends LocalMarkerManager
       @Nonnull SubTreeMarkersCollector<T> collector) {
     return collector.getSubTreeMarkersOnPreviousSibling(this);
   }
+
+  public abstract void checkValidity();
 }

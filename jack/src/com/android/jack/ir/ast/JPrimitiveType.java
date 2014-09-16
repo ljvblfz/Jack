@@ -17,6 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JFloatingPointType;
@@ -160,6 +161,14 @@ public abstract class JPrimitiveType extends JNode implements JType {
   public boolean isWrapperType(@Nonnull JType candidate) {
     return Jack.getSession().getPhantomLookup().getClass(getWrapperCommonType())
         .isSameType(candidate);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JLocal || parent instanceof JParameter || parent instanceof JMethod
+        || parent instanceof JField || parent instanceof JCastOperation)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 
   @Nonnull

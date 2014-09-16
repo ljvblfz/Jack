@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -70,5 +71,12 @@ public abstract class JStatement extends JNode {
   @Nonnull
   public List<JCatchBlock> getJCatchBlocks() {
     return catchBlocks;
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JStatement || parent instanceof JAbstractMethodBody)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

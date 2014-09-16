@@ -20,6 +20,8 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Indicates the compiler encountered an unexpected and unsupported state of
  * operation.
@@ -73,6 +75,7 @@ public class InternalCompilerException extends RuntimeException {
   /**
    * Tracks if there's a pending addNode() to avoid recursion sickness.
    */
+  @Nonnull
   private static final ThreadLocal<InternalCompilerException> pendingICE =
       new ThreadLocal<InternalCompilerException>();
 
@@ -87,34 +90,44 @@ public class InternalCompilerException extends RuntimeException {
     pendingICE.set(pendingICE.get());
   }
 
+  @Nonnull
   private final List<NodeInfo> nodeTrace = new ArrayList<NodeInfo>();
 
   /**
    * Constructs a new exception with the specified node, message, and cause.
    */
-  public InternalCompilerException(HasSourceInfo node, String message, Throwable cause) {
+  public InternalCompilerException(@Nonnull HasSourceInfo node, @Nonnull String message,
+      @Nonnull Throwable cause) {
     this(message, cause);
+    addNode(node);
+  }
+
+  /**
+   * Constructs a new exception with the specified node and message.
+   */
+  public InternalCompilerException(@Nonnull HasSourceInfo node, @Nonnull String message) {
+    this(message);
     addNode(node);
   }
 
   /**
    * Constructs a new exception with the specified message.
    */
-  public InternalCompilerException(String message) {
+  public InternalCompilerException(@Nonnull String message) {
     super(message);
   }
 
   /**
    * Constructs a new exception with the specified cause.
    */
-  public InternalCompilerException(Throwable cause) {
+  public InternalCompilerException(@Nonnull Throwable cause) {
     super(cause);
   }
 
   /**
    * Constructs a new exception with the specified message and cause.
    */
-  public InternalCompilerException(String message, Throwable cause) {
+  public InternalCompilerException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
@@ -122,7 +135,7 @@ public class InternalCompilerException extends RuntimeException {
    * Adds a node to the end of the node trace. This is similar to how a stack
    * trace works.
    */
-  public void addNode(HasSourceInfo node) {
+  public void addNode(@Nonnull HasSourceInfo node) {
     InternalCompilerException other = pendingICE.get();
     if (other != null) {
       // Avoiding recursion sickness: Yet Another ICE must have occurred while
@@ -150,8 +163,8 @@ public class InternalCompilerException extends RuntimeException {
   }
 
   /**
-   * Adds information about a a node to the end of the node trace. This is
-   * similar to how a stack trace works.
+   * Adds information about a a node to the end of the node trace.
+   * This is similar to how a stack trace works.
    */
   public void addNode(String className, String description, SourceInfo sourceInfo) {
     nodeTrace.add(new NodeInfo(className, description, sourceInfo));
@@ -164,6 +177,7 @@ public class InternalCompilerException extends RuntimeException {
    * list is the node that was most specifically being visited when the
    * exception was thrown.
    */
+  @Nonnull
   public List<NodeInfo> getNodeTrace() {
     return nodeTrace;
   }

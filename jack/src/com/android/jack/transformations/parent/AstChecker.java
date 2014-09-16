@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.parent;
 
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
@@ -30,29 +29,27 @@ import java.util.Stack;
 import javax.annotation.Nonnull;
 
 /**
- * Check that parents of {@link JNode}s are correctly set, running on
- * {@link JDefinedClassOrInterface}s.
+ * Check that AST of {@link JNode}s is correct.
  */
-@Description(
-    "Check that parents of JNodes are correctly set, running on JDefinedClassOrInterfaces.")
+@Description("Check that AST is correct.")
 @Support(SanityChecks.class)
-public class TypeParentChecker implements RunnableSchedulable<JDefinedClassOrInterface> {
+public class AstChecker implements RunnableSchedulable<JSession> {
 
-  private static class Visitor extends JVisitor {
+  static class AstCheckerVisitor extends JVisitor {
     @Nonnull
     private final Stack<JNode> nodes = new Stack<JNode>();
 
-    private Visitor() {
+    AstCheckerVisitor() {
       super(false /* needLoading */);
     }
 
     @Override
     public boolean visit(@Nonnull JNode node) {
-      assert !(node instanceof JSession);
-      if (node instanceof JDefinedClassOrInterface) {
-        if (node.getParent() == null) {
-          throw new AssertionError(
-              "Parent of " + JDefinedClassOrInterface.class.getName() + " must not be null.");
+      node.checkValidity();
+
+      if (node instanceof JSession) {
+        if (node.getParent() != null) {
+          throw new AssertionError("Parent of JSession must be null.");
         }
       } else {
         if (node.getParent() != nodes.peek()) {
@@ -74,8 +71,8 @@ public class TypeParentChecker implements RunnableSchedulable<JDefinedClassOrInt
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    Visitor checker = new Visitor();
-    checker.accept(type);
+  public void run(@Nonnull JSession session) throws Exception {
+    AstCheckerVisitor checker = new AstCheckerVisitor();
+    checker.accept(session);
   }
 }

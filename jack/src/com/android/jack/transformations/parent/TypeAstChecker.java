@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.parent;
 
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
@@ -29,25 +30,29 @@ import java.util.Stack;
 import javax.annotation.Nonnull;
 
 /**
- * Check that parents of {@link JNode}s are correctly set.
+ * Check that AST of {@link JNode}s is correct, running on
+ * {@link JDefinedClassOrInterface}s.
  */
-@Description("Check that parents of JNodes are correctly set.")
+@Description("Check that AST of JNodes is correct, running on JDefinedClassOrInterfaces.")
 @Support(SanityChecks.class)
-public class ParentChecker implements RunnableSchedulable<JSession> {
+public class TypeAstChecker implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private static class ParentCheckerVisitor extends JVisitor {
+  private static class Visitor extends JVisitor {
     @Nonnull
     private final Stack<JNode> nodes = new Stack<JNode>();
 
-    private ParentCheckerVisitor() {
+    private Visitor() {
       super(false /* needLoading */);
     }
 
     @Override
     public boolean visit(@Nonnull JNode node) {
-      if (node instanceof JSession) {
-        if (node.getParent() != null) {
-          throw new AssertionError("Parent of JSession must be null.");
+      assert !(node instanceof JSession);
+      node.checkValidity();
+      if (node instanceof JDefinedClassOrInterface) {
+        if (node.getParent() == null) {
+          throw new AssertionError(
+              "Parent of " + JDefinedClassOrInterface.class.getName() + " must not be null.");
         }
       } else {
         if (node.getParent() != nodes.peek()) {
@@ -69,8 +74,8 @@ public class ParentChecker implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
-    ParentCheckerVisitor checker = new ParentCheckerVisitor();
-    checker.accept(session);
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    Visitor checker = new Visitor();
+    checker.accept(type);
   }
 }

@@ -128,4 +128,9 @@ public class JArrayType extends JDefinedReferenceType {
       return false;
     }
   }
+
+  @Override
+  public void checkValidity() {
+   throw new AssertionError();
+  }
 }

@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -59,5 +60,13 @@ public class JLabel extends JNode implements HasName {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JLabeledStatement || parent instanceof JBreakStatement
+        || parent instanceof JContinueStatement)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

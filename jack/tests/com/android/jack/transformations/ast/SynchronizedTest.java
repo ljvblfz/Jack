@@ -32,7 +32,7 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
-import com.android.jack.transformations.parent.ParentChecker;
+import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
@@ -154,7 +154,7 @@ public class SynchronizedTest {
     sr.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
 
     PlanBuilder<JSession> planBuilder = sr.getPlanBuilder(JSession.class);
-    planBuilder.append(ParentChecker.class);
+    planBuilder.append(AstChecker.class);
     SubPlanBuilder<JDefinedClassOrInterface> typePlan =
         planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
     SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);

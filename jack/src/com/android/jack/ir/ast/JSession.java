@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
@@ -157,5 +158,12 @@ public class JSession extends JNode {
       primitiveArrays[primitive.ordinal()] = new JArrayType(primitive.getType());
     }
     return primitiveArrays[primitive.ordinal()];
+  }
+
+  @Override
+  public void checkValidity() {
+    if (parent != null) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

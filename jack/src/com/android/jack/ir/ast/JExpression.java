@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -41,5 +42,12 @@ public abstract class JExpression extends JNode implements HasType {
 
   public JExpressionStatement makeStatement() {
     return new JExpressionStatement(getSourceInfo(), this);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression || parent instanceof JStatement)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

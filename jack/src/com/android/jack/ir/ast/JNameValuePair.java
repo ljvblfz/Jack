@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -108,5 +109,12 @@ public final class JNameValuePair extends JNode {
 
   public void resolveMethodId(@Nonnull JMethodId methodId) {
     this.methodId = methodId;
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JAnnotationLiteral)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

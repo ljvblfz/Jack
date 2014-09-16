@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -65,5 +66,12 @@ public class JNullType extends JReferenceTypeCommon {
   @Override
   public final boolean isSameType(@Nonnull JType type) {
     return this == type;
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }

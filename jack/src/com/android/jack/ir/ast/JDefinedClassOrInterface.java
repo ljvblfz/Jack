@@ -17,6 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.NopClassOrInterfaceLoader;
@@ -595,6 +596,13 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
           && name.equals(type.getName());
     } else {
       return false;
+    }
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JPackage)) {
+      throw new InternalCompilerException(this, "Invalid parent");
     }
   }
 }

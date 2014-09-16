@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -157,5 +158,14 @@ public class JAnnotationLiteral extends JLiteral {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JDefinedClassOrInterface || parent instanceof JMethod
+        || parent instanceof JField || parent instanceof JVariable
+        || parent instanceof JArrayLiteral || parent instanceof JNameValuePair)) {
+      throw new InternalCompilerException(this, "Invalid parent");
+    }
   }
 }
