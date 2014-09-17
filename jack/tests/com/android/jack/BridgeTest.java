@@ -131,4 +131,14 @@ public class BridgeTest {
     TestTools.compileSourceToDex(options, new File(srcFolder, "Caller.java"),
         TestTools.getDefaultBootclasspathString(), outDexFolder, false /* zip */);
   }
+
+  @Test
+  public void test009() throws Exception {
+    TestTools.compileSourceToDex(
+        new Options(),
+        TestTools.getJackTestsWithJackFolder("bridge/test009"),
+        TestTools.getDefaultBootclasspathString(),
+        TestTools.createTempFile("bridge009", ".zip"),
+        true /* zip */);
+  }
 }

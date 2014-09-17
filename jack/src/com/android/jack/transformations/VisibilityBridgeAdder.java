@@ -96,8 +96,14 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
   private void synthesizeBridge(@Nonnull JDefinedClass jClass, @Nonnull JMethod method) {
     SourceInfo sourceInfo = SourceInfo.UNKNOWN;
     JMethodId methodId = method.getMethodId();
-    JMethod bridge = new JMethod(sourceInfo, methodId, jClass, method.getType(),
-        (method.getModifier() & ~JModifier.SYNCHRONIZED) | JModifier.SYNTHETIC | JModifier.BRIDGE);
+
+    int bridgeModifier = method.getModifier();
+    // Remove non inherited flags
+    bridgeModifier &= ~(JModifier.SYNCHRONIZED | JModifier.ABSTRACT | JModifier.STRICTFP
+        | JModifier.NATIVE);
+    // Add bridge specific flags
+    bridgeModifier |= JModifier.SYNTHETIC | JModifier.BRIDGE;
+    JMethod bridge = new JMethod(sourceInfo, methodId, jClass, method.getType(), bridgeModifier);
     for (JParameter param : method.getParams()) {
       bridge.addParam(new JParameter(sourceInfo, param.getName(), param.getType(),
           param.getModifier(), bridge));
