@@ -689,7 +689,7 @@ public class DexAnnotationsComparator {
       int cptParam = 0;
       for (AnnotationSetItem asi : parameterAnnotations.getAnnotationSets()) {
         try {
-          processGeneric("param " + cptParam + " " + method.getMethodString(), asi);
+          processGeneric("param " + (cptParam++) + " " + method.getMethodString(), asi);
         } catch (DifferenceFoundException e) {
           // TODO
           throw new RuntimeException(e);
