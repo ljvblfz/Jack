@@ -193,9 +193,8 @@
     </copy>
     <!-- generate jack.properties -->
     <property environment="env"/>
-    <property name="jack.version.name.tag" value="eng.${env.USER}"/>
     <propertyfile file="${jack.exec.build.outdir}/jack.properties">
-      <entry key="jack.version" value="${jack.base.version.name}.${jack.base.version.code}.${jack.version.name.tag}"/>
+      <entry key="jack.version" value="${jack.base.version.name}.${jack.base.version.code}"/>
     </propertyfile>
     <!-- package -->
     <copy todir="${jack.exec.build.outdir}">
