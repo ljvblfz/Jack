@@ -872,9 +872,10 @@ public class TestTools {
         jarjarRules).dexFile;
 
     // Compare Jack Dex file to reference
+    File candidateFile = new File(jackDexFolder, DexFileWriter.DEX_FILENAME);
     new DexComparator(withDebugInfo, strict, false /* compareDebugInfoBinary */,
-        compareInstructionNumber, instructionNumberTolerance).compare(refDex,
-        new File(jackDexFolder, DexFileWriter.DEX_FILENAME));
+        compareInstructionNumber, instructionNumberTolerance).compare(refDex, candidateFile);
+    new DexAnnotationsComparator().compare(refDex, candidateFile);
   }
 
   private static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
