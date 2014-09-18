@@ -1171,7 +1171,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       typePlan7.append(UsedEnumFieldCollector.class);
 
       {
@@ -1195,7 +1195,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       if (features.contains(DxLegacy.class)) {
         typePlan2.append(VisibilityBridgeAdder.class);
       }
@@ -1212,7 +1212,7 @@ public abstract class Jack {
     planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       {
         {
           SubPlanBuilder<JField> fieldPlan =
@@ -1237,7 +1237,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
@@ -1247,7 +1247,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(JDcoiExcludeJackFileAdapter.class);
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
