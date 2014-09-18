@@ -155,10 +155,11 @@ public class JackIncremental extends CommandLine {
       logger.log(Level.FINE, "Unrecoverable exception:", e);
       System.exit(ExitStatus.FAILURE_UNRECOVERABLE);
     } catch (Throwable e) {
-      System.err.println("Internal compiler error.");
+      String message =
+          "Internal incremental compiler error (version " + Jack.getVersionString() + ")";
+      System.err.println(message + '.');
       System.err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.SEVERE, "Internal compiler error:", e);
-
+      logger.log(Level.SEVERE, message + ':', e);
       System.exit(ExitStatus.FAILURE_INTERNAL);
     }
   }
