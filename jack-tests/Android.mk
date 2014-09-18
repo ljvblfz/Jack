@@ -312,3 +312,11 @@ test-jack: test-jack-$(JACKTEST_MODULE)
 ifeq ($(JAVA7_COMPILER),)
 	$(hide) echo test-jack: Missing Java 7 compiler, Java 7 tests Skipped, export Java 7 compiler into JAVA7_COMPILER
 endif
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := $(call all-java-files-under, tests/com/android/jack/annotations)
+
+LOCAL_MODULE := jack.annotations
+
+include $(BUILD_HOST_DALVIK_STATIC_JAVA_LIBRARY)
