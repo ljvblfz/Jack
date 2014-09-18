@@ -1536,6 +1536,11 @@ public abstract class Jack {
       try {
         prop.load(is);
         version = prop.getProperty("jack.version", noVersion);
+
+        String codeBase = prop.getProperty("jack.version.codebase");
+        if (codeBase != null) {
+          version += " (" + codeBase + ")";
+        }
       } catch (IOException e) {
         version = noVersion;
       }
