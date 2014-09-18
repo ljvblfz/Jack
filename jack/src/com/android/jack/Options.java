@@ -345,6 +345,10 @@ public class Options {
     this.out = out;
   }
 
+  public void setOutputZip(File out) {
+    this.outZip = out;
+  }
+
   boolean hasSanityChecks() {
     return sanityChecks;
   }

@@ -73,6 +73,7 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
 
   private static class UnclosableVFileOutputStream extends FilterOutputStream {
 
+    @Nonnull
     private final OutputVDir vfsRoot;
 
     public UnclosableVFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
