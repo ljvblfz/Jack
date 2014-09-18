@@ -21,7 +21,11 @@ import com.android.sched.util.RunnableHooks;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.CheckForNull;
@@ -51,7 +55,7 @@ public class OutputZipFile extends OutputStreamFile {
     assert file != null;
     clearRemover();
     try {
-      return new ZipOutputStream(new FileOutputStream(file));
+      return new CustomZipOutputStream(new FileOutputStream(file));
     } catch (FileNotFoundException e) {
       throw new ConcurrentIOException(e);
     }
@@ -67,5 +71,33 @@ public class OutputZipFile extends OutputStreamFile {
   public String getName() {
     assert file != null;
     return file.getName();
+  }
+
+  /**
+   * A {@link ZipOutputStream} that is not directly closed to avoid getting a {@link ZipException}
+   * when the zip has no entry (with a JRE 6).
+   */
+  private static class CustomZipOutputStream extends ZipOutputStream {
+
+    private boolean hasEntries = false;
+
+    public CustomZipOutputStream(@Nonnull OutputStream out) {
+      super(out);
+    }
+
+    @Override
+    public void putNextEntry(@Nonnull ZipEntry e) throws IOException {
+      hasEntries = true;
+      super.putNextEntry(e);
+    }
+
+    @Override
+    public void close() throws IOException {
+      if (hasEntries) {
+        super.close();
+      } else {
+        out.close();
+      }
+    }
   }
 }
