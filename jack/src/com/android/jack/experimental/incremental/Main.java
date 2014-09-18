@@ -76,7 +76,7 @@ public abstract class Main extends JackIncremental {
       System.err.println(e.getMessage());
       CmdLineParser parser = e.getParser();
       if (parser != null) {
-        parser.printUsage(System.err);
+        printSubUsage(System.err);
       } else {
         System.err.println("Try --help for help.");
       }

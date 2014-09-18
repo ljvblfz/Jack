@@ -1,0 +1,78 @@
+ --bootclasspath PATH                   : bootclasspath
+ --dump-properties                      : dump properties with their value
+ --dx-legacy [on | off]                 : keep generation close to dx (default:
+                                          on)
+ --help-properties                      : display properties list
+ --incremental-folder FILE              : Folder used for incremental data
+ --jack-output-zip FILE                 : output jack files to this zip
+ --jarjar-rules FILE                    : use this jarjar rules file (default:
+                                          none)
+ --output-zip FILE                      : output to this zip file
+ --proguard-flags FILES                 : use these proguard flags files
+                                          (default: none)
+ --runtime-legacy [on | off]            : keep generation compatible with older
+                                          runtime (default: on)
+ --sanity-checks [on | off]             : enable/disable compiler sanity checks
+                                          (default: on)
+ --tracer-dir DIRECTORY                 : enable tracer and output into this
+                                          dir (.html)
+ --verbose [error | warning | info |    : set verbosity (default: warning)
+ debug | trace]                         :
+ -D <property>=<value>                  : set value for the given property (see
+                                          --help-properties)
+ -c (--config-file) FILE                : set properties from file
+ -cp (--classpath) PATH                 : classpath
+ -d (--jack-output) DIRECTORY           : output jack files to this folder
+ -g (--debug)                           : emit debug infos
+ -h (--help)                            : display help
+ -i (--import-jack) FILE                : Import the given jack files
+ -o (--output) FILE                     : output to this folder
+ -v (--version)                         : display version
+ --ecj ...                              : mark the beginning of ecj options
+
+ECJ supported options (to be used only after --ecj):
+
+    -encoding <enc>    specify default encoding for all source files. Each
+                       file/directory can override it when suffixed with
+                       '['<enc>']' (e.g. X.java[utf8]).
+                       If multiple default encodings are specified, the last
+                       one will be used.
+
+    @<file>            read command line arguments from file
+
+    -deprecation       deprecation outside deprecated code (equivalent to
+                       -warn:+deprecation) (enabled by default)
+    -nowarn -warn:none disable all warnings
+    -nowarn:[<directories separated by :>]
+                       specify directories from which optional problems should
+                       be ignored
+    -?:warn -help:warn display advanced warning options
+
+    -err:<warnings separated by ,>    convert exactly the listed warnings
+                                      to be reported as errors
+    -err:+<warnings separated by ,>   enable additional warnings to be
+                                      reported as errors
+    -err:-<warnings separated by ,>   disable specific warnings to be
+                                      reported as errors
+
+ECJ annotation processing options (to be used only after --ecj):
+WARNING: Experimental
+
+    -Akey[=value]        options that are passed to annotation processors
+    -processorpath <directories and ZIP archives separated by :>
+                         specify locations where to find annotation processors.
+                         If this option is not used, the classpath will be
+                         searched for processors
+    -processor <class1[,class2,...]>
+                         qualified names of the annotation processors to run.
+                         This bypasses the default annotation discovery process
+    -proc:only           run annotation processors, but do not compile
+    -proc:none           perform compilation but do not run annotation
+                         processors
+    -s <dir>             destination directory for generated source files
+    -d <dir>             destination directory for annotation processor output
+    -XprintProcessorInfo print information about which annotations and elements
+                         a processor is asked to process
+    -XprintRounds        print information about annotation processing rounds
+    -classNames <className1[,className2,...]>
+                         qualified names of binary classes to process

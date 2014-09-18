@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
+import com.android.jack.util.CharactersStreamSucker;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.Parser.ValueDescription;
@@ -31,6 +32,8 @@ import com.android.sched.util.log.LoggerFactory;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -127,7 +130,20 @@ public abstract class CommandLine {
     System.out.print("Main: ");
     parser.printSingleLineUsage(System.out);
     System.out.println();
-    parser.printUsage(System.out);
+    printSubUsage(System.out);
+  }
+
+  protected static void printSubUsage(PrintStream printStream) {
+    InputStream is = Main.class.getResourceAsStream("/help.txt");
+    if (is == null) {
+      throw new AssertionError();
+    }
+    CharactersStreamSucker css = new CharactersStreamSucker(is, printStream);
+    try {
+      css.suck();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
   }
 
   public static void printHelpProperties (@Nonnull Options options) throws IOException {

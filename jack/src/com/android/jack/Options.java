@@ -148,7 +148,7 @@ public class Options {
       "jack.statistic.source", "Enable compiled files statistics").addDefaultValue(
       Boolean.FALSE);
 
-  @Option(name = "-v", aliases = "--version", usage = "display options")
+  @Option(name = "-v", aliases = "--version", usage = "display version")
   protected boolean version;
 
   @Option(name = "-h", aliases = "--help", usage = "display help")
