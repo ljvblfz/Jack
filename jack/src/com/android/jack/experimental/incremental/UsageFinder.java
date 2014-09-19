@@ -18,8 +18,10 @@ package com.android.jack.experimental.incremental;
 
 import com.android.jack.backend.dex.TypeReferenceCollector;
 import com.android.jack.ir.ast.JArrayType;
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
@@ -28,6 +30,7 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,27 +50,32 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
     @Nonnull
     private final String currentFileName;
 
-    private boolean inBody = false;
-
     public Visitor(@Nonnull JType currentType, @Nonnull CompilerState compilerState) {
       this.compilerState = compilerState;
       assert currentType.getSourceInfo() != SourceInfo.UNKNOWN;
       currentFileName = currentType.getSourceInfo().getFileName();
       compilerState.addCodeUsage(currentFileName, null);
       compilerState.addCstUsage(currentFileName, null);
-      compilerState.addStructUsage(currentFileName, null);
-    }
+      compilerState.addHierarchyUsage(currentFileName, null);
 
-    @Override
-    public boolean visit(@Nonnull JMethodBody x) {
-      inBody = true;
-      return super.visit(x);
-    }
+      if (currentType instanceof JDefinedClassOrInterface) {
+        if (currentType instanceof JDefinedClass) {
+          JClass superClass = ((JDefinedClass) currentType).getSuperClass();
+          if (superClass != null) {
+            String usedTypeFileName = getFileName(superClass);
+            if (usedTypeFileName != null) {
+              compilerState.addHierarchyUsage(currentFileName, usedTypeFileName);
+            }
+          }
+        }
 
-    @Override
-    public void endVisit(@Nonnull JMethodBody x) {
-      super.endVisit(x);
-      inBody = false;
+        for (JInterface interf : ((JDefinedClassOrInterface) currentType).getImplements()) {
+          String usedTypeFileName = getFileName(interf);
+          if (usedTypeFileName != null) {
+            compilerState.addHierarchyUsage(currentFileName, usedTypeFileName);
+          }
+        }
+      }
     }
 
     @Override
@@ -75,15 +83,18 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
       if (usedType instanceof JArrayType) {
         usedType = ((JArrayType) usedType).getLeafType();
       }
-      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
-        return;
-      }
-      String usedTypeFileName = usedType.getSourceInfo().getFileName();
-      if (inBody) {
+      String usedTypeFileName = getFileName(usedType);
+      if (usedTypeFileName != null) {
         compilerState.addCodeUsage(currentFileName, usedTypeFileName);
-      } else {
-        compilerState.addStructUsage(currentFileName, usedTypeFileName);
       }
+    }
+
+    @CheckForNull
+    private String getFileName(@Nonnull JType usedType) {
+      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
+        return null;
+      }
+      return (usedType.getSourceInfo().getFileName());
     }
   }
 

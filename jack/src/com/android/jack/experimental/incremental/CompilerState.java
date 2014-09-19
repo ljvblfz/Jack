@@ -63,7 +63,7 @@ public final class CompilerState {
   private Map<String, Set<String>> codeFileToUsedFiles = new HashMap<String, Set<String>>();
 
   @Nonnull
-  private Map<String, Set<String>> structFileToUsedFiles = new HashMap<String, Set<String>>();
+  private Map<String, Set<String>> hierarchyFileToUsedFiles = new HashMap<String, Set<String>>();
 
   @Nonnull
   private Map<String, Set<String>> cstFileToUsedFiles = new HashMap<String, Set<String>>();
@@ -89,14 +89,14 @@ public final class CompilerState {
     for (String javaFileToDelete : filesToDelete) {
       javaFileToTypeNamePath.remove(javaFileToDelete);
       codeFileToUsedFiles.remove(javaFileToDelete);
-      structFileToUsedFiles.remove(javaFileToDelete);
+      hierarchyFileToUsedFiles.remove(javaFileToDelete);
       cstFileToUsedFiles.remove(javaFileToDelete);
     }
 
     for (String javaFileToRecompile : filesToRecompile) {
       javaFileToTypeNamePath.remove(javaFileToRecompile);
       codeFileToUsedFiles.remove(javaFileToRecompile);
-      structFileToUsedFiles.remove(javaFileToRecompile);
+      hierarchyFileToUsedFiles.remove(javaFileToRecompile);
       cstFileToUsedFiles.remove(javaFileToRecompile);
     }
   }
@@ -120,8 +120,8 @@ public final class CompilerState {
     getOrCreate(javaFileToTypeNamePath, javaFileName).add(typeName);
   }
 
-  public void addStructUsage(@Nonnull String filename, @CheckForNull String nameOfUsedFile) {
-    addUsage(structFileToUsedFiles, filename, nameOfUsedFile);
+  public void addHierarchyUsage(@Nonnull String filename, @CheckForNull String nameOfUsedFile) {
+    addUsage(hierarchyFileToUsedFiles, filename, nameOfUsedFile);
   }
 
   public void addCstUsage(@Nonnull String filename, @CheckForNull String nameOfUsedFile) {
@@ -147,7 +147,7 @@ public final class CompilerState {
       writeMap(sb, javaFileToTypeNamePath);
       writeMap(sb, codeFileToUsedFiles);
       writeMap(sb, cstFileToUsedFiles);
-      writeMap(sb, structFileToUsedFiles);
+      writeMap(sb, hierarchyFileToUsedFiles);
 
       ps = new PrintStream(compilerStateFile.openWrite());
       ps.print(sb.toString());
@@ -173,7 +173,7 @@ public final class CompilerState {
       javaFileToTypeNamePath = readMap(br);
       codeFileToUsedFiles = readMap(br);
       cstFileToUsedFiles = readMap(br);
-      structFileToUsedFiles = readMap(br);
+      hierarchyFileToUsedFiles = readMap(br);
     } catch (IOException e) {
       throw new JackIOException(
           "Could not read compiler state file '" + csf.getPath() + "'", e);
@@ -196,7 +196,8 @@ public final class CompilerState {
     for (String fileName : codeFileToUsedFiles.keySet()) {
       getOrCreate(fileDependencies, fileName);
 
-      computeStructDependencies(fileDependencies, structFileToUsedFiles.get(fileName), fileName);
+      computeHierarchyDependencies(fileDependencies, hierarchyFileToUsedFiles.get(fileName),
+          fileName);
       computeCstDependencies(fileDependencies, cstFileToUsedFiles.get(fileName), fileName,
           new HashSet<String>());
       computeCodeDependencies(fileDependencies, codeFileToUsedFiles.get(fileName), fileName);
@@ -237,12 +238,12 @@ public final class CompilerState {
       builder.append(TextUtils.LINE_SEPARATOR);
     }
 
-    builder.append("*Struct usage list*");
+    builder.append("*Hierarchy usage list*");
     builder.append(TextUtils.LINE_SEPARATOR);
-    for (String fileName : structFileToUsedFiles.keySet()) {
+    for (String fileName : hierarchyFileToUsedFiles.keySet()) {
       builder.append(fileName);
       builder.append("->");
-      builder.append(structFileToUsedFiles.get(fileName));
+      builder.append(hierarchyFileToUsedFiles.get(fileName));
       builder.append(TextUtils.LINE_SEPARATOR);
     }
 
@@ -255,8 +256,8 @@ public final class CompilerState {
       Set<String> usedByFiles = getOrCreate(fileDependencies, codeDependency);
       usedByFiles.add(dependencyToAdd);
 
-      if (structFileToUsedFiles.get(codeDependency) != null) {
-        computeStructDependencies(fileDependencies, structFileToUsedFiles.get(codeDependency),
+      if (hierarchyFileToUsedFiles.get(codeDependency) != null) {
+        computeHierarchyDependencies(fileDependencies, hierarchyFileToUsedFiles.get(codeDependency),
             dependencyToAdd);
       }
     }
@@ -278,15 +279,15 @@ public final class CompilerState {
     }
   }
 
-  private void computeStructDependencies(@Nonnull Map<String, Set<String>> fileDependencies,
-      @Nonnull Set<String> structDependencies, @Nonnull String dependencyToAdd) {
-    for (String structDependency : structDependencies) {
-      Set<String> usedByFiles = getOrCreate(fileDependencies, structDependency);
+  private void computeHierarchyDependencies(@Nonnull Map<String, Set<String>> fileDependencies,
+      @Nonnull Set<String> hierarchyDependencies, @Nonnull String dependencyToAdd) {
+    for (String hierarchyDependency : hierarchyDependencies) {
+      Set<String> usedByFiles = getOrCreate(fileDependencies, hierarchyDependency);
       usedByFiles.add(dependencyToAdd);
 
-      Set<String> newStructDependencies = structFileToUsedFiles.get(structDependency);
-      if (newStructDependencies != null) {
-        computeStructDependencies(fileDependencies, newStructDependencies, dependencyToAdd);
+      Set<String> newHierarchyDependencies = hierarchyFileToUsedFiles.get(hierarchyDependency);
+      if (newHierarchyDependencies != null) {
+        computeHierarchyDependencies(fileDependencies, newHierarchyDependencies, dependencyToAdd);
       }
     }
   }
