@@ -23,6 +23,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +50,7 @@ public abstract class Main extends JackIncremental {
       Options options = parseCommandLine(args);
 
       if (options.askForHelp()) {
-        printUsage(options);
+        printIncrementalUsage(System.out);
         System.exit(ExitStatus.SUCCESS);
       }
 
@@ -76,7 +77,7 @@ public abstract class Main extends JackIncremental {
       System.err.println(e.getMessage());
       CmdLineParser parser = e.getParser();
       if (parser != null) {
-        printSubUsage(System.err);
+        printIncrementalUsage(System.err);
       } else {
         System.err.println("Try --help for help.");
       }
@@ -104,5 +105,11 @@ public abstract class Main extends JackIncremental {
     }
 
     return options;
+  }
+
+  private static void printIncrementalUsage(@Nonnull PrintStream printStream) {
+    printStream.println(
+        " --incremental-folder FILE              : Folder used for incremental data");
+    printUsage(printStream);
   }
 }

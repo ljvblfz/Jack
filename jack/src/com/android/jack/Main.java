@@ -44,7 +44,7 @@ public abstract class Main extends CommandLine {
       Options options = parseCommandLine(args);
 
       if (options.askForHelp()) {
-        printUsage(options);
+        printUsage(System.out);
         System.exit(ExitStatus.SUCCESS);
       }
 
@@ -71,7 +71,7 @@ public abstract class Main extends CommandLine {
       System.err.println(e.getMessage());
       CmdLineParser parser = e.getParser();
       if (parser != null) {
-        printSubUsage(System.err);
+        printUsage(System.err);
       } else {
         System.err.println("Try --help for help.");
       }

@@ -3,7 +3,6 @@
  --dx-legacy [on | off]                 : keep generation close to dx (default:
                                           on)
  --help-properties                      : display properties list
- --incremental-folder FILE              : Folder used for incremental data
  --jack-output-zip FILE                 : output jack files to this zip
  --jarjar-rules FILE                    : use this jarjar rules file (default:
                                           none)
