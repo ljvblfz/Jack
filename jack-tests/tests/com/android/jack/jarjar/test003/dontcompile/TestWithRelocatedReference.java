@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.jarjar.test003.jack;
+package com.android.jack.jarjar.test003.dontcompile;
 
-import java.util.List;
+import com.android.jack.jarjar.test003.jack.A;
 
-@AnnotationWithStringArray("com.android.jack.jarjar.test003.jack.B")
-public class B {
+public class TestWithRelocatedReference {
 
-  public static List<Inner> l;
-
-  public static class Inner {
-
+  public void test001() {
+    assert com.android.jack.jarjar.test003.jack.relocated.B.l == null;
   }
 
-  public B(String arg) {
-
-  }
-
-  public static B[] getArray() {
-    @C
-    String local = "com.android.jack.jarjar.test003.jack.B";
-    return new B[] {new B(local)};
-  }
 }

@@ -744,6 +744,8 @@ public abstract class Jack {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
+    appendStringRefiners(planBuilder);
+
     // JarJar
     if (features.contains(Jarjar.class)) {
       planBuilder.append(PackageRenamer.class);
@@ -784,24 +786,6 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (isShrinking || features.contains(Obfuscation.class)) {
-        typePlan.append(TypeGenericSignatureSplitter.class);
-        typePlan.append(TypeStringLiteralRefiner.class);
-        typePlan.append(SimpleNameRefiner.class);
-        {
-          SubPlanBuilder<JMethod> methodPlan =
-              typePlan.appendSubPlan(JMethodAdapter.class);
-          methodPlan.append(MethodGenericSignatureSplitter.class);
-          methodPlan.append(ReflectionStringLiteralRefiner.class);
-          methodPlan.append(MethodStringLiteralRefiner.class);
-        }
-        {
-          SubPlanBuilder<JField> fieldPlan =
-              typePlan.appendSubPlan(JFieldAdapter.class);
-          fieldPlan.append(FieldGenericSignatureSplitter.class);
-          fieldPlan.append(FieldStringLiteralRefiner.class);
-        }
-      }
       if (isShrinking || features.contains(Obfuscation.class)
           || productions.contains(SeedFile.class)) {
         typePlan.append(SeedFinder.class);
@@ -858,6 +842,31 @@ public abstract class Jack {
     }
   }
 
+  private static void appendStringRefiners(@Nonnull PlanBuilder<JSession> planBuilder) {
+    FeatureSet features = planBuilder.getRequest().getFeatures();
+    boolean isShrinking = features.contains(Shrinking.class);
+    if (isShrinking || features.contains(Obfuscation.class) || features.contains(Jarjar.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(TypeGenericSignatureSplitter.class);
+      typePlan.append(TypeStringLiteralRefiner.class);
+      typePlan.append(SimpleNameRefiner.class);
+      {
+        SubPlanBuilder<JMethod> methodPlan =
+            typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(MethodGenericSignatureSplitter.class);
+        methodPlan.append(ReflectionStringLiteralRefiner.class);
+        methodPlan.append(MethodStringLiteralRefiner.class);
+      }
+      {
+        SubPlanBuilder<JField> fieldPlan =
+            typePlan.appendSubPlan(JFieldAdapter.class);
+        fieldPlan.append(FieldGenericSignatureSplitter.class);
+        fieldPlan.append(FieldStringLiteralRefiner.class);
+      }
+    }
+  }
+
   static void fillDexPlan(@Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
@@ -867,6 +876,8 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
+
+    appendStringRefiners(planBuilder);
 
     if (features.contains(Jarjar.class)) {
       planBuilder.append(PackageRenamer.class);
@@ -1147,6 +1158,7 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
+    appendStringRefiners(planBuilder);
 
     if (features.contains(Jarjar.class)) {
       planBuilder.append(PackageRenamer.class);
@@ -1374,6 +1386,8 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
+
+    appendStringRefiners(planBuilder);
 
     if (features.contains(Jarjar.class)) {
       planBuilder.append(PackageRenamer.class);

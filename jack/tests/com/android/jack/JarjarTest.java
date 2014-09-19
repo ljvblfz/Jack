@@ -70,6 +70,23 @@ public class JarjarTest {
   }
 
   @Test
+  public void test003_1() throws Exception {
+    String testName = "jarjar/test003";
+    Options options = new Options();
+    options.jarjarRulesFile = new File(TestTools.getJackTestFolder(testName), "jarjar-rules.txt");
+    File lib = TestTools.createTempFile("jarjarTest003Jack", ".zip");
+    TestTools.compileSourceToJack(options, TestTools.getJackTestsWithJackFolder(testName),
+        TestTools.getDefaultBootclasspathString(), lib, true);
+    TestTools.compileSourceToJack(new Options(),
+        new File(TestTools.getJackTestFolder(testName),
+            "dontcompile/TestWithRelocatedReference.java"),
+        TestTools.getDefaultBootclasspathString() + File.pathSeparator + lib.getAbsolutePath(),
+        TestTools.createTempFile("jarjarTest003dx", ".zip"),
+        true);
+
+  }
+
+  @Test
   public void testMapValue() {
     assertUnchangedValue("[^\\s;/@&=,.?:+$]");
     assertUnchangedValue("[Ljava/lang/Object;");
