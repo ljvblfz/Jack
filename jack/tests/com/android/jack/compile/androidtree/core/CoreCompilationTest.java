@@ -16,6 +16,7 @@
 
 package com.android.jack.compile.androidtree.core;
 
+import com.android.jack.DexAnnotationsComparator;
 import com.android.jack.DexComparator;
 import com.android.jack.JarJarRules;
 import com.android.jack.Options;
@@ -83,5 +84,6 @@ public class CoreCompilationTest {
     new DexComparator(false /* withDebugInfo */, false /* strict */,
         false /* compareDebugInfoBinary */, true /* compareInstructionNumber */, 0).compare(
         coreDexFromJava, coreDexFromJack);
+    new DexAnnotationsComparator().compare(coreDexFromJava, coreDexFromJack);
   }
 }
