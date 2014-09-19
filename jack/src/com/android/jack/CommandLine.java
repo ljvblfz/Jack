@@ -29,8 +29,6 @@ import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
 
-import org.kohsuke.args4j.CmdLineParser;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -123,17 +121,7 @@ public abstract class CommandLine {
     System.out.println("Version: " + version + '.');
   }
 
-  public static void printUsage(@Nonnull Options options) {
-    CmdLineParser parser = new CmdLineParser(options);
-
-    // TODO(jplesot) Rework because single line usage is false
-    System.out.print("Main: ");
-    parser.printSingleLineUsage(System.out);
-    System.out.println();
-    printSubUsage(System.out);
-  }
-
-  protected static void printSubUsage(PrintStream printStream) {
+  protected static void printUsage(@Nonnull PrintStream printStream) {
     InputStream is = Main.class.getResourceAsStream("/help.txt");
     if (is == null) {
       throw new AssertionError();
@@ -143,6 +131,12 @@ public abstract class CommandLine {
       css.suck();
     } catch (IOException e) {
       throw new AssertionError(e);
+    } finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+        // Ignore
+      }
     }
   }
 
