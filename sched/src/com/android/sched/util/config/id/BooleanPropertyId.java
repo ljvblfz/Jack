@@ -100,6 +100,13 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
     };
   }
 
+  @Override
+  @Nonnull
+  public BooleanPropertyId makePrivate() {
+    super.makePrivate();
+    return this;
+  }
+
   static {
     @SuppressWarnings("unchecked")
     Entry<Boolean>[] elements =
