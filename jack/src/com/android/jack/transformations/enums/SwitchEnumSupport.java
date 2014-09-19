@@ -81,10 +81,13 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -109,7 +112,15 @@ import javax.annotation.Nonnull;
     EnumMappingSchedulingSeparator.SeparatorTag.class},
     remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
+@HasKeyId
 public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
+
+  // Private option that must be used only for incremental test in order to use dex comparator.
+  @Nonnull
+  public static final BooleanPropertyId SORT_ENUM_FIELD = BooleanPropertyId.create(
+      "jack.internal.switch-enumfield.sort",
+      "Sort enum fields by their name for enum partial recompilation support")
+      .addDefaultValue(Boolean.FALSE).makePrivate();
 
   /**
    * Enum fields used into switch.
@@ -139,6 +150,8 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
+
+    private final boolean sortEnumField = ThreadConfig.get(SORT_ENUM_FIELD).booleanValue();
 
     private static final String ORDINAL = "ordinal";
 
@@ -295,7 +308,16 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         JType noSuchFieldErrorType = lookup.getType("Ljava/lang/NoSuchFieldError;");
         EnumMappingMarker emm = new EnumMappingMarker();
 
-        for (JField enumField : enumType.getFields()) {
+        List<JField> enumFields = enumType.getFields();
+        if (sortEnumField) {
+          Collections.sort(enumFields, new Comparator<JField>() {
+            @Override
+            public int compare(JField o1, JField o2) {
+              return o1.getName().compareTo(o2.getName());
+            }
+          });
+        }
+        for (JField enumField : enumFields) {
 
           if (!(enumField instanceof JEnumField)) {
             continue;
