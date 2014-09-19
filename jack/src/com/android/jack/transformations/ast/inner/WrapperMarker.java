@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ast.inner;
 
+import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -33,6 +34,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
@@ -41,9 +43,13 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -55,7 +61,18 @@ import javax.annotation.Nonnull;
 @ValidOn(JDefinedClass.class)
 @Description("This marker indicates that a method has an associated wrapper.")
 //TODO(delphinemartin): Warning: The index is not thread-safe.
+@HasKeyId
 public class WrapperMarker implements Marker {
+
+  // Private option that must be used only for incremental test in order to use dex comparator.
+  @Nonnull
+  public static final BooleanPropertyId USE_DETERMINISTIC_NAME = BooleanPropertyId.create(
+      "jack.internal.inner-wrapper.determinist-name",
+      "Generate inner-wrapper name in a deterministic way").addDefaultValue(Boolean.FALSE)
+      .makePrivate();
+
+  private final boolean useDeterministicName =
+      ThreadConfig.get(USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String WRAPPER_PREFIX = NamingTools.getNonSourceConflictingName("wrap");
@@ -65,6 +82,57 @@ public class WrapperMarker implements Marker {
     new HashMap<MethodCallDescriptor, JMethod>();
 
   private int index = 0;
+
+  private static class WrapperFormatter extends SourceFormatter {
+
+    @Nonnull
+    private static final WrapperFormatter formatter = new WrapperFormatter();
+
+    private static final char separator = '_';
+
+    private WrapperFormatter() {
+    }
+
+    @Nonnull
+    public static WrapperFormatter getFormatter() {
+      return formatter;
+    }
+
+    @Override
+    protected char getPackageSeparator() {
+      return separator;
+    }
+
+    @Override
+    @Nonnull
+    public String getName(@Nonnull JType type) {
+      if (type instanceof JArrayType) {
+        return getName(((JArrayType) type).getElementType()) + separator;
+      }
+      return super.getName(type);
+    }
+
+    @Override
+    @Nonnull
+    public String getName(@Nonnull JMethod method) {
+      StringBuilder sb = new StringBuilder(getName(method.getType()));
+      sb.append(separator);
+      sb.append(method.getName());
+      sb.append(separator);
+      Iterator<JParameter> argumentIterator = method.getParams().iterator();
+      while (argumentIterator.hasNext()) {
+        JParameter argument = argumentIterator.next();
+        sb.append(getName(argument.getType()));
+        sb.append(separator);
+        sb.append(argument.getName());
+        if (argumentIterator.hasNext()) {
+          sb.append(separator);
+        }
+      }
+      sb.append(separator);
+      return sb.toString();
+    }
+  }
 
   private static class MethodCallDescriptor {
 
@@ -136,7 +204,6 @@ public class WrapperMarker implements Marker {
   static class InnerAccessorWrapper implements AbstractComponent {
   }
 
-
   @Nonnull
   // TODO(delphinemartin): Warning: this is not thread-safe
   JMethod getOrCreateWrapper(@Nonnull JMethod method,
@@ -154,10 +221,15 @@ public class WrapperMarker implements Marker {
       if (isConstructor) {
         wrapper = new JConstructor(sourceInfo, accessorClass, JModifier.SYNTHETIC);
       } else {
-        wrapper = new JMethod(sourceInfo,
-            new JMethodId(WRAPPER_PREFIX + index++, MethodKind.STATIC),
-            accessorClass,
-            method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);
+        String wrapperName = WRAPPER_PREFIX;
+        if (useDeterministicName) {
+          wrapperName += WrapperFormatter.getFormatter().getName(method) + isSuper;
+        } else {
+          wrapperName += index++;
+        }
+        wrapper =
+            new JMethod(sourceInfo, new JMethodId(wrapperName, MethodKind.STATIC), accessorClass,
+                method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);
       }
 
       JExpression instance = null;

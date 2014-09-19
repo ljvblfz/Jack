@@ -38,6 +38,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,6 +52,9 @@ import javax.annotation.Nonnull;
 @Description("This marker indicates that a field has an associated getter.")
 //TODO(delphinemartin): Warning: The index is not thread-safe.
 public class GetterMarker implements Marker {
+
+  private final boolean useDeterministicName =
+      ThreadConfig.get(WrapperMarker.USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String GETTER_PREFIX = NamingTools.getNonSourceConflictingName("get");
@@ -93,11 +97,15 @@ public class GetterMarker implements Marker {
     JMethod getter = getters.get(field);
     if (getter == null) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
-      JMethodId id = new JMethodId(GETTER_PREFIX + index++, MethodKind.STATIC);
-      getter = new JMethod(sourceInfo,
-          id,
-          accessorClass,
-          field.getType(), JModifier.SYNTHETIC | JModifier.STATIC);
+      String getterName = GETTER_PREFIX;
+      if (useDeterministicName) {
+        getterName += field.getName();
+      } else {
+        getterName += index++;
+      }
+      JMethodId id = new JMethodId(getterName, MethodKind.STATIC);
+      getter = new JMethod(sourceInfo, id, accessorClass, field.getType(),
+          JModifier.SYNTHETIC | JModifier.STATIC);
 
       JExpression instance = null;
       if (!field.isStatic()) {

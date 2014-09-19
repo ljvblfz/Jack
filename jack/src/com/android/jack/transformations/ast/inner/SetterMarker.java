@@ -40,6 +40,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +54,9 @@ import javax.annotation.Nonnull;
 @Description("This marker indicates that a field has an associated setter.")
 //TODO(delphinemartin): Warning: The index is not thread-safe.
 public class SetterMarker implements Marker {
+
+  private final boolean useDeterministicName =
+      ThreadConfig.get(WrapperMarker.USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String SETTER_PREFIX = NamingTools.getNonSourceConflictingName("set");
@@ -101,12 +105,16 @@ public class SetterMarker implements Marker {
     JMethod setter = setters.get(field);
     if (setter == null) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
-      JMethodId id = new JMethodId(SETTER_PREFIX + index++, MethodKind.STATIC);
+      String setterName = SETTER_PREFIX;
+      if (useDeterministicName) {
+        setterName += field.getName();
+      } else {
+        setterName += index++;
+      }
+      JMethodId id = new JMethodId(setterName, MethodKind.STATIC);
       JType fieldType = field.getType();
-      setter = new JMethod(sourceInfo,
-          id,
-          accessorClass,
-          fieldType, JModifier.SYNTHETIC | JModifier.STATIC);
+      setter = new JMethod(sourceInfo, id, accessorClass, fieldType,
+          JModifier.SYNTHETIC | JModifier.STATIC);
       JBlock bodyBlock = new JBlock(sourceInfo);
       JMethodBody body = new JMethodBody(sourceInfo, bodyBlock);
 
