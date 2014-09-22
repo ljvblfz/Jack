@@ -22,6 +22,7 @@ import com.android.jack.errorhandling.ErrorHandlingAllTests;
 import com.android.jack.experimental.incremental.DependencyAllTests;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
+import com.android.jack.multidex.MultiDexOverflowTests;
 import com.android.jack.multidex.MultiDexTests;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.UselessVariableCopyTest;
@@ -90,6 +91,7 @@ import org.junit.runners.Suite.SuiteClasses;
     MainTest.class,
     MarkerCollectorTest.class,
     MergerAllTests.class,
+    MultiDexOverflowTests.class,
     MultiDexTests.class,
     NoClasspathTest.class,
     NoPackageTest.class,
