@@ -308,7 +308,8 @@ public class JackIncremental extends CommandLine {
     List<String> newEcjArguments = new ArrayList<String>();
 
     for (String ecjOptions : options.getEcjArguments()) {
-      if (!ecjOptions.startsWith("@") && !ecjOptions.endsWith(".java")) {
+      if (!ecjOptions.startsWith("@") && !ecjOptions.endsWith(".java")
+          && !new File(ecjOptions).isDirectory()) {
         newEcjArguments.add(ecjOptions);
       }
     }
