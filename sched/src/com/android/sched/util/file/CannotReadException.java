@@ -16,7 +16,7 @@
 
 package com.android.sched.util.file;
 
-import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -29,11 +29,11 @@ import javax.annotation.Nonnull;
 public class CannotReadException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public CannotReadException(@Nonnull FileOrDirLocation location) {
+  public CannotReadException(@Nonnull Location location) {
     this(location, null);
   }
 
-  public CannotReadException(@Nonnull FileOrDirLocation location,
+  public CannotReadException(@Nonnull Location location,
       @CheckForNull Throwable cause) {
     super(location.getDescription() + " can not be read", cause);
   }

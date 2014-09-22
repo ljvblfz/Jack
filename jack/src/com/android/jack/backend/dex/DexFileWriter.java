@@ -16,9 +16,11 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.BinaryKind;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -71,10 +73,15 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
 
     DexWritingTool writingTool = ThreadConfig.get(DEX_WRITING_POLICY);
-    writingTool.write(outputVDir);
+    try {
+      writingTool.write(outputVDir);
+    } catch (DexWritingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
   }
 
 }

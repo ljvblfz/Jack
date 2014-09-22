@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
@@ -26,8 +25,10 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.BinaryKind;
 import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.OverflowException;
+import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
@@ -57,14 +58,15 @@ public abstract class DexWritingTool {
     return new DexFile(options);
   }
 
-  public abstract void write(@Nonnull OutputVDir outputVDir) throws JackIOException;
+  public abstract void write(@Nonnull OutputVDir outputVDir) throws DexWritingException;
 
+  @Nonnull
   protected InputRootVDir getTypeDexDir() {
     return (InputRootVDir) ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
   }
 
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
-      throws JackIOException {
+      throws DexWritingException {
     OutputStream os = null;
     try {
       try {
@@ -76,21 +78,22 @@ public abstract class DexWritingTool {
         }
       }
     } catch (IOException e) {
-      throw new JackIOException("Cannot write to output dex " + out, e);
+      throw new DexWritingException(e);
     }
   }
 
-  protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex) throws JackIOException,
-      OverflowException {
+  protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
+      throws MergingOverflowException, DexWritingException {
     try {
       merger.addDexFile(new DexBuffer(inputDex.openRead()));
     } catch (IOException e) {
-      throw new JackIOException("Could not read Dex from " + inputDex, e);
+      throw new DexWritingException(new CannotReadException(inputDex.getLocation(), e));
     }
   }
 
+  @Nonnull
   protected OutputVFile getOutputDex(@Nonnull OutputVDir outputVDir, int dexCount)
-      throws JackIOException {
+      throws DexWritingException {
     assert dexCount >= 1;
     String dexName;
     if (dexCount == 1) {
@@ -100,13 +103,13 @@ public abstract class DexWritingTool {
     }
     try {
       return outputVDir.createOutputVFile(new VPath(dexName, '/'));
-    } catch (IOException e) {
-      throw new JackIOException("Cannot create dex file '" + dexName + "' in " + outputVDir, e);
+    } catch (CannotCreateFileException e) {
+      throw new DexWritingException(e);
     }
   }
 
-  protected void fillDexLists(List<InputVFile> mainDexList, List<InputVFile> anyDexList)
-      throws JackIOException {
+  protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
+      @Nonnull List<InputVFile> anyDexList) {
     for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
       try {
         InputVFile inputVFile = getTypeDexDir().getInputVFile(DexWriter.getFilePath(type));
@@ -116,8 +119,8 @@ public abstract class DexWritingTool {
           anyDexList.add(inputVFile);
         }
       } catch (NotFileOrDirectoryException e) {
-        throw new JackIOException("Error trying to read file for type '"
-            + Jack.getUserFriendlyFormatter().getName(type) + "'", e);
+        // this was created by Jack, so this should not happen
+        throw new AssertionError(e);
       }
     }
   }

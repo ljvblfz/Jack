@@ -16,6 +16,8 @@
 
 package com.android.jack.reporting;
 
+import javax.annotation.Nonnull;
+
 /**
  * A {@link Reportable} {@link Exception}.
  */
@@ -23,4 +25,11 @@ public abstract class ReportableException extends Exception implements Reportabl
 
   private static final long serialVersionUID = 1L;
 
+  public ReportableException(@Nonnull String message, @Nonnull Throwable cause) {
+    super(message, cause);
+  }
+
+  public ReportableException(@Nonnull Throwable cause) {
+    super(cause);
+  }
 }

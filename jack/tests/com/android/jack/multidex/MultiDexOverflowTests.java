@@ -16,10 +16,12 @@
 
 package com.android.jack.multidex;
 
-import com.android.jack.JackUserException;
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.DexWritingException;
+import com.android.jack.backend.dex.MainDexOverflowException;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MethodIdOverflowException;
@@ -65,11 +67,11 @@ public class MultiDexOverflowTests {
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
           );
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals("Too many classes in main dex. Index overflow while merging dex files",
-          e.getMessage());
+    } catch (JackAbortException e) {
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MethodIdOverflowException);
+      Assert.assertTrue(cause instanceof DexWritingException);
+      Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
+      Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
     }
   }
 
@@ -92,11 +94,11 @@ public class MultiDexOverflowTests {
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
           );
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals("Too many classes in main dex. Index overflow while merging dex files",
-          e.getMessage());
+    } catch (JackAbortException e) {
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof FieldIdOverflowException);
+      Assert.assertTrue(cause instanceof DexWritingException);
+      Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
+      Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
     }
   }
 

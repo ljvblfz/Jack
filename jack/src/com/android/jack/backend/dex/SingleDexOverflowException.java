@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.tools.merger;
+package com.android.jack.backend.dex;
+
+import com.android.jack.tools.merger.MergingOverflowException;
+
+import javax.annotation.Nonnull;
 
 /**
- * An {@link Exception} thrown when a method ID overflow happens during dex merging.
+ * An {@link Exception} meaning that in single dex mode, the dex has overflowed.
  */
-public class MethodIdOverflowException extends MergingOverflowException {
+public class SingleDexOverflowException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  public MethodIdOverflowException() {
-    super("Method ID");
+  public SingleDexOverflowException(@Nonnull MergingOverflowException cause) {
+    super(cause);
+  }
+
+  @Override
+  public String getMessage() {
+    return DexFileWriter.DEX_FILENAME + " has too many IDs. Try using multi-dex";
   }
 }

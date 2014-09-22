@@ -16,11 +16,9 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackIOException;
-import com.android.jack.JackUserException;
 import com.android.jack.library.BinaryKind;
 import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.OverflowException;
+import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVDir;
@@ -43,7 +41,7 @@ import javax.annotation.Nonnull;
 public class SingleDexWritingTool extends DexWritingTool {
 
   @Override
-  public void write(@Nonnull OutputVDir outputVDir) throws JackIOException {
+  public void write(@Nonnull OutputVDir outputVDir) throws DexWritingException {
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir);
     List<InputVFile> dexList = new ArrayList<InputVFile>();
@@ -52,9 +50,8 @@ public class SingleDexWritingTool extends DexWritingTool {
     for (InputVFile currentDex : dexList) {
       try {
         mergeDex(merger, currentDex);
-      } catch (OverflowException e) {
-        throw new JackUserException("Index overflow while merging dex files. Try using multidex",
-            e);
+      } catch (MergingOverflowException e) {
+        throw new DexWritingException(new SingleDexOverflowException(e));
       }
     }
     finishMerge(merger, outputDex);
@@ -71,7 +68,8 @@ public class SingleDexWritingTool extends DexWritingTool {
     }
   }
 
-  private OutputVFile getOutputDex(@Nonnull OutputVDir outputVDir) {
+  @Nonnull
+  private OutputVFile getOutputDex(@Nonnull OutputVDir outputVDir) throws DexWritingException {
     return getOutputDex(outputVDir, 1);
   }
 }
