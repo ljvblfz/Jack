@@ -153,7 +153,9 @@ public class MultiDexTests {
     Assert.assertTrue(exec.run());
     BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(out)));
     try {
-      return Integer.parseInt(reader.readLine().trim());
+      String readLine = reader.readLine();
+      assert readLine != null;
+      return Integer.parseInt(readLine.trim());
     } finally {
       reader.close();
     }
