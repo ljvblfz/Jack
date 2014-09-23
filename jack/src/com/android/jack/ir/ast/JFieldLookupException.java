@@ -41,7 +41,8 @@ public class JFieldLookupException extends JMemberLookupException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Failed to lookup field " + Jack.getUserFriendlyFormatter().getName(getDeclaringClass())
-        + '.' + fieldName + " of type " + Jack.getUserFriendlyFormatter().getName(fieldType);
+    return "Field '" + fieldName + "' of type '"
+        + Jack.getUserFriendlyFormatter().getName(fieldType) + "' not found in type '"
+        + Jack.getUserFriendlyFormatter().getName(getDeclaringClass()) + "'";
   }
 }
