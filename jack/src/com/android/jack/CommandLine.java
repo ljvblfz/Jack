@@ -105,6 +105,10 @@ public abstract class CommandLine {
       System.err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Unrecoverable exception:", e);
       System.exit(ExitStatus.FAILURE_UNRECOVERABLE);
+    } catch (JackAbortException e) {
+      // Exception should already have been reported, do not print message.
+      logger.log(Level.FINE, "Jack fatal exception:", e);
+      System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (Throwable e) {
       String message = "Internal compiler error (version " + Jack.getVersionString() + ")";
       System.err.println(message + '.');
