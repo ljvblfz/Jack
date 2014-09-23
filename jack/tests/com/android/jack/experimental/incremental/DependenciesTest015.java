@@ -18,6 +18,7 @@ package com.android.jack.experimental.incremental;
 
 import com.android.jack.Main;
 import com.android.jack.TestTools;
+import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.frontend.FrontendCompilationException;
 
 import junit.framework.Assert;
@@ -26,6 +27,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -80,6 +83,55 @@ public class DependenciesTest015 {
       Assert.assertTrue(iteProg.getStringRepresentingErr().contains(
           "The return type is incompatible with A.m()"));
     }
+  }
+
+  /**
+   * Check that incremental compilation works when library on import options is modified.
+   */
+  @Test
+  public void testDependency002() throws Exception {
+    IncrementalTestingEnvironment iteLib =
+        new IncrementalTestingEnvironment(TestTools.createTempDir("DependenciesTest_", "_001_lib"));
+
+    iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
+        + "public class A { \n" + "public void m() {} }");
+
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    List<File> jackFilesLib = iteLib.getJackFiles();
+    Assert.assertEquals(1, jackFilesLib.size());
+
+
+    IncrementalTestingEnvironment iteProg =
+        new IncrementalTestingEnvironment(TestTools.createTempDir("DependenciesTest_", "_001_prog"));
+
+    iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
+        + "public class B { \n" + " public void m(){} }");
+
+    iteProg.incrementalBuildFromFolder(null /*classpath*/, Arrays.asList(iteLib.getJackFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteProg.getJackFiles().size());
+
+    DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+
+    iteLib.addJavaFile("jack.incremental", "C.java", "package jack.incremental; \n"
+        + "public class C { \n" + "public void m() {} }");
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    jackFilesLib = iteLib.getJackFiles();
+    Assert.assertEquals(2, jackFilesLib.size());
+
+
+    iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getJackFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteProg.getJackFiles().size());
+
+    db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/C;"));
   }
 }
 

@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -129,15 +130,21 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   public void incrementalBuildFromFolder() throws Exception {
-    incrementalBuildFromFolder(null);
+    incrementalBuildFromFolder(null, Collections.<File>emptyList());
   }
 
-  public void incrementalBuildFromFolder(@CheckForNull File[] classpath) throws Exception {
+  public void incrementalBuildFromFolder(@Nonnull File[] classpath) throws Exception {
+    incrementalBuildFromFolder(classpath, Collections.<File>emptyList());
+  }
+
+  public void incrementalBuildFromFolder(@CheckForNull File[] classpath,
+      @Nonnull List<File> imports) throws Exception {
     startOutRedirection();
     startErrRedirection();
 
     Options options = TestTools.buildCommandLineArgs(testingFolder);
     options.setIncrementalFolder(getCompilerStateFolder());
+    options.setJayceImports(imports);
 
     compileSourceToDex(options, sourceFolder,
         classpath == null ? TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath())

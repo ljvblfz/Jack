@@ -263,8 +263,11 @@ public class JackIncremental extends CommandLine {
   }
 
   /*
-   * A full rebuild is needed when a file contained inside a folder in the classpath
-   * or an archive in the classpath is more recent than the generated dex file.
+   * A full rebuild is needed:
+   * - when a file contained inside a folder in the classpath or an archive in the classpath
+   * is more recent than the generated dex file.
+   * - when a file contained inside a folder in the import option or an archive in the import
+   * option is more recent than the generated dex file.
    */
   private static boolean needFullRebuild(@Nonnull Options options) {
     File outputDexFile = new File(options.getOutputDir(), DexFileWriter.DEX_FILENAME);
@@ -280,7 +283,8 @@ public class JackIncremental extends CommandLine {
         }
       }
     }
-    return false;
+
+    return hasModifiedImport(options, outputDexFile.lastModified());
   }
 
   private static boolean isModifiedLibrary(@Nonnull File lib, long time) {
@@ -306,6 +310,15 @@ public class JackIncremental extends CommandLine {
       }
     }
 
+    return false;
+  }
+
+  private static boolean hasModifiedImport(@Nonnull Options options, long time) {
+    for (File importedJackFiles : options.getJayceImport()) {
+      if (isModifiedLibrary(importedJackFiles, time)) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -366,7 +379,6 @@ public class JackIncremental extends CommandLine {
       newEcjArguments.add(fileToRecompile);
     }
 
-    // Move imported jack files from import to classpath option
     assert jackFilesFolder != null;
     StringBuilder newClasspath = new StringBuilder(jackFilesFolder.getPath());
 
@@ -376,6 +388,7 @@ public class JackIncremental extends CommandLine {
       newClasspath.append(oldClasspath);
     }
 
+    // Move imported jack files from import to classpath option
     List<File> jayceImport = options.getJayceImport();
     if (!jayceImport.isEmpty()) {
       for (File importedJackFiles : jayceImport) {
@@ -384,6 +397,7 @@ public class JackIncremental extends CommandLine {
       }
       options.setJayceImports(Collections.<File>emptyList());
     }
+
     options.setClasspath(newClasspath.toString());
 
     if (!newEcjArguments.isEmpty()) {
