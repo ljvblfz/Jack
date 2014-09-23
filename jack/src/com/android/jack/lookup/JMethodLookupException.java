@@ -37,8 +37,8 @@ public abstract class JMethodLookupException extends JMemberLookupException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Failed to lookup method " + Jack.getUserFriendlyFormatter().getName(getDeclaringClass())
-        + '.' + getMethodString();
+    return "Method '" + getMethodString() + "' not found in type '"
+        + Jack.getUserFriendlyFormatter().getName(getDeclaringClass()) + "'";
   }
 
   @Nonnull
