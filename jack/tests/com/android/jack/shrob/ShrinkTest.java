@@ -175,4 +175,19 @@ public class ShrinkTest extends AbstractTest {
         Collections.singletonList(flags),
         true);
   }
+
+  @Test
+  public void test42_001() throws Exception {
+    runTest(defaultBootclasspath, null, "042", "001", "");
+  }
+
+  @Test
+  public void test42_002() throws Exception {
+    runTest(defaultBootclasspath, null, "042", "002", "");
+  }
+
+  @Test
+  public void test42_003() throws Exception {
+    runTest(defaultBootclasspath, null, "042", "003", "");
+  }
 }

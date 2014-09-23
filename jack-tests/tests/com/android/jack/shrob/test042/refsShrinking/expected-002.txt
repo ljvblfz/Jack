@@ -1,0 +1,11 @@
+Lcom/android/jack/shrob/test042/jack/EnumToKeep;:
+Lcom/android/jack/shrob/test042/jack/EnumToKeep; A
+Lcom/android/jack/shrob/test042/jack/EnumToKeep; B
+Lcom/android/jack/shrob/test042/jack/EnumToKeep; C
+[Lcom/android/jack/shrob/test042/jack/EnumToKeep; $VALUES
+<init>(Ljava/lang/String;I)V
+values()[Lcom/android/jack/shrob/test042/jack/EnumToKeep;
+<clinit>()V
+<init>(Ljava/lang/String;ILcom/android/jack/shrob/test042/jack/EnumToKeep;)V
+Lcom/android/jack/shrob/test042/jack/EnumToKeep$1;:
+<init>(Ljava/lang/String;I)V
