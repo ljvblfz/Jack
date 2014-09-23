@@ -129,6 +129,10 @@ public class IncrementalTestingEnvironment extends TestTools {
   }
 
   public void incrementalBuildFromFolder() throws Exception {
+    incrementalBuildFromFolder(null);
+  }
+
+  public void incrementalBuildFromFolder(@CheckForNull File[] classpath) throws Exception {
     startOutRedirection();
     startErrRedirection();
 
@@ -136,7 +140,9 @@ public class IncrementalTestingEnvironment extends TestTools {
     options.setIncrementalFolder(getCompilerStateFolder());
 
     compileSourceToDex(options, sourceFolder,
-        TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath()), testingFolder);
+        classpath == null ? TestTools.getClasspathAsString(TestTools.getDefaultBootclasspath())
+            : TestTools.getClasspathsAsString(TestTools.getDefaultBootclasspath(), classpath),
+        testingFolder);
 
     Thread.sleep(1000);
 
@@ -212,6 +218,11 @@ public class IncrementalTestingEnvironment extends TestTools {
     assert errRedirectStream != null;
     errRedirectStream.close();
     return err;
+  }
+
+  @Nonnull
+  public File getJackFolder() {
+    return jackFolder;
   }
 
   @Nonnull

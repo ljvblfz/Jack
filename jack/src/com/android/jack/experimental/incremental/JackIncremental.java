@@ -184,7 +184,7 @@ public class JackIncremental extends CommandLine {
 
     compilerState = new CompilerState(incrementalFolder);
 
-    if (isIncrementalCompilation(options)) {
+    if (isIncrementalCompilation(options) && !needFullRebuild(options)) {
       logger.log(Level.INFO, "Incremental compilation");
 
       List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
@@ -262,6 +262,54 @@ public class JackIncremental extends CommandLine {
     return compilerState;
   }
 
+  /*
+   * A full rebuild is needed when a file contained inside a folder in the classpath
+   * or an archive in the classpath is more recent than the generated dex file.
+   */
+  private static boolean needFullRebuild(@Nonnull Options options) {
+    File outputDexFile = new File(options.getOutputDir(), DexFileWriter.DEX_FILENAME);
+    if (outputDexFile.exists()) {
+      for (File lib : options.getBootclasspath()) {
+        if (isModifiedLibrary(lib, outputDexFile.lastModified())) {
+          return true;
+        }
+      }
+      for (File lib : options.getClasspath()) {
+        if (isModifiedLibrary(lib, outputDexFile.lastModified())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static boolean isModifiedLibrary(@Nonnull File lib, long time) {
+    if (lib.isFile() && (lib.lastModified() > time)) {
+      return true;
+    } else if (lib.isDirectory() && hasModifiedFile(lib, time)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static boolean hasModifiedFile(@Nonnull File file, long time) {
+    assert file.isDirectory();
+
+    for (File f : file.listFiles()) {
+      if (f.isDirectory()) {
+        if (hasModifiedFile(f, time)) {
+          return true;
+        }
+      } else if (f.lastModified() > time) {
+          return true;
+      }
+    }
+
+    return false;
+  }
+
+  @Nonnull
   private static String dependenciesToString(@Nonnull Map<String, Set<String>> fileDependencies) {
     StringBuilder builder = new StringBuilder();
     builder.append(TextUtils.LINE_SEPARATOR);
@@ -485,8 +533,7 @@ public class JackIncremental extends CommandLine {
   }
 
   private static boolean isIncrementalCompilation(@Nonnull Options options) {
-    if (!options.getEcjArguments().isEmpty()
-        && getCompilerState().exists()) {
+    if (!options.getEcjArguments().isEmpty() && getCompilerState().exists()) {
       return true;
     }
 
