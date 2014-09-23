@@ -270,6 +270,10 @@ public class JackIncremental extends CommandLine {
    * option is more recent than the generated dex file.
    */
   private static boolean needFullRebuild(@Nonnull Options options) {
+    if (!options.isAutomaticFullRebuildEnabled()) {
+      return false;
+    }
+
     File outputDexFile = new File(options.getOutputDir(), DexFileWriter.DEX_FILENAME);
     if (outputDexFile.exists()) {
       for (File lib : options.getBootclasspath()) {
