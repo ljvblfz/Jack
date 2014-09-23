@@ -30,7 +30,6 @@ import com.android.jack.shrob.obfuscation.SourceFileRenamer;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
-import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.FileUtils;
@@ -303,8 +302,6 @@ public class Options {
       "jack.obfuscation.mixedcaseclassname",
       "Use mixed case class name when obfuscating").addDefaultValue(Boolean.FALSE);
 
-  protected File typeAndMemberListing;
-
   @Nonnull
   protected Filter<JMethod> filter = new AllMethods();
 
@@ -568,12 +565,6 @@ public class Options {
     configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
     configBuilder.set(
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
-
-    if (typeAndMemberListing != null) {
-      configBuilder.set(ShrinkStructurePrinter.STRUCTURE_PRINTING, true);
-      configBuilder.setString(
-          ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE, typeAndMemberListing.getAbsolutePath());
-    }
 
     if (jayceOutZip != null) {
       configBuilder.setString(JACK_FILE_OUTPUT_ZIP, jayceOutZip.getAbsolutePath());

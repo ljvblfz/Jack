@@ -29,6 +29,7 @@ import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.FileUtils;
@@ -675,7 +676,9 @@ public class TestTools {
       @Nonnull File refNodeListing) throws Exception {
     Options options = new Options();
     File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
-    options.typeAndMemberListing = candidateNodeListing;
+    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
     options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     options.disableDxOptimizations();
 
@@ -699,7 +702,9 @@ public class TestTools {
       @CheckForNull ProguardFlags[] proguardFlags,
       @Nonnull File refNodeListing) throws Exception {
     File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
-    options.typeAndMemberListing = candidateNodeListing;
+    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
     options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     options.disableDxOptimizations();
 
