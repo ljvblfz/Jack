@@ -35,4 +35,10 @@ public class LibraryWritingException extends ReportableException {
   public String getMessage() {
     return "Error during the library writing phase: " + getCause().getMessage();
   }
+
+  @Override
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.ERROR;
+  }
 }

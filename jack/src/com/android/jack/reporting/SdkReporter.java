@@ -24,10 +24,12 @@ import javax.annotation.Nonnull;
 
 
 /**
- * The default {@link Reporter}.
+ * A {@link Reporter} for the SDK.
  */
-@ImplementationName(iface = Reporter.class, name = "default")
-public class DefaultReporter extends CommonReporter {
+@ImplementationName(iface = Reporter.class, name = "sdk")
+public class SdkReporter extends CommonReporter {
+
+  private static final char MESSAGE_SEPARATOR = ':';
 
   @Override
   protected void printProblem(@Nonnull ProblemLevel problemLevel,
@@ -38,15 +40,27 @@ public class DefaultReporter extends CommonReporter {
       int startColumn,
       int endColumn) {
     StringBuffer messageBuffer = new StringBuffer(problemLevel.toString());
+    messageBuffer.append(MESSAGE_SEPARATOR);
     if (fileName != null) {
-      messageBuffer.append(": ");
       messageBuffer.append(fileName);
-      if (startLine >= 0) {
-        messageBuffer.append(":");
-        messageBuffer.append(startLine);
-      }
     }
-    messageBuffer.append(": ");
+    messageBuffer.append(MESSAGE_SEPARATOR);
+    if (startLine >= 0) {
+      messageBuffer.append(startLine);
+    }
+    messageBuffer.append(MESSAGE_SEPARATOR);
+    if (endLine >= 0) {
+      messageBuffer.append(endLine);
+    }
+    messageBuffer.append(MESSAGE_SEPARATOR);
+    if (startColumn >= 0) {
+      messageBuffer.append(startColumn);
+    }
+    messageBuffer.append(MESSAGE_SEPARATOR);
+    if (endColumn >= 0) {
+      messageBuffer.append(endColumn);
+    }
+    messageBuffer.append(MESSAGE_SEPARATOR);
     messageBuffer.append(message);
     System.err.println(messageBuffer.toString());
   }

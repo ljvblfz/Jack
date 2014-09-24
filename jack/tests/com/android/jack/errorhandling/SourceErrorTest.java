@@ -36,6 +36,7 @@ public class SourceErrorTest {
 
   /**
    * Checks that compilation fails because of invalid "class" keyword.
+   * parsingErrorId = syntaxCategory + internalCategory + 204
    */
   @Test
   public void testInvalidSource001() throws Exception {
@@ -45,12 +46,14 @@ public class SourceErrorTest {
         + "public clas A {}\n");
 
     try {
+      te.startOutRedirection();
       te.startErrRedirection();
       te.compile(getOptions(te));
       Assert.fail();
     } catch (FrontendCompilationException ex) {
       // Failure is ok since source does not compile.
     } finally {
+      Assert.assertEquals("", te.endOutRedirection());
       Assert.assertTrue(
           te.endErrRedirection().contains("Syntax error on token \"clas\", class expected"));
     }
@@ -58,6 +61,7 @@ public class SourceErrorTest {
 
   /**
    * Checks that compilation fails because of invalid "public" keyword.
+   * parsingErrorId = syntaxCategory + internalCategory + 204
    */
   @Test
   public void testInvalidSource002() throws Exception {
@@ -67,12 +71,14 @@ public class SourceErrorTest {
         + "publi class A {}\n");
 
     try {
+      te.startOutRedirection();
       te.startErrRedirection();
       te.compile(getOptions(te));
       Assert.fail();
     } catch (FrontendCompilationException ex) {
       // Failure is ok since source does not compile.
     } finally {
+      Assert.assertEquals("", te.endOutRedirection());
       Assert.assertTrue(
           te.endErrRedirection().contains("Syntax error on token \"publi\", public expected"));
     }
@@ -80,6 +86,7 @@ public class SourceErrorTest {
 
   /**
    * Checks that compilation fails because of a class name that does not match the file name.
+   * publicClassMustMatchFileNameId = typeRelatedCategory + 325
    */
   @Test
   public void testInvalidSource003() throws Exception {
@@ -89,12 +96,14 @@ public class SourceErrorTest {
         + "public class B {}\n");
 
     try {
+      te.startOutRedirection();
       te.startErrRedirection();
       te.compile(getOptions(te));
       Assert.fail();
     } catch (FrontendCompilationException ex) {
       // Failure is ok since source does not compile.
     } finally {
+      Assert.assertEquals("", te.endOutRedirection());
       Assert.assertTrue(
           te.endErrRedirection().contains("The public type B must be defined in its own file"));
     }
@@ -102,6 +111,7 @@ public class SourceErrorTest {
 
   /**
    * Checks that compilation fails because of an import of a class that is not on classpath.
+   * importNotFoundId = importRelatedCategory + 390
    */
   @Test
   public void testInvalidSource004() throws Exception {
@@ -112,12 +122,14 @@ public class SourceErrorTest {
         + "public class A {}\n");
 
     try {
+      te.startOutRedirection();
       te.startErrRedirection();
       te.compile(getOptions(te));
       Assert.fail();
     } catch (FrontendCompilationException ex) {
       // Failure is ok since source does not compile.
     } finally {
+      Assert.assertEquals("", te.endOutRedirection());
       Assert.assertTrue(
           te.endErrRedirection().contains("The import jack.invalidsource.B cannot be resolved"));
     }
@@ -125,6 +137,7 @@ public class SourceErrorTest {
 
   /**
    * Checks that compilation fails because there are too many methods in a single class.
+   * tooManyMethodsId = internalCategory + 433
    */
   @Test
   public void testInvalidSource005() throws Exception {
@@ -156,16 +169,174 @@ public class SourceErrorTest {
     }
   }
 
+  /**
+   * Checks that compilation fails because of several source errors.
+   */
+  @Test
+  public void testInvalidSource006() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private voi m() {} } \n");
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
+        + "public class B { private void m(in a) {}; \n private void n(int a) {re}; } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      String errorString = te.endErrRedirection();
+      Assert.assertTrue(errorString.contains("in cannot be resolved to a type"));
+      Assert.assertTrue(errorString.contains(
+          "Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration"));
+      Assert.assertTrue(
+          errorString.contains("Syntax error, insert \";\" to complete BlockStatements"));
+      Assert.assertTrue(errorString.contains("voi cannot be resolved to a type"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails because of a source error, with also some warnings.
+   */
+  @Test
+  public void testInvalidSource007() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private void m() {} } \n");
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
+        + "public class B { private void m(in a) {}; \n private void n(int a) {}; } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(te.endErrRedirection().contains("in cannot be resolved to a type"));
+      Assert.assertTrue(te.endErrRedirection().contains(
+          "The method n(int) from the type B is never used locally"));
+      Assert.assertTrue(
+          te.endErrRedirection().contains("The method m() from the type A is never used locally"));
+    }
+  }
+
+  /**
+   * Checks that compilation succeeds but prints several warnings.
+   */
+  @Test
+  public void testInvalidSource008() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private void m() {} } \n");
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
+        + "public class B { private void m(int a) {}; \n private void n(int a) {}; } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(te.endErrRedirection().contains(
+          "The method m(int) from the type B is never used locally"));
+      Assert.assertTrue(te.endErrRedirection().contains(
+          "The method n(int) from the type B is never used locally"));
+      Assert.assertTrue(
+          te.endErrRedirection().contains("The method m() from the type A is never used locally"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails because of an invalid type.
+   * undefinedTypeId = typeRelatedCategory + 2
+   */
+  @Test
+  public void testInvalidSource009() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private void m(in a) {}; } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(
+          te.endErrRedirection().contains("in cannot be resolved to a type"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails because of a parsing error.
+   * parsingErrorInsertToCompleteId = syntaxCategory + internalCategory + 240
+   */
+  @Test
+  public void testInvalidSource010() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private void n(int a) {re;} } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(te.endErrRedirection().contains(
+          "Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration"));
+    }
+  }
+
+  /**
+   * Checks that compilation succeeds but raises a warning because of an unused private method.
+   * unusedPrivateMethodId = internalCategory + methodRelatedCategory + 118
+   */
+  @Test
+  public void testInvalidSource011() throws Exception {
+    TestingEnvironment te = new TestingEnvironment();
+
+    te.addFile(te.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
+        + "public class A { private void m() {} } \n");
+
+    try {
+      te.startOutRedirection();
+      te.startErrRedirection();
+      te.compile(getOptions(te));
+    } finally {
+      Assert.assertEquals("", te.endOutRedirection());
+      Assert.assertTrue(
+          te.endErrRedirection().contains("The method m() from the type A is never used locally"));
+    }
+  }
+
   @Nonnull
   private Options getOptions(@Nonnull TestingEnvironment te) {
     Options options = new Options();
     List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add("-d");
-    ecjArgs.add(te.getTestingFolder().getAbsolutePath());
     ecjArgs.add(te.getSourceFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
     options.setClasspath(TestTools.getDefaultBootclasspathString() + File.pathSeparator
         + te.getJackFolder());
+    options.setOutputDir(te.getTestingFolder());
     return options;
   }
 

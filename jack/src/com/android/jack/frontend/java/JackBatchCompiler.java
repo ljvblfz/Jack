@@ -19,8 +19,10 @@ package com.android.jack.frontend.java;
 import com.android.jack.JackUserException;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.reporting.Reporter;
 import com.android.sched.util.log.LoggerFactory;
 
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
@@ -32,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
@@ -92,6 +95,11 @@ public class JackBatchCompiler extends Main {
         false /* systemExitWhenFinished */, null /* customDefaultOptions */,
         null /* compilationProgress */);
     this.session = session;
+  }
+
+  @Nonnull
+  Reporter getReporter() {
+    return session.getReporter();
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -223,5 +231,13 @@ public class JackBatchCompiler extends Main {
     super.configure(argv);
     checkedClasspaths = new FileSystem.Classpath[] {
         new JAstClasspath("<jack-logical-entry>", session.getLookup(), null)};
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit,
+      Map customDefaultOptions, CompilationProgress compilationProgress) {
+    super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
+    logger = new EcjLogger(this, outWriter, errWriter, this);
   }
 }

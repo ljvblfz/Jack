@@ -35,4 +35,10 @@ public class DexWritingException extends ReportableException {
   public String getMessage() {
     return "Error during the dex writing phase: " + getCause().getMessage();
   }
+
+  @Override
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.ERROR;
+  }
 }

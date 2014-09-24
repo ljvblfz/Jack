@@ -23,7 +23,17 @@ import javax.annotation.Nonnull;
  */
 public interface Reportable {
 
+  /**
+   * The level of a problem.
+   */
+  public static enum ProblemLevel {
+    ERROR, WARNING
+  }
+
   @Nonnull
   public String getMessage();
+
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel();
 
 }

@@ -527,7 +527,11 @@ public class DependenciesTest001 {
       Assert.fail();
     } catch (FrontendCompilationException e)  {
       // Error is ok
-      Assert.assertTrue(ite.getStringRepresentingErr().contains("2 problems (2 errors)"));
+      String err = ite.getStringRepresentingErr();
+      Assert.assertTrue(
+          err.contains("The type B must implement the inherited abstract method I.m(int)"));
+      Assert.assertTrue(
+          err.contains("The method m() of type B must override or implement a supertype method"));
     }
 
     ite.addJavaFile("jack.incremental", "B.java",
@@ -539,7 +543,8 @@ public class DependenciesTest001 {
       Assert.fail();
     } catch (FrontendCompilationException e)  {
       // Error is ok
-      Assert.assertTrue(ite.getStringRepresentingErr().contains("1 problem (1 error)"));
+      Assert.assertTrue(ite.getStringRepresentingErr().contains(
+          "The method m() of type A must override or implement a supertype method"));
     }
 
     ite.addJavaFile("jack.incremental", "A.java",

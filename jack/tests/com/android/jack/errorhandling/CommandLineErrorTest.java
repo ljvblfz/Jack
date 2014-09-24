@@ -20,14 +20,12 @@ import com.android.jack.IllegalOptionsException;
 import com.android.jack.Main;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
-import com.android.jack.category.KnownBugs;
 import com.android.jack.frontend.FrontendCompilationException;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -94,7 +92,6 @@ public class CommandLineErrorTest {
    * Checks that compilation fails correctly when java.lang.Object does not exist on classpath.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testCommandLineError003() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
@@ -113,10 +110,12 @@ public class CommandLineErrorTest {
       ite.compile(options);
       Assert.fail();
     } catch (FrontendCompilationException e) {
-      // Failure is ok, since java.lang.Object does not exists.
+      // Failure is ok, since java.lang.Object does not exist.
     } finally {
       Assert.assertEquals("", ite.endOutRedirection());
-      Assert.assertTrue(!ite.endErrRedirection().contains("file"));
+      String err = ite.endErrRedirection();
+      Assert.assertTrue(err.contains("The type java.lang.Object cannot be found in source files, "
+          + "imported jack libs or the classpath"));
     }
   }
 }
