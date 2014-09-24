@@ -185,7 +185,7 @@ public class JackIncremental extends CommandLine {
     compilerState = new CompilerState(incrementalFolder);
 
     if (isIncrementalCompilation(options) && !needFullRebuild(options)) {
-      logger.log(Level.INFO, "Incremental compilation");
+      logger.log(Level.FINE, "Incremental compilation");
 
       List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
 
@@ -201,7 +201,7 @@ public class JackIncremental extends CommandLine {
           getFilesToRecompile(fileDependencies, javaFilesNames, deletedFiles);
 
       if (!filesToRecompile.isEmpty() || !deletedFiles.isEmpty()) {
-        logger.log(Level.INFO, "{0} Files to recompile {1}",
+        logger.log(Level.FINE, "{0} Files to recompile {1}",
             new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
         updateOptions(options, filesToRecompile);
 
@@ -245,7 +245,7 @@ public class JackIncremental extends CommandLine {
           ThreadConfig.unsetConfig();
         }
       } else {
-        logger.log(Level.INFO, "No files to recompile");
+        logger.log(Level.FINE, "No files to recompile");
       }
     } else {
       Jack.run(options);
@@ -360,11 +360,11 @@ public class JackIncremental extends CommandLine {
     }
 
     logger.log(
-        Level.INFO,
+        Level.FINE,
         "There are {0} dependencies, with {1} files per dependency in average",
         new Object[] {Integer.valueOf(fileDependencies.size()),
             Double.valueOf((double) dependencyNumber / (double) fileDependencies.size())});
-    logger.log(Level.INFO, "Dependencies are at minimun {0} and at maximun {1}", new Object[] {
+    logger.log(Level.FINE, "Dependencies are at minimun {0} and at maximun {1}", new Object[] {
         Integer.valueOf(minDependencyNumber), Integer.valueOf(maxDependencyNumber)});
   }
 
@@ -447,7 +447,7 @@ public class JackIncremental extends CommandLine {
 
     for (String javaFileName : getCompilerState().getJavaFilename()) {
       if (!javaFileNames.contains(javaFileName)) {
-        logger.log(Level.INFO, "{0} was deleted", javaFileName);
+        logger.log(Level.FINE, "{0} was deleted", javaFileName);
         deletedFiles.add(javaFileName);
       }
     }
@@ -478,7 +478,7 @@ public class JackIncremental extends CommandLine {
 
     for (String javaFileName : javaFileNames) {
       if (!previousFiles.contains(javaFileName)) {
-        logger.log(Level.INFO, "{0} was added", javaFileName);
+        logger.log(Level.FINE, "{0} was added", javaFileName);
         addedFiles.add(javaFileName);
       }
     }
@@ -502,7 +502,7 @@ public class JackIncremental extends CommandLine {
           if (!dexFile.exists()
               || (javaFileNames.contains(javaFileName) && javaFile.lastModified() > dexFile
                   .lastModified())) {
-            logger.log(Level.INFO, "{0} was modified", new Object[] {javaFileName});
+            logger.log(Level.FINE, "{0} was modified", new Object[] {javaFileName});
             modifiedFiles.add(javaFileName);
             addNotModifiedDependencies(fileDependencies, deletedFiles, modifiedFiles, javaFileName);
             break;
