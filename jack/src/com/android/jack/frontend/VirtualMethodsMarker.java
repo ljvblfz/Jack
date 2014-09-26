@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Set of virtual methods visible in the marked type.")
 @ValidOn({JDefinedClassOrInterface.class, JPhantomClassOrInterface.class})
-public class VirtualMethodsMarker implements Marker, Iterable<JMethodId> {
+public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Cloneable {
 
   /**
    * A remover for {@link VirtualMethodsMarker}
@@ -118,11 +118,25 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId> {
   };
 
   @Nonnull
-  private final TreeSet<JMethodId> virtualMethods;
+  private TreeSet<JMethodId> virtualMethods;
 
   public VirtualMethodsMarker() {
     virtualMethods =
         new TreeSet<JMethodId>(methodIdComparator);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nonnull
+  @Override
+  public VirtualMethodsMarker clone() {
+    VirtualMethodsMarker clone;
+    try {
+      clone = (VirtualMethodsMarker) super.clone();
+      clone.virtualMethods = (TreeSet<JMethodId>) virtualMethods.clone();
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
   }
 
   @Nonnull
