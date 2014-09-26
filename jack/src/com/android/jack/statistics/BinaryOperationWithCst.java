@@ -50,14 +50,12 @@ import javax.annotation.Nonnull;
 @Description("Compute number of binary operations using constant value.")
 @Constraint(no = {JConcatOperation.class, ImplicitCast.class, ImplicitBoxingAndUnboxing.class,
     ThreeAddressCodeForm.class, CompoundAssignment.class})
-
 public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   @Nonnull
-  private static final CounterVisitor visitor = new CounterVisitor();
-
+  private static final CounterVisitor visitor = new CounterVisitor(TracerFactory.getTracer());
 
   private static class StatBinOp {
     public static final StatisticId<Percent> SHIFT_WITH_LIT8 = new StatisticId<Percent>(
@@ -78,10 +76,15 @@ public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
   }
 
   private static class CounterVisitor extends JVisitor {
+    @Nonnull
+    private final Tracer tracer;
+
+    public CounterVisitor(@Nonnull Tracer tracer) {
+      this.tracer = tracer;
+    }
+
     @Override
     public boolean visit(@Nonnull JBinaryOperation binOp) {
-      Tracer tracer = TracerFactory.getTracer();
-
       if (binOp instanceof JShiftOperation) {
         computeStat(
             binOp, tracer.getStatistic(StatBinOp.SHIFT_WITH_LIT8), Byte.MIN_VALUE, Byte.MAX_VALUE);
@@ -118,8 +121,7 @@ public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
         }
       }
 
-      Percent twoCstPercent =
-          TracerFactory.getTracer().getStatistic(StatBinOp.BINARY_WITH_TWO_LITERALS);
+      Percent twoCstPercent = tracer.getStatistic(StatBinOp.BINARY_WITH_TWO_LITERALS);
       twoCstPercent.add(
           binOp.getRhs() instanceof JValueLiteral && binOp.getLhs() instanceof JValueLiteral);
 
