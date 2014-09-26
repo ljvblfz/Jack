@@ -92,14 +92,18 @@ public class MethodIdMerger extends JVisitor {
   private void handleDefinedClassOrInterface(@Nonnull JDefinedClassOrInterface node) {
     ensureHierarchyVisited(node);
 
-    VirtualMethodsMarker virtualMethods = new VirtualMethodsMarker();
-
     JClass zuper = getSuper(node);
     while (zuper instanceof JPhantomClassOrInterface) {
       zuper = getSuper(zuper);
     }
+
+    VirtualMethodsMarker virtualMethods;
     if (zuper != null) {
-      addIds(virtualMethods, (JNode) zuper);
+      VirtualMethodsMarker superMarker = ((JNode) zuper).getMarker(VirtualMethodsMarker.class);
+      assert superMarker != null;
+      virtualMethods = superMarker.clone();
+    } else {
+      virtualMethods = new VirtualMethodsMarker();
     }
 
     for (JInterface interfaze : node.getImplements()) {
