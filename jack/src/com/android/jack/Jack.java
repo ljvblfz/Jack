@@ -163,6 +163,7 @@ import com.android.jack.shrob.shrink.remover.MethodKeepMarkerRemover;
 import com.android.jack.shrob.shrink.remover.TypeShrinkMarkerRemover;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.statistics.BinaryOperationWithCst;
+import com.android.jack.statistics.CodeStats;
 import com.android.jack.statistics.FieldStats;
 import com.android.jack.statistics.MethodStats;
 import com.android.jack.transformations.AssertionTransformer;
@@ -411,6 +412,7 @@ public abstract class Jack {
 
         if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
           request.addFeature(CompiledTypeStats.class);
+          request.addFeature(CodeStats.class);
         }
 
         if (options.hasSanityChecks()) {
@@ -1030,7 +1032,9 @@ public abstract class Jack {
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
         methodPlan.append(UselessCastRemover.class);
-        methodPlan.append(BinaryOperationWithCst.class);
+        if (features.contains(CodeStats.class)) {
+          methodPlan.append(BinaryOperationWithCst.class);
+        }
         methodPlan.append(UselessCaseRemover.class);
         methodPlan.append(UselessSwitchesRemover.class);
         if (hasSanityChecks) {
@@ -1456,7 +1460,9 @@ public abstract class Jack {
         methodPlan3.append(TypeLegalizer.class);
         methodPlan3.append(RopCastLegalizer.class);
         methodPlan3.append(UselessCastRemover.class);
-        methodPlan3.append(BinaryOperationWithCst.class);
+        if (features.contains(CodeStats.class)) {
+          methodPlan3.append(BinaryOperationWithCst.class);
+        }
         methodPlan3.append(UselessCaseRemover.class);
         methodPlan3.append(UselessSwitchesRemover.class);
         if (hasSanityChecks) {

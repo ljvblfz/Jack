@@ -35,6 +35,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -50,6 +51,7 @@ import javax.annotation.Nonnull;
 @Description("Compute number of binary operations using constant value.")
 @Constraint(no = {JConcatOperation.class, ImplicitCast.class, ImplicitBoxingAndUnboxing.class,
     ThreeAddressCodeForm.class, CompoundAssignment.class})
+@Support(CodeStats.class)
 public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
 
   @Nonnull
