@@ -16,7 +16,6 @@
 
 package com.android.jack.frontend;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -24,14 +23,15 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -106,23 +106,65 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
     }
   }
 
-  @Nonnull
-  private static final Comparator<JMethodId> methodIdComparator = new Comparator<JMethodId>() {
-
-    @Override
-    public int compare(JMethodId o1, JMethodId o2) {
-      return Jack.getLookupFormatter().getNameWithoutReturnType(o1).compareTo(
-          Jack.getLookupFormatter().getNameWithoutReturnType(o2));
+  private static class ComparableMethodId {
+    private final int hashCode;
+    @Nonnull
+    private final JMethodId methodId;
+    private ComparableMethodId(@Nonnull JMethodId methodId) {
+      this.methodId = methodId;
+      int code = methodId.getName().hashCode();
+      for (JType type : methodId.getParamTypes()) {
+        code ^= type.hashCode();
+      }
+      hashCode = code;
     }
 
-  };
+    @Override
+    public int hashCode() {
+      return hashCode;
+    }
+
+    @Override
+    public boolean equals(@CheckForNull Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      ComparableMethodId other;
+      int otherHashCode;
+      try {
+        other = (ComparableMethodId) obj;
+        otherHashCode = other.hashCode;
+      } catch (ClassCastException e) {
+        return false;
+      } catch (NullPointerException e) {
+        return false;
+      }
+      if (hashCode != otherHashCode) {
+        return false;
+      }
+      List<JType> thisParams = methodId.getParamTypes();
+      List<JType> otherParams = other.methodId.getParamTypes();
+
+      if (thisParams.size() != otherParams.size()
+          || !methodId.getName().equals(other.methodId.getName())) {
+        return false;
+      }
+      Iterator<JType> otherIterator = otherParams.iterator();
+      for (JType thisParam : thisParams) {
+        if (thisParam != otherIterator.next()) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
 
   @Nonnull
-  private TreeSet<JMethodId> virtualMethods;
+  private HashMap<ComparableMethodId, ComparableMethodId> virtualMethods;
 
   public VirtualMethodsMarker() {
     virtualMethods =
-        new TreeSet<JMethodId>(methodIdComparator);
+        new HashMap<ComparableMethodId, ComparableMethodId>();
   }
 
   @SuppressWarnings("unchecked")
@@ -132,7 +174,8 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
     VirtualMethodsMarker clone;
     try {
       clone = (VirtualMethodsMarker) super.clone();
-      clone.virtualMethods = (TreeSet<JMethodId>) virtualMethods.clone();
+      clone.virtualMethods =
+          (HashMap<ComparableMethodId, ComparableMethodId>) virtualMethods.clone();
       return clone;
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
@@ -146,14 +189,16 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
   }
 
   public void add(@Nonnull JMethodId method) {
-    virtualMethods.add(method);
+    ComparableMethodId comparable = new ComparableMethodId(method);
+    virtualMethods.put(comparable, comparable);
   }
 
   @CheckForNull
   public JMethodId get(@Nonnull JMethodId method) {
-    JMethodId found = virtualMethods.ceiling(method);
-    if (found != null && (methodIdComparator.compare(method, found) == 0)) {
-      return found;
+    ComparableMethodId searched = new ComparableMethodId(method);
+    ComparableMethodId found = virtualMethods.get(searched);
+    if (found != null) {
+      return found.methodId;
     } else {
       return null;
     }
@@ -162,7 +207,27 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
   @Nonnull
   @Override
   public Iterator<JMethodId> iterator() {
-    return virtualMethods.iterator();
+    return new Iterator<JMethodId>() {
+
+      @Nonnull
+      private final Iterator<ComparableMethodId> iterator = virtualMethods.values().iterator();
+
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Nonnull
+      @Override
+      public JMethodId next() {
+        return iterator.next().methodId;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
 }
