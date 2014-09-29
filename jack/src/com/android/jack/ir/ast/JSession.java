@@ -22,10 +22,12 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.reporting.Reporter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
@@ -72,6 +74,9 @@ public class JSession extends JNode {
   @Nonnull
   private final Logger userLogger = Logger.getLogger("Jack");
 
+  @Nonnull
+  private final Reporter reporter = ThreadConfig.get(Reporter.REPORTER);
+
   public JSession() {
     super(SourceInfo.UNKNOWN);
     topLevelPackage = new JPackage("", this, null);
@@ -80,9 +85,6 @@ public class JSession extends JNode {
     phantomLookup = new JPhantomLookup(lookup);
   }
 
-  /**
-   * @return the lookup
-   */
   @Nonnull
   public JNodeLookup getLookup() {
     return lookup;
@@ -93,9 +95,6 @@ public class JSession extends JNode {
     return tracer;
   }
 
-  /**
-   * @return the phantom lookup
-   */
   @Nonnull
   public JPhantomLookup getPhantomLookup() {
     return phantomLookup;
@@ -104,6 +103,11 @@ public class JSession extends JNode {
   @Nonnull
   public Logger getUserLogger() {
     return userLogger;
+  }
+
+  @Nonnull
+  public Reporter getReporter() {
+    return reporter;
   }
 
   @Nonnull
