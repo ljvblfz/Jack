@@ -71,14 +71,18 @@ public class TryCatchRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final JClass jlo =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
+  private class Visitor extends JVisitor {
 
     /**
      * Represent all try statement and specify if it is a starting point or not. Starting point
      * means that {@code tryStmt} represent the first try that will catch exceptions, others before
      * this try must be ignore.
      */
-    private static class TryStmtCatchingExceptions {
+    private class TryStmtCatchingExceptions {
       @CheckForNull
       private final JTryStatement tryStmt;
       private final boolean isStartingPoint;
@@ -209,8 +213,7 @@ public class TryCatchRemover implements RunnableSchedulable<JMethod> {
           int catchTypesCount = catchTypes.size();
 
           for (JClass catchedType : bb.getCatchTypes()) {
-            if (catchedType.isSameType(Jack.getSession().getPhantomLookup()
-                .getClass(CommonTypes.JAVA_LANG_OBJECT))) {
+            if (catchedType.isSameType(jlo)) {
               assert bb.getCatchTypes().size() == 1;
               stmt.appendCatchBlock(bb);
               // means any, thus could not be catch again

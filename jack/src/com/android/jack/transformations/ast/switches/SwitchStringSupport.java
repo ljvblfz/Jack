@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ast.switches;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAsgOperation;
@@ -79,13 +80,24 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final JMethodId equalsMethodId;
+
+  {
+    JSession session = Jack.getSession();
+    JPhantomLookup lookup = session.getPhantomLookup();
+    JClass jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
+    JClass jls = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
+    equalsMethodId =
+        jls.getMethodId("equals", Collections.singletonList((JType) jlo),
+            MethodKind.INSTANCE_VIRTUAL);
+
+  }
+
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
-
-    @Nonnull
-    private final JMethodId equalsMethodId;
 
     @Nonnull
     private final LocalVarCreator localVarCreator;
@@ -95,13 +107,6 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
 
     public Visitor(@Nonnull TransformationRequest tr, @Nonnull JMethod method) {
       this.tr = tr;
-      JSession session = method.getEnclosingType().getSession();
-      JPhantomLookup lookup = session.getPhantomLookup();
-      JClass jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
-      JClass jls = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
-      equalsMethodId =
-          jls.getMethodId("equals", Collections.singletonList((JType) jlo),
-              MethodKind.INSTANCE_VIRTUAL);
       localVarCreator = new LocalVarCreator(method, "switch_var_");
     }
 

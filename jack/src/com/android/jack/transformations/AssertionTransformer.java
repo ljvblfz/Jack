@@ -93,14 +93,18 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final JClass jlo =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
+  @Nonnull
+  private static final String ASSERTION_FIELD_NAME =
+      NamingTools.getNonSourceConflictingName("assertionsDisabled");
+
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final JDefinedClassOrInterface currentType;
-
-    @Nonnull
-    private static final String ASSERTION_FIELD_NAME =
-        NamingTools.getNonSourceConflictingName("assertionsDisabled");
 
     public Visitor(@Nonnull JDefinedClassOrInterface type) {
       this.currentType = type;
@@ -172,8 +176,7 @@ public class AssertionTransformer implements RunnableSchedulable<JMethod> {
 
       List<JType> ctorDescriptor = new ArrayList<JType>();
       if (assertSt.getArg() != null) {
-        ctorDescriptor.add(
-            Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
+        ctorDescriptor.add(jlo);
       }
 
       JClass assertionError =
