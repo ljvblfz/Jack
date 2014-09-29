@@ -43,7 +43,7 @@ public class MethodAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public MethodAnnotationRemover() {
     super(ThreadConfig.get(EMIT_RUNTIME_VISIBLE_ANNOTATION).booleanValue(), ThreadConfig.get(

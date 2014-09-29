@@ -43,7 +43,7 @@ public class FieldAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JField> {
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public FieldAnnotationRemover() {
     super(ThreadConfig.get(EMIT_RUNTIME_VISIBLE_ANNOTATION).booleanValue(), ThreadConfig.get(

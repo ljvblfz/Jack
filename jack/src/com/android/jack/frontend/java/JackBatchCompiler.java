@@ -82,8 +82,7 @@ public class JackBatchCompiler extends Main {
   private static final String USE_SINGLE_THREAD_SYSPROP = "jdt.compiler.useSingleThread";
 
   @Nonnull
-  private final java.util.logging.Logger jackLogger =
-    LoggerFactory.getLogger();
+  private static final java.util.logging.Logger jackLogger = LoggerFactory.getLogger();
 
   @Nonnull
   private final JSession session;
@@ -133,7 +132,7 @@ public class JackBatchCompiler extends Main {
         ClasspathLocation path = tmpPaths.get(0);
         assert !(path instanceof ClasspathSourceJar);
         if (path instanceof ClasspathDirectory) {
-          jackLogger.log(
+          session.getUserLogger().log(
               Level.WARNING,
               "Invalid entry in classpath or bootclasspath: directories are " +
                   "not supported: \"{0}\"",
@@ -142,10 +141,10 @@ public class JackBatchCompiler extends Main {
           assert path instanceof ClasspathJar;
           File pathFile = new File(currentClasspathName);
           if (pathFile.exists()) {
-            jackLogger.log(Level.WARNING, "Invalid entry in classpath or bootclasspath: ''{0}''",
-                currentClasspathName);
+            session.getUserLogger().log(Level.WARNING,
+                "Invalid entry in classpath or bootclasspath: ''{0}''", currentClasspathName);
           } else {
-            jackLogger.log(
+            session.getUserLogger().log(
                 Level.WARNING,
                 "Invalid entry in classpath or bootclasspath: " +
                     "missing file ''{0}''",

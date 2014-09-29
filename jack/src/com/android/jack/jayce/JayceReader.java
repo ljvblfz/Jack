@@ -17,11 +17,10 @@ package com.android.jack.jayce;
 
 
 
-import com.android.sched.util.log.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -49,8 +48,10 @@ public class JayceReader extends JayceProcessor {
   private final String readerClassName;
   @CheckForNull
   private final String emitterId;
+  @Nonnull
+  private final Logger userLogger;
 
-  public JayceReader(@Nonnull InputStream in)
+  public JayceReader(@Nonnull InputStream in, @Nonnull Logger userLogger)
       throws IOException, JayceFormatException {
     this.in = in;
     JayceHeader jayceHeader = new JayceHeader(in);
@@ -60,6 +61,7 @@ public class JayceReader extends JayceProcessor {
     emitterId = jayceHeader.getEmitterId();
     readerClassName =
         "com.android.jack.jayce.v" + majorVersionString + ".io.JayceInternalReaderImpl";
+    this.userLogger = userLogger;
   }
 
   /**
@@ -98,7 +100,7 @@ public class JayceReader extends JayceProcessor {
           + "File version: " + majorVersion + "." + minorVersion + " - Current version: "
           + majorVersion + "." + currentMinor);
     } else if (minorVersion < currentMinor) {
-      LoggerFactory.getLogger().log(Level.WARNING,
+      userLogger.log(Level.WARNING,
           "The version of the jack file is older than the current version but should be supported. "
           + "File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
           Integer.valueOf(majorVersion), Integer.valueOf(minorVersion),

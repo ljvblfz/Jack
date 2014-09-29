@@ -55,7 +55,7 @@ public abstract class AbstractListingComparator {
   private boolean differenceFound = false;
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   protected boolean differenceFound() {
     return differenceFound;

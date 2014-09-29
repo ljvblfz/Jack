@@ -94,7 +94,8 @@ public class JayceMethodLoader extends AbstractMethodLoader {
       JayceVersionException, IOException {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
-      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
+      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL,
+          loaded.getEnclosingType().getSession().getUserLogger());
       methodNode = declaredTypeNode.getMethodNode(loaded);
     }
     return methodNode;
