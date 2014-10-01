@@ -41,6 +41,7 @@ import com.android.sched.vfs.VPath;
 
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -59,7 +60,7 @@ public class JayceFileImporter {
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
-  private final java.util.logging.Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final List<InputVDir> jayceContainers;
@@ -152,7 +153,7 @@ public class JayceFileImporter {
         if (collisionPolicy == CollisionPolicy.FAIL) {
           throw new TypeImportConflictException(declaredType, expectedLoadSource);
         } else {
-          logger.log(Level.INFO,
+          session.getUserLogger().log(Level.INFO,
               "Type ''{0}'' from {1} has already been imported from {2}: "
               + "ignoring import", new Object[] {
               Jack.getUserFriendlyFormatter().getName(declaredType),
@@ -183,7 +184,7 @@ public class JayceFileImporter {
           throw new ResourceImportConflictException(newResource.getLocation(),
               existingResource.getLocation());
         } else {
-          logger.log(Level.INFO,
+          session.getUserLogger().log(Level.INFO,
               "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
                   newResource.getLocation().getDescription(),
                   existingResource.getLocation().getDescription()});

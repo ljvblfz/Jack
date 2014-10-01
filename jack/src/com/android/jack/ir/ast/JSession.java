@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -68,6 +69,9 @@ public class JSession extends JNode {
   @Nonnull
   private final List<Resource> resources = new ArrayList<Resource>();
 
+  @Nonnull
+  private final Logger userLogger = Logger.getLogger("Jack");
+
   public JSession() {
     super(SourceInfo.UNKNOWN);
     topLevelPackage = new JPackage("", this, null);
@@ -95,6 +99,11 @@ public class JSession extends JNode {
   @Nonnull
   public JPhantomLookup getPhantomLookup() {
     return phantomLookup;
+  }
+
+  @Nonnull
+  public Logger getUserLogger() {
+    return userLogger;
   }
 
   @Nonnull

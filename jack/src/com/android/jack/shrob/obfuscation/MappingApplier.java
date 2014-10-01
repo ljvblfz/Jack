@@ -73,7 +73,7 @@ public class MappingApplier {
   private static final char[] END_PARAMETER_STOP_CHARS = new char[] {',', ')'};
 
   @Nonnull
-  protected final Logger logger = LoggerFactory.getLogger();
+  protected static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final TransformationRequest request;

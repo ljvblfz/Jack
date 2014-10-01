@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -43,6 +44,9 @@ import javax.annotation.Nonnull;
 @Description("Apply the rules defined in the PreProcessor file.")
 @Support(PreProcessor.class)
 public class PreProcessorApplier implements RunnableSchedulable<JSession> {
+
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
@@ -70,7 +74,7 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
       try {
         inputStream.close();
       } catch (IOException e) {
-        LoggerFactory.getLogger().log(Level.WARNING, "Failed to close input stream on '"
+        logger.log(Level.WARNING, "Failed to close input stream on '"
             + input.getLocation().getDescription() + "'", e);
       }
     }

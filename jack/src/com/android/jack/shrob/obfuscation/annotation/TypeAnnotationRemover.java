@@ -43,7 +43,7 @@ public class TypeAnnotationRemover extends AnnotationRemover
 implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public TypeAnnotationRemover() {
     super(ThreadConfig.get(EMIT_RUNTIME_VISIBLE_ANNOTATION).booleanValue(), ThreadConfig.get(

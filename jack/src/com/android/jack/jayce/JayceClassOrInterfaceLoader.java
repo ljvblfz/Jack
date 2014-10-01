@@ -66,7 +66,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
           CounterImpl.class, Counter.class);
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final InputVFile source;
@@ -134,7 +134,8 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
  JDefinedClassOrInterface loadClassOrInterface(@Nonnull JPackage enclosingPackage,
      @Nonnull String simpleName) throws JayceFormatException, JayceVersionException, IOException {
 
-    DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
+    DeclaredTypeNode type =
+        getNNode(NodeLevel.TYPES, enclosingPackage.getSession().getUserLogger());
 
     String expectedSignature = Jack.getLookupFormatter().getName(enclosingPackage, simpleName);
     if (!type.getSignature().equals(expectedSignature)) {
@@ -149,7 +150,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   private JDefinedClassOrInterface create(@Nonnull JSession session)
       throws JayceFormatException, JayceVersionException, IOException {
 
-    DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
+    DeclaredTypeNode type = getNNode(NodeLevel.TYPES, session.getUserLogger());
 
     String packageQualifiedName = NamingTools.getPackageNameFromBinaryName(
         NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
@@ -159,13 +160,13 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   }
 
   @Nonnull
-  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws IOException,
-      JayceFormatException, JayceVersionException {
+  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel, @Nonnull Logger userLogger)
+      throws IOException, JayceFormatException, JayceVersionException {
     DeclaredTypeNode type = nnode.get();
     if (type == null || !type.getLevel().keep(minimumLevel)) {
       InputStream in = new BufferedInputStream(source.openRead());
       try {
-        JayceReader reader = new JayceReader(in);
+        JayceReader reader = new JayceReader(in, userLogger);
         NodeLevel loadLevel = defaultLoadLevel;
         if (!loadLevel.keep(minimumLevel)) {
           loadLevel = minimumLevel;
@@ -192,7 +193,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
         structureLoaded = true;
         DeclaredTypeNode type;
         try {
-          type = getNNode(NodeLevel.STRUCTURE);
+          type = getNNode(NodeLevel.STRUCTURE, loaded.getSession().getUserLogger());
         } catch (IOException e) {
           throw new JackLoadingException(getLocation(), e);
         } catch (JackFileException e) {

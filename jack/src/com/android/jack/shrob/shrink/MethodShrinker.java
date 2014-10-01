@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 public class MethodShrinker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();

@@ -59,7 +59,7 @@ public class ExecuteFile {
   private boolean verbose;
 
   @Nonnull
-  private final Logger logger;
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public void setErr(@Nonnull File file) throws FileNotFoundException {
     errStream = new FileOutputStream(file);
@@ -111,7 +111,6 @@ public class ExecuteFile {
     System.arraycopy(args, 0, cmdLine, 1, args.length);
 
     cmdLine[0] = exec.getAbsolutePath();
-    logger = LoggerFactory.getLogger();
   }
 
   public ExecuteFile(@Nonnull String exec, @Nonnull String[] args) {
@@ -119,18 +118,15 @@ public class ExecuteFile {
     System.arraycopy(args, 0, cmdLine, 1, args.length);
 
     cmdLine[0] = exec;
-    logger = LoggerFactory.getLogger();
   }
 
   public ExecuteFile(@Nonnull File exec) {
     cmdLine = new String[1];
     cmdLine[0] = exec.getAbsolutePath();
-    logger = LoggerFactory.getLogger();
   }
 
   public ExecuteFile(@Nonnull String[] cmdLine) {
     this.cmdLine = cmdLine.clone();
-    logger = LoggerFactory.getLogger();
   }
 
   public ExecuteFile(@Nonnull String cmdLine) throws IOException {
@@ -152,7 +148,6 @@ public class ExecuteFile {
       }
     }
     this.cmdLine = tokens.toArray(new String[0]);
-    logger = LoggerFactory.getLogger();
   }
 
   public boolean run() {
