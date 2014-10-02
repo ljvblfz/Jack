@@ -18,6 +18,12 @@ LOCAL_PATH:= $(call my-dir)
 # Build Jack
 #
 
+# $(1): library name
+# $(2): Non-empty if IS_HOST_MODULE
+define java-lib-libs
+$(foreach lib,$(1),$(call _java-lib-dir,$(lib),$(2))/$(if $(2),javalib,classes)$(COMMON_JAVA_PACKAGE_SUFFIX))
+endef
+
 include $(CLEAR_VARS)
 
 JACK_BASE_VERSION_NAME := 0.1
@@ -44,8 +50,8 @@ GEN_PP := $(addprefix $(preprocessor_intermediates)/, \
   PreProcessor_Java.java \
 )
 
-ANTLR_JACK_JAR = $(call java-lib-deps,antlr-jack,true)
-
+ANTLR_JACK_JAR = $(call java-lib-libs,antlr-jack,true)
+$(info ANTLR_JACK_JAR = $(ANTLR_JACK_JAR))
 $(GEN_PG): $(ANTLR_JACK_JAR)
 $(GEN_PG): PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN_PG): PRIVATE_CUSTOM_TOOL = java -jar $(ANTLR_JACK_JAR) -fo $(dir $@) $<
@@ -99,12 +105,12 @@ $(intermediates)/rsc/jack.properties:
 
 LOCAL_JAVA_RESOURCE_FILES := $(intermediates)/rsc/jack.properties
 
+LOCAL_POST_INSTALL_CMD := java -jar $(call java-lib-libs,sched-build,true) $(call java-lib-libs,$(LOCAL_MODULE),true) $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $(JACK_JAR)
+
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Merge with sched lib support
-$(LOCAL_BUILT_MODULE): PRIVATE_JACK := $(full_classes_compiled_jar)
-$(LOCAL_BUILT_MODULE): $(PRIVATE_JACK) $(call java-lib-deps,$(JACK_STATIC_JAVA_LIBRARIES),true) $(call java-lib-deps,sched-build,true)
-	java -jar $(call java-lib-deps,sched-build,true) $(PRIVATE_JACK) $(call java-lib-deps,$(JACK_STATIC_JAVA_LIBRARIES),true) $@
+$(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)
 
 # Include this library in the build server's output directory
 $(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):jack.jar)
@@ -144,12 +150,12 @@ LOCAL_REQUIRED_MODULES:= \
   android.policy \
   hamcrest-core-jack
 
+LOCAL_POST_INSTALL_CMD := java -jar $(call java-lib-libs,sched-build,true) $(call java-lib-libs,$(LOCAL_MODULE),true) $(call java-lib-libs,$(TEST_STATIC_JAVA_LIBRARIES),true) $(HOST_OUT_JAVA_LIBRARIES)/$(LOCAL_MODULE)$(COMMON_JAVA_PACKAGE_SUFFIX)
+
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Merge with sched lib support
-$(LOCAL_BUILT_MODULE): PRIVATE_JACK := $(full_classes_compiled_jar)
-$(LOCAL_BUILT_MODULE): $(PRIVATE_JACK) $(call java-lib-deps,$(TEST_STATIC_JAVA_LIBRARIES),true) $(call java-lib-deps,sched-build,true)
-	java -jar $(call java-lib-deps,sched-build,true) $(PRIVATE_JACK) $(call java-lib-deps,$(TEST_STATIC_JAVA_LIBRARIES),true) $@
+$(LOCAL_BUILT_MODULE): $(call java-lib-libs,sched-build,true)
 
 #
 # Test targets
@@ -157,7 +163,7 @@ $(LOCAL_BUILT_MODULE): $(PRIVATE_JACK) $(call java-lib-deps,$(TEST_STATIC_JAVA_L
 
 LIB_JACK_UNIT_TESTS := $(LOCAL_BUILT_MODULE)
 
-local_unit_libs := $(call java-lib-files,core-hostdex junit4-hostdex-jack,true)
+local_unit_libs := $(call java-lib-files,core-libart-hostdex junit4-hostdex-jack,true)
 .PHONY: test-jack-unit
 test-jack-unit: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-unit: PRIVATE_PATH := $(LOCAL_PATH)

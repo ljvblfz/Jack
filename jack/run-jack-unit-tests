@@ -23,5 +23,5 @@ then
 fi
 
 REF_JAVA_COMPILER='javac' \
-java -cp ${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/libjackunittests_intermediates/javalib.jar \
+java -cp ${ANDROID_BUILD_TOP}/out/host/linux-x86/framework/libjackunittests.jar \
 org.junit.runner.JUnitCore $1

@@ -25,7 +25,7 @@ $(call _java-lib-dir,$(1),$(2))/classes.dex
 endef
 
 jack.intermediate := $(call intermediates-dir-for,JAVA_LIBRARIES,jack,1,COMMON)
-BOOTCLASSPATH_MODULE := core-hostdex junit4-hostdex-jack
+BOOTCLASSPATH_MODULE := core-libart-hostdex junit4-hostdex-jack
 BOOTCLASSPATH_LIBS := $(call java-lib-files,$(BOOTCLASSPATH_MODULE),true)
 BOOTCLASSPATH_DEX := $(call java-dex-files,$(BOOTCLASSPATH_MODULE),true)
 junit.dex = \
