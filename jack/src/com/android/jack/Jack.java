@@ -1047,7 +1047,9 @@ public abstract class Jack {
         methodPlan.append(DefinitionMarkerRemover.class);
         methodPlan.append(TryCatchRemover.class);
         methodPlan.append(ExpressionStatementLegalizer.class);
-        methodPlan.append(NumericConversionChecker.class);
+        if (hasSanityChecks) {
+          methodPlan.append(NumericConversionChecker.class);
+        }
       }
     }
 
@@ -1475,7 +1477,9 @@ public abstract class Jack {
         methodPlan3.append(DefinitionMarkerRemover.class);
         methodPlan3.append(TryCatchRemover.class);
         methodPlan3.append(ExpressionStatementLegalizer.class);
-        methodPlan3.append(NumericConversionChecker.class);
+        if (hasSanityChecks) {
+          methodPlan3.append(NumericConversionChecker.class);
+        }
       }
     }
     if (productions.contains(Mapping.class)) {
