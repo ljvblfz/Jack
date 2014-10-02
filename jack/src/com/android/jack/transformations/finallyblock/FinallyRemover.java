@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.finallyblock;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -92,11 +93,15 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
+  @Nonnull
+  private final JClass throwableType =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
   /**
    * Finds the most nested {@link JTryStatement}s to inline its finally block. Then all of them are
    * handled going back up and the transformations are applied each time.
    */
-  private static class JTryStatementVisitor extends JVisitor {
+  private class JTryStatementVisitor extends JVisitor {
 
     /**
      * A stack of {@link TransformationRequest} that contains the original
@@ -109,18 +114,14 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
     private final Stack<TransformationRequest> requestStack = new Stack<TransformationRequest>();
 
     @Nonnull
-    private final JType throwableType;
-    @Nonnull
     private final JMethod currentMethod;
     @Nonnull
     private final List<InlinedFinallyMarker> inlinedFinallyMarkers =
         new ArrayList<InlinedFinallyMarker>();
 
     private JTryStatementVisitor(@Nonnull TransformationRequest trRequest,
-        @Nonnull JType throwableType, @Nonnull JMethod currentMethod) {
-
+        @Nonnull JMethod currentMethod) {
       this.requestStack.add(trRequest);
-      this.throwableType = throwableType;
       this.currentMethod = currentMethod;
     }
 
@@ -410,12 +411,9 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
     JDefinedClassOrInterface enclosingType = method.getEnclosingType();
     assert enclosingType != null;
 
-    JClass throwableType = enclosingType.getSession().getPhantomLookup().getClass(
-        CommonTypes.JAVA_LANG_OBJECT);
-
     TransformationRequest trRequest = new TransformationRequest(method);
 
-    JTryStatementVisitor visitor = new JTryStatementVisitor(trRequest, throwableType, method);
+    JTryStatementVisitor visitor = new JTryStatementVisitor(trRequest, method);
 
     visitor.accept(method);
 

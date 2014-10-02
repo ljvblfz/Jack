@@ -16,9 +16,11 @@
 
 package com.android.jack.transformations.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAsgConcatOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -82,6 +84,14 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   private static final String TO_STRING = "toString";
 
   @Nonnull
+  private final JClass jlo =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
+  @Nonnull
+  private final JClass jls =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+
+  @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   @CheckForNull
   private JSession session;
@@ -135,7 +145,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
               appendRhs,
               stringBuilder,
               stringBuilderToString,
-              session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING),
+              jls,
               stringBuilderToString.canBeVirtual());
 
           tr.append(new Replace(binary, toString));
@@ -225,16 +235,15 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
         default:
           throw new AssertionError();
       }
-    } else if (elementType.isSameType(
-        session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING))) {
-      appendArgType = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+    } else if (elementType.isSameType(jls)) {
+      appendArgType = jls;
     } else {
       JType charSequence = getCharSequence();
       assert session != null; // FINDBUGS
       if (elementType == charSequence){
         appendArgType = charSequence;
       } else {
-        appendArgType = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        appendArgType = jlo;
       }
     }
 
