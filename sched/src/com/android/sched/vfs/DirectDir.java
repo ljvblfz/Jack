@@ -33,9 +33,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Directory in the file system.
+ * A VFS directory backed by a real filesystem directory.
  */
-public class DirectDir extends SequentialOutputVDir implements InputRootVDir, InputOutputVDir {
+public class DirectDir extends AbstractVElement implements InputRootVDir, InputOutputVDir {
 
   @Nonnull
   private final File dir;
@@ -80,21 +80,21 @@ public class DirectDir extends SequentialOutputVDir implements InputRootVDir, In
         return Collections.emptyList();
       }
 
-      list = new ArrayList<InputVElement>(subs.length);
+      ArrayList<InputVElement> localList = new ArrayList<InputVElement>(subs.length);
       for (File sub : subs) {
         try {
           if (sub.isFile()) {
-            list.add(new DirectFile(sub, vfsRoot));
+            localList.add(new DirectFile(sub, vfsRoot));
           } else {
-            list.add(new DirectDir(sub, vfsRoot));
+            localList.add(new DirectDir(sub, vfsRoot));
           }
         } catch (NotFileOrDirectoryException e) {
           throw new ConcurrentIOException(e);
         }
       }
+      list = localList;
     }
 
-    assert list != null;
     return list;
   }
 

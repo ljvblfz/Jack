@@ -17,8 +17,9 @@
 package com.android.sched.vfs;
 
 /**
- * Virtual directory to be read or written to.
+ * {@link OutputVDir} that contains {@link OutputVFile}s that can be opened and written to in
+ * parallel.
  */
-public interface InputOutputVDir extends InputVDir, ParallelOutputVDir {
+public interface ParallelOutputVDir extends OutputVDir {
 
 }

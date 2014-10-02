@@ -16,27 +16,16 @@
 
 package com.android.sched.vfs;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.Nonnull;
 
 
 /**
  * {@link OutputVDir} that contains {@link OutputVFile}s that must be written to and closed
  * sequentially.
  */
-abstract class SequentialOutputVDir extends AbstractVElement implements OutputVDir {
+public interface SequentialOutputVDir extends OutputVDir {
 
-  @Nonnull
-  private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
+  void notifyVFileClosed();
 
-  void notifyVFileClosed() {
-    boolean previousState = lastVFileOpen.getAndSet(false);
-    assert previousState;
-  }
-
-  boolean notifyVFileOpenAndReturnPreviousState() {
-    return lastVFileOpen.getAndSet(true);
-  }
+  boolean notifyVFileOpenAndReturnPreviousState();
 
 }

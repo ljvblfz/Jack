@@ -36,8 +36,9 @@ import com.android.jack.util.FileUtils;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.DirectDirOutputVDirCodec;
 import com.android.sched.util.codec.InputOutputVDirCodec;
-import com.android.sched.util.codec.OutputVDirCodec;
+import com.android.sched.util.codec.ZipOutputVDirCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
@@ -116,13 +117,13 @@ public class Options {
   @Nonnull
   public static final PropertyId<OutputVDir> JACK_FILE_OUTPUT_ZIP = PropertyId.create(
       "jack.jackfile.output.zip", "Output zip archive for jack files",
-      new OutputVDirCodec(Existence.MAY_EXIST, Container.ZIP)).requiredIf(
+      new ZipOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
   public static final PropertyId<OutputVDir> JACK_FILE_OUTPUT_DIR = PropertyId.create(
       "jack.jackfile.output.dir", "Output folder for jack files",
-      new OutputVDirCodec(Existence.MAY_EXIST, Container.DIR)).requiredIf(
+      new DirectDirOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
@@ -133,13 +134,13 @@ public class Options {
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
-      new OutputVDirCodec(Existence.MUST_EXIST, Container.DIR)).requiredIf(DEX_OUTPUT_CONTAINER_TYPE
-      .is(Container.DIR));
+      new DirectDirOutputVDirCodec(Existence.MUST_EXIST)).requiredIf(
+      DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_ZIP = PropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
-      new OutputVDirCodec(Existence.MAY_EXIST, Container.ZIP)).requiredIf(
+      new ZipOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
