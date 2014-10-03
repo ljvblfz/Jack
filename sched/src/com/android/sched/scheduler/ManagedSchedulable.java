@@ -20,15 +20,25 @@ import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.item.Items;
 import com.android.sched.item.Synchronized;
+import com.android.sched.marker.MarkerNotConformException;
 import com.android.sched.schedulable.Schedulable;
 import com.android.sched.util.HasDescription;
+import com.android.sched.util.log.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * Represents a {@link Schedulable} with all annotations and signatures extracted.
  */
 public abstract class ManagedSchedulable implements HasDescription {
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
   @Nonnull
   private final Class<? extends Schedulable> schedulable;
 
@@ -42,6 +52,9 @@ public abstract class ManagedSchedulable implements HasDescription {
 
   // @Synchronized
   private boolean isSynchronized = false;
+  @CheckForNull
+  private Method  dynamicIsSynchronized = null;
+
 
   /**
    * Creates a new instance of {@link ManagedSchedulable} from a {@link Schedulable}.
@@ -83,8 +96,27 @@ public abstract class ManagedSchedulable implements HasDescription {
   /**
    * @return if the schedulable is synchronized
    */
-  public boolean isSynchronized() {
-    return isSynchronized;
+  public boolean isSynchronized(@Nonnull Schedulable schedulable) {
+    if (isSynchronized) {
+      return true;
+    }
+
+    if (dynamicIsSynchronized != null) {
+      try {
+        return ((Boolean) dynamicIsSynchronized.invoke(schedulable)).booleanValue();
+      } catch (IllegalArgumentException e) {
+        throw new AssertionError(e);
+      } catch (IllegalAccessException e) {
+        throw new AssertionError(e);
+      } catch (InvocationTargetException e) {
+        logger.log(Level.WARNING, "Method '" + dynamicIsSynchronized + "' threw an exception",
+            e.getCause());
+
+        return false;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -109,5 +141,35 @@ public abstract class ManagedSchedulable implements HasDescription {
     Synchronized sync = cls.getAnnotation(Synchronized.class);
 
     isSynchronized = sync != null;
+
+    for (Method method : cls.getMethods()) {
+      Synchronized dynamicSynchronizedOnAnnotation = method.getAnnotation(Synchronized.class);
+
+      if (dynamicSynchronizedOnAnnotation != null) {
+        if (!method.getReturnType().equals(Boolean.TYPE)) {
+          throw new SchedulableNotConformException("Annotated method '" + method + "' with @"
+              + Synchronized.class.getSimpleName() + " must have a 'boolean' return type");
+        }
+
+        if (method.getParameterTypes().length != 0) {
+          throw new SchedulableNotConformException("Annotated method '" + method + "' with @"
+              + Synchronized.class.getSimpleName() + " must have no parameter");
+        }
+
+        if (isSynchronized) {
+          throw new SchedulableNotConformException("Schedulable '" + name
+              + "' cannot have both a static and a dynamic @" + Synchronized.class.getName()
+              + " (on class '" + cls.getCanonicalName() + "')");
+        }
+
+        if (dynamicIsSynchronized != null) {
+          throw new MarkerNotConformException("Schedulable '" + name + "' cannot have two @"
+              + Synchronized.class.getName() + " ('" + method + "' and '" + dynamicIsSynchronized
+              + "')");
+        }
+
+        dynamicIsSynchronized = method;
+      }
+    }
   }
 }
