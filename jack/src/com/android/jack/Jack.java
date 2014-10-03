@@ -212,8 +212,6 @@ import com.android.jack.transformations.ast.switches.UselessSwitchesRemover;
 import com.android.jack.transformations.booleanoperators.ConditionalAndOrRemover;
 import com.android.jack.transformations.booleanoperators.ConditionalAndOrRemoverChecker;
 import com.android.jack.transformations.cast.UselessCastRemover;
-import com.android.jack.transformations.debug.LineDebugInfo;
-import com.android.jack.transformations.debug.ThisRefDebugInfoAdder;
 import com.android.jack.transformations.enums.EnumMappingMarkerRemover;
 import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
@@ -417,9 +415,6 @@ public abstract class Jack {
 
         if (options.hasSanityChecks()) {
           request.addFeature(SanityChecks.class);
-        }
-        if (config.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue()) {
-          request.addFeature(LineDebugInfo.class);
         }
         if (options.jarjarRulesFile != null) {
           request.addFeature(Jarjar.class);
@@ -902,9 +897,6 @@ public abstract class Jack {
         if (features.contains(CompiledTypeStats.class)) {
           methodPlan.append(MethodStats.class);
         }
-        if (features.contains(LineDebugInfo.class)) {
-          methodPlan.append(ThisRefDebugInfoAdder.class);
-        }
       }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
@@ -1185,9 +1177,6 @@ public abstract class Jack {
             typePlan7.appendSubPlan(JMethodAdapter.class);
         if (features.contains(CompiledTypeStats.class)) {
           methodPlan.append(MethodStats.class);
-        }
-        if (features.contains(LineDebugInfo.class)) {
-          methodPlan.append(ThisRefDebugInfoAdder.class);
         }
       }
       {
