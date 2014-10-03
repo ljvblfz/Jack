@@ -39,6 +39,7 @@ import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectFile;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.SequentialOutputVDir;
 import com.android.sched.vfs.VPath;
 
 import java.io.BufferedOutputStream;
@@ -55,7 +56,6 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
 @Produce(JackFormatProduct.class)
 @Support(JackFileOutput.class)
-@Synchronized
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
@@ -71,8 +71,13 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
     }
   }
 
+  @Synchronized
+  public boolean needsSynchronization() {
+    return (outputDir instanceof SequentialOutputVDir);
+  }
+
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     VPath filePath = getFilePath(type);
     OutputVFile vFile = outputDir.createOutputVFile(filePath);
 
