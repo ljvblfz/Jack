@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
-import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
@@ -42,7 +41,6 @@ import javax.annotation.Nonnull;
  * Write one dex file per type.
  */
 @Description("Write one dex file per type")
-@Synchronized
 @Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
 public class OneDexPerTypeWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
@@ -53,7 +51,7 @@ public class OneDexPerTypeWriter extends DexWriter implements
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
     assert cdiMarker != null;
 

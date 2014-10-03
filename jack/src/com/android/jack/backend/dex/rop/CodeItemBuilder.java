@@ -88,7 +88,6 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -139,7 +138,6 @@ import javax.annotation.Nonnull;
     EmptyClinit.class,
     UselessSwitches.class})
 @Transform(add = DexCodeMarker.class)
-@Synchronized
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -170,7 +168,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) throws Exception {
 
     if (method.getEnclosingType().isExternal()
         || method.isNative()
