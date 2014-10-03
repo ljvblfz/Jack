@@ -89,7 +89,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
     if (isSynchronizedManaged) {
       int idx = 0;
       for (PlanStep step : plan) {
-        if (step.getManagedSchedulable().isSynchronized()) {
+        if (step.getManagedSchedulable().isSynchronized(steps[idx].instance)) {
           syncs[idx] = new Synchronized();
         }
         ++idx;

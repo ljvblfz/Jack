@@ -252,7 +252,7 @@ public class ManagedMarker implements HasDescription {
 
         for (Class<? extends MarkerManager> marked : staticValidOn) {
           if (marked.isAssignableFrom(method.getParameterTypes()[0])) {
-            throw new MarkerNotConformException("Marker '" + name + "' cannot have both a static @'"
+            throw new MarkerNotConformException("Marker '" + name + "' cannot have both a static @"
                 + ValidOn.class.getName() + " (on class '" + marker.getCanonicalName()
                 + "') and a @" + DynamicValidOn.class.getName() + " (on method '" + method + "'");
           }
@@ -262,7 +262,7 @@ public class ManagedMarker implements HasDescription {
           if (dvo.validOn.isAssignableFrom(method.getParameterTypes()[0])
               || method.getParameterTypes()[0].isAssignableFrom(dvo.validOn)) {
             throw new MarkerNotConformException("Marker '" + name
-                + "' could not have two @'" + DynamicValidOn.class.getName() + " ('" + method
+                + "' cannot have two @" + DynamicValidOn.class.getName() + " ('" + method
                 + "' and '" + dvo.method + "')");
           }
         }

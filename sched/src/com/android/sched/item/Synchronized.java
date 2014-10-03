@@ -23,9 +23,10 @@ import java.lang.annotation.Target;
 
 /**
  * Annotates a {@code Schedulable} and specifies that it has to run synchronized with itself, that
- * one instance could run at most one at a time.
+ * one instance can run at most one at a time. A dynamic version can be declared by annotating a
+ * method with no parameter and that return true if that instance needs to be synchronized.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Synchronized {
 }
