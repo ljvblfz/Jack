@@ -23,6 +23,7 @@ import com.android.sched.util.location.ZipLocation;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
 /**
  * A root {@link OutputVDir} backed by a zip archive.
  */
-public class OutputZipRootVDir extends SequentialOutputVDir implements OutputVDir, Closeable {
+public class OutputZipRootVDir extends AbstractVElement implements SequentialOutputVDir, Closeable {
 
   @Nonnull
   protected final HashMap<String, VElement> subs = new HashMap<String, VElement>();
@@ -43,12 +44,25 @@ public class OutputZipRootVDir extends SequentialOutputVDir implements OutputVDi
   private final String fileName;
   @Nonnull
   private final OutputZipFile zipFile;
+  @Nonnull
+  private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
 
   public OutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
     fileName = zipFile.getName();
     location = new ZipLocation(zipFile.getLocation(), new ZipEntry(""));
     zos = zipFile.getOutputStream();
     this.zipFile = zipFile;
+  }
+
+  @Override
+  public void notifyVFileClosed() {
+    boolean previousState = lastVFileOpen.getAndSet(false);
+    assert previousState;
+  }
+
+  @Override
+  public boolean notifyVFileOpenAndReturnPreviousState() {
+    return lastVFileOpen.getAndSet(true);
   }
 
   @Override
