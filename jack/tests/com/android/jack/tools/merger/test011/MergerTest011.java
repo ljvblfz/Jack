@@ -20,8 +20,10 @@ import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.TestTools;
 import com.android.jack.category.SlowTests;
-import com.android.jack.tools.merger.MergeOverflow;
+import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
+import com.android.jack.tools.merger.MethodIdOverflowException;
+import com.android.jack.tools.merger.TypeIdOverflowException;
 
 import junit.framework.Assert;
 
@@ -68,8 +70,7 @@ public class MergerTest011 extends MergerTestTools {
     } catch (JackUserException e) {
       Assert.assertEquals(expectedExceptionMessage, e.getMessage());
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MergeOverflow);
-      Assert.assertEquals("Method ids overflow", cause.getMessage());
+      Assert.assertTrue(cause instanceof MethodIdOverflowException);
     }
   }
 
@@ -88,8 +89,7 @@ public class MergerTest011 extends MergerTestTools {
     } catch (JackUserException e) {
       Assert.assertEquals(expectedExceptionMessage, e.getMessage());
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MergeOverflow);
-      Assert.assertEquals("Field ids overflow", cause.getMessage());
+      Assert.assertTrue(cause instanceof FieldIdOverflowException);
     }
   }
 
@@ -109,8 +109,7 @@ public class MergerTest011 extends MergerTestTools {
     } catch (JackUserException e) {
       Assert.assertEquals(expectedExceptionMessage, e.getMessage());
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MergeOverflow);
-      Assert.assertEquals("Type ids overflow", cause.getMessage());
+      Assert.assertTrue(cause instanceof TypeIdOverflowException);
     }
   }
 

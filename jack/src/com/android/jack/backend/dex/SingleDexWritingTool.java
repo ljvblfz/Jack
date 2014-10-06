@@ -19,7 +19,7 @@ package com.android.jack.backend.dex;
 import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.MergeOverflow;
+import com.android.jack.tools.merger.OverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVDir;
@@ -51,7 +51,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     for (InputVFile currentDex : dexList) {
       try {
         mergeDex(merger, currentDex);
-      } catch (MergeOverflow e) {
+      } catch (OverflowException e) {
         throw new JackUserException("Index overflow while merging dex files. Try using multidex",
             e);
       }
