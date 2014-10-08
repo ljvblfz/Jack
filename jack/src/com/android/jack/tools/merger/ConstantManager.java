@@ -54,7 +54,7 @@ public class ConstantManager extends MergerTools {
   private final List<CstIndexMap> cstIndexMaps = new ArrayList<CstIndexMap>();
 
   @Nonnull
-  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergeOverflow {
+  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws OverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap();
 
     HashSet<CstString> addedCstStrings = new HashSet<CstString>();
@@ -110,15 +110,15 @@ public class ConstantManager extends MergerTools {
     }
 
     if ((cstFieldRefs.size() + addedCstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
-      throw new MergeOverflow("Field ids overflow");
+      throw new FieldIdOverflowException();
     }
 
     if ((cstMethodRefs.size() + addedCstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
-      throw new MergeOverflow("Method ids overflow");
+      throw new MethodIdOverflowException();
     }
 
     if ((cstTypes.size() + addedCstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
-      throw new MergeOverflow("Type ids overflow");
+      throw new TypeIdOverflowException();
     }
 
     cstStrings.addAll(addedCstStrings);

@@ -21,7 +21,8 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.tools.merger.MergeOverflow;
+import com.android.jack.tools.merger.FieldIdOverflowException;
+import com.android.jack.tools.merger.MethodIdOverflowException;
 
 import junit.framework.Assert;
 
@@ -68,8 +69,7 @@ public class MultiDexOverflowTests {
       Assert.assertEquals("Too many classes in main dex. Index overflow while merging dex files",
           e.getMessage());
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MergeOverflow);
-      Assert.assertEquals("Method ids overflow", cause.getMessage());
+      Assert.assertTrue(cause instanceof MethodIdOverflowException);
     }
   }
 
@@ -96,8 +96,7 @@ public class MultiDexOverflowTests {
       Assert.assertEquals("Too many classes in main dex. Index overflow while merging dex files",
           e.getMessage());
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MergeOverflow);
-      Assert.assertEquals("Field ids overflow", cause.getMessage());
+      Assert.assertTrue(cause instanceof FieldIdOverflowException);
     }
   }
 

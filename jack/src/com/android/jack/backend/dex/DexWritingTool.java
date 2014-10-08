@@ -25,7 +25,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.MergeOverflow;
+import com.android.jack.tools.merger.OverflowException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputRootVDir;
@@ -80,7 +80,7 @@ public abstract class DexWritingTool {
   }
 
   protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex) throws JackIOException,
-      MergeOverflow {
+      OverflowException {
     try {
       merger.addDexFile(new DexBuffer(inputDex.openRead()));
     } catch (IOException e) {

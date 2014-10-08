@@ -64,7 +64,7 @@ public class JackMerger extends MergerTools {
     dexResult.getDexOptions().forceJumbo = true;
   }
 
-  public void addDexFile(@Nonnull DexBuffer dexToMerge) throws MergeOverflow {
+  public void addDexFile(@Nonnull DexBuffer dexToMerge) throws OverflowException {
     if (finished) {
       throw new InternalCompilerException("Merge already finished");
     }
