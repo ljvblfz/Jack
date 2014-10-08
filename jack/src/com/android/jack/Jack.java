@@ -35,14 +35,14 @@ import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
+import com.android.jack.backend.dex.IntermediateDexPerTypeWriter;
+import com.android.jack.backend.dex.IntermediateDexProduct;
 import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.backend.dex.IntermediateDexPerTypeWriter;
-import com.android.jack.backend.dex.IntermediateDexProduct;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
@@ -520,6 +520,9 @@ public abstract class Jack {
 
         if (options.jayceOutDir != null || options.jayceOutZip != null) {
           request.addProduction(JackFormatProduct.class);
+          if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
+            request.addProduction(IntermediateDexProduct.class);
+          }
         } else {
           assert options.out != null || options.outZip != null;
           request.addProduction(IntermediateDexProduct.class);
@@ -540,7 +543,8 @@ public abstract class Jack {
         }
 
         if (targetProduction.contains(JackFormatProduct.class)
-            && !targetProduction.contains(DexFileProduct.class)) {
+            && !targetProduction.contains(DexFileProduct.class)
+            && !targetProduction.contains(IntermediateDexProduct.class)) {
           if (options.ecjArguments == null) {
             fillJayceToJaycePlan(planBuilder);
           } else {
@@ -556,9 +560,12 @@ public abstract class Jack {
           fillJayceToDexPlan(options, planBuilder);
           planBuilder.append(DexFileWriter.class);
         } else {
-          assert targetProduction.contains(DexFileProduct.class);
+          assert targetProduction.contains(DexFileProduct.class)
+              || targetProduction.contains(IntermediateDexProduct.class);
           fillDexPlan(options, planBuilder);
-          planBuilder.append(DexFileWriter.class);
+          if (targetProduction.contains(DexFileProduct.class)) {
+            planBuilder.append(DexFileWriter.class);
+          }
         }
 
         if (features.contains(Resources.class)) {
@@ -581,8 +588,11 @@ public abstract class Jack {
 
           assert !targetProduction.contains(JackFormatProduct.class)
               || targetProduction.contains(DexFileProduct.class)
-              || plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
-                  JackFormatIr.class);
+              || (plan.computeFinalTagsOrMarkers(
+                  request.getInitialTags()).contains(JackFormatIr.class)
+                  && !targetProduction.contains(IntermediateDexProduct.class))
+              || (targetProduction.contains(IntermediateDexProduct.class)
+                  && targetProduction.contains(JackFormatProduct.class));
         }
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -1155,12 +1165,14 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
-      typePlan5.append(IntermediateDexPerTypeWriter.class);
+      if (productions.contains(IntermediateDexProduct.class)) {
+        typePlan5.append(IntermediateDexPerTypeWriter.class);
+      }
     }
 
     if (hasSanityChecks) {
       planBuilder.append(AstChecker.class);
-      {
+     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(DeclaredTypePackageChecker.class);

@@ -135,8 +135,9 @@ public class Options {
   public static final PropertyId<InputOutputVDir> INTERMEDIATE_DEX_DIR = PropertyId.create(
       "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
       new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
-      .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(
-          DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
+      .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
+          .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
+          .or(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR))));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
@@ -216,6 +217,10 @@ public class Options {
 
   @Option(name = "--jack-output-zip", usage = "output jack files to this zip", metaVar = "FILE")
   protected File jayceOutZip = null;
+
+  @Option(name = "--generate-intermediate-dexes",
+      usage = "generate intermediate dex files per types along with jayce files")
+  protected boolean generateIntermediateDex = false;
 
   @Option(name = "--jarjar-rules", usage = "use this jarjar rules file (default: none)",
       metaVar = "FILE")
@@ -582,6 +587,10 @@ public class Options {
       configBuilder.setString(JACK_FILE_OUTPUT_DIR, jayceOutDir.getAbsolutePath());
       configBuilder.set(JACK_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_FILE, true);
+      if (generateIntermediateDex) {
+        configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+        configBuilder.setString(INTERMEDIATE_DEX_DIR, jayceOutDir.getAbsolutePath());
+      }
     } else if (outZip != null) {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
@@ -661,6 +670,11 @@ public class Options {
     }
 
     // Check Jack arguments
+    if (generateIntermediateDex && (out != null || outZip != null || jayceOutZip != null)) {
+      throw new IllegalOptionsException(
+          "--generate-intermediate-dex must be use only with --output-jack");
+    }
+
     if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {
       throw new IllegalOptionsException(
           "Impossible to emit synthetic debug info when not emitting debug info");
