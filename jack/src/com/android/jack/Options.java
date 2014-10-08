@@ -101,6 +101,11 @@ public class Options {
       "jack.dex.generate", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
+  public static final BooleanPropertyId GENERATE_INTERMEDIATE_DEX = BooleanPropertyId.create(
+      "jack.dex.intermediate.generate", "Generate intermediate dex files per type")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_FILE = BooleanPropertyId.create(
       "jack.jackfile.generate", "Generate jack files").addDefaultValue(Boolean.FALSE);
 
@@ -127,10 +132,11 @@ public class Options {
       GENERATE_JACK_FILE.getValue().isTrue().and(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVDir> TYPEDEX_DIR = PropertyId.create(
-      "jack.dex.output.typedex.dir", "Dex output folder",
-      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
+  public static final PropertyId<InputOutputVDir> INTERMEDIATE_DEX_DIR = PropertyId.create(
+      "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
+      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
+      .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(
+          DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
@@ -580,12 +586,14 @@ public class Options {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+      configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+      configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
     configBuilder.set(

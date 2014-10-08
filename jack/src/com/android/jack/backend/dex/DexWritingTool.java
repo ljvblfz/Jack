@@ -60,7 +60,7 @@ public abstract class DexWritingTool {
   public abstract void write(@Nonnull OutputVDir outputVDir) throws JackIOException;
 
   protected InputRootVDir getTypeDexDir() {
-    return (InputRootVDir) ThreadConfig.get(Options.TYPEDEX_DIR);
+    return (InputRootVDir) ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
   }
 
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)

@@ -46,7 +46,7 @@ public class OneDexPerTypeWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.TYPEDEX_DIR);
+  protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 

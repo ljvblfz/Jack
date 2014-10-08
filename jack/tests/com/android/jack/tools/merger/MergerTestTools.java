@@ -38,7 +38,7 @@ public class MergerTestTools {
     options = new Options();
     options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), Boolean.toString(withDebug));
     options.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-    options.addProperty(Options.TYPEDEX_DIR.getName(), multiDexOnTypePerTypeFolder.getAbsolutePath());
+    options.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(), multiDexOnTypePerTypeFolder.getAbsolutePath());
     TestTools
         .compileSourceToDex(options, sourceFolder, classpath,
             multiDexFolder, false /* zip */, null /* jarjarRules */, null /* flagFiles */,
