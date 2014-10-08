@@ -27,6 +27,7 @@ import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.InputOutputVDir;
@@ -38,15 +39,16 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
- * Write one dex file per type.
+ * Write intermediate dex files per type.
  */
-@Description("Write one dex file per type")
+@Description("Write intermediate dex files per type")
 @Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
-public class OneDexPerTypeWriter extends DexWriter implements
+@Produce(IntermediateDexProduct.class)
+public class IntermediateDexPerTypeWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  protected InputOutputVDir outputDirectory = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
+  protected InputOutputVDir intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
@@ -62,9 +64,9 @@ public class OneDexPerTypeWriter extends DexWriter implements
     OutputVFile vFile;
     OutputStream outStream = null;
     try {
-      vFile = outputDirectory.createOutputVFile(getFilePath(type));
+      vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
     } catch (IOException e) {
-      throw new JackIOException("Could not create Dex file in output " + outputDirectory
+      throw new JackIOException("Could not create Dex file in output " + intermediateDexDir
           + " for type " + Jack.getUserFriendlyFormatter().getName(type), e);
     }
     try {

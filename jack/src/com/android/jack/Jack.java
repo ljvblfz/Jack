@@ -41,7 +41,8 @@ import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
-import com.android.jack.backend.dex.OneDexPerTypeWriter;
+import com.android.jack.backend.dex.IntermediateDexPerTypeWriter;
+import com.android.jack.backend.dex.IntermediateDexProduct;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
@@ -521,6 +522,7 @@ public abstract class Jack {
           request.addProduction(JackFormatProduct.class);
         } else {
           assert options.out != null || options.outZip != null;
+          request.addProduction(IntermediateDexProduct.class);
           request.addProduction(DexFileProduct.class);
         }
 
@@ -1153,7 +1155,7 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
-      typePlan5.append(OneDexPerTypeWriter.class);
+      typePlan5.append(IntermediateDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {
@@ -1554,7 +1556,7 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
-      typePlan5.append(OneDexPerTypeWriter.class);
+      typePlan5.append(IntermediateDexPerTypeWriter.class);
     }
 
     if (hasSanityChecks) {
