@@ -129,7 +129,8 @@ public class Options {
   @Nonnull
   public static final PropertyId<InputOutputVDir> TYPEDEX_DIR = PropertyId.create(
       "jack.dex.output.typedex.dir", "Dex output folder",
-      new InputOutputVDirCodec(Existence.MAY_EXIST));
+      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
+      DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
@@ -579,10 +580,12 @@ public class Options {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
+      configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
+      configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
     configBuilder.set(
@@ -604,8 +607,6 @@ public class Options {
     if (dumpProperties) {
       configBuilder.setString(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
     }
-
-    configBuilder.set(TYPEDEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
 
     configBuilder.popDefaultLocation();
 
