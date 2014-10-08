@@ -95,7 +95,8 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
     for (InputVElement sub : dir.list()) {
       String fileName = sub.getName();
       if (!sub.isVDir() && JayceFileImporter.isJackFileName(fileName)) {
-        subs.add(fileName.substring(0, fileName.length() - 5));
+        subs.add(
+            fileName.substring(0, fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH));
       }
     }
     return subs;

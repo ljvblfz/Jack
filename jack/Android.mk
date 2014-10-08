@@ -186,9 +186,9 @@ test-jack-unit-all: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(l
 
 .PHONY: clean-jack-files
 clean-jack-files:
-	$(hide) find $(OUT_DIR) -name "*.jack" | xargs rm -f
+	$(hide) find $(OUT_DIR) -name "*.jayce" | xargs rm -f
 	$(hide) for i in `find $(OUT_DIR) -name "*.jar"` ; do ((unzip -l $$i 2> /dev/null | \
-				grep -q "\.jack$$" && rm -f $$i) || continue ) ; done
+				grep -q "\.jayce$$" && rm -f $$i) || continue ) ; done
 	@echo "All jack files and archives containing jack files have been removed."
 
 .PHONY: clean-dex-files
