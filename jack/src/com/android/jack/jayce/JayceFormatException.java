@@ -21,7 +21,7 @@ import com.android.jack.JackFileException;
 import javax.annotation.Nonnull;
 
 /**
- * Exception representing a problem related to Jack files format.
+ * Exception representing a problem related to Jayce files format.
  */
 public class JayceFormatException extends JackFileException {
 

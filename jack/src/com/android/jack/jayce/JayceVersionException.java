@@ -21,7 +21,7 @@ import com.android.jack.JackFileException;
 import javax.annotation.Nonnull;
 
 /**
- * Exception representing a problem related to Jack files version.
+ * Exception representing a problem related to Jayce files version.
  */
 public class JayceVersionException extends JackFileException {
 

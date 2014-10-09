@@ -91,18 +91,18 @@ public class JayceReader extends JayceProcessor {
     int minorMin = jayceInternalReader.getMinorMin();
     int currentMinor = jayceInternalReader.getCurrentMinor();
     if (minorVersion < minorMin) {
-      throw new JayceVersionException("The version of the jack file is not supported anymore."
+      throw new JayceVersionException("The version of the jayce file is not supported anymore."
           + "File version: " + majorVersion + "." + minorVersion + " - Current version: "
           + majorVersion + "." + currentMinor +
           " - Minimum compatible version: " + majorVersion + "." + minorMin);
     } else if (minorVersion > currentMinor) {
-      throw new JayceVersionException("The version of the jack file is too recent."
+      throw new JayceVersionException("The version of the jayce file is too recent."
           + "File version: " + majorVersion + "." + minorVersion + " - Current version: "
           + majorVersion + "." + currentMinor);
     } else if (minorVersion < currentMinor) {
       userLogger.log(Level.WARNING,
-          "The version of the jack file is older than the current version but should be supported. "
-          + "File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
+          "The version of the jayce file is older than the current version but should be"
+          + "supported. File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
           Integer.valueOf(majorVersion), Integer.valueOf(minorVersion),
           Integer.valueOf(majorVersion), Integer.valueOf(currentMinor)});
     }

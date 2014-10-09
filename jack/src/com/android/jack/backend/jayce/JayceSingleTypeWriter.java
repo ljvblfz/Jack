@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriter;
 import com.android.jack.library.OutputLibrary;
-import com.android.jack.scheduling.feature.JackFileOutput;
+import com.android.jack.scheduling.feature.JayceFileOutput;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -51,8 +51,8 @@ import javax.annotation.Nonnull;
 @Description("Writer of Jayce files in a folder organized according to package names")
 @Name("JayceSingleTypeWriter")
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
-@Produce(JackFormatProduct.class)
-@Support(JackFileOutput.class)
+@Produce(JayceFormatProduct.class)
+@Support(JayceFileOutput.class)
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
@@ -92,7 +92,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         out.close();
       }
     } catch (IOException e) {
-      throw new JackFileException("Could not write Jack file to output '" + vFile + "'", e);
+      throw new JackFileException("Could not write Jayce file to output '" + vFile + "'", e);
     }
   }
 

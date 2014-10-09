@@ -41,7 +41,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * {@link PackageLoader} for package containing classes defined in jack files.
+ * {@link PackageLoader} for package containing classes defined in Jayce files.
  */
 public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 

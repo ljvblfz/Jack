@@ -23,7 +23,7 @@ import com.android.sched.util.location.Location;
 import javax.annotation.Nonnull;
 
 /**
- * Thrown when a conflict prevents an import of a type from a jack file.
+ * Thrown when a conflict prevents an import of a type from a jayce file.
  */
 public class TypeImportConflictException extends ImportConflictException {
 

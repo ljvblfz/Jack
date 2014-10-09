@@ -92,7 +92,7 @@ public class JayceFileImporter {
   @Nonnull
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
       "jack.import.jackfile.policy",
-      "Defines the policy to follow concerning type collision from imported jack files",
+      "Defines the policy to follow concerning type collision from imported jayce files",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL);
 
@@ -150,7 +150,7 @@ public class JayceFileImporter {
       JTypeLookupException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
     try {
-      logger.log(Level.FINEST, "Importing jack file ''{0}'' from {1}", new Object[] {path,
+      logger.log(Level.FINEST, "Importing jayce file ''{0}'' from {1}", new Object[] {path,
           intendedInputLibrary.getLocation().getDescription()});
       String signature = convertJackFilePathToSignature(path);
       JDefinedClassOrInterface declaredType =

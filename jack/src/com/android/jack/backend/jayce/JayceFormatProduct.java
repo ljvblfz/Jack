@@ -20,8 +20,8 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Production;
 
 /**
- * Represents the production of Jack format.
+ * Represents the production of Jayce format.
  */
-@Description("Jack format production")
-public class JackFormatProduct implements Production {
+@Description("Jayce format production")
+public class JayceFormatProduct implements Production {
 }

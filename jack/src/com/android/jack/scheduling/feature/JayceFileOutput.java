@@ -21,9 +21,9 @@ import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
 
 /**
- * Jack file output
+ * Jayce file output
  */
-@Description("Jack file output")
-@Name("JackFileOutput")
-public class JackFileOutput implements Feature {
+@Description("Jayce file output")
+@Name("JayceFileOutput")
+public class JayceFileOutput implements Feature {
 }

@@ -132,7 +132,7 @@ public class ReferenceMapper {
       // will result in NPE. If field is not already cached and the declaring class is a
       // SourceTypeBinding, no need to search the field since it does not exists, thus  create
       // it automatically. In other cases, for instance with BinaryTypeBinding, fields can be
-      // created by the Jack file loader, and the cache will not yet be filled, thus search
+      // created by the Jayce file loader, and the cache will not yet be filled, thus search
       // the field and fill the cache.
       if (binding.declaringClass instanceof SourceTypeBinding) {
         field = createField(binding);

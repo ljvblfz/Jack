@@ -48,8 +48,8 @@ import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.backend.jayce.ImportConflictException;
-import com.android.jack.backend.jayce.JackFormatProduct;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.backend.jayce.JayceFormatProduct;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
@@ -105,7 +105,7 @@ import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DxLegacy;
-import com.android.jack.scheduling.feature.JackFileOutput;
+import com.android.jack.scheduling.feature.JayceFileOutput;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.shrob.obfuscation.Mapping;
@@ -412,13 +412,13 @@ public abstract class Jack {
 
         JSession session = buildSession(options, hooks);
 
-        if (ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue()) {
-          Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
+        if (ThreadConfig.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
+          Container containerType = ThreadConfig.get(Options.JAYCE_OUTPUT_CONTAINER_TYPE);
           OutputVDir outputDir;
           if (containerType == Container.DIR) {
-            outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+            outputDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_DIR);
           } else {
-            outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
+            outputDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_ZIP);
           }
           session.setOutputLibrary(new OutputJackLibrary(outputDir));
         }
@@ -503,17 +503,17 @@ public abstract class Jack {
           request.addFeature(MultiDexLegacy.class);
         }
 
-        if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
-          request.addFeature(JackFileOutput.class);
+        if (config.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
+          request.addFeature(JayceFileOutput.class);
         }
 
         if (options.ecjArguments == null) {
           request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
         } else {
           request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-          if (config.get(Options.GENERATE_JACK_FILE).booleanValue()) {
+          if (config.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
             request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
-            request.addProduction(JackFormatProduct.class);
+            request.addProduction(JayceFormatProduct.class);
           }
           if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
             request.addProduction(CompilerStateProduct.class);
@@ -521,7 +521,7 @@ public abstract class Jack {
         }
 
         if (options.jayceOutDir != null || options.jayceOutZip != null) {
-          request.addProduction(JackFormatProduct.class);
+          request.addProduction(JayceFormatProduct.class);
           if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
             request.addProduction(IntermediateDexProduct.class);
           }
@@ -545,7 +545,7 @@ public abstract class Jack {
           planBuilder.append(PreProcessorApplier.class);
         }
 
-        if (targetProduction.contains(JackFormatProduct.class)
+        if (targetProduction.contains(JayceFormatProduct.class)
             && !targetProduction.contains(DexFileProduct.class)
             && !targetProduction.contains(IntermediateDexProduct.class)) {
           if (options.ecjArguments == null) {
@@ -589,13 +589,13 @@ public abstract class Jack {
           // ... but use a manual one if not supported
           plan = planBuilder.getPlan();
 
-          assert !targetProduction.contains(JackFormatProduct.class)
+          assert !targetProduction.contains(JayceFormatProduct.class)
               || targetProduction.contains(DexFileProduct.class)
               || (plan.computeFinalTagsOrMarkers(
                   request.getInitialTags()).contains(JackFormatIr.class)
                   && !targetProduction.contains(IntermediateDexProduct.class))
               || (targetProduction.contains(IntermediateDexProduct.class)
-                  && targetProduction.contains(JackFormatProduct.class));
+                  && targetProduction.contains(JayceFormatProduct.class));
         }
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -772,7 +772,7 @@ public abstract class Jack {
   }
 
   private static void fillJayceToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
-    // Add here transformations we want to apply before writing .jack file
+    // Add here transformations we want to apply before writing jayce file
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
 
@@ -1032,7 +1032,7 @@ public abstract class Jack {
         methodPlan3.append(FieldInitMethodCallRemover.class);
       }
       typePlan4.append(FieldInitMethodRemover.class);
-      if (features.contains(JackFileOutput.class)) {
+      if (features.contains(JayceFileOutput.class)) {
         typePlan4.append(JayceSingleTypeWriter.class);
       }
     }

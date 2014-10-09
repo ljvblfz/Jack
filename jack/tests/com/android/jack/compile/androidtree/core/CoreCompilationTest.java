@@ -66,13 +66,13 @@ public class CoreCompilationTest {
     File coreDexFromJava = new File(coreDexFolderFromJava, DexFileWriter.DEX_FILENAME);
 
     Options options = new Options();
-    options.addProperty(Options.GENERATE_JACK_FILE.getName(), "true");
+    options.addProperty(Options.GENERATE_JAYCE_FILE.getName(), "true");
     File outputFile = new File("/tmp/jackIncrementalOutput");
     options.addProperty(
         Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
-    options.addProperty(Options.JACK_FILE_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
+    options.addProperty(Options.JAYCE_FILE_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
     options.addProperty(
-        Options.JACK_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+        Options.JAYCE_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
     TestTools.compileSourceToDex(options, SOURCELIST, null, coreDexFolderFromJava, false);
 
     File coreDexFolderFromJack = TestTools.createTempDir("coreFromJack", "dex");

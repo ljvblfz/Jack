@@ -35,7 +35,7 @@ import java.lang.ref.SoftReference;
 import javax.annotation.Nonnull;
 
 /**
- * A loader for method loaded from a jack file.
+ * A loader for method loaded from a jayce file.
  */
 public class JayceMethodLoader extends AbstractMethodLoader implements HasInputLibrary {
   @Nonnull

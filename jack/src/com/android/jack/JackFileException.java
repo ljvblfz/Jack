@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * Exception representing a problem related to Jack files.
+ * Exception representing a problem related to Jayce files.
  */
 public class JackFileException extends JackIOException {
 
