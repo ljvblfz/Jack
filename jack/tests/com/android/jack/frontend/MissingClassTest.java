@@ -30,9 +30,9 @@ public class MissingClassTest {
   @Test
   @Category(KnownBugs.class)
   public void test001() throws Exception {
-    File outJackTmpMissing = TestTools.createTempDir("MissingClassTest001-missing", ".jack");
-    File outJackTmpSuper = TestTools.createTempDir("MissingClassTest001-super", ".jack");
-    File outJackTmpTest = TestTools.createTempDir("MissingClassTest001-test", ".jack");
+    File outJackTmpMissing = TestTools.createTempDir("MissingClassTest001-missing", ".jayce");
+    File outJackTmpSuper = TestTools.createTempDir("MissingClassTest001-super", ".jayce");
+    File outJackTmpTest = TestTools.createTempDir("MissingClassTest001-test", ".jayce");
 
     TestTools.compileSourceToJack(new Options(),
         new File(TestTools.getJackTestsWithJackFolder("frontend/test001"), "missing"),
