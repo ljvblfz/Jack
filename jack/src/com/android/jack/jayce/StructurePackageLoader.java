@@ -16,16 +16,17 @@
 
 package com.android.jack.jayce;
 
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.vfs.InputVDir;
 
 import javax.annotation.Nonnull;
 
 @ImplementationName(iface = JaycePackageLoader.class, name = "structure")
 class StructurePackageLoader extends JaycePackageLoader {
 
-  public StructurePackageLoader(@Nonnull InputVDir dir, @Nonnull JPhantomLookup lookup) {
-    super(dir, lookup, NodeLevel.STRUCTURE);
+  public StructurePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
+      @Nonnull JPhantomLookup lookup) {
+    super(inputJackLibrary, inputJackLibrary.getInputVDir(), lookup, NodeLevel.STRUCTURE);
   }
 }

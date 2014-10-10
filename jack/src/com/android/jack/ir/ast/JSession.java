@@ -20,6 +20,7 @@ import com.android.jack.ir.InternalCompilerException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
+import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -76,6 +78,9 @@ public class JSession extends JNode {
 
   @Nonnull
   private final Reporter reporter = ThreadConfig.get(Reporter.REPORTER);
+
+  @CheckForNull
+  private OutputLibrary outputLibrary;
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -178,5 +183,14 @@ public class JSession extends JNode {
     if (parent != null) {
       throw new InternalCompilerException(this, "Invalid parent");
     }
+  }
+
+  @CheckForNull
+  public OutputLibrary getOutputLibrary() {
+    return outputLibrary;
+  }
+
+  public void setOutputLibrary(@Nonnull OutputLibrary outputLibrary) {
+    this.outputLibrary = outputLibrary;
   }
 }

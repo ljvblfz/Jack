@@ -82,6 +82,8 @@ import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
@@ -262,9 +264,11 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectDir;
-import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputZipRootVDir;
+import com.android.sched.vfs.OutputVDir;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -314,7 +318,9 @@ public abstract class Jack {
           "jack.internal.jayce.loader.classpath.policy",
           "Hint on default load policy for classpath entries",
           JaycePackageLoader.class)
-          .addArgType(InputVDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
+          .addArgType(InputJackLibrary.class)
+          .addArgType(JPhantomLookup.class)
+          .bypassAccessibility()
           .addDefaultValue("structure");
 
   @Nonnull
@@ -323,7 +329,9 @@ public abstract class Jack {
           "jack.internal.jayce.loader.import.policy",
           "Hint on default load policy for import entries",
           JaycePackageLoader.class)
-          .addArgType(InputVDir.class).addArgType(JPhantomLookup.class).bypassAccessibility()
+          .addArgType(InputJackLibrary.class)
+          .addArgType(JPhantomLookup.class)
+          .bypassAccessibility()
           .addDefaultValue("full");
 
   @Nonnull
@@ -385,6 +393,7 @@ public abstract class Jack {
 
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
+
       ConfigPrinterFactory.getConfigPrinter().printConfig(config);
       Event event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
       try {
@@ -399,6 +408,18 @@ public abstract class Jack {
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
         JSession session = buildSession(options, hooks);
+
+        if (ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue()) {
+          Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
+          OutputVDir outputDir;
+          if (containerType == Container.DIR) {
+            outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
+          } else {
+            outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
+          }
+          session.setOutputLibrary(new OutputJackLibrary(outputDir));
+        }
+
         Request request = createInitialRequest();
 
         request.addFeature(Resources.class);
@@ -673,21 +694,22 @@ public abstract class Jack {
   private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
       @Nonnull JPackage rootPackage, @Nonnull JPhantomLookup phantomLookup,
       @Nonnull RunnableHooks hooks) throws JackFileException {
-    List<InputVDir> jackFilesToImport = new ArrayList<InputVDir>(jayceImport.size());
+    List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>(jayceImport.size());
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
     for (final File jackFile : jayceImport) {
       try {
-        InputVDir vDir = wrapAsVDir(jackFile, hooks);
-        jackFilesToImport.add(vDir);
+        InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
+        InputJackLibrary inputJackLibrary = new InputJackLibrary(vDir);
+        inputJackLibraries.add(inputJackLibrary);
         // add to classpath
-        JaycePackageLoader rootPLoader = factory.create(vDir, phantomLookup);
+        JaycePackageLoader rootPLoader = factory.create(inputJackLibrary, phantomLookup);
         rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         throw new JackFileException("Error importing jack container: " + ioException.getMessage(),
             ioException);
       }
     }
-    return new JayceFileImporter(jackFilesToImport);
+    return new JayceFileImporter(inputJackLibraries);
   }
 
   private static void putInJackClasspath(@Nonnull List<File> jackFiles,
@@ -697,8 +719,9 @@ public abstract class Jack {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
     for (final File jackFile : jackFiles) {
       try {
-        InputVDir vDir = wrapAsVDir(jackFile, hooks);
-        JaycePackageLoader rootPLoader = factory.create(vDir, phantomJNodeLookup);
+        InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
+        JaycePackageLoader rootPLoader =
+            factory.create(new InputJackLibrary(vDir), phantomJNodeLookup);
         rootPackage.addLoader(rootPLoader);
       } catch (IOException ioException) {
         // Ignore bad entry
@@ -708,9 +731,10 @@ public abstract class Jack {
   }
 
   @Nonnull
-  private static InputVDir wrapAsVDir(@Nonnull final File dirOrZip, @Nonnull RunnableHooks hooks)
+  private static InputRootVDir wrapAsVDir(@Nonnull final File dirOrZip,
+      @Nonnull RunnableHooks hooks)
       throws IOException {
-    InputVDir dir;
+    InputRootVDir dir;
     if (dirOrZip.isDirectory()) {
       dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ, ChangePermission.NOCHANGE));

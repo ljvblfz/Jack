@@ -18,7 +18,6 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackFileException;
-import com.android.jack.Options;
 import com.android.jack.experimental.incremental.CompilerState;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
@@ -26,6 +25,7 @@ import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriter;
+import com.android.jack.library.OutputLibrary;
 import com.android.jack.scheduling.feature.JackFileOutput;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -35,7 +35,6 @@ import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectFile;
 import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
@@ -62,13 +61,9 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
   private final OutputVDir outputDir;
 
   {
-    assert ThreadConfig.get(Options.GENERATE_JACK_FILE).booleanValue();
-    Container containerType = ThreadConfig.get(Options.JACK_OUTPUT_CONTAINER_TYPE);
-    if (containerType == Container.DIR) {
-      outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_DIR);
-    } else {
-      outputDir = ThreadConfig.get(Options.JACK_FILE_OUTPUT_ZIP);
-    }
+    OutputLibrary outputLibrary = Jack.getSession().getOutputLibrary();
+    assert outputLibrary != null;
+    outputDir = outputLibrary.getOutputVDir();
   }
 
   @Synchronized

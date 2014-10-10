@@ -22,6 +22,9 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.MissingJTypeLookupException;
+import com.android.jack.library.HasInputLibrary;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
@@ -40,17 +43,23 @@ import javax.annotation.Nonnull;
 /**
  * {@link PackageLoader} for package containing classes defined in jack files.
  */
-public class JaycePackageLoader implements PackageLoader {
+public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 
   @Nonnull
   private final InputVDir dir;
+
+  @Nonnull
   private final JPhantomLookup lookup;
 
   @Nonnull
   private final NodeLevel defaultLoadLevel;
 
-  JaycePackageLoader(@Nonnull InputVDir dir, @Nonnull JPhantomLookup lookup,
-      @Nonnull NodeLevel defaultLoadLevel) {
+  @Nonnull
+  private final InputJackLibrary inputJackLibrary;
+
+  JaycePackageLoader(@Nonnull InputJackLibrary inputJackLibrary, @Nonnull InputVDir dir,
+      @Nonnull JPhantomLookup lookup, @Nonnull NodeLevel defaultLoadLevel) {
+    this.inputJackLibrary = inputJackLibrary;
     this.dir = dir;
     this.lookup = lookup;
     this.defaultLoadLevel = defaultLoadLevel;
@@ -63,8 +72,8 @@ public class JaycePackageLoader implements PackageLoader {
     for (InputVElement sub : dir.list()) {
       if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
-          return new JayceClassOrInterfaceLoader((InputVFile) sub, lookup, defaultLoadLevel)
-            .loadClassOrInterface(loading, simpleName);
+          return new JayceClassOrInterfaceLoader(inputJackLibrary, (InputVFile) sub, lookup,
+              defaultLoadLevel).loadClassOrInterface(loading, simpleName);
         } catch (IOException e) {
           throw new JackLoadingException(sub.getLocation(), e);
         } catch (JackFileException e) {
@@ -92,11 +101,11 @@ public class JaycePackageLoader implements PackageLoader {
   @Override
   public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) throws JPackageLookupException {
-      for (InputVElement sub : dir.list()) {
-        if (sub.isVDir() && sub.getName().equals(simpleName)) {
-          return new JaycePackageLoader((InputVDir) sub, lookup, defaultLoadLevel);
-        }
+    for (InputVElement sub : dir.list()) {
+      if (sub.isVDir() && sub.getName().equals(simpleName)) {
+        return new JaycePackageLoader(inputJackLibrary, (InputVDir) sub, lookup, defaultLoadLevel);
       }
+    }
     throw new JPackageLookupException(simpleName, loading);
   }
 
@@ -128,5 +137,11 @@ public class JaycePackageLoader implements PackageLoader {
   @Override
   public boolean isOnPath(@Nonnull JPackage loaded) {
     return true;
+  }
+
+  @Override
+  @Nonnull
+  public InputLibrary getInputLibrary() {
+    return inputJackLibrary;
   }
 }
