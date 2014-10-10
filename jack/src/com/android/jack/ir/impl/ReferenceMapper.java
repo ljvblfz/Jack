@@ -123,7 +123,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  public JField get(@Nonnull FieldBinding binding) {
+  public JField get(@Nonnull FieldBinding binding) throws JTypeLookupException {
     binding = binding.original();
     String key = signature(binding);
     JField field = fields.get(key);
@@ -148,7 +148,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  public JMethod get(@Nonnull MethodBinding binding) {
+  public JMethod get(@Nonnull MethodBinding binding) throws JTypeLookupException {
     binding = binding.original();
     String key = signature(binding);
     JMethod method = methods.get(key);
@@ -197,7 +197,7 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  private JMethod createMethod(@Nonnull MethodBinding b) {
+  private JMethod createMethod(@Nonnull MethodBinding b) throws JTypeLookupException {
     AbstractMethodDeclaration declaration = getDeclaration(b);
     CudInfo cuInfo;
     SourceInfo info;
@@ -322,7 +322,7 @@ public class ReferenceMapper {
   }
 
   private void createParameter(@Nonnull SourceInfo info, @Nonnull LocalVariableBinding binding,
-      @Nonnull String name, @Nonnull JMethod method) {
+      @Nonnull String name, @Nonnull JMethod method) throws JTypeLookupException {
     JType type = get(binding.type);
     JParameter param =
         new JParameter(info, name, type,
@@ -341,7 +341,7 @@ public class ReferenceMapper {
   }
 
   private void createParameters(@Nonnull JMethod method, @Nonnull AbstractMethodDeclaration x,
-      @Nonnull CudInfo cuInfo) {
+      @Nonnull CudInfo cuInfo) throws JTypeLookupException {
     if (x.arguments != null) {
       for (Argument argument : x.arguments) {
         SourceInfo info = makeSourceInfo(cuInfo, argument, sourceInfoFactory);
@@ -352,12 +352,12 @@ public class ReferenceMapper {
   }
 
   private void createParameter(@Nonnull SourceInfo info, @Nonnull LocalVariableBinding binding,
-      @Nonnull JMethod method) {
+      @Nonnull JMethod method) throws JTypeLookupException {
     createParameter(info, binding, intern(binding.name), method);
   }
 
   @Nonnull
-  private JField createField(@Nonnull FieldBinding binding) {
+  private JField createField(@Nonnull FieldBinding binding) throws JTypeLookupException {
     FieldDeclaration sourceField = binding.sourceField();
 
     CudInfo cuInfo =
@@ -396,7 +396,7 @@ public class ReferenceMapper {
 
   @Nonnull
   private JParameter createParameter(@Nonnull SourceInfo info, @Nonnull TypeBinding paramType,
-      @Nonnull JMethod enclosingMethod, @Nonnull String name) {
+      @Nonnull JMethod enclosingMethod, @Nonnull String name) throws JTypeLookupException {
     JType type = get(paramType);
     JParameter param = new JParameter(info, name, type, JModifier.FINAL, enclosingMethod);
     enclosingMethod.addParam(param);
@@ -425,7 +425,7 @@ public class ReferenceMapper {
     }
   }
 
-  private void mapExceptions(JMethod method, MethodBinding binding) {
+  private void mapExceptions(JMethod method, MethodBinding binding) throws JTypeLookupException {
     ReferenceBinding[] thrownExceptions = binding.thrownExceptions;
     int length = thrownExceptions.length;
     if (length != 0) {
@@ -438,8 +438,8 @@ public class ReferenceMapper {
     }
   }
 
-  private int mapParameters(
-      SourceInfo info, JMethod method, MethodBinding binding, int argPosition) {
+  private int mapParameters(SourceInfo info, JMethod method, MethodBinding binding, int argPosition)
+      throws JTypeLookupException {
     if (binding.parameters != null) {
       ensureArgNames(argPosition + binding.parameters.length);
       for (TypeBinding argType : binding.parameters) {
@@ -582,11 +582,8 @@ public class ReferenceMapper {
     fields.put(key, field);
   }
 
-  /**
-   * @return the javaLangString
-   */
   @Nonnull
-  private JDefinedClass getJavaLangString() {
+  private JDefinedClass getJavaLangString() throws JTypeLookupException {
     if (javaLangString == null) {
       javaLangString = (JDefinedClass) lookup.getClass(CommonTypes.JAVA_LANG_STRING);
     }
