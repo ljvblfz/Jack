@@ -51,7 +51,7 @@ public class JackFormatErrorTest {
   public void testJackFormatError001() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
+    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jack",
         "jayce(" + JayceWriter.DEFAULT_MAJOR_VERSION + "." + Version.CURRENT_MINOR + ")Corrupted");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
@@ -84,7 +84,7 @@ public class JackFormatErrorTest {
   public void testJackFormatError002() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
+    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jack",
         "jayce()");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
@@ -117,7 +117,7 @@ public class JackFormatErrorTest {
   public void testJackFormatError003() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
+    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jack",
         "jayce(0.0)");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",

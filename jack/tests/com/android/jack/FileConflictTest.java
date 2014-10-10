@@ -54,15 +54,15 @@ public class FileConflictTest {
   @Nonnull
   private static final String COMMON_PATH_002 = "com/android/jack/fileconflict/test002/jack/";
   @Nonnull
-  private static final String JACK_FILE_PATH_1 = COMMON_PATH_001 + "MyClass.jayce";
+  private static final String JACK_FILE_PATH_1 = COMMON_PATH_001 + "MyClass.jack";
   @Nonnull
-  private static final String JACK_FILE_PATH_2 = COMMON_PATH_001 + "MyClass2.jayce";
+  private static final String JACK_FILE_PATH_2 = COMMON_PATH_001 + "MyClass2.jack";
   @Nonnull
-  private static final String JACK_FILE_PATH_3 = COMMON_PATH_001 + "MyClass3.jayce";
+  private static final String JACK_FILE_PATH_3 = COMMON_PATH_001 + "MyClass3.jack";
   @Nonnull
-  private static final String JACK_FILE_PATH_002_1 = COMMON_PATH_002 + "IrrelevantForTest.jayce";
+  private static final String JACK_FILE_PATH_002_1 = COMMON_PATH_002 + "IrrelevantForTest.jack";
   @Nonnull
-  private static final String JACK_FILE_PATH_002_2 = COMMON_PATH_002 + "IrrelevantForTest2.jayce";
+  private static final String JACK_FILE_PATH_002_2 = COMMON_PATH_002 + "IrrelevantForTest2.jack";
   @Nonnull
   private static final String RESOURCE1_SHORTPATH = "Resource1";
   @Nonnull
@@ -241,7 +241,7 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
+    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jack";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
     // create Jack dirs to import
@@ -277,7 +277,7 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
+    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jack";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
     // create Jack dirs to import
@@ -320,7 +320,7 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test004/jack/MyClass.jayce";
+    String jackFilePath = "com/android/jack/fileconflict/test004/jack/MyClass.jack";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
     // create Jack dirs to import

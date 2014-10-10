@@ -62,7 +62,7 @@ public class SwitchesTest {
 
   @Test
   public void testCompile2AsJackThenDex() throws Exception {
-    File outJackTmp = TestTools.createTempDir("switchstatement2", ".jayce");
+    File outJackTmp = TestTools.createTempDir("switchstatement2", ".jack");
     try {
 
       {

@@ -53,7 +53,7 @@ public class WithPhantomTest {
         TestTools.getJackTestsWithJackFolder(TEST001),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test001/jack/A.jayce")).delete();
+        fixPath("com/android/jack/withphantom/test001/jack/A.jack")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST001);
@@ -106,7 +106,7 @@ public class WithPhantomTest {
         TestTools.getJackTestsWithJackFolder(TEST001),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test001/jack/A$Inner1.jayce")).delete();
+        fixPath("com/android/jack/withphantom/test001/jack/A$Inner1.jack")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST001);
@@ -193,7 +193,7 @@ public class WithPhantomTest {
         TestTools.getJackTestsWithJackFolder(TEST002),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test002/jack/A.jayce")).delete();
+        fixPath("com/android/jack/withphantom/test002/jack/A.jack")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST002);

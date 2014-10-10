@@ -48,7 +48,7 @@ public class ResourceTest {
   @Nonnull
   private static final String COMMON_PATH = "com/android/jack/resource/test001/jack/";
   @Nonnull
-  private static final String JACK_FILE_PATH = COMMON_PATH + "IrrelevantForTest.jayce";
+  private static final String JACK_FILE_PATH = COMMON_PATH + "IrrelevantForTest.jack";
   @Nonnull
   private static final String RESOURCE1_SHORTPATH = "Resource1";
   @Nonnull

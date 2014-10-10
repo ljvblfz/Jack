@@ -188,7 +188,7 @@ public class IncrementalTestingEnvironment extends TestTools {
       Long previousDate = fileModificationDate.get(jackFile.getAbsolutePath());
       if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
         String jackFileName = jackFile.getAbsolutePath();
-        String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
+        String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jack"));
         binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
         fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar,'.'));
       }

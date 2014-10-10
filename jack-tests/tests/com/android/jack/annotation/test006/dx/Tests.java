@@ -50,7 +50,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     String declaredClasses = stringifyTypeArray(testClass.getDeclaredClasses());
     boolean testDeclaredClasses = declaredClasses.contains("[2]");
     testDeclaredClasses = testDeclaredClasses && declaredClasses.contains("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass");
@@ -86,7 +86,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertEquals("public java.lang.Object com.android.jack.annotation.test006.jack.ReflectAnnotationsTest.getLocal(int)", testClass.getEnclosingMethod().toString());
     Assert.assertEquals(testClass.getModifiers(), 0);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -114,7 +114,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -142,7 +142,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 9);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -176,7 +176,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     String declaredClasses = stringifyTypeArray(testClass.getDeclaredClasses());
     boolean testDeclared = declaredClasses.contains("[2]");
     testDeclared = testDeclared && declaredClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic2");
@@ -209,7 +209,7 @@ public class Tests {
     Assert.assertEquals("public com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2()", testClass.getEnclosingConstructor().toString());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 0);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -237,7 +237,7 @@ public class Tests {
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 2);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jayce", testClass.getPackage().toString());
+    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     String memberClasses = stringifyTypeArray(testClass.getClasses());
     boolean testMemberClasses = memberClasses.contains("java.util.AbstractMap$SimpleEntry");
