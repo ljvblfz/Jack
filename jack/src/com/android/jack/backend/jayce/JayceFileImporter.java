@@ -52,7 +52,7 @@ import javax.annotation.Nonnull;
 public class JayceFileImporter {
 
   @Nonnull
-  public static final String JAYCE_FILE_EXTENSION = ".jayce";
+  public static final String JAYCE_FILE_EXTENSION = ".jack";
 
   public static final int JACK_EXTENSION_LENGTH = JAYCE_FILE_EXTENSION.length();
 

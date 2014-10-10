@@ -115,7 +115,7 @@ public class ClasspathTest {
         // delete unused inner in classpath and check we can still compile with it
         boolean deleted =
             new File(libOut,
-                "com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jayce")
+                "com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jack")
               .delete();
         Assert.assertTrue(deleted);
         File testOut = TestTools.createTempDir("ClasspathTest", "test");
