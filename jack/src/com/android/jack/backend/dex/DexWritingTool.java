@@ -24,6 +24,7 @@ import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.library.BinaryKind;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.OverflowException;
 import com.android.sched.util.config.ThreadConfig;
@@ -95,7 +96,7 @@ public abstract class DexWritingTool {
     if (dexCount == 1) {
       dexName = DexFileWriter.DEX_FILENAME;
     } else {
-      dexName = DexFileWriter.DEX_PREFIX + dexCount + DexFileWriter.DEX_FILE_EXTENSION;
+      dexName = DexFileWriter.DEX_PREFIX + dexCount + BinaryKind.DEX.getFileExtension();
     }
     try {
       return outputVDir.createOutputVFile(new VPath(dexName, '/'));

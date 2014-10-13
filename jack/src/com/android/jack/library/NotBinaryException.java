@@ -16,22 +16,26 @@
 
 package com.android.jack.library;
 
-import com.android.sched.vfs.InputRootVDir;
-
-import java.util.Collection;
+import com.android.sched.vfs.InputVFile;
 
 import javax.annotation.Nonnull;
 
 /**
- * Library used as input.
+ * Exception specifying that an {@link InputVFile} is not a binary.
  */
-public interface InputLibrary {
+public class NotBinaryException extends Exception {
+
+  private static final long serialVersionUID = 1L;
 
   @Nonnull
-  public InputRootVDir getInputVDir();
+  private final InputVFile vFile;
 
-  @Nonnull
-  public Collection<BinaryKind> getBinaryKinds();
+  public NotBinaryException(@Nonnull InputVFile vFile) {
+    this.vFile = vFile;
+  }
 
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind);
+  @Override
+  public String getMessage() {
+    return vFile + " is not a binary";
+  }
 }

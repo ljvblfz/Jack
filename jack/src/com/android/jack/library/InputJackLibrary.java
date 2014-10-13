@@ -16,7 +16,15 @@
 
 package com.android.jack.library;
 
+import com.android.jack.Jack;
 import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
+import com.android.sched.vfs.InputVFile;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -28,13 +36,42 @@ public class InputJackLibrary implements InputLibrary {
   @Nonnull
   private final InputRootVDir libraryVDir;
 
+  @Nonnull
+  private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
+
   public InputJackLibrary(@Nonnull InputRootVDir libraryVDir) {
     this.libraryVDir = libraryVDir;
+    fillBinaryKinds(libraryVDir);
   }
 
   @Override
   @Nonnull
   public InputRootVDir getInputVDir() {
     return libraryVDir;
+  }
+
+  @Override
+  @Nonnull
+  public Collection<BinaryKind> getBinaryKinds() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(binaryKinds);
+  }
+
+  @Override
+  public boolean hasBinary(@Nonnull BinaryKind binaryKind) {
+    return binaryKinds.contains(binaryKind);
+  }
+
+  private void fillBinaryKinds(@Nonnull InputVDir vDir) {
+    for (InputVElement subFile : vDir.list()) {
+      if (subFile.isVDir()) {
+        fillBinaryKinds((InputVDir) subFile);
+      } else {
+        try {
+          binaryKinds.add(BinaryKind.getBinaryKind((InputVFile) subFile));
+        } catch (NotBinaryException e) {
+          // Ok, nothing to do
+        }
+      }
+    }
   }
 }
