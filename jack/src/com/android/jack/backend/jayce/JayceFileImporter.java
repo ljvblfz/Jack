@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
@@ -34,6 +35,7 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
@@ -46,7 +48,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * Imports jayce file content in J-AST.
+ * Imports jayce files from jack libraries in J-AST.
  */
 @HasKeyId
 public class JayceFileImporter {
@@ -63,7 +65,7 @@ public class JayceFileImporter {
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final List<InputVDir> jayceContainers;
+  private final List<InputJackLibrary> inputJackLibraries;
 
   private static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
@@ -106,16 +108,17 @@ public class JayceFileImporter {
   private final CollisionPolicy resourceCollisionPolicy =
       ThreadConfig.get(RESOURCE_COLLISION_POLICY);
 
-  public JayceFileImporter(@Nonnull List<InputVDir> jayceContainers) {
-    this.jayceContainers = jayceContainers;
+  public JayceFileImporter(@Nonnull List<InputJackLibrary> jackLibraries) {
+    this.inputJackLibraries = jackLibraries;
   }
 
   public void doImport(@Nonnull JSession session) throws JPackageLookupException,
       ImportConflictException, JTypeLookupException {
 
-    for (InputVDir jayceContainer : jayceContainers) {
-      logger.log(Level.FINE, "Importing {0}", jayceContainer.getLocation().getDescription());
-      for (InputVElement subFile : jayceContainer.list()) {
+    for (InputJackLibrary inputJackLibrary : inputJackLibraries) {
+      InputRootVDir libraryVDir = inputJackLibrary.getInputVDir();
+      logger.log(Level.FINE, "Importing {0}", libraryVDir.getLocation().getDescription());
+      for (InputVElement subFile : libraryVDir.list()) {
         importJayceFile(subFile, session, "");
       }
     }

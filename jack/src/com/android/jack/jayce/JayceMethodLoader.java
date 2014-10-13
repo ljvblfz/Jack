@@ -19,6 +19,8 @@ package com.android.jack.jayce;
 import com.android.jack.JackFileException;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.library.HasInputLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.load.AbstractMethodLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
@@ -35,7 +37,7 @@ import javax.annotation.Nonnull;
 /**
  * A loader for method loaded from a jack file.
  */
-public class JayceMethodLoader extends AbstractMethodLoader {
+public class JayceMethodLoader extends AbstractMethodLoader implements HasInputLibrary {
   @Nonnull
   private static final StatisticId<Counter> BODY_LOAD_COUNT = new StatisticId<Counter>(
       "jayce.body.load", "Body loaded from a NNode in a JNode",
@@ -112,4 +114,9 @@ public class JayceMethodLoader extends AbstractMethodLoader {
     // nothing to do, only body is lazily loaded and ensureBody is handling that.
   }
 
+  @Override
+  @Nonnull
+  public InputLibrary getInputLibrary() {
+    return enclosingClassLoader.getInputLibrary();
+  }
 }

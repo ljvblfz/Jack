@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce;
-
-import com.android.jack.library.InputJackLibrary;
-import com.android.jack.lookup.JPhantomLookup;
-import com.android.sched.util.codec.ImplementationName;
+package com.android.jack.library;
 
 import javax.annotation.Nonnull;
 
-@ImplementationName(iface = JaycePackageLoader.class, name = "full")
-class FullPackageLoader extends JaycePackageLoader {
+/**
+ * Interface implemented by loaders having a library as input.
+ */
+public interface HasInputLibrary {
 
-  public FullPackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
-      @Nonnull JPhantomLookup lookup) {
-    super(inputJackLibrary, inputJackLibrary.getInputVDir(), lookup, NodeLevel.FULL);
-  }
+  @Nonnull
+  public InputLibrary getInputLibrary();
 }

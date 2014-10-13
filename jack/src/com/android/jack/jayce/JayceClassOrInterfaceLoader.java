@@ -23,6 +23,9 @@ import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.HasInputLibrary;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
@@ -54,7 +57,8 @@ import javax.annotation.Nonnull;
 /**
  * {@link ClassOrInterfaceLoader} for jayce files.
  */
-public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
+public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader implements
+    HasInputLibrary {
 
   @Nonnull
   private static final StatisticId<Percent> NNODE_RELOAD = new StatisticId<
@@ -89,10 +93,14 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   private int methodNotLoadedCount = Integer.MAX_VALUE;
 
   @Nonnull
+  private final InputJackLibrary inputJackLibrary;
+
+  @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
-  JayceClassOrInterfaceLoader(@Nonnull InputVFile source, @Nonnull JPhantomLookup lookup,
-      @Nonnull NodeLevel defaultLoadLevel) {
+  JayceClassOrInterfaceLoader(@Nonnull InputJackLibrary jackLibrary, @Nonnull InputVFile source,
+      @Nonnull JPhantomLookup lookup, @Nonnull NodeLevel defaultLoadLevel) {
+    this.inputJackLibrary = jackLibrary;
     this.source = source;
     this.lookup = lookup;
     nnode = new SoftReference<DeclaredTypeNode>(null);
@@ -223,4 +231,9 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
     }
   }
 
+  @Override
+  @Nonnull
+  public InputLibrary getInputLibrary() {
+    return inputJackLibrary;
+  }
 }
