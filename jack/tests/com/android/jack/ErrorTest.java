@@ -16,14 +16,12 @@
 
 package com.android.jack;
 
-import com.android.jack.category.KnownBugs;
 import com.android.jack.frontend.FrontendCompilationException;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,7 +45,6 @@ public class ErrorTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testError002() throws Exception {
     checkInternalCompilerException("error/test002");
   }
