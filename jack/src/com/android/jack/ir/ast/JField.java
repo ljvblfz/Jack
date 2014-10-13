@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -269,7 +269,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   public void checkValidity() {
     if (!(parent instanceof JDefinedClassOrInterface)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

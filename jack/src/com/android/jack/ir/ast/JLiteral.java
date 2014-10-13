@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -38,7 +38,7 @@ public abstract class JLiteral extends JExpression {
         || parent instanceof JSwitchStatement || parent instanceof JAnnotationMethod
         || parent instanceof JFieldInitializer || parent instanceof JWhileStatement
         || parent instanceof JSynchronizedBlock)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

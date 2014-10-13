@@ -18,7 +18,7 @@ package com.android.jack.ir.impl;
 import com.android.jack.Jack;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.frontend.ParentSetter;
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
@@ -3151,7 +3151,7 @@ public class JackIrBuilder {
   private static final char[] VALUES = VALUES_STRING.toCharArray();
 
   static {
-    InternalCompilerException.preload();
+    JNodeInternalError.preload();
     try {
       collectionElementTypeField = ForeachStatement.class.getDeclaredField("collectionElementType");
       collectionElementTypeField.setAccessible(true);
@@ -3329,31 +3329,31 @@ public class JackIrBuilder {
     return makeSourceInfo(x.sourceStart, x.sourceEnd, session.getSourceInfoFactory());
   }
 
-  InternalCompilerException translateException(Throwable e) {
+  JNodeInternalError translateException(Throwable e) {
     if (e instanceof VirtualMachineError) {
       // Always rethrow VM errors (an attempt to wrap may fail).
       throw (VirtualMachineError) e;
     }
-    InternalCompilerException ice;
-    if (e instanceof InternalCompilerException) {
-      ice = (InternalCompilerException) e;
+    JNodeInternalError ice;
+    if (e instanceof JNodeInternalError) {
+      ice = (JNodeInternalError) e;
     } else {
-      ice = new InternalCompilerException("Error constructing Java AST", e);
+      ice = new JNodeInternalError("Error constructing Java AST", e);
     }
     return ice;
   }
 
-  InternalCompilerException translateException(ASTNode node, Throwable e) {
-    InternalCompilerException ice = translateException(e);
+  JNodeInternalError translateException(ASTNode node, Throwable e) {
+    JNodeInternalError ice = translateException(e);
     if (node != null) {
       ice.addNode(node.getClass().getName(), node.toString(), makeSourceInfo(node));
     }
     return ice;
   }
 
-  InternalCompilerException translateException(
+  JNodeInternalError translateException(
       TypeDeclaration typeDeclaration, Throwable e, SourceInfo info) {
-    InternalCompilerException ice = translateException(e);
+    JNodeInternalError ice = translateException(e);
     if (typeDeclaration != null) {
       StringBuffer sb = new StringBuffer();
       typeDeclaration.printHeader(0, sb);

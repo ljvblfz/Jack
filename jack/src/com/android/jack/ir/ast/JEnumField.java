@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.transform.TransformRequest;
@@ -59,7 +59,7 @@ public class JEnumField extends JField {
   @Override
   public void checkValidity() {
     if (!(parent instanceof JDefinedEnum)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

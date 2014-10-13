@@ -20,19 +20,19 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Indicates the compiler encountered an unexpected and unsupported state of
- * operation.
+ * {@link Error} related to an IR node that is not supposed not happen.
  */
-public class InternalCompilerException extends RuntimeException {
+public class JNodeInternalError extends Error {
 
   private static final long serialVersionUID = 1L;
 
   /**
-   * Information regarding a node that was being processed when an
-   * InternalCompilerException was thrown.
+   * Information regarding a node that was being processed when a {@link JNodeInternalError} was
+   * thrown.
    */
   public static final class NodeInfo {
 
@@ -40,11 +40,15 @@ public class InternalCompilerException extends RuntimeException {
       // Initialize this class on static invocation.
     }
 
+    @Nonnull
     private final String className;
+    @Nonnull
     private final String description;
+    @CheckForNull
     private final SourceInfo sourceInfo;
 
-    NodeInfo(String className, String description, SourceInfo sourceInfo) {
+    NodeInfo(@Nonnull String className, @Nonnull String description,
+        @CheckForNull SourceInfo sourceInfo) {
       this.className = className;
       this.description = description;
       this.sourceInfo = sourceInfo;
@@ -53,6 +57,7 @@ public class InternalCompilerException extends RuntimeException {
     /**
      * Returns the name of the Java class of the node.
      */
+    @Nonnull
     public String getClassName() {
       return className;
     }
@@ -60,6 +65,7 @@ public class InternalCompilerException extends RuntimeException {
     /**
      * Returns a text description of the node; typically toString().
      */
+    @Nonnull
     public String getDescription() {
       return description;
     }
@@ -67,6 +73,7 @@ public class InternalCompilerException extends RuntimeException {
     /**
      * Returns the node's source info, if available; otherwise {@code null}.
      */
+    @CheckForNull
     public SourceInfo getSourceInfo() {
       return sourceInfo;
     }
@@ -76,8 +83,8 @@ public class InternalCompilerException extends RuntimeException {
    * Tracks if there's a pending addNode() to avoid recursion sickness.
    */
   @Nonnull
-  private static final ThreadLocal<InternalCompilerException> pendingICE =
-      new ThreadLocal<InternalCompilerException>();
+  private static final ThreadLocal<JNodeInternalError> pendingICE =
+      new ThreadLocal<JNodeInternalError>();
 
   /**
    * Force this class to be preloaded. If we don't preload this class, we can
@@ -94,40 +101,24 @@ public class InternalCompilerException extends RuntimeException {
   private final List<NodeInfo> nodeTrace = new ArrayList<NodeInfo>();
 
   /**
-   * Constructs a new exception with the specified node, message, and cause.
-   */
-  public InternalCompilerException(@Nonnull HasSourceInfo node, @Nonnull String message,
-      @Nonnull Throwable cause) {
-    this(message, cause);
-    addNode(node);
-  }
-
-  /**
    * Constructs a new exception with the specified node and message.
    */
-  public InternalCompilerException(@Nonnull HasSourceInfo node, @Nonnull String message) {
-    this(message);
-    addNode(node);
-  }
-
-  /**
-   * Constructs a new exception with the specified message.
-   */
-  public InternalCompilerException(@Nonnull String message) {
+  public JNodeInternalError(@Nonnull HasSourceInfo node, @Nonnull String message) {
     super(message);
+    addNode(node);
   }
 
   /**
    * Constructs a new exception with the specified cause.
    */
-  public InternalCompilerException(@Nonnull Throwable cause) {
+  public JNodeInternalError(@Nonnull Throwable cause) {
     super(cause);
   }
 
   /**
    * Constructs a new exception with the specified message and cause.
    */
-  public InternalCompilerException(@Nonnull String message, @Nonnull Throwable cause) {
+  public JNodeInternalError(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
@@ -136,7 +127,7 @@ public class InternalCompilerException extends RuntimeException {
    * trace works.
    */
   public void addNode(@Nonnull HasSourceInfo node) {
-    InternalCompilerException other = pendingICE.get();
+    JNodeInternalError other = pendingICE.get();
     if (other != null) {
       // Avoiding recursion sickness: Yet Another ICE must have occurred while
       // generating info for a prior ICE. Just bail!
@@ -159,6 +150,7 @@ public class InternalCompilerException extends RuntimeException {
     } finally {
       pendingICE.set(null);
     }
+    assert className != null;
     addNode(className, description, sourceInfo);
   }
 
@@ -166,7 +158,8 @@ public class InternalCompilerException extends RuntimeException {
    * Adds information about a a node to the end of the node trace.
    * This is similar to how a stack trace works.
    */
-  public void addNode(String className, String description, SourceInfo sourceInfo) {
+  public void addNode(@Nonnull String className, @Nonnull String description,
+      @CheckForNull SourceInfo sourceInfo) {
     nodeTrace.add(new NodeInfo(className, description, sourceInfo));
   }
 

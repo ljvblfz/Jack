@@ -35,7 +35,6 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
-import com.android.jack.ir.InternalCompilerException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -66,7 +65,7 @@ public class JackMerger extends MergerTools {
 
   public void addDexFile(@Nonnull DexBuffer dexToMerge) throws OverflowException {
     if (finished) {
-      throw new InternalCompilerException("Merge already finished");
+      throw new AssertionError("Merge already finished");
     }
 
     CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge);

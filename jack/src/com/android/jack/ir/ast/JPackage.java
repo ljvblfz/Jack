@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.PackageLoader;
@@ -503,7 +503,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   @Override
   public void checkValidity() {
     if (!(parent instanceof JPackage || parent instanceof JSession)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

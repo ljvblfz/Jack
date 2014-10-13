@@ -20,7 +20,7 @@ package com.android.jack.frontend.java;
 import com.android.jack.JackEventType;
 import com.android.jack.JackUserException;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
@@ -220,7 +220,7 @@ class JAstBuilder extends JavaParser {
     } else if (internalException instanceof Error) {
       throw (Error) internalException;
     } else {
-      throw new InternalCompilerException(internalException);
+      throw new JNodeInternalError(internalException);
     }
   }
 }

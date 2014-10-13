@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.MethodLoader;
 import com.android.sched.item.Description;
@@ -98,7 +98,7 @@ public class JAnnotationMethod extends JMethod {
   @Override
   public void checkValidity() {
     if (!(parent instanceof JDefinedAnnotation)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }
