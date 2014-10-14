@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.backend.jayce.TypeImportConflictException;
 
 import junit.framework.Assert;
 
@@ -89,5 +90,69 @@ public class ImportTest {
         TestTools.getDefaultBootclasspathString(),
         TestTools.createTempFile("inner15", ".zip"), true);
 
+  }
+
+  @Test
+  public void testConflictingImportWithFailPolicy1() throws Exception {
+    String testName = "inner/test015";
+    File lib = TestTools.createTempDir("inner15Lib", "");
+    TestTools.compileSourceToJack(
+        new Options(),
+        TestTools.getJackTestLibFolder(testName),
+        TestTools.getDefaultBootclasspathString(),
+        lib,
+        false);
+
+    Options options = new Options();
+    options.addJayceImport(lib);
+    // import twice the same lib
+    options.addJayceImport(lib);
+
+    options.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
+
+    try {
+      TestTools.compileSourceToDex(options, TestTools.getJackTestsWithJackFolder(testName),
+          TestTools.getDefaultBootclasspathString(), TestTools.createTempFile("inner15", ".zip"),
+          true);
+      Assert.fail();
+    } catch (TypeImportConflictException e) {
+      // Exception is ok
+    }
+  }
+
+  @Test
+  public void testConflictingImportWithFailPolicy2() throws Exception {
+    String testName = "inner/test015";
+    File lib1 = TestTools.createTempDir("inner15Lib1", "");
+    TestTools.compileSourceToJack(
+        new Options(),
+        TestTools.getJackTestLibFolder(testName),
+        TestTools.getDefaultBootclasspathString(),
+        lib1,
+        false);
+
+    File lib2 = TestTools.createTempDir("inner15Lib2", "");
+    TestTools.compileSourceToJack(
+        new Options(),
+        TestTools.getJackTestLibFolder(testName),
+        TestTools.getDefaultBootclasspathString(),
+        lib2,
+        false);
+
+    Options options = new Options();
+    options.addJayceImport(lib1);
+    // import twice the same lib
+    options.addJayceImport(lib2);
+
+    options.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
+
+    try {
+      TestTools.compileSourceToDex(options, TestTools.getJackTestsWithJackFolder(testName),
+          TestTools.getDefaultBootclasspathString(), TestTools.createTempFile("inner15", ".zip"),
+          true);
+      Assert.fail();
+    } catch (TypeImportConflictException e) {
+      // Exception is ok
+    }
   }
 }

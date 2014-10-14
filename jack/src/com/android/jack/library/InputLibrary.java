@@ -16,6 +16,7 @@
 
 package com.android.jack.library;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.vfs.InputRootVDir;
 
 import java.util.Collection;
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * Library used as input.
  */
-public interface InputLibrary {
+public interface InputLibrary extends HasLocation {
 
   @Nonnull
   public InputRootVDir getInputVDir();

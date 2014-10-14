@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
@@ -102,6 +103,9 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   private final JPackage enclosingPackage;
 
   @Nonnull
+  private final Location location;
+
+  @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
   JayceClassOrInterfaceLoader(@Nonnull InputJackLibrary jackLibrary,
@@ -117,6 +121,8 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
     this.lookup = lookup;
     nnode = new SoftReference<DeclaredTypeNode>(null);
     this.defaultLoadLevel = defaultLoadLevel;
+    location = new TypeInInputLibraryLocation(inputJackLibrary.getLocation(),
+        Jack.getUserFriendlyFormatter().getName(enclosingPackage, simpleName));
   }
 
   @Nonnull
@@ -147,7 +153,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
 
   @Nonnull
   Location getLocation() {
-    return source.getLocation();
+    return location;
   }
 
   @Nonnull

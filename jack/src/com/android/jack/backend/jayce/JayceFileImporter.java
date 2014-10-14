@@ -24,6 +24,8 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
@@ -119,23 +121,24 @@ public class JayceFileImporter {
       InputRootVDir libraryVDir = inputJackLibrary.getInputVDir();
       logger.log(Level.FINE, "Importing {0}", libraryVDir.getLocation().getDescription());
       for (InputVElement subFile : libraryVDir.list()) {
-        importJayceFile(subFile, session, "");
+        importJayceFile(inputJackLibrary, subFile, session, "");
       }
     }
   }
 
-  private void importJayceFile(@Nonnull InputVElement element, @Nonnull JSession session,
-      @Nonnull String currentPath) throws JPackageLookupException,
-      TypeImportConflictException, ResourceImportConflictException, JTypeLookupException {
+  private void importJayceFile(@Nonnull InputJackLibrary inputJackLibrary,
+      @Nonnull InputVElement element, @Nonnull JSession session, @Nonnull String currentPath)
+      throws JPackageLookupException, TypeImportConflictException, ResourceImportConflictException,
+      JTypeLookupException {
     String path = currentPath + element.getName();
     if (element.isVDir()) {
       for (InputVElement subFile : ((InputVDir) element).list()) {
-        importJayceFile(subFile, session, path + VPATH_SEPARATOR);
+        importJayceFile(inputJackLibrary, subFile, session, path + VPATH_SEPARATOR);
       }
     } else {
       InputVFile file = (InputVFile) element;
       if (isJackFileName(file.getName())) {
-        addImportedTypes(session, path, file.getLocation());
+        addImportedTypes(session, path, inputJackLibrary);
       } else {
         addImportedResource(file, session, path);
       }
@@ -143,24 +146,27 @@ public class JayceFileImporter {
   }
 
   private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
-      @Nonnull Location expectedLoadSource) throws TypeImportConflictException,
+      @Nonnull InputLibrary intendedInputLibrary) throws TypeImportConflictException,
       JTypeLookupException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
     try {
-      logger.log(Level.FINEST, "Importing jack file ''{0}''", expectedLoadSource.getDescription());
+      logger.log(Level.FINEST, "Importing jack file ''{0}'' from {1}", new Object[] {path,
+          intendedInputLibrary.getLocation().getDescription()});
       String signature = convertJackFilePathToSignature(path);
       JDefinedClassOrInterface declaredType =
           (JDefinedClassOrInterface) session.getLookup().getType(signature);
       Location existingSource = declaredType.getLocation();
-      if (!expectedLoadSource.equals(existingSource)) {
+      if (!(existingSource instanceof TypeInInputLibraryLocation) ||
+          ((TypeInInputLibraryLocation) existingSource).getInputLibraryLocation().getInputLibrary()
+          != intendedInputLibrary) {
         if (collisionPolicy == CollisionPolicy.FAIL) {
-          throw new TypeImportConflictException(declaredType, expectedLoadSource);
+          throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
         } else {
           session.getUserLogger().log(Level.INFO,
               "Type ''{0}'' from {1} has already been imported from {2}: "
               + "ignoring import", new Object[] {
               Jack.getUserFriendlyFormatter().getName(declaredType),
-              expectedLoadSource.getDescription(),
+              intendedInputLibrary.getLocation().getDescription(),
               existingSource.getDescription()});
         }
       } else {

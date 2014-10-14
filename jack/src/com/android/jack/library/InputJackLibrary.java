@@ -37,10 +37,13 @@ public class InputJackLibrary implements InputLibrary {
   private final InputRootVDir libraryVDir;
 
   @Nonnull
+  private final InputLibraryLocation location;
+
   private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
 
   public InputJackLibrary(@Nonnull InputRootVDir libraryVDir) {
     this.libraryVDir = libraryVDir;
+    location = new InputLibraryLocation(this);
     fillBinaryKinds(libraryVDir);
   }
 
@@ -48,6 +51,12 @@ public class InputJackLibrary implements InputLibrary {
   @Nonnull
   public InputRootVDir getInputVDir() {
     return libraryVDir;
+  }
+
+  @Override
+  @Nonnull
+  public InputLibraryLocation getLocation() {
+    return location;
   }
 
   @Override
