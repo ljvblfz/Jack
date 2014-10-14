@@ -146,11 +146,6 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
     // done at creation
   }
 
-  @Override
-  public boolean isJackFileLoader() {
-    return true;
-  }
-
   @Nonnull
   Location getLocation() {
     return location;

@@ -90,8 +90,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   @Nonnull
   private final Location location;
 
-  private final boolean loadedFromJackFile;
-
   public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name);
@@ -104,11 +102,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.loader = loader;
     location = loader.getLocation(this);
     updateParents(enclosingPackage);
-    this.loadedFromJackFile = loader.isJackFileLoader();
-  }
-
-  public boolean isLoadedFromJackFile() {
-    return loadedFromJackFile;
   }
 
   public void setModifier(int modifier) {

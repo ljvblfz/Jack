@@ -412,11 +412,6 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     }
   }
 
-  @Override
-  public boolean isJackFileLoader() {
-    return false;
-  }
-
   private boolean isLoaded(@Nonnull Scope range) {
     return (loadStatus & range.getMask()) != 0;
   }

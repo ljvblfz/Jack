@@ -21,6 +21,7 @@ import com.google.common.collect.Iterators;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
@@ -35,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Adapts process on JSession to one or several processes on each of its " +
   "JDefinedClassOrInterface respecting a filter")
-public class JDcoiExcludeJackFileAdapter
+public class ExcludeTypeFromLibAdapter
     implements AdapterSchedulable<JSession, JDefinedClassOrInterface> {
 
   /**
@@ -51,7 +52,7 @@ public class JDcoiExcludeJackFileAdapter
         new Predicate<JDefinedClassOrInterface>() {
           @Override
           public boolean apply(JDefinedClassOrInterface clOrI) {
-            return !clOrI.isLoadedFromJackFile();
+            return !(clOrI.getLocation() instanceof TypeInInputLibraryLocation);
           }
         }));
   }

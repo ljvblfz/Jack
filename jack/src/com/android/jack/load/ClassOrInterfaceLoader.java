@@ -70,7 +70,4 @@ public interface ClassOrInterfaceLoader {
 
   @Nonnull
   public Location getLocation(@Nonnull JDefinedClassOrInterface loaded);
-
-  public boolean isJackFileLoader();
-
 }

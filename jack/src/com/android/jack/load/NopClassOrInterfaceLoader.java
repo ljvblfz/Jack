@@ -47,9 +47,4 @@ public class NopClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
   protected void ensureAll(@Nonnull JDefinedClassOrInterface loaded) {
     // Nothing to do
   }
-
-  @Override
-  public boolean isJackFileLoader() {
-    return false;
-  }
 }
