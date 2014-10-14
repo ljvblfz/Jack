@@ -72,8 +72,12 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
     for (InputVElement sub : dir.list()) {
       if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
-          return new JayceClassOrInterfaceLoader(inputJackLibrary, (InputVFile) sub, lookup,
-              defaultLoadLevel).loadClassOrInterface(loading, simpleName);
+          return new JayceClassOrInterfaceLoader(inputJackLibrary,
+              loading,
+              simpleName,
+              (InputVFile) sub,
+              lookup,
+              defaultLoadLevel).load();
         } catch (IOException e) {
           throw new JackLoadingException(sub.getLocation(), e);
         } catch (JackFileException e) {

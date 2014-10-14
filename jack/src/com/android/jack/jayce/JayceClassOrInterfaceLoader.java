@@ -96,11 +96,23 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   private final InputJackLibrary inputJackLibrary;
 
   @Nonnull
+  private final String simpleName;
+
+  @Nonnull
+  private final JPackage enclosingPackage;
+
+  @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
-  JayceClassOrInterfaceLoader(@Nonnull InputJackLibrary jackLibrary, @Nonnull InputVFile source,
-      @Nonnull JPhantomLookup lookup, @Nonnull NodeLevel defaultLoadLevel) {
+  JayceClassOrInterfaceLoader(@Nonnull InputJackLibrary jackLibrary,
+      @Nonnull JPackage enclosingPackage,
+      @Nonnull String simpleName,
+      @Nonnull InputVFile source,
+      @Nonnull JPhantomLookup lookup,
+      @Nonnull NodeLevel defaultLoadLevel) {
     this.inputJackLibrary = jackLibrary;
+    this.enclosingPackage = enclosingPackage;
+    this.simpleName = simpleName;
     this.source = source;
     this.lookup = lookup;
     nnode = new SoftReference<DeclaredTypeNode>(null);
@@ -139,8 +151,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   }
 
   @Nonnull
- JDefinedClassOrInterface loadClassOrInterface(@Nonnull JPackage enclosingPackage,
-     @Nonnull String simpleName) throws JayceFormatException, JayceVersionException, IOException {
+  JDefinedClassOrInterface load() throws JayceFormatException, JayceVersionException, IOException {
 
     DeclaredTypeNode type =
         getNNode(NodeLevel.TYPES, enclosingPackage.getSession().getUserLogger());
