@@ -285,7 +285,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         pushNewExpression(info, x, null, arguments, scope);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -323,7 +323,7 @@ public class JackIrBuilder {
           Collections.reverse(dims);
           push(JNewArray.createWithDims(info, type, dims));
         }
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -362,7 +362,7 @@ public class JackIrBuilder {
         }
 
         push(JNewArray.createWithInits(info, type, values));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -411,7 +411,7 @@ public class JackIrBuilder {
         JExpression position = pop(x.position);
         JExpression receiver = pop(x.receiver);
         push(new JArrayRef(info, receiver, position));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -423,7 +423,7 @@ public class JackIrBuilder {
         JExpression exceptionArgument = pop(x.exceptionArgument);
         JExpression assertExpression = pop(x.assertExpression);
         push(new JAssertStatement(info, assertExpression, exceptionArgument));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -499,7 +499,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JBlock block = popBlock(info, x.statements);
         push(block);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -509,7 +509,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         push(new JBreakStatement(info, getOrCreateLabel(info, x.label)));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -536,7 +536,7 @@ public class JackIrBuilder {
         JCaseStatement jcase = new JCaseStatement(info, caseLiteral);
         push(jcase);
         switchCases.peek().add(jcase);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -548,7 +548,7 @@ public class JackIrBuilder {
         JType type = getTypeMap().get(x.resolvedType);
         JExpression expression = pop(x.expression);
         push(new JDynamicCastOperation(info, type, expression));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -557,7 +557,7 @@ public class JackIrBuilder {
     public void endVisit(CharLiteral x, BlockScope scope) {
       try {
         push(new JCharLiteral(makeSourceInfo(x), x.constant.charValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -568,7 +568,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JType type = getTypeMap().get(x.targetType);
         push(new JClassLiteral(info, type, javaLangClass));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -629,7 +629,7 @@ public class JackIrBuilder {
         JExpression condition = pop(x.condition);
         push(new JConditionalExpression(info, condition, valueIfTrue,
             valueIfFalse));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -702,7 +702,7 @@ public class JackIrBuilder {
         }
 
         popMethodInfo();
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -712,7 +712,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         push(new JContinueStatement(info, getOrCreateLabel(info, x.label)));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -728,7 +728,7 @@ public class JackIrBuilder {
           action = new JBlock(info);
         }
         push(new JDoStatement(info, condition, action));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -737,7 +737,7 @@ public class JackIrBuilder {
     public void endVisit(DoubleLiteral x, BlockScope scope) {
       try {
         push(new JDoubleLiteral(makeSourceInfo(x), x.constant.doubleValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -845,7 +845,7 @@ public class JackIrBuilder {
 
           push(call.makeStatement());
         }
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       } finally {
         scope.methodScope().isConstructorCall = false;
@@ -891,7 +891,7 @@ public class JackIrBuilder {
           curMethod.body.getBlock().addStmt(decl);
         }
         popMethodInfo();
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -924,7 +924,7 @@ public class JackIrBuilder {
           expr = maybeCast(castType, expr);
         }
         push(expr);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -933,7 +933,7 @@ public class JackIrBuilder {
     public void endVisit(FloatLiteral x, BlockScope scope) {
       try {
         push(new JFloatLiteral(makeSourceInfo(x), x.constant.floatValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1060,7 +1060,9 @@ public class JackIrBuilder {
         }
 
         push(result);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
+      } catch (IllegalAccessException e) {
         throw translateException(x, e);
       }
     }
@@ -1081,7 +1083,7 @@ public class JackIrBuilder {
           condition = new JBooleanLiteral(info, true);
         }
         push(new JForStatement(info, initializations, condition, increments, action));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1150,7 +1152,7 @@ public class JackIrBuilder {
             push(new JIfStatement(info, condition, thenStatement, elseStatement));
           }
         }
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1163,7 +1165,7 @@ public class JackIrBuilder {
           curMethod.body.getBlock().addStmt(block);
         }
         popMethodInfo();
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1175,7 +1177,7 @@ public class JackIrBuilder {
         JExpression expr = pop(x.expression);
         JReferenceType testType = (JReferenceType) getTypeMap().get(x.type.resolvedType);
         push(new JInstanceOf(info, testType, expr));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1184,7 +1186,7 @@ public class JackIrBuilder {
     public void endVisit(IntLiteral x, BlockScope scope) {
       try {
         push(new JIntLiteral(makeSourceInfo(x), x.constant.intValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1199,7 +1201,7 @@ public class JackIrBuilder {
         }
         SourceInfo info = makeSourceInfo(x);
         push(new JLabeledStatement(info, getOrCreateLabel(info, x.label), statement));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1217,7 +1219,7 @@ public class JackIrBuilder {
         } else {
           push(null);
         }
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1226,7 +1228,7 @@ public class JackIrBuilder {
     public void endVisit(LongLiteral x, BlockScope scope) {
       try {
         push(new JLongLiteral(makeSourceInfo(x), x.constant.longValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1285,7 +1287,7 @@ public class JackIrBuilder {
         } else {
           push(call);
         }
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1303,7 +1305,7 @@ public class JackIrBuilder {
           }
         }
         popMethodInfo();
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1338,7 +1340,7 @@ public class JackIrBuilder {
 
         JExpression lhs = pop(x.lhs);
         push(JPostfixOperation.create(info, op, lhs));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1363,7 +1365,7 @@ public class JackIrBuilder {
 
         JExpression lhs = pop(x.lhs);
         push(JPrefixOperation.create(info, op, lhs));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1374,7 +1376,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         pushNewExpression(info, x, x.enclosingInstance(), arguments, scope);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1418,7 +1420,7 @@ public class JackIrBuilder {
           }
         }
         push(curRef);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1429,7 +1431,7 @@ public class JackIrBuilder {
         // Oddly enough, super refs can be modeled as this refs, because
         // whatever expression they qualify has already been resolved.
         endVisit((QualifiedThisReference) x, scope);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1440,7 +1442,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         ReferenceBinding targetType = (ReferenceBinding) x.qualification.resolvedType;
         push(makeThisReference(info, targetType, true, scope));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1451,7 +1453,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JExpression expression = pop(x.expression);
         push(new JReturnStatement(info, expression));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1469,7 +1471,7 @@ public class JackIrBuilder {
           result = maybeCast(castType, result);
         }
         push(result);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1479,7 +1481,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         push(getStringLiteral(info, x.constant.stringValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1489,7 +1491,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         push(getStringLiteral(info, x.constant.stringValue()));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1502,7 +1504,7 @@ public class JackIrBuilder {
             || getTypeMap().get(x.resolvedType).isSameType(superClass);
         // Super refs can be modeled as a this ref.
         push(makeThisRef(makeSourceInfo(x)));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1525,7 +1527,7 @@ public class JackIrBuilder {
         }
         cases.remove(defaultCase);
         push(new JSwitchStatement(info, expression, block, cases, defaultCase));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1537,7 +1539,7 @@ public class JackIrBuilder {
         JExpression expression = pop(x.expression);
         JSynchronizedBlock syncBlock = new JSynchronizedBlock(makeSourceInfo(x), expression, block);
         push(syncBlock);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1547,7 +1549,7 @@ public class JackIrBuilder {
       try {
         assert getTypeMap().get(x.resolvedType).isSameType(curClass.type);
         push(makeThisRef(makeSourceInfo(x)));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1558,7 +1560,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JExpression exception = pop(x.exception);
         push(new JThrowStatement(info, exception));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1611,7 +1613,7 @@ public class JackIrBuilder {
         push(
             new JTryStatement(info, resourceInits, tryBlock, catchBlocks, finallyBlock));
 
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1657,7 +1659,7 @@ public class JackIrBuilder {
 
         JExpression expression = pop(x.expression);
         push(JPrefixOperation.create(info, op, expression));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1673,7 +1675,7 @@ public class JackIrBuilder {
           action = new JBlock(info);
         }
         push(new JWhileStatement(info, condition, action));
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1786,7 +1788,7 @@ public class JackIrBuilder {
 
         x.statements = reduceToReachable(x.statements);
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1802,7 +1804,7 @@ public class JackIrBuilder {
       try {
         pushInitializerMethodInfo(x, scope);
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1832,7 +1834,7 @@ public class JackIrBuilder {
       try {
         pushInitializerMethodInfo(x, scope);
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1842,7 +1844,7 @@ public class JackIrBuilder {
       try {
         curMethod.body.addLocal(createLocal(x));
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1873,7 +1875,7 @@ public class JackIrBuilder {
         }
         x.statements = reduceToReachable(x.statements);
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -1904,7 +1906,7 @@ public class JackIrBuilder {
           }
         }
         return true;
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -2575,7 +2577,7 @@ public class JackIrBuilder {
           binary = JBinaryOperation.create(info, op, exprArg1, exprArg2);
         }
           push(binary);
-      } catch (Throwable e) {
+      } catch (RuntimeException e) {
         throw translateException(x, e);
       }
     }
@@ -3329,21 +3331,11 @@ public class JackIrBuilder {
     return makeSourceInfo(x.sourceStart, x.sourceEnd, session.getSourceInfoFactory());
   }
 
-  JNodeInternalError translateException(Throwable e) {
-    if (e instanceof VirtualMachineError) {
-      // Always rethrow VM errors (an attempt to wrap may fail).
-      throw (VirtualMachineError) e;
-    }
-    JNodeInternalError ice;
-    if (e instanceof JNodeInternalError) {
-      ice = (JNodeInternalError) e;
-    } else {
-      ice = new JNodeInternalError("Error constructing Java AST", e);
-    }
-    return ice;
+  private JNodeInternalError translateException(Exception e) {
+    return new JNodeInternalError("Error building Jack IR", e);
   }
 
-  JNodeInternalError translateException(ASTNode node, Throwable e) {
+  private JNodeInternalError translateException(ASTNode node, Exception e) {
     JNodeInternalError ice = translateException(e);
     if (node != null) {
       ice.addNode(node.getClass().getName(), node.toString(), makeSourceInfo(node));
@@ -3351,8 +3343,8 @@ public class JackIrBuilder {
     return ice;
   }
 
-  JNodeInternalError translateException(
-      TypeDeclaration typeDeclaration, Throwable e, SourceInfo info) {
+  private JNodeInternalError translateException(
+      TypeDeclaration typeDeclaration, Exception e, SourceInfo info) {
     JNodeInternalError ice = translateException(e);
     if (typeDeclaration != null) {
       StringBuffer sb = new StringBuffer();
@@ -3489,7 +3481,7 @@ public class JackIrBuilder {
           createMembers(memberType);
         }
       }
-    } catch (Throwable e) {
+    } catch (RuntimeException e) {
       throw translateException(x, e, info);
     }
   }
@@ -3555,7 +3547,7 @@ public class JackIrBuilder {
           createTypes(memberType);
         }
       }
-    } catch (Throwable e) {
+    } catch (RuntimeException e) {
       throw translateException(x, e, info);
     }
   }
