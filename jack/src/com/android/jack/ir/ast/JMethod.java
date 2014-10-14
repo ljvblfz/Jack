@@ -16,7 +16,7 @@
 package com.android.jack.ir.ast;
 
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.MethodLoader;
 import com.android.jack.util.NamingTools;
@@ -418,7 +418,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Override
   public void checkValidity() {
     if (!(parent instanceof JDefinedClassOrInterface)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
@@ -175,7 +175,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   @Override
   public void checkValidity() {
     if (!(parent instanceof JPackage)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

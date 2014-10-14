@@ -18,7 +18,7 @@ package com.android.jack.optimizations;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JExpression;
@@ -150,7 +150,7 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
               binaryOp.getOp().getReverseOperator(), binaryOp.getLhs(),
               binaryOp.getRhs())));
         } catch (UnsupportedOperatorException e) {
-          throw new InternalCompilerException("Failures into not simplifier", e);
+          throw new JNodeInternalError("Failures into not simplifier", e);
         }
       }
 

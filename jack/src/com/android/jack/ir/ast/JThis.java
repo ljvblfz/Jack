@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -67,7 +67,7 @@ public class JThis extends JVariable implements HasEnclosingMethod {
   @Override
   public void checkValidity() {
     if (!(parent instanceof JMethod)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

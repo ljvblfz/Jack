@@ -17,7 +17,7 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JFloatingPointType;
@@ -167,7 +167,7 @@ public abstract class JPrimitiveType extends JNode implements JType {
   public void checkValidity() {
     if (!(parent instanceof JLocal || parent instanceof JParameter || parent instanceof JMethod
         || parent instanceof JField || parent instanceof JCastOperation)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 

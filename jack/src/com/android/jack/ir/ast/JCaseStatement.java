@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -82,7 +82,7 @@ public class JCaseStatement extends JStatement {
   @Override
   public void checkValidity() {
     if (!(parent instanceof JSwitchStatement || parent instanceof JBlock)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

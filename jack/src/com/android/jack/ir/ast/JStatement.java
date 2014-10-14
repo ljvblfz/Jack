@@ -15,7 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.InternalCompilerException;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -76,7 +76,7 @@ public abstract class JStatement extends JNode {
   @Override
   public void checkValidity() {
     if (!(parent instanceof JStatement || parent instanceof JAbstractMethodBody)) {
-      throw new InternalCompilerException(this, "Invalid parent");
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }
