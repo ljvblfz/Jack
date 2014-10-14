@@ -105,9 +105,11 @@ $(intermediates)/rsc/jack.properties:
 
 LOCAL_JAVA_RESOURCE_FILES := $(intermediates)/rsc/jack.properties
 
-LOCAL_POST_INSTALL_CMD := java -jar $(call java-lib-libs,sched-build,true) $(call java-lib-libs,$(LOCAL_MODULE),true) $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $(JACK_JAR)
-
 include $(BUILD_HOST_JAVA_LIBRARY)
+
+# overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
+$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+	java -jar $(call java-lib-libs,sched-build,true) $< $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $@
 
 # Merge with sched lib support
 $(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)
@@ -150,18 +152,17 @@ LOCAL_REQUIRED_MODULES:= \
   android.policy \
   hamcrest-core-jack
 
-LOCAL_POST_INSTALL_CMD := java -jar $(call java-lib-libs,sched-build,true) $(call java-lib-libs,$(LOCAL_MODULE),true) $(call java-lib-libs,$(TEST_STATIC_JAVA_LIBRARIES),true) $(HOST_OUT_JAVA_LIBRARIES)/$(LOCAL_MODULE)$(COMMON_JAVA_PACKAGE_SUFFIX)
-
 include $(BUILD_HOST_JAVA_LIBRARY)
 
-# Merge with sched lib support
-$(LOCAL_BUILT_MODULE): $(call java-lib-libs,sched-build,true)
+# overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
+$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE) $(call java-lib-libs,sched-build,true)
+	java -jar $(call java-lib-libs,sched-build,true) $< $(JACK_JAR) $(call java-lib-libs,$(TEST_STATIC_JAVA_LIBRARIES),true) $@
 
 #
 # Test targets
 #
 
-LIB_JACK_UNIT_TESTS := $(LOCAL_BUILT_MODULE)
+LIB_JACK_UNIT_TESTS := $(LOCAL_INSTALLED_MODULE)
 
 local_unit_libs := $(call java-lib-files,core-libart-hostdex junit4-hostdex-jack,true)
 .PHONY: test-jack-unit

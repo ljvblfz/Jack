@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-private_path:= $(call my-dir)
+LOCAL_PATH:= $(call my-dir)
 
 include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := shrob/test030
-JACKTEST_ARGS := --proguard-flags $(private_path)/proguard.flags001 --proguard-flags $(private_path)/../dontobfuscate.flags
-JACKTEST_WITHJACK_SRC := $(call all-java-files-under, $(abspath $(private_path)/jack/))
-JACKTEST_WITHDX_SRC := $(private_path)/dx/Tests.java
+JACKTEST_ARGS := --proguard-flags $(LOCAL_PATH)/proguard.flags001 --proguard-flags $(LOCAL_PATH)/../dontobfuscate.flags
+JACKTEST_WITHJACK_SRC := $(call all-java-files-under, jack)
+JACKTEST_WITHDX_SRC := dx/Tests.java
 JACKTEST_JUNIT := com.android.jack.$(subst /,.,$(JACKTEST_MODULE)).dx.Tests
 
 include $(JACK_RUN_TEST)

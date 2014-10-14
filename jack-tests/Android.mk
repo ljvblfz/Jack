@@ -14,16 +14,38 @@
 
 private_jack_tests_mk := $(lastword $(MAKEFILE_LIST))
 
-LOCAL_PATH:= $(call my-dir)
+JACK_PATH:= $(call my-dir)
+
+$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(DEFAULT_JACK_VM_ARGS)
+ifneq ($(ANDROID_JACK_VM_ARGS),)
+$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(ANDROID_JACK_VM_ARGS)
+endif
+ifneq ($(LOCAL_JACK_VM_ARGS),)
+$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(LOCAL_JACK_VM_ARGS)
+endif
+
+$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(DEFAULT_JACK_EXTRA_ARGS)
+ifneq ($(ANDROID_JACK_EXTRA_ARGS),)
+$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(ANDROID_JACK_EXTRA_ARGS)
+endif
+ifneq ($(LOCAL_JACK_EXTRA_ARGS),)
+$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(LOCAL_JACK_EXTRA_ARGS)
+endif
+
+$(test-jack-incremental): PRIVATE_JACK_VM := $(DEFAULT_JACK_VM)
+ifneq ($(strip $(ANDROID_JACK_VM)),)
+$(test-jack-incremental): PRIVATE_JACK_VM := $(ANDROID_JACK_VM)
+endif
 
 test-jack-incremental: $(JACK_JAR)
 	$(hide) $(eval TEMPDIR_DEX_FROM_JAVA := $(shell mktemp -d))
 	$(hide) $(eval TEMPDIR_DEX_FROM_JACK := $(shell mktemp -d))
-	$(hide) $(JACK) -D jack.jackfile.generate=true -D jack.jackfile.output.container=dir \
+	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
+	-D jack.jackfile.generate=true -D jack.jackfile.output.container=dir \
 	-D jack.jackfile.output.dir=$(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput -o \
 	$(TEMPDIR_DEX_FROM_JAVA) \
 	--ecj -nowarn @$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core_intermediates/sources.list
-	$(hide) $(JACK) \
+	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
 	--output $(TEMPDIR_DEX_FROM_JACK) --import-jack $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput
 	$(hide) dexdump -d $(TEMPDIR_DEX_FROM_JAVA)/classes.dex | tail -n +3 &> $(TEMPDIR_DEX_FROM_JAVA)/coreDexFromJava.txt
 	$(hide) dexdump -d $(TEMPDIR_DEX_FROM_JACK)/classes.dex | tail -n +3 &> $(TEMPDIR_DEX_FROM_JACK)/coreDexFromJack.txt
@@ -41,8 +63,7 @@ test-jack-all: test-jack-unit-all test-jack-incremental test-jack-regression
 #################
 # tests executing the created dex
 #################
-JACK_PATH := $(LOCAL_PATH)
-include $(LOCAL_PATH)/build/run-test-common.mk
+include $(JACK_PATH)/build/run-test-common.mk
 
 # tests suites
 
@@ -110,7 +131,7 @@ $(call declare-test-with-name,constant/test007)
 $(call declare-test-with-name,constant/clazz)
 
 # Debug info
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/debug/test001/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/debug/test001/test.mk)
 $(call declare-test-with-name,debug/test002)
 $(call declare-test-with-name,debug/test004)
 
@@ -122,7 +143,7 @@ $(call declare-test-with-name,dx/overlapping)
 # Enum
 $(call declare-test-with-name,enums/test001)
 $(call declare-test-with-name,enums/test002)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/enums/test003/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/enums/test003/test.mk)
 
 # Conditional
 $(call declare-test-with-name,conditional/test001)
@@ -205,8 +226,8 @@ $(call declare-test-with-name,invoke/test006)
 $(call declare-test-with-name,invoke/test007)
 
 # Jarjar
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/jarjar/test001/test.mk)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/jarjar/test003/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/jarjar/test001/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/jarjar/test003/test.mk)
 
 # Newarray
 $(call declare-test-with-name,newarray/test001)
@@ -219,7 +240,7 @@ $(call declare-test-with-name,optimizations/notsimplifier/test001)
 $(call declare-test-with-name,optimizations/exprsimplifier/test001)
 
 # Opcode
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/opcodes/test-opcodes.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/opcodes/test-opcodes.mk)
 
 # Order
 $(call declare-test-with-name,order)
@@ -229,11 +250,11 @@ $(call declare-test-with-name,returnstatement/returnvoid)
 $(call declare-test-with-name,returnstatement/returns)
 
 # Shrob
-#$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test011/test.mk)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test011/test2.mk)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test016/test.mk)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test025/test.mk)
-$(call declare-test,$(LOCAL_PATH)/tests/com/android/jack/shrob/test030/test.mk)
+#$(call declare-test,$(JACK_PATH)/tests/com/android/jack/shrob/test011/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/shrob/test011/test2.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/shrob/test016/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/shrob/test025/test.mk)
+$(call declare-test,$(JACK_PATH)/tests/com/android/jack/shrob/test030/test.mk)
 
 # String
 $(call declare-test-with-name,string/concat001)
@@ -309,9 +330,6 @@ JAVA_COMPILER := $(COMMON_JAVAC)
 include $(JACK_RUN_TEST)
 test-jack: test-jack-$(JACKTEST_MODULE)
 	$(hide) echo test-jack: PASSED
-ifeq ($(JAVA7_COMPILER),)
-	$(hide) echo test-jack: Missing Java 7 compiler, Java 7 tests Skipped, export Java 7 compiler into JAVA7_COMPILER
-endif
 
 include $(CLEAR_VARS)
 

@@ -12,27 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-private_path:= $(call my-dir)
+LOCAL_PATH := $(JACK_PATH)
 
-JACKTEST_WITHJACK_SRC := $(call all-java-files-under, $(abspath $(JACKTEST_MODULE_PATH)/jack/))
-JACKTEST_WITHJACK_FOLDER := $(abspath $(JACKTEST_MODULE_PATH)/jack/)
-ifneq ($(wildcard $(JACKTEST_WITHJACK_FOLDER)),)
+JACKTEST_WITHJACK_FOLDER := $(JACKTEST_MODULE_PATH)/jack/
+ifneq ($(wildcard $(LOCAL_PATH)/$(JACKTEST_WITHJACK_FOLDER)*),)
 JACKTEST_WITHJACK_SRC := $(call all-java-files-under, $(JACKTEST_WITHJACK_FOLDER))
 endif
 
-JACKTEST_LINK_FOLDER := $(abspath $(JACKTEST_MODULE_PATH)/link/)
-ifneq ($(wildcard $(JACKTEST_LINK_FOLDER)),)
+JACKTEST_LINK_FOLDER := $(JACKTEST_MODULE_PATH)/link/
+ifneq ($(wildcard $(LOCAL_PATH)/$(JACKTEST_LINK_FOLDER)),)
 JACKTEST_LINK_SRC := $(call all-java-files-under, $(JACKTEST_LINK_FOLDER))
 endif
 
-JACKTEST_WITHDX_SRC := $(call all-java-files-under, $(abspath $(JACKTEST_MODULE_PATH)/dx/))
-JACKTEST_WITHDX_FOLDER := $(abspath $(JACKTEST_MODULE_PATH)/dx/)
-ifneq ($(wildcard $(JACKTEST_WITHDX_FOLDER)),)
+JACKTEST_WITHDX_FOLDER := $(JACKTEST_MODULE_PATH)/dx/
+ifneq ($(wildcard $(LOCAL_PATH)/$(JACKTEST_WITHDX_FOLDER)),)
 JACKTEST_WITHDX_SRC := $(call all-java-files-under, $(JACKTEST_WITHDX_FOLDER))
 endif
 
-JACKTEST_LIB_FOLDER := $(abspath $(JACKTEST_MODULE_PATH)/lib/)
-ifneq ($(wildcard $(JACKTEST_LIB_FOLDER)),)
+JACKTEST_LIB_FOLDER := $(JACKTEST_MODULE_PATH)/lib/
+ifneq ($(wildcard $(LOCAL_PATH)/$(JACKTEST_LIB_FOLDER)),)
 JACKTEST_LIB_SRC := $(call all-java-files-under, $(JACKTEST_LIB_FOLDER))
 endif
 JACKTEST_JUNIT := com.android.jack.$(subst /,.,$(JACKTEST_MODULE)).dx.Tests
