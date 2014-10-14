@@ -34,14 +34,14 @@ public class FinalizerTest {
   public static void setUpClass() {
     FinalizerTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")};
   }
 
   @Test
   public void compileFinalizer() throws Exception {
     File out = TestTools.createTempFile("out", ".zip");
     String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
-    TestTools.compileSourceToDex(new Options(), TestTools.getDalvikTestFolder("036-finalizer"),
+    TestTools.compileSourceToDex(new Options(), TestTools.getArtTestFolder("036-finalizer"),
         classpath, out, /* zip = */ true);
   }
 }

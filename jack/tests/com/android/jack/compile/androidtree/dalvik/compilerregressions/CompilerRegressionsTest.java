@@ -34,7 +34,7 @@ public class CompilerRegressionsTest {
   public static void setUpClass() {
     CompilerRegressionsTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")};
   }
 
   @Test
@@ -42,6 +42,6 @@ public class CompilerRegressionsTest {
     File out = TestTools.createTempFile("out", ".zip");
     String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
     TestTools.compileSourceToDex(new Options(),
-        TestTools.getDalvikTestFolder("083-jit-regressions"), classpath, out, /* zip = */ true);
+        TestTools.getArtTestFolder("083-compiler-regressions"), classpath, out, /* zip = */ true);
   }
 }

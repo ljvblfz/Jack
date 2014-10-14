@@ -140,8 +140,8 @@ public class TestTools {
   }
 
   @Nonnull
-  public static File getDalvikTestFolder(@Nonnull String testName) {
-    return getFromAndroidTree("dalvik/tests/" + testName + "/src");
+  public static File getArtTestFolder(@Nonnull String testName) {
+    return getFromAndroidTree("art/test/" + testName + "/src");
   }
 
   @Nonnull
@@ -175,19 +175,19 @@ public class TestTools {
   @Nonnull
   public static Sourcelist getTargetLibSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/target/common/obj/JAVA_LIBRARIES/" + moduleName
-        + "_intermediates/sources.list");
+        + "_intermediates/jayces.java-source-list");
   }
 
   @Nonnull
   public static Sourcelist getHostLibSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/host/common/obj/JAVA_LIBRARIES/" + moduleName
-        + "_intermediates/sources.list");
+        + "_intermediates/jayces.java-source-list");
   }
 
   @Nonnull
   public static Sourcelist getTargetAppSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/target/common/obj/APPS/" + moduleName
-        + "_intermediates/sources.list");
+        + "_intermediates/jayces.java-source-list");
   }
 
   @Nonnull
@@ -613,6 +613,26 @@ public class TestTools {
       float instructionNumberTolerance,
       @CheckForNull JarJarRules jarjarRules,
       @CheckForNull ProguardFlags[] proguardFlagFiles) throws Exception {
+    checkStructure(new Options(),
+        bootclasspath,
+        classpath,
+        fileOrSourceList,
+        withDebugInfo,
+        compareInstructionNumber,
+        instructionNumberTolerance,
+        jarjarRules,
+        proguardFlagFiles);
+  }
+
+    public static void checkStructure(@Nonnull Options options,
+        @CheckForNull File[] bootclasspath,
+        @CheckForNull File[] classpath,
+        @Nonnull File fileOrSourceList,
+        boolean withDebugInfo,
+        boolean compareInstructionNumber,
+        float instructionNumberTolerance,
+        @CheckForNull JarJarRules jarjarRules,
+        @CheckForNull ProguardFlags[] proguardFlagFiles) throws Exception {
 
     boolean runDxOptimizations = !withDebugInfo;
     boolean useEcjAsRefCompiler = withDebugInfo;
@@ -620,7 +640,6 @@ public class TestTools {
 
     File jackDexFolder = TestTools.createTempDir("jack", "dex");
 
-    Options options = new Options();
     if (runDxOptimizations) {
       options.enableDxOptimizations();
     } else {

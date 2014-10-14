@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,13 +44,15 @@ public class ToolchainTest {
 
   @BeforeClass
   public static void setup() throws Exception {
-    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
     BOUNCY_SOURCELIST =
         TestTools.getTargetLibSourcelist("bouncycastle");
-    JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-jack");
+    JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-hostdex-jack");
 
     File coreOut = TestTools.createTempFile("core", ".zip");
-    TestTools.compileSourceToJack(new Options(), CORE_SOURCELIST, null, coreOut, true);
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    TestTools.compileSourceToJack(options, CORE_SOURCELIST, null, coreOut, true);
     corePath = coreOut;
   }
 
@@ -116,7 +120,7 @@ public class ToolchainTest {
     TestTools.compileSourceToJack(
         new Options(), JUNIT_SOURCELIST, corePath.getAbsolutePath() + File.pathSeparator +
         TestTools.getFromAndroidTree(
-            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jar"), junitJack, true);
+            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.zip"), junitJack, true);
 
     File junitOutFolder = TestTools.createTempDir("junit", "dex");
     TestTools.compileJackToDex(new Options(), junitJack, junitOutFolder, false);

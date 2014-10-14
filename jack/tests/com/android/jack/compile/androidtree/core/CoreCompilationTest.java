@@ -25,6 +25,7 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.sched.vfs.Container;
 
 import org.junit.BeforeClass;
@@ -42,19 +43,23 @@ public class CoreCompilationTest {
   @BeforeClass
   public static void setUpClass() {
     CoreCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
-    SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
   }
 
   @Test
   @Category(RedundantTests.class)
   public void compileCore() throws Exception {
     File outDexFolder = TestTools.createTempDir("core", ".dex");
-    TestTools.compileSourceToDex(new Options(), SOURCELIST, null, outDexFolder, false);
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    TestTools.compileSourceToDex(options, SOURCELIST, null, outDexFolder, false);
   }
 
   @Test
   public void compareLibCoreStructure() throws Exception {
-    TestTools.checkStructure(null, null, SOURCELIST,
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    TestTools.checkStructure(options, null, null, SOURCELIST,
         false /*withDebugInfo*/, false /*compareInstructionNumber*/, 0.1f, (JarJarRules) null,
         (ProguardFlags[]) null);
   }
@@ -73,6 +78,7 @@ public class CoreCompilationTest {
     options.addProperty(Options.JAYCE_FILE_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
     options.addProperty(
         Options.JAYCE_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
     TestTools.compileSourceToDex(options, SOURCELIST, null, coreDexFolderFromJava, false);
 
     File coreDexFolderFromJack = TestTools.createTempDir("coreFromJack", "dex");

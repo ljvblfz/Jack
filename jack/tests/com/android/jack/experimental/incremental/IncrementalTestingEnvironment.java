@@ -162,7 +162,7 @@ public class IncrementalTestingEnvironment extends TestTools {
     ExecuteFile ef = new ExecuteFile("rm -rf /tmp/android-data/dalvik-cache/*");
     ef.run();
 
-    ef = new ExecuteFile("dalvik -classpath " + dexFile.getAbsolutePath() + " " + mainClass);
+    ef = new ExecuteFile("art -classpath " + dexFile.getAbsolutePath() + " " + mainClass);
     ByteArrayOutputStream baosOut = new ByteArrayOutputStream();
     ef.setOut(baosOut);
     // Be careful, Output on Err is forgotten

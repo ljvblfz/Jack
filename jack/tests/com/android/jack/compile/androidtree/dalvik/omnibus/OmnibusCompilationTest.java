@@ -45,6 +45,6 @@ public class OmnibusCompilationTest {
     File out = TestTools.createTempFile("out", ".zip");
     String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
     TestTools.compileSourceToDex(new Options(),
-        TestTools.getDalvikTestFolder("003-omnibus-opcodes"), classpath, out, /* zip = */ true);
+        TestTools.getArtTestFolder("003-omnibus-opcodes"), classpath, out, /* zip = */ true);
   }
 }
