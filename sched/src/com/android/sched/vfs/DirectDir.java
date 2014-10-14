@@ -58,7 +58,7 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
       throw new NotFileOrDirectoryException(new DirectoryLocation(dir));
     }
     this.dir = dir;
-    location = new FileLocation(dir);
+    location = new DirectoryLocation(dir);
     this.vfsRoot = vfsRoot;
   }
 
