@@ -52,6 +52,7 @@
   <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
   <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
+  <property name="ddm-lib.dir" value="${jack-project.dir}/ddmlib"/>
   <property name="dx.dir" value="${jack-project.dir}/dx"/>
   <property name="ecj.dir" value="${jack-project.dir}/ecj"/>
   <property name="freemarker.dir" value="${jack-project.dir}/freemarker"/>
@@ -275,21 +276,70 @@
   <!-- jack-tests          -->
   <!-- ******************* -->
   <property name="jack-tests.libs.dir" value="${jack-tests.dir}/libs" />
+  <property name="jack-tests.build.dir" value="${jack-tests.dir}/build" />
+  <property name="jack-tests.dist.dir" value="${jack-tests.dir}/dist" />
+  <property name="jack-tests.libname" value="jack-tests-lib.jar" />
 
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
   </target>
 
-  <target name="jack-tests" depends="core-stubs-mini,junit4">
-    <!-- project layout -->
-    <mkdir dir="${jack-tests.libs.dir}" />
-    <!-- fetch dependencies -->
+  <target name="jack-tests-copy-libs" depends="core-stubs-mini,junit4,dx-ref-lib,ddm-lib,ecj,
+    antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib">
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${junit4.dist.dir}/${junit4.execname}"/>
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+        <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
+        <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
+        <file name="${ecj.dist.dir}/${ecj.libname}"/>
+        <file name="${antlr-rt.dist.dir}/${antlr-rt.libname}"/>
+        <file name="${guava.dist.dir}/${guava.libname}"/>
+        <file name="${dexlib.dist.dir}/${dexlib.libname}"/>
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
       </filelist>
     </copy>
+  </target>
+
+  <target name="jack-tests" depends="jack-tests-copy-libs">
+    <!-- project layout -->
+    <mkdir dir="${jack-tests.build.outdir}"/>
+    <mkdir dir="${jack-tests.dist.dir}"/>
+    <!-- compile -->
+    <javac
+      destdir="${jack-tests.build.outdir}"
+      source="1.5" target="1.5"
+      debug="true" includeantruntime="false">
+      <src path="${jack-tests.dir}/src"/>
+      <src path="${jack-tests.dir}/tests"/>
+      <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
+      <exclude name="com/android/jack/enums/test003/link/Other.java"/>
+      <exclude name="com/android/jack/enums/test003/link/Values.java"/>
+      <exclude name="com/android/jack/error/test001/jack/A.java"/>
+      <exclude name="com/android/jack/error/test002/jack/A.java"/>
+      <exclude name="com/android/jack/nopackage/jack/**"/>
+    	<exclude name="com/android/jack/java7/boxing/**"/>
+      <exclude name="com/android/jack/java7/switches/**"/>
+      <exclude name="com/android/jack/java7/exceptions/**"/>
+      <exclude name="com/android/jack/java7/trywithresources/**"/>
+      <exclude name="com/android/jack/java7/parser/**"/>
+    	<exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
+    	<exclude name="com/android/jack/lookup/test001/liboverride/**"/>
+      <classpath>
+        <filelist dir=".">
+          <!-- <file name="${jsr305.dist.dir}/${jsr305.libname}" /> -->
+          <file name="${junit4.dist.dir}/${junit4.libname}" />
+          <file name="${jackunittests.dist.dir}/${jackunittests.libname}" />
+          <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
+          <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <jar destfile="${jack-tests.dist.dir}/${jack-tests.libname}"
+      basedir="${jack-tests.build.outdir}"
+      includes="**"/>
   </target>
 
 
@@ -340,6 +390,22 @@
     <jar destfile="${args4j.dist.dir}/${args4j.libname}"
       basedir="${args4j.build.outdir}"
       includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- ddmlib              -->
+  <!-- ******************* -->
+  <property name="ddm-lib.libname" value="ddmlib.jar"/>
+  <property name="ddm-lib.dist.dir" value="${ddm-lib.dir}/dist"/>
+
+  <target name="ddm-lib-clean">
+    <delete dir="${ddm-lib.dist.dir}"/>
+  </target>
+
+  <target name="ddm-lib">
+    <mkdir dir="${ddm-lib.dist.dir}"/>
+    <copy file="${ddm-lib.dir}/ddmlib.jar" tofile="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
   </target>
 
 

@@ -19,7 +19,7 @@ package com.android.jack.invoke.test001.jack;
 public class InvokeClone {
 
   public static int[] getArray() {
-    int []a = new int[] {1,2,3};
+    int[] a = new int[] {1,2,3};
     return (a.clone());
   }
 }

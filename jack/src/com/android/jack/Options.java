@@ -699,6 +699,15 @@ public class Options {
     return outZip != null || jayceOutZip != null;
   }
 
+  @CheckForNull
+  public Flags getFlags() {
+    return flags;
+  }
+
+  public void setFlags(@Nonnull Flags flags) {
+    this.flags = flags;
+  }
+
   public void applyShrobFlags() {
     assert flags != null;
     List<File> inJars = flags.getInJars();
@@ -759,6 +768,15 @@ public class Options {
 
   public void setProguardFlagsFile(@Nonnull List<File> proguardFlagsFiles) {
     this.proguardFlagsFiles = proguardFlagsFiles;
+  }
+
+  @CheckForNull
+  public File getJarjarRulesFile() {
+    return jarjarRulesFile;
+  }
+
+  public void setJarjarRulesFile(@Nonnull File jarjarRulesFile) {
+    this.jarjarRulesFile = jarjarRulesFile;
   }
 
   public void setNameProvider(@Nonnull String nameProvider) {
