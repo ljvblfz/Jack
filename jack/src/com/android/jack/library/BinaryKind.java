@@ -16,22 +16,41 @@
 
 package com.android.jack.library;
 
-import com.android.sched.vfs.InputRootVDir;
-
-import java.util.Collection;
+import com.android.sched.vfs.InputVFile;
 
 import javax.annotation.Nonnull;
 
+
 /**
- * Library used as input.
+ * Binary kind supported by jack library.
  */
-public interface InputLibrary {
+public enum BinaryKind {
+   DEX(".dex");
 
   @Nonnull
-  public InputRootVDir getInputVDir();
+  private final String extension;
+
+  private BinaryKind(@Nonnull String extension) {
+    this.extension = extension;
+  }
+
+  public boolean isBinaryFile(@Nonnull InputVFile v){
+    return (v.getName().endsWith(getFileExtension()));
+  }
 
   @Nonnull
-  public Collection<BinaryKind> getBinaryKinds();
+  public String getFileExtension() {
+    return extension;
+  }
 
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind);
+  @Nonnull
+  public static BinaryKind getBinaryKind(@Nonnull InputVFile v) throws NotBinaryException {
+    for (BinaryKind kind : BinaryKind.values()) {
+      if (kind.isBinaryFile(v)) {
+        return kind;
+      }
+    }
+
+    throw new NotBinaryException(v);
+  }
 }

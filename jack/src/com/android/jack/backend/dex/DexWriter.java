@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.library.BinaryKind;
 import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
@@ -28,11 +29,8 @@ import javax.annotation.Nonnull;
 public abstract class DexWriter {
 
   @Nonnull
-  public static final String DEX_FILE_EXTENSION = ".dex";
-
-  @Nonnull
   static VPath getFilePath(@Nonnull JDefinedClassOrInterface type) {
-    return new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type) + DEX_FILE_EXTENSION,
-        '/');
+    return new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type)
+        + BinaryKind.DEX.getFileExtension(), '/');
   }
 }

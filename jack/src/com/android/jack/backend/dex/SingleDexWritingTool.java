@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
+import com.android.jack.library.BinaryKind;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.OverflowException;
 import com.android.sched.util.codec.ImplementationName;
@@ -64,7 +65,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     for (InputVElement subFile : dexFileVDir.list()) {
       if (subFile.isVDir()) {
         getAllDexFilesFromDir((InputVDir) subFile, dexFiles);
-      } else if (subFile.getName().endsWith(DexFileWriter.DEX_FILE_EXTENSION)) {
+      } else if (BinaryKind.DEX.isBinaryFile((InputVFile) subFile)) {
         dexFiles.add((InputOutputVFile) subFile);
       }
     }
