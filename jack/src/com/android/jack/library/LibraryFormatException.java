@@ -16,33 +16,18 @@
 
 package com.android.jack.library;
 
-import com.android.sched.util.location.HasLocation;
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VPath;
-
-import java.util.Collection;
-import java.util.List;
+import com.android.jack.JackFileException;
 
 import javax.annotation.Nonnull;
 
 /**
- * Library used as input.
+ * Exception representing a problem related to the library format.
  */
-public interface InputLibrary extends HasLocation {
+public class LibraryFormatException extends JackFileException {
 
-  @Nonnull
-  public InputRootVDir getInputVDir();
+  private static final long serialVersionUID = 1L;
 
-  @Nonnull
-  public Collection<BinaryKind> getBinaryKinds();
-
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind);
-
-  @Nonnull
-  public List<InputVFile> getBinaries(@Nonnull BinaryKind binaryKind);
-
-  @Nonnull
-  public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
-      throws BinaryDoesNotExistException;
+  public LibraryFormatException(@Nonnull Throwable cause) {
+    super("Invalid library: " + cause.getMessage());
+  }
 }

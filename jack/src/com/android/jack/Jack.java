@@ -83,6 +83,7 @@ import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
+import com.android.jack.library.BinaryKind;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.CommonTypes;
@@ -97,6 +98,7 @@ import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibAdapter;
+import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -527,6 +529,7 @@ public abstract class Jack {
           assert options.out != null || options.outZip != null;
           request.addProduction(IntermediateDexProduct.class);
           request.addProduction(DexFileProduct.class);
+          session.addGeneratedBinaryKind(BinaryKind.DEX);
         }
 
         ProductionSet targetProduction = request.getTargetProductions();
@@ -1040,7 +1043,7 @@ public abstract class Jack {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(ConditionalAndOrRemover.class);
@@ -1098,7 +1101,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
@@ -1108,14 +1111,14 @@ public abstract class Jack {
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(ClassDefItemBuilder.class);
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
             typePlan5.appendSubPlan(JMethodAdapter.class);
@@ -1174,7 +1177,7 @@ public abstract class Jack {
       planBuilder.append(AstChecker.class);
      {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(DeclaredTypePackageChecker.class);
       }
       {

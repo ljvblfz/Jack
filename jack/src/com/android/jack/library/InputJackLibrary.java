@@ -17,13 +17,17 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -39,6 +43,7 @@ public class InputJackLibrary implements InputLibrary {
   @Nonnull
   private final InputLibraryLocation location;
 
+  @Nonnull
   private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
 
   public InputJackLibrary(@Nonnull InputRootVDir libraryVDir) {
@@ -70,6 +75,26 @@ public class InputJackLibrary implements InputLibrary {
     return binaryKinds.contains(binaryKind);
   }
 
+  @Override
+  @Nonnull
+  public List<InputVFile> getBinaries(@Nonnull BinaryKind binaryKind) {
+    List<InputVFile> binaries = new ArrayList<InputVFile>();
+    fillBinaries(libraryVDir, binaryKind, binaries);
+    return binaries;
+  }
+
+  @Override
+  @Nonnull
+  public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
+      throws BinaryDoesNotExistException {
+    try {
+      return libraryVDir.getInputVFile(
+          new VPath(typePath.getPathAsString('/') + BinaryKind.DEX.getFileExtension(), '/'));
+    } catch (NotFileOrDirectoryException e) {
+      throw new BinaryDoesNotExistException(getLocation(), typePath, binaryKind);
+    }
+  }
+
   private void fillBinaryKinds(@Nonnull InputVDir vDir) {
     for (InputVElement subFile : vDir.list()) {
       if (subFile.isVDir()) {
@@ -79,6 +104,20 @@ public class InputJackLibrary implements InputLibrary {
           binaryKinds.add(BinaryKind.getBinaryKind((InputVFile) subFile));
         } catch (NotBinaryException e) {
           // Ok, nothing to do
+        }
+      }
+    }
+  }
+
+  private void fillBinaries(@Nonnull InputVDir vDir, @Nonnull BinaryKind binaryKind,
+      @Nonnull List<InputVFile> binaries) {
+    for (InputVElement subFile : vDir.list()) {
+      if (subFile.isVDir()) {
+        fillBinaries((InputVDir) subFile, binaryKind, binaries);
+      } else {
+        InputVFile vFile = (InputVFile) subFile;
+        if (binaryKind.isBinaryFile(vFile)) {
+          binaries.add(vFile);
         }
       }
     }

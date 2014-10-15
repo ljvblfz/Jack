@@ -25,7 +25,12 @@ import javax.annotation.Nonnull;
  * Binary kind supported by jack library.
  */
 public enum BinaryKind {
-   DEX(".dex");
+  DEX(".dex") {
+    @Override
+    public String toString() {
+      return "dex";
+    }
+  };
 
   @Nonnull
   private final String extension;
