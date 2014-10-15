@@ -19,8 +19,8 @@ package com.android.jack.shrob;
 import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
-import com.android.jack.category.KnownBugs;
-import com.android.jack.category.SlowTests;
+import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.category.SlowTests;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

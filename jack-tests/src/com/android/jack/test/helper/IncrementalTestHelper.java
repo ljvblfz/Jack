@@ -17,10 +17,12 @@
 package com.android.jack.test.helper;
 
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.library.FileType;
 import com.android.jack.test.runner.DalvikRunnerHost;
 import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
@@ -28,13 +30,16 @@ import junit.framework.Assert;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -58,6 +63,10 @@ public class IncrementalTestHelper {
   private final Set<File> javaFiles = new HashSet<File>();
   @Nonnull
   private final Map<String, Long> fileModificationDate = new HashMap<String, Long>();
+  @Nonnull
+  private OutputStream out = System.out;
+  @Nonnull
+  private OutputStream err = System.err;
 
   public IncrementalTestHelper(@Nonnull File testingFolder) throws IOException {
     this.testingFolder = testingFolder;
@@ -77,10 +86,18 @@ public class IncrementalTestHelper {
     jackFolder = new File(compilerStateFolder, "jackFiles");
   }
 
+  public void setOut(OutputStream out) {
+    this.out = out;
+  }
+
+  public void setErr(OutputStream err) {
+    this.err = err;
+  }
+
   @Nonnull
   public File addJavaFile(@Nonnull String packageName, @Nonnull String fileName,
       @Nonnull String fileContent) throws IOException {
-    File file = AbstractTestTools.createJavaFile(sourceFolder, packageName, fileName, fileContent);
+    File file = AbstractTestTools.createFile(sourceFolder, packageName, fileName, fileContent);
     javaFiles.add(file);
     return file;
   }
@@ -130,8 +147,9 @@ public class IncrementalTestHelper {
       Long previousDate = fileModificationDate.get(jackFile.getAbsolutePath());
       if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
         String jackFileName = jackFile.getAbsolutePath();
-        String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jack"));
-        binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
+        String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
+        binaryTypeName = binaryTypeName.substring((jackFolder.getAbsolutePath() + File.separatorChar
+            + FileType.JAYCE.getPrefix()).length() + 1);
         fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar, '.'));
       }
     }
@@ -140,13 +158,32 @@ public class IncrementalTestHelper {
   }
 
   public void incrementalBuildFromFolder() throws Exception {
-    JackBasedToolchain jackToolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, JillBasedToolchain.class);
-    jackToolchain.setIncrementalFolder(getCompilerStateFolder());
+    incrementalBuildFromFolder(null, Collections.<File>emptyList());
+  }
 
-    jackToolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(jackToolchain.getDefaultBootClasspath()), dexOutDir,
-        sourceFolder);
+  public void incrementalBuildFromFolder(@Nonnull File[] classpath) throws Exception {
+    incrementalBuildFromFolder(classpath, Collections.<File>emptyList());
+  }
+
+  public void incrementalBuildFromFolder(@CheckForNull File[] classpath,
+      @Nonnull List<File> imports) throws Exception {
+
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+
+    JackApiToolchain jackToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class, excludeList);
+    jackToolchain.setIncrementalFolder(getCompilerStateFolder());
+    jackToolchain.addStaticLibs(imports.toArray(new File[imports.size()]));
+
+    jackToolchain.setOutputStream(out);
+    jackToolchain.setErrorStream(err);
+
+    File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
+
+    jackToolchain.srcToExe(classpath == null ? AbstractTestTools.getClasspathAsString(bootclasspath)
+        : AbstractTestTools.getClasspathsAsString(bootclasspath, classpath), dexOutDir,
+        /* zipFile = */ false, sourceFolder);
 
     Thread.sleep(1000);
   }
@@ -162,8 +199,18 @@ public class IncrementalTestHelper {
   }
 
   @Nonnull
+  public File getDexFile() {
+    return dexFile;
+  }
+
+  @Nonnull
+  public File getJackFolder() {
+    return jackFolder;
+  }
+
+  @Nonnull
   public List<File> getJackFiles() {
-    return AbstractTestTools.getFiles(jackFolder, ".jack");
+    return AbstractTestTools.getFiles(jackFolder, ".jayce");
   }
 
 }

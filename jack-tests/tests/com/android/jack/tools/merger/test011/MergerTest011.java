@@ -16,10 +16,13 @@
 
 package com.android.jack.tools.merger.test011;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.TestTools;
-import com.android.jack.category.SlowTests;
+import com.android.jack.backend.dex.DexWritingException;
+import com.android.jack.backend.dex.SingleDexOverflowException;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
 import com.android.jack.tools.merger.MethodIdOverflowException;
@@ -31,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -46,8 +50,10 @@ public class MergerTest011 extends MergerTestTools {
 
   private static int fileCount = 655;
 
-  private static final String expectedExceptionMessage =
-      "Index overflow while merging dex files. Try using multidex";
+  @Nonnull
+  private static final String EXPECTED_MESSAGE =
+      "Error during the dex writing phase: classes.dex has too many IDs. Try using multi-dex";
+
 
   @BeforeClass
   public static void setUpClass() {
@@ -64,13 +70,18 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithMethods(srcFolder, fileCount, 36);
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
+          /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+    }  catch (JackAbortException e) {
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof MethodIdOverflowException);
+      Assert.assertTrue(cause instanceof DexWritingException);
+      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
+      Assert.assertTrue(err.toString().contains(EXPECTED_MESSAGE));
     }
   }
 
@@ -83,13 +94,18 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithFields(srcFolder, fileCount, 37);
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
+          /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+    } catch (JackAbortException e) {
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof FieldIdOverflowException);
+      Assert.assertTrue(cause instanceof DexWritingException);
+      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
+      Assert.assertTrue(err.toString().contains(EXPECTED_MESSAGE));
     }
   }
 
@@ -103,13 +119,18 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithTypes(srcFolder, fileCount, 36);
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
+      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
+          /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
+    } catch (JackAbortException e) {
       Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof TypeIdOverflowException);
+      Assert.assertTrue(cause instanceof DexWritingException);
+      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(cause.getCause().getCause() instanceof TypeIdOverflowException);
+      Assert.assertTrue(err.toString().contains(EXPECTED_MESSAGE));
     }
   }
 

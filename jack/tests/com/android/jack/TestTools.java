@@ -21,7 +21,6 @@ import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.IntermediateDexProduct;
 import com.android.jack.backend.jayce.JayceFormatProduct;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
@@ -1015,9 +1014,10 @@ public class TestTools {
 
   private static void compileWithEcj(Options compilerArgs, File out) {
     List<String> jackEcjArgs = getRefCompilerArguments(compilerArgs);
-    String[] args = new String[jackEcjArgs.size() + 4];
+    String[] args = new String[jackEcjArgs.size() + 5];
     int i = 0;
     args[i++] = "-noExit";
+    args[i++] = "-1.6";
     args[i++] = "-preserveAllLocals";
     for (String compilerArg : jackEcjArgs) {
       args[i++] = compilerArg;

@@ -16,8 +16,6 @@
 
 package com.android.jack.backend.dex.rop;
 
-import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -118,10 +116,4 @@ public class RopRegisterManagerTest {
     rrm.getRegisterSpec(ref);
   }
 
-  @Test
-  public void ropBuildMethodWithSameReturnReg() throws Exception {
-    Options compilerArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("returnstatement/return001"));
-    TestTools.runCompilation(compilerArgs);
-  }
 }

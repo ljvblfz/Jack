@@ -16,14 +16,19 @@
 
 package com.android.jack.error;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
+import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.file.WrongPermissionException;
 
 import junit.framework.Assert;
 
@@ -50,7 +55,7 @@ public class FileAccessErrorTest {
   public void testFileAccessError001() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 
-    AbstractTestTools.createJavaFile(te.getSourceFolder(), "jack.incremental", "A.java",
+    AbstractTestTools.createFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
 
@@ -63,7 +68,7 @@ public class FileAccessErrorTest {
     try {
       jackApiToolchain.srcToLib(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          jackOutputFile, false, te.getSourceFolder());
+          jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
       Assert.fail();
     } catch (PropertyIdException e) {
       // Failure is ok since jack output folder is not readable
@@ -75,13 +80,62 @@ public class FileAccessErrorTest {
   }
 
   /**
+   * Checks that compilation fails correctly when folder containing jack files is not readable.
+   */
+  @Test
+  public void testFileAccessError002() throws Exception {
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    File srcFile = AbstractTestTools.createFile(helper.getSourceFolder(), "jack.incremental",
+        "A.java", "package jack.incremental; \n" + "public class A {} \n");
+
+    JackApiToolchain jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+
+    jackApiToolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
+        helper.getJackFolder(), /* zipFiles = */ false, helper.getSourceFolder());
+
+    AbstractTestTools.deleteFile(srcFile);
+
+    srcFile = AbstractTestTools.createFile(helper.getSourceFolder(), "jack.incremental", "B.java",
+        "package jack.incremental; \n" + "public class B extends A {} \n");
+
+    // Modify read permission of folder containing jack files
+    if (!helper.getJackFolder().setReadable(false)) {
+      Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
+    }
+
+    jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    jackApiToolchain.setErrorStream(errOut);
+    jackApiToolchain.addStaticLibs(helper.getJackFolder());
+    try {
+      jackApiToolchain.srcToExe(
+          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
+          helper.getOutputDexFolder(), /* zipFile = */ false, helper.getSourceFolder());
+      Assert.fail();
+    } catch (JackAbortException e) {
+      // Failure is ok since Jack file could not be imported since folder is not readable
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof WrongPermissionException);
+    } finally {
+      Assert.assertTrue("", errOut.toString().contains("is not readable"));
+      if (!helper.getJackFolder().setReadable(true)) {
+        Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
+      }
+    }
+  }
+
+  /**
    * Checks that compilation fails correctly when source file is not readable.
    */
   @Test
   public void testFileAccessError003() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 
-    File a = AbstractTestTools.createJavaFile(te.getSourceFolder(), "jack.incremental", "A.java",
+    File a = AbstractTestTools.createFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
     if (!a.setReadable(false)) {
@@ -95,7 +149,7 @@ public class FileAccessErrorTest {
     try {
       jackApiToolchain.srcToExe(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          te.getOutputDexFolder(), te.getSourceFolder());
+          te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Failure is ok since source file is not readable
@@ -114,7 +168,7 @@ public class FileAccessErrorTest {
   public void testFileAccessError004() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 
-    AbstractTestTools.createJavaFile(te.getSourceFolder(), "jack.incremental", "A.java",
+    AbstractTestTools.createFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
 
@@ -126,29 +180,32 @@ public class FileAccessErrorTest {
 
     AbstractTestTools.deleteJavaFile(te.getSourceFolder(), "jack.incremental", "A.java");
 
-    AbstractTestTools.createJavaFile(te.getSourceFolder(),"jack.incremental", "B.java",
+    AbstractTestTools.createFile(te.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), ".jack")) {
+      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
         if (!jackFile.setReadable(false)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
         }
       }
 
       jackApiToolchain.setErrorStream(errOut);
-      jackApiToolchain.srcToLib(
+      jackApiToolchain.srcToExe(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
           + File.pathSeparator + te.getJackFolder().getAbsolutePath(),
           AbstractTestTools.createTempDir(), false, te.getSourceFolder());
       Assert.fail();
-    } catch (JackLoadingException e) {
-      // Failure is ok since jack file is not readable
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
     } finally {
-      Assert.assertEquals("", errOut.toString());
-      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), ".jack")) {
+      String errOutput = errOut.toString();
+      Assert.assertTrue(errOutput.contains("is an invalid library"));
+      Assert.assertTrue(errOutput.contains("is not readable"));
+      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
         }
@@ -169,7 +226,7 @@ public class FileAccessErrorTest {
 
       jackApiToolchain.srcToExe(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          te.getOutputDexFolder(), new File(te.getSourceFolder(), "A.java"));
+          te.getOutputDexFolder(), /* zipFile = */ false, new File(te.getSourceFolder(), "A.java"));
 
       Assert.fail();
     } catch (JackUserException e) {

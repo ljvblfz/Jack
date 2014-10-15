@@ -19,6 +19,7 @@ package com.android.jack.test.runtime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -27,15 +28,15 @@ import javax.annotation.Nonnull;
  */
 public abstract class RuntimeTest {
 
-  @Nonnull
-  protected List<RuntimeTestInfo> rtTestInfos = new ArrayList<RuntimeTestInfo>();
-
-  protected  RuntimeTest() {
-    fillRtTestInfos();
-  }
+  @CheckForNull
+  protected List<RuntimeTestInfo> rtTestInfos = null;
 
   @Nonnull
   public final List<RuntimeTestInfo> getRuntimeTestInfos() {
+    if (rtTestInfos == null) {
+      rtTestInfos = new ArrayList<RuntimeTestInfo>();
+      fillRtTestInfos();
+    }
     return rtTestInfos;
   }
 

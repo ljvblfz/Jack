@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -50,8 +51,8 @@ public class LegacyToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
-  public void srcToExe(@Nonnull String classpath, @Nonnull File out,
-      @Nonnull File... sources) throws Exception {
+  public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
+      boolean zipFile, @Nonnull File... sources) throws Exception {
 
     try {
 
@@ -74,7 +75,7 @@ public class LegacyToolchain extends AndroidToolchain {
         jarFileProguard = jarFileJarjar;
       }
 
-      libToDex(jarFileProguard, out);
+      libToExe(jarFileProguard, out, zipFile);
 
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
@@ -83,7 +84,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
-  public void srcToLib(@Nonnull String classpath, @Nonnull File out,
+  public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception {
 
     try {
@@ -113,10 +114,10 @@ public class LegacyToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
-  public void libToDex(@Nonnull File in, @Nonnull File out) throws Exception {
+  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
 
     try {
-      compileWithDx(in, out);
+      compileWithDx(in, out, zipFile);
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
     }
@@ -124,7 +125,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
-  public void libToLib(@Nonnull File in, @Nonnull File out) throws Exception {
+  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     throw new AssertionError("Not Yet Implemented");
   }
 
@@ -170,8 +171,10 @@ public class LegacyToolchain extends AndroidToolchain {
     args.add(inJar.getAbsolutePath());
     args.add("-outjars");
     args.add(outJar.getAbsolutePath());
-    args.add("-libraryjars");
-    args.add(bootclasspathStr);
+    if (bootclasspathStr != null) {
+      args.add("-libraryjars");
+      args.add(bootclasspathStr);
+    }
     args.add("-verbose");
     args.add("-forceprocessing");
     args.add("-dontoptimize");
@@ -194,10 +197,22 @@ public class LegacyToolchain extends AndroidToolchain {
     }
   }
 
-  private void compileWithEcj(@Nonnull File[] sources, @Nonnull String classpath,
+  private void compileWithEcj(@Nonnull File[] sources, @CheckForNull String classpath,
       @Nonnull File out) {
-
-    throw new AssertionError("Not yet implemented");
+    List<String> args = new ArrayList<String>(4 + sources.length);
+    if (classpath != null) {
+      args.add("-classpath");
+      args.add(classpath);
+    }
+    addSourceLevel(sourceLevel, args);
+    args.add("-noExit");
+    args.add("-preserveAllLocals");
+    args.add("-d");
+    args.add(out.getAbsolutePath());
+    for (File sourceFile : sources) {
+      args.add(sourceFile.getAbsolutePath());
+    }
+    org.eclipse.jdt.internal.compiler.batch.Main.main(args.toArray(new String[args.size()]));
   }
 
   @Override
@@ -229,7 +244,7 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
-      @Nonnull String classpath, @Nonnull File out) {
+      @CheckForNull String classpath, @Nonnull File out) {
 
     List<String> arguments = new ArrayList<String>();
 
@@ -265,7 +280,7 @@ public class LegacyToolchain extends AndroidToolchain {
     }
   }
 
-  private void compileWithDx(File in, File out)
+  private void compileWithDx(@Nonnull File in, @Nonnull File out, boolean zipFile)
       throws IOException {
 
     try {
@@ -274,7 +289,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
       Arguments arguments = new Arguments();
 
-      arguments.jarOutput = false;
+      arguments.jarOutput = zipFile;
       arguments.outName = new File(out, getBinaryFileName()).getAbsolutePath();
       arguments.optimize = !withDebugInfos && useDxOptimization;
       // this only means we deactivate the check that no core classes are included

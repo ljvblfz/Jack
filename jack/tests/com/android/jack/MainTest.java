@@ -29,23 +29,13 @@ import org.junit.Test;
  */
 public class MainTest {
 
-  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/jack/Fibo";
+  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/Fibo";
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
 
   @BeforeClass
   public static void setUpClass() {
     // Enable assertions
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
-  /**
-   * Verifies that a call to {link Main#runCompilation(String[])} complete
-   * without throwing exception.
-   */
-  @Test
-  public void testRunCompilation() throws Exception {
-     TestTools.runCompilation(TestTools.buildCommandLineArgs(
-         TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME)));
   }
 
   /**

@@ -37,42 +37,6 @@ public class UnaryTest {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("unary/test001")));
-  }
-
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile2() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("unary/test002")));
-  }
-
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile3() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("unary/test003")));
-  }
-
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile4() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("unary/test004")));
-  }
-
   @Test
   public void testCompile5() throws Exception {
     String classBinaryName = "com/android/jack/unary/test005/jack/UnaryNot";

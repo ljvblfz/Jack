@@ -16,7 +16,6 @@
 
 package com.android.jack;
 
-import com.android.jack.category.RedundantTests;
 import com.tonicsystems.jarjar.PackageRemapper;
 import com.tonicsystems.jarjar.PatternElement;
 import com.tonicsystems.jarjar.Rule;
@@ -26,9 +25,7 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import java.io.File;
 import java.util.Collections;
 
 import javax.annotation.Nonnull;
@@ -48,42 +45,6 @@ public class JarjarTest {
     rule.setPattern("org.**");
     rule.setResult("foo.@1");
     remapper = new PackageRemapper(PatternElement.createWildcards(Collections.singletonList(rule)));
-  }
-
-  @Test
-  public void test001() throws Exception {
-    String testName = "jarjar/test001";
-    Options ecjArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder(testName),
-        new File(TestTools.getJackTestFolder(testName), "jarjar-rules.txt"));
-    TestTools.runCompilation(ecjArgs);
-  }
-
-  @Test
-  @Category(RedundantTests.class)
-  public void test003() throws Exception {
-    String testName = "jarjar/test003";
-    Options ecjArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder(testName),
-        new File(TestTools.getJackTestFolder(testName), "jarjar-rules.txt"));
-    TestTools.runCompilation(ecjArgs);
-  }
-
-  @Test
-  public void test003_1() throws Exception {
-    String testName = "jarjar/test003";
-    Options options = new Options();
-    options.jarjarRulesFile = new File(TestTools.getJackTestFolder(testName), "jarjar-rules.txt");
-    File lib = TestTools.createTempFile("jarjarTest003Jack", ".zip");
-    TestTools.compileSourceToJack(options, TestTools.getJackTestsWithJackFolder(testName),
-        TestTools.getDefaultBootclasspathString(), lib, true);
-    TestTools.compileSourceToJack(new Options(),
-        new File(TestTools.getJackTestFolder(testName),
-            "dontcompile/TestWithRelocatedReference.java"),
-        TestTools.getDefaultBootclasspathString() + File.pathSeparator + lib.getAbsolutePath(),
-        TestTools.createTempFile("jarjarTest003dx", ".zip"),
-        true);
-
   }
 
   @Test

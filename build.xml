@@ -237,7 +237,7 @@
     </filelist>
     <filelist id="jackunittests.static.libs.fileset" dir="/">
       <file name="${jack.dist.dir}/${jack.libname}" />
-      <file name="${junit4.dist.dir}/${junit4.libname}" />
+      <file name="${junit4.dist.dir}/${junit4.execname}" />
       <file name="${dexlib.dist.dir}/${dexlib.libname}" />
       <file name="${dx-ref.dist.dir}/${dx-ref.libname}" />
       <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
@@ -285,10 +285,11 @@
   <!-- jack-tests          -->
   <!-- ******************* -->
   <property name="jack-tests.libs.dir" value="${jack-tests.dir}/libs" />
-  <property name="jack-tests.build.dir" value="${jack-tests.dir}/build" />
+  <property name="jack-tests.build.dir" value="${jack-tests.dir}/intermediates" />
   <property name="jack-tests.build.outdir" value="${jack-tests.build.dir}/classes" />
   <property name="jack-tests.dist.dir" value="${jack-tests.dir}/dist" />
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
+  <property name="jack-tests.execname" value="jack-tests.jar" />
 
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
@@ -314,7 +315,7 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests-lib">
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests">
     <!-- project layout -->
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
@@ -346,9 +347,19 @@
       </classpath>
     </javac>
     <!-- package -->
-    <jar destfile="${jack-tests.dist.dir}/${jack-tests.libname}"
+    <jar destfile="${jack-tests.build.dir}/${jack-tests.libname}"
       basedir="${jack-tests.build.outdir}"
       includes="**"/>
+    <!-- add sched support -->
+    <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
+    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
+    <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
+      <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
+      <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
+      <arg line="${jackunittests.static.libs.list}" />
+      <arg line="${jack.static.libs.list}" />
+      <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
+    </java>
   </target>
 
 
@@ -1021,7 +1032,7 @@
          manifest="${dexcomparator.dir}/etc/manifest.txt"
          basedir="${dexcomparator.build.outdir}" includes="**">
       <zipgroupfileset dir="${dexcomparator.dir}/libs" includes="**/*.jar" />
-   </jar>
+    </jar>
   </target>
 
   <!-- ******************* -->
@@ -1082,8 +1093,8 @@
   <!-- ******************* -->
   <property name="core-stubs-mini.dist.dir" value="${core-stubs-mini.dir}/dist"/>
   <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
-	<property name="core-stubs-mini.build.outdir" value="${core-stubs-mini.build.dir}/classes"/>
-	<property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
+  <property name="core-stubs-mini.build.outdir" value="${core-stubs-mini.build.dir}/classes"/>
+  <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
 
   <target name="core-stubs-mini-clean">
     <delete dir="${core-stubs-mini.build.dir}" />
@@ -1115,6 +1126,30 @@
       </filelist>
     </copy>
   </target>
+
+  <property name="tests.config" value="no-file"/>
+  <property name="test-jack.script" location="${jack-tests.dir}/run-jack-tests" />
+  <target name="test-jack" >
+    <exec executable="${test-jack.script}" failonerror="true">
+      <arg value="${tests.config}" />
+      <arg value="com.android.jack.PreSubmitTests" />
+    </exec>
+  </target>
+
+  <target name="test-jack-long" >
+    <exec executable="${test-jack.script}" failonerror="true">
+      <arg value="${tests.config}" />
+      <arg value="com.android.jack.LongLastingTests" />
+    </exec>
+  </target>
+
+  <target name="test-jack-all" >
+    <exec executable="${test-jack.script}" failonerror="true">
+      <arg value="${tests.config}" />
+      <arg value="com.android.jack.AllTests" />
+    </exec>
+  </target>
+
 </project>
 
 

@@ -17,8 +17,6 @@
 package com.android.jack.analysis.dfa.reachingdefs;
 
 import com.android.jack.Main;
-import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
@@ -27,13 +25,11 @@ import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.util.codec.ImplementationName;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import javax.annotation.Nonnull;
 
@@ -77,16 +73,5 @@ public class ReachingDefsTest {
         }
       }
     }
-  }
-
-  @Test
-  public void testDfa001() throws Exception {
-    Options options = TestTools.buildCommandLineArgs(TestTools
-        .getJackTestsWithJackFolder("analysis/dfa/reachingdefs/test001"));
-    options.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
-    options.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
-        "dfaWithSwitch(I)I");
-    options.addProperty(ReachingDefinitions.REACHING_DEFS_CHECKER.getName(), "test001Checker");
-    TestTools.runCompilation(options);
   }
 }

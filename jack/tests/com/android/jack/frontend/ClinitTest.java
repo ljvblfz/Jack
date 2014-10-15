@@ -17,7 +17,6 @@
 package com.android.jack.frontend;
 
 import com.android.jack.Main;
-import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -64,13 +63,6 @@ public class ClinitTest {
     Assert.assertTrue(firstStatement instanceof JExpressionStatement);
     Assert.assertTrue(((JExpressionStatement) firstStatement).getExpr() instanceof JAsgOperation);
  }
-
-  @Test
-  public void testCompileWithClinit() throws Exception {
-    Options compilerArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestFromBinaryName(CLASS_WITH_VARIABLE_INIT_BINARY_NAME));
-    TestTools.runCompilation(compilerArgs);
-  }
 
   @Test
   public void searchEmptyStaticInit() throws Exception {

@@ -16,14 +16,12 @@
 
 package com.android.jack;
 
-import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.sched.util.file.FileUtils;
 
 import junit.framework.Assert;
 
@@ -37,9 +35,7 @@ import java.io.File;
  */
 public class FibonacciThreeAddressTest {
 
-  private static final File[] BOOTCLASSPATH = TestTools.getDefaultBootclasspath();
-
-  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/jack/FibonacciThreeAddress";
+  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   private static final String JAVA_FILENAME = "FibonacciThreeAddress.java";
   private static final File JAVA_FILEPATH = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
@@ -89,40 +85,4 @@ public class FibonacciThreeAddressTest {
     Assert.assertEquals(JAVA_FILENAME, sourceFilename);
   }
 
-  /**
-   * Compiles FibonacciThreeAddress into a {@code DexFile} and compares it to a dex file created
-   * using a reference compiler and {@code dx}.
-   * @throws Exception
-   */
-  @Test
-  public void testCompareFiboDexFile() throws Exception {
-    TestTools.checkStructure(BOOTCLASSPATH, null, JAVA_FILEPATH, false /*withDebugInfo*/);
-  }
-
-  /**
-   * Verifies that FibonacciThreeAddress can be written to a dex file.
-   */
-  @Test
-  public void testWriteFiboDexFile() throws Exception {
-
-    File outputDir = FileUtils.getWorkingDirectory();
-    Options fiboArgs = TestTools.buildCommandLineArgs(JAVA_FILEPATH);
-    fiboArgs.setOutputDir(outputDir);
-    File outputFile = new File(outputDir, DexFileWriter.DEX_FILENAME);
-    File outputDirectory = outputFile.getParentFile();
-    FileUtils.createIfNotExists(outputDirectory);
-
-    Jack.run(fiboArgs);
-
-    Assert.assertTrue(outputFile.exists());
-    Assert.assertTrue(outputFile.length() > 0);
-  }
-
-  /**
-   * Verifies that FibonacciThreeAddress can compiled from source to dex file.
-   */
-  @Test
-  public void testCompileFibo() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(JAVA_FILEPATH));
-  }
 }

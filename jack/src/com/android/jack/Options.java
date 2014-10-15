@@ -281,7 +281,10 @@ public class Options {
   @Option(name = "-g", usage = "emit debug infos")
   protected boolean emitLocalDebugInfo = false;
 
-  enum MultiDexKind {
+  /**
+   * Available mode for the multidex feature
+   */
+  public enum MultiDexKind {
     NONE,
     NATIVE,
     LEGACY

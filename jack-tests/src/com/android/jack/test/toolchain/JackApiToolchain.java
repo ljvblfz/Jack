@@ -18,15 +18,16 @@ package com.android.jack.test.toolchain;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.shrob.spec.Flags;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -39,36 +40,26 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   JackApiToolchain() {}
 
-  @Override
   @Nonnull
-  public JackApiToolchain disableDxOptimizations() {
-    jackOptions.disableDxOptimizations();
+  public JackApiToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level) {
+    jackOptions.setVerbosityLevel(level);
     return this;
   }
 
   @Override
   @Nonnull
-  public JackApiToolchain enableDxOptimizations() {
-    jackOptions.enableDxOptimizations();
-    return this;
-  }
-
-  @Override
-  @Nonnull
-  public void srcToExe(@Nonnull String classpath, @Nonnull File out, @Nonnull File... sources)
-      throws Exception {
+  public void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
+      @Nonnull File... sources) throws Exception {
 
     try {
-      System.setOut(outRedirectStream);
-      System.setErr(errRedirectStream);
-
       addProperties(properties, jackOptions);
 
       if (jackOptions.getFlags() != null) {
         jackOptions.applyShrobFlags();
       }
 
-      jackOptions.setEcjArguments(AbstractTestTools.buildEcjArgs());
+      // jackOptions.setEcjArguments(AbstractTestTools.buildEcjArgs());
+      jackOptions.setEcjArguments(new ArrayList<String>());
 
       if (annotationProcessorClass != null) {
         jackOptions.getEcjArguments().add("-processor");
@@ -88,24 +79,25 @@ public class JackApiToolchain extends JackBasedToolchain {
       /* mustExist = */false, sources);
       jackOptions.setClasspath(classpath);
 
-      // !zip
-      jackOptions.setOutputDir(out);
+      if (zipFile) {
+        jackOptions.setOutputZip(out);
+      } else {
+        jackOptions.setOutputDir(out);
+      }
 
       jackOptions.setJayceImports(staticLibs);
 
       jackOptions.setJarjarRulesFile(jarjarRules);
-      List<File> proguardFlagsFiles = new ArrayList<File>();
 
-      for (File flagFile : proguardFlagsFiles) {
-        proguardFlagsFiles.add(flagFile);
-      }
-
-      if (proguardFlagsFiles.size() > 0) {
-        jackOptions.setProguardFlagsFile(proguardFlagsFiles);
+      if (proguardFlags.size() > 0) {
+        jackOptions.setProguardFlagsFile(proguardFlags);
       }
 
       jackOptions.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
           Boolean.toString(withDebugInfos));
+
+      System.setOut(outRedirectStream);
+      System.setErr(errRedirectStream);
 
       if (jackOptions.getIncrementalFolder() != null) {
         JackIncremental.run(jackOptions);
@@ -121,51 +113,63 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void srcToLib(@Nonnull String classpath, @Nonnull File out, boolean zipFiles,
+  public void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
       @Nonnull File... sources) throws Exception {
 
     try {
-      Options options = jackOptions;
+      addProperties(properties, jackOptions);
 
-      addProperties(properties, options);
-
-      options.setClasspath(classpath);
-
-      if (zipFiles) {
-        options.setJayceOutputZip(out);
-      } else {
-        options.setJayceOutputDir(out);
+      if (jackOptions.getFlags() != null) {
+        jackOptions.applyShrobFlags();
       }
 
-      options.setEcjArguments(AbstractTestTools.buildEcjArgs());
+      jackOptions.setClasspath(classpath);
+
+      if (zipFiles) {
+        jackOptions.setJayceOutputZip(out);
+      } else {
+        jackOptions.setJayceOutputDir(out);
+      }
+
+      jackOptions.setEcjArguments(new ArrayList<String>());
 
       if (annotationProcessorClass != null) {
-        options.getEcjArguments().add("-processor");
-        options.getEcjArguments().add(annotationProcessorClass.getName());
+        jackOptions.getEcjArguments().add("-processor");
+        jackOptions.getEcjArguments().add(annotationProcessorClass.getName());
       }
 
       if (annotationProcessorOutDir != null) {
-        options.getEcjArguments().add("-d");
-        options.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
+        jackOptions.getEcjArguments().add("-d");
+        jackOptions.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
       }
 
       for (String ecjArg : extraEcjArgs) {
-        options.getEcjArguments().add(ecjArg);
+        jackOptions.getEcjArguments().add(ecjArg);
       }
 
-      AbstractTestTools.addFile(options.getEcjArguments(),
+      AbstractTestTools.addFile(jackOptions.getEcjArguments(),
       /* mustExist = */false, sources);
 
-      options.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
+
+      jackOptions.setJarjarRulesFile(jarjarRules);
+
+      if (proguardFlags.size() > 0) {
+        jackOptions.setProguardFlagsFile(proguardFlags);
+      }
+
+      jackOptions.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
           Boolean.toString(withDebugInfos));
+
+      jackOptions.addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(),
+          Boolean.toString(!withDebugInfos));
 
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      if (options.getIncrementalFolder() != null) {
-        JackIncremental.run(options);
+      if (jackOptions.getIncrementalFolder() != null) {
+        JackIncremental.run(jackOptions);
       } else {
-        Jack.run(options);
+        Jack.run(jackOptions);
       }
 
     } finally {
@@ -176,24 +180,36 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void libToDex(@Nonnull File in, @Nonnull File out) throws Exception {
+  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
     System.setOut(outRedirectStream);
     System.setErr(errRedirectStream);
 
     try {
-      Options options = jackOptions;
-      addProperties(properties, options);
+      addProperties(properties, jackOptions);
 
-      options.getJayceImport().add(in);
-      options.getJayceImport().addAll(staticLibs);
+      if (jackOptions.getFlags() != null) {
+        jackOptions.applyShrobFlags();
+      }
 
-      // !zip
-      options.setOutputDir(out);
+      jackOptions.setJarjarRulesFile(jarjarRules);
 
-      if (options.getIncrementalFolder() != null) {
-        JackIncremental.run(options);
+      if (proguardFlags.size() > 0) {
+        jackOptions.setProguardFlagsFile(proguardFlags);
+      }
+
+      jackOptions.getJayceImport().add(in);
+      jackOptions.getJayceImport().addAll(staticLibs);
+
+      if (zipFile) {
+        jackOptions.setOutputZip(out);
       } else {
-        Jack.run(options);
+        jackOptions.setOutputDir(out);
+      }
+
+      if (jackOptions.getIncrementalFolder() != null) {
+        JackIncremental.run(jackOptions);
+      } else {
+        Jack.run(jackOptions);
       }
 
     } finally {
@@ -204,8 +220,38 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void libToLib(@Nonnull File in, @Nonnull File out) throws Exception {
-    throw new AssertionError("Not Yet Implemented");
+  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
+    addProperties(properties, jackOptions);
+
+    jackOptions.setJarjarRulesFile(jarjarRules);
+
+    if (jackOptions.getFlags() != null) {
+      jackOptions.applyShrobFlags();
+    }
+
+    if (proguardFlags.size() > 0) {
+      jackOptions.setProguardFlagsFile(proguardFlags);
+    }
+
+    for (File staticLib : in) {
+      jackOptions.getJayceImport().add(staticLib);
+    }
+
+    for (File staticLib : staticLibs) {
+      jackOptions.getJayceImport().add(staticLib);
+    }
+
+    if (zipFiles) {
+      jackOptions.setJayceOutputZip(out);
+    } else {
+      jackOptions.setJayceOutputDir(out);
+    }
+
+    if (jackOptions.getIncrementalFolder() != null) {
+      JackIncremental.run(jackOptions);
+    } else {
+      Jack.run(jackOptions);
+    }
   }
 
   @Nonnull

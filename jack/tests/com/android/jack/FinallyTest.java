@@ -46,50 +46,6 @@ public class FinallyTest {
   }
 
   @Test
-  public void testCompileBranching() throws Exception {
-    TestTools.runCompilation(
-        TestTools.buildCommandLineArgs(new File[] {
-            new File(PATH, "B.java"),
-            new File(PATH, "Branching.java")}));
-  }
-
-  @Test
-  public void testCompileCatch() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        new File(PATH, "Catch.java")));
-  }
-
-  @Test
-  public void testCompileEmptyBlocks() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        new File(PATH, "EmptyBlocks.java")));
-  }
-
-  @Test
-  public void testCompileNested() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        new File(PATH, "Nested.java")));
-  }
-
-  @Test
-  public void testCompile002() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("tryfinally/finally002")));
-  }
-
-  @Test
-  public void testCompile003() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("tryfinally/finally003")));
-  }
-
-  @Test
-  public void testCompile004() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("tryfinally/finally004")));
-  }
-
-  @Test
   public void testCompile005() throws Exception {
     String classBinaryName = "com/android/jack/tryfinally/finally005/jack/Finally005";
     String methodSignature = "get()V";
