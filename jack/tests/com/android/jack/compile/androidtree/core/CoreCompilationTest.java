@@ -59,8 +59,16 @@ public class CoreCompilationTest {
   public void compareLibCoreStructure() throws Exception {
     Options options = new Options();
     options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
-    TestTools.checkStructure(options, null, null, SOURCELIST,
-        false /*withDebugInfo*/, false /*compareInstructionNumber*/, 0.1f, (JarJarRules) null,
+    TestTools.checkStructure(options,
+        /* bootclasspath = */ null,
+        /* classpath = */ null,
+        /* refBootclasspath = */ null,
+        /* refClasspath = */ null,
+        SOURCELIST,
+        /* withDebugInfo = */ false,
+        /* compareInstructionNumber = */ false,
+        0.1f,
+        (JarJarRules) null,
         (ProguardFlags[]) null);
   }
 

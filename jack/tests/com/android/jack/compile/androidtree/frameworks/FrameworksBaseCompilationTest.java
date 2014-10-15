@@ -18,8 +18,9 @@ package com.android.jack.compile.androidtree.frameworks;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.category.RedundantTests;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.SlowTests;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -42,35 +43,35 @@ public class FrameworksBaseCompilationTest {
     FrameworksBaseCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")
       };
     CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jar"),
+            "out/target/common/obj/JAVA_LIBRARIES/conscrypt_intermediates/classes.zip"),
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"),
+            "out/target/common/obj/JAVA_LIBRARIES/okhttp_intermediates/classes.zip"),
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar")};
+            "out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.zip"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.zip"),
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.zip")};
     SOURCELIST = TestTools.getTargetLibSourcelist("framework");
   }
 
   @Test
-  @Category(RedundantTests.class)
+  @Category(SlowTests.class)
   public void compileFrameworks() throws Exception {
     File outDexFolder = TestTools.createTempDir("frameworks", "dex");
     String classpathString = TestTools.getClasspathsAsString(BOOTCLASSPATH, CLASSPATH);
 
-    TestTools.compileSourceToDex(new Options(),
+    Options options = new Options();
+    options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    TestTools.compileSourceToDex(options,
         SOURCELIST,
         classpathString,
         outDexFolder,
         false);
-  }
-
-  @Test
-  @Category(SlowTests.class)
-  public void compareFrameworksStructure() throws Exception {
-    TestTools.checkStructure(BOOTCLASSPATH, CLASSPATH, SOURCELIST,
-        false /*withDebugInfo*/, true /* compareInstructionNumber */, 0.32f);
   }
 }

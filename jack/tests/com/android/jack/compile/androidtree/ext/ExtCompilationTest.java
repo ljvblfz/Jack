@@ -34,6 +34,7 @@ import java.io.File;
 public class ExtCompilationTest {
 
   private static File[] BOOTCLASSPATH;
+  private static File[] REF_BOOTCLASSPATH;
 
   private static File SOURCELIST;
 
@@ -42,7 +43,11 @@ public class ExtCompilationTest {
     ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")
+      };
+    REF_BOOTCLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")
       };
     SOURCELIST = TestTools.getTargetLibSourcelist("ext");
   }
@@ -58,12 +63,14 @@ public class ExtCompilationTest {
   @Test
   @Category(SlowTests.class)
   public void compareExtStructure() throws Exception {
-    TestTools.checkStructure(
+    TestTools.checkStructure(new Options(),
         BOOTCLASSPATH,
-        null,
+        /* classpath = */ null,
+        REF_BOOTCLASSPATH,
+        /* refClasspath = */ null,
         SOURCELIST,
-        false /* compareDebugInfoBinary */,
-        true /* compareInstructionNumber */,
+        /* compareDebugInfoBinary = */ false,
+        /* compareInstructionNumber = */ true,
         0.4f,
         (JarJarRules) null,
         (ProguardFlags[]) null);

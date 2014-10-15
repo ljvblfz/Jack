@@ -19,7 +19,6 @@ import com.android.jack.compile.androidtree.bouncycastle.BouncycastleCompilation
 import com.android.jack.compile.androidtree.core.CoreCompilationTest;
 import com.android.jack.compile.androidtree.ext.ExtCompilationTest;
 import com.android.jack.compile.androidtree.frameworks.FrameworksBaseCompilationTest;
-import com.android.jack.compile.androidtree.services.ServicesCompilationTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -27,6 +26,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {FrameworksBaseCompilationTest.class, CoreCompilationTest.class,
-    BouncycastleCompilationTest.class, ExtCompilationTest.class, ServicesCompilationTest.class})
+    BouncycastleCompilationTest.class, ExtCompilationTest.class})
 public class AllTests {
 }

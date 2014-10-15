@@ -36,7 +36,7 @@ public class OmnibusCompilationTest {
   public static void setUpClass() {
     OmnibusCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")};
   }
 
   @Test

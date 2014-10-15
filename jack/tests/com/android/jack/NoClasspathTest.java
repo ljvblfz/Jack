@@ -16,7 +16,9 @@
 
 package com.android.jack;
 
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.SlowTests;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -32,6 +34,10 @@ public class NoClasspathTest {
   private static Sourcelist CORE_SOURCELIST;
 
   private static Sourcelist BOUNCY_SOURCELIST;
+
+  private static Sourcelist CONSCRYPT_SOURCELIST;
+
+  private static Sourcelist OKHTTP_SOURCELIST;
 
   private static Sourcelist EXT_SOURCELIST;
 
@@ -53,8 +59,10 @@ public class NoClasspathTest {
 
   @BeforeClass
   public static void setup() throws Exception {
-    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
     BOUNCY_SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
+    CONSCRYPT_SOURCELIST = TestTools.getTargetLibSourcelist("conscrypt");
+    OKHTTP_SOURCELIST = TestTools.getTargetLibSourcelist("okhttp");
     EXT_SOURCELIST = TestTools.getTargetLibSourcelist("ext");
     CORE_JUNIT_SOURCELIST =
         TestTools.getTargetLibSourcelist("core-junit");
@@ -62,23 +70,24 @@ public class NoClasspathTest {
         TestTools.getTargetLibSourcelist("framework");
 
     FRAMEWORK_JAR = TestTools.getFromAndroidTree(
-        "/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/" + "classes.jar");
+        "/out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/" + "classes.zip");
 
     GUAVA_JAR = TestTools
-        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/"
-            + "classes.jar");
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/classes.zip");
     SERVICES_JAR = TestTools
         .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/services_intermediates/"
-            + "classes.jar");
+            + "classes.zip");
     ARITY_JAR = TestTools
         .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/libarity_intermediates/"
-            + "classes.jar");
+            + "classes.zip");
     PLAY_SERVICE_JAR = TestTools
-        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/google-play-services-first-party_intermediates/"
-            + "classes.jar");
+        .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/"
+            + "google-play-services-first-party_intermediates/classes.zip");
 
     File coreOut = TestTools.createTempFile("core", ".zip");
-    TestTools.compileSourceToJack(new Options(), CORE_SOURCELIST, null, coreOut, true);
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    TestTools.compileSourceToJack(options, CORE_SOURCELIST, null, coreOut, true);
     corePath = coreOut.getAbsolutePath();
   }
 
@@ -93,6 +102,26 @@ public class NoClasspathTest {
 
   @Test
   public void frameworkFromJack() throws Exception {
+
+    File conscryptJack = TestTools.createTempFile("conscrypt", ".zip");
+    TestTools.compileSourceToJack(new Options(), CONSCRYPT_SOURCELIST, corePath, conscryptJack,
+        true);
+    File conscryptRenamedJack = TestTools.createTempFile("conscryptrenamed", ".zip");
+    File conscyptRules =
+        new JarJarRules(TestTools.getFromAndroidTree("external/conscrypt/jarjar-rules.txt"));
+    TestTools.jarjarJackToJack(
+        new Options(), conscryptJack, null, conscryptRenamedJack, conscyptRules, true);
+
+    File okhttpJack = TestTools.createTempFile("okkttp", ".zip");
+    TestTools.compileSourceToJack(new Options(), OKHTTP_SOURCELIST,
+        corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath(), okhttpJack,
+        true);
+    File okhttpRenamedJack = TestTools.createTempFile("okhttprenamed", ".zip");
+    File okhttpRules =
+        new JarJarRules(TestTools.getFromAndroidTree("external/okhttp/jarjar-rules.txt"));
+    TestTools.jarjarJackToJack(
+        new Options(), okhttpJack, null, okhttpRenamedJack, okhttpRules, true);
+
     File extJack = TestTools.createTempFile("ext", ".zip");
     TestTools.compileSourceToJack(new Options(), EXT_SOURCELIST, corePath, extJack, true);
 
@@ -110,15 +139,21 @@ public class NoClasspathTest {
     TestTools.jarjarJackToJack(
         new Options(), bouncyCastleJack, null, bouncyCastleRenamedJack, jarjarRules, true);
 
-    String classpath = corePath + File.pathSeparatorChar + extJack.getAbsolutePath()
+    String classpath = corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath()
+        + File.pathSeparatorChar + okhttpRenamedJack.getAbsolutePath()
+        + File.pathSeparatorChar + extJack.getAbsolutePath()
         + File.pathSeparatorChar + bouncyCastleRenamedJack.getAbsolutePath()
         + File.pathSeparatorChar + coreJunitJack.getAbsolutePath();
     File frameworkJackZip = TestTools.createTempFile("framework", ".zip");
+    Options options = new Options();
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
     TestTools.compileSourceToJack(
-        new Options(), FRAMEWORK_SOURCELIST, classpath, frameworkJackZip, true);
+       options, FRAMEWORK_SOURCELIST, classpath, frameworkJackZip, true);
 
+    Options dexOptions = new Options();
+    dexOptions.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
     File frameworkDexFolder = TestTools.createTempDir("framework", "dex");
-    TestTools.compileJackToDex(new Options(), frameworkJackZip, frameworkDexFolder, false);
+    TestTools.compileJackToDex(dexOptions, frameworkJackZip, frameworkDexFolder, false);
   }
 
   @Test

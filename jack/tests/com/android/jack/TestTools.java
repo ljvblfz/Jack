@@ -616,6 +616,8 @@ public class TestTools {
     checkStructure(new Options(),
         bootclasspath,
         classpath,
+        /* refBootclasspath = */ null,
+        /* refClasspath = */ null,
         fileOrSourceList,
         withDebugInfo,
         compareInstructionNumber,
@@ -627,6 +629,8 @@ public class TestTools {
     public static void checkStructure(@Nonnull Options options,
         @CheckForNull File[] bootclasspath,
         @CheckForNull File[] classpath,
+        @CheckForNull File[] refBootclasspath,
+        @CheckForNull File[] refClasspath,
         @Nonnull File fileOrSourceList,
         boolean withDebugInfo,
         boolean compareInstructionNumber,
@@ -655,7 +659,7 @@ public class TestTools {
         proguardFlagFiles,
         withDebugInfo);
 
-    Options refOptions = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
+    Options refOptions = buildCommandLineArgs(refBootclasspath, refClasspath, fileOrSourceList);
 
     TestTools.compareDexToReference(jackDexFolder,
         refOptions,

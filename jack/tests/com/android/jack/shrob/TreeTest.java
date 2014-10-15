@@ -21,6 +21,7 @@ import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.category.SlowTests;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -40,7 +41,7 @@ public class TreeTest {
   @BeforeClass
   public static void setUpClass() {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
-    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core");
+    CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
   }
 
   private static ProguardFlags dontObfuscateFlagFile =
@@ -50,6 +51,7 @@ public class TreeTest {
   public void testObjectEquals() throws Exception {
     File testFolder = TestTools.getJackTestFolder("shrob/test024");
     Options options = TestTools.buildCommandLineArgs(new File[]{CORE_SOURCELIST, testFolder});
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
     options.addProguardFlagsFile(new ProguardFlags(testFolder, "proguard.flags001"));
     options.addProguardFlagsFile(dontObfuscateFlagFile);
     options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
