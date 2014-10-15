@@ -261,50 +261,18 @@ public class Tests {
 
     Method meth;
     try {
-      meth = ReflectAnnotationsTest2.class.getMethod("foo", (Class[]) null);
-      Assert.assertNull(getSignature(meth));
-
-      Field field;
-      field = ReflectAnnotationsTest2.class.getField("consInnerNamed");
-      Assert.assertNull(getSignature(field));
-
       meth = ReflectAnnotationsTest2.class.getMethod("getGeneric", (Class[]) null);
-      Assert.assertEquals("()Lcom/android/jack/annotation/test006/jack/ReflectAnnotationsTest2$Generic2<Ljava/lang/String;>;", getSignature(meth));
       Class<?>[] exceptions = meth.getExceptionTypes();
       Assert.assertTrue(exceptions.length == 2);
       List<Class<?>> exceptionsList = Arrays.asList(exceptions);
       Assert.assertTrue(exceptionsList.contains(OutOfMemoryError.class));
       Assert.assertTrue(exceptionsList.contains(AssertionError.class));
 
-      field = ReflectAnnotationsTest2.class.getField("genField");
-      Assert.assertEquals("Ljava/util/List<Ljava/lang/String;>;", getSignature(field));
-
     } catch (SecurityException e) {
       System.out.println(e.getMessage());
     } catch (NoSuchMethodException e) {
       System.out.println(e.getMessage());
-    } catch (NoSuchFieldException e) {
-      System.out.println(e.getMessage());
     }
-  }
-
-  private static String getSignature(Object obj) {
-      Method method;
-      try {
-        Class<? extends Object> c = obj.getClass();
-        method = c.getDeclaredMethod("getSignatureAttribute");
-        method.setAccessible(true);
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-
-      try {
-        return (String) method.invoke(obj);
-      } catch (IllegalAccessException ex) {
-          throw new RuntimeException(ex);
-      } catch (InvocationTargetException ex) {
-          throw new RuntimeException(ex);
-      }
   }
 
   private static String stringifyTypeArray(Type[] types) {
