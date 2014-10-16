@@ -33,6 +33,32 @@ public class OutputJackLibrary implements OutputLibrary {
   @Nonnull
   private final OutputVDir outputVDir;
 
+  @Nonnull
+  private final OutputLibraryLocation location = new OutputLibraryLocation() {
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return outputVDir.getLocation().getDescription();
+    }
+
+    @Override
+    @Nonnull
+    public OutputLibrary getOutputLibrary() {
+      return OutputJackLibrary.this;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+      return obj instanceof OutputLibraryLocation
+        && ((OutputLibraryLocation) obj).getOutputLibrary().equals(getOutputLibrary());
+    }
+
+    @Override
+    public final int hashCode() {
+      return OutputJackLibrary.this.hashCode();
+    }
+  };
+
   public OutputJackLibrary(@Nonnull OutputVDir outputVDir) {
     this.outputVDir = outputVDir;
   }
@@ -47,5 +73,19 @@ public class OutputJackLibrary implements OutputLibrary {
   @Override
   public boolean needsSequentialWriting() {
     return outputVDir instanceof SequentialOutputVDir;
+  }
+
+  @Override
+  @Nonnull
+  public OutputVFile getBinaryOutputVFile(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
+      throws CannotCreateFileException {
+    return outputVDir.createOutputVFile(
+        new VPath(typePath.getPathAsString('/') + binaryKind.getFileExtension(), '/'));
+  }
+
+  @Override
+  @Nonnull
+  public OutputLibraryLocation getLocation() {
+    return location;
   }
 }

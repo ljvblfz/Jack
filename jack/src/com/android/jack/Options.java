@@ -136,8 +136,7 @@ public class Options {
       "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
       new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
       .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
-          .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
-          .or(JACK_OUTPUT_CONTAINER_TYPE.is(Container.DIR))));
+          .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
@@ -589,7 +588,6 @@ public class Options {
       configBuilder.set(GENERATE_JACK_FILE, true);
       if (generateIntermediateDex) {
         configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-        configBuilder.setString(INTERMEDIATE_DEX_DIR, jayceOutDir.getAbsolutePath());
       }
     } else if (outZip != null) {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());

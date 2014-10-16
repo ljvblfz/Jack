@@ -22,7 +22,11 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
+import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.library.BinaryKind;
+import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
@@ -33,10 +37,12 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -48,15 +54,23 @@ import javax.annotation.Nonnull;
 public class IntermediateDexPerTypeWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
-  @Nonnull
+  @CheckForNull
+  private final OutputLibrary outputLibrary = Jack.getSession().getOutputLibrary();
+
+  @CheckForNull
   protected InputOutputVDir intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
+
+  @CheckForNull
+  protected boolean generateDexFile = ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
+  private final boolean isIncrementalMode =
+      ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue();
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    assert !(
-        type.getLocation() instanceof TypeInInputLibraryLocation
+    assert !(type.getLocation() instanceof TypeInInputLibraryLocation
         && !((TypeInInputLibraryLocation) type.getLocation()).getInputLibraryLocation()
             .getInputLibrary().getBinaryKinds().isEmpty());
 
@@ -70,10 +84,25 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
     OutputVFile vFile;
     OutputStream outStream = null;
     try {
-      vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
+      // In incremental mode, intermediate dex output is managed by incremental wrapper that used
+      // INTERMEDIATE_DEX_DIR property and not by the output library, even if Jayce file output for
+      // incremental mode is managed by the output library. It is the same thing if Jack generates
+      // a dex file and jayce files in the same time. There are temporary checks until Jack
+      // incremental support will be updated and Intermediate_dex_dir usage was cleaned.
+      if (outputLibrary != null && !isIncrementalMode && intermediateDexDir == null) {
+        assert generateDexFile || intermediateDexDir == null;
+        vFile = outputLibrary.getBinaryOutputVFile(
+            new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'),
+            BinaryKind.DEX);
+      } else {
+        assert intermediateDexDir != null;
+        vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
+      }
     } catch (IOException e) {
-      throw new JackIOException("Could not create Dex file in output " + intermediateDexDir
-          + " for type " + Jack.getUserFriendlyFormatter().getName(type), e);
+      throw new JackIOException("Could not create Dex file in output "
+          + (outputLibrary != null ? outputLibrary.getLocation().getDescription()
+              : intermediateDexDir) + " for type " + Jack.getUserFriendlyFormatter().getName(type),
+          e);
     }
     try {
       outStream = vFile.openWrite();
