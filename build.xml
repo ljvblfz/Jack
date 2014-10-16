@@ -17,11 +17,12 @@
 
 <project name="jack" default="dist">
 
-  <target name="dist" depends="dexcomparator-lib,jack,jackunittests-lib,jack-tests,dx-lib,
+  <target name="dist" depends="dexcomparator-lib,jack,jackunittests,jack-tests,dx-lib,
     sched-lib,schedtests-lib"/>
 
   <target name="clean" depends="jack-clean,
     jackunittests-lib-clean,
+    jackunittests-clean,
     jack-tests-clean,
     antlr-clean,
     args4j-lib-clean,
@@ -216,7 +217,7 @@
   <!-- ******************* -->
   <!-- jackunittests-lib   -->
   <!-- ******************* -->
-  <property name="jackunittests.build.dir" value="${jack.dir}/build/jackunittests" />
+  <property name="jackunittests.build.dir" value="${jack.dir}/build/jackunittests-lib" />
   <property name="jackunittests.libs.dir" value="${jack.dir}/libs" />
   <property name="jackunittests.build.outdir" value="${jackunittests.build.dir}/classes" />
   <property name="jackunittests.dist.dir" value="${jack.dir}/dist" />
@@ -259,15 +260,29 @@
       <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
     </javac>
     <!-- package -->
-    <jar destfile="${jackunittests.build.dir}/${jackunittests.libname}"
+    <jar destfile="${jackunittests.dist.dir}/${jackunittests.libname}"
       basedir="${jackunittests.build.outdir}" includes="**" />
-    <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jackunittests       -->
+  <!-- ******************* -->
+  <property name="jackunittests.execname" value="jackunittests.jar"/>
+
+  <target name="jackunittests-clean">
+    <delete file="${jackunittests.dist.dir}/${jackunittests.execname}" />
+  </target>
+
+  <target name="jackunittests" depends="jackunittests-lib">
     <!-- add sched support -->
+    <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
+    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
     <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
-      <arg value="${jackunittests.build.dir}/${jackunittests.libname}" />
+      <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
-      <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
+      <arg value="${jackunittests.dist.dir}/${jackunittests.execname}" />
     </java>
   </target>
 
@@ -302,7 +317,7 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs">
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests-lib">
     <!-- project layout -->
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
@@ -319,17 +334,17 @@
       <exclude name="com/android/jack/error/test001/jack/A.java"/>
       <exclude name="com/android/jack/error/test002/jack/A.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
-    	<exclude name="com/android/jack/java7/boxing/**"/>
+      <exclude name="com/android/jack/java7/boxing/**"/>
       <exclude name="com/android/jack/java7/switches/**"/>
       <exclude name="com/android/jack/java7/exceptions/**"/>
       <exclude name="com/android/jack/java7/trywithresources/**"/>
       <exclude name="com/android/jack/java7/parser/**"/>
-    	<exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
-    	<exclude name="com/android/jack/lookup/test001/liboverride/**"/>
+      <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
+      <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
       <classpath>
-        <filelist dir=".">
-          <!-- <file name="${jsr305.dist.dir}/${jsr305.libname}" /> -->
+        <filelist dir="/">
           <file name="${junit4.dist.dir}/${junit4.libname}" />
+          <file name="${jack.dist.dir}/${jack.libname}" />
           <file name="${jackunittests.dist.dir}/${jackunittests.libname}" />
           <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
