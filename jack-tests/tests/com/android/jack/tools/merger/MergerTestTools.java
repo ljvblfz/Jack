@@ -44,7 +44,7 @@ public class MergerTestTools {
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebug));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-      toolchain.addProperty(Options.TYPEDEX_DIR.getName(),
+      toolchain.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(),
           multiDexOnTypePerTypeFolder.getAbsolutePath());
 
       toolchain.srcToExe(classpath, multiDexFolder, sourceFolder);
