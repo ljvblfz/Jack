@@ -16,7 +16,9 @@
 
 package com.android.jack.library;
 
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +27,8 @@ import javax.annotation.Nonnull;
  */
 public interface OutputLibrary {
 
+  public boolean needsSequentialWriting();
+
   @Nonnull
-  public OutputVDir getOutputVDir();
+  public OutputVFile getJayceOutputVFile(@Nonnull VPath typePath) throws CannotCreateFileException;
 }

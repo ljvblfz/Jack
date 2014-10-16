@@ -16,7 +16,12 @@
 
 package com.android.jack.library;
 
+import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.SequentialOutputVDir;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
@@ -34,7 +39,13 @@ public class OutputJackLibrary implements OutputLibrary {
 
   @Override
   @Nonnull
-  public OutputVDir getOutputVDir() {
-    return outputVDir;
+  public OutputVFile getJayceOutputVFile(@Nonnull VPath typePath) throws CannotCreateFileException {
+    return outputVDir.createOutputVFile(
+        new VPath(typePath.getPathAsString('/') + JayceFileImporter.JAYCE_FILE_EXTENSION, '/'));
+  }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return outputVDir instanceof SequentialOutputVDir;
   }
 }
