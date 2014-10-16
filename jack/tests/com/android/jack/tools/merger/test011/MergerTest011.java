@@ -33,10 +33,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -46,7 +48,10 @@ import javax.annotation.Nonnull;
  */
 public class MergerTest011 extends MergerTestTools {
 
-  private static int fileCount = 655;
+  private static final int fileCount = 655;
+  @Nonnull
+  private static final String EXPECTED_MESSAGE =
+      "Error during the dex writing phase: classes.dex has too many IDs. Try using multi-dex";
 
   @BeforeClass
   public static void setUpClass() {
@@ -63,6 +68,9 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithMethods(srcFolder, fileCount, 36);
 
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream redirectStream = new PrintStream(baos);
+    System.setErr(redirectStream);
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
@@ -71,6 +79,9 @@ public class MergerTest011 extends MergerTestTools {
       Assert.assertTrue(cause instanceof DexWritingException);
       Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
       Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
+      Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
+    } finally {
+      redirectStream.close();
     }
   }
 
@@ -83,6 +94,9 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithFields(srcFolder, fileCount, 37);
 
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream redirectStream = new PrintStream(baos);
+    System.setErr(redirectStream);
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
@@ -91,6 +105,9 @@ public class MergerTest011 extends MergerTestTools {
       Assert.assertTrue(cause instanceof DexWritingException);
       Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
       Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
+      Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
+    } finally {
+      redirectStream.close();
     }
   }
 
@@ -104,6 +121,9 @@ public class MergerTest011 extends MergerTestTools {
     }
     generateJavaFileWithTypes(srcFolder, fileCount, 36);
 
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream redirectStream = new PrintStream(baos);
+    System.setErr(redirectStream);
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
@@ -112,6 +132,9 @@ public class MergerTest011 extends MergerTestTools {
       Assert.assertTrue(cause instanceof DexWritingException);
       Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
       Assert.assertTrue(cause.getCause().getCause() instanceof TypeIdOverflowException);
+      Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
+    } finally {
+      redirectStream.close();
     }
   }
 
