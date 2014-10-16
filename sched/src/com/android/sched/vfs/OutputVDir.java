@@ -16,7 +16,7 @@
 
 package com.android.sched.vfs;
 
-import java.io.IOException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import javax.annotation.Nonnull;
 
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public interface OutputVDir extends VElement {
 
   @Nonnull
-  OutputVFile createOutputVFile(@Nonnull VPath path) throws IOException;
+  OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException;
 
   char getSeparator();
 

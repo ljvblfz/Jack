@@ -19,7 +19,7 @@ package com.android.jack.tools.merger;
 /**
  * An {@link Exception} thrown when a field ID overflow happens during dex merging.
  */
-public class FieldIdOverflowException extends OverflowException {
+public class FieldIdOverflowException extends MergingOverflowException {
 
   private static final long serialVersionUID = 1L;
 

@@ -54,7 +54,7 @@ public class ConstantManager extends MergerTools {
   private final List<CstIndexMap> cstIndexMaps = new ArrayList<CstIndexMap>();
 
   @Nonnull
-  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws OverflowException {
+  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap();
 
     HashSet<CstString> addedCstStrings = new HashSet<CstString>();

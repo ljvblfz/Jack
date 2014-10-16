@@ -13,17 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.jack.tools.merger;
 
+import javax.annotation.Nonnull;
+
+
 /**
- * An {@link Exception} thrown when a method ID overflow happens during dex merging.
+ * An {@link Exception} thrown when an ID overflow happens during dex merging.
  */
-public class MethodIdOverflowException extends MergingOverflowException {
+public abstract class MergingOverflowException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  public MethodIdOverflowException() {
-    super("Method ID");
+  @Nonnull
+  private final String overflowKind;
+
+  public MergingOverflowException(@Nonnull String overflowKind) {
+    this.overflowKind = overflowKind;
+  }
+
+  @Override
+  public String getMessage() {
+    return overflowKind + " overflow when trying to merge dex files";
   }
 }

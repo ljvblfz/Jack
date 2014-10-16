@@ -16,9 +16,8 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.JackUserException;
 import com.android.jack.tools.merger.JackMerger;
-import com.android.jack.tools.merger.OverflowException;
+import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
@@ -38,7 +37,7 @@ import javax.annotation.Nonnull;
 public class MinimalMultiDexWritingTool extends DexWritingTool {
 
   @Override
-  public void write(@Nonnull OutputVDir outputVDir) {
+  public void write(@Nonnull OutputVDir outputVDir) throws DexWritingException {
     int dexCount = 1;
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);
@@ -49,9 +48,8 @@ public class MinimalMultiDexWritingTool extends DexWritingTool {
     for (InputVFile currentDex : mainDexList) {
       try {
         mergeDex(merger, currentDex);
-      } catch (OverflowException e) {
-        throw new JackUserException(
-            "Too many classes in main dex. Index overflow while merging dex files", e);
+      } catch (MergingOverflowException e) {
+        throw new DexWritingException(new MainDexOverflowException(e));
       }
     }
 
@@ -62,15 +60,15 @@ public class MinimalMultiDexWritingTool extends DexWritingTool {
     for (InputVFile currentDex : anyDexList) {
       try {
         mergeDex(merger, currentDex);
-      } catch (OverflowException e) {
+      } catch (MergingOverflowException e) {
         finishMerge(merger, outputDex);
         outputDex = getOutputDex(outputVDir, dexCount++);
         merger = new JackMerger(createDexFile());
         try {
           mergeDex(merger, currentDex);
-        } catch (OverflowException e1) {
+        } catch (MergingOverflowException e1) {
           // This should not happen, the type is not too big, we've just read it from a dex.
-          throw new AssertionError();
+          throw new AssertionError(e1);
         }
       }
     }

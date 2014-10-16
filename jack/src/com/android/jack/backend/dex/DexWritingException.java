@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.tools.merger;
+package com.android.jack.backend.dex;
+
+import com.android.jack.reporting.ReportableException;
+
+import javax.annotation.Nonnull;
 
 /**
- * An {@link Exception} thrown when a method ID overflow happens during dex merging.
+ * A {@link ReportableException} that occurs during the dex writing phase.
  */
-public class MethodIdOverflowException extends MergingOverflowException {
+public class DexWritingException extends ReportableException {
 
   private static final long serialVersionUID = 1L;
 
-  public MethodIdOverflowException() {
-    super("Method ID");
+  public DexWritingException(@Nonnull Throwable cause) {
+    super(cause);
+  }
+
+  @Override
+  public String getMessage() {
+    return "Error during the dex writing phase: " + getCause().getMessage();
   }
 }
