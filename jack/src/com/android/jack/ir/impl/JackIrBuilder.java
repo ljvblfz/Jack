@@ -109,6 +109,7 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
@@ -120,6 +121,8 @@ import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.lookup.JLookupException;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -285,6 +288,8 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         pushNewExpression(info, x, null, arguments, scope);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -323,6 +328,8 @@ public class JackIrBuilder {
           Collections.reverse(dims);
           push(JNewArray.createWithDims(info, type, dims));
         }
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -362,6 +369,8 @@ public class JackIrBuilder {
         }
 
         push(JNewArray.createWithInits(info, type, values));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -435,62 +444,68 @@ public class JackIrBuilder {
 
     @Override
     public void endVisit(BinaryExpression x, BlockScope scope) {
-      JBinaryOperator op;
-      int binOp = (x.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
-      switch (binOp) {
-        case OperatorIds.LEFT_SHIFT:
-          op = JBinaryOperator.SHL;
-          break;
-        case OperatorIds.RIGHT_SHIFT:
-          op = JBinaryOperator.SHR;
-          break;
-        case OperatorIds.UNSIGNED_RIGHT_SHIFT:
-          op = JBinaryOperator.SHRU;
-          break;
-        case OperatorIds.PLUS:
-          if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
-            op = JBinaryOperator.CONCAT;
-          } else {
-            op = JBinaryOperator.ADD;
-          }
-          break;
-        case OperatorIds.MINUS:
-          op = JBinaryOperator.SUB;
-          break;
-        case OperatorIds.REMAINDER:
-          op = JBinaryOperator.MOD;
-          break;
-        case OperatorIds.XOR:
-          op = JBinaryOperator.BIT_XOR;
-          break;
-        case OperatorIds.AND:
-          op = JBinaryOperator.BIT_AND;
-          break;
-        case OperatorIds.MULTIPLY:
-          op = JBinaryOperator.MUL;
-          break;
-        case OperatorIds.OR:
-          op = JBinaryOperator.BIT_OR;
-          break;
-        case OperatorIds.DIVIDE:
-          op = JBinaryOperator.DIV;
-          break;
-        case OperatorIds.LESS_EQUAL:
-          op = JBinaryOperator.LTE;
-          break;
-        case OperatorIds.GREATER_EQUAL:
-          op = JBinaryOperator.GTE;
-          break;
-        case OperatorIds.GREATER:
-          op = JBinaryOperator.GT;
-          break;
-        case OperatorIds.LESS:
-          op = JBinaryOperator.LT;
-          break;
-        default:
-          throw new AssertionError("Unexpected operator for BinaryExpression");
+      try {
+        JBinaryOperator op;
+        int binOp = (x.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
+        switch (binOp) {
+          case OperatorIds.LEFT_SHIFT:
+            op = JBinaryOperator.SHL;
+            break;
+          case OperatorIds.RIGHT_SHIFT:
+            op = JBinaryOperator.SHR;
+            break;
+          case OperatorIds.UNSIGNED_RIGHT_SHIFT:
+            op = JBinaryOperator.SHRU;
+            break;
+          case OperatorIds.PLUS:
+            if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
+              op = JBinaryOperator.CONCAT;
+            } else {
+              op = JBinaryOperator.ADD;
+            }
+            break;
+          case OperatorIds.MINUS:
+            op = JBinaryOperator.SUB;
+            break;
+          case OperatorIds.REMAINDER:
+            op = JBinaryOperator.MOD;
+            break;
+          case OperatorIds.XOR:
+            op = JBinaryOperator.BIT_XOR;
+            break;
+          case OperatorIds.AND:
+            op = JBinaryOperator.BIT_AND;
+            break;
+          case OperatorIds.MULTIPLY:
+            op = JBinaryOperator.MUL;
+            break;
+          case OperatorIds.OR:
+            op = JBinaryOperator.BIT_OR;
+            break;
+          case OperatorIds.DIVIDE:
+            op = JBinaryOperator.DIV;
+            break;
+          case OperatorIds.LESS_EQUAL:
+            op = JBinaryOperator.LTE;
+            break;
+          case OperatorIds.GREATER_EQUAL:
+            op = JBinaryOperator.GTE;
+            break;
+          case OperatorIds.GREATER:
+            op = JBinaryOperator.GT;
+            break;
+          case OperatorIds.LESS:
+            op = JBinaryOperator.LT;
+            break;
+          default:
+            throw new AssertionError("Unexpected operator for BinaryExpression");
+        }
+        pushBinaryOp(x, op);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
       }
-      pushBinaryOp(x, op);
     }
 
     @Override
@@ -536,6 +551,8 @@ public class JackIrBuilder {
         JCaseStatement jcase = new JCaseStatement(info, caseLiteral);
         push(jcase);
         switchCases.peek().add(jcase);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -548,6 +565,8 @@ public class JackIrBuilder {
         JType type = getTypeMap().get(x.resolvedType);
         JExpression expression = pop(x.expression);
         push(new JDynamicCastOperation(info, type, expression));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -568,6 +587,8 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JType type = getTypeMap().get(x.targetType);
         push(new JClassLiteral(info, type, javaLangClass));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -575,49 +596,55 @@ public class JackIrBuilder {
 
     @Override
     public void endVisit(CompoundAssignment x, BlockScope scope) {
-      JBinaryOperator op;
-      switch (x.operator) {
-        case OperatorIds.PLUS:
-          if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
-            op = JBinaryOperator.ASG_CONCAT;
-          } else {
-            op = JBinaryOperator.ASG_ADD;
-          }
-          break;
-        case OperatorIds.MINUS:
-          op = JBinaryOperator.ASG_SUB;
-          break;
-        case OperatorIds.MULTIPLY:
-          op = JBinaryOperator.ASG_MUL;
-          break;
-        case OperatorIds.DIVIDE:
-          op = JBinaryOperator.ASG_DIV;
-          break;
-        case OperatorIds.AND:
-          op = JBinaryOperator.ASG_BIT_AND;
-          break;
-        case OperatorIds.OR:
-          op = JBinaryOperator.ASG_BIT_OR;
-          break;
-        case OperatorIds.XOR:
-          op = JBinaryOperator.ASG_BIT_XOR;
-          break;
-        case OperatorIds.REMAINDER:
-          op = JBinaryOperator.ASG_MOD;
-          break;
-        case OperatorIds.LEFT_SHIFT:
-          op = JBinaryOperator.ASG_SHL;
-          break;
-        case OperatorIds.RIGHT_SHIFT:
-          op = JBinaryOperator.ASG_SHR;
-          break;
-        case OperatorIds.UNSIGNED_RIGHT_SHIFT:
-          op = JBinaryOperator.ASG_SHRU;
-          break;
-        default:
-          throw new AssertionError("Unexpected operator for CompoundAssignment");
+      try {
+        JBinaryOperator op;
+        switch (x.operator) {
+          case OperatorIds.PLUS:
+            if (javaLangString.isSameType(getTypeMap().get(x.resolvedType))) {
+              op = JBinaryOperator.ASG_CONCAT;
+            } else {
+              op = JBinaryOperator.ASG_ADD;
+            }
+            break;
+          case OperatorIds.MINUS:
+            op = JBinaryOperator.ASG_SUB;
+            break;
+          case OperatorIds.MULTIPLY:
+            op = JBinaryOperator.ASG_MUL;
+            break;
+          case OperatorIds.DIVIDE:
+            op = JBinaryOperator.ASG_DIV;
+            break;
+          case OperatorIds.AND:
+            op = JBinaryOperator.ASG_BIT_AND;
+            break;
+          case OperatorIds.OR:
+            op = JBinaryOperator.ASG_BIT_OR;
+            break;
+          case OperatorIds.XOR:
+            op = JBinaryOperator.ASG_BIT_XOR;
+            break;
+          case OperatorIds.REMAINDER:
+            op = JBinaryOperator.ASG_MOD;
+            break;
+          case OperatorIds.LEFT_SHIFT:
+            op = JBinaryOperator.ASG_SHL;
+            break;
+          case OperatorIds.RIGHT_SHIFT:
+            op = JBinaryOperator.ASG_SHR;
+            break;
+          case OperatorIds.UNSIGNED_RIGHT_SHIFT:
+            op = JBinaryOperator.ASG_SHRU;
+            break;
+          default:
+            throw new AssertionError("Unexpected operator for CompoundAssignment");
+        }
+        pushBinaryOp(x, op);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
       }
-      pushBinaryOp(x, op);
     }
 
     @Override
@@ -702,6 +729,8 @@ public class JackIrBuilder {
         }
 
         popMethodInfo();
+      } catch (JLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -845,6 +874,8 @@ public class JackIrBuilder {
 
           push(call.makeStatement());
         }
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       } finally {
@@ -891,6 +922,8 @@ public class JackIrBuilder {
           curMethod.body.getBlock().addStmt(decl);
         }
         popMethodInfo();
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -924,6 +957,8 @@ public class JackIrBuilder {
           expr = maybeCast(castType, expr);
         }
         push(expr);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1060,6 +1095,8 @@ public class JackIrBuilder {
         }
 
         push(result);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       } catch (IllegalAccessException e) {
@@ -1177,6 +1214,8 @@ public class JackIrBuilder {
         JExpression expr = pop(x.expression);
         JReferenceType testType = (JReferenceType) getTypeMap().get(x.type.resolvedType);
         push(new JInstanceOf(info, testType, expr));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1219,6 +1258,8 @@ public class JackIrBuilder {
         } else {
           push(null);
         }
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1287,6 +1328,8 @@ public class JackIrBuilder {
         } else {
           push(call);
         }
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1376,6 +1419,8 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         pushNewExpression(info, x, x.enclosingInstance(), arguments, scope);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1420,6 +1465,8 @@ public class JackIrBuilder {
           }
         }
         push(curRef);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1442,6 +1489,8 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         ReferenceBinding targetType = (ReferenceBinding) x.qualification.resolvedType;
         push(makeThisReference(info, targetType, true, scope));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1471,6 +1520,8 @@ public class JackIrBuilder {
           result = maybeCast(castType, result);
         }
         push(result);
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1504,6 +1555,8 @@ public class JackIrBuilder {
             || getTypeMap().get(x.resolvedType).isSameType(superClass);
         // Super refs can be modeled as a this ref.
         push(makeThisRef(makeSourceInfo(x)));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1549,6 +1602,8 @@ public class JackIrBuilder {
       try {
         assert getTypeMap().get(x.resolvedType).isSameType(curClass.type);
         push(makeThisRef(makeSourceInfo(x)));
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1613,6 +1668,8 @@ public class JackIrBuilder {
         push(
             new JTryStatement(info, resourceInits, tryBlock, catchBlocks, finallyBlock));
 
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1699,28 +1756,34 @@ public class JackIrBuilder {
 
     @Override
     public boolean visit(AnnotationMethodDeclaration x, ClassScope classScope) {
-      JAnnotationMethod method = (JAnnotationMethod) getTypeMap().get(x.binding);
-      JMethodBody body = null;
-      pushMethodInfo(new MethodInfo(this, method, body, x.scope));
+      try {
+        JAnnotationMethod method = (JAnnotationMethod) getTypeMap().get(x.binding);
+        JMethodBody body = null;
+        pushMethodInfo(new MethodInfo(this, method, body, x.scope));
 
-      Annotation[] annotations = x.annotations;
-      if (annotations != null) {
-        for (Annotation annotation : annotations) {
-          annotation.traverse(this, x.scope);
+        Annotation[] annotations = x.annotations;
+        if (annotations != null) {
+          for (Annotation annotation : annotations) {
+            annotation.traverse(this, x.scope);
+          }
         }
-      }
-      if (x.returnType != null) {
-        x.returnType.traverse(this, x.scope);
-      }
+        if (x.returnType != null) {
+          x.returnType.traverse(this, x.scope);
+        }
 
-      if (x.defaultValue != null) {
-        JLiteral defaultValue = annotationParser.parseLiteral(x.defaultValue, x.binding.returnType,
-            x.scope);
-        method.setDefaultValue(defaultValue);
-        defaultValue.updateParents(method);
-      }
+        if (x.defaultValue != null) {
+          JLiteral defaultValue =
+              annotationParser.parseLiteral(x.defaultValue, x.binding.returnType, x.scope);
+          method.setDefaultValue(defaultValue);
+          defaultValue.updateParents(method);
+        }
 
-      return false;
+        return false;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
+      }
     }
 
     @Override
@@ -1788,6 +1851,8 @@ public class JackIrBuilder {
 
         x.statements = reduceToReachable(x.statements);
         return true;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1804,6 +1869,8 @@ public class JackIrBuilder {
       try {
         pushInitializerMethodInfo(x, scope);
         return true;
+      } catch (JMethodLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1834,6 +1901,8 @@ public class JackIrBuilder {
       try {
         pushInitializerMethodInfo(x, scope);
         return true;
+      } catch (JMethodLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1844,6 +1913,8 @@ public class JackIrBuilder {
       try {
         curMethod.body.addLocal(createLocal(x));
         return true;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1875,6 +1946,8 @@ public class JackIrBuilder {
         }
         x.statements = reduceToReachable(x.statements);
         return true;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1906,6 +1979,8 @@ public class JackIrBuilder {
           }
         }
         return true;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
@@ -1950,26 +2025,32 @@ public class JackIrBuilder {
     }
 
     protected void endVisit(TypeDeclaration x) {
-      JDefinedClassOrInterface type = curClass.type;
+      try {
+        JDefinedClassOrInterface type = curClass.type;
 
-      if (type instanceof JDefinedEnum) {
-        processEnumType((JDefinedEnum) type);
+        if (type instanceof JDefinedEnum) {
+          processEnumType((JDefinedEnum) type);
+        }
+
+        if (type instanceof JDefinedClass) {
+          addBridgeMethods(x.binding);
+        }
+
+        JMethod method =
+            type.getMethod(NamingTools.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
+        JAbstractMethodBody body = method.getBody();
+        assert body != null;
+        ((JMethodBody) body).getBlock().addStmt(
+            new JReturnStatement(session.getSourceInfoFactory().create(
+                method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
+                method.getSourceInfo().getFileName()), null));
+
+        curClass = classStack.pop();
+      } catch (JLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
       }
-
-      if (type instanceof JDefinedClass) {
-        addBridgeMethods(x.binding);
-      }
-
-      JMethod method =
-          type.getMethod(NamingTools.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
-      JAbstractMethodBody body = method.getBody();
-      assert body != null;
-      ((JMethodBody) body).getBlock().addStmt(
-          new JReturnStatement(session.getSourceInfoFactory().create(
-              method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
-              method.getSourceInfo().getFileName()), null));
-
-      curClass = classStack.pop();
     }
 
     protected JBlock pop(Block x) {
@@ -2059,77 +2140,89 @@ public class JackIrBuilder {
     }
 
     protected boolean visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
-      JAnnotationLiteral literal = (JAnnotationLiteral) annotationParser.parseLiteral(annotation,
-          annotation.resolvedType, scope);
+      try {
+        JAnnotationLiteral literal = (JAnnotationLiteral) annotationParser.parseLiteral(annotation,
+            annotation.resolvedType, scope);
 
-      Binding recipient = annotation.recipient;
-      Annotable annotable;
-      switch (recipient.kind()) {
-        case Binding.PACKAGE:
-          throw new AssertionError("Not yet supported");
-        case Binding.GENERIC_TYPE:
-        case Binding.TYPE:
-          assert curClass.typeDecl.binding == recipient;
-          annotable = curClass.type;
-          break;
-        case Binding.METHOD:
-          annotable = getTypeMap().get((MethodBinding) recipient);
-          break;
-        case Binding.FIELD:
-          annotable = getTypeMap().get((FieldBinding) recipient);
-          break;
-        case Binding.LOCAL:
-          annotable = curMethod.getJVariable(((LocalVariableBinding) recipient));
-          assert annotable != null;
-          break;
-        default:
-          throw new AssertionError();
+        Binding recipient = annotation.recipient;
+        Annotable annotable;
+        switch (recipient.kind()) {
+          case Binding.PACKAGE:
+            throw new AssertionError("Not yet supported");
+          case Binding.GENERIC_TYPE:
+          case Binding.TYPE:
+            assert curClass.typeDecl.binding == recipient;
+            annotable = curClass.type;
+            break;
+          case Binding.METHOD:
+            annotable = getTypeMap().get((MethodBinding) recipient);
+            break;
+          case Binding.FIELD:
+            annotable = getTypeMap().get((FieldBinding) recipient);
+            break;
+          case Binding.LOCAL:
+            annotable = curMethod.getJVariable(((LocalVariableBinding) recipient));
+            assert annotable != null;
+            break;
+          default:
+            throw new AssertionError();
+        }
+        annotable.addAnnotation(literal);
+        literal.updateParents((JNode) annotable);
+        return false;
+      } catch (JTypeLookupException e) {
+        throw translateException(annotation, e);
+      } catch (RuntimeException e) {
+        throw translateException(annotation, e);
       }
-      annotable.addAnnotation(literal);
-      literal.updateParents((JNode) annotable);
-      return false;
     }
 
     protected boolean visit(TypeDeclaration x) {
-      JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(x.binding);
-      classStack.push(curClass);
-      curClass = new ClassInfo(type, x);
+      try {
+        JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(x.binding);
+        classStack.push(curClass);
+        curClass = new ClassInfo(type, x);
 
-      /*
-       * It's okay to defer creation of synthetic fields, they can't be
-       * referenced until we analyze the code.
-       */
-      SourceTypeBinding binding = x.binding;
-      if (isNested(binding)) {
-        // add synthetic fields for outer this and locals
-        assert (type instanceof JDefinedClass);
-        NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
+        /*
+         * It's okay to defer creation of synthetic fields, they can't be referenced until we
+         * analyze the code.
+         */
+        SourceTypeBinding binding = x.binding;
+        if (isNested(binding)) {
+          // add synthetic fields for outer this and locals
+          assert (type instanceof JDefinedClass);
+          NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
 
-        if (x.binding.syntheticFields() != null) {
-          for (FieldBinding fieldBinding : x.binding.syntheticFields()) {
-            JType fieldType = getTypeMap().get(fieldBinding.type);
-            SourceInfo info = type.getSourceInfo();
-            int modifier = JModifier.FINAL | JModifier.SYNTHETIC;
-            JField field = new JField(
-                info, ReferenceMapper.intern(fieldBinding.name), type, fieldType, modifier);
-            type.addField(field);
-            getTypeMap().setField(fieldBinding, field);
-            field.updateParents(type);
-          }
-        }
-
-        if (nestedBinding.outerLocalVariables != null) {
-          for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
-            SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
-            if (arg.matchingField == null) {
-              // Create a field is not required, need works to remove them due to $init
-              createSyntheticField(arg, type, JModifier.FINAL | JModifier.SYNTHETIC);
+          if (x.binding.syntheticFields() != null) {
+            for (FieldBinding fieldBinding : x.binding.syntheticFields()) {
+              JType fieldType = getTypeMap().get(fieldBinding.type);
+              SourceInfo info = type.getSourceInfo();
+              int modifier = JModifier.FINAL | JModifier.SYNTHETIC;
+              JField field = new JField(info, ReferenceMapper.intern(fieldBinding.name), type,
+                  fieldType, modifier);
+              type.addField(field);
+              getTypeMap().setField(fieldBinding, field);
+              field.updateParents(type);
             }
+          }
 
+          if (nestedBinding.outerLocalVariables != null) {
+            for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
+              SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
+              if (arg.matchingField == null) {
+                // Create a field is not required, need works to remove them due to $init
+                createSyntheticField(arg, type, JModifier.FINAL | JModifier.SYNTHETIC);
+              }
+
+            }
           }
         }
+        return true;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
       }
-      return true;
     }
 
     /**
@@ -2158,8 +2251,9 @@ public class JackIrBuilder {
      * This method should only be called once all regular, non-bridge methods
      * have been installed on the Jack types.
      * </p>
+     * @throws JTypeLookupException
      */
-    private void addBridgeMethods(SourceTypeBinding clazzBinding) {
+    private void addBridgeMethods(SourceTypeBinding clazzBinding) throws JTypeLookupException {
       /*
        * JDT adds bridge methods in all the places Jack needs them. Use JDT's
        * bridge methods.
@@ -2173,7 +2267,8 @@ public class JackIrBuilder {
       }
     }
 
-    private JBinaryOperation assignSyntheticField(SourceInfo info, SyntheticArgumentBinding arg) {
+    private JBinaryOperation assignSyntheticField(SourceInfo info, SyntheticArgumentBinding arg)
+        throws JTypeLookupException {
       JParameter param = (JParameter) curMethod.getJVariable(arg);
       assert param != null;
 
@@ -2194,8 +2289,10 @@ public class JackIrBuilder {
     /**
      * Create a bridge method. It calls a same-named method with the same
      * arguments, but with a different type signature.
+     * @throws JTypeLookupException
      */
-    private void createBridgeMethod(@Nonnull SyntheticMethodBinding jdtBridgeMethod) {
+    private void createBridgeMethod(@Nonnull SyntheticMethodBinding jdtBridgeMethod)
+        throws JTypeLookupException {
       JMethod implMethod = getTypeMap().get(jdtBridgeMethod.targetMethod);
       SourceInfo info = implMethod.getSourceInfo();
       String[] paramNames = null;
@@ -2234,7 +2331,8 @@ public class JackIrBuilder {
       popMethodInfo();
     }
 
-    private JField createEnumValuesField(JDefinedEnum type) {
+    private JField createEnumValuesField(JDefinedEnum type) throws JTypeLookupException,
+        JMethodLookupException {
       // $VALUES = new E[]{A,B,B};
       JArrayType enumArrayType =
           (JArrayType) getTypeMap().get("[" + Jack.getLookupFormatter().getName(type));
@@ -2270,7 +2368,7 @@ public class JackIrBuilder {
       return valuesField;
     }
 
-    private JLocal createLocal(LocalDeclaration x) {
+    private JLocal createLocal(LocalDeclaration x) throws JTypeLookupException {
       SourceInfo info = makeSourceInfo(x);
 
       LocalVariableBinding b = x.binding;
@@ -2300,8 +2398,7 @@ public class JackIrBuilder {
     }
 
     private JField createSyntheticField(SyntheticArgumentBinding arg,
-        JDefinedClassOrInterface enclosingType,
-        int modifier) {
+        JDefinedClassOrInterface enclosingType, int modifier) throws JTypeLookupException {
       JType type = getTypeMap().get(arg.type);
       SourceInfo info = enclosingType.getSourceInfo();
       JField field =
@@ -2353,7 +2450,8 @@ public class JackIrBuilder {
       return new JFieldRef(info, makeThisRef(info), field.getId(), field.getEnclosingType());
     }
 
-    private JExpression makeLocalRef(SourceInfo info, LocalVariableBinding b) {
+    private JExpression makeLocalRef(SourceInfo info, LocalVariableBinding b)
+        throws JTypeLookupException {
       JVariable variable = curMethod.getJVariable(b);
       assert variable != null;
       if (variable instanceof JLocal) {
@@ -2374,7 +2472,7 @@ public class JackIrBuilder {
     }
 
     private JExpression makeThisReference(SourceInfo info, ReferenceBinding targetType,
-        boolean exactMatch, BlockScope scope) {
+        boolean exactMatch, BlockScope scope) throws JTypeLookupException {
       targetType = (ReferenceBinding) targetType.erasure();
       Object[] path = scope.getEmulationPath(targetType, exactMatch, false);
       assert path != null : "No emulation path.";
@@ -2431,7 +2529,7 @@ public class JackIrBuilder {
     }
 
     private List<JExpression> popCallArgs(SourceInfo info, Expression[] jdtArgs,
-        MethodBinding binding) {
+        MethodBinding binding) throws JTypeLookupException {
       List<JExpression> args = pop(jdtArgs);
       if (!binding.isVarargs()) {
         return args;
@@ -2478,7 +2576,8 @@ public class JackIrBuilder {
       curMethod = methodStack.pop();
     }
 
-    private void processEnumType(JDefinedEnum type) {
+    private void processEnumType(JDefinedEnum type) throws JMethodLookupException,
+        JTypeLookupException {
       JField valuesField = createEnumValuesField(type);
 
       {
@@ -2502,7 +2601,8 @@ public class JackIrBuilder {
       body.updateParents(method);
     }
 
-    private void processSuperCallLocalArgs(ReferenceBinding superClass, JMethodCall call) {
+    private void processSuperCallLocalArgs(ReferenceBinding superClass, JMethodCall call)
+        throws JTypeLookupException {
       if (superClass.syntheticOuterLocalVariables() != null) {
         for (SyntheticArgumentBinding arg : superClass.syntheticOuterLocalVariables()) {
           // TODO(gwt): use emulation path here.
@@ -2522,7 +2622,7 @@ public class JackIrBuilder {
     }
 
     private void processSuperCallThisArgs(ReferenceBinding superClass, JMethodCall call,
-        JExpression qualifier, Expression qualification) {
+        JExpression qualifier, Expression qualification) throws JTypeLookupException {
       if (superClass.syntheticEnclosingInstanceTypes() != null) {
         for (ReferenceBinding targetType : superClass.syntheticEnclosingInstanceTypes()) {
           if (qualification != null && superClass.enclosingType() == targetType) {
@@ -2536,7 +2636,8 @@ public class JackIrBuilder {
       }
     }
 
-    private void processThisCallLocalArgs(ReferenceBinding binding, JMethodCall call) {
+    private void processThisCallLocalArgs(ReferenceBinding binding, JMethodCall call)
+        throws JTypeLookupException {
       if (binding.syntheticOuterLocalVariables() != null) {
         for (SyntheticArgumentBinding arg : binding.syntheticOuterLocalVariables()) {
           JParameter param = (JParameter) curMethod.getJVariable(arg);
@@ -2582,7 +2683,8 @@ public class JackIrBuilder {
       }
     }
 
-    private void pushInitializerMethodInfo(FieldDeclaration x, MethodScope scope) {
+    private void pushInitializerMethodInfo(FieldDeclaration x, MethodScope scope)
+        throws JMethodLookupException {
       JMethod initMeth;
       if (x.isStatic()) {
         initMeth =
@@ -2607,7 +2709,11 @@ public class JackIrBuilder {
           char[] methodSig = method.signature();
           if (new String(method.constantPoolName()).equals("getClass")
               && new String(methodSig).equals("()" + CommonTypes.JAVA_LANG_CLASS)) {
-            return getTypeMap().get(method);
+            try {
+              return getTypeMap().get(method);
+            } catch (JTypeLookupException e) {
+              throw new AssertionError(e);
+            }
           }
         }
 
@@ -2616,7 +2722,7 @@ public class JackIrBuilder {
     }
 
     private void pushNewExpression(SourceInfo info, AllocationExpression x, Expression qualifier,
-        List<JExpression> arguments, BlockScope scope) {
+        List<JExpression> arguments, BlockScope scope) throws JTypeLookupException {
       TypeBinding typeBinding = x.resolvedType;
       if (typeBinding.constantPoolName() == null) {
         /*
@@ -2767,7 +2873,8 @@ public class JackIrBuilder {
       return newStatments;
     }
 
-    private JExpression resolveNameReference(NameReference x, BlockScope scope) {
+    private JExpression resolveNameReference(NameReference x, BlockScope scope)
+        throws JTypeLookupException {
       SourceInfo info = makeSourceInfo(x);
 
       if (x.constant != Constant.NotAConstant) {
@@ -2902,7 +3009,8 @@ public class JackIrBuilder {
       return (new JMultiExpression(sourceInfo, exprs));
     }
 
-    private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method) {
+    private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method)
+        throws JTypeLookupException {
       ReferenceBinding enumType = curCud.scope.getJavaLangEnum();
       ReferenceBinding classType = curCud.scope.getJavaLangClass();
 
@@ -2979,7 +3087,8 @@ public class JackIrBuilder {
     }
 
     @Nonnull
-    public JVariable getJVariable(@Nonnull LocalVariableBinding ecjVar) {
+    public JVariable getJVariable(@Nonnull LocalVariableBinding ecjVar)
+        throws JTypeLookupException {
       JVariable jackVar = null;
       if (ecjVar.declaration == null) {
         jackVar = locals.get(ecjVar);
@@ -3100,36 +3209,53 @@ public class JackIrBuilder {
 
     @Override
     public boolean visit(ClassLiteralAccess x, BlockScope scope) {
-        parsed = new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType),
-            javaLangClass);
+      try {
+        parsed =
+            new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType), javaLangClass);
         return false;
+      } catch (JTypeLookupException e) {
+        throw translateException(x, e);
+      } catch (RuntimeException e) {
+        throw translateException(x, e);
+      }
     }
 
     protected void visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
-      JDefinedAnnotation jAnnotation =
-          (JDefinedAnnotation) getTypeMap().get(annotation.resolvedType);
-      JAnnotationLiteral literal =
-          new JAnnotationLiteral(makeSourceInfo(annotation), jAnnotation.getRetentionPolicy(),
-              jAnnotation);
+      try {
+        JDefinedAnnotation jAnnotation =
+            (JDefinedAnnotation) getTypeMap().get(annotation.resolvedType);
+        JAnnotationLiteral literal = new JAnnotationLiteral(makeSourceInfo(annotation),
+            jAnnotation.getRetentionPolicy(), jAnnotation);
 
-      MemberValuePair[] pairs = annotation.memberValuePairs();
-      for (MemberValuePair pair : pairs) {
-        JMethodId methodId = getTypeMap().get(pair.binding).getMethodId();
-        literal.add(new JNameValuePair(makeSourceInfo(pair), methodId,
-            parseLiteral(pair.value, pair.binding.returnType, scope)));
+        MemberValuePair[] pairs = annotation.memberValuePairs();
+        for (MemberValuePair pair : pairs) {
+          JMethodId methodId = getTypeMap().get(pair.binding).getMethodId();
+          literal.add(new JNameValuePair(makeSourceInfo(pair), methodId,
+              parseLiteral(pair.value, pair.binding.returnType, scope)));
+        }
+
+        parsed = literal;
+      } catch (JTypeLookupException e) {
+        throw translateException(annotation, e);
+      } catch (RuntimeException e) {
+        throw translateException(annotation, e);
       }
-
-      parsed = literal;
     }
 
-    private void visit(NameReference nameReference) throws AssertionError {
-      Binding binding = nameReference.binding;
-      if (binding instanceof FieldBinding) {
-        JField field = getTypeMap().get((FieldBinding) binding);
-        assert field instanceof JEnumField;
-        parsed = new JEnumLiteral(makeSourceInfo(nameReference), field.getId());
-      } else {
-        throw new AssertionError("Not yet supported " + nameReference);
+    private void visit(NameReference nameReference) {
+      try {
+        Binding binding = nameReference.binding;
+        if (binding instanceof FieldBinding) {
+          JField field = getTypeMap().get((FieldBinding) binding);
+          assert field instanceof JEnumField;
+          parsed = new JEnumLiteral(makeSourceInfo(nameReference), field.getId());
+        } else {
+          throw new AssertionError("Not yet supported " + nameReference);
+        }
+      } catch (JTypeLookupException e) {
+        throw translateException(nameReference, e);
+      } catch (RuntimeException e) {
+        throw translateException(nameReference, e);
       }
     }
   }
@@ -3271,9 +3397,13 @@ public class JackIrBuilder {
     }
 
     // Now that types exist, cache Object, String, etc.
-    javaLangObject = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangObject());
-    javaLangString = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangString());
-    javaLangClass = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangClass());
+    try {
+      javaLangObject = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangObject());
+      javaLangString = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangString());
+      javaLangClass = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangClass());
+    } catch (JTypeLookupException e) {
+      throw new AssertionError(e);
+    }
 
     for (TypeDeclaration typeDecl : cud.types) {
       // Create fields and empty methods.
@@ -3419,18 +3549,24 @@ public class JackIrBuilder {
   }
 
   private void createField(FieldDeclaration x) {
-    if (x instanceof Initializer) {
-      return;
-    }
+    try {
+      if (x instanceof Initializer) {
+        return;
+      }
 
-    getTypeMap().get(x.binding);
+      getTypeMap().get(x.binding);
+    } catch (JTypeLookupException e) {
+      throw translateException(x, e);
+    } catch (RuntimeException e) {
+      throw translateException(x, e);
+    }
   }
 
   private void createMembers(TypeDeclaration x) {
-    SourceTypeBinding binding = x.binding;
-    JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(binding);
-    SourceInfo info = type.getSourceInfo();
     try {
+      SourceTypeBinding binding = x.binding;
+      JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(binding);
+      SourceInfo info = type.getSourceInfo();
       ((EcjSourceTypeLoader) type.getLoader()).loadFully(type);
 
       createStaticInitializer(info, type);
@@ -3481,16 +3617,24 @@ public class JackIrBuilder {
           createMembers(memberType);
         }
       }
+    } catch (JTypeLookupException e) {
+      throw translateException(x, e);
     } catch (RuntimeException e) {
-      throw translateException(x, e, info);
+      throw translateException(x, e);
     }
   }
 
   private void createMethod(AbstractMethodDeclaration x) {
-    if (x instanceof Clinit) {
-      return;
+    try {
+      if (x instanceof Clinit) {
+        return;
+      }
+      getTypeMap().get(x.binding);
+    } catch (JTypeLookupException e) {
+      throw translateException(x, e);
+    } catch (RuntimeException e) {
+      throw translateException(x, e);
     }
-    getTypeMap().get(x.binding);
   }
 
   private JMethod createStaticInitializer(SourceInfo info, JDefinedClassOrInterface enclosingType) {
@@ -3522,7 +3666,8 @@ public class JackIrBuilder {
 
   @Nonnull
   private JMethod createSyntheticMethodFromBinding(@Nonnull SourceInfo info,
-      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames) {
+      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames)
+      throws JTypeLookupException {
     JMethod method = getTypeMap().get(binding);
     method.setSourceInfo(info);
     int i = 0;
@@ -3547,6 +3692,8 @@ public class JackIrBuilder {
           createTypes(memberType);
         }
       }
+    } catch (JTypeLookupException e) {
+      throw translateException(x, e, info);
     } catch (RuntimeException e) {
       throw translateException(x, e, info);
     }
