@@ -292,6 +292,7 @@
   <!-- ******************* -->
   <property name="jack-tests.libs.dir" value="${jack-tests.dir}/libs" />
   <property name="jack-tests.build.dir" value="${jack-tests.dir}/build" />
+  <property name="jack-tests.build.outdir" value="${jack-tests.build.dir}/classes" />
   <property name="jack-tests.dist.dir" value="${jack-tests.dir}/dist" />
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
 
