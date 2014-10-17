@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.reflection.MemberFinder;
 import com.android.jack.reflection.MultipleFieldsFoundException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -51,7 +52,7 @@ public class GetFieldParameterRefiner extends CommonStringParameterRefiner imple
   private JMethodId getFieldMethodId;
 
   @Override
-  public boolean isApplicable(@Nonnull JMethodCall call) {
+  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (getFieldMethodId == null) {
       getFieldMethodId = javaLangClass.getMethodId(
           GETFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),

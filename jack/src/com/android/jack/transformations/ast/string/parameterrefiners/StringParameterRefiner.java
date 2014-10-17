@@ -19,6 +19,7 @@ package com.android.jack.transformations.ast.string.parameterrefiners;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JStringLiteral;
+import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
  * Interface that must be implement to refine string parameter of call.
  */
 public interface StringParameterRefiner {
-  public boolean isApplicable(@Nonnull JMethodCall call);
+  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException;
   @CheckForNull
   public JStringLiteral getExpressionToRefine(@Nonnull JMethodCall call);
   @CheckForNull
