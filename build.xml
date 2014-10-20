@@ -44,6 +44,7 @@
     hamcrest-core-lib-clean,
     dexcomparator-clean,
     dex-lib-clean,
+    ddm-lib-clean,
     dx-ref-lib-clean,
     core-stubs-mini-clean" />
 
@@ -298,6 +299,8 @@
 
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
+    <delete dir="${jack-tests.build.outdir}" />
+    <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
   </target>
 
   <target name="jack-tests-copy-libs" depends="core-stubs-mini,junit4,dx-ref-lib,ddm-lib,ecj,
@@ -344,10 +347,7 @@
       <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
       <classpath>
         <filelist dir="/">
-          <file name="${junit4.dist.dir}/${junit4.libname}" />
-          <file name="${jack.dist.dir}/${jack.libname}" />
-          <file name="${jackunittests.dist.dir}/${jackunittests.libname}" />
-          <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
+          <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
         </filelist>
       </classpath>
@@ -416,7 +416,7 @@
   <property name="ddm-lib.dist.dir" value="${ddm-lib.dir}/dist"/>
 
   <target name="ddm-lib-clean">
-    <delete dir="${ddm-lib.dist.dir}"/>
+    <delete file="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
   </target>
 
   <target name="ddm-lib">
