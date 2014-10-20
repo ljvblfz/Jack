@@ -31,17 +31,23 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 public class MultiDexOverflowTests {
 
+  @Nonnull
   private static File annotations;
+  @Nonnull
+  private static final String EXPECTED_MESSAGE =
+      "Error during the dex writing phase: classes.dex has too many IDs";
 
   @BeforeClass
   public static void init() throws IOException, Exception {
@@ -62,6 +68,9 @@ public class MultiDexOverflowTests {
     Options options = new Options();
     options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream redirectStream = new PrintStream(baos);
+    System.setErr(redirectStream);
     try {
       TestTools.compileSourceToDex(options, srcFolder, TestTools.getClasspathsAsString(
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
@@ -72,6 +81,9 @@ public class MultiDexOverflowTests {
       Assert.assertTrue(cause instanceof DexWritingException);
       Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
       Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
+      Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
+    } finally {
+      redirectStream.close();
     }
   }
 
@@ -89,6 +101,9 @@ public class MultiDexOverflowTests {
     Options options = new Options();
     options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream redirectStream = new PrintStream(baos);
+    System.setErr(redirectStream);
     try {
       TestTools.compileSourceToDex(options, srcFolder, TestTools.getClasspathsAsString(
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
@@ -99,6 +114,9 @@ public class MultiDexOverflowTests {
       Assert.assertTrue(cause instanceof DexWritingException);
       Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
       Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
+      Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
+    } finally {
+      redirectStream.close();
     }
   }
 
