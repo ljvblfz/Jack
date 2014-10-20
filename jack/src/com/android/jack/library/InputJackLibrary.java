@@ -41,21 +41,38 @@ public class InputJackLibrary implements InputLibrary {
   private final InputRootVDir libraryVDir;
 
   @Nonnull
-  private final InputLibraryLocation location;
+  private final InputLibraryLocation location = new InputLibraryLocation() {
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return libraryVDir.getLocation().getDescription();
+    }
+
+    @Override
+    public int hashCode() {
+      return InputJackLibrary.this.hashCode();
+    }
+
+    @Override
+    @Nonnull
+    public InputLibrary getInputLibrary() {
+      return InputJackLibrary.this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof InputLibraryLocation
+          && ((InputLibraryLocation) obj).getInputLibrary().equals(getInputLibrary());
+    }
+  };
 
   @Nonnull
   private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
 
   public InputJackLibrary(@Nonnull InputRootVDir libraryVDir) {
     this.libraryVDir = libraryVDir;
-    location = new InputLibraryLocation(this);
     fillBinaryKinds(libraryVDir);
-  }
-
-  @Override
-  @Nonnull
-  public InputRootVDir getInputVDir() {
-    return libraryVDir;
   }
 
   @Override
@@ -93,6 +110,12 @@ public class InputJackLibrary implements InputLibrary {
     } catch (NotFileOrDirectoryException e) {
       throw new BinaryDoesNotExistException(getLocation(), typePath, binaryKind);
     }
+  }
+
+  @Override
+  @Nonnull
+  public InputRootVDir getInputVDir() {
+    return libraryVDir;
   }
 
   private void fillBinaryKinds(@Nonnull InputVDir vDir) {
