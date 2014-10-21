@@ -427,6 +427,7 @@ public abstract class Jack {
         }
 
         Request request = createInitialRequest();
+        request.addFeature(PreProcessor.class);
 
         request.addFeature(Resources.class);
 
@@ -448,9 +449,6 @@ public abstract class Jack {
         }
         if (options.dxLegacy) {
           request.addFeature(DxLegacy.class);
-        }
-        if (config.get(PreProcessor.ENABLE).booleanValue()) {
-          request.addFeature(PreProcessor.class);
         }
         if (options.flags != null) {
           if (options.flags.shrink()) {
@@ -544,9 +542,7 @@ public abstract class Jack {
           throw new AssertionError(e);
         }
 
-        if (config.get(PreProcessor.ENABLE).booleanValue()) {
-          planBuilder.append(PreProcessorApplier.class);
-        }
+        planBuilder.append(PreProcessorApplier.class);
 
         if (targetProduction.contains(JayceFormatProduct.class)
             && !targetProduction.contains(DexFileProduct.class)
@@ -664,13 +660,10 @@ public abstract class Jack {
 
     JSession session =  getSession();
 
-    JPackage rootPackage = session.getTopLevelPackage();
-
-    JPhantomLookup phantomLookup = session.getPhantomLookup();
     JayceFileImporter jayceImporter =
-        getJayceFileImporter(options.jayceImport, rootPackage, phantomLookup, hooks);
-    putInJackClasspath(options.getBootclasspath(), rootPackage, phantomLookup, hooks);
-    putInJackClasspath(options.getClasspath(), rootPackage, phantomLookup, hooks);
+        getJayceFileImporter(options.jayceImport, hooks, session);
+    putInJackClasspath(options.getBootclasspath(), hooks, session);
+    putInJackClasspath(options.getClasspath(), hooks, session);
 
     if (ecjArguments != null) {
 
@@ -696,7 +689,7 @@ public abstract class Jack {
     Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
 
     try {
-      JClass javaLangObject = phantomLookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
+      JClass javaLangObject = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       MethodIdMerger merger = new MethodIdMerger(javaLangObject);
       for (JType type : session.getTypesToEmit()) {
         merger.accept(type);
@@ -717,8 +710,7 @@ public abstract class Jack {
 
   @Nonnull
   private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
-      @Nonnull JPackage rootPackage, @Nonnull JPhantomLookup phantomLookup,
-      @Nonnull RunnableHooks hooks) throws JackFileException {
+      @Nonnull RunnableHooks hooks, @Nonnull JSession session) throws JackFileException {
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>(jayceImport.size());
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
     for (final File jackFile : jayceImport) {
@@ -727,8 +719,10 @@ public abstract class Jack {
         InputJackLibrary inputJackLibrary = new InputJackLibrary(vDir);
         inputJackLibraries.add(inputJackLibrary);
         // add to classpath
-        JaycePackageLoader rootPLoader = factory.create(inputJackLibrary, phantomLookup);
-        rootPackage.addLoader(rootPLoader);
+        JaycePackageLoader rootPLoader = factory.create(inputJackLibrary,
+            session.getPhantomLookup());
+        session.getTopLevelPackage().addLoader(rootPLoader);
+        session.addImportSource(vDir);
       } catch (IOException ioException) {
         throw new JackFileException("Error importing jack container: " + ioException.getMessage(),
             ioException);
@@ -738,16 +732,16 @@ public abstract class Jack {
   }
 
   private static void putInJackClasspath(@Nonnull List<File> jackFiles,
-      @Nonnull JPackage rootPackage,
-      @Nonnull JPhantomLookup phantomJNodeLookup,
-      @Nonnull RunnableHooks hooks) {
+      @Nonnull RunnableHooks hooks,
+      @Nonnull JSession session) {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
     for (final File jackFile : jackFiles) {
       try {
         InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
         JaycePackageLoader rootPLoader =
-            factory.create(new InputJackLibrary(vDir), phantomJNodeLookup);
-        rootPackage.addLoader(rootPLoader);
+            factory.create(new InputJackLibrary(vDir), session.getPhantomLookup());
+        session.getTopLevelPackage().addLoader(rootPLoader);
+        session.addClasspathSource(vDir);
       } catch (IOException ioException) {
         // Ignore bad entry
         logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", ioException.getMessage());

@@ -16,6 +16,8 @@
 
 package com.android.jack.multidex;
 
+import com.google.common.io.Files;
+
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
@@ -221,6 +223,37 @@ public class MultiDexTests {
         new File(testFolder,"config-001.jpp"));
     app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     app1Options.addJayceImport(library);
+
+    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
+        + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
+        out, false);
+
+    File outList = getListingOfDex(new File(out, "classes.dex"));
+    // The old toolchain is doing a little better than us here it seems to identify when
+    // InterfaceWithEnum.class instance is used or not.
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002-1.txt"), outList);
+    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002-2.txt"), outList2);
+    Assert.assertFalse(new File(out, "classes3.dex").exists());
+    return;
+  }
+
+  @Test
+  public void legacyAppTest002b_auto() throws Exception {
+
+    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
+    File autoLibrary = prepareLibrary(frameworks);
+    File jackInf = new File(autoLibrary, "JACK-INF");
+    Assert.assertTrue(jackInf.mkdir());
+    Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
+
+    File out = TestTools.createTempDir("out", "");
+    Options app1Options = new Options();
+    app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
+    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+    app1Options.addJayceImport(autoLibrary);
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultBootclasspathString()
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),

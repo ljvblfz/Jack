@@ -16,6 +16,9 @@
 package com.android.jack.ir.ast;
 
 
+import com.google.common.collect.Iterators;
+
+import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -32,10 +35,12 @@ import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.InputRootVDir;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -85,6 +90,12 @@ public class JSession extends JNode {
 
   @CheckForNull
   private OutputLibrary outputLibrary;
+
+  @Nonnull
+  private final List<InputRootVDir> importSources = new ArrayList<InputRootVDir>(0);
+
+  @Nonnull
+  private final List<InputRootVDir> classpathSources = new ArrayList<InputRootVDir>(0);
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -205,5 +216,30 @@ public class JSession extends JNode {
 
   public void addGeneratedBinaryKind(@Nonnull BinaryKind binaryKind) {
     generatedBinaryKinds.add(binaryKind);
+  }
+
+  public void addImportSource(@Nonnull InputRootVDir source) {
+    importSources.add(source);
+  }
+
+  @Nonnull
+  public List<InputRootVDir> getImportSources() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(importSources);
+  }
+
+  public void addClasspathSource(@Nonnull InputRootVDir source) {
+    classpathSources.add(source);
+  }
+
+  @Nonnull
+  public List<InputRootVDir> getClasspathSources() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(classpathSources);
+  }
+
+  @Nonnull
+  public Iterator<InputRootVDir> getPathSources() {
+    return Iterators.concat(
+        importSources.iterator(),
+        classpathSources.iterator());
   }
 }

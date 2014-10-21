@@ -24,16 +24,21 @@ import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
+import com.android.sched.vfs.InputVFile;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -50,14 +55,62 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    InputStreamFile input = ThreadConfig.get(PreProcessor.FILE);
-    InputStream inputStream = input.getInputStream();
+
+    Collection<Rule> rules = new ArrayList<Rule>();
+
+    if (ThreadConfig.get(PreProcessor.ENABLE).booleanValue()) {
+      InputStreamFile input = ThreadConfig.get(PreProcessor.FILE);
+      InputStream inputStream = input.getInputStream();
+      try {
+        rules.addAll(parseRules(session, inputStream));
+      } finally {
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          // nothing to handle for inputs
+        }
+      }
+    }
+
+    for (Iterator<InputRootVDir> iter = session.getPathSources(); iter.hasNext();) {
+      InputRootVDir dir = iter.next();
+      for (InputVElement sub : dir.list()) {
+        if (sub.getName().equals("JACK-INF") && sub.isVDir()) {
+          for (InputVElement inf : ((InputVDir) sub).list()) {
+            if (inf.getName().endsWith(".jpp") && !inf.isVDir()) {
+              InputStream inputStream = ((InputVFile) inf).openRead();
+              try {
+                rules.addAll(parseRules(session, inputStream));
+              } finally {
+                try {
+                  inputStream.close();
+                } catch (IOException e) {
+                  // nothing to handle for inputs
+                }
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    applyRules(rules, session);
+  }
+
+  @Nonnull
+  private Collection<Rule> parseRules(
+      @Nonnull JSession session,
+      @Nonnull InputStream inputStream) throws IOException, RecognitionException {
     ANTLRInputStream in = new ANTLRInputStream(inputStream);
-    try {
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);
-    Collection<Rule> rules = parser.rules(session);
+    return parser.rules(session);
+  }
+
+  private void applyRules(@Nonnull Collection<Rule> rules,
+      @Nonnull JSession session) {
     Scope scope = new TypeToEmitScope(session);
     List<TransformationRequest> requests = new ArrayList<TransformationRequest>(rules.size());
     for (Rule rule : rules) {
@@ -70,15 +123,6 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
     for (TransformationRequest request : requests) {
       request.commit();
     }
-    } finally {
-      try {
-        inputStream.close();
-      } catch (IOException e) {
-        logger.log(Level.WARNING, "Failed to close input stream on '"
-            + input.getLocation().getDescription() + "'", e);
-      }
-    }
-
   }
 
 }
