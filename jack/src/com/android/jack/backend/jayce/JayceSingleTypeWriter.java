@@ -36,9 +36,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.DirectFile;
-import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.SequentialOutputVDir;
 import com.android.sched.vfs.VPath;
 
 import java.io.BufferedOutputStream;
@@ -58,23 +56,23 @@ import javax.annotation.Nonnull;
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  private final OutputVDir outputDir;
+  private final OutputLibrary outputLibrary;
 
   {
-    OutputLibrary outputLibrary = Jack.getSession().getOutputLibrary();
-    assert outputLibrary != null;
-    outputDir = outputLibrary.getOutputVDir();
+    OutputLibrary ol = Jack.getSession().getOutputLibrary();
+    assert ol != null;
+    this.outputLibrary = ol;
   }
 
   @Synchronized
   public boolean needsSynchronization() {
-    return (outputDir instanceof SequentialOutputVDir);
+    return outputLibrary.needsSequentialWriting();
   }
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    VPath filePath = getFilePath(type);
-    OutputVFile vFile = outputDir.createOutputVFile(filePath);
+    OutputVFile vFile = outputLibrary.getJayceOutputVFile(
+        new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
     try {
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
