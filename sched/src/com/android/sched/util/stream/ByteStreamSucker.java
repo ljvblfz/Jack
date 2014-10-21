@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.util;
+package com.android.sched.util.stream;
 
 import com.google.common.io.NullOutputStream;
 
@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Class that continuously read an {@link InputStream} and optionally could write the input in a
  * {@link OutputStream}.
  */
-public class BytesStreamSucker {
+public class ByteStreamSucker {
 
   private static final int BUFFER_SIZE = 4096;
 
@@ -43,18 +43,18 @@ public class BytesStreamSucker {
 
   private final boolean toBeClose;
 
-  public BytesStreamSucker(
+  public ByteStreamSucker(
       @Nonnull InputStream is, @Nonnull OutputStream os, boolean toBeClose) {
     this.is = is;
     this.os = os;
     this.toBeClose = toBeClose;
   }
 
-  public BytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
+  public ByteStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
     this(is, os, false);
   }
 
-  public BytesStreamSucker(@Nonnull InputStream is) {
+  public ByteStreamSucker(@Nonnull InputStream is) {
     this(is, new NullOutputStream(), false);
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.util;
+package com.android.sched.util.stream;
 
 import com.google.common.io.NullOutputStream;
 

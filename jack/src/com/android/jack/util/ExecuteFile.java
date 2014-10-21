@@ -17,6 +17,8 @@
 package com.android.jack.util;
 
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.CharacterStreamSucker;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -182,7 +184,7 @@ public class ExecuteFile {
       InputStream localInStream = inStream;
       if (localInStream != null) {
         suckIn = new Thread(
-            new ThreadBytesStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
+            new ThreadByteStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
       } else {
         proc.getOutputStream().close();
       }
@@ -190,22 +192,22 @@ public class ExecuteFile {
       OutputStream localOutStream = outStream;
       if (localOutStream != null) {
         if (localOutStream instanceof PrintStream) {
-          suckOut = new Thread(new ThreadCharactersStreamSucker(proc.getInputStream(),
+          suckOut = new Thread(new ThreadCharacterStreamSucker(proc.getInputStream(),
               (PrintStream) localOutStream, outToBeClose));
         } else {
           suckOut = new Thread(
-              new ThreadBytesStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
+              new ThreadByteStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
         }
       }
 
       OutputStream localErrStream = errStream;
       if (localErrStream != null) {
         if (localErrStream instanceof PrintStream) {
-          suckErr = new Thread(new ThreadCharactersStreamSucker(proc.getErrorStream(),
+          suckErr = new Thread(new ThreadCharacterStreamSucker(proc.getErrorStream(),
               (PrintStream) localErrStream, errToBeClose));
         } else {
           suckErr = new Thread(
-              new ThreadBytesStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
+              new ThreadByteStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
         }
       }
 
@@ -239,9 +241,9 @@ public class ExecuteFile {
     }
   }
 
-  private static class ThreadBytesStreamSucker extends BytesStreamSucker implements Runnable {
+  private static class ThreadByteStreamSucker extends ByteStreamSucker implements Runnable {
 
-    public ThreadBytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os,
+    public ThreadByteStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os,
         boolean toBeClose) {
       super(is, os, toBeClose);
     }
@@ -256,10 +258,10 @@ public class ExecuteFile {
     }
   }
 
-  private static class ThreadCharactersStreamSucker extends CharactersStreamSucker implements
+  private static class ThreadCharacterStreamSucker extends CharacterStreamSucker implements
       Runnable {
 
-    public ThreadCharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps,
+    public ThreadCharacterStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps,
         boolean toBeClose) {
       super(is, ps, toBeClose);
     }

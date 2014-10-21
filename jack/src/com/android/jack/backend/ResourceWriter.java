@@ -20,12 +20,12 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.scheduling.feature.Resources;
-import com.android.jack.util.BytesStreamSucker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
@@ -79,7 +79,7 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();
       try {
-        BytesStreamSucker sucker = new BytesStreamSucker(is, os);
+        ByteStreamSucker sucker = new ByteStreamSucker(is, os);
         sucker.suck();
       } finally {
         if (is != null) {

@@ -17,7 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.category.KnownBugs;
-import com.android.jack.util.BytesStreamSucker;
+import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
 
@@ -443,7 +443,7 @@ public class ResourceTest {
       }
       try {
         fos = new FileOutputStream(copiedFile);
-        BytesStreamSucker sucker = new BytesStreamSucker(fis, fos);
+        ByteStreamSucker sucker = new ByteStreamSucker(fis, fos);
         sucker.suck();
       } finally {
         if (fos != null) {
@@ -465,7 +465,7 @@ public class ResourceTest {
       fis = new FileInputStream(fileToCopy);
       ZipEntry sourceEntry = new ZipEntry(entryName);
       zos.putNextEntry(sourceEntry);
-      BytesStreamSucker sucker = new BytesStreamSucker(fis, zos);
+      ByteStreamSucker sucker = new ByteStreamSucker(fis, zos);
       sucker.suck();
     } finally {
       if (fis != null) {

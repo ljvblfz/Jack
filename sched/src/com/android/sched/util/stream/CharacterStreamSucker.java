@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.util;
+package com.android.sched.util.stream;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 import javax.annotation.Nonnull;
@@ -26,35 +28,37 @@ import javax.annotation.Nonnull;
  * Class that continuously read an {@link InputStream} and optionally could print the input in a
  * {@link PrintStream}.
  */
-public class CharactersStreamSucker {
+public class CharacterStreamSucker {
 
   @Nonnull
-  private final InputStream is;
+  private final BufferedReader ir;
+
   @Nonnull
   private final PrintStream os;
 
   private final boolean toBeClose;
 
-  public CharactersStreamSucker(
+  public CharacterStreamSucker(
       @Nonnull InputStream is, @Nonnull PrintStream os, boolean toBeClose) {
-    this.is = is;
+    this.ir = new BufferedReader(new InputStreamReader(is));
     this.os = os;
     this.toBeClose = toBeClose;
   }
 
-  public CharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream os) {
+  public CharacterStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream os) {
     this(is, os, false);
   }
 
-  public CharactersStreamSucker(@Nonnull InputStream is) {
+  public CharacterStreamSucker(@Nonnull InputStream is) {
     this(is, new NullPrintStream(), false);
   }
 
   public void suck() throws IOException {
-    int readChar;
+    String line;
+
     try {
-      while ((readChar = is.read()) != -1) {
-        os.write(readChar);
+      while ((line = ir.readLine()) != null) {
+        os.println(line);
       }
     } finally {
       if (toBeClose) {

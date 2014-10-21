@@ -20,7 +20,7 @@ import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.ResourceImportConflictException;
 import com.android.jack.category.KnownBugs;
-import com.android.jack.util.BytesStreamSucker;
+import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
 
@@ -445,7 +445,7 @@ public class FileConflictTest {
       }
       try {
         fos = new FileOutputStream(copiedFile);
-        BytesStreamSucker sucker = new BytesStreamSucker(fis, fos);
+        ByteStreamSucker sucker = new ByteStreamSucker(fis, fos);
         sucker.suck();
       } finally {
         if (fos != null) {

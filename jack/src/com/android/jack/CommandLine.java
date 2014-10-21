@@ -18,7 +18,6 @@ package com.android.jack;
 
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
-import com.android.jack.util.CharactersStreamSucker;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.Parser.ValueDescription;
@@ -28,6 +27,7 @@ import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.CharacterStreamSucker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -130,7 +130,7 @@ public abstract class CommandLine {
     if (is == null) {
       throw new AssertionError();
     }
-    CharactersStreamSucker css = new CharactersStreamSucker(is, printStream);
+    CharacterStreamSucker css = new CharacterStreamSucker(is, printStream);
     try {
       css.suck();
     } catch (IOException e) {

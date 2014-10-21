@@ -17,6 +17,8 @@
 package com.android.jack.test.util;
 
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.CharacterStreamSucker;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -255,7 +257,7 @@ public class ExecuteFile {
     }
   }
 
-  private static class ThreadBytesStreamSucker extends BytesStreamSucker implements Runnable {
+  private static class ThreadBytesStreamSucker extends ByteStreamSucker implements Runnable {
 
     public ThreadBytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os,
         boolean toBeClose) {
@@ -272,7 +274,7 @@ public class ExecuteFile {
     }
   }
 
-  private static class ThreadCharactersStreamSucker extends CharactersStreamSucker implements
+  private static class ThreadCharactersStreamSucker extends CharacterStreamSucker implements
       Runnable {
 
     public ThreadCharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps,
