@@ -23,13 +23,19 @@ import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.library.BinaryDoesNotExistException;
 import com.android.jack.library.BinaryKind;
+import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
@@ -60,8 +66,10 @@ public abstract class DexWritingTool {
 
   public abstract void write(@Nonnull OutputVDir outputVDir) throws DexWritingException;
 
+
   @Nonnull
-  protected InputRootVDir getTypeDexDir() {
+  protected InputRootVDir getIntermediateDexDir() {
+
     return (InputRootVDir) ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
   }
 
@@ -109,10 +117,29 @@ public abstract class DexWritingTool {
   }
 
   protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
-      @Nonnull List<InputVFile> anyDexList) {
+      @Nonnull List<InputVFile> anyDexList) throws LibraryFormatException {
     for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
       try {
-        InputVFile inputVFile = getTypeDexDir().getInputVFile(DexWriter.getFilePath(type));
+        InputVFile inputVFile;
+        Location loc = type.getLocation();
+        if (loc instanceof TypeInInputLibraryLocation) {
+          InputLibrary inputLibrary =
+              ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+          if (inputLibrary.hasBinary(BinaryKind.DEX)) {
+            try {
+              inputVFile = inputLibrary.getBinary(
+                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'),
+                  BinaryKind.DEX);
+            } catch (BinaryDoesNotExistException e) {
+              throw new LibraryFormatException(e);
+            }
+          } else {
+            inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
+          }
+        } else {
+          inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
+        }
+
         if (type.containsMarker(MainDexMarker.class)) {
           mainDexList.add(inputVFile);
         } else {

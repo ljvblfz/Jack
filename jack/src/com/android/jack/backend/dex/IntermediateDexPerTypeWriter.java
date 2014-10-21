@@ -23,6 +23,7 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
@@ -54,6 +55,11 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    assert !(
+        type.getLocation() instanceof TypeInInputLibraryLocation
+        && !((TypeInInputLibraryLocation) type.getLocation()).getInputLibraryLocation()
+            .getInputLibrary().getBinaryKinds().isEmpty());
+
     ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
     assert cdiMarker != null;
 

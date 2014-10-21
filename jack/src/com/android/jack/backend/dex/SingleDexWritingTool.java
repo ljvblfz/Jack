@@ -16,10 +16,15 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.Jack;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.BinaryKind;
+import com.android.jack.library.InputLibrary;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
@@ -45,7 +50,8 @@ public class SingleDexWritingTool extends DexWritingTool {
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir);
     List<InputVFile> dexList = new ArrayList<InputVFile>();
-    getAllDexFilesFromDir(getTypeDexDir(), dexList);
+    getAllDexFilesFromDir(getIntermediateDexDir(), dexList);
+    getAllDexFilesFromLib(dexList);
 
     for (InputVFile currentDex : dexList) {
       try {
@@ -55,6 +61,23 @@ public class SingleDexWritingTool extends DexWritingTool {
       }
     }
     finishMerge(merger, outputDex);
+  }
+
+  private void getAllDexFilesFromLib(@Nonnull List<InputVFile> dexFiles) {
+    List<InputLibrary> librariesDone = new ArrayList<InputLibrary>();
+    for (JDefinedClassOrInterface jdcoi : Jack.getSession().getTypesToEmit()) {
+      Location loc = jdcoi.getLocation();
+      if (loc instanceof TypeInInputLibraryLocation) {
+        InputLibrary inputLibrary =
+            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+        if (!librariesDone.contains(inputLibrary)) {
+          if (inputLibrary.hasBinary(BinaryKind.DEX)) {
+            dexFiles.addAll(inputLibrary.getBinaries(BinaryKind.DEX));
+          }
+          librariesDone.add(inputLibrary);
+        }
+      }
+    }
   }
 
   private void getAllDexFilesFromDir(@Nonnull InputVDir dexFileVDir,
