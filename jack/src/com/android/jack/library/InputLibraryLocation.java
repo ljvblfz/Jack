@@ -23,34 +23,14 @@ import javax.annotation.Nonnull;
 /**
  * Class describing an input library location.
  */
-public class InputLibraryLocation extends Location {
+public abstract class InputLibraryLocation extends Location {
 
   @Nonnull
-  private final InputLibrary inputLibrary;
-
-  public InputLibraryLocation(@Nonnull InputLibrary inputLibrary) {
-    this.inputLibrary = inputLibrary;
-  }
+  public abstract InputLibrary getInputLibrary();
 
   @Override
-  @Nonnull
-  public String getDescription() {
-    return "library " + inputLibrary.getInputVDir().getLocation().getDescription();
-  }
-
-  @Nonnull
-  public InputLibrary getInputLibrary() {
-    return inputLibrary;
-  }
+  public abstract boolean equals(Object obj);
 
   @Override
-  public final boolean equals(Object obj) {
-    return obj instanceof InputLibraryLocation
-        && ((InputLibraryLocation) obj).inputLibrary.equals(inputLibrary);
-  }
-
-  @Override
-  public final int hashCode() {
-    return inputLibrary.hashCode();
-  }
+  public abstract int hashCode();
 }
