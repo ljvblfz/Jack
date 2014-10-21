@@ -20,7 +20,6 @@ package com.android.jack.transformations.cast;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
@@ -225,17 +224,9 @@ public class UselessCastRemoverTest {
       if (!castRemoved) {
         Assert.fail("Cast not removed");
       }
-    } catch (JNodeInternalError e) {
-      Throwable cause = e;
-      while (cause.getCause() != null) {
-        cause = cause.getCause();
-      }
-      if (cause instanceof CastExists) {
-        if (castRemoved) {
-          Assert.fail("Cast not removed");
-        }
-      } else {
-        Assert.fail(cause.getMessage());
+    } catch (CastExists e) {
+      if (castRemoved) {
+        Assert.fail("Cast not removed");
       }
     }
   }

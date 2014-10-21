@@ -187,7 +187,7 @@ class JAstBuilder extends JavaParser {
       ReferenceMapper refMap = astBuilder.getTypeMap();
       for (LocalTypeBinding binding : unit.localTypes) {
         /* binding.constantPoolName() == null means that ecj detected the local type to be dead
-         * code and didn't completed processing */
+         * code and didn't complete processing */
         if (binding != null && binding.constantPoolName() != null) {
           EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null,
               new FileLocation(new File(new String(unit.getFileName()))));

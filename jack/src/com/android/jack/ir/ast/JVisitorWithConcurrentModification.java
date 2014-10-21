@@ -32,11 +32,7 @@ public class JVisitorWithConcurrentModification extends JVisitor {
     // the input collection.
     Collection<T> copiedCollection = new ArrayList<T>(collection);
     for (T element : copiedCollection) {
-      try {
-        element.traverse(this);
-      } catch (Throwable e) {
-        throw translateException(element, e);
-      }
+      element.traverse(this);
     }
   }
 

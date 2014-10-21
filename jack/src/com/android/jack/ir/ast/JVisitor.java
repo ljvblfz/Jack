@@ -16,7 +16,6 @@
 package com.android.jack.ir.ast;
 
 
-import com.android.jack.ir.JNodeInternalError;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.Collection;
@@ -38,23 +37,6 @@ public class JVisitor {
     this.needLoading = needLoading;
   }
 
-  @Nonnull
-  protected static JNodeInternalError translateException(@Nonnull JNode node,
-      @Nonnull Throwable e) {
-    if (e instanceof VirtualMachineError) {
-      // Always rethrow VM errors (an attempt to wrap may fail).
-      throw (VirtualMachineError) e;
-    }
-    JNodeInternalError ice;
-    if (e instanceof JNodeInternalError) {
-      ice = (JNodeInternalError) e;
-    } else {
-      ice = new JNodeInternalError("Unexpected error during visit.", e);
-    }
-    ice.addNode(node);
-    return ice;
-  }
-
   public boolean needLoading() {
     return needLoading;
   }
@@ -65,11 +47,7 @@ public class JVisitor {
 
   public <T extends JNode> void accept(@Nonnull Collection<T> collection) {
     for (T element : collection) {
-      try {
-        element.traverse(this);
-      } catch (Throwable e) {
-        throw translateException(element, e);
-      }
+      element.traverse(this);
     }
   }
 
