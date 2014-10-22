@@ -24,6 +24,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses(value = {
     com.android.sched.item.AllTests.class, com.android.sched.marker.AllTests.class,
     com.android.sched.scheduler.AllTests.class, com.android.sched.config.AllTests.class,
-    com.android.sched.util.config.cli.AllTests.class})
+    com.android.sched.util.config.cli.AllTests.class, com.android.sched.util.file.AllTests.class})
 public class AllTests {
 }

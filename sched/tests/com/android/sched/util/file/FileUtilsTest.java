@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.util;
-
-import com.android.jack.Main;
+package com.android.sched.util.file;
 
 import junit.framework.Assert;
 
@@ -34,11 +32,11 @@ public class FileUtilsTest {
   @BeforeClass
   public static void setUpClass() {
     // Enable assertions
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
+    FileUtilsTest.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
   /**
-   * Test method for {@link com.android.jack.util.FileUtils#getFileSeparator()}.
+   * Test method for {@link com.android.sched.util.file.FileUtils#getFileSeparator()}.
    */
   public void testGetFileSeparator() {
     String fileSeparator = FileUtils.getFileSeparator();
@@ -47,7 +45,7 @@ public class FileUtilsTest {
   }
 
   /**
-   * Test method for {@link com.android.jack.util.FileUtils#getWorkingDirectory()}.
+   * Test method for {@link com.android.sched.util.file.FileUtils#getWorkingDirectory()}.
    */
   @Test
   public void testGetWorkingDirectory() {
@@ -57,7 +55,7 @@ public class FileUtilsTest {
   }
 
   /**
-   * Test method for {@link com.android.jack.util.FileUtils#createIfNotExists(java.io.File)}.
+   * Test method for {@link com.android.sched.util.file.FileUtils#createIfNotExists(java.io.File)}.
    */
   @Test
   public void testCreateIfNotExists() throws IOException {

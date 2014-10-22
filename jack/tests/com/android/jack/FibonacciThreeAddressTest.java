@@ -23,7 +23,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.util.FileUtils;
+import com.android.sched.util.file.FileUtils;
 
 import junit.framework.Assert;
 

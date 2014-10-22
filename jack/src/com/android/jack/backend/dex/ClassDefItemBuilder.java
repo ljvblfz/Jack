@@ -33,7 +33,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.util.FileUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -41,6 +40,7 @@ import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.FileUtils;
 
 import java.util.List;
 

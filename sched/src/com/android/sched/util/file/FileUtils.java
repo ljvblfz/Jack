@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.util;
+package com.android.sched.util.file;
 
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 

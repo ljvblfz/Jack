@@ -32,7 +32,6 @@ import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
 import com.android.jack.transformations.flow.CompileFlowTest;
-import com.android.jack.util.FileUtilsTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -77,7 +76,6 @@ import org.junit.runners.Suite.SuiteClasses;
     FieldAccessTest.class,
     FieldTest.class,
     FileConflictTest.class,
-    FileUtilsTest.class,
     FinallyTest.class,
     FlowTest.class,
     GenericTest.class,

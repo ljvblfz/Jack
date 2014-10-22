@@ -33,13 +33,13 @@ import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.util.ExecuteFile;
-import com.android.jack.util.FileUtils;
 import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.FileUtils;
 
 import junit.framework.Assert;
 
