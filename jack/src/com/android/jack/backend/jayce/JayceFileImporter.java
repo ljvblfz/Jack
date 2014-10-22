@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.JackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.util.HasDescription;
@@ -186,6 +187,10 @@ public class JayceFileImporter {
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
+    // library.properties is not a resource
+    if (path.equals(JackLibrary.LIBRARY_PROPERTIES_VPATH)) {
+      return;
+    }
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {

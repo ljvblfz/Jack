@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 /**
  * Jack library used as input.
  */
-public class InputJackLibrary implements InputLibrary {
+public class InputJackLibrary implements InputLibrary, JackLibrary {
 
   @Nonnull
   private final InputRootVDir libraryVDir;
