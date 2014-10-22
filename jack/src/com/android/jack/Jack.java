@@ -85,7 +85,9 @@ import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.BinaryKind;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
@@ -97,6 +99,7 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibAdapter;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
@@ -601,6 +604,13 @@ public abstract class Jack {
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
           plan.getScheduleInstance().process(session);
+          OutputLibrary outputLibrary = session.getOutputLibrary();
+          if (outputLibrary != null) {
+            outputLibrary.close();
+          }
+        } catch (LibraryWritingException e) {
+          session.getReporter().report(Severity.FATAL, e);
+          throw new JackAbortException(e);
         } catch (RuntimeException e) {
           throw e;
         } catch (Exception e) {
