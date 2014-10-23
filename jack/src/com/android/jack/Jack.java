@@ -521,16 +521,16 @@ public abstract class Jack {
           }
         }
 
-        if (options.jayceOutDir != null || options.jayceOutZip != null) {
+        if (options.out != null || options.outZip != null) {
+          request.addProduction(IntermediateDexProduct.class);
+          request.addProduction(DexFileProduct.class);
+          session.addGeneratedBinaryKind(BinaryKind.DEX);
+        } else {
+          assert options.jayceOutDir != null || options.jayceOutZip != null;
           request.addProduction(JayceFormatProduct.class);
           if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
             request.addProduction(IntermediateDexProduct.class);
           }
-        } else {
-          assert options.out != null || options.outZip != null;
-          request.addProduction(IntermediateDexProduct.class);
-          request.addProduction(DexFileProduct.class);
-          session.addGeneratedBinaryKind(BinaryKind.DEX);
         }
 
         ProductionSet targetProduction = request.getTargetProductions();

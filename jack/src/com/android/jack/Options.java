@@ -49,10 +49,10 @@ import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -67,7 +67,6 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 import org.kohsuke.args4j.spi.MapOptionHandler;
-import org.kohsuke.args4j.spi.StopOptionHandler;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -155,26 +154,23 @@ public class Options {
       "jack.statistic.source", "Enable compiled files statistics").addDefaultValue(
       Boolean.FALSE);
 
-  @Option(name = "-v", aliases = "--version", usage = "display version")
+  @Option(name = "--version", usage = "display version")
   protected boolean version;
 
-  @Option(name = "-h", aliases = "--help", usage = "display help")
+  @Option(name = "--help", usage = "display help")
   protected boolean help;
 
   @Option(name = "--help-properties", usage = "display properties list")
   protected boolean helpProperties;
 
-  @Option(name = "--dump-properties", usage = "dump properties with their value")
   protected boolean dumpProperties;
 
   @Option(name = "-D", metaVar = "<property>=<value>",
-      usage = "set value for the given property (see --help-properties)",
+      usage = "set value for the given property (repeatable)",
       handler = MapOptionHandler.class)
   @Nonnull
   protected final Map<String, String> properties = new HashMap<String, String>();
 
-  @Option(
-      name = "-c", aliases = "--config-file", metaVar = "FILE", usage = "set properties from file")
   protected final File propertiesFile = null;
 
   enum VerbosityLevel {
@@ -203,29 +199,26 @@ public class Options {
       metaVar = "FILE")
   protected File incrementalFolder = null;
 
-  @Option(name = "-o", aliases = "--output", usage = "output to this folder",
-      metaVar = "FILE")
+  @Option(name = "--output-dex", usage = "output dex file(s) to this folder",
+      metaVar = "DIRECTORY")
   protected File out = null;
 
-  @Option(name = "--output-zip", usage = "output to this zip file", metaVar = "FILE")
   protected File outZip = null;
 
-  @Option(name = "-d", aliases = "--jack-output", usage = "output jayce files to this folder",
-      metaVar = "DIRECTORY")
   protected File jayceOutDir = null;
 
-  @Option(name = "--jack-output-zip", usage = "output jayce files to this zip", metaVar = "FILE")
+  @Option(name = "--output-jack", usage = "output jack library file", metaVar = "FILE")
   protected File jayceOutZip = null;
 
   @Option(name = "--generate-intermediate-dexes",
       usage = "generate intermediate dex files per types along with jayce files")
   protected boolean generateIntermediateDex = false;
 
-  @Option(name = "--jarjar-rules", usage = "use this jarjar rules file (default: none)",
+  @Option(name = "--config-jarjar", usage = "use this jarjar rules file (default: none)",
       metaVar = "FILE")
   protected File jarjarRulesFile = null;
 
-  @Option(name = "-i", aliases = "--import-jack", usage = "Import the given jayce files",
+  @Option(name = "--import", usage = "import the given file  into the output (repeatable)",
       metaVar = "FILE")
   protected List<File> jayceImport = new ArrayList<File>();
 
@@ -238,8 +231,8 @@ public class Options {
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
   protected boolean runtimeLegacy = true;
 
-  @Option(name = "--proguard-flags", usage = "use these proguard flags files (default: none)",
-      metaVar = "FILES")
+  @Option(name = "--config-proguard", usage = "use these proguard flags file (default: none)",
+      metaVar = "FILE")
   protected List<File> proguardFlagsFiles = null;
 
   @Option(name = "--sanity-checks", usage = "enable/disable compiler sanity checks (default: on)",
@@ -264,15 +257,24 @@ public class Options {
   protected String bootclasspath = null;
 
   @Argument
-  @Option(name = "--ecj", usage = "mark the beginning of ecj options (--ecj -help for help)",
-      metaVar = "...", handler = StopOptionHandler.class)
   protected List<String> ecjArguments;
 
   @Nonnull
   private static final String ECJ_HELP_ARG = "-help";
 
-  @Option(name = "-g", aliases = "--debug", usage = "emit debug infos")
+  @Option(name = "-g", usage = "emit debug infos")
   protected boolean emitLocalDebugInfo = false;
+
+  enum MultiDexKind {
+    NONE,
+    NATIVE,
+    LEGACY
+  }
+
+  @Option(name = "--multi-dex",
+      usage = "whether to split code into multiple dex (default: none)",
+      metaVar = "[none | native | legacy]")
+  protected MultiDexKind multiDexKind = MultiDexKind.NONE;
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
@@ -589,7 +591,9 @@ public class Options {
       if (generateIntermediateDex) {
         configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       }
-    } else if (outZip != null) {
+    }
+
+    if (outZip != null) {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);

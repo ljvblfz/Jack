@@ -1089,7 +1089,8 @@
   <!-- ******************* -->
   <property name="core-stubs-mini.dist.dir" value="${core-stubs-mini.dir}/dist"/>
   <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
-  <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
+	<property name="core-stubs-mini.build.outdir" value="${core-stubs-mini.build.dir}/classes"/>
+	<property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
 
   <target name="core-stubs-mini-clean">
     <delete dir="${core-stubs-mini.build.dir}" />
@@ -1102,17 +1103,17 @@
       <include name="**/*.java"/>
     </fileset>
     <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
-      <arg value="--jack-output"/>
-      <arg value="${core-stubs-mini.build.dir}"/>
-      <arg value="--ecj"/>
-      <arg value="-nowarn"/>
+      <arg value="--output-jack"/>
+      <arg value="${core-stubs-mini.build.dir}/${core-stubs-mini.libname}"/>
       <arg value="${core-stubs-mini.dir}/src"/>
     </java>
+    <unzip src = "${core-stubs-mini.build.dir}/${core-stubs-mini.libname}"
+           dest = "${core-stubs-mini.build.outdir}" />
     <javac srcdir="${core-stubs-mini.dir}/src"
-      destdir="${core-stubs-mini.build.dir}"
+      destdir="${core-stubs-mini.build.outdir}"
       source="1.5" target="1.5" debug="true" includeantruntime="false"  includeDestClasses="false"/>
     <jar destfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"
-            basedir="${core-stubs-mini.build.dir}"
+            basedir="${core-stubs-mini.build.outdir}"
             includes="**"/>
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/">

@@ -109,7 +109,7 @@ public abstract class Main extends JackIncremental {
 
   private static void printIncrementalUsage(@Nonnull PrintStream printStream) {
     printStream.println(
-        " --incremental-folder FILE              : Folder used for incremental data");
+        " --incremental-folder FILE            : Folder used for incremental data");
     printUsage(printStream);
   }
 }
