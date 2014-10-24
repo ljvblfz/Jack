@@ -1,19 +1,21 @@
- -cp (--classpath) PATH               : classpath
- --import FILE                        : import the given file  into the output
-                                        (repeatable)
- --output-dex DIRECTORY               : output dex files and resources to this
-                                        folder
- --output-jack FILE                   : output jack library file
- --config-jarjar FILE                 : use a jarjar rules file (default: none)
- --config-proguard FILE               : use a proguard flags file (default: none)
-                                        (repeatable)
- -g                                   : emit debug infos
- --multi-dex [none | native | legacy] : whether to split code into multiple dex
-                                        files. (default: none)
- --help                               : display help
- --version                            : display version
- --verbose [error | warning | info |  : set verbosity (default: warning)
- debug]                               :
- -D <name>=<value>                    : set value for the given property
-                                        (repeatable)
-@<file>                               : read source file names from file
+Usage: java -jar jack.jar <options> <source files>
+
+Options:
+ -cp (--classpath) PATH : set classpath
+ --import FILE          : import the given file into the output (repeatable)
+ --output-dex DIRECTORY : output dex files and resources to the folder
+ --output-jack FILE     : output jack library file
+ --config-jarjar FILE   : use a jarjar rules file (default: none)
+ --config-proguard FILE : use a proguard flags file (default: none) (repeatable)
+ -g                     : emit debug infos
+ --multi-dex [none | native | legacy]
+                        : whether to split code into multiple dex files.
+                          (default: none)
+ --help                 : display help
+ --help-properties      : display properties list
+ --version              : display version
+ --verbose [error | warning | info | debug]
+                        : set verbosity (default: warning)
+ -D <name>=<value>      : set value for the given property (repeatable)
+
+@FILE                   : read command line from file
