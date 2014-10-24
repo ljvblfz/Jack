@@ -30,6 +30,10 @@ public class Flags {
 
   private boolean shrink = true;
 
+  private boolean optimize = true;
+
+  private boolean preverify = true;
+
   private boolean obfuscate = true;
 
   private boolean keepParameterNames = false;
@@ -109,6 +113,14 @@ public class Flags {
     this.shrink = shrink;
   }
 
+  public void setOptimize(boolean optimize) {
+    this.optimize = optimize;
+  }
+
+  public void setPreverify(boolean preverify) {
+    this.preverify = preverify;
+  }
+
   public void setPrintMapping(boolean printMapping) {
     this.printMapping = printMapping;
   }
@@ -123,6 +135,14 @@ public class Flags {
 
   public boolean shrink() {
     return shrink;
+  }
+
+  public boolean optimize() {
+    return optimize;
+  }
+
+  public boolean preverify() {
+    return preverify;
   }
 
   public void setObfuscate(boolean obfuscate) {

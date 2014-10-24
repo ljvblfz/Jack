@@ -390,6 +390,14 @@ public abstract class Jack {
               "Error while parsing " + proguardFlagsFile.getPath() + ":" + e.line, e);
         }
       }
+
+      if (!options.flags.optimize()) {
+        logger.log(Level.WARNING, "Flag '-dontoptimize' not found: Proguard optimizations are not supported");
+      }
+      if (!options.flags.preverify()) {
+        logger.log(Level.WARNING, "Flag '-dontpreverify' not found: Proguard preverification is not supported");
+      }
+
       options.applyShrobFlags();
     }
 

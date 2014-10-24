@@ -55,6 +55,8 @@ prog [Flags flags, String baseDirectory]
     | ('-keepclasseswithmembers' keepModifier=keepOptionModifier? classSpec=classSpecification {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
     | ('-keep' keepModifier=keepOptionModifier? classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, $keepModifier.modifier);})
     | '-dontshrink' {$flags.setShrink(false);}
+    | '-dontoptimize'  {$flags.setOptimize(false);}
+    | '-dontpreverify'  {$flags.setPreverify(false);}
     | ('-keepclassmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
     | ('-keepclasseswithmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
     | ('-keepnames' classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
@@ -99,14 +101,12 @@ private unsupportedFlag
     | '-forceprocessing'
     | ('-printusage' NAME) //[filename]
     | ('-whyareyoukeeping' classSpecification)
-    | '-dontoptimize'
     | ('-optimizations' {FilterSpecification optimization_filter = new FilterSpecification();} filter[optimization_filter])
     | ('-optimizationpasses' NAME) //n
     | ('-assumenosideeffects' classSpecification)
     | '-allowaccessmodification'
     | '-mergeinterfacesaggressively'
     | '-overloadaggressively'
-    | '-dontpreverify'
     | '-microedition'
     | '-verbose'
     | ('-dontnote' {FilterSpecification class_filter = new FilterSpecification();} filter[class_filter])
