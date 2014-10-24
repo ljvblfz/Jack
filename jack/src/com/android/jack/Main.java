@@ -16,10 +16,15 @@
 
 package com.android.jack;
 
+import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.location.NoLocation;
+
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -41,7 +46,12 @@ public abstract class Main extends CommandLine {
     }
 
     try {
-      Options options = parseCommandLine(args);
+      TokenIterator iterator = new TokenIterator(new NoLocation(), args);
+      List<String> list = new ArrayList<String>();
+      while (iterator.hasNext()) {
+        list.add(iterator.next());
+      }
+      Options options = parseCommandLine(list);
 
       if (options.askForHelp()) {
         printUsage(System.out);
@@ -80,19 +90,19 @@ public abstract class Main extends CommandLine {
     } catch (IOException e) {
       System.err.println(e.getMessage());
 
-      System.exit(ExitStatus.FAILURE_INTERNAL);
+      System.exit(ExitStatus.FAILURE_USAGE);
     }
   }
 
   @Nonnull
-  public static Options parseCommandLine(@Nonnull String[] args)
+  public static Options parseCommandLine(@Nonnull List<String> list)
       throws CmdLineException {
     Options options = new Options();
 
     CmdLineParser parser = new CmdLineParser(options);
     parser.setUsageWidth(100);
 
-    parser.parseArgument(args);
+    parser.parseArgument(list);
     parser.stopOptionParsing();
 
     return options;
