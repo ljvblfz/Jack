@@ -18,7 +18,9 @@ package com.android.jack;
 
 import com.google.common.io.Files;
 
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.FieldInitializerRemover;
+import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
@@ -593,6 +595,20 @@ public class Options {
       if (generateIntermediateDex) {
         configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       }
+    }
+
+    switch (multiDexKind) {
+      case NATIVE:
+        configBuilder.setString(DexFileWriter.DEX_WRITING_POLICY, "multidex");
+        break;
+      case LEGACY:
+        configBuilder.setString(DexFileWriter.DEX_WRITING_POLICY, "multidex");
+        configBuilder.set(MultiDexLegacy.MULTIDEX_LEGACY, true);
+        break;
+      case NONE:
+        break;
+      default:
+        throw new AssertionError("Unsupported multi dex kind: '" + multiDexKind.name() + "'");
     }
 
     if (outZip != null) {
