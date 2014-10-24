@@ -23,6 +23,7 @@ import com.android.sched.util.codec.KeyValueCodec.Entry;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 
@@ -55,6 +56,13 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
     public String toString() {
         return value;
     }
+  }
+
+  @Override
+  @Nonnull
+  public JavaVersionPropertyId withCategory(@Nonnull Category category) {
+    super.withCategory(category);
+    return this;
   }
 
   static {

@@ -20,6 +20,7 @@ import com.google.common.io.Files;
 
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JMethod;
@@ -91,9 +92,9 @@ import javax.annotation.Nonnull;
 public class Options {
 
   @Nonnull
-  public static final
-      JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId.create(
-          "jack.java.source.version", "Java source version").addDefaultValue("1.7");
+  public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
+      .create("jack.java.source.version", "Java source version").addDefaultValue("1.7")
+      .withCategory(Arzon.get());
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId.create(
