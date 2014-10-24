@@ -20,13 +20,9 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_MODULE := hamcrest-core-hostdex-jack
 
-LOCAL_BUILD_HOST_DEX := true
-
-LOCAL_JAVA_LIBRARIES := core-hostdex
-
 LOCAL_MODULE_TAGS := optional
 
-include $(BUILD_HOST_JAVA_LIBRARY)
+include $(BUILD_HOST_DALVIK_STATIC_JAVA_LIBRARY)
 
 
 include $(CLEAR_VARS)
