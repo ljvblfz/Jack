@@ -42,11 +42,11 @@ test-jack-incremental: $(JACK_JAR)
 	$(hide) $(eval TEMPDIR_DEX_FROM_JACK := $(shell mktemp -d))
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
 	-D jack.jackfile.generate=true -D jack.jackfile.output.container=dir \
-	-D jack.jackfile.output.dir=$(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput -o \
+	-D jack.jackfile.output.dir=$(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput --output-dex \
 	$(TEMPDIR_DEX_FROM_JAVA) \
-	--ecj -nowarn @$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core_intermediates/sources.list
+	@$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core_intermediates/sources.list
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
-	--output $(TEMPDIR_DEX_FROM_JACK) --import-jack $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput
+	--output-dex $(TEMPDIR_DEX_FROM_JACK) --import $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput
 	$(hide) dexdump -d $(TEMPDIR_DEX_FROM_JAVA)/classes.dex | tail -n +3 &> $(TEMPDIR_DEX_FROM_JAVA)/coreDexFromJava.txt
 	$(hide) dexdump -d $(TEMPDIR_DEX_FROM_JACK)/classes.dex | tail -n +3 &> $(TEMPDIR_DEX_FROM_JACK)/coreDexFromJack.txt
 	$(hide) diff --side-by-side --suppress-common-lines $(TEMPDIR_DEX_FROM_JAVA)/coreDexFromJava.txt \
