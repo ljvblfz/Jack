@@ -757,7 +757,7 @@
     <delete dir="${schedtests.dist.dir}" />
   </target>
 
-  <target name="schedtests-lib" depends="sched-copy-libs,sched-lib,guava-lib,jsr305-lib,junit4-lib">
+  <target name="schedtests-lib" depends="jack,sched-copy-libs,sched-lib,guava-lib,jsr305-lib,junit4-lib">
     <!-- project layout -->
     <mkdir dir="${schedtests.build.outdir}" />
     <mkdir dir="${schedtests.dist.dir}" />
@@ -1099,6 +1099,7 @@
 
   <target name="core-stubs-mini" depends="jack">
     <mkdir dir="${core-stubs-mini.dist.dir}"/>
+    <mkdir dir="${core-stubs-mini.build.outdir}"/>
     <fileset dir="${core-stubs-mini.dir}/src">
       <include name="**/*.java"/>
     </fileset>
