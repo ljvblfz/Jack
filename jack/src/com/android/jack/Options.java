@@ -650,6 +650,9 @@ public class Options {
 
     // Check ecj arguments
     if (ecjArguments != null) {
+      if (getVerbosityLevel() == VerbosityLevel.ERROR) {
+        ecjArguments.add(0, "-nowarn");
+      }
       ecjArguments.add(0, "-source");
       assert config != null;
       ecjArguments.add(1, config.get(Options.JAVA_SOURCE_VERSION).toString());
