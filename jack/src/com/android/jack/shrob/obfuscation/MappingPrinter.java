@@ -18,6 +18,7 @@ package com.android.jack.shrob.obfuscation;
 
 import com.google.common.base.Strings;
 
+import com.android.jack.config.id.Arzon;
 import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -64,7 +65,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   public static final PropertyId<OutputStreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
       "jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
-      .addDefaultValue("-");
+      .addDefaultValue("-").withCategory(Arzon.get());
 
   @Nonnull
   private final PrintStream stream;

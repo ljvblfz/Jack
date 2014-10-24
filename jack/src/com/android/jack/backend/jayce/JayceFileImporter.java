@@ -18,6 +18,7 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackEventType;
+import com.android.jack.config.id.Arzon;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
@@ -105,7 +106,7 @@ public class JayceFileImporter {
       "jack.import.resource.policy",
       "Defines the policy to follow concerning resource collision in imported jack containers",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
-      .addDefaultValue(CollisionPolicy.FAIL);
+      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =

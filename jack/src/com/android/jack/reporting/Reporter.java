@@ -16,6 +16,7 @@
 
 package com.android.jack.reporting;
 
+import com.android.jack.config.id.Arzon;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 
@@ -37,7 +38,7 @@ public interface Reporter {
   @Nonnull
   public static final ImplementationPropertyId<Reporter> REPORTER = ImplementationPropertyId.create(
       "jack.reporter", "Define which reporter will be used", Reporter.class).addDefaultValue(
-      "default");
+      "default").withCategory(Arzon.get());
 
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable);
 

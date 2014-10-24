@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.config.id.Arzon;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.TextUtils;
@@ -24,6 +25,8 @@ import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
+import com.android.sched.util.config.category.Category;
+import com.android.sched.util.config.category.DefaultCategory;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
@@ -147,8 +150,18 @@ public abstract class CommandLine {
   public static void printHelpProperties (@Nonnull Options options) throws IOException {
     GatherConfigBuilder builder = options.getDefaultConfigBuilder();
 
+    printProperties(builder, Arzon.class);
+
+    System.out.println();
+    System.out.println("Provisional properties (subject to change):");
+    System.out.println();
+    printProperties(builder, DefaultCategory.class);
+  }
+
+  private static void printProperties(@Nonnull GatherConfigBuilder builder,
+      @Nonnull Class<? extends Category> category) {
     // Get and sort properties
-    Collection<PropertyId<?>>  collec = builder.getPropertyIds();
+    Collection<PropertyId<?>>  collec = builder.getPropertyIds(category);
     PropertyId<?>[] properties = collec.toArray(new PropertyId<?>[collec.size()]);
     Arrays.sort(properties, new Comparator<PropertyId<?>>() {
       @Override
