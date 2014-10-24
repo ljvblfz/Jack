@@ -16,19 +16,22 @@
 
 package com.android.jack.backend.jayce;
 
-import com.android.jack.Jack;
 import com.android.jack.JackEventType;
 import com.android.jack.config.id.Brest;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
+import com.android.jack.library.IgnoringImportMessage;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JLookupException;
+import com.android.jack.reporting.Reporter;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
 import com.android.sched.util.HasDescription;
@@ -114,23 +117,41 @@ public class JayceFileImporter {
     this.jackLibraries = jackLibraries;
   }
 
-  public void doImport(@Nonnull JSession session) throws JPackageLookupException,
-      ImportConflictException, JTypeLookupException {
+  public void doImport(@Nonnull JSession session) throws LibraryReadingException {
 
     for (InputJackLibrary jackLibrary : jackLibraries) {
+      Reporter reporter = session.getReporter();
       logger.log(Level.FINE, "Importing {0}", jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();
         String name = getNameFromInputVFile(jackLibrary, jayceFile, FileType.JAYCE);
-        addImportedTypes(session, name, jackLibrary);
+        try {
+          addImportedTypes(session, name, jackLibrary);
+        } catch (JLookupException e) {
+          throw new LibraryReadingException(e);
+        } catch (TypeImportConflictException e) {
+          if (collisionPolicy == CollisionPolicy.FAIL) {
+            throw new LibraryReadingException(e);
+          } else {
+            reporter.report(Severity.NON_FATAL, new IgnoringImportMessage(e));
+          }
+        }
       }
 
       Iterator<InputVFile> rscFileIt = jackLibrary.iterator(FileType.RSC);
       while (rscFileIt.hasNext()) {
         InputVFile rscFile = rscFileIt.next();
         String name = getNameFromInputVFile(jackLibrary, rscFile, FileType.RSC);
-        addImportedResource(rscFile, session, name);
+        try {
+          addImportedResource(rscFile, session, name);
+        } catch (ResourceImportConflictException e) {
+          if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
+            throw new LibraryReadingException(e);
+          } else {
+            reporter.report(Severity.NON_FATAL, new IgnoringImportMessage(e));
+          }
+        }
       }
     }
   }
@@ -171,16 +192,7 @@ public class JayceFileImporter {
       if (!(existingSource instanceof TypeInInputLibraryLocation) ||
           ((TypeInInputLibraryLocation) existingSource).getInputLibraryLocation().getInputLibrary()
           != intendedInputLibrary) {
-        if (collisionPolicy == CollisionPolicy.FAIL) {
-          throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
-        } else {
-          session.getUserLogger().log(Level.INFO,
-              "Type ''{0}'' from {1} has already been imported from {2}: "
-              + "ignoring import", new Object[] {
-              Jack.getUserFriendlyFormatter().getName(declaredType),
-              intendedInputLibrary.getLocation().getDescription(),
-              existingSource.getDescription()});
-        }
+        throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
       } else {
         session.addTypeToEmit(declaredType);
       }
@@ -201,16 +213,8 @@ public class JayceFileImporter {
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
-        if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
-          throw new ResourceImportConflictException(newResource.getLocation(),
-              existingResource.getLocation());
-        } else {
-          session.getUserLogger().log(Level.INFO,
-              "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
-                  newResource.getLocation().getDescription(),
-                  existingResource.getLocation().getDescription()});
-        }
-        return;
+        throw new ResourceImportConflictException(newResource.getLocation(),
+            existingResource.getLocation());
       }
     }
     session.addResource(newResource);

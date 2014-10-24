@@ -18,6 +18,7 @@ package com.android.jack.meta;
 
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.resource.ResourceOrMetaImporter;
+import com.android.jack.resource.ResourceReadingException;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -33,6 +34,16 @@ public class MetaImporter extends ResourceOrMetaImporter {
 
   public MetaImporter(@Nonnull List<InputVFS> metaDirs) {
     super(metaDirs);
+  }
+
+  @Override
+  public void doImport(@Nonnull JSession session) {
+    try {
+      super.doImport(session);
+    } catch (ResourceReadingException e) {
+      // should not happen for meta
+      throw new AssertionError(e);
+    }
   }
 
   @Override

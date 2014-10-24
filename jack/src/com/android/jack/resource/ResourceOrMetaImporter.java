@@ -42,14 +42,19 @@ public abstract class ResourceOrMetaImporter {
     this.resourceDirs = resourceDirs;
   }
 
-  public void doImport(@Nonnull JSession session) {
-    for (InputVFS resourceDir : resourceDirs) {
-      importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "");
+  public void doImport(@Nonnull JSession session) throws ResourceReadingException {
+    try {
+      for (InputVFS resourceDir : resourceDirs) {
+        importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "");
+      }
+    } catch (ResourceImportConflictException e) {
+      throw new ResourceReadingException(e);
     }
   }
 
   private void importResourceDirElement(@Nonnull Collection<? extends InputVElement> elements,
-      @Nonnull JSession session, @Nonnull String currentPath) {
+      @Nonnull JSession session, @Nonnull String currentPath)
+      throws ResourceImportConflictException {
     for (InputVElement element : elements) {
       String path = currentPath + element.getName();
       if (element.isVDir()) {
@@ -62,5 +67,5 @@ public abstract class ResourceOrMetaImporter {
   }
 
   protected abstract void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath);
+      @Nonnull String currentPath) throws ResourceImportConflictException;
 }

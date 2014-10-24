@@ -56,7 +56,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
 
   @Override
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath) {
+      @Nonnull String currentPath) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {

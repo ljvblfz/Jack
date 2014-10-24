@@ -44,8 +44,7 @@ public class TypeImportConflictException extends ImportConflictException {
   @Nonnull
   public String getMessage() {
     Location existingSource = existingType.getLocation();
-    return "Failed to perform import: Type "
-        + Jack.getUserFriendlyFormatter().getName(existingType) + " from "
+    return "Type " + Jack.getUserFriendlyFormatter().getName(existingType) + " from "
         + failedToImportSource.getDescription() + " has already been imported from "
         + existingSource.getDescription()
         + " (see property '" + JayceFileImporter.COLLISION_POLICY.getName()

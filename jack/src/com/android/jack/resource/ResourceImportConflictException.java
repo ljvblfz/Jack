@@ -42,7 +42,7 @@ public class ResourceImportConflictException extends ImportConflictException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Failed to perform import: Resource in "
+    return "Resource in "
         + newResourceLocation.getDescription() + " has already been imported from "
         + existingResourceLocation.getDescription()
         + " (see property '" + ResourceImporter.RESOURCE_COLLISION_POLICY.getName()

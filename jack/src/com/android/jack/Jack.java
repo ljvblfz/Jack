@@ -89,6 +89,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -809,7 +810,12 @@ public abstract class Jack {
       throw new JackAbortException(e);
     }
 
-    jayceImporter.doImport(session);
+    try {
+      jayceImporter.doImport(session);
+    } catch (LibraryReadingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
 
     if (options.flags != null && (options.flags.shrink() || options.flags.obfuscate())) {
       Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
