@@ -22,6 +22,7 @@ import com.android.sched.util.codec.KeyValueCodec.Entry;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 
 import javax.annotation.Nonnull;
@@ -102,8 +103,8 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
 
   @Override
   @Nonnull
-  public BooleanPropertyId makePrivate() {
-    super.makePrivate();
+  public BooleanPropertyId withCategory(@Nonnull Category category) {
+    super.withCategory(category);
     return this;
   }
 

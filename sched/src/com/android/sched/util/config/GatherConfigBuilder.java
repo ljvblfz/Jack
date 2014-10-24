@@ -18,6 +18,7 @@ package com.android.sched.util.config;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.location.Location;
@@ -224,8 +225,13 @@ public class GatherConfigBuilder {
 
   @Nonnull
   public Collection<PropertyId<?>> getPropertyIds() {
-    return builder.getPropertyIds();
-   }
+    return builder.getPropertyIds(Category.class);
+  }
+
+  @Nonnull
+  public Collection<PropertyId<?>> getPropertyIds(@Nonnull Class<? extends Category> category) {
+    return builder.getPropertyIds(category);
+  }
 
   @CheckForNull
   public String getDefaultValue(@Nonnull PropertyId<?> propertyId) {

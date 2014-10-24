@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ast.inner;
 
+import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JConstructor;
@@ -69,7 +70,7 @@ public class WrapperMarker implements Marker {
   public static final BooleanPropertyId USE_DETERMINISTIC_NAME = BooleanPropertyId.create(
       "jack.internal.inner-wrapper.determinist-name",
       "Generate inner-wrapper name in a deterministic way").addDefaultValue(Boolean.FALSE)
-      .makePrivate();
+      .withCategory(Private.get());
 
   private final boolean useDeterministicName =
       ThreadConfig.get(USE_DETERMINISTIC_NAME).booleanValue();

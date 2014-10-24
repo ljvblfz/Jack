@@ -21,6 +21,7 @@ import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.cfg.PeiBasicBlock;
+import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
@@ -60,7 +61,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
   public static final PropertyId<ReachingDefinitionsChecker> REACHING_DEFS_CHECKER =
       ImplementationPropertyId.create("jack.tests.reachingdefs.checker",
           "Define a checker that must be called at the end of reaching definitions analysis",
-          ReachingDefinitionsChecker.class).addDefaultValue("none").makePrivate();
+          ReachingDefinitionsChecker.class).addDefaultValue("none").withCategory(Private.get());
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
