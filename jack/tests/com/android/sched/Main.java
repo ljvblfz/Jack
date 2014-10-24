@@ -30,6 +30,8 @@ import com.android.sched.scheduler.SubPlanBuilder;
 
 import junit.framework.Assert;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -44,7 +46,7 @@ public class Main {
   }
 
   static void runCompilation(@Nonnull String[] compilerArgs) throws Exception {
-    run(com.android.jack.Main.parseCommandLine(compilerArgs));
+    run(com.android.jack.Main.parseCommandLine(Arrays.asList(compilerArgs)));
   }
 
   /**
