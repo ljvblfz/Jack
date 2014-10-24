@@ -465,9 +465,6 @@ public abstract class Jack {
           if (options.flags.obfuscate()) {
             request.addFeature(Obfuscation.class);
           }
-          if (options.flags.printMapping()) {
-            request.addProduction(Mapping.class);
-          }
           if (options.flags.printSeeds()) {
             request.addProduction(SeedFile.class);
           }
@@ -504,6 +501,9 @@ public abstract class Jack {
           if (options.flags.getAdaptResourceFileContents() != null) {
             request.addFeature(AdaptResourceFileContent.class);
           }
+        }
+        if (config.get(MappingPrinter.MAPPING_OUTPUT_ENABLED).booleanValue()) {
+          request.addProduction(Mapping.class);
         }
         if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
           request.addProduction(StructurePrinting.class);

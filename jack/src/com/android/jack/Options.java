@@ -534,6 +534,7 @@ public class Options {
       } else {
         configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, false);
       }
+      configBuilder.set(MappingPrinter.MAPPING_OUTPUT_ENABLED, flags.printMapping());
       File outputmapping = flags.getOutputMapping();
       if (outputmapping != null) {
         configBuilder.setString(MappingPrinter.MAPPING_OUTPUT_FILE,
