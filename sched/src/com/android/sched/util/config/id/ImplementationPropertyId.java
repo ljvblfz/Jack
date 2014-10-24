@@ -21,6 +21,7 @@ import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.ClassExpression;
 
@@ -48,6 +49,13 @@ public class ImplementationPropertyId<T> extends PropertyId<T> {
   public ImplementationPropertyId<T> addDefaultValue(@Nonnull String defaultValue) {
     super.addDefaultValue(defaultValue);
 
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public ImplementationPropertyId<T> withCategory(@Nonnull Category category) {
+    super.withCategory(category);
     return this;
   }
 

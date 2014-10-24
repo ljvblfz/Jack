@@ -18,6 +18,7 @@ package com.android.jack.transformations.enums;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -120,7 +121,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   public static final BooleanPropertyId SORT_ENUM_FIELD = BooleanPropertyId.create(
       "jack.internal.switch-enumfield.sort",
       "Sort enum fields by their name for enum partial recompilation support")
-      .addDefaultValue(Boolean.FALSE).makePrivate();
+      .addDefaultValue(Boolean.FALSE).withCategory(Private.get());
 
   /**
    * Enum fields used into switch.
