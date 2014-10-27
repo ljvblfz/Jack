@@ -17,7 +17,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := jarjar/test003
-JACKTEST_ARGS := --jarjar-rules $(LOCAL_PATH)/jarjar-rules.txt
+JACKTEST_ARGS := --config-jarjar $(LOCAL_PATH)/jarjar-rules.txt
 JACKTEST_WITHJACK_SRC := $(call all-java-files-under, jack)
 JACKTEST_WITHDX_SRC := $(call all-java-files-under, dx)
 JACKTEST_JUNIT := com.android.jack.$(subst /,.,$(JACKTEST_MODULE)).dx.Tests

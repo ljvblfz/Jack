@@ -206,8 +206,11 @@ public class Options {
       metaVar = "DIRECTORY")
   protected File out = null;
 
+  @Option(name = "--output-dex-zip", usage = "output to this zip file", metaVar = "FILE")
   protected File outZip = null;
 
+  @Option(name = "--output-jack-dir", usage = "output jayce files to this folder",
+      metaVar = "DIRECTORY")
   protected File jayceOutDir = null;
 
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "FILE")

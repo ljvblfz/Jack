@@ -17,7 +17,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := shrob/test011_2
-JACKTEST_ARGS := --proguard-flags $(LOCAL_PATH)/proguard.flags002
+JACKTEST_ARGS := --config-proguard $(LOCAL_PATH)/proguard.flags002
 JACKTEST_WITHJACK_SRC := $(call all-java-files-under, jack)
 JACKTEST_WITHDX_SRC := dx/Tests2.java
 JACKTEST_JUNIT := com.android.jack.shrob.test011.dx.Tests2
