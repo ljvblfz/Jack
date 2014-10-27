@@ -45,10 +45,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main/java)
 
-LOCAL_JAVA_LIBRARIES := core
-
-LOCAL_JAVA_LIBRARIES := hamcrest-core-target-jack
-
 LOCAL_STATIC_JAVA_LIBRARIES := hamcrest-core-target-jack
 
 LOCAL_MODULE := junit4-targetdex-jack

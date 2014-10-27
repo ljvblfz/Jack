@@ -143,7 +143,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 LOCAL_REQUIRED_MODULES:= \
   core-stubs-mini \
-  core \
+  core-libart \
   bouncycastle \
   ext \
   core-junit \
@@ -171,8 +171,8 @@ test-jack-unit: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-unit: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_unit_libs) $(JACK_JAR)
 	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.PreSubmitTests
 
-local_long_libs := $(call java-lib-files,core bouncycastle core-junit ext framework guava services \
-	libarity google-play-services-first-party telephony-common,)
+local_long_libs := $(call java-lib-files,core-libart bouncycastle core-junit ext framework guava services \
+	libarity prebuilt-google-play-services-first-party telephony-common,)
 .PHONY: test-jack-long
 test-jack-long: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-long: PRIVATE_PATH := $(LOCAL_PATH)
