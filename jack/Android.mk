@@ -26,7 +26,7 @@ endef
 
 include $(CLEAR_VARS)
 
-JACK_BASE_VERSION_NAME := 0.1
+JACK_BASE_VERSION_NAME := 1.0
 JACK_BASE_VERSION_CODE := 001
 
 LOCAL_MODULE := jack
@@ -99,7 +99,7 @@ endif
 JACK_VERSION_NAME := "$(JACK_BASE_VERSION_NAME).$(JACK_BASE_VERSION_CODE).$(JACK_VERSION_NAME_TAG)"
 
 intermediates := $(call local-intermediates-dir,COMMON)
-$(intermediates)/rsc/jack.properties:
+$(intermediates)/rsc/jack.properties: $(LOCAL_PATH)/Android.mk
 	$(hide) mkdir -p $(dir $@)
 	$(hide) echo "jack.version=$(JACK_VERSION_NAME)" > $@
 
