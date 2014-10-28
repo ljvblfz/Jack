@@ -9,7 +9,7 @@ Options:
  --config-proguard FILE : use a proguard flags file (default: none) (repeatable)
  -g                     : emit debug infos
  --multi-dex [none | native | legacy]
-                        : whether to split code into multiple dex files.
+                        : whether to split code into multiple dex files
                           (default: none)
  --help                 : display help
  --help-properties      : display properties list
