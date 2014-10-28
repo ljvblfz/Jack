@@ -46,7 +46,7 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   @Nonnull
   public static final BooleanPropertyId KEEP_ENCLOSING_METHOD = BooleanPropertyId.create(
   "jack.shrink.keep.enclosing.method",
-  "Keep the enclosing method of annonymous classes").addDefaultValue(Boolean.FALSE);
+  "Keep the enclosing method of anonymous classes").addDefaultValue(Boolean.FALSE);
 
   public KeeperBrush() {
     super(ThreadConfig.get(KeeperBrush.KEEP_ENCLOSING_METHOD).booleanValue(), KeepMarker.class,

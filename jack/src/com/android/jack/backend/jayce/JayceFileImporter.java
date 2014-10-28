@@ -75,7 +75,7 @@ public class JayceFileImporter {
 
   private enum CollisionPolicy implements HasDescription {
     KEEP_FIRST("keep the first element encountered"),
-    FAIL("fail when a collision occured");
+    FAIL("fail when a collision occurs");
 
     @Nonnull
     private String description;

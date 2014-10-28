@@ -75,7 +75,7 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
   @Nonnull
   private static final ProbabilityPropertyId ADD_POST_RUNNER = ProbabilityPropertyId.create(
       "sched.genetic.add.post",
-      "Probability to add a satisfied runner after a satisified one").addDefaultValue("0.30");
+      "Probability to add a satisfied runner after a satisfied one").addDefaultValue("0.30");
 
   @Nonnull
   private static final ProbabilityPropertyId REMOVE_RUNNER = ProbabilityPropertyId.create(
@@ -109,7 +109,7 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
 
   @Nonnull
   private static final IntegerPropertyId STAGNATION = IntegerPropertyId.create(
-      "sched.genetic.stagnation", "Number of time a populaton stagne before stopping")
+      "sched.genetic.stagnation", "Number of times a population stagnates before stopping")
       .addDefaultValue("1000").withMin(1);
 
   @Nonnull
