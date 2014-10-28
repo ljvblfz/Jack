@@ -76,7 +76,7 @@
   <!-- ******************* -->
   <!-- Jack-lib            -->
   <!-- ******************* -->
-  <property name="jack.base.version.name" value="0.1" />
+  <property name="jack.base.version.name" value="1.0" />
   <property name="jack.base.version.code" value="001" />
 
   <property name="jack.build.dir" value="${jack.dir}/build/jack-lib" />
