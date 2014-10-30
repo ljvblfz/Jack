@@ -21,7 +21,7 @@ import Java;
 package com.android.jack.preprocessor;
 
 import com.android.jack.ir.ast.HasModifier;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
@@ -68,7 +68,7 @@ set returns [Expression<Collection<?>, Scope> set]
             $toAdd.add, (Expression<Collection<JNode>, Scope>)(Object)$annotated.set);})
     ;
 
-addAnnotation returns [JDefinedAnnotation add]
+addAnnotation returns [JAnnotation add]
     :  '@@' name=Identifier {add = builder.getAnnotation($name.text);}
     ;
 

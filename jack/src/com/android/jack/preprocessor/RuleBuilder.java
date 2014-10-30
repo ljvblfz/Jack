@@ -16,10 +16,9 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.lookup.JLookupException;
 import com.android.jack.util.NamingTools;
 
 import java.util.Collection;
@@ -49,8 +48,8 @@ class RuleBuilder {
   }
 
   @Nonnull
-  public JDefinedAnnotation getAnnotation(@Nonnull String annotationName) throws JLookupException {
-    return session.getLookup().getAnnotation(
+  public JAnnotation getAnnotation(@Nonnull String annotationName) {
+    return session.getPhantomLookup().getAnnotation(
         NamingTools.getTypeSignatureName(annotationName));
   }
 
