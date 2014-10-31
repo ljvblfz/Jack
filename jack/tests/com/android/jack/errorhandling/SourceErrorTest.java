@@ -23,7 +23,6 @@ import com.android.jack.frontend.FrontendCompilationException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -334,8 +333,7 @@ public class SourceErrorTest {
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add(te.getSourceFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
-    options.setClasspath(TestTools.getDefaultBootclasspathString() + File.pathSeparator
-        + te.getJackFolder());
+    options.setClasspath(TestTools.getDefaultBootclasspathString());
     options.setOutputDir(te.getTestingFolder());
     return options;
   }
