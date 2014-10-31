@@ -36,6 +36,7 @@ import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVDir;
@@ -46,6 +47,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -53,6 +56,9 @@ import javax.annotation.Nonnull;
  * A helper to write dex files.
  */
 public abstract class DexWritingTool {
+
+  @Nonnull
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
@@ -131,7 +137,10 @@ public abstract class DexWritingTool {
                   new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'),
                   BinaryKind.DEX);
             } catch (BinaryDoesNotExistException e) {
-              throw new LibraryFormatException(e);
+              logger.log(Level.SEVERE,
+                  "Library " + inputLibrary.getLocation().getDescription() + " is invalid",
+                  e);
+              throw new LibraryFormatException(inputLibrary.getLocation());
             }
           } else {
             inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));

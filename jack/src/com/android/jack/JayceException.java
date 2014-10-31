@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,14 @@ package com.android.jack;
 
 import javax.annotation.Nonnull;
 
-
 /**
- * Exception representing a problem related to Jayce files.
+ * Exception representing a problem related to a Jayce file.
  */
-public class JackFileException extends JackIOException {
+public abstract class JayceException extends JackUserException {
 
   private static final long serialVersionUID = 1L;
 
-  public JackFileException() {
-    super();
+  public JayceException(@Nonnull String string) {
+    super(string);
   }
-
-  public JackFileException(@Nonnull String message) {
-    super(message);
-  }
-
-  public JackFileException(@Nonnull String message, @Nonnull Throwable cause) {
-    super(message, cause);
-  }
-
 }

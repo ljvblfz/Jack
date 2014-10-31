@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce;
-
-import com.android.jack.JayceException;
-
-import javax.annotation.Nonnull;
+package com.android.jack.library.v0001;
 
 /**
- * Exception representing a problem related to Jayce files format.
+ * Library version.
  */
-public class JayceFormatException extends JayceException {
+public class Version {
 
-  private static final long serialVersionUID = 1L;
+  public static final int MINOR_MIN = 0;
 
-  public JayceFormatException(@Nonnull String string) {
-    super(string);
-  }
+  public static final int MINOR = 0;
 
+  public static final int MAJOR = 1;
 }

@@ -85,8 +85,9 @@ import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.BinaryKind;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryWritingException;
-import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -346,6 +347,11 @@ public abstract class Jack {
   }
 
   @Nonnull
+  public static String getEmitterId() {
+    return "jack";
+  }
+
+  @Nonnull
   public static UnmodifiableCollections getUnmodifiableCollections() {
     if (unmodifiableCollections == null) {
       unmodifiableCollections =
@@ -433,7 +439,8 @@ public abstract class Jack {
           } else {
             outputDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_ZIP);
           }
-          session.setOutputLibrary(new OutputJackLibrary(outputDir));
+          session.setJackOutputLibrary(JackLibraryFactory.getOutputLibrary(outputDir,
+              Jack.getEmitterId(), Jack.getVersionString()));
         }
 
         Request request = createInitialRequest();
@@ -610,9 +617,9 @@ public abstract class Jack {
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
           plan.getScheduleInstance().process(session);
-          OutputLibrary outputLibrary = session.getOutputLibrary();
-          if (outputLibrary != null) {
-            outputLibrary.close();
+          OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
+          if (jackOutputLibrary != null) {
+            jackOutputLibrary.close();
           }
         } catch (LibraryWritingException e) {
           session.getReporter().report(Severity.FATAL, e);
@@ -670,8 +677,14 @@ public abstract class Jack {
 
     JSession session =  getSession();
 
-    JayceFileImporter jayceImporter =
-        getJayceFileImporter(options.jayceImport, hooks, session);
+    JayceFileImporter jayceImporter;
+    try {
+      jayceImporter = getJayceFileImporter(options.jayceImport, hooks, session);
+    } catch (LibraryReadingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
+
     putInJackClasspath(options.getBootclasspath(), hooks, session);
     putInJackClasspath(options.getClasspath(), hooks, session);
 
@@ -720,24 +733,26 @@ public abstract class Jack {
 
   @Nonnull
   private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
-      @Nonnull RunnableHooks hooks, @Nonnull JSession session) throws JackFileException {
+      @Nonnull RunnableHooks hooks, @Nonnull JSession session) throws LibraryReadingException {
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>(jayceImport.size());
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
     for (final File jackFile : jayceImport) {
       try {
         InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
-        InputJackLibrary inputJackLibrary = new InputJackLibrary(vDir);
+        InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
         inputJackLibraries.add(inputJackLibrary);
         // add to classpath
-        JaycePackageLoader rootPLoader = factory.create(inputJackLibrary,
-            session.getPhantomLookup());
+        JaycePackageLoader rootPLoader =
+            factory.create(inputJackLibrary, session.getPhantomLookup());
         session.getTopLevelPackage().addLoader(rootPLoader);
         session.addImportSource(vDir);
       } catch (IOException ioException) {
-        throw new JackFileException("Error importing jack container: " + ioException.getMessage(),
-            ioException);
+        throw new LibraryReadingException(ioException);
+      } catch (LibraryException libException) {
+        throw new LibraryReadingException(libException);
       }
     }
+
     return new JayceFileImporter(inputJackLibraries);
   }
 
@@ -749,7 +764,7 @@ public abstract class Jack {
       try {
         InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
         JaycePackageLoader rootPLoader =
-            factory.create(new InputJackLibrary(vDir), session.getPhantomLookup());
+            factory.create(JackLibraryFactory.getInputLibrary(vDir), session.getPhantomLookup());
         session.getTopLevelPackage().addLoader(rootPLoader);
         session.addClasspathSource(vDir);
       } catch (IOException ioException) {
@@ -1450,7 +1465,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       {
         {
           SubPlanBuilder<JMethod> methodPlan2 =
@@ -1471,7 +1486,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
@@ -1484,7 +1499,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan4.append(ClassDefItemBuilder.class);
       typePlan4.append(ClassAnnotationBuilder.class);
       {
@@ -1535,7 +1550,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       {
         SubPlanBuilder<JMethod> methodPlan4 =
             typePlan5.appendSubPlan(JMethodAdapter.class);

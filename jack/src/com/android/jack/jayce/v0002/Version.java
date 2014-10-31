@@ -23,5 +23,5 @@ public class Version {
 
   public static final int MINOR_MIN = 14;
 
-  public static final int CURRENT_MINOR = 14;
+  public static final int CURRENT_MINOR = 15;
 }

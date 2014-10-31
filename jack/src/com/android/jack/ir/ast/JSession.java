@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.library.BinaryKind;
-import com.android.jack.library.OutputLibrary;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter;
@@ -89,7 +89,7 @@ public class JSession extends JNode {
   private final List<BinaryKind> generatedBinaryKinds = new ArrayList<BinaryKind>(1);
 
   @CheckForNull
-  private OutputLibrary outputLibrary;
+  private OutputJackLibrary jackOutputLibrary;
 
   @Nonnull
   private final List<InputRootVDir> importSources = new ArrayList<InputRootVDir>(0);
@@ -201,12 +201,12 @@ public class JSession extends JNode {
   }
 
   @CheckForNull
-  public OutputLibrary getOutputLibrary() {
-    return outputLibrary;
+  public OutputJackLibrary getJackOutputLibrary() {
+    return jackOutputLibrary;
   }
 
-  public void setOutputLibrary(@Nonnull OutputLibrary outputLibrary) {
-    this.outputLibrary = outputLibrary;
+  public void setJackOutputLibrary(@Nonnull OutputJackLibrary jackOutputLibrary) {
+    this.jackOutputLibrary = jackOutputLibrary;
   }
 
   @Nonnull

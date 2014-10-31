@@ -17,15 +17,15 @@
 package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.JackFileException;
 import com.android.jack.experimental.incremental.CompilerState;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.jayce.JayceWriter;
-import com.android.jack.library.OutputLibrary;
+import com.android.jack.jayce.JayceWriterFactory;
+import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.scheduling.feature.JayceFileOutput;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -56,30 +56,28 @@ import javax.annotation.Nonnull;
 public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  private final OutputLibrary outputLibrary;
+  private final OutputJackLibrary outputJackLibrary;
 
   {
-    OutputLibrary ol = Jack.getSession().getOutputLibrary();
-    assert ol != null;
-    this.outputLibrary = ol;
+    OutputJackLibrary ojl = Jack.getSession().getJackOutputLibrary();
+    assert ojl != null;
+    this.outputJackLibrary = ojl;
   }
 
   @Synchronized
   public boolean needsSynchronization() {
-    return outputLibrary.needsSequentialWriting();
+    return outputJackLibrary.needsSequentialWriting();
   }
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    OutputVFile vFile = outputLibrary.getJayceOutputVFile(
+    OutputVFile vFile = outputJackLibrary.getJayceOutputVFile(
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
     try {
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
       try {
-        // Write to file
-        JayceWriter writer = new JayceWriter(out);
-        writer.write(type, "jack " + Jack.getVersionString());
+        JayceWriterFactory.get(outputJackLibrary, out).write(type);
 
         if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
           assert vFile instanceof DirectFile;
@@ -92,7 +90,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
         out.close();
       }
     } catch (IOException e) {
-      throw new JackFileException("Could not write Jayce file to output '" + vFile + "'", e);
+      throw new LibraryIOException(outputJackLibrary.getLocation(), e);
     }
   }
 

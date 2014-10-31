@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce;
+package com.android.jack.library;
 
-import com.android.jack.JayceException;
-
-import javax.annotation.Nonnull;
+import com.android.sched.util.location.HasLocation;
 
 /**
- * Exception representing a problem related to Jayce files format.
+ * Common interface for libraries used as input and as output.
  */
-public class JayceFormatException extends JayceException {
+public interface Library extends HasLocation {
 
-  private static final long serialVersionUID = 1L;
+  public int getMinorVersion() throws LibraryFormatException;
 
-  public JayceFormatException(@Nonnull String string) {
-    super(string);
-  }
-
+  public int getMajorVersion();
 }

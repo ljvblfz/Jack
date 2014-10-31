@@ -16,7 +16,6 @@
 
 package com.android.jack.library;
 
-import com.android.sched.util.location.HasLocation;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -29,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Library used as input.
  */
-public interface InputLibrary extends HasLocation {
+public interface InputLibrary extends Library {
 
   @Nonnull
   public InputRootVDir getInputVDir();
@@ -45,4 +44,8 @@ public interface InputLibrary extends HasLocation {
   @Nonnull
   public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
       throws BinaryDoesNotExistException;
+
+  @Override
+  @Nonnull
+  public InputLibraryLocation getLocation();
 }

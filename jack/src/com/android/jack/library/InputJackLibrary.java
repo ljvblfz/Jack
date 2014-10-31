@@ -17,132 +17,54 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
-import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputVElement;
-import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VPath;
+import com.android.jack.LibraryException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Properties;
+import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
 
+
 /**
- * Jack library used as input.
+ * Interface representing an input jack library.
  */
-public class InputJackLibrary implements InputLibrary, JackLibrary {
+public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
-  @Nonnull
-  private final InputRootVDir libraryVDir;
-
-  @Nonnull
-  private final InputLibraryLocation location = new InputLibraryLocation() {
-
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return libraryVDir.getLocation().getDescription();
-    }
-
-    @Override
-    public int hashCode() {
-      return InputJackLibrary.this.hashCode();
-    }
-
-    @Override
-    @Nonnull
-    public InputLibrary getInputLibrary() {
-      return InputJackLibrary.this;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      return obj instanceof InputLibraryLocation
-          && ((InputLibraryLocation) obj).getInputLibrary().equals(getInputLibrary());
-    }
-  };
-
-  @Nonnull
-  private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
-
-  public InputJackLibrary(@Nonnull InputRootVDir libraryVDir) {
-    this.libraryVDir = libraryVDir;
-    fillBinaryKinds(libraryVDir);
+  public InputJackLibrary(@Nonnull Properties libraryProperties) throws LibraryException {
+    super(libraryProperties);
+    check();
   }
 
-  @Override
-  @Nonnull
-  public InputLibraryLocation getLocation() {
-    return location;
-  }
+  private void check() throws LibraryException {
+    getProperty(JackLibrary.KEY_LIB_EMITTER);
+    getProperty(JackLibrary.KEY_LIB_EMITTER_VERSION);
+    getProperty(JackLibrary.KEY_LIB_MAJOR_VERSION);
+    getProperty(JackLibrary.KEY_LIB_MINOR_VERSION);
 
-  @Override
-  @Nonnull
-  public Collection<BinaryKind> getBinaryKinds() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(binaryKinds);
-  }
+    int majorVersion = getMajorVersion();
+    int minorVersion = getMinorVersion();
+    int supportedMinorMin = getSupportedMinorMin();
+    int supportedMinor = getSupportedMinor();
 
-  @Override
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind) {
-    return binaryKinds.contains(binaryKind);
-  }
-
-  @Override
-  @Nonnull
-  public List<InputVFile> getBinaries(@Nonnull BinaryKind binaryKind) {
-    List<InputVFile> binaries = new ArrayList<InputVFile>();
-    fillBinaries(libraryVDir, binaryKind, binaries);
-    return binaries;
-  }
-
-  @Override
-  @Nonnull
-  public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
-      throws BinaryDoesNotExistException {
-    try {
-      return libraryVDir.getInputVFile(
-          new VPath(typePath.getPathAsString('/') + BinaryKind.DEX.getFileExtension(), '/'));
-    } catch (NotFileOrDirectoryException e) {
-      throw new BinaryDoesNotExistException(getLocation(), typePath, binaryKind);
+    if (minorVersion < supportedMinorMin) {
+      throw new LibraryVersionException("The version of the library file is not supported anymore."
+          + "Library version: " + majorVersion + "." + minorVersion + " - Current version: "
+          + majorVersion + "." + supportedMinor + " - Minimum compatible version: " + majorVersion
+          + "." + supportedMinorMin);
+    } else if (minorVersion > supportedMinor) {
+      throw new LibraryVersionException("The version of the library file is too recent."
+          + "Library version: " + majorVersion + "." + minorVersion + " - Current version: "
+          + majorVersion + "." + supportedMinor);
+    } else if (minorVersion < supportedMinor) {
+      Jack.getSession().getUserLogger().log(Level.WARNING,
+          "The version of the library is older than the current version but is "
+          + "supported. File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
+          Integer.valueOf(majorVersion), Integer.valueOf(minorVersion),
+          Integer.valueOf(majorVersion), Integer.valueOf(supportedMinor)});
     }
   }
 
-  @Override
-  @Nonnull
-  public InputRootVDir getInputVDir() {
-    return libraryVDir;
-  }
+  public abstract int getSupportedMinor();
 
-  private void fillBinaryKinds(@Nonnull InputVDir vDir) {
-    for (InputVElement subFile : vDir.list()) {
-      if (subFile.isVDir()) {
-        fillBinaryKinds((InputVDir) subFile);
-      } else {
-        try {
-          binaryKinds.add(BinaryKind.getBinaryKind((InputVFile) subFile));
-        } catch (NotBinaryException e) {
-          // Ok, nothing to do
-        }
-      }
-    }
-  }
-
-  private void fillBinaries(@Nonnull InputVDir vDir, @Nonnull BinaryKind binaryKind,
-      @Nonnull List<InputVFile> binaries) {
-    for (InputVElement subFile : vDir.list()) {
-      if (subFile.isVDir()) {
-        fillBinaries((InputVDir) subFile, binaryKind, binaries);
-      } else {
-        InputVFile vFile = (InputVFile) subFile;
-        if (binaryKind.isBinaryFile(vFile)) {
-          binaries.add(vFile);
-        }
-      }
-    }
-  }
+  public abstract int getSupportedMinorMin();
 }

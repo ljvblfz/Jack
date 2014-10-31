@@ -20,6 +20,7 @@ import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.ResourceImportConflictException;
 import com.android.jack.category.KnownBugs;
+import com.android.jack.library.JackLibrary;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
@@ -244,8 +245,12 @@ public class FileConflictTest {
     String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
+    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+    File libProperties = new File(tempJackFolder, libPropName);
+
     // create Jack dirs to import
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
+    copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
 
     // copy Jack file to output dir
@@ -280,10 +285,14 @@ public class FileConflictTest {
     String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
+    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+    File libProperties = new File(tempJackFolder, libPropName);
+
     // create Jack dirs to import
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
     String resourcePath = "com/android/jack/fileconflict/test003/jack/Resource";
     File resource = new File(testSrcDir, "Resource");
+    copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
     copyFileToDir(resource, resourcePath, jackImport1);
 
@@ -323,9 +332,13 @@ public class FileConflictTest {
     String jackFilePath = "com/android/jack/fileconflict/test004/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
+    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+    File libProperties = new File(tempJackFolder, libPropName);
+
     // create Jack dirs to import
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
     File resource = new File(testSrcDir, "MyClass.txt");
+    copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
     copyFileToDir(resource, "com/android/jack/fileconflict/test004/jack/MyClass.txt", jackImport1);
     System.out.println(jackImport1.getAbsolutePath());
@@ -361,11 +374,17 @@ public class FileConflictTest {
     File myClass2 = new File(tempJackFolder, JACK_FILE_PATH_2);
     File myClass3 = new File(tempJackFolder, JACK_FILE_PATH_3);
 
+
+    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+    File libProperties = new File(tempJackFolder, libPropName);
+
     // create Jack dirs to import
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
     File jackImport2 = TestTools.createTempDir("jackimport2", "dir");
+    copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
     copyFileToDir(myClass2, JACK_FILE_PATH_2, jackImport1);
+    copyFileToDir(libProperties, libPropName, jackImport2);
     copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport2);
     copyFileToDir(myClass3, JACK_FILE_PATH_3, jackImport2);
 
@@ -400,12 +419,17 @@ public class FileConflictTest {
     File resource2 = new File(TEST002_DIR, RESOURCE2_SHORTPATH);
     File resource3 = new File(TEST002_DIR, RESOURCE3_SHORTPATH);
 
+    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+    File libProperties = new File(tempJackFolder, libPropName);
+
     // create Jack dirs to import
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
     File jackImport2 = TestTools.createTempDir("jackimport2", "dir");
+    copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, JACK_FILE_PATH_002_1, jackImport1);
     copyFileToDir(resource1, RESOURCE1_LONGPATH, jackImport1);
     copyFileToDir(resource2, RESOURCE2_LONGPATH, jackImport1);
+    copyFileToDir(libProperties, libPropName, jackImport2);
     copyFileToDir(myClass2, JACK_FILE_PATH_002_2, jackImport2);
     copyFileToDir(resource2, RESOURCE1_LONGPATH, jackImport2);
     copyFileToDir(resource3, RESOURCE3_LONGPATH, jackImport2);

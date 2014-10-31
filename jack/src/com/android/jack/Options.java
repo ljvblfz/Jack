@@ -597,6 +597,7 @@ public class Options {
       configBuilder.set(GENERATE_JAYCE_FILE, true);
       if (generateIntermediateDex) {
         configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+        configBuilder.set(INTERMEDIATE_DEX_DIR, null);
       }
     }
 
@@ -698,7 +699,7 @@ public class Options {
     // Check Jack arguments
     if (generateIntermediateDex && (out != null || outZip != null || jayceOutZip != null)) {
       throw new IllegalOptionsException(
-          "--generate-intermediate-dex must be use only with --output-jack");
+          "--generate-intermediate-dex must be use only with --output-jack-dir");
     }
 
     if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {

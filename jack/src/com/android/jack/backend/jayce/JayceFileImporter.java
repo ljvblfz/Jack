@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.library.BinaryKind;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibrary;
@@ -69,7 +70,7 @@ public class JayceFileImporter {
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final List<InputJackLibrary> inputJackLibraries;
+  private final List<InputJackLibrary> jackLibraries;
 
   private static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
@@ -113,34 +114,34 @@ public class JayceFileImporter {
       ThreadConfig.get(RESOURCE_COLLISION_POLICY);
 
   public JayceFileImporter(@Nonnull List<InputJackLibrary> jackLibraries) {
-    this.inputJackLibraries = jackLibraries;
+    this.jackLibraries = jackLibraries;
   }
 
   public void doImport(@Nonnull JSession session) throws JPackageLookupException,
       ImportConflictException, JTypeLookupException {
 
-    for (InputJackLibrary inputJackLibrary : inputJackLibraries) {
-      InputRootVDir libraryVDir = inputJackLibrary.getInputVDir();
+    for (InputJackLibrary jackLibrary : jackLibraries) {
+      InputRootVDir libraryVDir = jackLibrary.getInputVDir();
       logger.log(Level.FINE, "Importing {0}", libraryVDir.getLocation().getDescription());
       for (InputVElement subFile : libraryVDir.list()) {
-        importJayceFile(inputJackLibrary, subFile, session, "");
+        importJayceFile(jackLibrary, subFile, session, "");
       }
     }
   }
 
-  private void importJayceFile(@Nonnull InputJackLibrary inputJackLibrary,
+  private void importJayceFile(@Nonnull InputLibrary inputLibrary,
       @Nonnull InputVElement element, @Nonnull JSession session, @Nonnull String currentPath)
       throws JPackageLookupException, TypeImportConflictException, ResourceImportConflictException,
       JTypeLookupException {
     String path = currentPath + element.getName();
     if (element.isVDir()) {
       for (InputVElement subFile : ((InputVDir) element).list()) {
-        importJayceFile(inputJackLibrary, subFile, session, path + VPATH_SEPARATOR);
+        importJayceFile(inputLibrary, subFile, session, path + VPATH_SEPARATOR);
       }
     } else {
       InputVFile file = (InputVFile) element;
       if (isJackFileName(file.getName())) {
-        addImportedTypes(session, path, inputJackLibrary);
+        addImportedTypes(session, path, inputLibrary);
       } else {
         addImportedResource(file, session, path);
       }
@@ -188,8 +189,9 @@ public class JayceFileImporter {
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
-    // library.properties is not a resource
-    if (path.equals(JackLibrary.LIBRARY_PROPERTIES_VPATH)) {
+    // library.properties and dex files are not resources
+    if (path.equals(JackLibrary.LIBRARY_PROPERTIES_VPATH) ||
+        currentPath.endsWith(BinaryKind.DEX.getFileExtension())) {
       return;
     }
     Resource newResource = new Resource(path, file);
