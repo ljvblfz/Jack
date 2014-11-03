@@ -26,9 +26,6 @@ endef
 
 include $(CLEAR_VARS)
 
-JACK_BASE_VERSION_NAME := 1.0
-JACK_BASE_VERSION_CODE := 001
-
 LOCAL_MODULE := jack
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := EXECUTABLES
@@ -89,21 +86,6 @@ LOCAL_JAVA_LIBRARIES := \
   sched-build \
   allocation-jack \
   $(JACK_STATIC_JAVA_LIBRARIES)
-
-ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
-  JACK_VERSION_NAME_TAG := eng.$(USER)
-else
-  JACK_VERSION_NAME_TAG := $(BUILD_NUMBER)
-endif
-
-JACK_VERSION_NAME := "$(JACK_BASE_VERSION_NAME).$(JACK_BASE_VERSION_CODE).$(JACK_VERSION_NAME_TAG)"
-
-intermediates := $(call local-intermediates-dir,COMMON)
-$(intermediates)/rsc/jack.properties: $(LOCAL_PATH)/Android.mk
-	$(hide) mkdir -p $(dir $@)
-	$(hide) echo "jack.version=$(JACK_VERSION_NAME)" > $@
-
-LOCAL_JAVA_RESOURCE_FILES := $(intermediates)/rsc/jack.properties
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 
