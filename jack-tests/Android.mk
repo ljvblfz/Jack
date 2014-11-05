@@ -16,25 +16,25 @@ private_jack_tests_mk := $(lastword $(MAKEFILE_LIST))
 
 JACK_PATH:= $(call my-dir)
 
-$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(DEFAULT_JACK_VM_ARGS)
+test-jack-incremental: PRIVATE_JACK_VM_ARGS := $(DEFAULT_JACK_VM_ARGS)
 ifneq ($(ANDROID_JACK_VM_ARGS),)
-$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(ANDROID_JACK_VM_ARGS)
+test-jack-incremental: PRIVATE_JACK_VM_ARGS := $(ANDROID_JACK_VM_ARGS)
 endif
 ifneq ($(LOCAL_JACK_VM_ARGS),)
-$(test-jack-incremental): PRIVATE_JACK_VM_ARGS := $(LOCAL_JACK_VM_ARGS)
+test-jack-incremental: PRIVATE_JACK_VM_ARGS := $(LOCAL_JACK_VM_ARGS)
 endif
 
-$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(DEFAULT_JACK_EXTRA_ARGS)
+test-jack-incremental: PRIVATE_JACK_EXTRA_ARGS := $(DEFAULT_JACK_EXTRA_ARGS)
 ifneq ($(ANDROID_JACK_EXTRA_ARGS),)
-$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(ANDROID_JACK_EXTRA_ARGS)
+test-jack-incremental: PRIVATE_JACK_EXTRA_ARGS := $(ANDROID_JACK_EXTRA_ARGS)
 endif
 ifneq ($(LOCAL_JACK_EXTRA_ARGS),)
-$(test-jack-incremental): PRIVATE_JACK_EXTRA_ARGS := $(LOCAL_JACK_EXTRA_ARGS)
+test-jack-incremental: PRIVATE_JACK_EXTRA_ARGS := $(LOCAL_JACK_EXTRA_ARGS)
 endif
 
-$(test-jack-incremental): PRIVATE_JACK_VM := $(DEFAULT_JACK_VM)
+test-jack-incremental: PRIVATE_JACK_VM := $(DEFAULT_JACK_VM)
 ifneq ($(strip $(ANDROID_JACK_VM)),)
-$(test-jack-incremental): PRIVATE_JACK_VM := $(ANDROID_JACK_VM)
+test-jack-incremental: PRIVATE_JACK_VM := $(ANDROID_JACK_VM)
 endif
 
 test-jack-incremental: $(JACK_JAR)
