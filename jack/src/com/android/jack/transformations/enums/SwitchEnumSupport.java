@@ -62,7 +62,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JLookup;
-import com.android.jack.lookup.JLookupException;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparator;
@@ -123,6 +123,9 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
       "Sort enum fields by their name for enum partial recompilation support")
       .addDefaultValue(Boolean.FALSE).withCategory(Private.get());
 
+  private final JType noSuchFieldErrorType =
+      Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");
+
   /**
    * Enum fields used into switch.
    */
@@ -150,7 +153,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  private class Visitor extends JVisitor {
 
     private final boolean sortEnumField = ThreadConfig.get(SORT_ENUM_FIELD).booleanValue();
 
@@ -253,7 +256,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
       try {
         getEnumSwitchValues = currentClass.getMethod(methodName, switchValuesArrayType);
-      } catch (JLookupException e) {
+      } catch (JMethodLookupException e) {
         TransformationRequest localTr = new TransformationRequest(currentClass);
 
         // Create $[EnumName]switchesValues field
@@ -287,7 +290,12 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
         JLocal arrayVar = lvc.createTempLocal(switchValuesArrayType, dbgInfo, localTr);
 
-        JMethod valuesMethod = enumType.getMethod("values", enumArrayType);
+        JMethod valuesMethod;
+        try {
+          valuesMethod = enumType.getMethod("values", enumArrayType);
+        } catch (JMethodLookupException e1) {
+          throw new AssertionError(e1);
+        }
 
         // int[] array = new int[enum.values().length]
         JMethodId valuesId = valuesMethod.getMethodId();
@@ -306,7 +314,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         // +1 due to the fact that numbering of used fields does not start to 0 but 1, otherwise
         // the numbering of used fields and unused fields could be overlap.
         int unusedEnumFieldCstValue = usedEnumFields.size() + 1;
-        JType noSuchFieldErrorType = lookup.getType("Ljava/lang/NoSuchFieldError;");
         EnumMappingMarker emm = new EnumMappingMarker();
 
         List<JField> enumFields = enumType.getFields();
