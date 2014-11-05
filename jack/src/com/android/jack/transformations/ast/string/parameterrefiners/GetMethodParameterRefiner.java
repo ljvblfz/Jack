@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.reflection.MemberFinder;
 import com.android.jack.reflection.MultipleMethodsFoundException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -57,7 +58,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
   private JMethodId getMethodMethodId;
 
   @Override
-  public boolean isApplicable(@Nonnull JMethodCall call) {
+  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (getMethodMethodId == null) {
       List<JType> parameterList = new ArrayList<JType>(2);
       parameterList.add(javaLangString);

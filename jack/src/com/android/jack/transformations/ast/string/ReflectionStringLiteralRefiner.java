@@ -16,6 +16,8 @@
 
 package com.android.jack.transformations.ast.string;
 
+import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JMethod;
@@ -23,6 +25,9 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.transformations.TransformationException;
 import com.android.jack.transformations.ast.string.parameterrefiners.AtomicLongIntUpdaterParameterRefiner;
 import com.android.jack.transformations.ast.string.parameterrefiners.AtomicReferenceUpdaterParameterRefiner;
 import com.android.jack.transformations.ast.string.parameterrefiners.ForNameParameterRefiner;
@@ -86,11 +91,17 @@ public class ReflectionStringLiteralRefiner implements RunnableSchedulable<JMeth
 
     @Override
     public boolean visit(@Nonnull JMethodCall call) {
-      processCall(call);
+      try {
+        processCall(call);
+      } catch (JMethodLookupException e) {
+        TransformationException te = new TransformationException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, te);
+        throw new JackAbortException(te);
+      }
       return true;
     }
 
-    private void processCall(@Nonnull JMethodCall call) {
+    private void processCall(@Nonnull JMethodCall call) throws JMethodLookupException {
       for (StringParameterRefiner refiner : refiners) {
         if (refiner.isApplicable(call))  {
           JStringLiteral paramToRefine = refiner.getExpressionToRefine(call);

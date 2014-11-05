@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.naming.TypeName.Kind;
 import com.android.jack.lookup.JLookupException;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.util.NamingTools;
 import com.android.sched.schedulable.Constraint;
@@ -51,7 +52,7 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
   private JMethodId forNameMethodId;
 
   @Override
-  public boolean isApplicable(@Nonnull JMethodCall call) {
+  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (forNameMethodId == null) {
       forNameMethodId = javaLangClass.getMethodId(
           FORNAME_METHOD_NAME, Collections.singletonList((JType) javaLangString),
