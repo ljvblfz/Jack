@@ -111,7 +111,6 @@ import com.android.jack.jayce.v0002.nodes.NPrefixDecOperation;
 import com.android.jack.jayce.v0002.nodes.NPrefixIncOperation;
 import com.android.jack.jayce.v0002.nodes.NPrefixNegOperation;
 import com.android.jack.jayce.v0002.nodes.NPrefixNotOperation;
-import com.android.jack.jayce.v0002.nodes.NProgram;
 import com.android.jack.jayce.v0002.nodes.NReinterpretCastOperation;
 import com.android.jack.jayce.v0002.nodes.NReturnStatement;
 import com.android.jack.jayce.v0002.nodes.NShlOperation;
@@ -805,13 +804,6 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NPrefixNotOperation();
-    }
-  },
-  PROGRAM("program", NodeLevel.TYPES) {
-    @Nonnull
-    @Override
-    public NNode newNode() {
-      return new NProgram();
     }
   },
   REINTERPRETCAST_OPERATION("reinterpret-cast") {
