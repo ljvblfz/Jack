@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.sched.marker.Marker;
@@ -29,6 +30,7 @@ public abstract class NMarker extends NNode {
 
   @Override
   @Nonnull
-  public abstract Marker exportAsJast(@Nonnull ExportSession exportSession);
+  public abstract Marker exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException;
 
 }
