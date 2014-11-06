@@ -43,8 +43,8 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Override
   public String getProperty(@Nonnull String key) throws LibraryFormatException {
     if (!libraryProperties.containsKey(key)) {
-      logger.log(Level.SEVERE,
-          "Property " + key + " from the library " + getLocation() + " does not exist");
+      logger.log(Level.SEVERE, "Property " + key + " from the library "
+          + getLocation().getDescription() + " does not exist");
       throw new LibraryFormatException(getLocation());
     }
     return (String) libraryProperties.get(key);

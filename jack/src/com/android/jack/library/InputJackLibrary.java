@@ -32,10 +32,9 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
   public InputJackLibrary(@Nonnull Properties libraryProperties) throws LibraryException {
     super(libraryProperties);
-    check();
   }
 
-  private void check() throws LibraryException {
+  protected void check() throws LibraryException {
     getProperty(JackLibrary.KEY_LIB_EMITTER);
     getProperty(JackLibrary.KEY_LIB_EMITTER_VERSION);
     getProperty(JackLibrary.KEY_LIB_MAJOR_VERSION);
