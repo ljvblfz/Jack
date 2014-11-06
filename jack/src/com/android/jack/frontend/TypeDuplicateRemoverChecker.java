@@ -29,7 +29,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -79,7 +79,7 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession
 
   @SuppressWarnings("rawtypes")
   public static void checkFieldsOf(@Nonnull Class<?> type, @Nonnull Object node, JSession session) {
-      JLookup lookup = session.getPhantomLookup();
+      JPhantomLookup lookup = session.getPhantomLookup();
       for (Field f : type.getDeclaredFields()) {
         boolean fieldAccess = f.isAccessible();
         try {
@@ -133,9 +133,8 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession
       }
   }
 
-  private static void checkType(
-      @Nonnull Object node, @Nonnull JLookup lookup, @Nonnull Field f, @Nonnull JType typeToCheck)
-      throws AssertionError {
+  private static void checkType(@Nonnull Object node, @Nonnull JPhantomLookup lookup,
+      @Nonnull Field f, @Nonnull JType typeToCheck) throws AssertionError {
     JType typeFoundInLookup;
     String signature = Jack.getLookupFormatter().getName(typeToCheck);
     if (typeToCheck instanceof JEnum) {

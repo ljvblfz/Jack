@@ -47,7 +47,7 @@ import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.shrob.obfuscation.FinalNames;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.PutNameValuePair;
@@ -108,7 +108,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     @Nonnull
     private final JAnnotation memberClassAnnotation;
 
-    public Visitor(@Nonnull TransformationRequest request, @Nonnull JLookup lookup) {
+    public Visitor(@Nonnull TransformationRequest request, @Nonnull JPhantomLookup lookup) {
       this.request = request;
       javaLangClass = lookup.getClass(CommonTypes.JAVA_LANG_CLASS);
       defaultAnnotation = lookup.getAnnotation(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
