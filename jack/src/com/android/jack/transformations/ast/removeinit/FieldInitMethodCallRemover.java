@@ -27,6 +27,7 @@ import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.request.Remove;
@@ -73,9 +74,14 @@ public class FieldInitMethodCallRemover implements RunnableSchedulable<JMethod> 
       if (methodCall.getMethodName().equals(FieldInitMethodRemover.VAR_INIT_METHOD_NAME)) {
         assert methodCall.getParent() instanceof JExpressionStatement;
 
-        JMethod varInitMethod = declaredType.getMethod(FieldInitMethodRemover.VAR_INIT_METHOD_NAME,
-            JPrimitiveTypeEnum.VOID.getType());
-        assert varInitMethod != null;
+        JMethod varInitMethod;
+        try {
+          varInitMethod = declaredType.getMethod(FieldInitMethodRemover.VAR_INIT_METHOD_NAME,
+              JPrimitiveTypeEnum.VOID.getType());
+        } catch (JMethodLookupException e) {
+          // All type should have a $init() method (created by ECJ)
+          throw new AssertionError(e);
+        }
 
         JAbstractMethodBody body = varInitMethod.getBody();
         assert body instanceof JMethodBody;
