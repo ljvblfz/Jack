@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * {@link JayceInternalWriter} Factory.
  */
-public abstract class JayceWriterFactory extends JayceProcessor {
+public abstract class JayceWriterFactory {
 
   public static final int DEFAULT_MAJOR_VERSION = 2;
 

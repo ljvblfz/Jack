@@ -28,6 +28,8 @@ import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +38,7 @@ import javax.annotation.Nonnull;
 /**
  * A factory of {@link JayceInternalReader}.
  */
-public abstract class JayceReaderFactory extends JayceProcessor {
+public abstract class JayceReaderFactory {
 
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
@@ -110,5 +112,33 @@ public abstract class JayceReaderFactory extends JayceProcessor {
       }
     }
     return jayceReader;
+  }
+
+  @Nonnull
+  private static Object instantiateConstructorWithParameters(@Nonnull String className,
+      @Nonnull Class<?>[] parameterTypes, @Nonnull Object[] parameterInstances,
+      @Nonnull String version)
+      throws JayceVersionException {
+    Object constructorInstance = null;
+    try {
+      Class<?> jayceReaderClass = Class.forName(className);
+      Constructor<?> constructor = jayceReaderClass.getConstructor(parameterTypes);
+      constructorInstance = constructor.newInstance(parameterInstances);
+    } catch (SecurityException e) {
+      throw new AssertionError("Security issue with Jayce stream");
+    } catch (IllegalArgumentException e) {
+      throw new AssertionError("Illegal argument for Jayce processor for version " + version);
+    } catch (ClassNotFoundException e) {
+      throw new JayceVersionException("Jayce version " + version + " not supported");
+    } catch (NoSuchMethodException e) {
+      throw new AssertionError("Jayce processing method not found for version " + version);
+    } catch (InstantiationException e) {
+      throw new AssertionError("Problem instantiating Jayce processor for version " + version);
+    } catch (IllegalAccessException e) {
+      throw new AssertionError("Problem accessing Jayce processor for version " + version);
+    } catch (InvocationTargetException e) {
+      throw new RuntimeException(e.getCause());
+    }
+    return constructorInstance;
   }
 }
