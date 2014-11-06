@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JFieldLookupException;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -73,10 +74,16 @@ public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JClassLiteral classLiteral) {
       if (classLiteral.getRefType() instanceof JPrimitiveType) {
         JClass receiverType = getType((JPrimitiveType) classLiteral.getRefType());
-        JFieldRef fieldAccess = new JFieldRef(classLiteral.getSourceInfo(),
-            null, receiverType.getFieldId(FIELD_TYPE_NAME,
-                Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS),
-                FieldKind.STATIC), receiverType);
+        JFieldRef fieldAccess;
+        try {
+          fieldAccess = new JFieldRef(classLiteral.getSourceInfo(),
+              null, receiverType.getFieldId(FIELD_TYPE_NAME,
+                  Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS),
+                  FieldKind.STATIC), receiverType);
+        } catch (JFieldLookupException e) {
+          // the TYPE field should always exist in primitive types
+          throw new AssertionError(e);
+        }
         tr.append(new Replace(classLiteral, fieldAccess));
       }
       return super.visit(classLiteral);
