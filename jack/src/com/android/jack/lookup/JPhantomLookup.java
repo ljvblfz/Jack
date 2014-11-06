@@ -312,4 +312,15 @@ public class JPhantomLookup extends JLookup {
         + checkedType.getClass().getName() + ") does not equal with " + formatter.getName(ref)
         + " (" + ref.getClass().getName() + ")");
   }
+
+  @Override
+  @Nonnull
+  protected JArrayType getArrayType(@Nonnull String typeName) {
+    try {
+      return super.getArrayType(typeName);
+    } catch (JTypeLookupException e) {
+      // should not happen since this is a phantom lookup
+      throw new AssertionError(e);
+    }
+  }
 }
