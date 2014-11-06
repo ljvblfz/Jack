@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -78,14 +79,17 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
   private final JClass jlc =
       Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
 
+  @Nonnull
+  private final JClass reflectArrayType =
+      Jack.getSession().getPhantomLookup().getClass("Ljava/lang/reflect/Array;");
+  @Nonnull
+  private final JArrayType intArrayType =
+      Jack.getSession().getLookup().getArrayType(JPrimitiveTypeEnum.INT.getType(), 1);
+
   private class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
-    @CheckForNull
-    private JArrayType intArrayType;
-    @CheckForNull
-    private JClassOrInterface reflectArray;
     @Nonnull
     private final JSession session;
     @CheckForNull
@@ -105,7 +109,6 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
         int nbPresentDimensions = presentDimensions.size();
         if (nbPresentDimensions > 1) {
           SourceInfo sourceInfo = newArray.getSourceInfo();
-          JClassOrInterface reflectArrayType = getReflectArrayType();
           JMethodId newInstanceId = getNewInstanceId(reflectArrayType);
           JMethodCall call = new JMethodCall(sourceInfo,
               null,
@@ -115,7 +118,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
               newInstanceId.canBeVirtual());
           call.addArg(new JClassLiteral(sourceInfo,
               getComponentTypeForNewInstance(newArray, nbPresentDimensions), jlc));
-         call.addArg(JNewArray.createWithInits(sourceInfo, getIntArrayType(), presentDimensions));
+         call.addArg(JNewArray.createWithInits(sourceInfo, intArrayType, presentDimensions));
           tr.append(new Replace(newArray, new JDynamicCastOperation(sourceInfo, newArray
               .getArrayType(), call)));
         }
@@ -128,7 +131,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
       if (newInstance == null) {
         List<JType> argsType = new ArrayList<JType>(2);
         argsType.add(jlc);
-        argsType.add(getIntArrayType());
+        argsType.add(intArrayType);
         newInstance = reflectArrayType.getOrCreateMethodId("newInstance", argsType,
             MethodKind.STATIC);
       }
@@ -169,31 +172,6 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
       }
       return presentDims;
     }
-
-    @Nonnull
-    private JClassOrInterface getReflectArrayType() {
-      if (reflectArray == null) {
-        reflectArray =
-            (JClassOrInterface) session.getPhantomLookup().getType("Ljava/lang/reflect/Array;");
-      }
-
-      assert reflectArray != null;
-      return reflectArray;
-    }
-
-    /**
-     * @return the intArrayType
-     */
-    @Nonnull
-    private JArrayType getIntArrayType() {
-      if (intArrayType == null) {
-        intArrayType = (JArrayType) session.getLookup().getType("[I");
-      }
-
-      assert intArrayType != null;
-      return intArrayType;
-    }
-
   }
 
   @Override
