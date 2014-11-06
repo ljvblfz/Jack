@@ -41,14 +41,11 @@ public class OutputZipRootVDir extends AbstractVElement implements SequentialOut
   @Nonnull
   protected final ZipOutputStream zos;
   @Nonnull
-  private final String fileName;
-  @Nonnull
   private final OutputZipFile zipFile;
   @Nonnull
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
 
   public OutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
-    fileName = zipFile.getName();
     location = new ZipLocation(zipFile.getLocation(), new ZipEntry(""));
     zos = zipFile.getOutputStream();
     this.zipFile = zipFile;
