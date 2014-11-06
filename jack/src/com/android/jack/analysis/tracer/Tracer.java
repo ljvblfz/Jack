@@ -58,6 +58,7 @@ import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.util.log.LoggerFactory;
@@ -175,8 +176,13 @@ public class Tracer extends JVisitor {
 
         if (t instanceof JDefinedEnum) {
           // The values() method is needed for the switches on enum support
-          JMethod values = definedClass.getMethod("values", definedClass.getArray());
-          trace(values);
+          try {
+            JMethod values = definedClass.getMethod("values", definedClass.getArray());
+            trace(values);
+          } catch (JMethodLookupException e) {
+            // A valid enum must have a values() method
+            throw new AssertionError(e);
+          }
         }
       }
 
