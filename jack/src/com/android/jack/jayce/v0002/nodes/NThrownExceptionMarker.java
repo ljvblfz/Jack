@@ -17,6 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
@@ -50,7 +51,8 @@ public class NThrownExceptionMarker extends NMarker {
 
   @Override
   @Nonnull
-  public ThrownExceptionMarker exportAsJast(@Nonnull ExportSession exportSession) {
+  public ThrownExceptionMarker exportAsJast(@Nonnull ExportSession exportSession)
+      throws JTypeLookupException {
     List<JClass> jThrownExceptions = new ArrayList<JClass>();
     for (String exceptionName : thrownExceptions) {
       jThrownExceptions.add(exportSession.getLookup().getClass(exceptionName));
