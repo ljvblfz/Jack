@@ -76,8 +76,6 @@
   <!-- ******************* -->
   <!-- Jack-lib            -->
   <!-- ******************* -->
-  <property name="jack.base.version.name" value="1.0" />
-  <property name="jack.base.version.code" value="001" />
 
   <property name="jack.build.dir" value="${jack.dir}/build/jack-lib" />
   <property name="jack.libs.dir" value="${jack.dir}/libs" />
@@ -194,11 +192,6 @@
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.build.outdir}"/>
     </copy>
-    <!-- generate jack.properties -->
-    <property environment="env"/>
-    <propertyfile file="${jack.exec.build.outdir}/jack.properties">
-      <entry key="jack.version" value="${jack.base.version.name}.${jack.base.version.code}"/>
-    </propertyfile>
     <!-- package -->
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.dir}/rsc" includes="**"/>

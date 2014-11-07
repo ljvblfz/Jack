@@ -1594,23 +1594,31 @@ public abstract class Jack {
   }
 
   @Nonnull
-  public static String getVersionString() {
-    String version = "Unknown (no resource file)";
+  private static final String PROPERTIES_FILE = "jack.properties";
 
-    InputStream is = Jack.class.getClassLoader().getResourceAsStream("jack.properties");
+  @Nonnull
+  public static String getVersionString() {
+    String version = "Unknown (problem with " + PROPERTIES_FILE + " resource file)";
+
+    InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
     if (is != null) {
       Properties prop = new Properties();
-      String noVersion = "Unknown (no jack.version entry)";
       try {
         prop.load(is);
-        version = prop.getProperty("jack.version", noVersion);
+        String rawVersion = prop.getProperty("jack.version");
+        if (rawVersion != null) {
+          version = rawVersion;
 
-        String codeBase = prop.getProperty("jack.version.codebase");
-        if (codeBase != null) {
+          String codeName = prop.getProperty("jack.version.codename");
+          if (codeName != null) {
+            version += " \'" + codeName + '\'';
+          }
+
+          String codeBase = prop.getProperty("jack.version.codebase", "engineering");
           version += " (" + codeBase + ")";
         }
       } catch (IOException e) {
-        version = noVersion;
+        // Return default version
       }
     }
 
