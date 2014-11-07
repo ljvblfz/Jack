@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 public interface JayceInternalReader {
 
   @Nonnull
-  DeclaredTypeNode readType(@Nonnull NodeLevel nodeLevel) throws IOException;
+  DeclaredTypeNode readType(@Nonnull NodeLevel nodeLevel) throws IOException, JayceFormatException;
 
   int getCurrentMinor();
 

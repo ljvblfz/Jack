@@ -26,6 +26,8 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.AbtractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
@@ -152,20 +154,22 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   }
 
   @Nonnull
-  JDefinedClassOrInterface load() throws JayceFormatException, JayceVersionException, IOException {
+  JDefinedClassOrInterface load() throws LibraryFormatException, LibraryIOException {
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
     String expectedSignature = Jack.getLookupFormatter().getName(enclosingPackage, simpleName);
     if (!type.getSignature().equals(expectedSignature)) {
-      throw new JayceFormatException("Wrong type in '" + source + "', found '"
-          + type.getSignature() + "' while expecting '" + expectedSignature + "'");
+      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
+          + " is invalid: wrong type in '" + source + "', found '" + type.getSignature()
+          + "' while expecting '" + expectedSignature + "'");
+      throw new LibraryFormatException(inputJackLibrary.getLocation());
     }
     JDefinedClassOrInterface jType = type.create(enclosingPackage, this);
     return jType;
   }
 
   @Nonnull
-  private JDefinedClassOrInterface create(@Nonnull JSession session)
-      throws JayceFormatException, JayceVersionException, IOException {
+  private JDefinedClassOrInterface create(@Nonnull JSession session) throws LibraryFormatException,
+      LibraryIOException {
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
     String packageQualifiedName = NamingTools.getPackageNameFromBinaryName(
         NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
@@ -175,21 +179,30 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   }
 
   @Nonnull
-  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel)
-      throws IOException, JayceFormatException, JayceVersionException {
+  DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws LibraryFormatException,
+      LibraryIOException {
     DeclaredTypeNode type = nnode.get();
     if (type == null || !type.getLevel().keep(minimumLevel)) {
-      InputStream in = new BufferedInputStream(source.openRead());
+      InputStream in = null;
       try {
+        in = new BufferedInputStream(source.openRead());
         NodeLevel loadLevel = defaultLoadLevel;
         if (!loadLevel.keep(minimumLevel)) {
           loadLevel = minimumLevel;
         }
         type = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
         nnode = new SoftReference<DeclaredTypeNode>(type);
+      } catch (IOException e) {
+        throw new LibraryIOException(inputJackLibrary.getLocation(), e);
+      } catch (JayceFormatException e) {
+        logger.log(Level.SEVERE,
+            "Library " + inputJackLibrary.getLocation().getDescription() + " is invalid", e);
+        throw new LibraryFormatException(inputJackLibrary.getLocation());
       } finally {
         try {
-          in.close();
+          if (in != null) {
+            in.close();
+          }
         } catch (IOException e) {
           logger.log(Level.WARNING, "Failed to close input stream on '" + source + "'", e);
         }
@@ -208,8 +221,6 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
         DeclaredTypeNode type;
         try {
           type = getNNode(NodeLevel.STRUCTURE);
-        } catch (IOException e) {
-          throw new JackLoadingException(getLocation(), e);
         } catch (LibraryException e) {
           throw new JackLoadingException(getLocation(), e);
         }

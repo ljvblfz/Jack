@@ -64,14 +64,6 @@ public class JayceHeader {
 
   private char previousChar;
 
-
-  public JayceHeader(@Nonnegative int majorVersion, @Nonnegative int minorVersion,
-      @CheckForNull String emitterId) throws JayceFormatException {
-    this.majorVersion = majorVersion;
-    this.minorVersion = minorVersion;
-    this.emitterId = emitterId;
-  }
-
   public JayceHeader(@Nonnull InputStream is) throws IOException, JayceFormatException {
     readHeader(is);
   }

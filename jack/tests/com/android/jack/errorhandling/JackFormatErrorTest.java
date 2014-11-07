@@ -16,6 +16,7 @@
 
 package com.android.jack.errorhandling;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
@@ -23,8 +24,8 @@ import com.android.jack.jayce.JayceProperties;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.v0001.Version;
-import com.android.jack.load.JackLoadingException;
 
 import junit.framework.Assert;
 
@@ -78,9 +79,10 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JackLoadingException e) {
+    } catch (JackAbortException e) {
       // Failure is ok since jack file is corrupted.
-      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
       Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
       Assert.assertTrue(ite.endErrRedirection().contains(
@@ -121,9 +123,10 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JackLoadingException e) {
+    } catch (JackAbortException e) {
       // Failure is ok since jack file header is corrupted.
-      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
       Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
       Assert.assertTrue(ite.endErrRedirection().contains("Invalid Jayce header"));
@@ -163,9 +166,10 @@ public class JackFormatErrorTest {
       ite.startErrRedirection();
       ite.compile(options);
       Assert.fail();
-    } catch (JackLoadingException e) {
+    } catch (JackAbortException e) {
       // Failure is ok since jack file header is corrupted.
-      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
       Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
       Assert.assertTrue(ite.endErrRedirection().contains("Jayce version 0 not supported"));

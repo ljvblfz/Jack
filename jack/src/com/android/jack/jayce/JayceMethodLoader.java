@@ -21,6 +21,8 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.load.AbstractMethodLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
@@ -29,7 +31,6 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 
 import javax.annotation.Nonnull;
@@ -68,8 +69,6 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
         methodNode = getNNode(loaded);
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
-      } catch (IOException e) {
-        throw new JackLoadingException(getLocation(loaded), e);
       }
       JNode body;
       try {
@@ -92,8 +91,8 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   }
 
   @Nonnull
-  private MethodNode getNNode(@Nonnull JMethod loaded) throws JayceFormatException,
-      JayceVersionException, IOException {
+  private MethodNode getNNode(@Nonnull JMethod loaded) throws LibraryFormatException,
+      LibraryIOException {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
       DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);

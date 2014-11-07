@@ -74,20 +74,25 @@ public abstract class JayceReaderFactory {
         + JackLibraryFactory.getVersionString(majorVersion) + ".io.JayceInternalReaderImpl";
 
     JayceInternalReader jayceReader = (JayceInternalReader) instantiateConstructorWithParameters(
-        className, new Class[] {InputStream.class}, new Object[] {in}, majorVersionStr);
+        inputJackLibrary, className, new Class[] {InputStream.class}, new Object[] {in},
+        majorVersionStr);
 
 
     int minorMin = jayceReader.getMinorMin();
     int currentMinor = jayceReader.getCurrentMinor();
     if (minorVersion < minorMin) {
-      throw new JayceVersionException("The version of the jayce file is not supported anymore."
+      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
+          + " is invalid: the version of the jayce file is not supported anymore."
           + "File version: " + majorVersionStr + "." + minorVersion + " - Current version: "
           + majorVersionStr + "." + currentMinor + " - Minimum compatible version: "
           + majorVersionStr + "." + minorMin);
+      throw new LibraryFormatException(inputJackLibrary.getLocation());
     } else if (minorVersion > currentMinor) {
-      throw new JayceVersionException("The version of the jayce file is too recent."
+      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
+          + " is invalid: the version of the jayce file is too recent."
           + "File version: " + majorVersionStr + "." + minorVersion + " - Current version: "
           + majorVersionStr + "." + currentMinor);
+      throw new LibraryFormatException(inputJackLibrary.getLocation());
     } else if (minorVersion < currentMinor) {
       Jack.getSession().getUserLogger().log(Level.WARNING,
           "The version of the jayce file is older than the current version but is "
@@ -115,10 +120,11 @@ public abstract class JayceReaderFactory {
   }
 
   @Nonnull
-  private static Object instantiateConstructorWithParameters(@Nonnull String className,
+  private static Object instantiateConstructorWithParameters(
+      @Nonnull InputJackLibrary inputJackLibrary, @Nonnull String className,
       @Nonnull Class<?>[] parameterTypes, @Nonnull Object[] parameterInstances,
       @Nonnull String version)
-      throws JayceVersionException {
+      throws LibraryFormatException {
     Object constructorInstance = null;
     try {
       Class<?> jayceReaderClass = Class.forName(className);
@@ -129,7 +135,9 @@ public abstract class JayceReaderFactory {
     } catch (IllegalArgumentException e) {
       throw new AssertionError("Illegal argument for Jayce processor for version " + version);
     } catch (ClassNotFoundException e) {
-      throw new JayceVersionException("Jayce version " + version + " not supported");
+      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
+          + " is invalid: Jayce version " + version + " not supported", e);
+      throw new LibraryFormatException(inputJackLibrary.getLocation());
     } catch (NoSuchMethodException e) {
       throw new AssertionError("Jayce processing method not found for version " + version);
     } catch (InstantiationException e) {

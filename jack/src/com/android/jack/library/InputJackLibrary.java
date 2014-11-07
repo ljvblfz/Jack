@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
-import com.android.jack.LibraryException;
 
 import java.util.Properties;
 import java.util.logging.Level;
@@ -30,11 +29,11 @@ import javax.annotation.Nonnull;
  */
 public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
-  public InputJackLibrary(@Nonnull Properties libraryProperties) throws LibraryException {
+  public InputJackLibrary(@Nonnull Properties libraryProperties) {
     super(libraryProperties);
   }
 
-  protected void check() throws LibraryException {
+  protected void check() throws LibraryVersionException, LibraryFormatException {
     getProperty(JackLibrary.KEY_LIB_EMITTER);
     getProperty(JackLibrary.KEY_LIB_EMITTER_VERSION);
     getProperty(JackLibrary.KEY_LIB_MAJOR_VERSION);

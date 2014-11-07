@@ -22,8 +22,8 @@ import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
-import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
 
@@ -33,7 +33,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -210,11 +209,13 @@ public class FileAccessErrorTest {
       te.startErrRedirection();
       te.compile(options);
       Assert.fail();
-    } catch (JackLoadingException e) {
-      // Failure is ok since jack file is not readable
-      Assert.assertTrue(e.getCause() instanceof IOException);
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
     } finally {
-      Assert.assertEquals("", te.endErrRedirection());
+      String errOutput = te.endErrRedirection();
+      Assert.assertTrue(errOutput.contains("is an invalid library"));
+      Assert.assertTrue(errOutput.contains("(Permission denied)"));
       for (File jackFile : te.getJackFiles(te.getJackFolder())) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());

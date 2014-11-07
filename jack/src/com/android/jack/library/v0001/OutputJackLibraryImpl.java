@@ -109,7 +109,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   }
 
   @Override
-  public void close() {
+  public void close() throws LibraryIOException {
     OutputStream os = null;
     try {
       OutputVFile libraryPropertiesOut = outputVDir.createOutputVFile(LIBRARY_PROPERTIES_VPATH);

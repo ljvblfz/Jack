@@ -16,19 +16,18 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.JayceException;
+import com.android.jack.JackUserException;
 
 import javax.annotation.Nonnull;
 
 /**
  * Exception representing a problem related to Jayce files format.
  */
-public class JayceFormatException extends JayceException {
+public class JayceFormatException extends JackUserException {
 
   private static final long serialVersionUID = 1L;
 
   public JayceFormatException(@Nonnull String string) {
     super(string);
   }
-
 }

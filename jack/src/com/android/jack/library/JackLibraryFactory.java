@@ -16,7 +16,6 @@
 
 package com.android.jack.library;
 
-import com.android.jack.LibraryException;
 import com.android.jack.library.v0001.OutputJackLibraryImpl;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
@@ -53,7 +52,7 @@ public abstract class JackLibraryFactory {
 
   @Nonnull
   public static InputJackLibrary getInputLibrary(@Nonnull InputRootVDir vdir)
-      throws LibraryException {
+      throws LibraryVersionException, LibraryFormatException, NotJackLibraryException {
     Properties libraryProperties = loadLibraryProperties(vdir);
     String majorVersion = getMajorVersionAsString(vdir, libraryProperties);
 
@@ -105,7 +104,7 @@ public abstract class JackLibraryFactory {
   private static Object instantiateConstructorWithParameters(@Nonnull InputRootVDir vdir,
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes,
       @Nonnull Object[] parameterInstances, @Nonnull String version)
-      throws LibraryVersionException {
+      throws LibraryVersionException, LibraryFormatException {
     Object constructorInstance = null;
     try {
       Class<?> libraryReaderClass = Class.forName(className);
@@ -128,6 +127,8 @@ public abstract class JackLibraryFactory {
       Throwable cause = e.getCause();
       if (cause instanceof LibraryFormatException) {
         throw ((LibraryFormatException) cause);
+      } else if (cause instanceof LibraryVersionException) {
+        throw ((LibraryVersionException) cause);
       } else if (cause instanceof RuntimeException) {
         throw ((RuntimeException) cause);
       } else if (cause instanceof Error) {

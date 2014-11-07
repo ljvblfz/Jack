@@ -36,7 +36,7 @@ public interface OutputLibrary extends Library {
   public OutputVFile getBinaryOutputVFile(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
       throws CannotCreateFileException;
 
-  public void close() throws LibraryWritingException;
+  public void close() throws LibraryIOException;
 
   @Override
   @Nonnull

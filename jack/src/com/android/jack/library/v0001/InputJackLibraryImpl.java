@@ -23,6 +23,7 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.NotBinaryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
@@ -85,7 +86,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
 
   public InputJackLibraryImpl(@Nonnull InputRootVDir libraryVDir,
-      @Nonnull Properties libraryProperties) {
+      @Nonnull Properties libraryProperties) throws LibraryVersionException,
+      LibraryFormatException {
     super(libraryProperties);
     this.libraryVDir = libraryVDir;
     check();

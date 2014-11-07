@@ -680,13 +680,12 @@ public abstract class Jack {
     JayceFileImporter jayceImporter;
     try {
       jayceImporter = getJayceFileImporter(options.jayceImport, hooks, session);
+      putInJackClasspath(options.getBootclasspath(), hooks, session);
+      putInJackClasspath(options.getClasspath(), hooks, session);
     } catch (LibraryReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
     }
-
-    putInJackClasspath(options.getBootclasspath(), hooks, session);
-    putInJackClasspath(options.getClasspath(), hooks, session);
 
     if (ecjArguments != null) {
 
@@ -758,7 +757,7 @@ public abstract class Jack {
 
   private static void putInJackClasspath(@Nonnull List<File> jackFiles,
       @Nonnull RunnableHooks hooks,
-      @Nonnull JSession session) {
+      @Nonnull JSession session) throws LibraryReadingException {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
     for (final File jackFile : jackFiles) {
       try {
@@ -770,6 +769,8 @@ public abstract class Jack {
       } catch (IOException ioException) {
         // Ignore bad entry
         logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", ioException.getMessage());
+      } catch (LibraryException e) {
+        throw new LibraryReadingException(e);
       }
     }
   }

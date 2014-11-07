@@ -183,7 +183,8 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
 
   @SuppressWarnings("unchecked")
   @CheckForNull
-  public <T extends NNode> T readNode(@Nonnull Class<T> nodeClass) throws IOException {
+  public <T extends NNode> T readNode(@Nonnull Class<T> nodeClass) throws IOException,
+      JayceFormatException {
     String fileName = readCurrentFileName();
     int startLine = readCurrentLine();
 
@@ -257,7 +258,8 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
   }
 
   @Nonnull
-  public <T extends NNode> List<T> readNodes(@Nonnull Class<T> nodeClass) throws IOException {
+  public <T extends NNode> List<T> readNodes(@Nonnull Class<T> nodeClass) throws IOException,
+      JayceFormatException {
     tokenizer.readOpen();
     int length = readInt();
     List<T> nodes = new ArrayList<T>(length);
@@ -306,7 +308,8 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
 
   @Override
   @Nonnull
-  public DeclaredTypeNode readType(@Nonnull NodeLevel nodeLevel) throws IOException {
+  public DeclaredTypeNode readType(@Nonnull NodeLevel nodeLevel) throws IOException,
+      JayceFormatException {
     if (type == null) {
       this.nodeLevel = nodeLevel;
       type = readNode(NDeclaredType.class);
