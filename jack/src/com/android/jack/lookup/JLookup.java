@@ -124,7 +124,7 @@ public abstract class JLookup {
   }
 
   @Nonnull
-  protected JArrayType getArrayType(@Nonnull String typeName) {
+  protected JArrayType getArrayType(@Nonnull String typeName) throws JTypeLookupException {
     int typeNameLength = typeName.length();
     assert typeNameLength > 0 && typeName.charAt(0) == '[';
 
