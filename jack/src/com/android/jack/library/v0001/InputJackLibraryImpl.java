@@ -16,15 +16,13 @@
 
 package com.android.jack.library.v0001;
 
-import com.android.jack.Jack;
-import com.android.jack.library.BinaryDoesNotExistException;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryVersionException;
-import com.android.jack.library.NotBinaryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
@@ -34,11 +32,9 @@ import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,16 +78,13 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
   };
 
-  @Nonnull
-  private final Set<BinaryKind> binaryKinds = new HashSet<BinaryKind>(1);
-
   public InputJackLibraryImpl(@Nonnull InputRootVDir libraryVDir,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
     super(libraryProperties);
     this.libraryVDir = libraryVDir;
     check();
-    fillBinaryKinds(libraryVDir);
+    fillFileTypes();
   }
 
   @Override
@@ -102,33 +95,22 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Override
   @Nonnull
-  public Collection<BinaryKind> getBinaryKinds() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(binaryKinds);
-  }
-
-  @Override
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind) {
-    return binaryKinds.contains(binaryKind);
-  }
-
-  @Override
-  @Nonnull
-  public List<InputVFile> getBinaries(@Nonnull BinaryKind binaryKind) {
-    List<InputVFile> binaries = new ArrayList<InputVFile>();
-    fillBinaries(libraryVDir, binaryKind, binaries);
-    return binaries;
-  }
-
-  @Override
-  @Nonnull
-  public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
-      throws BinaryDoesNotExistException {
+  public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException {
     try {
       return libraryVDir.getInputVFile(
-          new VPath(typePath.getPathAsString('/') + BinaryKind.DEX.getFileExtension(), '/'));
+          new VPath(typePath.getPathAsString('/') + fileType.getFileExtension(), '/'));
     } catch (NotFileOrDirectoryException e) {
-      throw new BinaryDoesNotExistException(getLocation(), typePath, binaryKind);
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
+    List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
+    fillFiles(libraryVDir, fileType, inputVFiles);
+    return inputVFiles.listIterator();
   }
 
   @Override
@@ -137,28 +119,15 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     return libraryVDir;
   }
 
-  private void fillBinaryKinds(@Nonnull InputVDir vDir) {
-    for (InputVElement subFile : vDir.list()) {
-      if (subFile.isVDir()) {
-        fillBinaryKinds((InputVDir) subFile);
-      } else {
-        try {
-          binaryKinds.add(BinaryKind.getBinaryKind((InputVFile) subFile));
-        } catch (NotBinaryException e) {
-          // Ok, nothing to do
-        }
-      }
-    }
-  }
 
-  private void fillBinaries(@Nonnull InputVDir vDir, @Nonnull BinaryKind binaryKind,
+  private void fillFiles(@Nonnull InputVDir vDir, @Nonnull FileType fileType,
       @Nonnull List<InputVFile> binaries) {
     for (InputVElement subFile : vDir.list()) {
       if (subFile.isVDir()) {
-        fillBinaries((InputVDir) subFile, binaryKind, binaries);
+        fillFiles((InputVDir) subFile, fileType, binaries);
       } else {
         InputVFile vFile = (InputVFile) subFile;
-        if (binaryKind.isBinaryFile(vFile)) {
+        if (fileType.isOfType(vFile)) {
           binaries.add(vFile);
         }
       }

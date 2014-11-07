@@ -24,8 +24,8 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.library.BinaryDoesNotExistException;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.TypeInInputLibraryLocation;
@@ -113,7 +113,7 @@ public abstract class DexWritingTool {
     if (dexCount == 1) {
       dexName = DexFileWriter.DEX_FILENAME;
     } else {
-      dexName = DexFileWriter.DEX_PREFIX + dexCount + BinaryKind.DEX.getFileExtension();
+      dexName = DexFileWriter.DEX_PREFIX + dexCount + FileType.DEX.getFileExtension();
     }
     try {
       return outputVDir.createOutputVFile(new VPath(dexName, '/'));
@@ -131,12 +131,11 @@ public abstract class DexWritingTool {
         if (loc instanceof TypeInInputLibraryLocation) {
           InputLibrary inputLibrary =
               ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-          if (inputLibrary.hasBinary(BinaryKind.DEX)) {
+          if (inputLibrary.containsFileType(FileType.DEX)) {
             try {
-              inputVFile = inputLibrary.getBinary(
-                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'),
-                  BinaryKind.DEX);
-            } catch (BinaryDoesNotExistException e) {
+              inputVFile = inputLibrary.getFile(FileType.DEX,
+                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+            } catch (FileTypeDoesNotExistException e) {
               logger.log(Level.SEVERE,
                   "Library " + inputLibrary.getLocation().getDescription() + " is invalid",
                   e);

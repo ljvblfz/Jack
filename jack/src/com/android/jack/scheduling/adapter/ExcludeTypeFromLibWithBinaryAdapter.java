@@ -60,7 +60,7 @@ public class ExcludeTypeFromLibWithBinaryAdapter
             if (location instanceof TypeInInputLibraryLocation) {
               InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location)
                   .getInputLibraryLocation().getInputLibrary();
-              if (inputLibrary.getBinaryKinds().containsAll(session.getGeneratedBinaryKinds())) {
+              if (inputLibrary.getFileTypes().containsAll(session.getGeneratedFileTypes())) {
                 return false;
               }
             }

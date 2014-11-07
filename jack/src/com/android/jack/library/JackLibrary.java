@@ -46,4 +46,7 @@ public interface JackLibrary extends Library {
 
   @Nonnull
   public String getProperty(@Nonnull String key) throws LibraryFormatException;
+
+  @Nonnull
+  public boolean containsProperty(@Nonnull String key);
 }

@@ -29,11 +29,7 @@ public interface OutputLibrary extends Library {
 
   public boolean needsSequentialWriting();
 
-  @Nonnull
-  public OutputVFile getJayceOutputVFile(@Nonnull VPath typePath) throws CannotCreateFileException;
-
-  @Nonnull
-  public OutputVFile getBinaryOutputVFile(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
+  public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException;
 
   public void close() throws LibraryIOException;

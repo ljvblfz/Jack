@@ -16,9 +16,11 @@
 
 package com.android.jack.backend.dex;
 
+import com.google.common.collect.Iterators;
+
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
@@ -33,6 +35,7 @@ import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFile;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -51,11 +54,10 @@ public class SingleDexWritingTool extends DexWritingTool {
     OutputVFile outputDex = getOutputDex(outputVDir);
     List<InputVFile> dexList = new ArrayList<InputVFile>();
     getAllDexFilesFromDir(getIntermediateDexDir(), dexList);
-    getAllDexFilesFromLib(dexList);
-
-    for (InputVFile currentDex : dexList) {
+    Iterator<InputVFile> inputVFileIt = getAllDexFilesFromLib(dexList.iterator());
+    while (inputVFileIt.hasNext()) {
       try {
-        mergeDex(merger, currentDex);
+        mergeDex(merger, inputVFileIt.next());
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new SingleDexOverflowException(e));
       }
@@ -63,7 +65,8 @@ public class SingleDexWritingTool extends DexWritingTool {
     finishMerge(merger, outputDex);
   }
 
-  private void getAllDexFilesFromLib(@Nonnull List<InputVFile> dexFiles) {
+  private Iterator<InputVFile> getAllDexFilesFromLib(@Nonnull Iterator<InputVFile> inputVFileIt) {
+    Iterator<InputVFile> newInputVFileIt = inputVFileIt;
     List<InputLibrary> librariesDone = new ArrayList<InputLibrary>();
     for (JDefinedClassOrInterface jdcoi : Jack.getSession().getTypesToEmit()) {
       Location loc = jdcoi.getLocation();
@@ -71,13 +74,15 @@ public class SingleDexWritingTool extends DexWritingTool {
         InputLibrary inputLibrary =
             ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
         if (!librariesDone.contains(inputLibrary)) {
-          if (inputLibrary.hasBinary(BinaryKind.DEX)) {
-            dexFiles.addAll(inputLibrary.getBinaries(BinaryKind.DEX));
+          if (inputLibrary.containsFileType(FileType.DEX)) {
+            newInputVFileIt =
+                Iterators.concat(newInputVFileIt, inputLibrary.iterator(FileType.DEX));
           }
           librariesDone.add(inputLibrary);
         }
       }
     }
+    return (newInputVFileIt);
   }
 
   private void getAllDexFilesFromDir(@Nonnull InputVDir dexFileVDir,
@@ -85,7 +90,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     for (InputVElement subFile : dexFileVDir.list()) {
       if (subFile.isVDir()) {
         getAllDexFilesFromDir((InputVDir) subFile, dexFiles);
-      } else if (BinaryKind.DEX.isBinaryFile((InputVFile) subFile)) {
+      } else if (FileType.DEX.isOfType((InputVFile) subFile)) {
         dexFiles.add((InputOutputVFile) subFile);
       }
     }

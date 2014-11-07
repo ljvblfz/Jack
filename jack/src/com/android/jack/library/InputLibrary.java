@@ -21,7 +21,7 @@ import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
@@ -34,16 +34,16 @@ public interface InputLibrary extends Library {
   public InputRootVDir getInputVDir();
 
   @Nonnull
-  public Collection<BinaryKind> getBinaryKinds();
+  public Collection<FileType> getFileTypes();
 
-  public boolean hasBinary(@Nonnull BinaryKind binaryKind);
-
-  @Nonnull
-  public List<InputVFile> getBinaries(@Nonnull BinaryKind binaryKind);
+  public boolean containsFileType(@Nonnull FileType fileType);
 
   @Nonnull
-  public InputVFile getBinary(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
-      throws BinaryDoesNotExistException;
+  public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException;
+
+  @Nonnull
+  public Iterator<InputVFile> iterator(@Nonnull FileType fileType);
 
   @Override
   @Nonnull

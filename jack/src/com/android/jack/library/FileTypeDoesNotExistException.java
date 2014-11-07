@@ -16,26 +16,38 @@
 
 package com.android.jack.library;
 
-import com.android.sched.vfs.InputVFile;
+import com.android.sched.util.location.Location;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
 /**
- * Exception specifying that an {@link InputVFile} is not a binary.
+ * Exception specifying that a {@link FileType} for a {@link VPath} representing a type does not
+ * exist at {@link Location}.
  */
-public class NotBinaryException extends Exception {
-
+public class FileTypeDoesNotExistException extends Exception {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private final InputVFile vFile;
+  private final Location location;
 
-  public NotBinaryException(@Nonnull InputVFile vFile) {
-    this.vFile = vFile;
+  @Nonnull
+  private final VPath typePath;
+
+  @Nonnull
+  private final FileType fileType;
+
+  public FileTypeDoesNotExistException(@Nonnull Location location,
+      @Nonnull VPath typePath, @Nonnull FileType fileType) {
+    this.location = location;
+    this.typePath = typePath;
+    this.fileType = fileType;
   }
 
   @Override
   public String getMessage() {
-    return vFile + " is not a binary";
+    return fileType + " does not exist for "
+        + typePath.getPathAsString('.') + " in "
+        + location.getDescription();
   }
 }

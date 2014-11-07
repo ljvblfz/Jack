@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibrary;
@@ -191,7 +191,7 @@ public class JayceFileImporter {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
     // library.properties and dex files are not resources
     if (path.equals(JackLibrary.LIBRARY_PROPERTIES_VPATH) ||
-        currentPath.endsWith(BinaryKind.DEX.getFileExtension())) {
+        currentPath.endsWith(FileType.DEX.getFileExtension())) {
       return;
     }
     Resource newResource = new Resource(path, file);

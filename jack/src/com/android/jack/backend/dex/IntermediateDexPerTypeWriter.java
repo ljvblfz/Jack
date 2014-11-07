@@ -25,7 +25,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
@@ -71,8 +71,8 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     assert !(type.getLocation() instanceof TypeInInputLibraryLocation
-        && !((TypeInInputLibraryLocation) type.getLocation()).getInputLibraryLocation()
-            .getInputLibrary().getBinaryKinds().isEmpty());
+        && ((TypeInInputLibraryLocation) type.getLocation()).getInputLibraryLocation()
+            .getInputLibrary().containsFileType(FileType.DEX));
 
     ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
     assert cdiMarker != null;
@@ -91,9 +91,8 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
       // incremental support will be updated and Intermediate_dex_dir usage was cleaned.
       if (outputLibrary != null && !isIncrementalMode && intermediateDexDir == null) {
         assert generateDexFile || intermediateDexDir == null;
-        vFile = outputLibrary.getBinaryOutputVFile(
-            new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'),
-            BinaryKind.DEX);
+        vFile = outputLibrary.createFile(FileType.DEX,
+            new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
       } else {
         assert intermediateDexDir != null;
         vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
