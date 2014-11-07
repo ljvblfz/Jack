@@ -77,8 +77,8 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 
   @Override
   @Nonnull
-  public JDefinedClassOrInterface loadClassOrInterface(@Nonnull JPackage loading,
-      @Nonnull String simpleName) {
+  public JDefinedClassOrInterface loadClassOrInterface(
+      @Nonnull JPackage loading, @Nonnull String simpleName) throws MissingJTypeLookupException {
     for (InputVElement sub : packageVDir.list()) {
       if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
         try {
