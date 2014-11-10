@@ -125,7 +125,15 @@ public abstract class JackLibraryFactory {
     } catch (IllegalAccessException e) {
       throw new AssertionError("Problem accessing library constructor for version " + version);
     } catch (InvocationTargetException e) {
-      throw new RuntimeException(e.getCause());
+      Throwable cause = e.getCause();
+      if (cause instanceof LibraryFormatException) {
+        throw ((LibraryFormatException) cause);
+      } else if (cause instanceof RuntimeException) {
+        throw ((RuntimeException) cause);
+      } else if (cause instanceof Error) {
+        throw ((Error) cause);
+      }
+      throw new AssertionError(cause);
     }
     return constructorInstance;
   }

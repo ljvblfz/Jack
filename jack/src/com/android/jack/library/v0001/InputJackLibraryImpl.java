@@ -88,6 +88,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       @Nonnull Properties libraryProperties) {
     super(libraryProperties);
     this.libraryVDir = libraryVDir;
+    check();
     fillBinaryKinds(libraryVDir);
   }
 
