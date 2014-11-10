@@ -55,7 +55,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @CheckForNull
-  private final OutputLibrary outputLibrary = Jack.getSession().getOutputLibrary();
+  private final OutputLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
 
   @CheckForNull
   protected InputOutputVDir intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);

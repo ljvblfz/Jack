@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 public class JayceProcessor {
 
   @Nonnull
-  protected Object instantiateConstructorWithParameters(@Nonnull String className,
+  protected static Object instantiateConstructorWithParameters(@Nonnull String className,
       @Nonnull Class<?>[] parameterTypes, @Nonnull Object[] parameterInstances,
       @Nonnull String version)
       throws JayceVersionException {

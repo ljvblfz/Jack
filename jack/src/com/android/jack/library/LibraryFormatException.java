@@ -16,18 +16,29 @@
 
 package com.android.jack.library;
 
-import com.android.jack.JackFileException;
+import com.android.jack.LibraryException;
+import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 
 /**
  * Exception representing a problem related to the library format.
  */
-public class LibraryFormatException extends JackFileException {
+public class LibraryFormatException extends LibraryException {
 
   private static final long serialVersionUID = 1L;
 
-  public LibraryFormatException(@Nonnull Throwable cause) {
-    super("Invalid library: " + cause.getMessage());
+  @Nonnull
+  private final Location location;
+
+  public LibraryFormatException(@Nonnull Location location) {
+    super();
+    this.location = location;
+  }
+
+  @Override
+  @Nonnull
+  public String getMessage() {
+    return location.getDescription() + " is an invalid library";
   }
 }

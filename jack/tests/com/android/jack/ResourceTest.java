@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.category.KnownBugs;
+import com.android.jack.library.JackLibrary;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
@@ -268,7 +269,6 @@ public class ResourceTest {
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    System.out.println(jackFolder);
     TestTools.compileSourceToJack(new Options(), FILE, TestTools.getDefaultBootclasspathString(),
         jackFolder, false /* non-zipped */);
 
@@ -341,6 +341,10 @@ public class ResourceTest {
     try {
       zos = new ZipOutputStream(new FileOutputStream(jackAr));
 
+      String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
+      File libProperties = new File(tempJackFolder, libPropName);
+
+      copyFileToZip(libProperties, libPropName, zos);
       copyFileToZip(singleJackFile, JACK_FILE_PATH, zos);
       copyFileToZip(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, zos);
       copyFileToZip(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, zos);

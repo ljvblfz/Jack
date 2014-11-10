@@ -16,7 +16,7 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.JackFileException;
+import com.android.jack.LibraryException;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.library.HasInputLibrary;
@@ -66,7 +66,7 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
       MethodNode methodNode;
       try {
         methodNode = getNNode(loaded);
-      } catch (JackFileException e) {
+      } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       } catch (IOException e) {
         throw new JackLoadingException(getLocation(loaded), e);
@@ -96,8 +96,7 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
       JayceVersionException, IOException {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
-      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL,
-          loaded.getEnclosingType().getSession().getUserLogger());
+      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
       methodNode = declaredTypeNode.getMethodNode(loaded);
     }
     return methodNode;

@@ -16,14 +16,14 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.JackFileException;
+import com.android.jack.JayceException;
 
 import javax.annotation.Nonnull;
 
 /**
  * Exception representing a problem related to Jayce files version.
  */
-public class JayceVersionException extends JackFileException {
+public class JayceVersionException extends JayceException {
 
   private static final long serialVersionUID = 1L;
 

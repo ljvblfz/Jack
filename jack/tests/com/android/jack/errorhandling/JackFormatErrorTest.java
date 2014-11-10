@@ -19,10 +19,11 @@ package com.android.jack.errorhandling;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.jayce.JayceFormatException;
-import com.android.jack.jayce.JayceVersionException;
-import com.android.jack.jayce.JayceWriter;
-import com.android.jack.jayce.v0002.Version;
+import com.android.jack.jayce.JayceProperties;
+import com.android.jack.library.JackLibrary;
+import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.v0001.Version;
 import com.android.jack.load.JackLoadingException;
 
 import junit.framework.Assert;
@@ -45,14 +46,22 @@ public class JackFormatErrorTest {
   }
 
   /**
-   * Checks that compilation fails correctly when jack file is corrupted.
+   * Checks that compilation fails correctly when jayce file is corrupted.
    */
   @Test
   public void testJackFormatError001() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
-        "jayce(" + JayceWriter.DEFAULT_MAJOR_VERSION + "." + Version.CURRENT_MINOR + ")Corrupted");
+    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce", "jayce("
+       + JackLibraryFactory.DEFAULT_MAJOR_VERSION + "." + Version.MINOR + ")Corrupted");
+    ite.addFile(ite.getJackFolder(), "", "jack.properties",
+        JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
+        + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JayceProperties.KEY_JAYCE + "=true\n"
+        + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
+        + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -71,9 +80,11 @@ public class JackFormatErrorTest {
       Assert.fail();
     } catch (JackLoadingException e) {
       // Failure is ok since jack file is corrupted.
-      Assert.assertTrue(e.getCause() instanceof JayceFormatException);
+      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertEquals("", ite.endErrRedirection());
+      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains(
+          "Unexpected node NForStatement, NDeclaredType was expected"));
     }
   }
 
@@ -86,6 +97,14 @@ public class JackFormatErrorTest {
 
     ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
         "jayce()");
+    ite.addFile(ite.getJackFolder(), "", "jack.properties",
+        JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
+        + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JayceProperties.KEY_JAYCE + "=true\n"
+        + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
+        + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -104,9 +123,10 @@ public class JackFormatErrorTest {
       Assert.fail();
     } catch (JackLoadingException e) {
       // Failure is ok since jack file header is corrupted.
-      Assert.assertTrue(e.getCause() instanceof JayceFormatException);
+      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertEquals("", ite.endErrRedirection());
+      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains("Invalid Jayce header"));
     }
   }
 
@@ -118,7 +138,15 @@ public class JackFormatErrorTest {
     TestingEnvironment ite = new TestingEnvironment();
 
     ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
-        "jayce(0.0)");
+        "jayce()");
+    ite.addFile(ite.getJackFolder(), "", "jack.properties",
+        JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
+        + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JayceProperties.KEY_JAYCE + "=true\n"
+        + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=0\n"
+        + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=0\n");
 
     ite.addFile(ite.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -137,9 +165,10 @@ public class JackFormatErrorTest {
       Assert.fail();
     } catch (JackLoadingException e) {
       // Failure is ok since jack file header is corrupted.
-      Assert.assertTrue(e.getCause() instanceof JayceVersionException);
+      Assert.assertTrue(e.getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertEquals("", ite.endErrRedirection());
+      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains("Jayce version 0 not supported"));
     }
   }
 }

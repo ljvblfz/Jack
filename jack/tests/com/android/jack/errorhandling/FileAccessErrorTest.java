@@ -16,11 +16,13 @@
 
 package com.android.jack.errorhandling;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
@@ -120,11 +122,12 @@ public class FileAccessErrorTest {
       te.startErrRedirection();
       te.compile(options);
       Assert.fail();
-    } catch (JackUserException e) {
+    } catch (JackAbortException e) {
       // Failure is ok since Jack file could not be imported since folder is not readable
-      Assert.assertTrue(e.getCause() instanceof WrongPermissionException);
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof WrongPermissionException);
     } finally {
-      Assert.assertEquals("", te.endErrRedirection());
+      Assert.assertTrue("", te.endErrRedirection().contains("is not readable"));
       if (!jackOutputFile.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
       }

@@ -20,10 +20,17 @@ import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
+
 /**
  * Common interface for Jack libraries used as input and as output.
  */
-public interface JackLibrary {
+public interface JackLibrary extends Library {
+
+  @Nonnull
+  public static final String LIBRARY_PROPERTIES = "jack.properties";
+
+  @Nonnull
+  public static final VPath LIBRARY_PROPERTIES_VPATH = new VPath(LIBRARY_PROPERTIES, '/');
 
   @Nonnull
   public static final String KEY_LIB_MAJOR_VERSION = "lib.version.major";
@@ -38,18 +45,5 @@ public interface JackLibrary {
   public static final String KEY_LIB_EMITTER_VERSION = "lib.emitter.version";
 
   @Nonnull
-  public static final String KEY_JAYCE = "jayce";
-
-  @Nonnull
-  public static final String KEY_JAYCE_MAJOR_VERSION = "jayce.version.major";
-
-  @Nonnull
-  public static final String KEY_JAYCE_MINOR_VERSION = "jayce.version.minor";
-
-  @Nonnull
-  public static final String LIBRARY_PROPERTIES = "jack.properties";
-
-  @Nonnull
-  public static final VPath LIBRARY_PROPERTIES_VPATH = new VPath(LIBRARY_PROPERTIES, '/');
-
+  public String getProperty(@Nonnull String key) throws LibraryFormatException;
 }

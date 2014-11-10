@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.JackFileException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
@@ -25,10 +24,12 @@ import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryFormatException;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
@@ -37,6 +38,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -44,6 +47,9 @@ import javax.annotation.Nonnull;
  * {@link PackageLoader} for package containing classes defined in Jayce files.
  */
 public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
+
+  @Nonnull
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final InputVDir dir;
@@ -80,8 +86,20 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
               defaultLoadLevel).load();
         } catch (IOException e) {
           throw new JackLoadingException(sub.getLocation(), e);
-        } catch (JackFileException e) {
-          throw new JackLoadingException(sub.getLocation() , e);
+        } catch (LibraryFormatException e) {
+          throw new JackLoadingException(sub.getLocation(), e);
+        } catch (JayceFormatException e) {
+          logger.log(Level.SEVERE,
+              "Library " + inputJackLibrary.getLocation().getDescription() + " is invalid",
+              e);
+          throw new JackLoadingException(sub.getLocation(),
+              new LibraryFormatException(inputJackLibrary.getLocation()));
+        } catch (JayceVersionException e) {
+          logger.log(Level.SEVERE,
+              "Library " + inputJackLibrary.getLocation().getDescription() + " is invalid",
+              e);
+          throw new JackLoadingException(sub.getLocation(),
+              new LibraryFormatException(inputJackLibrary.getLocation()));
         }
       }
     }

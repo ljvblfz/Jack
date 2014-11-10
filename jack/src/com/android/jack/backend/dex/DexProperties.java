@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.library;
+package com.android.jack.backend.dex;
+
+import javax.annotation.Nonnull;
 
 /**
- * Library version.
+ * Properties related to dex files.
  */
-public class JackLibraryVersion {
+public interface DexProperties {
 
-  public static final int MAJOR = 0;
+  @Nonnull
+  public static final String KEY_DEX = "dex";
 
-  public static final int MINOR = 0;
 }
