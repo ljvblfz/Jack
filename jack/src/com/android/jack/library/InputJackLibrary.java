@@ -18,7 +18,10 @@ package com.android.jack.library;
 
 import com.android.jack.Jack;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
@@ -29,8 +32,35 @@ import javax.annotation.Nonnull;
  */
 public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
+  @Nonnull
+  private final Set<FileType> fileTypes = new HashSet<FileType>(2);
+
   public InputJackLibrary(@Nonnull Properties libraryProperties) {
     super(libraryProperties);
+  }
+
+  @Override
+  @Nonnull
+  public Collection<FileType> getFileTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(fileTypes);
+  }
+
+  @Override
+  public boolean containsFileType(@Nonnull FileType fileType) {
+    return fileTypes.contains(fileType);
+  }
+
+  protected void fillFileTypes() {
+    for (FileType ft : FileType.values()) {
+      try {
+        String propertyName = ft.getPropertyName();
+        if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
+          fileTypes.add(ft);
+        }
+      } catch (LibraryFormatException e) {
+        throw new AssertionError();
+      }
+    }
   }
 
   protected void check() throws LibraryVersionException, LibraryFormatException {
@@ -59,6 +89,10 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
           + "supported. File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
           Integer.valueOf(majorVersion), Integer.valueOf(minorVersion),
           Integer.valueOf(majorVersion), Integer.valueOf(supportedMinor)});
+    }
+
+    for (FileType ft : getFileTypes()) {
+      ft.check();
     }
   }
 

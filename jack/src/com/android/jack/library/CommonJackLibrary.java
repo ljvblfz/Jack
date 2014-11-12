@@ -39,6 +39,12 @@ public abstract class CommonJackLibrary implements JackLibrary {
     this.libraryProperties = libraryProperties;
   }
 
+  @Override
+  @Nonnull
+  public boolean containsProperty(@Nonnull String key) {
+    return libraryProperties.containsKey(key);
+  }
+
   @Nonnull
   @Override
   public String getProperty(@Nonnull String key) throws LibraryFormatException {

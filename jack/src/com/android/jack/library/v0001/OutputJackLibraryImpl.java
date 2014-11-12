@@ -16,9 +16,7 @@
 
 package com.android.jack.library.v0001;
 
-import com.android.jack.backend.dex.DexProperties;
-import com.android.jack.backend.jayce.JayceFileImporter;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
@@ -81,25 +79,15 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   @Override
   @Nonnull
-  public OutputVFile getJayceOutputVFile(@Nonnull VPath typePath) throws CannotCreateFileException {
+  public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws CannotCreateFileException {
+    putProperty(fileType.getPropertyName(), String.valueOf(true));
     return outputVDir.createOutputVFile(
-        new VPath(typePath.getPathAsString('/') + JayceFileImporter.JAYCE_FILE_EXTENSION, '/'));
+        new VPath(typePath.getPathAsString('/') + fileType.getFileExtension(), '/'));
   }
-
   @Override
   public boolean needsSequentialWriting() {
     return outputVDir instanceof SequentialOutputVDir;
-  }
-
-  @Override
-  @Nonnull
-  public OutputVFile getBinaryOutputVFile(@Nonnull VPath typePath, @Nonnull BinaryKind binaryKind)
-      throws CannotCreateFileException {
-    if (binaryKind == BinaryKind.DEX) {
-      putProperty(DexProperties.KEY_DEX, String.valueOf(true));
-    }
-    return outputVDir.createOutputVFile(
-        new VPath(typePath.getPathAsString('/') + binaryKind.getFileExtension(), '/'));
   }
 
   @Override

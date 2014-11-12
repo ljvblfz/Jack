@@ -83,7 +83,7 @@ import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryReadingException;
@@ -541,7 +541,7 @@ public abstract class Jack {
         if (options.out != null || options.outZip != null) {
           request.addProduction(IntermediateDexProduct.class);
           request.addProduction(DexFileProduct.class);
-          session.addGeneratedBinaryKind(BinaryKind.DEX);
+          session.addGeneratedFileType(FileType.DEX);
         } else {
           assert options.jayceOutDir != null || options.jayceOutZip != null;
           request.addProduction(JayceFormatProduct.class);

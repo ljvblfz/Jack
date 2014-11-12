@@ -31,7 +31,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.util.TextUtils;
@@ -569,7 +569,7 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   protected static File getDexFile(@Nonnull String typeName) {
-    return new File(dexFilesFolder, new VPath(typeName + BinaryKind.DEX.getFileExtension(),
+    return new File(dexFilesFolder, new VPath(typeName + FileType.DEX.getFileExtension(),
         fileSeparator).getPathAsString(File.separatorChar));
   }
 }

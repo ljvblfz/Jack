@@ -23,7 +23,7 @@ import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
@@ -86,7 +86,7 @@ public class JSession extends JNode {
   private final Reporter reporter = ThreadConfig.get(Reporter.REPORTER);
 
   @Nonnull
-  private final List<BinaryKind> generatedBinaryKinds = new ArrayList<BinaryKind>(1);
+  private final List<FileType> generatedBinaryKinds = new ArrayList<FileType>(2);
 
   @CheckForNull
   private OutputJackLibrary jackOutputLibrary;
@@ -210,12 +210,12 @@ public class JSession extends JNode {
   }
 
   @Nonnull
-  public List<BinaryKind> getGeneratedBinaryKinds() {
+  public List<FileType> getGeneratedFileTypes() {
     return generatedBinaryKinds;
   }
 
-  public void addGeneratedBinaryKind(@Nonnull BinaryKind binaryKind) {
-    generatedBinaryKinds.add(binaryKind);
+  public void addGeneratedFileType(@Nonnull FileType fileType) {
+    generatedBinaryKinds.add(fileType);
   }
 
   public void addImportSource(@Nonnull InputRootVDir source) {

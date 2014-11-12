@@ -24,6 +24,7 @@ import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriterFactory;
+import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.scheduling.feature.JayceFileOutput;
@@ -71,7 +72,7 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    OutputVFile vFile = outputJackLibrary.getJayceOutputVFile(
+    OutputVFile vFile = outputJackLibrary.createFile(FileType.JAYCE,
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
     try {

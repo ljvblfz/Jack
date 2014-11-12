@@ -19,7 +19,7 @@ package com.android.jack.backend.dex;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.library.BinaryKind;
+import com.android.jack.library.FileType;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
@@ -51,7 +51,7 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   static final String DEX_PREFIX = "classes";
 
   @Nonnull
-  public static final String DEX_FILENAME = DEX_PREFIX + BinaryKind.DEX.getFileExtension();
+  public static final String DEX_FILENAME = DEX_PREFIX + FileType.DEX.getFileExtension();
 
   @Nonnull
   public static final
