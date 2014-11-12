@@ -18,6 +18,9 @@ package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -26,10 +29,10 @@ import javax.annotation.Nonnull;
  */
 public final class VPath {
 
-  @Nonnull
-  private final CharSequence path;
+  private static final char INTERNAL_SEPARATOR = '/';
 
-  private final char separator;
+  @Nonnull
+  List<VPathFragment> pathFragments;
 
   /**
    * Creates an instance of VFS-relative path. The {@link CharSequence} is evaluated lazily at each
@@ -39,25 +42,42 @@ public final class VPath {
    * @param separator the separator used as file separator in the path
    */
   public VPath(@Nonnull CharSequence path, char separator) {
-    this.path = path;
-    this.separator = separator;
-    assert isValidPath();
+    pathFragments = new ArrayList<VPathFragment>(1);
+    VPathFragment pe = new VPathFragment(path, separator);
+    assert pe.isValidPath();
+    pathFragments.add(pe);
   }
 
-  private boolean isValidPath() {
-    String toString = path.toString();
-    String stringSeparator = String.valueOf(separator);
-    String doubleSeparator = stringSeparator + separator;
-    if (toString.contains(doubleSeparator)) {
-      return false;
-    }
-    if (toString.startsWith(stringSeparator)) {
-      return false;
-    }
-    if (toString.endsWith(stringSeparator)) {
-      return false;
-    }
-    return true;
+  /**
+   * Inserts a path before an existing path. The resulting path is evaluated lazily at each usage.
+   * There is an implicit separator between the prepended path and the existing path.
+   * @param path the path to insert before the existing path
+   */
+  public void prependPath(@Nonnull VPath path) {
+    pathFragments.add(0, new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    pathFragments.addAll(0, path.getPathFragments());
+  }
+
+  /**
+   * Inserts a path after an existing path. The resulting path is evaluated lazily at each usage.
+   * There is an implicit separator between the existing path and the appended path.
+   * @param path the path to insert after the existing path
+   */
+  public void appendPath(@Nonnull VPath path) {
+    pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    pathFragments.addAll(path.getPathFragments());
+  }
+
+  /**
+   * Adds a suffix to the existing path. The resulting path is evaluated lazily at each usage.
+   * It may be identical or different from the previous path.
+   * No implicit separator will be added between the suffix and the previous path.
+   * @param suffix the suffix to add to the path
+   */
+  public void addSuffix(@Nonnull CharSequence suffix) {
+    VPathFragment pe = new VPathFragment(suffix, INTERNAL_SEPARATOR);
+    assert pe.isValidSuffix();
+    pathFragments.add(pe);
   }
 
   /**
@@ -65,8 +85,8 @@ public final class VPath {
    */
   @Nonnull
   public Iterable<String> split() {
-    Splitter splitter = Splitter.on(separator).omitEmptyStrings();
-    return splitter.split(path);
+    Splitter splitter = Splitter.on(INTERNAL_SEPARATOR).omitEmptyStrings();
+    return splitter.split(getInternalPath());
   }
 
   /**
@@ -76,7 +96,11 @@ public final class VPath {
    */
   @Nonnull
   public String getPathAsString(char separator) {
-    return path.toString().replace(this.separator, separator);
+    StringBuffer buffer = new StringBuffer();
+    for (VPathFragment pathElement : pathFragments) {
+      buffer.append(pathElement.getPathElementAsString(separator));
+    }
+    return buffer.toString();
   }
 
   @Override
@@ -93,13 +117,55 @@ public final class VPath {
   }
 
   @Nonnull
+  private List<VPathFragment> getPathFragments() {
+    return pathFragments;
+  }
+
+  @Nonnull
   private String getInternalPath() {
-    return path.toString().replace(separator, '/');
+    return getPathAsString(INTERNAL_SEPARATOR);
   }
 
   @Nonnull
   public String getLastPathElement() {
-    String toString = path.toString();
-    return toString.substring(toString.lastIndexOf(separator) + 1);
+    String internalPath = getInternalPath();
+    return internalPath.substring(internalPath.lastIndexOf(INTERNAL_SEPARATOR) + 1);
+  }
+
+  static class VPathFragment {
+    @Nonnull
+    private final CharSequence path;
+
+    private final char separator;
+
+    public VPathFragment(@Nonnull CharSequence path, char separator) {
+      this.path = path;
+      this.separator = separator;
+    }
+
+    @Nonnull
+    public String getPathElementAsString(char separator) {
+      return path.toString().replace(this.separator, separator);
+    }
+
+    private boolean isValidPath() {
+      String toString = path.toString();
+      String stringSeparator = String.valueOf(separator);
+      String doubleSeparator = stringSeparator + separator;
+      if (toString.contains(doubleSeparator)) {
+        return false;
+      }
+      if (toString.startsWith(stringSeparator)) {
+        return false;
+      }
+      if (toString.endsWith(stringSeparator)) {
+        return false;
+      }
+      return true;
+    }
+
+    private boolean isValidSuffix() {
+      return !path.toString().contains(String.valueOf(separator));
+    }
   }
 }

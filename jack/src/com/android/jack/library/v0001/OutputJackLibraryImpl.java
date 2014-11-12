@@ -82,8 +82,8 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException {
     putProperty(fileType.getPropertyName(), String.valueOf(true));
-    return outputVDir.createOutputVFile(
-        new VPath(typePath.getPathAsString('/') + fileType.getFileExtension(), '/'));
+    typePath.addSuffix(fileType.getFileExtension());
+    return outputVDir.createOutputVFile(typePath);
   }
   @Override
   public boolean needsSequentialWriting() {

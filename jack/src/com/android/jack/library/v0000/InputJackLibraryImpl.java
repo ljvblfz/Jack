@@ -98,8 +98,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return libraryVDir.getInputVFile(
-          new VPath(typePath.getPathAsString('/') + fileType.getFileExtension(), '/'));
+      typePath.addSuffix(fileType.getFileExtension());
+      return libraryVDir.getInputVFile(typePath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
