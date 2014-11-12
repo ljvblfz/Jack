@@ -294,6 +294,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         try {
           valuesMethod = enumType.getMethod("values", enumArrayType);
         } catch (JMethodLookupException e1) {
+          // A valid enum must have a values() method
           throw new AssertionError(e1);
         }
 
