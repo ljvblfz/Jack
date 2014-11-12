@@ -22,6 +22,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
@@ -52,9 +53,19 @@ public class SingleDexWritingTool extends DexWritingTool {
   public void write(@Nonnull OutputVDir outputVDir) throws DexWritingException {
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir);
-    List<InputVFile> dexList = new ArrayList<InputVFile>();
-    getAllDexFilesFromDir(getIntermediateDexDir(), dexList);
-    Iterator<InputVFile> inputVFileIt = getAllDexFilesFromLib(dexList.iterator());
+    Iterator<InputVFile> inputVFileIt;
+
+    // Intermediate dex files can be located into the intermediate dex dir or into a library
+    OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
+    if (jackOutputLibrary != null && jackOutputLibrary.containsFileType(FileType.DEX)) {
+      inputVFileIt = jackOutputLibrary.iterator(FileType.DEX);
+    } else {
+      List<InputVFile> dexList = new ArrayList<InputVFile>();
+      getAllDexFilesFromDir(getIntermediateDexDir(), dexList);
+      inputVFileIt = dexList.iterator();
+    }
+
+    inputVFileIt = getAllDexFilesFromLib(inputVFileIt);
     while (inputVFileIt.hasNext()) {
       try {
         mergeDex(merger, inputVFileIt.next());

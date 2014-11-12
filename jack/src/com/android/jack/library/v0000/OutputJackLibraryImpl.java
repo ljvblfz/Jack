@@ -22,12 +22,16 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.OutputLibraryLocation;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.SequentialOutputVDir;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.Nonnull;
@@ -38,7 +42,7 @@ import javax.annotation.Nonnull;
 public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   @Nonnull
-  private final OutputVDir outputVDir;
+  private final InputOutputVDir outputVDir;
 
   @Nonnull
   private final OutputLibraryLocation location = new OutputLibraryLocation() {
@@ -66,7 +70,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     }
   };
 
-  public OutputJackLibraryImpl(@Nonnull OutputVDir outputVDir, @Nonnull String emitterId,
+  public OutputJackLibraryImpl(@Nonnull InputOutputVDir outputVDir, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
     super(new Properties());
     this.outputVDir = outputVDir;
@@ -81,6 +85,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException {
     putProperty(fileType.getPropertyName(), String.valueOf(true));
+    addFileType(fileType);
     typePath.addSuffix(fileType.getFileExtension());
     return outputVDir.createOutputVFile(typePath);
   }
@@ -116,5 +121,13 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   public int getMajorVersion() {
     return Version.MAJOR;
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
+    List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
+    fillFiles(outputVDir, fileType, inputVFiles);
+    return inputVFiles.listIterator();
   }
 }

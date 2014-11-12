@@ -40,6 +40,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.DirectDirInputOutputVDirCodec;
 import com.android.sched.util.codec.DirectDirOutputVDirCodec;
+import com.android.sched.util.codec.ZipInputOutputVDirCodec;
 import com.android.sched.util.codec.ZipOutputVDirCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
@@ -108,8 +109,8 @@ public class Options {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_JAYCE_FILE = BooleanPropertyId.create(
-      "jack.jackfile.generate", "Generate jayce files").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
+      "jack.library.generate", "Generate jack library").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
@@ -117,21 +118,21 @@ public class Options {
       .ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
 
   @Nonnull
-  public static final EnumPropertyId<Container> JAYCE_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
-      "jack.jackfile.output.container", "Output container type", Container.values())
-      .ignoreCase().requiredIf(GENERATE_JAYCE_FILE.getValue().isTrue());
+  public static final EnumPropertyId<Container> LIBRARY_OUTPUT_CONTAINER_TYPE = EnumPropertyId
+      .create("jack.library.output.container", "Library output container type", Container.values())
+      .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<OutputVDir> JAYCE_FILE_OUTPUT_ZIP = PropertyId.create(
-      "jack.jackfile.output.zip", "Output zip archive for jayce files",
-      new ZipOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      GENERATE_JAYCE_FILE.getValue().isTrue().and(JAYCE_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
+  public static final PropertyId<InputOutputVDir> LIBRARY_OUTPUT_ZIP = PropertyId.create(
+      "jack.library.output.zip", "Output zip archive for library",
+      new ZipInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue()
+      .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
-  public static final PropertyId<OutputVDir> JAYCE_FILE_OUTPUT_DIR = PropertyId.create(
-      "jack.jackfile.output.dir", "Output folder for jayce files",
-      new DirectDirOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      GENERATE_JAYCE_FILE.getValue().isTrue().and(JAYCE_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
+  public static final PropertyId<InputOutputVDir> LIBRARY_OUTPUT_DIR = PropertyId.create(
+      "jack.library.output.dir", "Output folder for library",
+      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
+      .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
   public static final PropertyId<InputOutputVDir> INTERMEDIATE_DEX_DIR = PropertyId.create(
@@ -209,12 +210,12 @@ public class Options {
   @Option(name = "--output-dex-zip", usage = "output to this zip file", metaVar = "FILE")
   protected File outZip = null;
 
-  @Option(name = "--output-jack-dir", usage = "output jayce files to this folder",
+  @Option(name = "--output-jack-dir", usage = "output jack library to this folder",
       metaVar = "DIRECTORY")
-  protected File jayceOutDir = null;
+  protected File libraryOutDir = null;
 
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "FILE")
-  protected File jayceOutZip = null;
+  protected File libraryOutZip = null;
 
   @Option(name = "--generate-intermediate-dexes",
       usage = "generate intermediate dex files per types along with jayce files")
@@ -587,14 +588,18 @@ public class Options {
     configBuilder.set(
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
-    if (jayceOutZip != null) {
-      configBuilder.setString(JAYCE_FILE_OUTPUT_ZIP, jayceOutZip.getAbsolutePath());
-      configBuilder.set(JAYCE_OUTPUT_CONTAINER_TYPE, Container.ZIP);
-      configBuilder.set(GENERATE_JAYCE_FILE, true);
-    } else if (jayceOutDir != null) {
-      configBuilder.setString(JAYCE_FILE_OUTPUT_DIR, jayceOutDir.getAbsolutePath());
-      configBuilder.set(JAYCE_OUTPUT_CONTAINER_TYPE, Container.DIR);
-      configBuilder.set(GENERATE_JAYCE_FILE, true);
+    if (libraryOutZip != null) {
+      configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getAbsolutePath());
+      configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
+      configBuilder.set(GENERATE_JACK_LIBRARY, true);
+      if (generateIntermediateDex) {
+        configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+        configBuilder.set(INTERMEDIATE_DEX_DIR, null);
+      }
+    } else if (libraryOutDir != null) {
+      configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
+      configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
+      configBuilder.set(GENERATE_JACK_LIBRARY, true);
       if (generateIntermediateDex) {
         configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
         configBuilder.set(INTERMEDIATE_DEX_DIR, null);
@@ -697,25 +702,20 @@ public class Options {
     }
 
     // Check Jack arguments
-    if (generateIntermediateDex && (out != null || outZip != null || jayceOutZip != null)) {
-      throw new IllegalOptionsException(
-          "--generate-intermediate-dex must be use only with --output-jack-dir");
-    }
-
     if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {
       throw new IllegalOptionsException(
           "Impossible to emit synthetic debug info when not emitting debug info");
     }
 
-    if (jayceOutDir != null) {
-      if (!jayceOutDir.exists()) {
+    if (libraryOutDir != null) {
+      if (!libraryOutDir.exists()) {
         throw new IllegalOptionsException("The specified output folder '"
-            + jayceOutDir.getAbsolutePath() + "' for jayce files does not exist.");
+            + libraryOutDir.getAbsolutePath() + "' for jayce files does not exist.");
       }
 
-      if (!jayceOutDir.canWrite()) {
+      if (!libraryOutDir.canWrite()) {
         throw new IllegalOptionsException("The specified output folder '"
-            + jayceOutDir.getAbsolutePath() + "' for jayce files cannot be written to.");
+            + libraryOutDir.getAbsolutePath() + "' for jayce files cannot be written to.");
       }
     }
 
@@ -733,11 +733,11 @@ public class Options {
   }
 
   public void setJayceOutputDir(@Nonnull File outputDir) {
-    jayceOutDir = outputDir;
+    libraryOutDir = outputDir;
   }
 
   public void setJayceOutputZip(@Nonnull File outputZip) {
-    jayceOutZip = outputZip;
+    libraryOutZip = outputZip;
   }
 
   public void setJayceImports(@Nonnull List<File> imports) {
@@ -745,7 +745,7 @@ public class Options {
   }
 
   public boolean outputToZip() {
-    return outZip != null || jayceOutZip != null;
+    return outZip != null || libraryOutZip != null;
   }
 
   @CheckForNull
@@ -768,9 +768,9 @@ public class Options {
     if (outJars.size() > 0) {
       File outJar = outJars.get(0);
       if (outJar.isDirectory()) {
-        jayceOutDir = outJar;
+        libraryOutDir = outJar;
       } else {
-        jayceOutZip = outJar;
+        libraryOutZip = outJar;
       }
     }
     String libraryJars = flags.getLibraryJars();

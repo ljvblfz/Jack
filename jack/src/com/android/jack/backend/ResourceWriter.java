@@ -50,12 +50,12 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
   private final OutputVDir outputVDir;
 
   {
-    if (ThreadConfig.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
-      Container containerType = ThreadConfig.get(Options.JAYCE_OUTPUT_CONTAINER_TYPE);
+    if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+      Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
       if (containerType == Container.DIR) {
-        outputVDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_DIR);
+        outputVDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
       } else {
-        outputVDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_ZIP);
+        outputVDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
       }
     } else {
       assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();

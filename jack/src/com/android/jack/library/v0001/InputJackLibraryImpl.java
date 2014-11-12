@@ -26,8 +26,6 @@ import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -117,21 +115,6 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   public InputRootVDir getInputVDir() {
     return libraryVDir;
-  }
-
-
-  private void fillFiles(@Nonnull InputVDir vDir, @Nonnull FileType fileType,
-      @Nonnull List<InputVFile> binaries) {
-    for (InputVElement subFile : vDir.list()) {
-      if (subFile.isVDir()) {
-        fillFiles((InputVDir) subFile, fileType, binaries);
-      } else {
-        InputVFile vFile = (InputVFile) subFile;
-        if (fileType.isOfType(vFile)) {
-          binaries.add(vFile);
-        }
-      }
-    }
   }
 
   @Override

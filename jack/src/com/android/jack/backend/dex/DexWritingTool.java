@@ -75,7 +75,6 @@ public abstract class DexWritingTool {
 
   @Nonnull
   protected InputRootVDir getIntermediateDexDir() {
-
     return (InputRootVDir) ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
   }
 

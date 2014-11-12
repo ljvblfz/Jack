@@ -176,10 +176,10 @@ public class JackIncremental extends CommandLine {
     // Add options to control incremental support
     assert dexFilesFolder != null;
     options.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(), dexFilesFolder.getPath());
-    options.addProperty(Options.GENERATE_JAYCE_FILE.getName(), "true");
-    options.addProperty(Options.JAYCE_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+    options.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
+    options.addProperty(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
     assert jackFilesFolder != null;
-    options.addProperty(Options.JAYCE_FILE_OUTPUT_DIR.getName(), jackFilesFolder.getPath());
+    options.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), jackFilesFolder.getPath());
 
     compilerState = new CompilerState(incrementalFolder);
 

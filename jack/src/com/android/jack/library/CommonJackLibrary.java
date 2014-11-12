@@ -16,9 +16,17 @@
 
 package com.android.jack.library;
 
+import com.android.jack.Jack;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
+import com.android.sched.vfs.InputVFile;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +42,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   @Nonnull
   protected final Properties libraryProperties;
+
+  @Nonnull
+  private final Set<FileType> fileTypes = new HashSet<FileType>(2);
 
   public CommonJackLibrary(@Nonnull Properties libraryProperties) {
     this.libraryProperties = libraryProperties;
@@ -58,5 +69,45 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   public void putProperty(@Nonnull String key, @Nonnull String value) {
     libraryProperties.put(key, value);
+  }
+
+  @Nonnull
+  public Collection<FileType> getFileTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(fileTypes);
+  }
+
+  public boolean containsFileType(@Nonnull FileType fileType) {
+    return fileTypes.contains(fileType);
+  }
+
+  protected void addFileType(@Nonnull FileType ft) {
+    fileTypes.add(ft);
+  }
+
+  protected void fillFileTypes() {
+    for (FileType ft : FileType.values()) {
+      try {
+        String propertyName = ft.getPropertyName();
+        if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
+          fileTypes.add(ft);
+        }
+      } catch (LibraryFormatException e) {
+        throw new AssertionError();
+      }
+    }
+  }
+
+  protected void fillFiles(@Nonnull InputVDir vDir, @Nonnull FileType fileType,
+      @Nonnull List<InputVFile> files) {
+    for (InputVElement subFile : vDir.list()) {
+      if (subFile.isVDir()) {
+        fillFiles((InputVDir) subFile, fileType, files);
+      } else {
+        InputVFile vFile = (InputVFile) subFile;
+        if (fileType.isOfType(vFile)) {
+          files.add(vFile);
+        }
+      }
+    }
   }
 }

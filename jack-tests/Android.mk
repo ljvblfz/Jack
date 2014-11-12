@@ -41,8 +41,7 @@ test-jack-incremental: $(JACK_JAR)
 	$(hide) $(eval TEMPDIR_DEX_FROM_JAVA := $(shell mktemp -d))
 	$(hide) $(eval TEMPDIR_DEX_FROM_JACK := $(shell mktemp -d))
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
-	-D jack.jackfile.generate=true -D jack.jackfile.output.container=dir \
-	-D jack.jackfile.output.dir=$(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput --output-dex \
+	--output-jack-dir $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput --output-dex \
 	$(TEMPDIR_DEX_FROM_JAVA) \
 	@$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/jayces.java-source-list
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \

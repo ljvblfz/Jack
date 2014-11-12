@@ -226,9 +226,9 @@ public class TestTools {
       boolean withDebugInfos) throws Exception {
     options.classpath = classpath;
     if (zip) {
-      options.jayceOutZip = out;
+      options.libraryOutZip = out;
     } else {
-      options.jayceOutDir = out;
+      options.libraryOutDir = out;
     }
     options.ecjArguments = buildEcjArgs();
     addFile(sourceFolderOrSourceList, options.ecjArguments);
@@ -258,9 +258,9 @@ public class TestTools {
     options.jayceImport.add(in);
     options.classpath = classpath;
     if (zip) {
-      options.jayceOutZip = out;
+      options.libraryOutZip = out;
     } else {
-      options.jayceOutDir = out;
+      options.libraryOutDir = out;
     }
     options.proguardFlagsFiles = new ArrayList<File>();
     for (ProguardFlags flagFile : flagFiles) {
@@ -321,9 +321,9 @@ public class TestTools {
     options.jayceImport.add(in);
     options.classpath = classpath;
     if (zip) {
-      options.jayceOutZip = out;
+      options.libraryOutZip = out;
     } else {
-      options.jayceOutDir = out;
+      options.libraryOutDir = out;
     }
     options.jarjarRulesFile = jarjarRules;
     Jack.run(options);
@@ -547,7 +547,7 @@ public class TestTools {
     Request request = Jack.createInitialRequest();
     request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
     request.addProduction(IntermediateDexProduct.class);
-    if (ThreadConfig.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
+    if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
       request.addProduction(JayceFormatProduct.class);
     }
 

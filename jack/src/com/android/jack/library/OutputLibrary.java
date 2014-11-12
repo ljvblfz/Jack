@@ -17,8 +17,11 @@
 package com.android.jack.library;
 
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
+
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
@@ -37,4 +40,9 @@ public interface OutputLibrary extends Library {
   @Override
   @Nonnull
   public OutputLibraryLocation getLocation();
+
+  public boolean containsFileType(@Nonnull FileType fileType);
+
+  @Nonnull
+  public Iterator<InputVFile> iterator(@Nonnull FileType fileType);
 }

@@ -39,7 +39,7 @@ public class ImportTest {
     File jackOut = TestTools.createTempDir("importtest", "dir");
     Options options =
         TestTools.buildCommandLineArgs(TestTools.getJackTestsWithJackFolder("fibonacci"));
-    options.jayceOutDir = jackOut;
+    options.libraryOutDir = jackOut;
     TestTools.runCompilation(options);
 
     Options importOptions =
@@ -53,7 +53,7 @@ public class ImportTest {
     File jackOut = TestTools.createTempDir("importtest", "dir");
     Options options =
         TestTools.buildCommandLineArgs(TestTools.getJackTestsWithJackFolder("fibonacci"));
-    options.jayceOutDir = jackOut;
+    options.libraryOutDir = jackOut;
     TestTools.runCompilation(options);
 
     Options conflictOptions =

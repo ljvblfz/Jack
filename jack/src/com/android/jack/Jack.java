@@ -273,9 +273,9 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectDir;
+import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputZipRootVDir;
-import com.android.sched.vfs.OutputVDir;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -431,13 +431,13 @@ public abstract class Jack {
 
         JSession session = buildSession(options, hooks);
 
-        if (ThreadConfig.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
-          Container containerType = ThreadConfig.get(Options.JAYCE_OUTPUT_CONTAINER_TYPE);
-          OutputVDir outputDir;
+        if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+          Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
+          InputOutputVDir outputDir;
           if (containerType == Container.DIR) {
-            outputDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_DIR);
+            outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
           } else {
-            outputDir = ThreadConfig.get(Options.JAYCE_FILE_OUTPUT_ZIP);
+            outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
           }
           session.setJackOutputLibrary(JackLibraryFactory.getOutputLibrary(outputDir,
               Jack.getEmitterId(), Jack.getVersionString()));
@@ -521,7 +521,7 @@ public abstract class Jack {
           request.addFeature(MultiDexLegacy.class);
         }
 
-        if (config.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
+        if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
           request.addFeature(JayceFileOutput.class);
         }
 
@@ -529,7 +529,7 @@ public abstract class Jack {
           request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
         } else {
           request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-          if (config.get(Options.GENERATE_JAYCE_FILE).booleanValue()) {
+          if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
             request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
             request.addProduction(JayceFormatProduct.class);
           }
@@ -543,7 +543,7 @@ public abstract class Jack {
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
         } else {
-          assert options.jayceOutDir != null || options.jayceOutZip != null;
+          assert options.libraryOutDir != null || options.libraryOutZip != null;
           request.addProduction(JayceFormatProduct.class);
           if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
             request.addProduction(IntermediateDexProduct.class);

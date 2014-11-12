@@ -18,9 +18,9 @@ package com.android.jack.library;
 
 import com.android.jack.library.v0001.OutputJackLibraryImpl;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVDir;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -65,7 +65,7 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  public static OutputJackLibrary getOutputLibrary(@Nonnull OutputVDir vdir,
+  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVDir vdir,
       @Nonnull String emitterId, @Nonnull String emitterVersion) {
     return new OutputJackLibraryImpl(vdir, emitterId, emitterVersion);
   }

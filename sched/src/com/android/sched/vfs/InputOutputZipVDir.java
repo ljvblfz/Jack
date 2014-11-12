@@ -71,6 +71,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
     if (subs.length == 0) {
       return Collections.emptyList();
     }
+
     ArrayList<InputVElement> items = new ArrayList<InputVElement>(subs.length);
     for (File sub : subs) {
       String zipEntryName = zipEntry.getName();
