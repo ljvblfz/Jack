@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link OutputVDir}.
  */
-public abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<OutputVDir> {
+abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<OutputVDir> {
 
   public OutputVDirCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);

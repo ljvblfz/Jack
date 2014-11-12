@@ -26,7 +26,6 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.FileOrDirLocation;
 import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 
@@ -221,7 +220,7 @@ public class TokenIterator {
           tokenizers.push(null);
           index = args.length;
 
-          throw new CannotReadException((FileOrDirLocation) locations.peek());
+          throw new CannotReadException(locations.peek());
         }
 
         // Else, go to the next one

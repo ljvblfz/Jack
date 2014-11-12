@@ -38,8 +38,8 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.DirectDirInputOutputVDirCodec;
 import com.android.sched.util.codec.DirectDirOutputVDirCodec;
-import com.android.sched.util.codec.InputOutputVDirCodec;
 import com.android.sched.util.codec.ZipOutputVDirCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
@@ -136,9 +136,9 @@ public class Options {
   @Nonnull
   public static final PropertyId<InputOutputVDir> INTERMEDIATE_DEX_DIR = PropertyId.create(
       "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
-      new InputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
-      .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
-          .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
+      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
+      GENERATE_INTERMEDIATE_DEX.getValue().isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
+      .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
 
   @Nonnull
   public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
