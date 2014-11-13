@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.zip.ZipEntry;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -41,8 +40,6 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   private static final char ZIP_ENTRY_SEPARATOR = '/';
   @Nonnull
   protected final File dir;
-  @CheckForNull
-  private ArrayList<InputVElement> list;
   @Nonnull
   private final Location location;
   @Nonnull
@@ -67,35 +64,31 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   @Nonnull
   @Override
   public synchronized Collection<? extends InputVElement> list() {
-    if (list == null) {
-      File[] subs = dir.listFiles();
-      if (subs == null) {
-        throw new ConcurrentIOException(new ListDirException(dir));
+    File[] subs = dir.listFiles();
+    if (subs == null) {
+      throw new ConcurrentIOException(new ListDirException(dir));
+    }
+    if (subs.length == 0) {
+      return Collections.emptyList();
+    }
+    ArrayList<InputVElement> items = new ArrayList<InputVElement>(subs.length);
+    for (File sub : subs) {
+      String zipEntryName = zipEntry.getName();
+      String subZipEntryName;
+      if (zipEntryName.isEmpty()) {
+        subZipEntryName = sub.getName();
+      } else {
+        subZipEntryName = zipEntryName + ZIP_ENTRY_SEPARATOR + sub.getName();
       }
-      if (subs.length == 0) {
-        return Collections.emptyList();
+      ZipEntry subZipEntry = new ZipEntry(subZipEntryName);
+      if (sub.isFile()) {
+        items.add(new InputOutputZipVFile(sub, zipFile, subZipEntry));
+      } else {
+        items.add(new InputOutputZipVDir(sub, zipFile, subZipEntry));
       }
-
-      ArrayList<InputVElement> localList = new ArrayList<InputVElement>(subs.length);
-      for (File sub : subs) {
-        String zipEntryName = zipEntry.getName();
-        String subZipEntryName;
-        if (zipEntryName.isEmpty()) {
-          subZipEntryName = sub.getName();
-        } else {
-          subZipEntryName = zipEntryName + ZIP_ENTRY_SEPARATOR + sub.getName();
-        }
-        ZipEntry subZipEntry = new ZipEntry(subZipEntryName);
-        if (sub.isFile()) {
-          localList.add(new InputOutputZipVFile(sub, zipFile, subZipEntry));
-        } else {
-          localList.add(new InputOutputZipVDir(sub, zipFile, subZipEntry));
-        }
-      }
-      list = localList;
     }
 
-    return list;
+    return items;
   }
 
   @Override
