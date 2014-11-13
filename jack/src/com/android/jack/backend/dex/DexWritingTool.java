@@ -34,6 +34,7 @@ import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
@@ -153,6 +154,9 @@ public abstract class DexWritingTool {
           anyDexList.add(inputVFile);
         }
       } catch (NotFileOrDirectoryException e) {
+        // this was created by Jack, so this should not happen
+        throw new AssertionError(e);
+      } catch (NoSuchFileException e) {
         // this was created by Jack, so this should not happen
         throw new AssertionError(e);
       }

@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
@@ -100,8 +101,12 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException {
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
+    if (!file.exists()) {
+      throw new NoSuchFileException(new FileLocation(file));
+    }
     if (!file.isFile()) {
       throw new NotFileOrDirectoryException(new FileLocation(file));
     }

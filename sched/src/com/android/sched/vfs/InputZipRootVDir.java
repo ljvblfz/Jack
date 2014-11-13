@@ -19,6 +19,8 @@ package com.android.sched.vfs;
 import com.google.common.base.Splitter;
 
 import com.android.sched.util.file.InputFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.location.FileLocation;
 
 import java.io.Closeable;
 import java.io.File;
@@ -81,8 +83,12 @@ public class InputZipRootVDir extends InputZipVDir implements Closeable, InputRo
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) {
-    ZipEntry entry = zip.getEntry(path.getPathAsString(IN_ZIP_SEPARATOR));
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NoSuchFileException {
+    String pathAsString = path.getPathAsString(IN_ZIP_SEPARATOR);
+    ZipEntry entry = zip.getEntry(pathAsString);
+    if (entry == null) {
+      throw new NoSuchFileException(new FileLocation(pathAsString));
+    }
     return new InputZipVFile(path.getLastPathElement(), zip, entry);
   }
 }

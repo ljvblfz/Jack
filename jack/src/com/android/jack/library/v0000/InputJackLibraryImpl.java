@@ -23,6 +23,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
@@ -99,6 +100,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       typePath.addSuffix(fileType.getFileExtension());
       return libraryVDir.getInputVFile(typePath);
     } catch (NotFileOrDirectoryException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }
