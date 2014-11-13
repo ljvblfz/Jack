@@ -45,17 +45,18 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
     int supportedMinor = getSupportedMinor();
 
     if (minorVersion < supportedMinorMin) {
-      throw new LibraryVersionException("The version of the library file is not supported anymore."
-          + "Library version: " + majorVersion + "." + minorVersion + " - Current version: "
-          + majorVersion + "." + supportedMinor + " - Minimum compatible version: " + majorVersion
-          + "." + supportedMinorMin);
+      throw new LibraryVersionException("The version of the library "
+          + getLocation().getDescription() + " is not supported anymore." + "Library version: "
+          + majorVersion + "." + minorVersion + " - Current version: " + majorVersion + "."
+          + supportedMinor + " - Minimum compatible version: " + majorVersion + "."
+          + supportedMinorMin);
     } else if (minorVersion > supportedMinor) {
-      throw new LibraryVersionException("The version of the library file is too recent."
-          + "Library version: " + majorVersion + "." + minorVersion + " - Current version: "
-          + majorVersion + "." + supportedMinor);
+      throw new LibraryVersionException("The version of the library "
+          + getLocation().getDescription() + " is too recent." + "Library version: " + majorVersion
+          + "." + minorVersion + " - Current version: " + majorVersion + "." + supportedMinor);
     } else if (minorVersion < supportedMinor) {
-      Jack.getSession().getUserLogger().log(Level.WARNING,
-          "The version of the library is older than the current version but is "
+      Jack.getSession().getUserLogger().log(Level.WARNING, "The version of the library "
+          + getLocation().getDescription() + " is older than the current version but is "
           + "supported. File version: {0}.{1} - Current version: {2}.{3}", new Object[] {
           Integer.valueOf(majorVersion), Integer.valueOf(minorVersion),
           Integer.valueOf(majorVersion), Integer.valueOf(supportedMinor)});
