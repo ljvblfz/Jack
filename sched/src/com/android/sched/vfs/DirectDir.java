@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -39,8 +38,6 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
 
   @Nonnull
   private final File dir;
-  @CheckForNull
-  private ArrayList<InputVElement> list;
   @Nonnull
   private final Location location;
   @Nonnull
@@ -71,31 +68,28 @@ public class DirectDir extends AbstractVElement implements InputRootVDir, InputO
   @Nonnull
   @Override
   public synchronized Collection<? extends InputVElement> list() {
-    if (list == null) {
-      File[] subs = dir.listFiles();
-      if (subs == null) {
-        throw new ConcurrentIOException(new ListDirException(dir));
-      }
-      if (subs.length == 0) {
-        return Collections.emptyList();
-      }
-
-      ArrayList<InputVElement> localList = new ArrayList<InputVElement>(subs.length);
-      for (File sub : subs) {
-        try {
-          if (sub.isFile()) {
-            localList.add(new DirectFile(sub, vfsRoot));
-          } else {
-            localList.add(new DirectDir(sub, vfsRoot));
-          }
-        } catch (NotFileOrDirectoryException e) {
-          throw new ConcurrentIOException(e);
-        }
-      }
-      list = localList;
+    File[] subs = dir.listFiles();
+    if (subs == null) {
+      throw new ConcurrentIOException(new ListDirException(dir));
+    }
+    if (subs.length == 0) {
+      return Collections.emptyList();
     }
 
-    return list;
+    ArrayList<InputVElement> items = new ArrayList<InputVElement>(subs.length);
+    for (File sub : subs) {
+      try {
+        if (sub.isFile()) {
+          items.add(new DirectFile(sub, vfsRoot));
+        } else {
+          items.add(new DirectDir(sub, vfsRoot));
+        }
+      } catch (NotFileOrDirectoryException e) {
+        throw new ConcurrentIOException(e);
+      }
+    }
+
+    return items;
   }
 
   @Override

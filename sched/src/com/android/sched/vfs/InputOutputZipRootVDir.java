@@ -40,8 +40,12 @@ import javax.annotation.Nonnull;
 public class InputOutputZipRootVDir extends InputOutputZipVDir implements InputRootVDir,
     InputOutputVDir, Closeable {
 
+  @Nonnull
+  private final ZipOutputStream zos;
+
   public InputOutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
     super(Files.createTempDir(), zipFile, new ZipEntry(""));
+    zos = zipFile.getOutputStream();
   }
 
   @Nonnull
@@ -62,7 +66,6 @@ public class InputOutputZipRootVDir extends InputOutputZipVDir implements InputR
 
   @Override
   public void close() throws IOException {
-    ZipOutputStream zos = zipFile.getOutputStream();
     try {
       addDirToZip(zos, this);
     } finally {
