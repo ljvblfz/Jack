@@ -15,7 +15,6 @@
  */
 
 package com.android.sched.util.codec;
-
 import com.android.sched.util.config.ConfigurationError;
 
 import java.util.ArrayList;
@@ -35,13 +34,24 @@ import javax.annotation.Nonnull;
  */
 public class KeyValueCodec<T> implements StringCodec<T> {
   private boolean ignoreCase = false;
+  private boolean sorted = false;
   @Nonnull
-  private final Entry<T>[] entries;
+  private Entry<T>[] entries;
   @CheckForNull
   private List<ValueDescription> descriptions;
 
   public KeyValueCodec(@Nonnull Entry<T>[] entries) {
-    this.entries    = Arrays.copyOf(entries, entries.length);
+    this.entries = Arrays.copyOf(entries, entries.length);
+  }
+
+  protected void setElements(@Nonnull Entry<T>[] entries) {
+    this.entries = Arrays.copyOf(entries, entries.length);
+    if (ignoreCase) {
+      ignoreCase();
+    }
+    if (sorted) {
+      sorted();
+    }
   }
 
   @Nonnull
@@ -57,6 +67,8 @@ public class KeyValueCodec<T> implements StringCodec<T> {
 
   @Nonnull
   public KeyValueCodec<T> sorted() {
+    this.sorted = true;
+
     Arrays.sort(this.entries, new Comparator<Entry<T>>(){
       @Override
       public int compare(Entry<T> o1, Entry<T> o2) {
