@@ -27,12 +27,12 @@ import javax.annotation.Nonnull;
  * A path relative to a VFS. Two instances of {@link VPath} can be compared regardless of the
  * separator used as initialization.
  */
-public final class VPath {
+public final class VPath implements Cloneable {
 
   private static final char INTERNAL_SEPARATOR = '/';
 
   @Nonnull
-  List<VPathFragment> pathFragments;
+  ArrayList<VPathFragment> pathFragments;
 
   /**
    * Creates an instance of VFS-relative path. The {@link CharSequence} is evaluated lazily at each
@@ -46,6 +46,10 @@ public final class VPath {
     VPathFragment pe = new VPathFragment(path, separator);
     assert pe.isValidPath();
     pathFragments.add(pe);
+  }
+
+  private VPath(ArrayList<VPathFragment> pathFragments) {
+    this.pathFragments = pathFragments;
   }
 
   /**
@@ -78,6 +82,14 @@ public final class VPath {
     VPathFragment pe = new VPathFragment(suffix, INTERNAL_SEPARATOR);
     assert pe.isValidSuffix();
     pathFragments.add(pe);
+  }
+
+  @Override
+  protected VPath clone() {
+    // no need to clone path fragments, they should be immutable
+    @SuppressWarnings("unchecked")
+    ArrayList<VPathFragment> clonedList = (ArrayList<VPathFragment>) pathFragments.clone();
+    return new VPath(clonedList);
   }
 
   /**
@@ -132,6 +144,9 @@ public final class VPath {
     return internalPath.substring(internalPath.lastIndexOf(INTERNAL_SEPARATOR) + 1);
   }
 
+  /**
+   * A portion of path that should be immutable.
+   */
   static class VPathFragment {
     @Nonnull
     private final CharSequence path;
