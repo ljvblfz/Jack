@@ -101,6 +101,8 @@ import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.resource.ResourceImporter;
+import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibAdapter;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
@@ -275,6 +277,7 @@ import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectDir;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputZipRootVDir;
 
 import org.antlr.runtime.RecognitionException;
@@ -706,6 +709,14 @@ public abstract class Jack {
       }
     }
 
+
+    try {
+      getResourceImporter(options.getImportedResources(), hooks).doImport(session);
+    } catch (ResourceReadingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
+
     jayceImporter.doImport(session);
 
     Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
@@ -728,6 +739,22 @@ public abstract class Jack {
     methodIdDupRemover.accept(session.getTypesToEmit());
 
     return session;
+  }
+
+  private static ResourceImporter getResourceImporter(@Nonnull List<File> importedResources,
+      @Nonnull RunnableHooks hooks) throws ResourceReadingException {
+    List<InputVDir> resourceVDirs = new ArrayList<InputVDir>();
+    for (File resourceDir : importedResources) {
+      try {
+        // Let's assume all of these are directories for now
+        InputRootVDir dir = new DirectDir(new Directory(resourceDir.getPath(), hooks,
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+        resourceVDirs.add(dir);
+      } catch (IOException ioException) {
+        throw new ResourceReadingException(ioException);
+      }
+    }
+    return new ResourceImporter(resourceVDirs);
   }
 
   @Nonnull

@@ -398,6 +398,11 @@ public class Options {
   }
 
   @Nonnull
+  public List<File> getImportedResources() {
+    return Collections.emptyList();
+  }
+
+  @Nonnull
   private List<File> getFilesFromPathString(@CheckForNull String pathString) {
     List<File> classpath = new ArrayList<File>();
     if (pathString != null && !pathString.isEmpty()) {
