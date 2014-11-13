@@ -235,8 +235,6 @@ import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.parent.AstChecker;
-import com.android.jack.transformations.parent.DeclaredTypePackageChecker;
-import com.android.jack.transformations.parent.PackageChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
@@ -1232,15 +1230,6 @@ public abstract class Jack {
 
     if (hasSanityChecks) {
       planBuilder.append(AstChecker.class);
-     {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-      typePlan.append(DeclaredTypePackageChecker.class);
-      }
-      {
-        SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
-        packagePlan.append(PackageChecker.class);
-      }
     }
   }
 

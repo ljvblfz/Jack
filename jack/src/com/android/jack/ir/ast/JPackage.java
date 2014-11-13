@@ -502,8 +502,16 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JPackage || parent instanceof JSession)) {
-      throw new JNodeInternalError(this, "Invalid parent");
+    if (parent instanceof JPackage) {
+      if (parent != enclosingPackage) {
+        throw new JNodeInternalError(this, "Invalid parent or enclosing package");
+      }
+    } else if (parent instanceof JSession) {
+      if (enclosingPackage != null) {
+        throw new JNodeInternalError(this, "Invalid parent or enclosing package");
+      }
+    } else  {
+      throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
   }
 }

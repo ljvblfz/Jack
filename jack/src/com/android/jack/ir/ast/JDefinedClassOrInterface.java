@@ -595,8 +595,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JPackage)) {
-      throw new JNodeInternalError(this, "Invalid parent");
+    if (parent == null || parent != enclosingPackage) {
+      throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
+
   }
 }
