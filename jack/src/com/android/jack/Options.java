@@ -225,9 +225,17 @@ public class Options {
       metaVar = "FILE")
   protected File jarjarRulesFile = null;
 
-  @Option(name = "--import", usage = "import the given file  into the output (repeatable)",
+  @Option(name = "--import", usage = "import the given file into the output (repeatable)",
       metaVar = "FILE")
   protected List<File> jayceImport = new ArrayList<File>();
+
+  @Option(name = "--import-res",
+      usage = "import the given file into the output as resource (repeatable)", metaVar = "FILE")
+  protected List<File> resImport = new ArrayList<File>();
+
+  @Option(name = "--import-meta", usage = "import the given file as meta (repeatable)",
+      metaVar = "FILE")
+  protected List<File> metaImport = new ArrayList<File>();
 
   @Option(name = "--dx-legacy", usage = "keep generation close to dx (default: on)",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
