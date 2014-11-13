@@ -16,7 +16,6 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
@@ -24,46 +23,36 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
 
 class OutputZipVFile extends AbstractVElement implements OutputVFile {
+  @Nonnull
+  private final OutputZipVFS vfs;
+  @Nonnull
+  private final ZipEntry     entry;
 
-  @Nonnull
-  private final ZipOutputStream zos;
-  @Nonnull
-  private final ZipEntry entry;
-  @Nonnull
-  private final Location location;
-  @Nonnull
-  private final OutputVDir vfsRoot;
-
-  OutputZipVFile(@Nonnull ZipOutputStream zos, @Nonnull ZipEntry entry,
-      @Nonnull OutputZipFile zipFile, @Nonnull OutputVDir vfsRoot) {
-    this.zos = zos;
+  OutputZipVFile(@Nonnull OutputZipVFS vfs, @Nonnull ZipEntry entry) {
+    this.vfs = vfs;
     this.entry = entry;
-    location = new ZipLocation(zipFile.getLocation(), entry);
-    this.vfsRoot = vfsRoot;
   }
 
   @Nonnull
   @Override
   public OutputStream openWrite() throws IOException {
-    zos.putNextEntry(entry);
-    if (vfsRoot instanceof SequentialOutputVDir) {
-      if (((SequentialOutputVDir) vfsRoot).notifyVFileOpenAndReturnPreviousState()) {
-        throw new AssertionError(getLocation().getDescription()
-            + " cannot be written to because a previous stream has not been closed.");
-      }
+    vfs.getZipOutputStream().putNextEntry(entry);
+    if (vfs.notifyVFileOpenAndReturnPreviousState()) {
+      throw new AssertionError(getLocation().getDescription()
+          + " cannot be written to because a previous stream has not been closed.");
     }
-    return new UnclosableVFileOutputStream(zos, vfsRoot);
+
+    return new UnclosableVFileOutputStream(vfs);
   }
 
   @Override
   @Nonnull
   public Location getLocation() {
-    return location;
+    return new ZipLocation(vfs.getLocation(), entry);
   }
 
   @Override
@@ -71,22 +60,25 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
     return false;
   }
 
+  @Override
+  @Nonnull
+  public String getName() {
+    return ZipUtils.getSimpleName(entry);
+  }
+
   private static class UnclosableVFileOutputStream extends FilterOutputStream {
-
     @Nonnull
-    private final OutputVDir vfsRoot;
+    private final OutputZipVFS vfs;
 
-    public UnclosableVFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVDir vfsRoot) {
-      super(out);
-      this.vfsRoot = vfsRoot;
+    public UnclosableVFileOutputStream(@Nonnull OutputZipVFS vfs) {
+      super(vfs.getZipOutputStream());
+      this.vfs = vfs;
     }
 
     @Override
     public void close() {
       // we do not actually close the stream
-      if (vfsRoot instanceof SequentialOutputVDir) {
-        ((SequentialOutputVDir) vfsRoot).notifyVFileClosed();
-      }
+      vfs.notifyVFileClosed();
     }
 
     @Override

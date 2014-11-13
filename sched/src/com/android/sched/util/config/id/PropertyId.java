@@ -52,6 +52,7 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
   @Nonnull
   private Category category = DefaultCategory.get();
 
+  @Nonnull
   public static <T> PropertyId<T> create(
       @Nonnull String name, @Nonnull String description, @Nonnull StringCodec<T> codec) {
     return new PropertyId<T>(name, description, codec);

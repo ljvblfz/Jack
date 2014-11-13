@@ -28,8 +28,8 @@ import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -51,7 +51,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final InputRootVDir libraryVDir;
+  private final InputVFS vfs;
 
   @Nonnull
   private final InputLibraryLocation location = new InputLibraryLocation() {
@@ -59,7 +59,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     @Override
     @Nonnull
     public String getDescription() {
-      return libraryVDir.getLocation().getDescription();
+      return vfs.getLocation().getDescription();
     }
 
     @Override
@@ -80,11 +80,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
   };
 
-  public InputJackLibraryImpl(@Nonnull InputRootVDir libraryVDir,
+  public InputJackLibraryImpl(@Nonnull InputVFS libraryVDir,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
     super(libraryProperties);
-    this.libraryVDir = libraryVDir;
+    this.vfs = libraryVDir;
     check();
     fillFileTypes();
   }
@@ -102,7 +102,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       VPath clonedPath = typePath.clone();
       clonedPath.addSuffix(fileType.getFileExtension());
-      return libraryVDir.getInputVFile(clonedPath);
+      return vfs.getRootDir().getInputVFile(clonedPath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -115,7 +115,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVDir getDir(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return libraryVDir.getInputVDir(typePath);
+      return vfs.getRootDir().getInputVDir(typePath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -131,7 +131,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(libraryVDir, fileType, inputVFiles);
+    fillFiles(vfs.getRootDir(), fileType, inputVFiles);
     return inputVFiles.iterator();
   }
 

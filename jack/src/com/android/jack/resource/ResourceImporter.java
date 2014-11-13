@@ -18,7 +18,7 @@ package com.android.jack.resource;
 
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
-import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 public class ResourceImporter extends ResourceOrMetaImporter {
 
-  public ResourceImporter(@Nonnull List<InputVDir> resourceDirs) {
+  public ResourceImporter(@Nonnull List<InputVFS> resourceDirs) {
     super(resourceDirs);
   }
 

@@ -20,9 +20,10 @@ import com.google.common.io.Files;
 
 import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.stream.ByteStreamSucker;
 
-import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
@@ -34,31 +35,37 @@ import javax.annotation.Nonnull;
  * The root of a VFS backed by a real filesystem directory, compressed into a zip archive when
  * closed.
  */
-public class InputOutputZipRootVDir extends InputOutputZipVDir implements InputRootVDir,
-    InputOutputVDir, Closeable {
-
+public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOutputVFS {
   @Nonnull
-  private final ZipOutputStream zos;
-
-  public InputOutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
-    super(Files.createTempDir(), zipFile, new ZipEntry(""));
-    zos = zipFile.getOutputStream();
-  }
-
+  private final OutputZipFile zipFile;
   @Nonnull
-  @Override
-  public String getName() {
-    return "";
+  private final File dir;
+  @Nonnull
+  private final ZipOutputStream zipOS;
+
+  public InputOutputZipVFS(@Nonnull OutputZipFile zipFile) {
+    this.zipFile = zipFile;
+    dir = Files.createTempDir();
+    setRootDir(new InputOutputZipVDir(this, dir, new ZipEntry("")));
+    // it would be better to open the stream in the close() method, but it's not possible because
+    // close() is called by a shutdown hook and OutputZipFile.getOutputStream() modifies those hooks
+    zipOS = zipFile.getOutputStream();
   }
 
   @Override
   public void close() throws IOException {
     try {
-      addDirToZip(zos, this);
+      addDirToZip(zipOS, getRootDir());
     } finally {
-      zos.close();
+      zipOS.close();
       FileUtils.deleteDir(dir);
     }
+  }
+
+  @Override
+  @Nonnull
+  public InputOutputZipVDir getRootDir() {
+    return (InputOutputZipVDir) super.getRootDir();
   }
 
   private void addDirToZip(@Nonnull ZipOutputStream zos, @Nonnull InputOutputZipVDir vDir)
@@ -77,5 +84,11 @@ public class InputOutputZipRootVDir extends InputOutputZipVDir implements InputR
         }
       }
     }
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return zipFile.getLocation();
   }
 }

@@ -25,10 +25,10 @@ import com.android.jack.library.OutputLibraryLocation;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.SequentialOutputVDir;
+import com.android.sched.vfs.SequentialOutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
@@ -45,14 +45,14 @@ import javax.annotation.Nonnull;
 public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   @Nonnull
-  private final InputOutputVDir outputVDir;
+  private final InputOutputVFS vfs;
 
   @Nonnull
   private final OutputLibraryLocation location = new OutputLibraryLocation() {
     @Override
     @Nonnull
     public String getDescription() {
-      return outputVDir.getLocation().getDescription();
+      return vfs.getLocation().getDescription();
     }
 
     @Override
@@ -73,10 +73,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     }
   };
 
-  public OutputJackLibraryImpl(@Nonnull InputOutputVDir outputVDir, @Nonnull String emitterId,
+  public OutputJackLibraryImpl(@Nonnull InputOutputVFS outputVDir, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
     super(new Properties());
-    this.outputVDir = outputVDir;
+    this.vfs = outputVDir;
     putProperty(KEY_LIB_EMITTER, emitterId);
     putProperty(KEY_LIB_EMITTER_VERSION, emitterVersion);
     putProperty(KEY_LIB_MAJOR_VERSION, String.valueOf(getMajorVersion()));
@@ -91,12 +91,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     addFileType(fileType);
     VPath clonedPath = typePath.clone();
     clonedPath.addSuffix(fileType.getFileExtension());
-    return outputVDir.createOutputVFile(clonedPath);
+    return vfs.getRootDir().createOutputVFile(clonedPath);
   }
 
   @Override
   public boolean needsSequentialWriting() {
-    return outputVDir instanceof SequentialOutputVDir;
+    return vfs instanceof SequentialOutputVFS;
   }
 
   @Override
@@ -108,7 +108,8 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   public void close() throws LibraryIOException {
     try {
-      OutputVFile libraryPropertiesOut = outputVDir.createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+      OutputVFile libraryPropertiesOut =
+          vfs.getRootDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
       libraryProperties.store(libraryPropertiesOut.openWrite(), "Library properties");
     } catch (CannotCreateFileException e) {
       throw new LibraryIOException(getLocation(), e);
@@ -131,7 +132,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(outputVDir, fileType, inputVFiles);
+    fillFiles(vfs.getRootDir(), fileType, inputVFiles);
     return inputVFiles.listIterator();
   }
 
@@ -143,7 +144,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       VPath clonedPath = typePath.clone();
       clonedPath.addSuffix(fileType.getFileExtension());
       clonedPath.prependPath(fileType.getVPathPrefix());
-      return outputVDir.getInputVFile(clonedPath);
+      return vfs.getRootDir().getInputVFile(clonedPath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {

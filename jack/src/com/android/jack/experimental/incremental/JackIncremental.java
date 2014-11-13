@@ -48,7 +48,7 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -77,7 +77,7 @@ public class JackIncremental extends CommandLine {
   Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<OutputVDir> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<OutputVFS> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
       "jack.experimental.compilerstate.output.dir", "Compiler state output folder",
       new DirectDirOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_COMPILER_STATE.getValue().isTrue());

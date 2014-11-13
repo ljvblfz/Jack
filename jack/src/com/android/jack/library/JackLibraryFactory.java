@@ -18,8 +18,8 @@ package com.android.jack.library;
 
 import com.android.jack.library.v0001.OutputJackLibraryImpl;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 
 import java.io.IOException;
@@ -51,26 +51,26 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  public static InputJackLibrary getInputLibrary(@Nonnull InputRootVDir vdir)
+  public static InputJackLibrary getInputLibrary(@Nonnull InputVFS vdir)
       throws LibraryVersionException, LibraryFormatException, NotJackLibraryException {
     Properties libraryProperties = loadLibraryProperties(vdir);
     String majorVersion = getMajorVersionAsString(vdir, libraryProperties);
 
     InputJackLibrary inputJackLibrary = (InputJackLibrary) instantiateConstructorWithParameters(
         vdir, "com.android.jack.library.v" + majorVersion + ".InputJackLibraryImpl",
-        new Class[] {InputRootVDir.class, Properties.class},
-        new Object[] {vdir, libraryProperties}, String.valueOf(majorVersion));
+        new Class[] {InputVFS.class, Properties.class}, new Object[] {vdir, libraryProperties},
+        String.valueOf(majorVersion));
 
     return inputJackLibrary;
   }
 
   @Nonnull
-  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVDir vdir,
+  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVFS vdir,
       @Nonnull String emitterId, @Nonnull String emitterVersion) {
     return new OutputJackLibraryImpl(vdir, emitterId, emitterVersion);
   }
 
-  private static String getMajorVersionAsString(@Nonnull InputRootVDir vdir,
+  private static String getMajorVersionAsString(@Nonnull InputVFS vdir,
       @Nonnull Properties libraryProperties) throws LibraryFormatException {
     try {
       return (getVersionString(
@@ -83,25 +83,25 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  private static Properties loadLibraryProperties(@Nonnull InputRootVDir vdir)
+  private static Properties loadLibraryProperties(@Nonnull InputVFS vfs)
       throws NotJackLibraryException {
     Properties libraryProperties = new Properties();
 
     try {
-      InputVFile libProp = vdir.getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
+      InputVFile libProp = vfs.getRootDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
       libraryProperties.load(libProp.openRead());
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Fails to read "
           + JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/') + " from "
-          + vdir, e);
-      throw new NotJackLibraryException(vdir.getLocation());
+          + vfs, e);
+      throw new NotJackLibraryException(vfs.getLocation());
     }
 
     return libraryProperties;
   }
 
   @Nonnull
-  private static Object instantiateConstructorWithParameters(@Nonnull InputRootVDir vdir,
+  private static Object instantiateConstructorWithParameters(@Nonnull InputVFS vdir,
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes,
       @Nonnull Object[] parameterInstances, @Nonnull String version)
       throws LibraryVersionException, LibraryFormatException {

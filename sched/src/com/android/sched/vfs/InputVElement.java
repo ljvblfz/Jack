@@ -16,14 +16,9 @@
 
 package com.android.sched.vfs;
 
-import javax.annotation.Nonnull;
 
 /**
  * Element of a virtual file system to read from.
  */
 public interface InputVElement extends VElement {
-
-  @Nonnull
-  String getName();
-
 }

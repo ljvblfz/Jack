@@ -23,11 +23,12 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.InputFile;
+import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.DirectDir;
+import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputZipRootVDir;
+import com.android.sched.vfs.InputVFS;
+import com.android.sched.vfs.InputZipVFS;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link InputVDir}.
  */
 public class InputVDirCodec extends FileOrDirCodec
-    implements StringCodec<InputVDir> {
+    implements StringCodec<InputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
@@ -84,44 +85,43 @@ public class InputVDirCodec extends FileOrDirCodec
 
   @Override
   @Nonnull
-  public InputVDir checkString(@Nonnull CodecContext context, @Nonnull final String string)
+  public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
-    InputVDir dir;
+    final InputVFS vfs;
     try {
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
-        dir = new DirectDir(new Directory(string, context.getRunnableHooks(),
+        vfs = new DirectVFS(new Directory(string, context.getRunnableHooks(),
             Existence.MUST_EXIST, Permission.READ, change));
-      } else { // zip
-        final InputZipRootVDir zipArchive =
-            new InputZipRootVDir(new InputFile(string, change));
-        dir = zipArchive;
+      } else {
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;
+        vfs = new InputZipVFS(new InputZipFile(string, hooks, Existence.MUST_EXIST, change));
         hooks.addHook(new Runnable() {
           @Override
           public void run() {
             try {
-              zipArchive.close();
+              vfs.close();
             } catch (IOException e) {
               logger.log(Level.FINE, "Failed to close zip for '" + string + "'.", e);
             }
           }
         });
       }
-      return dir;
+
+      return vfs;
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }
 
   @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull InputVDir dir) {
+  public void checkValue(@Nonnull CodecContext context, @Nonnull InputVFS dir) {
   }
 
   @Override
   @Nonnull
-  public InputVDir parseString(@Nonnull CodecContext context, @Nonnull String string) {
+  public InputVFS parseString(@Nonnull CodecContext context, @Nonnull String string) {
     try {
       return checkString(context, string);
     } catch (ParsingException e) {
@@ -131,7 +131,7 @@ public class InputVDirCodec extends FileOrDirCodec
 
   @Override
   @Nonnull
-  public String formatValue(@Nonnull InputVDir directory) {
+  public String formatValue(@Nonnull InputVFS directory) {
     return directory.getLocation().getDescription();
   }
 }

@@ -23,7 +23,6 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,25 +33,21 @@ import javax.annotation.Nonnull;
 class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Nonnull
-  protected static final char IN_ZIP_SEPARATOR = '/';
-
+  private final  InputZipVFS vfs;
   @Nonnull
   protected final HashMap<String, InputVElement> subs = new HashMap<String, InputVElement>();
   @Nonnull
-  private final String name;
+  private final ZipEntry entry;
 
-  @Nonnull
-  private final Location location;
-
-  InputZipVDir(@Nonnull String name, @Nonnull File zip, @Nonnull ZipEntry entry) {
-    this.name = name;
-    this.location = new ZipLocation(new FileLocation(zip), entry);
+  InputZipVDir(@Nonnull InputZipVFS vfs, @Nonnull ZipEntry entry) {
+    this.vfs  = vfs;
+    this.entry  = entry;
   }
 
   @Nonnull
   @Override
   public String getName() {
-    return name;
+    return ZipUtils.getSimpleName(entry);
   }
 
   @Nonnull
@@ -64,7 +59,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
   @Override
   @Nonnull
   public Location getLocation() {
-    return location;
+    return new ZipLocation(vfs.getLocation(), entry);
   }
 
   @Override
@@ -80,7 +75,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
-    String pathAsString = path.getPathAsString(IN_ZIP_SEPARATOR);
+    String pathAsString = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
 
     if (ive == null) {
       throw new NoSuchFileException(new FileLocation(pathAsString));
@@ -89,7 +84,8 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     if (iterator.hasNext()) {
       if (ive instanceof InputVDir) {
         ive = ((InputVDir) ive).getInputVFile(new VPath(
-            pathAsString.substring(pathAsString.indexOf(IN_ZIP_SEPARATOR) + 1), IN_ZIP_SEPARATOR));
+            pathAsString.substring(pathAsString.indexOf(ZipUtils.IN_ZIP_SEPARATOR) + 1),
+            ZipUtils.IN_ZIP_SEPARATOR));
       }
     }
 
@@ -112,7 +108,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
-    String pathAsString = path.getPathAsString(IN_ZIP_SEPARATOR);
+    String pathAsString = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
 
     if (ive == null) {
       throw new NoSuchFileException(new DirectoryLocation(pathAsString));
@@ -121,7 +117,8 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     if (iterator.hasNext()) {
       if (ive instanceof InputVDir) {
         ive = ((InputVDir) ive).getInputVDir(new VPath(
-            pathAsString.substring(pathAsString.indexOf(IN_ZIP_SEPARATOR) + 1), IN_ZIP_SEPARATOR));
+            pathAsString.substring(pathAsString.indexOf(ZipUtils.IN_ZIP_SEPARATOR) + 1),
+            ZipUtils.IN_ZIP_SEPARATOR));
       }
     }
 

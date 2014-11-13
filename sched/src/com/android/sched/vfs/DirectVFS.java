@@ -16,47 +16,37 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.ConcurrentIOException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.ZipLocation;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.ZipEntry;
 
 import javax.annotation.Nonnull;
 
-class InputZipVFile extends AbstractVElement implements InputVFile {
+/**
+ * A VFS directory backed by a real filesystem directory.
+ */
+public class DirectVFS extends AbstractInputOutputVFS implements ParallelOutputVFS {
   @Nonnull
-  private final InputZipVFS vfs;
-  @Nonnull
-  private final ZipEntry    entry;
+  private final Directory dir;
 
-  InputZipVFile(@Nonnull InputZipVFS vfs, @Nonnull ZipEntry entry) {
-    this.vfs   = vfs;
-    this.entry = entry;
+  public DirectVFS(@Nonnull Directory dir) {
+    this.dir = dir;
+
+    try {
+      setRootDir(new DirectDir(dir.getFile(), this));
+    } catch (NotFileOrDirectoryException e) {
+      throw new ConcurrentIOException(e);
+    }
   }
 
-  @Nonnull
   @Override
-  public String getName() {
-    return ZipUtils.getSimpleName(entry);
-  }
-
-  @Nonnull
-  @Override
-  public InputStream openRead() throws IOException {
-    return vfs.getZipFile().getInputStream(entry);
+  public void close() {
   }
 
   @Override
   @Nonnull
   public Location getLocation() {
-    return new ZipLocation(vfs.getLocation(), entry);
+    return dir.getLocation();
   }
-
-  @Override
-  public boolean isVDir() {
-    return false;
-  }
-
 }

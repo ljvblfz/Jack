@@ -22,13 +22,14 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 
 import javax.annotation.Nonnull;
 
 /**
  * This {@link StringCodec} is used to create an instance of {@link OutputVDir}.
  */
-abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<OutputVDir> {
+abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<OutputVFS> {
 
   public OutputVDirCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);
@@ -49,12 +50,12 @@ abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<Out
   }
 
   @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull OutputVDir dir) {
+  public void checkValue(@Nonnull CodecContext context, @Nonnull OutputVFS dir) {
   }
 
   @Override
   @Nonnull
-  public OutputVDir parseString(@Nonnull CodecContext context, @Nonnull String string) {
+  public OutputVFS parseString(@Nonnull CodecContext context, @Nonnull String string) {
     try {
       return checkString(context, string);
     } catch (ParsingException e) {
@@ -64,7 +65,7 @@ abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<Out
 
   @Override
   @Nonnull
-  public String formatValue(@Nonnull OutputVDir directory) {
+  public String formatValue(@Nonnull OutputVFS directory) {
     return directory.getLocation().getDescription();
   }
 }

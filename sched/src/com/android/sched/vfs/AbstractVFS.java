@@ -16,8 +16,9 @@
 
 package com.android.sched.vfs;
 
+
 /**
- * Virtual directory to be read or written to.
+ * A root of a VFS.
  */
-public interface InputOutputVDir extends InputVDir, OutputVDir {
+public abstract class AbstractVFS implements VFS {
 }

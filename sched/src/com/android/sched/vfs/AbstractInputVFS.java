@@ -16,8 +16,25 @@
 
 package com.android.sched.vfs;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
- * Virtual directory to be read or written to.
+ * A root of a input VFS.
  */
-public interface InputOutputVDir extends InputVDir, OutputVDir {
+public abstract class AbstractInputVFS extends AbstractVFS implements InputVFS {
+  @CheckForNull
+  private InputVDir root;
+
+  protected void setRootDir(@Nonnull InputVDir root) {
+    this.root = root;
+  }
+
+  @Override
+  @Nonnull
+  public InputVDir getRootDir() {
+    assert root != null;
+
+    return root;
+  }
 }

@@ -39,7 +39,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.stream.ByteStreamSucker;
-import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
@@ -64,7 +64,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
   private final OutputLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
 
   @CheckForNull
-  protected InputOutputVDir intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
+  protected InputOutputVFS intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
 
   @CheckForNull
   protected boolean generateDexFile = ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
@@ -99,7 +99,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
         } else {
           assert intermediateDexDir != null;
-          vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
+          vFile = intermediateDexDir.getRootDir().createOutputVFile(getFilePath(type));
         }
 
         InputStream is = in.openRead();
@@ -134,7 +134,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
             new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
       } else {
         assert intermediateDexDir != null;
-        vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
+        vFile = intermediateDexDir.getRootDir().createOutputVFile(getFilePath(type));
       }
     } catch (IOException e) {
       throw new JackIOException("Could not create Dex file in output "

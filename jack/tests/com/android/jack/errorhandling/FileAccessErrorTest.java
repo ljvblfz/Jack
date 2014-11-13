@@ -215,7 +215,7 @@ public class FileAccessErrorTest {
     } finally {
       String errOutput = te.endErrRedirection();
       Assert.assertTrue(errOutput.contains("is an invalid library"));
-      Assert.assertTrue(errOutput.contains("(Permission denied)"));
+      Assert.assertTrue(errOutput.contains("is not readable"));
       for (File jackFile : te.getJackFiles(te.getJackFolder())) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());

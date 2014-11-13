@@ -275,17 +275,16 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.InputFile;
+import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectDir;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputZipRootVDir;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.InputVFS;
+import com.android.sched.vfs.InputZipVFS;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -469,7 +468,7 @@ public abstract class Jack {
 
         if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
           Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
-          InputOutputVDir outputDir;
+          InputOutputVFS outputDir;
           if (containerType == Container.DIR) {
             outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
           } else {
@@ -772,11 +771,11 @@ public abstract class Jack {
   @Nonnull
   private static ResourceImporter getResourceImporter(@Nonnull List<File> importedResources,
       @Nonnull RunnableHooks hooks) throws ResourceReadingException {
-    List<InputVDir> resourceVDirs = new ArrayList<InputVDir>();
+    List<InputVFS> resourceVDirs = new ArrayList<InputVFS>();
     for (File resourceDir : importedResources) {
       try {
         // Let's assume all of these are directories for now
-        InputRootVDir dir = new DirectDir(new Directory(resourceDir.getPath(), hooks,
+        InputVFS dir = new DirectVFS(new Directory(resourceDir.getPath(), hooks,
             Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
         resourceVDirs.add(dir);
       } catch (IOException ioException) {
@@ -789,11 +788,11 @@ public abstract class Jack {
   @Nonnull
   private static MetaImporter getMetaImporter(@Nonnull List<File> importedMetas,
       @Nonnull RunnableHooks hooks) throws MetaReadingException {
-    List<InputVDir> metaVDirs = new ArrayList<InputVDir>();
+    List<InputVFS> metaVDirs = new ArrayList<InputVFS>();
     for (File metaDir : importedMetas) {
       try {
         // Let's assume all of these are directories for now
-        InputRootVDir dir = new DirectDir(new Directory(metaDir.getPath(), hooks,
+        InputVFS dir = new DirectVFS(new Directory(metaDir.getPath(), hooks,
             Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
         metaVDirs.add(dir);
       } catch (IOException ioException) {
@@ -810,7 +809,7 @@ public abstract class Jack {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
     for (final File jackFile : jayceImport) {
       try {
-        InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
+        InputVFS vDir = wrapAsVDir(jackFile, hooks);
         InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
         inputJackLibraries.add(inputJackLibrary);
         // add to classpath
@@ -834,7 +833,7 @@ public abstract class Jack {
     ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
     for (final File jackFile : jackFiles) {
       try {
-        InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
+        InputVFS vDir = wrapAsVDir(jackFile, hooks);
         InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
         JaycePackageLoader rootPLoader =
             factory.create(inputJackLibrary, session.getPhantomLookup());
@@ -861,29 +860,30 @@ public abstract class Jack {
   }
 
   @Nonnull
-  private static InputRootVDir wrapAsVDir(@Nonnull final File dirOrZip,
+  private static InputVFS wrapAsVDir(@Nonnull final File dirOrZip,
       @Nonnull RunnableHooks hooks)
       throws IOException {
-    InputRootVDir dir;
+    final InputVFS vfs;
     if (dirOrZip.isDirectory()) {
-      dir = new DirectDir(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+      vfs = new DirectVFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ, ChangePermission.NOCHANGE));
     } else { // zip
-      final InputZipRootVDir zipArchive =
-          new InputZipRootVDir(new InputFile(dirOrZip.getPath(), ChangePermission.NOCHANGE));
-      dir = zipArchive;
-      hooks.addHook(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            zipArchive.close();
-          } catch (IOException e) {
-            logger.log(Level.FINE, "Failed to close zip for '" + dirOrZip + "'.", e);
-          }
-        }
-      });
+      vfs = new InputZipVFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+          ChangePermission.NOCHANGE));
     }
-    return dir;
+
+    hooks.addHook(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          vfs.close();
+        } catch (IOException e) {
+          logger.log(Level.FINE, "Failed to close vfs for '" + dirOrZip + "'.", e);
+        }
+      }
+    });
+
+    return vfs;
   }
 
   @SuppressWarnings("unused")

@@ -18,7 +18,7 @@ package com.android.jack.meta;
 
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.resource.ResourceOrMetaImporter;
-import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 public class MetaImporter extends ResourceOrMetaImporter {
 
-  public MetaImporter(@Nonnull List<InputVDir> metaDirs) {
+  public MetaImporter(@Nonnull List<InputVFS> metaDirs) {
     super(metaDirs);
   }
 

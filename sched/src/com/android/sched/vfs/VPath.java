@@ -141,12 +141,6 @@ public final class VPath implements Cloneable {
     return getPathAsString(INTERNAL_SEPARATOR);
   }
 
-  @Nonnull
-  public String getLastPathElement() {
-    String internalPath = getInternalPath();
-    return internalPath.substring(internalPath.lastIndexOf(INTERNAL_SEPARATOR) + 1);
-  }
-
   /**
    * A portion of path that should be immutable.
    */

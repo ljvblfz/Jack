@@ -31,7 +31,7 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 
 import javax.annotation.Nonnull;
 
@@ -60,7 +60,7 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
           DexWritingTool.class).addDefaultValue("single-dex");
 
   @Nonnull
-  private final OutputVDir outputVDir;
+  private final OutputVFS outputVDir;
 
   {
     assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();

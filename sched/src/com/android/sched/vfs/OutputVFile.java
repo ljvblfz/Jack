@@ -24,9 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Virtual file to write to.
  */
-public interface OutputVFile extends VElement {
-
+public interface OutputVFile extends OutputVElement {
   @Nonnull
   OutputStream openWrite() throws IOException;
-
 }

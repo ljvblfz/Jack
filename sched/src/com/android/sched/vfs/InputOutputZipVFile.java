@@ -16,7 +16,6 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
@@ -33,7 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * A file in an {@link InputOutputZipRootVDir} VFS.
+ * A file in an {@link InputOutputZipVFS} VFS.
  */
 class InputOutputZipVFile extends AbstractVElement implements InputOutputVFile {
 
@@ -42,16 +41,13 @@ class InputOutputZipVFile extends AbstractVElement implements InputOutputVFile {
   @CheckForNull
   private ArrayList<InputVElement> list;
   @Nonnull
-  private final Location location;
-  @Nonnull
-  private final OutputZipFile zipFile;
+  private final InputOutputZipVFS vfs;
   @Nonnull
   private final ZipEntry zipEntry;
 
-  public InputOutputZipVFile(@Nonnull File file, @Nonnull OutputZipFile zipFile,
+  public InputOutputZipVFile(@Nonnull InputOutputZipVFS vfs, @Nonnull File file,
       @Nonnull ZipEntry zipEntry) {
-    location = new ZipLocation(zipFile.getLocation(), zipEntry);
-    this.zipFile = zipFile;
+    this.vfs = vfs;
     this.zipEntry = zipEntry;
     this.file = file;
   }
@@ -65,7 +61,7 @@ class InputOutputZipVFile extends AbstractVElement implements InputOutputVFile {
   @Override
   @Nonnull
   public Location getLocation() {
-    return location;
+    return new ZipLocation(vfs.getLocation(), zipEntry);
   }
 
   @Override

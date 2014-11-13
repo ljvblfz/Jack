@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 
 import java.util.Collection;
@@ -35,15 +36,15 @@ public abstract class ResourceOrMetaImporter {
   protected static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
   @Nonnull
-  private final List<InputVDir> resourceDirs;
+  private final List<InputVFS> resourceDirs;
 
-  public ResourceOrMetaImporter(@Nonnull List<InputVDir> resourceDirs) {
+  public ResourceOrMetaImporter(@Nonnull List<InputVFS> resourceDirs) {
     this.resourceDirs = resourceDirs;
   }
 
   public void doImport(@Nonnull JSession session) {
-    for (InputVDir resourceDir : resourceDirs) {
-      importResourceDirElement(resourceDir.list(), session, "");
+    for (InputVFS resourceDir : resourceDirs) {
+      importResourceDirElement(resourceDir.getRootDir().list(), session, "");
     }
   }
 

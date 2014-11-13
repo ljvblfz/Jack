@@ -18,6 +18,8 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.location.HasLocation;
 
+import javax.annotation.Nonnull;
+
 /**
  * Element of a virtual file system.
  */
@@ -28,4 +30,6 @@ public interface VElement extends HasLocation {
    */
   boolean isVDir();
 
+  @Nonnull
+  String getName();
 }

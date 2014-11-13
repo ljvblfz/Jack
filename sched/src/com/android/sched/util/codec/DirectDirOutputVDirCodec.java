@@ -20,8 +20,8 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.DirectDir;
-import com.android.sched.vfs.ParallelOutputVDir;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.ParallelOutputVFS;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link ParallelOutputVDir} backed by
+ * This {@link StringCodec} is used to create an instance of {@link ParallelOutputVFS} backed by
  * a filesystem directory.
  */
 public class DirectDirOutputVDirCodec extends OutputVDirCodec {
@@ -61,10 +61,10 @@ public class DirectDirOutputVDirCodec extends OutputVDirCodec {
 
   @Override
   @Nonnull
-  public ParallelOutputVDir checkString(@Nonnull CodecContext context, @Nonnull final String string)
-      throws ParsingException {
+  public ParallelOutputVFS checkString(@Nonnull CodecContext context,
+      @Nonnull final String string) throws ParsingException {
     try {
-      return new DirectDir(
+      return new DirectVFS(
           new Directory(string, context.getRunnableHooks(), existence, permissions, change));
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

@@ -18,11 +18,8 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.ZipLocation;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -32,23 +29,18 @@ import javax.annotation.Nonnull;
 /**
  * A root {@link OutputVDir} backed by a zip archive.
  */
-public class OutputZipRootVDir extends AbstractVElement implements SequentialOutputVDir, Closeable {
-
-  @Nonnull
-  protected final HashMap<String, VElement> subs = new HashMap<String, VElement>();
-  @Nonnull
-  private final Location location;
+public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputVFS {
   @Nonnull
   protected final ZipOutputStream zos;
   @Nonnull
-  private final OutputZipFile zipFile;
+  private final   OutputZipFile file;
   @Nonnull
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
 
-  public OutputZipRootVDir(@Nonnull OutputZipFile zipFile) {
-    location = new ZipLocation(zipFile.getLocation(), new ZipEntry(""));
-    zos = zipFile.getOutputStream();
-    this.zipFile = zipFile;
+  public OutputZipVFS(@Nonnull OutputZipFile file) {
+    setRootDir(new OutputZipVDir(this, new ZipEntry("")));
+    zos = file.getOutputStream();
+    this.file = file;
   }
 
   @Override
@@ -63,30 +55,18 @@ public class OutputZipRootVDir extends AbstractVElement implements SequentialOut
   }
 
   @Override
-  @Nonnull
-  public Location getLocation() {
-    return location;
-  }
-
-  @Override
-  @Nonnull
-  public OutputVFile createOutputVFile(@Nonnull VPath path) {
-    return new OutputZipVFile(zos, new ZipEntry(path.getPathAsString(getSeparator())), zipFile,
-        this);
-  }
-
-  @Override
   public void close() throws IOException {
     zos.close();
   }
 
-  @Override
-  public char getSeparator() {
-    return '/';
+  @Nonnull
+  ZipOutputStream getZipOutputStream() {
+    return zos;
   }
 
   @Override
-  public boolean isVDir() {
-    return true;
+  @Nonnull
+  public Location getLocation() {
+    return file.getLocation();
   }
 }

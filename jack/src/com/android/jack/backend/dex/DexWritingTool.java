@@ -36,9 +36,9 @@ import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -68,12 +68,12 @@ public abstract class DexWritingTool {
     return new DexFile(options);
   }
 
-  public abstract void write(@Nonnull OutputVDir outputVDir) throws DexWritingException;
+  public abstract void write(@Nonnull OutputVFS outputVDir) throws DexWritingException;
 
 
   @Nonnull
-  protected InputRootVDir getIntermediateDexDir() {
-    return (InputRootVDir) ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
+  protected InputVFS getIntermediateDexDir() {
+    return ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
   }
 
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
@@ -103,7 +103,7 @@ public abstract class DexWritingTool {
   }
 
   @Nonnull
-  protected OutputVFile getOutputDex(@Nonnull OutputVDir outputVDir, int dexCount)
+  protected OutputVFile getOutputDex(@Nonnull OutputVFS outputVfs, int dexCount)
       throws DexWritingException {
     assert dexCount >= 1;
     String dexName;
@@ -113,7 +113,7 @@ public abstract class DexWritingTool {
       dexName = DexFileWriter.DEX_PREFIX + dexCount + FileType.DEX.getFileExtension();
     }
     try {
-      return outputVDir.createOutputVFile(new VPath(dexName, '/'));
+      return outputVfs.getRootDir().createOutputVFile(new VPath(dexName, '/'));
     } catch (CannotCreateFileException e) {
       throw new DexWritingException(e);
     }
@@ -165,7 +165,7 @@ public abstract class DexWritingTool {
       inputVFile = jackOutputLibrary.getFile(FileType.DEX,
           new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
     } else {
-      inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
+      inputVFile = getIntermediateDexDir().getRootDir().getInputVFile(DexWriter.getFilePath(type));
     }
 
     return inputVFile;

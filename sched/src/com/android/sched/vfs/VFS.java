@@ -16,8 +16,12 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.location.HasLocation;
+
+import java.io.Closeable;
+
 /**
- * Virtual directory to be read or written to.
+ * An a root of a VFS.
  */
-public interface InputOutputVDir extends InputVDir, OutputVDir {
+public interface VFS extends HasLocation, Closeable {
 }

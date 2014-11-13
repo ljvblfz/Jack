@@ -20,8 +20,9 @@ package com.android.sched.util.codec;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.vfs.DirectDir;
+import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputOutputVFS;
 
 import java.io.IOException;
 
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
  * filesystem directory.
  */
 public class DirectDirInputOutputVDirCodec extends InputOutputVDirCodec
-    implements StringCodec<InputOutputVDir> {
+    implements StringCodec<InputOutputVFS> {
 
   public DirectDirInputOutputVDirCodec(@Nonnull Existence existence) {
     super(existence);
@@ -58,10 +59,10 @@ public class DirectDirInputOutputVDirCodec extends InputOutputVDirCodec
 
   @Override
   @Nonnull
-  public InputOutputVDir checkString(@Nonnull CodecContext context, @Nonnull final String string)
-      throws ParsingException {
+  public InputOutputVFS checkString(@Nonnull CodecContext context,
+      @Nonnull final String string) throws ParsingException {
     try {
-      return new DirectDir(
+      return new DirectVFS(
           new Directory(string, context.getRunnableHooks(), existence, permissions, change));
     } catch (IOException e) {
       throw new ParsingException(e);

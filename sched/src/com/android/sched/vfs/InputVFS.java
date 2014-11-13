@@ -16,16 +16,12 @@
 
 package com.android.sched.vfs;
 
-
+import javax.annotation.Nonnull;
 
 /**
- * {@link OutputVDir} that contains {@link OutputVFile}s that must be written to and closed
- * sequentially.
+ * A root of a input VFS.
  */
-public interface SequentialOutputVDir extends OutputVDir {
-
-  void notifyVFileClosed();
-
-  boolean notifyVFileOpenAndReturnPreviousState();
-
+public interface InputVFS extends VFS {
+  @Nonnull
+  InputVDir getRootDir();
 }

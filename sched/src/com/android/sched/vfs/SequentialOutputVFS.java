@@ -16,10 +16,16 @@
 
 package com.android.sched.vfs;
 
+
+
 /**
- * {@link OutputVDir} that contains {@link OutputVFile}s that can be opened and written to in
- * parallel.
+ * {@link OutputVFS} that contains {@link OutputVFile}s that must be written to and closed
+ * sequentially.
  */
-public interface ParallelOutputVDir extends OutputVDir {
+public interface SequentialOutputVFS extends OutputVFS {
+
+  void notifyVFileClosed();
+
+  boolean notifyVFileOpenAndReturnPreviousState();
 
 }

@@ -63,9 +63,9 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectDir;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.OutputVFS;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -123,32 +123,32 @@ public class Options {
       .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<InputOutputVDir> LIBRARY_OUTPUT_ZIP = PropertyId.create(
+  public static final PropertyId<InputOutputVFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
       "jack.library.output.zip", "Output zip archive for library",
       new ZipInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue()
       .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVDir> LIBRARY_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<InputOutputVFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.library.output.dir", "Output folder for library",
       new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVDir> INTERMEDIATE_DEX_DIR = PropertyId.create(
+  public static final PropertyId<InputOutputVFS> INTERMEDIATE_DEX_DIR = PropertyId.create(
       "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
       new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_INTERMEDIATE_DEX.getValue().isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
       .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
 
   @Nonnull
-  public static final PropertyId<OutputVDir> DEX_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
       new DirectDirOutputVDirCodec(Existence.MUST_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR));
 
   @Nonnull
-  public static final PropertyId<OutputVDir> DEX_OUTPUT_ZIP = PropertyId.create(
+  public static final PropertyId<OutputVFS> DEX_OUTPUT_ZIP = PropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
       new ZipOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
@@ -631,7 +631,7 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectVFS(createTempDirForTypeDexFiles(hooks)));
       }
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
@@ -639,7 +639,7 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectVFS(createTempDirForTypeDexFiles(hooks)));
       }
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);

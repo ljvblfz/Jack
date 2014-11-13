@@ -16,8 +16,9 @@
 
 package com.android.sched.vfs;
 
+
 /**
- * Virtual directory to be read or written to.
+ * Element of a virtual file system to write to.
  */
-public interface InputOutputVDir extends InputVDir, OutputVDir {
+public interface OutputVElement extends VElement {
 }

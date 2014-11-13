@@ -23,7 +23,8 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputOutputZipRootVDir;
+import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.InputOutputZipVFS;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
  * filesystem directory, which is then zipped when closed.
  */
 public class ZipInputOutputVDirCodec extends InputOutputVDirCodec
-    implements StringCodec<InputOutputVDir> {
+    implements StringCodec<InputOutputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
@@ -65,12 +66,12 @@ public class ZipInputOutputVDirCodec extends InputOutputVDirCodec
 
   @Override
   @Nonnull
-  public InputOutputVDir checkString(@Nonnull CodecContext context, @Nonnull final String string)
-      throws ParsingException {
+  public InputOutputVFS checkString(@Nonnull CodecContext context,
+      @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      final InputOutputZipRootVDir vDir =
-          new InputOutputZipRootVDir(new OutputZipFile(string, hooks, existence, change));
+      final InputOutputZipVFS vDir =
+          new InputOutputZipVFS(new OutputZipFile(string, hooks, existence, change));
       assert hooks != null;
       hooks.addHook(new Runnable() {
         @Override

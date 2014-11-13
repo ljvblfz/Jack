@@ -21,7 +21,7 @@ import com.android.jack.util.TextUtils;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Tag;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -136,12 +136,12 @@ public final class CompilerState {
     return compilerStateFile.exists();
   }
 
-  public void write(@Nonnull OutputVDir outputVDir) throws JackIOException {
+  public void write(@Nonnull OutputVFS outputVDir) throws JackIOException {
     PrintStream ps = null;
 
     try {
       OutputVFile compilerStateFile =
-          outputVDir.createOutputVFile(new VPath(COMPILER_STATE_FILENAME, '/'));
+          outputVDir.getRootDir().createOutputVFile(new VPath(COMPILER_STATE_FILENAME, '/'));
       StringBuffer sb = new StringBuffer();
 
       writeMap(sb, javaFileToTypeNamePath);

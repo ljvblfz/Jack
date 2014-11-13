@@ -20,7 +20,7 @@ import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 public class StandardMultiDexWritingTool extends DexWritingTool {
 
   @Override
-  public void write(@Nonnull OutputVDir outputVDir) throws DexWritingException {
+  public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     int dexCount = 1;
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);

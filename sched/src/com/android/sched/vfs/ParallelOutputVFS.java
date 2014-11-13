@@ -16,10 +16,9 @@
 
 package com.android.sched.vfs;
 
-
 /**
- * An {@link InputVDir} that is the root of a VFS.
+ * {@link OutputVFS} that contains {@link OutputVFile}s that can be opened and written to in
+ * parallel.
  */
-public interface InputRootVDir extends InputVDir {
-
+public interface ParallelOutputVFS extends OutputVFS {
 }

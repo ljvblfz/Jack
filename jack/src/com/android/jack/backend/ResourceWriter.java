@@ -28,7 +28,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -47,7 +47,7 @@ import javax.annotation.Nonnull;
 public class ResourceWriter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  private final OutputVDir outputVDir;
+  private final OutputVFS outputVDir;
 
   {
     assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
@@ -66,7 +66,7 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
-      OutputVFile outputFile = outputVDir.createOutputVFile(path);
+      OutputVFile outputFile = outputVDir.getRootDir().createOutputVFile(path);
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();
       try {

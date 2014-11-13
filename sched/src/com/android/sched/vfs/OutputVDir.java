@@ -20,14 +20,11 @@ import com.android.sched.util.file.CannotCreateFileException;
 
 import javax.annotation.Nonnull;
 
+
 /**
  * Virtual directory to write to.
  */
-public interface OutputVDir extends VElement {
-
+public interface OutputVDir extends OutputVElement {
   @Nonnull
   OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException;
-
-  char getSeparator();
-
 }

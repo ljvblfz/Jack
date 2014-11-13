@@ -19,33 +19,28 @@ package com.android.sched.vfs;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.zip.ZipEntry;
 
 import javax.annotation.Nonnull;
 
-class InputZipVFile extends AbstractVElement implements InputVFile {
+/**
+ * A root {@link OutputVDir} backed by a zip archive.
+ */
+public class OutputZipVDir extends AbstractVElement implements OutputVDir {
   @Nonnull
-  private final InputZipVFS vfs;
+  private final OutputZipVFS vfs;
   @Nonnull
-  private final ZipEntry    entry;
+  private final ZipEntry     entry;
 
-  InputZipVFile(@Nonnull InputZipVFS vfs, @Nonnull ZipEntry entry) {
-    this.vfs   = vfs;
+  public OutputZipVDir(@Nonnull OutputZipVFS vfs, @Nonnull ZipEntry entry) {
+    this.vfs = vfs;
     this.entry = entry;
   }
 
-  @Nonnull
   @Override
+  @Nonnull
   public String getName() {
     return ZipUtils.getSimpleName(entry);
-  }
-
-  @Nonnull
-  @Override
-  public InputStream openRead() throws IOException {
-    return vfs.getZipFile().getInputStream(entry);
   }
 
   @Override
@@ -55,8 +50,19 @@ class InputZipVFile extends AbstractVElement implements InputVFile {
   }
 
   @Override
-  public boolean isVDir() {
-    return false;
+  @Nonnull
+  public OutputVFile createOutputVFile(@Nonnull VPath path) {
+    assert !(path.equals(VPath.ROOT));
+    String newEntryName = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
+    String parentEntryName = entry.getName();
+    if (!parentEntryName.isEmpty()) {
+      newEntryName = parentEntryName + ZipUtils.IN_ZIP_SEPARATOR + newEntryName;
+    }
+    return new OutputZipVFile(vfs, new ZipEntry(newEntryName));
   }
 
+  @Override
+  public boolean isVDir() {
+    return true;
+  }
 }

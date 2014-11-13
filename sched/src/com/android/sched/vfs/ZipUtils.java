@@ -16,8 +16,30 @@
 
 package com.android.sched.vfs;
 
+import java.util.zip.ZipEntry;
+
+import javax.annotation.Nonnull;
+
 /**
- * Virtual directory to be read or written to.
+ * Utilities for Zip VFS implementations.
  */
-public interface InputOutputVDir extends InputVDir, OutputVDir {
+final class ZipUtils {
+
+  static final char IN_ZIP_SEPARATOR = '/';
+
+  private ZipUtils() {
+    // do not instantiate
+  }
+
+  @Nonnull
+  static String getSimpleName(@Nonnull ZipEntry entry) {
+    String name = entry.getName();
+    int index = name.lastIndexOf(IN_ZIP_SEPARATOR);
+    if (index < 0) {
+      return name;
+    } else {
+      return name.substring(index + 1);
+    }
+  }
+
 }

@@ -26,7 +26,7 @@ import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVDir;
+import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 public class SingleDexWritingTool extends DexWritingTool {
 
   @Override
-  public void write(@Nonnull OutputVDir outputVDir) throws DexWritingException {
+  public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir);
     Iterator<InputVFile> inputVFileIt;
@@ -55,7 +55,7 @@ public class SingleDexWritingTool extends DexWritingTool {
       inputVFileIt = jackOutputLibrary.iterator(FileType.DEX);
     } else {
       List<InputVFile> dexList = new ArrayList<InputVFile>();
-      getAllDexFilesFromDir(getIntermediateDexDir(), dexList);
+      getAllDexFilesFromDir(getIntermediateDexDir().getRootDir(), dexList);
       inputVFileIt = dexList.iterator();
     }
 
@@ -81,7 +81,7 @@ public class SingleDexWritingTool extends DexWritingTool {
   }
 
   @Nonnull
-  private OutputVFile getOutputDex(@Nonnull OutputVDir outputVDir) throws DexWritingException {
+  private OutputVFile getOutputDex(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     return getOutputDex(outputVDir, 1);
   }
 }

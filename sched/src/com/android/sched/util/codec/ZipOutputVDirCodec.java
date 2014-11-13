@@ -21,8 +21,8 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.OutputZipRootVDir;
-import com.android.sched.vfs.SequentialOutputVDir;
+import com.android.sched.vfs.OutputZipVFS;
+import com.android.sched.vfs.SequentialOutputVFS;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link SequentialOutputVDir} backed by
+ * This {@link StringCodec} is used to create an instance of {@link SequentialOutputVFS} backed by
  * a zip archive.
  */
 public class ZipOutputVDirCodec extends OutputVDirCodec {
@@ -63,24 +63,25 @@ public class ZipOutputVDirCodec extends OutputVDirCodec {
 
   @Override
   @Nonnull
-  public SequentialOutputVDir checkString(@Nonnull CodecContext context,
+  public SequentialOutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      final OutputZipRootVDir vDir =
-          new OutputZipRootVDir(new OutputZipFile(string, hooks, existence, change));
+      final OutputZipVFS vfs =
+          new OutputZipVFS(new OutputZipFile(string, hooks, existence, change));
       assert hooks != null;
       hooks.addHook(new Runnable() {
         @Override
         public void run() {
           try {
-            vDir.close();
+            vfs.close();
           } catch (IOException e) {
             logger.log(Level.WARNING, "Failed to close zip for '" + string + "'.", e);
           }
         }
       });
-      return vDir;
+
+      return vfs;
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
