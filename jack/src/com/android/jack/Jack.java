@@ -709,7 +709,7 @@ public abstract class Jack {
 
 
     try {
-      getResourceImporter(options.getImportedResources(), hooks).doImport(session);
+      getResourceImporter(options.resImport, hooks).doImport(session);
     } catch (ResourceReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
