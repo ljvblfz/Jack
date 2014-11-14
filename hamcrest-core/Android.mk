@@ -43,5 +43,5 @@ LOCAL_MODULE := hamcrest-core-target-jack
 
 LOCAL_MODULE_TAGS := optional
 
-include $(BUILD_JAVA_LIBRARY)
+include $(BUILD_STATIC_JAVA_LIBRARY)
 
