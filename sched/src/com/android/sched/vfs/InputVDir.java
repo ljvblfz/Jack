@@ -16,6 +16,9 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -28,4 +31,11 @@ public interface InputVDir extends InputVElement {
   @Nonnull
   Collection<? extends InputVElement> list();
 
+  @Nonnull
+  InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException;
+
+  @Nonnull
+  InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException;
 }

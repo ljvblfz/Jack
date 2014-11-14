@@ -16,17 +16,10 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
-
-import javax.annotation.Nonnull;
 
 /**
  * An {@link InputVDir} that is the root of a VFS.
  */
 public interface InputRootVDir extends InputVDir {
 
-  @Nonnull
-  InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
-      NoSuchFileException;
 }

@@ -19,14 +19,10 @@ package com.android.sched.vfs;
 import com.google.common.io.Files;
 
 import com.android.sched.util.file.FileUtils;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
-import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
@@ -53,20 +49,6 @@ public class InputOutputZipRootVDir extends InputOutputZipVDir implements InputR
   @Override
   public String getName() {
     return "";
-  }
-
-  @Override
-  @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
-      NoSuchFileException {
-    File file = new File(dir, path.getPathAsString(File.separatorChar));
-    if (!file.exists()) {
-      throw new NoSuchFileException(new FileLocation(file));
-    }
-    if (!file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
-    }
-    return new InputOutputZipVFile(file, zipFile, new ZipEntry(path.getPathAsString('/')));
   }
 
   @Override
