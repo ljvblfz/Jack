@@ -27,6 +27,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.meta.Meta;
 import com.android.jack.reporting.Reporter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -78,6 +79,9 @@ public class JSession extends JNode {
 
   @Nonnull
   private final List<Resource> resources = new ArrayList<Resource>();
+
+  @Nonnull
+  private final List<Meta> metas = new ArrayList<Meta>();
 
   @Nonnull
   private final Logger userLogger = Logger.getLogger("Jack");
@@ -162,6 +166,15 @@ public class JSession extends JNode {
   @Nonnull
   public List<Resource> getResources() {
     return resources;
+  }
+
+  public void addMeta(@Nonnull Meta meta) {
+    metas.add(meta);
+  }
+
+  @Nonnull
+  public List<Meta> getMetas() {
+    return metas;
   }
 
   @Override

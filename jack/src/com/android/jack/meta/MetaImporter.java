@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.jack.resource;
+package com.android.jack.meta;
 
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.Resource;
+import com.android.jack.resource.ResourceOrMetaImporter;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -27,19 +27,19 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Imports resources.
+ * Imports metas.
  */
-public class ResourceImporter extends ResourceOrMetaImporter {
+public class MetaImporter extends ResourceOrMetaImporter {
 
-  public ResourceImporter(@Nonnull List<InputVDir> resourceDirs) {
-    super(resourceDirs);
+  public MetaImporter(@Nonnull List<InputVDir> metaDirs) {
+    super(metaDirs);
   }
 
   @Override
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
-    Resource newResource = new Resource(path, file);
-    session.addResource(newResource);
+    Meta newMeta = new Meta(path, file);
+    session.addMeta(newMeta);
   }
 }

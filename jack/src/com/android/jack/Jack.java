@@ -91,6 +91,8 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.meta.MetaImporter;
+import com.android.jack.meta.MetaReadingException;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
@@ -678,6 +680,13 @@ public abstract class Jack {
 
     JSession session =  getSession();
 
+    try {
+      getMetaImporter(options.metaImport, hooks).doImport(session);
+    } catch (MetaReadingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
+
     JayceFileImporter jayceImporter;
     try {
       jayceImporter = getJayceFileImporter(options.jayceImport, hooks, session);
@@ -739,6 +748,7 @@ public abstract class Jack {
     return session;
   }
 
+  @Nonnull
   private static ResourceImporter getResourceImporter(@Nonnull List<File> importedResources,
       @Nonnull RunnableHooks hooks) throws ResourceReadingException {
     List<InputVDir> resourceVDirs = new ArrayList<InputVDir>();
@@ -753,6 +763,23 @@ public abstract class Jack {
       }
     }
     return new ResourceImporter(resourceVDirs);
+  }
+
+  @Nonnull
+  private static MetaImporter getMetaImporter(@Nonnull List<File> importedMetas,
+      @Nonnull RunnableHooks hooks) throws MetaReadingException {
+    List<InputVDir> metaVDirs = new ArrayList<InputVDir>();
+    for (File metaDir : importedMetas) {
+      try {
+        // Let's assume all of these are directories for now
+        InputRootVDir dir = new DirectDir(new Directory(metaDir.getPath(), hooks,
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+        metaVDirs.add(dir);
+      } catch (IOException ioException) {
+        throw new MetaReadingException(ioException);
+      }
+    }
+    return new MetaImporter(metaVDirs);
   }
 
   @Nonnull

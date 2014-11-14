@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.ir.ast;
+package com.android.jack.meta;
 
 import com.android.jack.resource.ResourceOrMeta;
 import com.android.sched.item.Description;
@@ -24,12 +24,12 @@ import com.android.sched.vfs.VPath;
 import javax.annotation.Nonnull;
 
 /**
- * Represents a resource.
+ * Represents a meta.
  */
-@Description("Represents a resource")
-public class Resource extends ResourceOrMeta {
+@Description("Represents a meta")
+public class Meta extends ResourceOrMeta {
 
-  public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile) {
+  public Meta(@Nonnull VPath path, @Nonnull InputVFile vFile) {
     super(path, vFile);
   }
 

@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.jack.ir.ast;
+package com.android.jack.meta;
 
-import com.android.jack.resource.ResourceOrMeta;
-import com.android.sched.item.Description;
-import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VPath;
+import com.android.jack.reporting.ReportableException;
 
 import javax.annotation.Nonnull;
 
 /**
- * Represents a resource.
+ * A {@link ReportableException} that occurs during the meta reading phase.
  */
-@Description("Represents a resource")
-public class Resource extends ResourceOrMeta {
+public class MetaReadingException extends ReportableException {
 
-  public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile) {
-    super(path, vFile);
+  private static final long serialVersionUID = 1L;
+
+  public MetaReadingException(@Nonnull Throwable cause) {
+    super(cause);
   }
 
+  @Override
+  @Nonnull
+  public String getMessage() {
+    return "Error during the meta reading phase: " + getCause().getMessage();
+  }
+
+  @Override
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.ERROR;
+  }
 }
