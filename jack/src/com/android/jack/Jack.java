@@ -92,6 +92,7 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.meta.MetaReadingException;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
@@ -603,6 +604,10 @@ public abstract class Jack {
           if (targetProduction.contains(JayceFormatProduct.class)) {
             planBuilder.append(LibraryResourceWriter.class);
           }
+        }
+
+        if (targetProduction.contains(JayceFormatProduct.class)) {
+          planBuilder.append(LibraryMetaWriter.class);
         }
 
         Plan<JSession> plan;
