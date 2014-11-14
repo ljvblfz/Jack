@@ -18,8 +18,11 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.location.DirectoryLocation;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
@@ -118,4 +121,35 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   public boolean isVDir() {
     return true;
   }
+
+  @Override
+  @Nonnull
+  public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException {
+    File file = new File(dir, path.getPathAsString(File.separatorChar));
+    if (!file.exists()) {
+      throw new NoSuchFileException(new FileLocation(file));
+    }
+    if (!file.isFile()) {
+      throw new NotFileOrDirectoryException(new FileLocation(file));
+    }
+    return new InputOutputZipVDir(file, zipFile,
+        new ZipEntry(path.getPathAsString(ZIP_ENTRY_SEPARATOR)));
+  }
+
+  @Override
+  @Nonnull
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException {
+    File file = new File(dir, path.getPathAsString(File.separatorChar));
+    if (!file.exists()) {
+      throw new NoSuchFileException(new FileLocation(file));
+    }
+    if (!file.isFile()) {
+      throw new NotFileOrDirectoryException(new FileLocation(file));
+    }
+    return new InputOutputZipVFile(file, zipFile,
+        new ZipEntry(path.getPathAsString(ZIP_ENTRY_SEPARATOR)));
+  }
+
 }
