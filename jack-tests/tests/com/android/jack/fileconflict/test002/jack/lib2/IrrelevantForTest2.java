@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0001;
+package com.android.jack.fileconflict.test002.jack.lib2;
 
 /**
- * Library version.
+ * This class is irrelevant for the test, since what we test here is the handling of resources.
  */
-public class Version {
+public class IrrelevantForTest2 {
 
-  public static final int MINOR_MIN = 1;
+  public int getInt() {
+    return 4;
+  }
 
-  public static final int MINOR = 1;
-
-  public static final int MAJOR = 1;
 }

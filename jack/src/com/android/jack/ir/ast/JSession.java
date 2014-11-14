@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.lookup.JPhantomLookup;
@@ -36,7 +37,6 @@ import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.vfs.InputRootVDir;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,10 +96,10 @@ public class JSession extends JNode {
   private OutputJackLibrary jackOutputLibrary;
 
   @Nonnull
-  private final List<InputRootVDir> importSources = new ArrayList<InputRootVDir>(0);
+  private final List<InputLibrary> importedLibraries = new ArrayList<InputLibrary>(0);
 
   @Nonnull
-  private final List<InputRootVDir> classpathSources = new ArrayList<InputRootVDir>(0);
+  private final List<InputLibrary> librariesOnClasspath = new ArrayList<InputLibrary>(0);
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -231,28 +231,28 @@ public class JSession extends JNode {
     generatedBinaryKinds.add(fileType);
   }
 
-  public void addImportSource(@Nonnull InputRootVDir source) {
-    importSources.add(source);
+  public void addImportedLibrary(@Nonnull InputLibrary source) {
+    importedLibraries.add(source);
   }
 
   @Nonnull
-  public List<InputRootVDir> getImportSources() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(importSources);
+  public List<InputLibrary> getImportedLibraries() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(importedLibraries);
   }
 
-  public void addClasspathSource(@Nonnull InputRootVDir source) {
-    classpathSources.add(source);
-  }
-
-  @Nonnull
-  public List<InputRootVDir> getClasspathSources() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(classpathSources);
+  public void addLibraryOnClasspath(@Nonnull InputLibrary source) {
+    librariesOnClasspath.add(source);
   }
 
   @Nonnull
-  public Iterator<InputRootVDir> getPathSources() {
+  public List<InputLibrary> getLibraryOnClasspath() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(librariesOnClasspath);
+  }
+
+  @Nonnull
+  public Iterator<InputLibrary> getPathSources() {
     return Iterators.concat(
-        importSources.iterator(),
-        classpathSources.iterator());
+        importedLibraries.iterator(),
+        librariesOnClasspath.iterator());
   }
 }

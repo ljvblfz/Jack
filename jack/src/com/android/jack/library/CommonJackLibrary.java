@@ -43,8 +43,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Nonnull
   protected final Properties libraryProperties;
 
+  // TODO(jack-team): Change it to private
   @Nonnull
-  private final Set<FileType> fileTypes = new HashSet<FileType>(2);
+  public final Set<FileType> fileTypes = new HashSet<FileType>(FileType.values().length);
 
   public CommonJackLibrary(@Nonnull Properties libraryProperties) {
     this.libraryProperties = libraryProperties;
@@ -87,7 +88,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
   protected void fillFileTypes() {
     for (FileType ft : FileType.values()) {
       try {
-        String propertyName = ft.getPropertyName();
+        String propertyName = ft.getPropertyPrefix();
         if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
           fileTypes.add(ft);
         }

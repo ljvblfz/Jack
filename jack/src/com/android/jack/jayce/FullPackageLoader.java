@@ -27,6 +27,6 @@ class FullPackageLoader extends JaycePackageLoader {
 
   public FullPackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull JPhantomLookup lookup) {
-    super(inputJackLibrary, inputJackLibrary.getInputVDir(), lookup, NodeLevel.FULL);
+    super(inputJackLibrary, null, lookup, NodeLevel.FULL);
   }
 }

@@ -18,7 +18,10 @@ package com.android.jack.library;
 
 import com.android.jack.backend.dex.DexProperties;
 import com.android.jack.jayce.JayceProperties;
+import com.android.jack.preprocessor.PreprocessorProperties;
+import com.android.jack.resource.ResourceProperties;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +30,7 @@ import javax.annotation.Nonnull;
  * File types supported by jack library.
  */
 public enum FileType {
-  DEX("dex", ".dex") {
+  DEX("dex", DexProperties.KEY_DEX, ".dex") {
     @Override
     public String toString() {
       return "dex";
@@ -35,12 +38,8 @@ public enum FileType {
     @Override
     public void check() throws LibraryFormatException {
     }
-    @Override
-    public String getPropertyName() {
-      return DexProperties.KEY_DEX;
-    }
   },
-  JAYCE("jayce", ".jayce") {
+  JAYCE("jayce", JayceProperties.KEY_JAYCE, ".jayce") {
     @Override
     public String toString() {
       return "jayce";
@@ -48,9 +47,23 @@ public enum FileType {
     @Override
     public void check() throws LibraryFormatException {
     }
+  },
+  JPP("jpp", PreprocessorProperties.KEY_JPP, ".jpp") {
     @Override
-    public String getPropertyName() {
-      return JayceProperties.KEY_JAYCE;
+    public String toString() {
+      return "java pre-processor";
+    }
+    @Override
+    public void check() throws LibraryFormatException {
+    }
+  },
+  RSC("rsc", ResourceProperties.KEY_RESOURCE, "") {
+    @Override
+    public String toString() {
+      return "resource";
+    }
+    @Override
+    public void check() throws LibraryFormatException {
     }
   };
 
@@ -60,18 +73,21 @@ public enum FileType {
   @Nonnull
   private final String prefix;
 
-  private FileType(@Nonnull String prefix, @Nonnull String extension) {
-    this.prefix = prefix;
+  @Nonnull
+  private final VPath vpathPrefix;
+
+  @Nonnull
+  private final String propertyPrefix;
+
+  private FileType(@Nonnull String vpathPrefix, @Nonnull String propertyPrefix,
+      @Nonnull String extension) {
+    this.prefix = vpathPrefix;
+    this.vpathPrefix = new VPath(vpathPrefix, '/');
+    this.propertyPrefix = propertyPrefix;
     this.extension = extension;
   }
 
   public abstract void check() throws LibraryFormatException;
-
-  /**
-   * Get the name of a boolean property that specify if a library contains this file type.
-   * @return The property name.
-   */
-  public abstract String getPropertyName();
 
   public boolean isOfType(@Nonnull InputVFile v){
     return (v.getName().endsWith(getFileExtension()));
@@ -80,6 +96,21 @@ public enum FileType {
   @Nonnull
   public String getFileExtension() {
     return extension;
+  }
+
+  @Nonnull
+  public String getPrefix() {
+    return prefix;
+  }
+
+  @Nonnull
+  public String getPropertyPrefix() {
+    return propertyPrefix;
+  }
+
+  @Nonnull
+  public VPath getVPathPrefix() {
+    return vpathPrefix;
   }
 
   @Nonnull

@@ -27,6 +27,6 @@ class StructurePackageLoader extends JaycePackageLoader {
 
   public StructurePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull JPhantomLookup lookup) {
-    super(inputJackLibrary, inputJackLibrary.getInputVDir(), lookup, NodeLevel.STRUCTURE);
+    super(inputJackLibrary, null, lookup, NodeLevel.STRUCTURE);
   }
 }

@@ -58,8 +58,8 @@ public abstract class JackLibraryFactory {
 
     InputJackLibrary inputJackLibrary = (InputJackLibrary) instantiateConstructorWithParameters(
         vdir, "com.android.jack.library.v" + majorVersion + ".InputJackLibraryImpl",
-        new Class[] {InputRootVDir.class, Properties.class}, new Object[] {vdir, libraryProperties},
-        String.valueOf(majorVersion));
+        new Class[] {InputRootVDir.class, Properties.class},
+        new Object[] {vdir, libraryProperties}, String.valueOf(majorVersion));
 
     return inputJackLibrary;
   }

@@ -27,7 +27,6 @@ import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.JackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.util.HasDescription;
@@ -35,17 +34,18 @@ import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,29 +123,42 @@ public class JayceFileImporter {
     for (InputJackLibrary jackLibrary : jackLibraries) {
       InputRootVDir libraryVDir = jackLibrary.getInputVDir();
       logger.log(Level.FINE, "Importing {0}", libraryVDir.getLocation().getDescription());
-      for (InputVElement subFile : libraryVDir.list()) {
-        importJayceFile(jackLibrary, subFile, session, "");
+      Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
+      while (jayceFileIt.hasNext()) {
+        InputVFile jayceFile = jayceFileIt.next();
+        String name = getNameFromInputVFile(jackLibrary, jayceFile, FileType.JAYCE);
+        addImportedTypes(session, name, jackLibrary);
+      }
+
+      Iterator<InputVFile> rscFileIt = jackLibrary.iterator(FileType.RSC);
+      while (rscFileIt.hasNext()) {
+        InputVFile rscFile = rscFileIt.next();
+        String name = getNameFromInputVFile(jackLibrary, rscFile, FileType.RSC);
+        addImportedResource(rscFile, session, name);
       }
     }
   }
 
-  private void importJayceFile(@Nonnull InputLibrary inputLibrary,
-      @Nonnull InputVElement element, @Nonnull JSession session, @Nonnull String currentPath)
-      throws JPackageLookupException, TypeImportConflictException, ResourceImportConflictException,
-      JTypeLookupException {
-    String path = currentPath + element.getName();
-    if (element.isVDir()) {
-      for (InputVElement subFile : ((InputVDir) element).list()) {
-        importJayceFile(inputLibrary, subFile, session, path + VPATH_SEPARATOR);
+  // TODO(jack-team): remove this hack
+  @Nonnull
+  private String getNameFromInputVFile(@Nonnull InputJackLibrary jackLibrary,
+      @Nonnull InputVFile jayceFile, @Nonnull FileType fileType) {
+    Location loc = jayceFile.getLocation();
+    String name;
+    if (loc instanceof ZipLocation) {
+      name = ((ZipLocation) jayceFile.getLocation()).getEntryName();
+      if (jackLibrary.getMajorVersion() != 0) {
+        name = name.substring(
+            fileType.getVPathPrefix().split().iterator().next().length() + 1);
       }
     } else {
-      InputVFile file = (InputVFile) element;
-      if (isJackFileName(file.getName())) {
-        addImportedTypes(session, path, inputLibrary);
-      } else {
-        addImportedResource(file, session, path);
+      name = ((FileLocation) jayceFile.getLocation()).getPath();
+      if (jackLibrary.getMajorVersion() != 0) {
+        String prefix = fileType.getVPathPrefix().split().iterator().next() + '/';
+        name = name.substring(name.lastIndexOf(prefix) + prefix.length());
       }
     }
+    return name;
   }
 
   private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
@@ -189,11 +202,6 @@ public class JayceFileImporter {
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
-    // library.properties and dex files are not resources
-    if (path.equals(JackLibrary.LIBRARY_PROPERTIES_VPATH) ||
-        currentPath.endsWith(FileType.DEX.getFileExtension())) {
-      return;
-    }
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {

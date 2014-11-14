@@ -21,6 +21,7 @@ import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.jayce.JayceProperties;
+import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
@@ -53,13 +54,14 @@ public class JackFormatErrorTest {
   public void testJackFormatError001() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce", "jayce("
-       + JackLibraryFactory.DEFAULT_MAJOR_VERSION + "." + Version.MINOR + ")Corrupted");
+    ite.addFile(new File(ite.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
+        "A.jayce", "jayce(" + JackLibraryFactory.DEFAULT_MAJOR_VERSION + "." + Version.MINOR
+            + ")Corrupted");
     ite.addFile(ite.getJackFolder(), "", "jack.properties",
         JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
-        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
-        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
         + JayceProperties.KEY_JAYCE + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
@@ -97,13 +99,13 @@ public class JackFormatErrorTest {
   public void testJackFormatError002() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
-        "jayce()");
+    ite.addFile(new File(ite.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
+        "A.jayce", "jayce()");
     ite.addFile(ite.getJackFolder(), "", "jack.properties",
         JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
-        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
-        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
         + JayceProperties.KEY_JAYCE + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
@@ -140,13 +142,13 @@ public class JackFormatErrorTest {
   public void testJackFormatError003() throws Exception {
     TestingEnvironment ite = new TestingEnvironment();
 
-    ite.addFile(ite.getJackFolder(), "jack.incremental", "A.jayce",
-        "jayce()");
+    ite.addFile(new File(ite.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
+        "A.jayce", "jayce()");
     ite.addFile(ite.getJackFolder(), "", "jack.properties",
         JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
-        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=1\n"
-        + JackLibrary.KEY_LIB_MINOR_VERSION + "=0\n"
+        + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
+        + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
         + JayceProperties.KEY_JAYCE + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=0\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=0\n");

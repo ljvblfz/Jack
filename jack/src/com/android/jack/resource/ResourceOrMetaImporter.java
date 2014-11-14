@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -42,20 +43,20 @@ public abstract class ResourceOrMetaImporter {
 
   public void doImport(@Nonnull JSession session) {
     for (InputVDir resourceDir : resourceDirs) {
-      importResourceDirElement(resourceDir, session, "");
+      importResourceDirElement(resourceDir.list(), session, "");
     }
   }
 
-  private void importResourceDirElement(
-      @Nonnull InputVElement element, @Nonnull JSession session, @Nonnull String currentPath) {
-    String path = currentPath + element.getName();
-    if (element.isVDir()) {
-      for (InputVElement subFile : ((InputVDir) element).list()) {
-        importResourceDirElement(subFile, session, path + VPATH_SEPARATOR);
+  private void importResourceDirElement(@Nonnull Collection<? extends InputVElement> elements,
+      @Nonnull JSession session, @Nonnull String currentPath) {
+    for (InputVElement element : elements) {
+      String path = currentPath + element.getName();
+      if (element.isVDir()) {
+        importResourceDirElement(((InputVDir) element).list(), session, path + VPATH_SEPARATOR);
+      } else {
+        InputVFile file = (InputVFile) element;
+        addImportedResource(file, session, path);
       }
-    } else {
-      InputVFile file = (InputVFile) element;
-      addImportedResource(file, session, path);
     }
   }
 

@@ -217,10 +217,6 @@ public class Options {
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "FILE")
   protected File libraryOutZip = null;
 
-  @Option(name = "--generate-intermediate-dexes",
-      usage = "generate intermediate dex files per types along with jayce files")
-  protected boolean generateIntermediateDex = false;
-
   @Option(name = "--config-jarjar", usage = "use this jarjar rules file (default: none)",
       metaVar = "FILE")
   protected File jarjarRulesFile = null;
@@ -602,18 +598,14 @@ public class Options {
       configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
-      if (generateIntermediateDex) {
-        configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-        configBuilder.set(INTERMEDIATE_DEX_DIR, null);
-      }
+      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+      configBuilder.set(INTERMEDIATE_DEX_DIR, null);
     } else if (libraryOutDir != null) {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
-      if (generateIntermediateDex) {
-        configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-        configBuilder.set(INTERMEDIATE_DEX_DIR, null);
-      }
+      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
+      configBuilder.set(INTERMEDIATE_DEX_DIR, null);
     }
 
     switch (multiDexKind) {
@@ -635,13 +627,17 @@ public class Options {
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-      configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      if (libraryOutZip == null && libraryOutDir == null) {
+        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      }
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-      configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      if (libraryOutZip == null && libraryOutDir == null) {
+        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectDir(createTempDirForTypeDexFiles(hooks)));
+      }
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
     configBuilder.set(
@@ -866,6 +862,10 @@ public class Options {
 
   public boolean isAutomaticFullRebuildEnabled() {
     return !disableAutomaticFullRebuild;
+  }
+
+  public void addResource(@Nonnull File resource) {
+    resImport.add(resource);
   }
 
   @Nonnull

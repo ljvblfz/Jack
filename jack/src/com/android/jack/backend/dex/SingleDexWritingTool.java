@@ -16,18 +16,12 @@
 
 package com.android.jack.backend.dex;
 
-import com.google.common.collect.Iterators;
-
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.FileType;
-import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
@@ -65,7 +59,6 @@ public class SingleDexWritingTool extends DexWritingTool {
       inputVFileIt = dexList.iterator();
     }
 
-    inputVFileIt = getAllDexFilesFromLib(inputVFileIt);
     while (inputVFileIt.hasNext()) {
       try {
         mergeDex(merger, inputVFileIt.next());
@@ -74,26 +67,6 @@ public class SingleDexWritingTool extends DexWritingTool {
       }
     }
     finishMerge(merger, outputDex);
-  }
-
-  private Iterator<InputVFile> getAllDexFilesFromLib(@Nonnull Iterator<InputVFile> inputVFileIt) {
-    Iterator<InputVFile> newInputVFileIt = inputVFileIt;
-    List<InputLibrary> librariesDone = new ArrayList<InputLibrary>();
-    for (JDefinedClassOrInterface jdcoi : Jack.getSession().getTypesToEmit()) {
-      Location loc = jdcoi.getLocation();
-      if (loc instanceof TypeInInputLibraryLocation) {
-        InputLibrary inputLibrary =
-            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-        if (!librariesDone.contains(inputLibrary)) {
-          if (inputLibrary.containsFileType(FileType.DEX)) {
-            newInputVFileIt =
-                Iterators.concat(newInputVFileIt, inputLibrary.iterator(FileType.DEX));
-          }
-          librariesDone.add(inputLibrary);
-        }
-      }
-    }
-    return (newInputVFileIt);
   }
 
   private void getAllDexFilesFromDir(@Nonnull InputVDir dexFileVDir,

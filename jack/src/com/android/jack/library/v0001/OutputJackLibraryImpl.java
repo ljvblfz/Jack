@@ -17,11 +17,14 @@
 package com.android.jack.library.v0001;
 
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.OutputLibraryLocation;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
@@ -85,9 +88,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException {
-    putProperty(fileType.getPropertyName(), String.valueOf(true));
+    putProperty(fileType.getPropertyPrefix(), String.valueOf(true));
     addFileType(fileType);
     typePath.addSuffix(fileType.getFileExtension());
+    typePath.prependPath(fileType.getVPathPrefix());
     return outputVDir.createOutputVFile(typePath);
   }
 
@@ -140,5 +144,21 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
     fillFiles(outputVDir, fileType, inputVFiles);
     return inputVFiles.listIterator();
+  }
+
+  @Override
+  @Nonnull
+  public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException {
+    try {
+      VPath clonedPath = typePath.clone();
+      clonedPath.addSuffix(fileType.getFileExtension());
+      clonedPath.prependPath(fileType.getVPathPrefix());
+      return outputVDir.getInputVFile(clonedPath);
+    } catch (NotFileOrDirectoryException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (NoSuchFileException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    }
   }
 }

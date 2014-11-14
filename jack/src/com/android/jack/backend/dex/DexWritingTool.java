@@ -26,9 +26,8 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
-import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
-import com.android.jack.library.TypeInInputLibraryLocation;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
@@ -36,7 +35,6 @@ import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
@@ -48,7 +46,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -124,28 +121,19 @@ public abstract class DexWritingTool {
 
   protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
       @Nonnull List<InputVFile> anyDexList) throws LibraryFormatException {
+    OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
+    boolean generateLibWithDex =
+        jackOutputLibrary != null && jackOutputLibrary.containsFileType(FileType.DEX);
+
     for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
       try {
         InputVFile inputVFile;
-        Location loc = type.getLocation();
-        if (loc instanceof TypeInInputLibraryLocation) {
-          InputLibrary inputLibrary =
-              ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-          if (inputLibrary.containsFileType(FileType.DEX)) {
-            try {
-              inputVFile = inputLibrary.getFile(FileType.DEX,
-                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            } catch (FileTypeDoesNotExistException e) {
-              logger.log(Level.SEVERE,
-                  "Library " + inputLibrary.getLocation().getDescription() + " is invalid",
-                  e);
-              throw new LibraryFormatException(inputLibrary.getLocation());
-            }
-          } else {
-            inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
-          }
+        if (generateLibWithDex) {
+          assert jackOutputLibrary != null;
+          inputVFile = jackOutputLibrary.getFile(FileType.DEX,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
         } else {
-          inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
+          inputVFile = getIntermediateDexFile(type);
         }
 
         if (type.containsMarker(MainDexMarker.class)) {
@@ -153,6 +141,9 @@ public abstract class DexWritingTool {
         } else {
           anyDexList.add(inputVFile);
         }
+      } catch (FileTypeDoesNotExistException e) {
+        // this was created by Jack, so this should not happen
+        throw new AssertionError(e);
       } catch (NotFileOrDirectoryException e) {
         // this was created by Jack, so this should not happen
         throw new AssertionError(e);
@@ -161,5 +152,22 @@ public abstract class DexWritingTool {
         throw new AssertionError(e);
       }
     }
+  }
+
+  @Nonnull
+  private InputVFile getIntermediateDexFile(@Nonnull JDefinedClassOrInterface type)
+      throws NotFileOrDirectoryException, NoSuchFileException, FileTypeDoesNotExistException {
+    InputVFile inputVFile = null;
+
+    // Intermediate dex files can be located into the intermediate dex dir or into a library
+    OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
+    if (jackOutputLibrary != null && jackOutputLibrary.containsFileType(FileType.DEX)) {
+      inputVFile = jackOutputLibrary.getFile(FileType.DEX,
+          new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+    } else {
+      inputVFile = getIntermediateDexDir().getInputVFile(DexWriter.getFilePath(type));
+    }
+
+    return inputVFile;
   }
 }

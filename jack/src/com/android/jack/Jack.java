@@ -85,6 +85,7 @@ import com.android.jack.ir.sourceinfo.SourceInfoCreation;
 import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryWritingException;
@@ -103,6 +104,7 @@ import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.scheduling.adapter.ExcludeTypeFromLibAdapter;
@@ -530,6 +532,9 @@ public abstract class Jack {
 
         if (options.ecjArguments == null) {
           request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
+          if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+            request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
+          }
         } else {
           request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
           if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
@@ -577,7 +582,8 @@ public abstract class Jack {
                 planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
             typePlan.append(JayceSingleTypeWriter.class);
           }
-        } else if (options.ecjArguments == null) {
+        } else if (options.ecjArguments == null
+            && !targetProduction.contains(JayceFormatProduct.class)) {
           assert targetProduction.contains(DexFileProduct.class);
           fillJayceToDexPlan(options, planBuilder);
           planBuilder.append(DexFileWriter.class);
@@ -591,7 +597,12 @@ public abstract class Jack {
         }
 
         if (features.contains(Resources.class)) {
-          planBuilder.append(ResourceWriter.class);
+          if (targetProduction.contains(DexFileProduct.class)) {
+            planBuilder.append(ResourceWriter.class);
+          }
+          if (targetProduction.contains(JayceFormatProduct.class)) {
+            planBuilder.append(LibraryResourceWriter.class);
+          }
         }
 
         Plan<JSession> plan;
@@ -796,7 +807,7 @@ public abstract class Jack {
         JaycePackageLoader rootPLoader =
             factory.create(inputJackLibrary, session.getPhantomLookup());
         session.getTopLevelPackage().addLoader(rootPLoader);
-        session.addImportSource(vDir);
+        session.addImportedLibrary(inputJackLibrary);
       } catch (IOException ioException) {
         throw new LibraryReadingException(ioException);
       } catch (LibraryException libException) {
@@ -814,10 +825,11 @@ public abstract class Jack {
     for (final File jackFile : jackFiles) {
       try {
         InputRootVDir vDir = wrapAsVDir(jackFile, hooks);
+        InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
         JaycePackageLoader rootPLoader =
-            factory.create(JackLibraryFactory.getInputLibrary(vDir), session.getPhantomLookup());
+            factory.create(inputJackLibrary, session.getPhantomLookup());
         session.getTopLevelPackage().addLoader(rootPLoader);
-        session.addClasspathSource(vDir);
+        session.addLibraryOnClasspath(inputJackLibrary);
       } catch (IOException ioException) {
         // Ignore bad entry
         logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", ioException.getMessage());
@@ -990,6 +1002,20 @@ public abstract class Jack {
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
 
+    // TODO(jack-team): Remove this hack
+    boolean preDexing = !getSession().getImportedLibraries().isEmpty();
+    for (InputLibrary il : getSession().getImportedLibraries()) {
+      if (!il.containsFileType(FileType.DEX)) {
+        preDexing = false;
+      }
+    }
+    if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)) {
+      for (InputLibrary il : getSession().getImportedLibraries()) {
+        ((InputJackLibrary) il).fileTypes.remove(FileType.DEX);
+      }
+    }
+    logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
+
     // Build the plan
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
@@ -1114,10 +1140,16 @@ public abstract class Jack {
         methodPlan3.append(FieldInitMethodCallRemover.class);
       }
       typePlan4.append(FieldInitMethodRemover.class);
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(JayceFileOutput.class)) {
-        typePlan4.append(JayceSingleTypeWriter.class);
+        typePlan.append(JayceSingleTypeWriter.class);
       }
     }
+
     if (features.contains(SourceFileRenaming.class)) {
       planBuilder.append(SourceFileRenamer.class);
     }
@@ -1250,8 +1282,13 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (productions.contains(IntermediateDexProduct.class)) {
-        typePlan5.append(IntermediateDexPerTypeWriter.class);
+        typePlan.append(IntermediateDexPerTypeWriter.class);
       }
     }
 
@@ -1644,7 +1681,14 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
-      typePlan5.append(IntermediateDexPerTypeWriter.class);
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      if (productions.contains(IntermediateDexProduct.class)) {
+        typePlan.append(IntermediateDexPerTypeWriter.class);
+      }
     }
 
     if (hasSanityChecks) {

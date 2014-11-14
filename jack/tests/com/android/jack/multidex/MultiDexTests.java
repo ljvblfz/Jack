@@ -22,7 +22,9 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
+import com.android.jack.preprocessor.PreprocessorProperties;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.util.ExecuteFile;
 
@@ -35,8 +37,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
@@ -248,7 +252,36 @@ public class MultiDexTests {
         TestTools.getJackTestFolder("multidex/fakelibrary"),
         TestTools.getDefaultBootclasspathString() + File.pathSeparator + frameworks.getPath(),
         library, false);
+
     return library;
+  }
+
+  private static void setMetaIntoJackProperties(@Nonnull File library) throws IOException {
+    File jackProperties = new File(library, "jack.properties");
+    Properties libraryProperties = new Properties();
+    FileInputStream fis = null;
+    FileOutputStream fos = null;
+    try {
+      fis = new FileInputStream(jackProperties);
+      libraryProperties.load(fis);
+    } catch (IOException e) {
+      Assert.fail();
+    } finally {
+      if (fis != null) {
+        fis.close();
+      }
+    }
+    try {
+      fos = new FileOutputStream(jackProperties);
+      libraryProperties.put(PreprocessorProperties.KEY_JPP, "true");
+        libraryProperties.store(fos, "Library properties");
+    } catch (IOException e) {
+      Assert.fail();
+    } finally {
+      if (fos != null) {
+        fos.close();
+      }
+    }
   }
 
   @Test
@@ -306,7 +339,8 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
     File autoLibrary = prepareLibrary(frameworks);
-    File jackInf = new File(autoLibrary, "JACK-INF");
+    setMetaIntoJackProperties(autoLibrary);
+    File jackInf = new File(autoLibrary, FileType.JPP.getPrefix());
     Assert.assertTrue(jackInf.mkdir());
     Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
 
@@ -387,7 +421,8 @@ public class MultiDexTests {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
     File autoLibrary = prepareLibrary(frameworks);
-    File jackInf = new File(autoLibrary, "JACK-INF");
+    setMetaIntoJackProperties(autoLibrary);
+    File jackInf = new File(autoLibrary, FileType.JPP.getPrefix());
     Assert.assertTrue(jackInf.mkdir());
     Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
 

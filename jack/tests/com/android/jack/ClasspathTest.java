@@ -16,6 +16,8 @@
 
 package com.android.jack;
 
+import com.android.jack.library.FileType;
+
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
@@ -112,10 +114,10 @@ public class ClasspathTest {
       }
 
       {
-        // delete unused inner in classpath and check we can still compile with it
-        boolean deleted =
-            new File(libOut,
-                "com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jayce")
+      // delete unused inner in classpath and check we can still compile with it
+      boolean deleted =
+          new File(libOut, FileType.JAYCE.getPrefix()
+              + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jayce")
               .delete();
         Assert.assertTrue(deleted);
         File testOut = TestTools.createTempDir("ClasspathTest", "test");

@@ -21,6 +21,7 @@ import com.google.common.collect.Iterators;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.sched.item.Description;
@@ -60,7 +61,7 @@ public class ExcludeTypeFromLibWithBinaryAdapter
             if (location instanceof TypeInInputLibraryLocation) {
               InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location)
                   .getInputLibraryLocation().getInputLibrary();
-              if (inputLibrary.getFileTypes().containsAll(session.getGeneratedFileTypes())) {
+              if (inputLibrary.containsFileType(FileType.DEX)) {
                 return false;
               }
             }

@@ -45,4 +45,8 @@ public interface OutputLibrary extends Library {
 
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType);
+
+  @Nonnull
+  public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException;
 }

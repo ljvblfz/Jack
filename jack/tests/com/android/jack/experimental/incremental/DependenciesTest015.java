@@ -110,7 +110,7 @@ public class DependenciesTest015 {
 
     iteProg.incrementalBuildFromFolder(null /*classpath*/, Arrays.asList(iteLib.getJackFolder()));
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(2, iteProg.getJackFiles().size());
 
     DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
@@ -126,7 +126,7 @@ public class DependenciesTest015 {
 
     iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getJackFolder()));
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(3, iteProg.getJackFiles().size());
 
     db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));

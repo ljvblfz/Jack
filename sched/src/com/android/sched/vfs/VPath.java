@@ -29,6 +29,9 @@ import javax.annotation.Nonnull;
  */
 public final class VPath implements Cloneable {
 
+  @Nonnull
+  public static final VPath ROOT = new VPath("", '/');
+
   private static final char INTERNAL_SEPARATOR = '/';
 
   @Nonnull
@@ -85,7 +88,7 @@ public final class VPath implements Cloneable {
   }
 
   @Override
-  protected VPath clone() {
+  public VPath clone() {
     // no need to clone path fragments, they should be immutable
     @SuppressWarnings("unchecked")
     ArrayList<VPathFragment> clonedList = (ArrayList<VPathFragment>) pathFragments.clone();

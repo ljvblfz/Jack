@@ -563,8 +563,11 @@ public class JackIncremental extends CommandLine {
 
   @Nonnull
   protected static File getJackFile(@Nonnull String typeName) {
-    return new File(jackFilesFolder, new VPath(typeName + JayceFileImporter.JAYCE_FILE_EXTENSION,
-        fileSeparator).getPathAsString(File.separatorChar));
+    return new File(jackFilesFolder,
+        FileType.JAYCE.getPrefix()
+            + File.separatorChar
+            + new VPath(typeName + JayceFileImporter.JAYCE_FILE_EXTENSION, fileSeparator)
+                .getPathAsString(File.separatorChar));
   }
 
   @Nonnull

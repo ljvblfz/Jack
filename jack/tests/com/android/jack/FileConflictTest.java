@@ -20,12 +20,14 @@ import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.ResourceImportConflictException;
 import com.android.jack.category.KnownBugs;
+import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -55,15 +57,29 @@ public class FileConflictTest {
   @Nonnull
   private static final String COMMON_PATH_002 = "com/android/jack/fileconflict/test002/jack/";
   @Nonnull
-  private static final String JACK_FILE_PATH_1 = COMMON_PATH_001 + "MyClass.jayce";
+  private static final String JACK_FILE_PATH_1 =
+      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass.jayce";
   @Nonnull
-  private static final String JACK_FILE_PATH_2 = COMMON_PATH_001 + "MyClass2.jayce";
+  private static final String JACK_FILE_PATH_2 =
+      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass2.jayce";
   @Nonnull
-  private static final String JACK_FILE_PATH_3 = COMMON_PATH_001 + "MyClass3.jayce";
+  private static final String JACK_FILE_PATH_3 =
+      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass3.jayce";
   @Nonnull
-  private static final String JACK_FILE_PATH_002_1 = COMMON_PATH_002 + "IrrelevantForTest.jayce";
+  private static final String DEX_FILE_PATH_1 =
+      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass.dex";
   @Nonnull
-  private static final String JACK_FILE_PATH_002_2 = COMMON_PATH_002 + "IrrelevantForTest2.jayce";
+  private static final String DEX_FILE_PATH_2 =
+      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass2.dex";
+  @Nonnull
+  private static final String DEX_FILE_PATH_3 =
+      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass3.dex";
+  @Nonnull
+  private static final String JACK_FILE_PATH_002_1 =
+      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_002 + "IrrelevantForTest.jayce";
+  @Nonnull
+  private static final String JACK_FILE_PATH_002_2 =
+      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_002 + "IrrelevantForTest2.jayce";
   @Nonnull
   private static final String RESOURCE1_SHORTPATH = "Resource1";
   @Nonnull
@@ -71,11 +87,14 @@ public class FileConflictTest {
   @Nonnull
   private static final String RESOURCE3_SHORTPATH = "Resource3";
   @Nonnull
-  private static final String RESOURCE1_LONGPATH = COMMON_PATH_002 + RESOURCE1_SHORTPATH;
+  private static final String RESOURCE1_LONGPATH = FileType.RSC.getPrefix() + "/"
+      + RESOURCE1_SHORTPATH;
   @Nonnull
-  private static final String RESOURCE2_LONGPATH = COMMON_PATH_002 + RESOURCE2_SHORTPATH;
+  private static final String RESOURCE2_LONGPATH = FileType.RSC.getPrefix() + "/"
+      + RESOURCE2_SHORTPATH;
   @Nonnull
-  private static final String RESOURCE3_LONGPATH = COMMON_PATH_002 + RESOURCE3_SHORTPATH;
+  private static final String RESOURCE3_LONGPATH = FileType.RSC.getPrefix() + "/"
+      + RESOURCE3_SHORTPATH;
 
   @Nonnull
   private static final File TEST001_DIR =
@@ -242,8 +261,14 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
+    String jackFilePath =
+        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
+
+    // get paths for Dex files
+    String dexFilePath =
+        FileType.DEX.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.dex";
+    File myClass1Dex = new File(tempJackFolder, dexFilePath);
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
     File libProperties = new File(tempJackFolder, libPropName);
@@ -252,9 +277,11 @@ public class FileConflictTest {
     File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
     copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
+    copyFileToDir(myClass1Dex, dexFilePath, jackImport1);
 
     // copy Jack file to output dir
     copyFileToDir(myClass1, jackFilePath, jackOutput);
+    copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
 
     // run Jack on Jack dir
     ProguardFlags flags = new ProguardFlags(new File(testSrcDir, "proguard.flags"));
@@ -272,6 +299,7 @@ public class FileConflictTest {
    * @throws Exception
    */
   @Test
+  @Ignore("Now jack generate library, a previous file can not exists")
   public void test003b() throws Exception {
     File jackOutput = TestTools.createTempDir("jackoutput", "dir");
 
@@ -282,7 +310,8 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test003/jack/MyClass.jayce";
+    String jackFilePath =
+        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
@@ -329,7 +358,8 @@ public class FileConflictTest {
         TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
 
     // get paths for Jack files
-    String jackFilePath = "com/android/jack/fileconflict/test004/jack/MyClass.jayce";
+    String jackFilePath =
+        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test004/jack/MyClass.jayce";
     File myClass1 = new File(tempJackFolder, jackFilePath);
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
@@ -374,6 +404,10 @@ public class FileConflictTest {
     File myClass2 = new File(tempJackFolder, JACK_FILE_PATH_2);
     File myClass3 = new File(tempJackFolder, JACK_FILE_PATH_3);
 
+    // get paths for dex files
+    File myClass1Dex = new File(tempJackFolder, DEX_FILE_PATH_1);
+    File myClass2Dex = new File(tempJackFolder, DEX_FILE_PATH_2);
+    File myClass3Dex = new File(tempJackFolder, DEX_FILE_PATH_3);
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
     File libProperties = new File(tempJackFolder, libPropName);
@@ -383,10 +417,14 @@ public class FileConflictTest {
     File jackImport2 = TestTools.createTempDir("jackimport2", "dir");
     copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
+    copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport1);
     copyFileToDir(myClass2, JACK_FILE_PATH_2, jackImport1);
+    copyFileToDir(myClass2Dex, DEX_FILE_PATH_2, jackImport1);
     copyFileToDir(libProperties, libPropName, jackImport2);
     copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport2);
+    copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport2);
     copyFileToDir(myClass3, JACK_FILE_PATH_3, jackImport2);
+    copyFileToDir(myClass3Dex, DEX_FILE_PATH_3, jackImport2);
 
     // run Jack on Jack dirs
     ProguardFlags flags = new ProguardFlags(new File(TEST001_DIR, "proguard.flags"));
@@ -406,37 +444,23 @@ public class FileConflictTest {
   private void runTest002(@Nonnull File jackOutput, boolean zip,
       @CheckForNull String collisionPolicy) throws Exception {
     // compile source files to a Jack dir
-    File tempJackFolder = TestTools.createTempDir("jack", "dir");
-    TestTools.compileSourceToJack(new Options(), TEST002_DIR,
-        TestTools.getDefaultBootclasspathString(), tempJackFolder, false /* non-zipped */);
+    File jackImport1 = TestTools.createTempDir("jack", "dir");
+    Options options = new Options();
+    File lib1 = new File(TEST002_DIR, "lib1");
+    options.addResource(new File(lib1, "rsc"));
+    TestTools.compileSourceToJack(options, lib1, TestTools.getDefaultBootclasspathString(),
+        jackImport1, false /* non-zipped */);
 
-    // get paths for Jack files
-    File myClass1 = new File(tempJackFolder, JACK_FILE_PATH_002_1);
-    File myClass2 = new File(tempJackFolder, JACK_FILE_PATH_002_2);
-
-    // get paths for resources
-    File resource1 = new File(TEST002_DIR, RESOURCE1_SHORTPATH);
-    File resource2 = new File(TEST002_DIR, RESOURCE2_SHORTPATH);
-    File resource3 = new File(TEST002_DIR, RESOURCE3_SHORTPATH);
-
-    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
-    File libProperties = new File(tempJackFolder, libPropName);
-
-    // create Jack dirs to import
-    File jackImport1 = TestTools.createTempDir("jackimport1", "dir");
-    File jackImport2 = TestTools.createTempDir("jackimport2", "dir");
-    copyFileToDir(libProperties, libPropName, jackImport1);
-    copyFileToDir(myClass1, JACK_FILE_PATH_002_1, jackImport1);
-    copyFileToDir(resource1, RESOURCE1_LONGPATH, jackImport1);
-    copyFileToDir(resource2, RESOURCE2_LONGPATH, jackImport1);
-    copyFileToDir(libProperties, libPropName, jackImport2);
-    copyFileToDir(myClass2, JACK_FILE_PATH_002_2, jackImport2);
-    copyFileToDir(resource2, RESOURCE1_LONGPATH, jackImport2);
-    copyFileToDir(resource3, RESOURCE3_LONGPATH, jackImport2);
+    File jackImport2 = TestTools.createTempDir("jack", "dir");
+    options = new Options();
+    File lib2 = new File(TEST002_DIR, "lib2");
+    options.addResource(new File(lib2, "rsc"));
+    TestTools.compileSourceToJack(options, lib2, TestTools.getDefaultBootclasspathString(),
+        jackImport2, false /* non-zipped */);
 
     // run Jack on Jack dirs
     ProguardFlags flags = new ProguardFlags(new File(TEST002_DIR, "proguard.flags"));
-    Options options = new Options();
+    options = new Options();
     List<File> jayceImports = new ArrayList<File>(2);
     jayceImports.add(jackImport1);
     jayceImports.add(jackImport2);

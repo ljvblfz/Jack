@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.category.KnownBugs;
+import com.android.jack.library.FileType;
 import com.android.sched.util.collect.Lists;
 
 import junit.framework.Assert;
@@ -52,8 +53,9 @@ public class WithPhantomTest {
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST001),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
-    boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test001/jack/A.jayce")).delete();
+    boolean deleted =
+        new File(tempJackFolder, FileType.JAYCE.getPrefix() + File.separatorChar
+            + fixPath("com/android/jack/withphantom/test001/jack/A.jayce")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST001);
@@ -105,8 +107,13 @@ public class WithPhantomTest {
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST001),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
-    boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test001/jack/A$Inner1.jayce")).delete();
+    boolean deleted =
+        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
+            + "com/android/jack/withphantom/test001/jack/A$Inner1.jayce")).delete();
+    Assert.assertTrue(deleted);
+    deleted =
+        new File(tempJackFolder, fixPath(FileType.DEX.getPrefix() + File.separatorChar
+            + "com/android/jack/withphantom/test001/jack/A$Inner1.dex")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST001);
@@ -159,8 +166,9 @@ public class WithPhantomTest {
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST002),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
-    File[] inners = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test002/jack/")).listFiles(new FilenameFilter() {
+    File[] inners =
+        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
+            + "com/android/jack/withphantom/test002/jack/")).listFiles(new FilenameFilter() {
           @Override
           public boolean accept(File dir, String name) {
             return name.startsWith("A$");
@@ -192,8 +200,9 @@ public class WithPhantomTest {
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST002),
         BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
-    boolean deleted = new File(tempJackFolder,
-        fixPath("com/android/jack/withphantom/test002/jack/A.jayce")).delete();
+    boolean deleted =
+        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
+            + "com/android/jack/withphantom/test002/jack/A.jayce")).delete();
     Assert.assertTrue(deleted);
 
     File testFolder = TestTools.getJackTestFolder(TEST002);

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.fileconflict.test002.jack;
+package com.android.jack.resource;
+
+import javax.annotation.Nonnull;
 
 /**
- * This class is irrelevant for the test, since what we test here is the handling of resources.
+ * Properties related to resources.
  */
-public class IrrelevantForTest {
-
-  public int getInt() {
-    return 4;
-  }
-
+public interface ResourceProperties {
+  @Nonnull
+  public static final String KEY_RESOURCE = "rsc";
 }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.jack.fileconflict.test002.jack;
+package com.android.jack.fileconflict.test002.jack.lib1;
 
 /**
  * This class is irrelevant for the test, since what we test here is the handling of resources.
  */
-public class IrrelevantForTest2 {
+public class IrrelevantForTest {
 
   public int getInt() {
     return 4;

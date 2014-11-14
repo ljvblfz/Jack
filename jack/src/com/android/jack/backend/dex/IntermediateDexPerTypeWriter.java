@@ -26,6 +26,8 @@ import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
@@ -35,11 +37,15 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.InputOutputVDir;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.annotation.CheckForNull;
@@ -70,9 +76,43 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    assert !(type.getLocation() instanceof TypeInInputLibraryLocation
-        && ((TypeInInputLibraryLocation) type.getLocation()).getInputLibraryLocation()
-            .getInputLibrary().containsFileType(FileType.DEX));
+    OutputVFile vFile;
+
+    Location loc = type.getLocation();
+    if (loc instanceof TypeInInputLibraryLocation) {
+      InputVFile in;
+      InputLibrary inputLibrary =
+          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+      if (inputLibrary.containsFileType(FileType.DEX)) {
+        try {
+          in = inputLibrary.getFile(FileType.DEX,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+        } catch (FileTypeDoesNotExistException e) {
+          // this was created by Jack, so this should not happen
+          throw new AssertionError(e);
+        }
+
+        // incremental support will be updated and Intermediate_dex_dir usage was cleaned.
+        if (outputLibrary != null && !isIncrementalMode && intermediateDexDir == null) {
+          assert generateDexFile || intermediateDexDir == null;
+          vFile = outputLibrary.createFile(FileType.DEX,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+        } else {
+          assert intermediateDexDir != null;
+          vFile = intermediateDexDir.createOutputVFile(getFilePath(type));
+        }
+
+        InputStream is = in.openRead();
+        OutputStream os = vFile.openWrite();
+        try {
+          new ByteStreamSucker(is, os, true).suck();
+        } finally {
+          is.close(); // is != null or check before
+        }
+
+        return;
+      }
+    }
 
     ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
     assert cdiMarker != null;
@@ -81,7 +121,6 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
     options.forceJumbo = forceJumbo;
     DexFile typeDex = new DexFile(options);
     typeDex.add(cdiMarker.getClassDefItem());
-    OutputVFile vFile;
     OutputStream outStream = null;
     try {
       // In incremental mode, intermediate dex output is managed by incremental wrapper that used

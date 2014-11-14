@@ -20,6 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.library.FileType;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
 
@@ -189,7 +190,8 @@ public class IncrementalTestingEnvironment extends TestTools {
       if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
         String jackFileName = jackFile.getAbsolutePath();
         String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
-        binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
+        binaryTypeName = binaryTypeName.substring((jackFolder.getAbsolutePath() + File.separatorChar
+            + FileType.JAYCE.getPrefix()).length() + 1);
         fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar,'.'));
       }
     }

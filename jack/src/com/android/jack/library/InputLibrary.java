@@ -17,6 +17,7 @@
 package com.android.jack.library;
 
 import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -40,6 +41,10 @@ public interface InputLibrary extends Library {
 
   @Nonnull
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException;
+
+  @Nonnull
+  public InputVDir getDir(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException;
 
   @Nonnull

@@ -17,6 +17,8 @@
 package com.android.jack.preprocessor;
 
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.FileType;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -24,9 +26,6 @@ import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputRootVDir;
-import com.android.sched.vfs.InputVDir;
-import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 
 import org.antlr.runtime.ANTLRInputStream;
@@ -72,25 +71,19 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
       }
     }
 
-    for (Iterator<InputRootVDir> iter = session.getPathSources(); iter.hasNext();) {
-      InputRootVDir dir = iter.next();
-      for (InputVElement sub : dir.list()) {
-        if (sub.getName().equals("JACK-INF") && sub.isVDir()) {
-          for (InputVElement inf : ((InputVDir) sub).list()) {
-            if (inf.getName().endsWith(".jpp") && !inf.isVDir()) {
-              InputStream inputStream = ((InputVFile) inf).openRead();
-              try {
-                rules.addAll(parseRules(session, inputStream));
-              } finally {
-                try {
-                  inputStream.close();
-                } catch (IOException e) {
-                  // nothing to handle for inputs
-                }
-              }
-            }
+    for (Iterator<InputLibrary> iter = session.getPathSources(); iter.hasNext();) {
+      InputLibrary inputLibrary = iter.next();
+      Iterator<InputVFile> metaFileIt = inputLibrary.iterator(FileType.JPP);
+      while (metaFileIt.hasNext()) {
+        InputStream inputStream = metaFileIt.next().openRead();
+        try {
+          rules.addAll(parseRules(session, inputStream));
+        } finally {
+          try {
+            inputStream.close();
+          } catch (IOException e) {
+            // nothing to handle for inputs
           }
-          break;
         }
       }
     }

@@ -16,6 +16,8 @@
 
 package com.android.jack.library.v0000;
 
+import com.google.common.collect.Iterators;
+
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
@@ -27,6 +29,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputRootVDir;
+import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -97,8 +100,22 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      typePath.addSuffix(fileType.getFileExtension());
-      return libraryVDir.getInputVFile(typePath);
+      VPath clonedPath = typePath.clone();
+      clonedPath.addSuffix(fileType.getFileExtension());
+      return libraryVDir.getInputVFile(clonedPath);
+    } catch (NotFileOrDirectoryException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (NoSuchFileException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public InputVDir getDir(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws FileTypeDoesNotExistException {
+    try {
+      return libraryVDir.getInputVDir(typePath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -109,6 +126,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
+    if (!containsFileType(fileType)) {
+      return Iterators.emptyIterator();
+    }
+
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
     fillFiles(libraryVDir, fileType, inputVFiles);
     return inputVFiles.iterator();
