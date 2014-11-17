@@ -1,0 +1,1 @@
+Lcom/android/jack/multidex/test003/jack/TestAnnotationResolution;:

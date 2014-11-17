@@ -448,4 +448,30 @@ public class MultiDexTests {
     return;
   }
 
+  /**
+   * Verifies that classes annotated with runtime visible annotations are put in main dex.
+   */
+  @Test
+  public void legacyAppTest003() throws Exception {
+
+    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test003");
+
+    File out = TestTools.createTempDir("out", "");
+    Options appOptions = new Options();
+    appOptions.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
+    appOptions.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+
+    TestTools.compileSourceToDex(appOptions, testFolder, TestTools.getDefaultBootclasspathString()
+        + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
+        out, false);
+
+    File outList = getListingOfDex(new File(out, "classes.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-003-1.txt"), outList);
+    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-003-2.txt"), outList2);
+    Assert.assertFalse(new File(out, "classes3.dex").exists());
+    return;
+  }
 }

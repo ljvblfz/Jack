@@ -46,6 +46,8 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
+import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
+import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
@@ -946,6 +948,8 @@ public abstract class Jack {
 
       if (isMultiDexWithConstraints) {
         typePlan.append(MultiDexAnnotationsFinder.class);
+        typePlan.append(RuntimeAnnotationFinder.class);
+        typePlan.append(AnnotatedFinder.class);
       }
 
       if (isMultiDexWithConstraints || isShrinking) {
