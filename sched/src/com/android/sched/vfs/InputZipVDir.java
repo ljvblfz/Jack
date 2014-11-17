@@ -77,6 +77,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
   public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
       NoSuchFileException {
     Iterator<String> iterator = path.split().iterator();
+    assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
     String pathAsString = path.getPathAsString(IN_ZIP_SEPARATOR);
@@ -103,7 +104,12 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
   @Nonnull
   public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
       NoSuchFileException {
+    if (path.equals(VPath.ROOT)) {
+      return this;
+    }
+
     Iterator<String> iterator = path.split().iterator();
+    assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
     String pathAsString = path.getPathAsString(IN_ZIP_SEPARATOR);
