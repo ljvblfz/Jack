@@ -230,11 +230,13 @@ public class Options {
   protected List<File> jayceImport = new ArrayList<File>();
 
   @Option(name = "--import-res",
-      usage = "import the given file into the output as resource (repeatable)", metaVar = "FILE")
+      usage = "import the contents of this folder into the output as resources (repeatable)",
+      metaVar = "DIRECTORY")
   protected List<File> resImport = new ArrayList<File>();
 
-  @Option(name = "--import-meta", usage = "import the given file as meta (repeatable)",
-      metaVar = "FILE")
+  @Option(name = "--import-meta",
+      usage = "import the contents of this folder into the output as meta (repeatable)",
+      metaVar = "DIRECTORY")
   protected List<File> metaImport = new ArrayList<File>();
 
   @Option(name = "--dx-legacy", usage = "keep generation close to dx (default: on)",
