@@ -1,0 +1,8 @@
+Lcom/android/jack/multidex/test003/jack/Annotated2;:
+Lcom/android/jack/multidex/test003/jack/Annotated3;:
+Lcom/android/jack/multidex/test003/jack/Annotated;:
+Lcom/android/jack/multidex/test003/jack/AnnotationValue;:
+Lcom/android/jack/multidex/test003/jack/TestAnnotation2;:
+Lcom/android/jack/multidex/test003/jack/TestAnnotation3;:
+Lcom/android/jack/multidex/test003/jack/TestAnnotation3$Value;:
+Lcom/android/jack/multidex/test003/jack/TestAnnotation;:
