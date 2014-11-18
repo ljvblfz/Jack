@@ -1014,7 +1014,8 @@ public abstract class Jack {
         preDexing = false;
       }
     }
-    if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)) {
+    if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)
+        || features.contains(Shrinking.class)) {
       for (InputLibrary il : getSession().getImportedLibraries()) {
         ((InputJackLibrary) il).fileTypes.remove(FileType.DEX);
       }
