@@ -531,15 +531,11 @@ public abstract class Jack {
           request.addFeature(JayceFileOutput.class);
         }
 
-        if (options.ecjArguments == null) {
-          request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
+        request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
+        request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
+
+        if (options.ecjArguments != null) {
           if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-            request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-          }
-        } else {
-          request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-          if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-            request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
             request.addProduction(JayceFormatProduct.class);
           }
           if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
@@ -551,12 +547,13 @@ public abstract class Jack {
           request.addProduction(IntermediateDexProduct.class);
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
-        } else {
-          assert options.libraryOutDir != null || options.libraryOutZip != null;
-          request.addProduction(JayceFormatProduct.class);
+        }
+
+        if (options.libraryOutDir != null || options.libraryOutZip != null) {
           if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
             request.addProduction(IntermediateDexProduct.class);
           }
+          request.addProduction(JayceFormatProduct.class);
         }
 
         ProductionSet targetProduction = request.getTargetProductions();
@@ -570,31 +567,9 @@ public abstract class Jack {
 
         planBuilder.append(PreProcessorApplier.class);
 
-        if (targetProduction.contains(JayceFormatProduct.class)
-            && !targetProduction.contains(DexFileProduct.class)
-            && !targetProduction.contains(IntermediateDexProduct.class)) {
-          if (options.ecjArguments == null) {
-            fillJayceToJaycePlan(planBuilder);
-          } else {
-            fillJavaToJaycePlan(planBuilder);
-          }
-          {
-            SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-            typePlan.append(JayceSingleTypeWriter.class);
-          }
-        } else if (options.ecjArguments == null
-            && !targetProduction.contains(JayceFormatProduct.class)) {
-          assert targetProduction.contains(DexFileProduct.class);
-          fillJayceToDexPlan(options, planBuilder);
+        fillDexPlan(options, planBuilder);
+        if (targetProduction.contains(DexFileProduct.class)) {
           planBuilder.append(DexFileWriter.class);
-        } else {
-          assert targetProduction.contains(DexFileProduct.class)
-              || targetProduction.contains(IntermediateDexProduct.class);
-          fillDexPlan(options, planBuilder);
-          if (targetProduction.contains(DexFileProduct.class)) {
-            planBuilder.append(DexFileWriter.class);
-          }
         }
 
         if (features.contains(Resources.class)) {
@@ -870,6 +845,7 @@ public abstract class Jack {
     return dir;
   }
 
+  @SuppressWarnings("unused")
   private static void fillJayceToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     // Add here transformations we want to apply before writing jayce file
     FeatureSet features = planBuilder.getRequest().getFeatures();
@@ -1303,6 +1279,7 @@ public abstract class Jack {
     }
   }
 
+  @SuppressWarnings("unused")
   private static void fillJavaToJaycePlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     Request request = planBuilder.getRequest();
     FeatureSet features = request.getFeatures();
@@ -1527,6 +1504,7 @@ public abstract class Jack {
     }
   }
 
+  @SuppressWarnings("unused")
   private static void fillJayceToDexPlan(
       @Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
     Request request = planBuilder.getRequest();
