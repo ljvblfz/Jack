@@ -194,6 +194,7 @@ public class Tracer extends JVisitor {
           trace(method);
         } else if (brush.startTraceSeed(method)) {
           trace(method);
+          brush.setMustTraceOverridingMethods(method);
           brush.endTraceSeed(method);
         }
       }
