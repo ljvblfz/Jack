@@ -43,7 +43,7 @@ test-jack-incremental: $(JACK_JAR)
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
 	--output-jack-dir $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput --output-dex \
 	$(TEMPDIR_DEX_FROM_JAVA) \
-	@$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/jayces.java-source-list
+	@$(ANDROID_BUILD_TOP)/out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/jack.java-source-list
 	$(hide) $(call call-jack,$(PRIVATE_JACK_VM),$(PRIVATE_JACK_VM_ARGS),$(PRIVATE_JACK_EXTRA_ARGS)) \
 	--output-dex $(TEMPDIR_DEX_FROM_JACK) --import $(TEMPDIR_DEX_FROM_JAVA)/jackIncrementalOutput
 	$(hide) dexdump -d $(TEMPDIR_DEX_FROM_JAVA)/classes.dex | tail -n +3 &> $(TEMPDIR_DEX_FROM_JAVA)/coreDexFromJava.txt
