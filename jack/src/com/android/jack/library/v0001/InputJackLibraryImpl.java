@@ -139,10 +139,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       fillFiles(libraryVDir.getInputVDir(fileType.getVPathPrefix()), fileType, inputVFiles);
     } catch (NotFileOrDirectoryException e) {
       throw new AssertionError(
-          getLocation().getDescription() + " is an invalid library: " + e.getMessage(), e);
+          getLocation().getDescription() + " is an invalid library: " + e.getMessage());
     } catch (NoSuchFileException e) {
       throw new AssertionError(
-          getLocation().getDescription() + " is an invalid library: " + e.getMessage(), e);
+          getLocation().getDescription() + " is an invalid library: " + e.getMessage());
     }
 
     return inputVFiles.listIterator();
