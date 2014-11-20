@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.library.FileType;
+import com.android.jack.library.LibraryReadingException;
 
 import junit.framework.Assert;
 
@@ -24,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 public class ClasspathTest {
 
@@ -153,4 +155,56 @@ public class ClasspathTest {
     TestTools.compileSourceToJack(
         new Options(), sourceDir3, classpath, mainOut, true);
   }
+
+  @Test
+  public void testMissingClasspathEntry() throws Exception {
+    String defaultClasspath = TestTools.getDefaultBootclasspathString();
+    File srcDir = TestTools.getJackTestsWithJackFolder("classpath/test004");
+    String classpathWithMissingEntry = defaultClasspath + File.pathSeparator +
+        new File(srcDir, "missing.jack").getAbsolutePath();
+
+    File testOut = TestTools.createTempFile("ClasspathTest", "missing");
+    TestTools.compileSourceToJack(new Options(), srcDir, classpathWithMissingEntry,
+        testOut, true);
+
+    Options strict = new Options();
+    strict.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+    try {
+      TestTools.compileSourceToJack(strict, srcDir, classpathWithMissingEntry,
+        testOut, true);
+      Assert.fail();
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+    }
+  }
+
+  @Test
+  public void testInvalidClasspathEntry() throws Exception {
+    File srcDir = TestTools.getJackTestsWithJackFolder("classpath/test004");
+    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "Classpath004.java"));
+    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "invalid.jack"));
+    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "notjack.zip"));
+  }
+
+  private void compileWithInvalidClasspathEntry(File srcDir, File invalidJack) throws IOException,
+      Exception {
+    Assert.assertTrue(invalidJack.isFile());
+    String classpathWithInvalidEntry = TestTools.getDefaultBootclasspathString() +
+        File.pathSeparator + invalidJack.getAbsolutePath();
+
+    File testOut = TestTools.createTempFile("ClasspathTest", "invalid");
+    TestTools.compileSourceToJack(new Options(), srcDir, classpathWithInvalidEntry,
+        testOut, true);
+
+    Options strict = new Options();
+    strict.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+    try {
+      TestTools.compileSourceToJack(strict, srcDir, classpathWithInvalidEntry,
+          testOut, true);
+      Assert.fail();
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+    }
+  }
+
 }

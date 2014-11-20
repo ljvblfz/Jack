@@ -104,6 +104,7 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
+import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.resource.ResourceImporter;
@@ -265,6 +266,7 @@ import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ReflectFactory;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
 import com.android.sched.util.file.Directory;
@@ -302,6 +304,27 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public abstract class Jack {
+  private static final class ClasspathEntryIgnoredReportable implements Reportable {
+    @Nonnull
+    private final Exception cause;
+
+    private ClasspathEntryIgnoredReportable(@Nonnull Exception cause) {
+      this.cause = cause;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Bad classpath entry ignored: " + cause.getMessage();
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.WARNING;
+    }
+  }
+
   static {
     LoggerFactory.loadLoggerConfiguration(Jack.class, "/initial.logging.properties");
   }
@@ -346,6 +369,11 @@ public abstract class Jack {
           .addArgType(JPhantomLookup.class)
           .bypassAccessibility()
           .addDefaultValue("full");
+
+  @Nonnull
+  public static final BooleanPropertyId STRICT_CLASSPATH = BooleanPropertyId.create(
+      "jack.classpath.strict", "Do not ignore missing or malformed class path entries")
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static JSession getSession() {
@@ -811,10 +839,21 @@ public abstract class Jack {
         session.getTopLevelPackage().addLoader(rootPLoader);
         session.addLibraryOnClasspath(inputJackLibrary);
       } catch (IOException ioException) {
-        // Ignore bad entry
-        logger.log(Level.WARNING, "Bad classpath entry ignored: {0}", ioException.getMessage());
+        if (ThreadConfig.get(STRICT_CLASSPATH).booleanValue()) {
+          throw new LibraryReadingException(ioException);
+        } else {
+          // Ignore bad entry
+          session.getReporter().report(Severity.NON_FATAL,
+              new ClasspathEntryIgnoredReportable(ioException));
+        }
       } catch (LibraryException e) {
-        throw new LibraryReadingException(e);
+        if (ThreadConfig.get(STRICT_CLASSPATH).booleanValue()) {
+          throw new LibraryReadingException(e);
+        } else {
+          // Ignore bad entry
+          session.getReporter().report(Severity.NON_FATAL,
+              new ClasspathEntryIgnoredReportable(e));
+        }
       }
     }
   }
