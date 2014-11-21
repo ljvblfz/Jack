@@ -42,7 +42,6 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.Replace;
@@ -69,7 +68,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Transform synchronization into try/finally with jlock/junlock statement.")
 @Name("SynchronizeTransformer")
-@Constraint(need = {NoImplicitBlock.class, OriginalNames.class})
+@Constraint(need = {NoImplicitBlock.class})
 @Transform(remove = {JSynchronizedBlock.class, ThreeAddressCodeForm.class}, add = {JBlock.class,
     JTryStatement.class,
     JLock.class,

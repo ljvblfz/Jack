@@ -28,7 +28,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -51,7 +50,7 @@ import javax.annotation.Nonnull;
 @Description("Replaces {@link JPrimitiveType}.class by an access field to " +
     "TYPE of the corresponding class.")
 @Name("PrimitiveClassTransformer")
-@Constraint(need = {JClassLiteral.class, OriginalNames.class})
+@Constraint(need = {JClassLiteral.class})
 @Transform(
     add = {JFieldRef.class}, remove = {JPrimitiveClassLiteral.class, ThreeAddressCodeForm.class})
 @Protect(add = JClassLiteral.class, unprotect = @With(add = JPrimitiveClassLiteral.class))

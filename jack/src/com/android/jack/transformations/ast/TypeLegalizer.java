@@ -48,7 +48,6 @@ import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.ir.types.JNumericType;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -72,8 +71,7 @@ import javax.annotation.Nonnull;
 @Description("Make implicit casting, boxing and unboxing become explicit.")
 @Name("TypeLegalizer")
 @Constraint(
-    no = {SideEffectOperation.class, InitInNewArray.class, JSwitchStatement.SwitchWithEnum.class},
-    need = OriginalNames.class)
+    no = {SideEffectOperation.class, InitInNewArray.class, JSwitchStatement.SwitchWithEnum.class})
 @Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
     remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {

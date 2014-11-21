@@ -1124,6 +1124,11 @@ public abstract class Jack {
       typePlan4.append(FieldInitMethodRemover.class);
     }
 
+    if (features.contains(Obfuscation.class)) {
+      appendObfuscationPlan(planBuilder, features);
+    } else {
+      planBuilder.append(NameFinalizer.class);
+    }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1184,11 +1189,6 @@ public abstract class Jack {
       planBuilder.append(CompilerStateWriter.class);
     }
 
-    if (features.contains(Obfuscation.class)) {
-      appendObfuscationPlan(planBuilder, features);
-    } else {
-      planBuilder.append(NameFinalizer.class);
-    }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }

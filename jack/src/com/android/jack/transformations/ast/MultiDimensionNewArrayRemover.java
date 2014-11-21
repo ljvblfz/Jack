@@ -37,14 +37,12 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -61,7 +59,6 @@ import javax.annotation.Nonnull;
  */
 @Description("Remove new array with multiple dimension.")
 @Name("MultiDimensionNewArrayRemover")
-@Constraint(need = OriginalNames.class)
 @Transform(remove = {MultiDimensionNewArray.class, ThreeAddressCodeForm.class}, add = {
     JNewArray.class, JMethodCall.class, JClassLiteral.class, JDynamicCastOperation.class,
     InitInNewArray.class})

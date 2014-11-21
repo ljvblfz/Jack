@@ -42,7 +42,6 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.request.AppendBefore;
@@ -79,7 +78,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes finally blocks. Their contents are copied where they should.")
 @Name("FinallyRemover")
-@Constraint(need = {NoImplicitBlock.class, JTryStatement.class, OriginalNames.class},
+@Constraint(need = {NoImplicitBlock.class, JTryStatement.class},
     no = JFieldInitializer.class)
 @Transform(add = {JTryStatement.class,
     JLocalRef.class,
