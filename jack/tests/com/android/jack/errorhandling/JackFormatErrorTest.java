@@ -75,13 +75,9 @@ public class JackFormatErrorTest {
       // Failure is ok since jack file is corrupted.
       Assert.assertTrue(e.getCause() instanceof JayceFormatException);
     } finally {
-<<<<<<< HEAD
-      Assert.assertEquals("", ite.endErrRedirection());
-=======
       Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains(
           "Unexpected node NForStatement, NDeclaredType was expected"));
->>>>>>> 1eb87cf... Disable logs in Error, Warning and Info verbose levels
     }
   }
 
@@ -115,12 +111,8 @@ public class JackFormatErrorTest {
       // Failure is ok since jack file header is corrupted.
       Assert.assertTrue(e.getCause() instanceof JayceFormatException);
     } finally {
-<<<<<<< HEAD
-      Assert.assertEquals("", ite.endErrRedirection());
-=======
       Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains("Invalid Jayce header"));
->>>>>>> 1eb87cf... Disable logs in Error, Warning and Info verbose levels
     }
   }
 
@@ -154,12 +146,8 @@ public class JackFormatErrorTest {
       // Failure is ok since jack file header is corrupted.
       Assert.assertTrue(e.getCause() instanceof JayceVersionException);
     } finally {
-<<<<<<< HEAD
-      Assert.assertEquals("", ite.endErrRedirection());
-=======
       Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains("Jayce version 0 not supported"));
->>>>>>> 1eb87cf... Disable logs in Error, Warning and Info verbose levels
     }
   }
 }
