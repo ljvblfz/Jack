@@ -176,7 +176,10 @@ public class Options {
 
   protected final File propertiesFile = null;
 
-  enum VerbosityLevel {
+  /**
+   * Jack verbosity level
+   */
+  public enum VerbosityLevel {
     ERROR("error"), WARNING("warning"), INFO("info"), DEBUG("debug"), TRACE("trace");
 
     @Nonnull
@@ -332,12 +335,12 @@ public class Options {
           "jack.internal.filter.method", "Define which filter will be used for methods",
           Filter.class).addDefaultValue("all-methods");
 
-  //
-  // Getter
-  //
-
   public VerbosityLevel getVerbosityLevel() {
     return verbose;
+  }
+
+  public void setVerbosityLevel(@Nonnull VerbosityLevel verbose) {
+    this.verbose = verbose;
   }
 
   public boolean askForVersion() {
