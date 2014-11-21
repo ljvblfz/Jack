@@ -19,6 +19,7 @@ package com.android.jack.errorhandling;
 import com.android.jack.JackAbortException;
 import com.android.jack.Main;
 import com.android.jack.Options;
+import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.TestTools;
 import com.android.jack.jayce.JayceProperties;
 import com.android.jack.library.FileType;
@@ -71,6 +72,7 @@ public class JackFormatErrorTest {
         "public class B extends A {} \n");
 
     Options options = new Options();
+    options.setVerbosityLevel(VerbosityLevel.DEBUG);
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
@@ -86,7 +88,7 @@ public class JackFormatErrorTest {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains(
           "Unexpected node NForStatement, NDeclaredType was expected"));
     }
@@ -115,6 +117,7 @@ public class JackFormatErrorTest {
         "public class B extends A {} \n");
 
     Options options = new Options();
+    options.setVerbosityLevel(VerbosityLevel.DEBUG);
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
@@ -130,7 +133,7 @@ public class JackFormatErrorTest {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains("Invalid Jayce header"));
     }
   }
@@ -158,6 +161,7 @@ public class JackFormatErrorTest {
         "public class B extends A {} \n");
 
     Options options = new Options();
+    options.setVerbosityLevel(VerbosityLevel.DEBUG);
     List<String> ecjArgs = new ArrayList<String>();
     ecjArgs.add(ite.getTestingFolder().getAbsolutePath());
     options.setEcjArguments(ecjArgs);
@@ -173,7 +177,7 @@ public class JackFormatErrorTest {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(ite.endErrRedirection().contains("is invalid"));
+      Assert.assertTrue(ite.endErrRedirection().contains("is an invalid library"));
       Assert.assertTrue(ite.endErrRedirection().contains("Jayce version 0 not supported"));
     }
   }
