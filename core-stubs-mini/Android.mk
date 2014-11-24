@@ -23,5 +23,6 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE:= core-stubs-mini
+LOCAL_USE_JACK:=true
 
 include $(BUILD_JAVA_LIBRARY)
