@@ -251,13 +251,13 @@ public class Options {
       metaVar = "FILE")
   protected List<File> proguardFlagsFiles = null;
 
-  @Option(name = "--sanity-checks", usage = "enable/disable compiler sanity checks (default: off)",
+  @Option(name = "--sanity-checks", usage = "enable/disable compiler sanity checks (default: on)",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  protected boolean sanityChecks = false;
+  protected boolean sanityChecks = true;
   @Nonnull
   public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
       "jack.sanitychecks", "enable/disable compiler sanity checks")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.TRUE);
 
   @Option(name = "--tracer-dir", usage = "enable tracer and output into this dir (.html)",
       metaVar = "DIRECTORY")
