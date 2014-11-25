@@ -175,19 +175,19 @@ public class TestTools {
   @Nonnull
   public static Sourcelist getTargetLibSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/target/common/obj/JAVA_LIBRARIES/" + moduleName
-        + "_intermediates/jayces.java-source-list");
+        + "_intermediates/jack.java-source-list");
   }
 
   @Nonnull
   public static Sourcelist getHostLibSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/host/common/obj/JAVA_LIBRARIES/" + moduleName
-        + "_intermediates/jayces.java-source-list");
+        + "_intermediates/jack.java-source-list");
   }
 
   @Nonnull
   public static Sourcelist getTargetAppSourcelist(@Nonnull String moduleName) {
     return getSourcelistWithAbsPath("out/target/common/obj/APPS/" + moduleName
-        + "_intermediates/jayces.java-source-list");
+        + "_intermediates/jack.java-source-list");
   }
 
   @Nonnull
