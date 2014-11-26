@@ -19,6 +19,8 @@ package com.android.jack.ir.ast;
 import com.google.common.collect.Iterators;
 
 import com.android.jack.Jack;
+import com.android.jack.analysis.dependency.file.FileDependencies;
+import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -100,6 +102,12 @@ public class JSession extends JNode {
 
   @Nonnull
   private final List<InputLibrary> librariesOnClasspath = new ArrayList<InputLibrary>(0);
+
+  @CheckForNull
+  private TypeDependencies typeDependencies;
+
+  @CheckForNull
+  private FileDependencies fileDependencies;
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -254,5 +262,25 @@ public class JSession extends JNode {
     return Iterators.concat(
         importedLibraries.iterator(),
         librariesOnClasspath.iterator());
+  }
+
+  @Nonnull
+  public TypeDependencies getTypeDependencies() {
+    assert typeDependencies != null;
+    return typeDependencies;
+  }
+
+  @Nonnull
+  public FileDependencies getFileDependencies() {
+    assert fileDependencies != null;
+    return fileDependencies;
+  }
+
+  public void setTypeDependencies(@Nonnull TypeDependencies typeDependencies) {
+    this.typeDependencies = typeDependencies;
+  }
+
+  public void setFileDependencies(@Nonnull FileDependencies fileDependencies) {
+    this.fileDependencies = fileDependencies;
   }
 }

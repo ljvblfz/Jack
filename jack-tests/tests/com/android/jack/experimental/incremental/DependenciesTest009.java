@@ -18,16 +18,30 @@ package com.android.jack.experimental.incremental;
 
 import com.android.jack.Main;
 import com.android.jack.TestTools;
-import com.android.jack.experimental.incremental.CompilerState;
+import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.test.helper.IncrementalTestHelper;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 /**
  * JUnit test checking dependencies between Java files.
@@ -59,19 +73,51 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    CompilerState csm = new CompilerState(ite.getCompilerStateFolder());
-    csm.read();
-    Map<String, Set<String>> dependencies1 = csm.computeDependencies();
+    DirectVFS directVFS = null;
+    try {
+      directVFS = new DirectVFS(new Directory(ite.getCompilerStateFolder().getPath(), null,
+          Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+      InputVDir incrementalVDir = directVFS.getRootInputVDir();
 
-    ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
-        + "public class A extends B { public int field;}");
+      TypeDependencies typeDependencies = readTypeDependencies(incrementalVDir);
+      Map<String, Set<String>> dependencies1 = typeDependencies.getRecompileDependencies();
 
-    ite.incrementalBuildFromFolder();
+      ite.addJavaFile("jack.incremental", "A.java",
+          "package jack.incremental; \n" + "public class A extends B { public int field;}");
 
-    csm.read();
-    Map<String, Set<String>> dependencies2 = csm.computeDependencies();
+      ite.incrementalBuildFromFolder();
 
-    assert dependencies1.equals(dependencies2);
-    Assert.assertEquals(dependencies1, dependencies2);
+      typeDependencies = readTypeDependencies(incrementalVDir);
+      Map<String, Set<String>> dependencies2 = typeDependencies.getRecompileDependencies();
+
+      assert dependencies1.equals(dependencies2);
+      Assert.assertEquals(dependencies1, dependencies2);
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+    }
+  }
+
+  @Nonnull
+  private static TypeDependencies readTypeDependencies(@Nonnull InputVDir incrementalVDir)
+      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
+    TypeDependencies typeDependencies = new TypeDependencies();
+    InputVFile typeDependenciesVFile = incrementalVDir.getInputVFile(TypeDependencies.vpath);
+    InputStreamReader reader = null;
+    try {
+      reader = new InputStreamReader(typeDependenciesVFile.openRead());
+      typeDependencies.read(reader);
+    } catch (IOException e) {
+      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+        }
+      }
+    }
+    return typeDependencies;
   }
 }

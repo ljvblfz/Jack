@@ -17,8 +17,6 @@
 package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.experimental.incremental.CompilerState;
-import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -35,8 +33,6 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.vfs.DirectFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -79,14 +75,6 @@ public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassO
       OutputStream out = new BufferedOutputStream(vFile.openWrite());
       try {
         JayceWriterFactory.get(outputJackLibrary, out).write(type);
-
-        if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
-          assert vFile instanceof DirectFile;
-          CompilerState csm = JackIncremental.getCompilerState();
-          assert csm != null;
-          csm.addMappingBetweenJavaFileAndTypeName(type.getSourceInfo().getFileName(),
-              JackIncremental.getFormatter().getName(type));
-        }
       } finally {
         out.close();
       }

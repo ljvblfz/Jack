@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.experimental.incremental;
+package com.android.jack.analysis.dependency.type;
 
+import com.android.jack.Jack;
 import com.android.jack.backend.dex.TypeReferenceCollector;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
@@ -30,50 +32,39 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Find all usages between java files.
+ * Collect type dependencies.
  */
-@Description("Find all usages between java files")
-@Name("UsageFinder")
-@Transform(add = CompilerState.Filled.class)
+@Description("Collect type dependencies")
+@Name("TypeDependenciesCollector")
+@Transform(add = TypeDependencies.Collected.class)
 @Synchronized
-public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
+public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Visitor extends TypeReferenceCollector {
 
     @Nonnull
-    private final CompilerState compilerState;
+    private final TypeDependencies typeDependencies = Jack.getSession().getTypeDependencies();
 
     @Nonnull
-    private final String currentFileName;
+    private final JType currentType;
 
-    public Visitor(@Nonnull JType currentType, @Nonnull CompilerState compilerState) {
-      this.compilerState = compilerState;
+    public Visitor(@Nonnull JType currentType) {
       assert currentType.getSourceInfo() != SourceInfo.UNKNOWN;
-      currentFileName = currentType.getSourceInfo().getFileName();
-      compilerState.addCodeUsage(currentFileName, null);
-      compilerState.addCstUsage(currentFileName, null);
-      compilerState.addHierarchyUsage(currentFileName, null);
+      this.currentType = currentType;
 
       if (currentType instanceof JDefinedClassOrInterface) {
         if (currentType instanceof JDefinedClass) {
           JClass superClass = ((JDefinedClass) currentType).getSuperClass();
           if (superClass != null) {
-            String usedTypeFileName = getFileName(superClass);
-            if (usedTypeFileName != null) {
-              compilerState.addHierarchyUsage(currentFileName, usedTypeFileName);
-            }
+            typeDependencies.addHierarchyDependency(currentType, superClass);
           }
         }
 
         for (JInterface interf : ((JDefinedClassOrInterface) currentType).getImplements()) {
-          String usedTypeFileName = getFileName(interf);
-          if (usedTypeFileName != null) {
-            compilerState.addHierarchyUsage(currentFileName, usedTypeFileName);
-          }
+          typeDependencies.addHierarchyDependency(currentType, interf);
         }
       }
     }
@@ -83,29 +74,20 @@ public class UsageFinder implements RunnableSchedulable<JDefinedClassOrInterface
       if (usedType instanceof JArrayType) {
         usedType = ((JArrayType) usedType).getLeafType();
       }
-      String usedTypeFileName = getFileName(usedType);
-      if (usedTypeFileName != null) {
-        compilerState.addCodeUsage(currentFileName, usedTypeFileName);
+      if (!(usedType instanceof JPrimitiveType)) {
+        typeDependencies.addCodeDependency(currentType, usedType);
       }
-    }
-
-    @CheckForNull
-    private String getFileName(@Nonnull JType usedType) {
-      if (usedType.getSourceInfo() == SourceInfo.UNKNOWN) {
-        return null;
-      }
-      return (usedType.getSourceInfo().getFileName());
     }
   }
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
-    // Ignore external types
+  public synchronized void run(JDefinedClassOrInterface declaredType) throws Exception {
     if (declaredType.isExternal()) {
       return;
     }
 
-    Visitor v = new Visitor(declaredType, JackIncremental.getCompilerState());
+    Visitor v = new Visitor(declaredType);
     v.accept(declaredType);
   }
+
 }

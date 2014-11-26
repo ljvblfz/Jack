@@ -46,6 +46,15 @@ public enum FileType {
     @Override
     public void check() throws LibraryFormatException {
     }
+  },
+  DEPENDENCIES("dependencies", "dependencies", ".dep", "dependencies") {
+    @Override
+    public String toString() {
+      return "dependencies";
+    }
+    @Override
+    public void check() throws LibraryFormatException {
+    }
   };
 
   @Nonnull

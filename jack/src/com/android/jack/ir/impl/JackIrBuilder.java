@@ -2882,8 +2882,8 @@ public class JackIrBuilder {
           if (x.binding instanceof FieldBinding) {
             FieldBinding b = ((FieldBinding) x.binding).original();
             JField field = getTypeMap().get(b);
-            JackIncremental.getCompilerState().addCstUsage(info.getFileName(),
-                field.getSourceInfo().getFileName());
+            session.getTypeDependencies().addConstantDependency(curClass.type,
+                field.getEnclosingType());
           }
         }
 

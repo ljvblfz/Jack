@@ -24,6 +24,10 @@ import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
+import com.android.jack.analysis.dependency.file.FileDependencies;
+import com.android.jack.analysis.dependency.file.FileDependenciesWriter;
+import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.jayce.JayceFileImporter;
@@ -46,13 +50,27 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,9 +99,6 @@ public class JackIncremental extends CommandLine {
       "jack.experimental.compilerstate.output.dir", "Compiler state output folder",
       new DirectDirOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
       GENERATE_COMPILER_STATE.getValue().isTrue());
-
-  @CheckForNull
-  private static CompilerState compilerState = null;
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -169,7 +184,7 @@ public class JackIncremental extends CommandLine {
   }
 
   public static void run(@Nonnull Options options) throws ConfigurationException,
-      IllegalOptionsException, NothingToDoException, JackUserException {
+      IllegalOptionsException, NothingToDoException, JackUserException, IncrementalException {
 
     File incrementalFolder = options.getIncrementalFolder();
     assert incrementalFolder != null;
@@ -186,70 +201,102 @@ public class JackIncremental extends CommandLine {
     assert jackFilesFolder != null;
     options.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), jackFilesFolder.getPath());
 
-    compilerState = new CompilerState(incrementalFolder);
+    File typeDependenciesFile =
+        new File(incrementalFolder, TypeDependencies.vpath.getPathAsString(File.pathSeparatorChar));
 
-    if (isIncrementalCompilation(options) && !needFullRebuild(options)) {
+    File fileDependenciesFile =
+        new File(incrementalFolder, FileDependencies.vpath.getPathAsString(File.pathSeparatorChar));
+
+    if (isIncrementalCompilation(options, typeDependenciesFile, fileDependenciesFile)
+        && !needFullRebuild(options)) {
       logger.log(Level.FINE, "Incremental compilation");
+      DirectVFS directVFS = null;
+      try {
+        directVFS = new DirectVFS(new Directory(incrementalFolder.getPath(), null,
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+        InputVDir incrementalVDir = directVFS.getRootInputVDir();
 
-      List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
+        List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
 
-      getCompilerState().read();
+        TypeDependencies typeDependencies = readTypeDependencies(incrementalVDir);
+        FileDependencies fileDependencies = readFileDependencies(incrementalVDir);
 
-      Map<String, Set<String>> fileDependencies = getCompilerState().computeDependencies();
-      printDependencyStat(fileDependencies);
-      logger.log(Level.FINE, "Compiler state {0}", getCompilerState());
-      logger.log(Level.FINE, "File dependencies {0}", dependenciesToString(fileDependencies));
+        Map<String, Set<String>> typeRecompileDependencies =
+            typeDependencies.getRecompileDependencies();
+        printDependencyStat(typeRecompileDependencies);
 
-      Set<String> deletedFiles = getDeletedFiles(javaFilesNames);
-      Set<String> filesToRecompile =
-          getFilesToRecompile(fileDependencies, javaFilesNames, deletedFiles);
+        Set<String> deletedFiles = getDeletedFiles(javaFilesNames, fileDependencies);
+        Set<String> filesToRecompile = getFilesToRecompile(fileDependencies,
+            typeRecompileDependencies, javaFilesNames, deletedFiles);
 
-      if (!filesToRecompile.isEmpty() || !deletedFiles.isEmpty()) {
-        logger.log(Level.FINE, "{0} Files to recompile {1}",
-            new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
-        updateOptions(options, filesToRecompile);
+        if (!filesToRecompile.isEmpty() || !deletedFiles.isEmpty()) {
+          logger.log(Level.FINE, "{0} Files to recompile {1}",
+              new Object[] {Integer.valueOf(filesToRecompile.size()), filesToRecompile});
+          updateOptions(options, filesToRecompile);
 
-        // Compiler state update can be done here, if there is compilation error, modification
-        // will not be write on the disk
-        getCompilerState().updateCompilerState(filesToRecompile, deletedFiles);
-
-        logger.log(Level.FINE, "Ecj options {0}", options.getEcjArguments());
-        try {
-          Jack.run(options);
-        } catch (NothingToDoException e) {
-          // Even if there is nothing to compile, the output dex file must be rebuild from all dex
-          // (one dex per types) since some dex files could be removed. To rebuild output dex file,
-          // a specific plan is used.
-          ThreadConfig.setConfig(options.getConfig());
-
-          Request request = Jack.createInitialRequest();
-          request.addProduction(CompilerStateProduct.class);
-          request.addProduction(DexFileProduct.class);
-          request.addInitialTagOrMarker(ClassDefItemMarker.Complete.class);
-          request.addInitialTagOrMarker(CompilerState.Filled.class);
-
-          PlanBuilder<JSession> planBuilder;
-          try {
-            planBuilder = request.getPlanBuilder(JSession.class);
-          } catch (IllegalRequestException illegalRequest) {
-            throw new AssertionError(illegalRequest);
-          }
-
-          planBuilder.append(CompilerStateWriter.class);
-          planBuilder.append(DexFileWriter.class);
+          logger.log(Level.FINE, "Ecj options {0}", options.getEcjArguments());
 
           try {
-            planBuilder.getPlan().getScheduleInstance().process(Jack.getSession());
-          } catch (RuntimeException runtimeExcept) {
-            throw runtimeExcept;
-          } catch (Exception except) {
-            throw new AssertionError(except);
+            Jack.run(options, typeDependencies, fileDependencies);
+          } catch (NothingToDoException e) {
+            // Even if there is nothing to compile, the output dex file must be rebuild from all dex
+            // (one dex per types) since some dex files could be removed. To rebuild output dex
+            // file, a specific plan is used.
+            ThreadConfig.setConfig(options.getConfig());
+
+            JSession session = Jack.getSession();
+            session.setTypeDependencies(typeDependencies);
+            session.setFileDependencies(fileDependencies);
+
+            Request request = Jack.createInitialRequest();
+            request.addProduction(DexFileProduct.class);
+            request.addInitialTagOrMarker(ClassDefItemMarker.Complete.class);
+            request.addInitialTagOrMarker(TypeDependencies.Collected.class);
+            request.addInitialTagOrMarker(FileDependencies.Collected.class);
+
+            PlanBuilder<JSession> planBuilder;
+            try {
+              planBuilder = request.getPlanBuilder(JSession.class);
+            } catch (IllegalRequestException illegalRequest) {
+              throw new AssertionError(illegalRequest);
+            }
+
+            planBuilder.append(TypeDependenciesWriter.class);
+            planBuilder.append(FileDependenciesWriter.class);
+            planBuilder.append(DexFileWriter.class);
+
+            try {
+              planBuilder.getPlan().getScheduleInstance().process(Jack.getSession());
+            } catch (RuntimeException runtimeExcept) {
+              throw runtimeExcept;
+            } catch (Exception except) {
+              throw new AssertionError(except);
+            }
+          } finally {
+            ThreadConfig.unsetConfig();
           }
-        } finally {
-          ThreadConfig.unsetConfig();
+
+        } else {
+          logger.log(Level.FINE, "No files to recompile");
         }
-      } else {
-        logger.log(Level.FINE, "No files to recompile");
+      } catch (WrongPermissionException e) {
+        throw new AssertionError(e);
+      } catch (CannotSetPermissionException e) {
+        throw new AssertionError(e);
+      } catch (NoSuchFileException e) {
+        throw new AssertionError(e);
+      } catch (NotFileOrDirectoryException e) {
+        throw new AssertionError(e);
+      } catch (FileAlreadyExistsException e) {
+        throw new AssertionError(e);
+      } catch (CannotCreateFileException e) {
+        throw new AssertionError(e);
+      } catch (CannotReadException e) {
+        throw new IncrementalException(e);
+      } finally {
+        if (directVFS != null) {
+          directVFS.close();
+        }
       }
     } else {
       Jack.run(options);
@@ -257,13 +304,47 @@ public class JackIncremental extends CommandLine {
   }
 
   @Nonnull
-  public static CompilerState getCompilerState() throws JackUserException {
-    if (compilerState == null) {
-      throw new JackUserException(
-          "Incremental support must be used with experimental Main class from "
-          + "com.android.jack.experimental.incremental");
+  private static TypeDependencies readTypeDependencies(@Nonnull InputVDir incrementalVDir)
+      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
+    TypeDependencies typeDependencies = new TypeDependencies();
+    InputVFile typeDependenciesVFile = incrementalVDir.getInputVFile(TypeDependencies.vpath);
+    InputStreamReader reader = null;
+    try {
+      reader = new InputStreamReader(typeDependenciesVFile.openRead());
+      typeDependencies.read(reader);
+    } catch (IOException e) {
+      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+        }
+      }
     }
-    return compilerState;
+    return typeDependencies;
+  }
+
+  @Nonnull
+  private static FileDependencies readFileDependencies(@Nonnull InputVDir incrementalVDir)
+      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
+    FileDependencies fileDependencies = new FileDependencies();
+    InputVFile fileDependenciesVFile = incrementalVDir.getInputVFile(FileDependencies.vpath);
+    InputStreamReader reader = null;
+    try {
+      reader = new InputStreamReader(fileDependenciesVFile.openRead());
+      fileDependencies.read(reader);
+    } catch (IOException e) {
+      throw new CannotReadException(fileDependenciesVFile.getLocation(), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+        }
+      }
+    }
+    return fileDependencies;
   }
 
   /*
@@ -347,12 +428,13 @@ public class JackIncremental extends CommandLine {
     return (builder.toString());
   }
 
-  private static void printDependencyStat(@Nonnull Map<String, Set<String>> fileDependencies) {
+  private static void printDependencyStat(
+      @Nonnull Map<String, Set<String>> typeRecompileDependencies) {
     int dependencyNumber = 0;
     int maxDependencyNumber = -1;
     int minDependencyNumber = -1;
 
-    for (Set<String> dependency : fileDependencies.values()) {
+    for (Set<String> dependency : typeRecompileDependencies.values()) {
       int currentDepSize = dependency.size();
       dependencyNumber += currentDepSize;
       if (minDependencyNumber == -1 || minDependencyNumber > currentDepSize) {
@@ -363,13 +445,12 @@ public class JackIncremental extends CommandLine {
       }
     }
 
-    logger.log(
-        Level.FINE,
-        "There are {0} dependencies, with {1} files per dependency in average",
-        new Object[] {Integer.valueOf(fileDependencies.size()),
-            Double.valueOf((double) dependencyNumber / (double) fileDependencies.size())});
-    logger.log(Level.FINE, "Dependencies are at minimun {0} and at maximun {1}", new Object[] {
-        Integer.valueOf(minDependencyNumber), Integer.valueOf(maxDependencyNumber)});
+    logger.log(Level.FINE,
+        "There are {0} dependencies, with {1} files per dependency in average", new Object[] {
+            Integer.valueOf(typeRecompileDependencies.size()),
+            Double.valueOf((double) dependencyNumber / (double) typeRecompileDependencies.size())});
+    logger.log(Level.FINE, "Dependencies are at minimun {0} and at maximun {1}",
+        new Object[] {Integer.valueOf(minDependencyNumber), Integer.valueOf(maxDependencyNumber)});
   }
 
   private static void updateOptions(@Nonnull Options options,
@@ -414,55 +495,62 @@ public class JackIncremental extends CommandLine {
   }
 
   @Nonnull
-  private static Set<String> getFilesToRecompile(
-      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull List<String> javaFileNames,
-      Set<String> deletedFiles) throws JackUserException {
+  private static Set<String> getFilesToRecompile(@Nonnull FileDependencies fileDependencies,
+      @Nonnull Map<String, Set<String>> typeRecompileDependencies,
+      @Nonnull List<String> javaFileNames, Set<String> deletedFiles) throws JackUserException {
     Set<String> filesToRecompile = new HashSet<String>();
 
-    filesToRecompile.addAll(getModifiedFiles(fileDependencies, javaFileNames, deletedFiles));
+    filesToRecompile.addAll(getModifiedFiles(fileDependencies, typeRecompileDependencies,
+        javaFileNames, deletedFiles));
     filesToRecompile.addAll(getAddedFiles(fileDependencies, javaFileNames));
 
     for (String deletedFile : deletedFiles) {
-      deleteOldFilesFromJavaFiles(deletedFile);
-      addNotModifiedDependencies(fileDependencies, deletedFiles, filesToRecompile, deletedFile);
+      deleteOldFilesFromJavaFiles(fileDependencies, deletedFile);
+      addNotModifiedDependencies(fileDependencies, typeRecompileDependencies, deletedFiles,
+          filesToRecompile, deletedFile);
     }
 
     for (String fileToRecompile : filesToRecompile) {
-      deleteOldFilesFromJavaFiles(fileToRecompile);
+      deleteOldFilesFromJavaFiles(fileDependencies, fileToRecompile);
     }
 
     return filesToRecompile;
   }
 
-  private static void addNotModifiedDependencies(
-      @Nonnull Map<String, Set<String>> fileDependencies, @Nonnull Set<String> deletedFiles,
-      @Nonnull Set<String> filesToRecompile, @Nonnull String fileName) {
-    for (String dependency : fileDependencies.get(fileName)) {
-      if (!deletedFiles.contains(dependency)) {
-        filesToRecompile.add(dependency);
+  private static void addNotModifiedDependencies(@Nonnull FileDependencies fileDependencies,
+      @Nonnull Map<String, Set<String>> typeRecompileDependencies,
+      @Nonnull Set<String> deletedFiles, @Nonnull Set<String> filesToRecompile,
+      @Nonnull String modifiedJavaFileName) {
+    for (String modifiedTypeName : fileDependencies.getTypeNames(modifiedJavaFileName)) {
+      for (String typeName : typeRecompileDependencies.get(modifiedTypeName)) {
+        String dependentFileName = fileDependencies.getJavaFileName(typeName);
+        if (dependentFileName != null && !deletedFiles.contains(dependentFileName)) {
+          filesToRecompile.add(dependentFileName);
+        }
       }
     }
   }
 
-  @Nonnull
-  private static Set<String> getDeletedFiles(@Nonnull List<String> javaFileNames)
-      throws JackUserException {
-    Set<String> deletedFiles = new HashSet<String>();
+    @Nonnull
+  private static Set<String> getDeletedFiles(@Nonnull List<String> javaFileNames,
+      @Nonnull FileDependencies fileDependencies)
+        throws JackUserException {
+      Set<String> deletedFiles = new HashSet<String>();
 
-    for (String javaFileName : getCompilerState().getJavaFilename()) {
-      if (!javaFileNames.contains(javaFileName)) {
-        logger.log(Level.FINE, "{0} was deleted", javaFileName);
-        deletedFiles.add(javaFileName);
+      for (String javaFileName : fileDependencies.getCompiledJavaFiles()) {
+        if (!javaFileNames.contains(javaFileName)) {
+          logger.log(Level.FINE, "{0} was deleted", javaFileName);
+          deletedFiles.add(javaFileName);
+        }
       }
+
+      return deletedFiles;
     }
 
-    return deletedFiles;
-  }
-
-  private static void deleteOldFilesFromJavaFiles(@Nonnull String javaFileName)
+  private static void deleteOldFilesFromJavaFiles(
+      @Nonnull FileDependencies fileDependencies, @Nonnull String javaFileName)
       throws JackUserException {
-    for (String typeNameToRemove :
-      getCompilerState().getTypeNamePathFromJavaFileName(javaFileName)) {
+    for (String typeNameToRemove : fileDependencies.getTypeNames(javaFileName)) {
       File jackFile = getJackFile(typeNameToRemove);
       if (jackFile.exists() && !jackFile.delete()) {
         throw new JackIOException("Failed to delete file " + jackFile.getPath());
@@ -475,10 +563,10 @@ public class JackIncremental extends CommandLine {
   }
 
   @Nonnull
-  private static Set<String> getAddedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
+  private static Set<String> getAddedFiles(@Nonnull FileDependencies fileDependencies,
       @Nonnull List<String> javaFileNames) {
     Set<String> addedFiles = new HashSet<String>();
-    Set<String> previousFiles = fileDependencies.keySet();
+    Set<String> previousFiles = fileDependencies.getCompiledJavaFiles();
 
     for (String javaFileName : javaFileNames) {
       if (!previousFiles.contains(javaFileName)) {
@@ -491,26 +579,25 @@ public class JackIncremental extends CommandLine {
   }
 
   @Nonnull
-  private static Set<String> getModifiedFiles(@Nonnull Map<String, Set<String>> fileDependencies,
+  private static Set<String> getModifiedFiles(@Nonnull FileDependencies fileDependencies,
+      @Nonnull Map<String, Set<String>> typeRecompileDependencies,
       @Nonnull List<String> javaFileNames, @Nonnull Set<String> deletedFiles)
       throws JackUserException {
     Set<String> modifiedFiles = new HashSet<String>();
 
-    for (Map.Entry<String, Set<String>> previousFileEntry : fileDependencies.entrySet()) {
-      String javaFileName = previousFileEntry.getKey();
-      if (!deletedFiles.contains(javaFileName)) {
-        for (String typeNameToCheck : getCompilerState().getTypeNamePathFromJavaFileName(
-            javaFileName)) {
-          File javaFile = new File(javaFileName);
-          File dexFile = getDexFile(typeNameToCheck);
-          if (!dexFile.exists()
-              || (javaFileNames.contains(javaFileName) && javaFile.lastModified() > dexFile
-                  .lastModified())) {
-            logger.log(Level.FINE, "{0} was modified", new Object[] {javaFileName});
-            modifiedFiles.add(javaFileName);
-            addNotModifiedDependencies(fileDependencies, deletedFiles, modifiedFiles, javaFileName);
-            break;
-          }
+    for (Map.Entry<String, Set<String>> previousFileEntry : typeRecompileDependencies.entrySet()) {
+      String typeName = previousFileEntry.getKey();
+      String javaFileName = fileDependencies.getJavaFileName(typeName);
+      if (javaFileName != null && !deletedFiles.contains(javaFileName)) {
+        File javaFile = new File(javaFileName);
+        File dexFile = getDexFile(typeName);
+        if (!dexFile.exists() || (javaFileNames.contains(javaFileName)
+            && javaFile.lastModified() > dexFile.lastModified())) {
+          logger.log(Level.FINE, "{0} was modified", new Object[] {javaFileName});
+          modifiedFiles.add(javaFileName);
+          addNotModifiedDependencies(fileDependencies, typeRecompileDependencies, deletedFiles,
+              modifiedFiles, javaFileName);
+          break;
         }
       }
     }
@@ -554,8 +641,10 @@ public class JackIncremental extends CommandLine {
     return javaFiles;
   }
 
-  private static boolean isIncrementalCompilation(@Nonnull Options options) {
-    if (!options.getEcjArguments().isEmpty() && getCompilerState().exists()) {
+  private static boolean isIncrementalCompilation(@Nonnull Options options,
+      @Nonnull File typeDependencies, @Nonnull File fileDependencies) {
+    if (!options.getEcjArguments().isEmpty() && typeDependencies.exists()
+        && fileDependencies.exists()) {
       return true;
     }
 

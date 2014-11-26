@@ -28,17 +28,12 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-
 import javax.annotation.Nonnull;
 
 /**
  * JUnit test for compilation of finally blocks.
  */
 public class FinallyTest {
-
-  private static final File PATH =
-      TestTools.getJackTestsWithJackFolder("tryfinally/finallyblock");
 
   @BeforeClass
   public static void setUpClass() {

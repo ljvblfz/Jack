@@ -16,12 +16,29 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.sched.item.Description;
-import com.android.sched.item.Production;
+import com.android.jack.reporting.ReportableException;
+
+import javax.annotation.Nonnull;
 
 /**
- * Represents the compiler state production.
+ * A {@link ReportableException} that occurs and that is related to incremental support.
  */
-@Description("Compiler state production")
-public class CompilerStateProduct implements Production {
+public class IncrementalException extends ReportableException {
+
+  private static final long serialVersionUID = 1L;
+
+  public IncrementalException(@Nonnull Throwable cause) {
+    super(cause);
+  }
+
+  @Override
+  public String getMessage() {
+    return "Error in incremental support: " + getCause().getMessage();
+  }
+
+  @Override
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.ERROR;
+  }
 }

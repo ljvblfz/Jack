@@ -807,7 +807,7 @@ public class TestTools {
   }
 
   /**
-   * Creates the reference {@link DexFile}.
+   * Creates the reference compiler files.
    *
    * @param compilerArgs the arguments given to a reference compiler
    * @throws IOException

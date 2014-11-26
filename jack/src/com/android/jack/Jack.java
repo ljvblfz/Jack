@@ -23,6 +23,12 @@ import com.android.jack.analysis.UsedVariableRemover;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainComputation;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainRemover;
 import com.android.jack.analysis.defsuses.UseDefsChecker;
+import com.android.jack.analysis.dependency.file.FileDependencies;
+import com.android.jack.analysis.dependency.file.FileDependenciesCollector;
+import com.android.jack.analysis.dependency.file.FileDependenciesWriter;
+import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
+import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
@@ -56,10 +62,6 @@ import com.android.jack.backend.jayce.JayceSingleTypeWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
-import com.android.jack.experimental.incremental.CompilerStateProduct;
-import com.android.jack.experimental.incremental.CompilerStateWriter;
-import com.android.jack.experimental.incremental.JackIncremental;
-import com.android.jack.experimental.incremental.UsageFinder;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.frontend.MethodIdDuplicateRemover;
 import com.android.jack.frontend.MethodIdMerger;
@@ -396,6 +398,11 @@ public abstract class Jack {
     return unmodifiableCollections;
   }
 
+  public static void run(@Nonnull Options options) throws ConfigurationException, JackUserException,
+      IllegalOptionsException, NothingToDoException {
+    Jack.run(options, new TypeDependencies(), new FileDependencies());
+  }
+
   /**
    * Runs the jack compiler on source files and generates a dex file.
    *
@@ -410,7 +417,9 @@ public abstract class Jack {
    * @throws JPackageLookupException thrown when the lookup of a package failed.
    * @throws JTypeLookupException thrown when the lookup of a type failed.
    */
-  public static void run(@Nonnull Options options)
+  // TODO(jack-team): Remove typeDependencies and fileDependencies parameters
+  public static void run(@Nonnull Options options, @Nonnull TypeDependencies typeDependencies,
+      @Nonnull FileDependencies fileDependencies)
       throws IllegalOptionsException,
       NothingToDoException,
       ConfigurationException,
@@ -464,7 +473,12 @@ public abstract class Jack {
         logger.log(Level.INFO, "Jack sanity checks {0}",
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
-        JSession session = buildSession(options, hooks);
+
+        JSession session = getSession();
+        session.setTypeDependencies(typeDependencies);
+        session.setFileDependencies(fileDependencies);
+
+        buildSession(options, hooks);
 
         if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
           Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
@@ -566,9 +580,6 @@ public abstract class Jack {
         if (options.ecjArguments != null) {
           if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
             request.addProduction(JayceFormatProduct.class);
-          }
-          if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
-            request.addProduction(CompilerStateProduct.class);
           }
         }
 
@@ -1060,11 +1071,6 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       {
-
-        if (productions.contains(CompilerStateProduct.class)) {
-          typePlan.append(UsageFinder.class);
-        }
-
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         if (features.contains(CompiledTypeStats.class)) {
           methodPlan.append(MethodStats.class);
@@ -1177,6 +1183,8 @@ public abstract class Jack {
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(JayceFileOutput.class)) {
         typePlan.append(JayceSingleTypeWriter.class);
+        typePlan.append(TypeDependenciesCollector.class);
+        typePlan.append(FileDependenciesCollector.class);
       }
     }
 
@@ -1228,8 +1236,9 @@ public abstract class Jack {
       }
     }
 
-    if (productions.contains(CompilerStateProduct.class)) {
-      planBuilder.append(CompilerStateWriter.class);
+    if (features.contains(JayceFileOutput.class)) {
+      planBuilder.append(TypeDependenciesWriter.class);
+      planBuilder.append(FileDependenciesWriter.class);
     }
 
     if (productions.contains(Mapping.class)) {
