@@ -45,7 +45,7 @@ public class MessageDigestFactory implements DefaultFactory<MessageDigest> {
 
   @Override
   @Nonnull
-  public Class<MessageDigest> getInstanciatedClass() {
+  public Class<MessageDigest> getInstantiatedClass() {
     return MessageDigest.class;
   }
 

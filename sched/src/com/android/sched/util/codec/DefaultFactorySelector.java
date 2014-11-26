@@ -57,10 +57,10 @@ public class DefaultFactorySelector<T> extends Selector<T>
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull DefaultFactory<T> factory)
       throws CheckingException {
-    if (!checkClass(factory.getInstanciatedClass())) {
+    if (!checkClass(factory.getInstantiatedClass())) {
       throw new CheckingException("The value must be a DefaultFactory<{"
           + Joiner.on(',').join(getClasses()) + "}> but is a DefaultFactory<"
-          + factory.getInstanciatedClass().getCanonicalName() + ">");
+          + factory.getInstantiatedClass().getCanonicalName() + ">");
     }
   }
 
@@ -77,6 +77,6 @@ public class DefaultFactorySelector<T> extends Selector<T>
   @Override
   @Nonnull
   public String formatValue(@Nonnull DefaultFactory<T> factory) {
-    return getName(factory.getInstanciatedClass());
+    return getName(factory.getInstantiatedClass());
   }
 }

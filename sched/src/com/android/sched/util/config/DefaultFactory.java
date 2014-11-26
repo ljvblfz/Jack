@@ -28,5 +28,5 @@ public interface DefaultFactory<T> {
   public T create();
 
   @Nonnull
-  public Class<? extends T> getInstanciatedClass();
+  public Class<? extends T> getInstantiatedClass();
 }

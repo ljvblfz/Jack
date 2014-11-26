@@ -79,7 +79,7 @@ public class ReflectDefaultCtorFactory<T> implements DefaultFactory<T> {
 
   @Override
   @Nonnull
-  public Class<? extends T> getInstanciatedClass() {
+  public Class<? extends T> getInstantiatedClass() {
     return cls;
   }
 }
