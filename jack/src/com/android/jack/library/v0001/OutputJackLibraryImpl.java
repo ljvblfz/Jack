@@ -90,9 +90,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throws CannotCreateFileException {
     putProperty(fileType.getPropertyPrefix(), String.valueOf(true));
     addFileType(fileType);
-    typePath.addSuffix(fileType.getFileExtension());
-    typePath.prependPath(fileType.getVPathPrefix());
-    return outputVDir.createOutputVFile(typePath);
+    VPath clonedPath = typePath.clone();
+    clonedPath.addSuffix(fileType.getFileExtension());
+    clonedPath.prependPath(fileType.getVPathPrefix());
+    return outputVDir.createOutputVFile(clonedPath);
   }
 
   @Override
