@@ -149,12 +149,6 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
-  @Nonnull
-  public InputRootVDir getInputVDir() {
-    return libraryVDir;
-  }
-
-  @Override
   public int getMinorVersion() throws LibraryFormatException {
     int minor;
     try {

@@ -41,7 +41,6 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -121,8 +120,7 @@ public class JayceFileImporter {
       ImportConflictException, JTypeLookupException {
 
     for (InputJackLibrary jackLibrary : jackLibraries) {
-      InputRootVDir libraryVDir = jackLibrary.getInputVDir();
-      logger.log(Level.FINE, "Importing {0}", libraryVDir.getLocation().getDescription());
+      logger.log(Level.FINE, "Importing {0}", jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();

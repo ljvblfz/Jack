@@ -16,7 +16,6 @@
 
 package com.android.jack.library;
 
-import com.android.sched.vfs.InputRootVDir;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -30,9 +29,6 @@ import javax.annotation.Nonnull;
  * Library used as input.
  */
 public interface InputLibrary extends Library {
-
-  @Nonnull
-  public InputRootVDir getInputVDir();
 
   @Nonnull
   public Collection<FileType> getFileTypes();
