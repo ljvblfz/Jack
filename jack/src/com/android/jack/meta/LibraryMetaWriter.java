@@ -77,14 +77,14 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
       name = ((ZipLocation) jppFile.getLocation()).getEntryName();
       if (jackLibrary.getMajorVersion() != 0) {
         name = name.substring(
-            FileType.JPP.getVPathPrefix().split().iterator().next().length() + 1);
+            FileType.JPP.buildDirVPath(VPath.ROOT).split().iterator().next().length() + 1);
       } else {
         name = name.substring("JACK-INF/".length());
       }
     } else {
       name = ((FileLocation) jppFile.getLocation()).getPath();
       if (jackLibrary.getMajorVersion() != 0) {
-        String prefix = FileType.JPP.getVPathPrefix().split().iterator().next() + '/';
+        String prefix = FileType.JPP.buildDirVPath(VPath.ROOT).split().iterator().next() + '/';
         name = name.substring(name.lastIndexOf(prefix) + prefix.length());
       } else {
         name = name.substring("JACK-INF/".length());

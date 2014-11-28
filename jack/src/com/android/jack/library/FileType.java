@@ -16,13 +16,10 @@
 
 package com.android.jack.library;
 
-import com.android.jack.backend.dex.DexProperties;
-import com.android.jack.jayce.JayceProperties;
-import com.android.jack.preprocessor.PreprocessorProperties;
-import com.android.jack.resource.ResourceProperties;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -30,42 +27,29 @@ import javax.annotation.Nonnull;
  * File types supported by jack library.
  */
 public enum FileType {
-  DEX("dex", DexProperties.KEY_DEX, ".dex") {
-    @Override
-    public String toString() {
-      return "dex";
-    }
+  DEX("dex", "dex", ".dex", "dex") {
     @Override
     public void check() throws LibraryFormatException {
     }
   },
-  JAYCE("jayce", JayceProperties.KEY_JAYCE, ".jayce") {
-    @Override
-    public String toString() {
-      return "jayce";
-    }
+  JAYCE("jayce", "jayce", ".jayce", "jayce") {
     @Override
     public void check() throws LibraryFormatException {
     }
   },
-  JPP("jpp", PreprocessorProperties.KEY_JPP, ".jpp") {
-    @Override
-    public String toString() {
-      return "java pre-processor";
-    }
+  JPP("jpp", "jpp", ".jpp", "java pre-processor") {
     @Override
     public void check() throws LibraryFormatException {
     }
   },
-  RSC("rsc", ResourceProperties.KEY_RESOURCE, "") {
-    @Override
-    public String toString() {
-      return "resource";
-    }
+  RSC("rsc", "rsc", "", "resource") {
     @Override
     public void check() throws LibraryFormatException {
     }
   };
+
+  @Nonnull
+  private final String description;
 
   @Nonnull
   private final String extension;
@@ -80,17 +64,23 @@ public enum FileType {
   private final String propertyPrefix;
 
   private FileType(@Nonnull String vpathPrefix, @Nonnull String propertyPrefix,
-      @Nonnull String extension) {
+      @Nonnull String extension, @Nonnull String description) {
     this.prefix = vpathPrefix;
     this.vpathPrefix = new VPath(vpathPrefix, '/');
     this.propertyPrefix = propertyPrefix;
     this.extension = extension;
+    this.description = description;
   }
 
   public abstract void check() throws LibraryFormatException;
 
   public boolean isOfType(@Nonnull InputVFile v){
     return (v.getName().endsWith(getFileExtension()));
+  }
+
+  @Override
+  public String toString() {
+    return description;
   }
 
   @Nonnull
@@ -104,13 +94,20 @@ public enum FileType {
   }
 
   @Nonnull
-  public String getPropertyPrefix() {
-    return propertyPrefix;
+  public String buildPropertyName(@CheckForNull String suffix) {
+    return (propertyPrefix + (suffix == null ? "" : suffix));
   }
 
   @Nonnull
-  public VPath getVPathPrefix() {
-    return vpathPrefix;
+  public VPath buildDirVPath(@Nonnull VPath vpath) {
+    return getPathWithPrefix(vpath);
+  }
+
+  @Nonnull
+  public VPath buildFileVPath(@Nonnull VPath vpath) {
+    VPath clonedPath = getPathWithPrefix(vpath);
+    clonedPath.addSuffix(getFileExtension());
+    return clonedPath;
   }
 
   @Nonnull
@@ -122,5 +119,12 @@ public enum FileType {
     }
 
     throw new UnsupportedFileTypeException(v);
+  }
+
+  @Nonnull
+  private VPath getPathWithPrefix(@Nonnull VPath vpath) {
+    VPath clonedPath = vpath.clone();
+    clonedPath.prependPath(vpathPrefix);
+    return clonedPath;
   }
 }

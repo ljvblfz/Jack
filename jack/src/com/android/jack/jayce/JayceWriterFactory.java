@@ -17,6 +17,7 @@
 package com.android.jack.jayce;
 
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
+import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
 
 import java.io.OutputStream;
@@ -35,7 +36,8 @@ public abstract class JayceWriterFactory {
       @Nonnull OutputStream out) {
     JayceInternalWriterImpl jayceWriter = new JayceInternalWriterImpl(out);
 
-    outputJackLibrary.putProperty(JayceProperties.KEY_JAYCE, String.valueOf(true));
+    outputJackLibrary.putProperty(FileType.JAYCE.buildPropertyName(null /* suffix */),
+        String.valueOf(true));
     outputJackLibrary.putProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION,
         String.valueOf(DEFAULT_MAJOR_VERSION));
     outputJackLibrary.putProperty(JayceProperties.KEY_JAYCE_MINOR_VERSION,

@@ -88,7 +88,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
   protected void fillFileTypes() {
     for (FileType ft : FileType.values()) {
       try {
-        String propertyName = ft.getPropertyPrefix();
+        String propertyName = ft.buildPropertyName(null /*suffix*/);
         if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
           fileTypes.add(ft);
         }

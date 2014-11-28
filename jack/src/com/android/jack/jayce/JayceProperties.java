@@ -16,7 +16,10 @@
 
 package com.android.jack.jayce;
 
+import com.android.jack.library.FileType;
+
 import javax.annotation.Nonnull;
+
 
 /**
  * Properties related to Jayce files.
@@ -24,10 +27,9 @@ import javax.annotation.Nonnull;
 public interface JayceProperties {
 
   @Nonnull
-  public static final String KEY_JAYCE = "jayce";
+  public static final String KEY_JAYCE_MAJOR_VERSION =
+      FileType.JAYCE.buildPropertyName(".version.major");
   @Nonnull
-  public static final String KEY_JAYCE_MAJOR_VERSION = "jayce.version.major";
-  @Nonnull
-  public static final String KEY_JAYCE_MINOR_VERSION = "jayce.version.minor";
-
+  public static final String KEY_JAYCE_MINOR_VERSION =
+      FileType.JAYCE.buildPropertyName(".version.minor");
 }

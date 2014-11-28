@@ -24,7 +24,6 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
-import com.android.jack.preprocessor.PreprocessorProperties;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.util.ExecuteFile;
 
@@ -273,7 +272,7 @@ public class MultiDexTests {
     }
     try {
       fos = new FileOutputStream(jackProperties);
-      libraryProperties.put(PreprocessorProperties.KEY_JPP, "true");
+      libraryProperties.put(FileType.JPP.buildPropertyName(null /*suffix*/), "true");
         libraryProperties.store(fos, "Library properties");
     } catch (IOException e) {
       Assert.fail();
