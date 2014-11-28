@@ -88,7 +88,8 @@ public abstract class JackLibraryFactory {
     Properties libraryProperties = new Properties();
 
     try {
-      InputVFile libProp = vfs.getRootDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
+      InputVFile libProp =
+          vfs.getRootInputVDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
       libraryProperties.load(libProp.openRead());
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Fails to read "

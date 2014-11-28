@@ -141,7 +141,7 @@ public final class CompilerState {
 
     try {
       OutputVFile compilerStateFile =
-          outputVDir.getRootDir().createOutputVFile(new VPath(COMPILER_STATE_FILENAME, '/'));
+          outputVDir.getRootOutputVDir().createOutputVFile(new VPath(COMPILER_STATE_FILENAME, '/'));
       StringBuffer sb = new StringBuffer();
 
       writeMap(sb, javaFileToTypeNamePath);

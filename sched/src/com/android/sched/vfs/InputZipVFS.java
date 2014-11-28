@@ -49,7 +49,7 @@ public class InputZipVFS extends AbstractInputVFS {
       if (!entry.isDirectory()) {
         String entryName = entry.getName();
         Iterator<String> names = splitter.split(entryName).iterator();
-        InputZipVDir dir = getRootDir();
+        InputZipVDir dir = getRootInputVDir();
         StringBuilder inZipPath = new StringBuilder();
         String simpleName = null;
         while (names.hasNext()) {
@@ -76,8 +76,8 @@ public class InputZipVFS extends AbstractInputVFS {
 
   @Override
   @Nonnull
-  public InputZipVDir getRootDir() {
-    return (InputZipVDir) super.getRootDir();
+  public InputZipVDir getRootInputVDir() {
+    return (InputZipVDir) super.getRootInputVDir();
   }
 
   @Override

@@ -23,7 +23,6 @@ import javax.annotation.Nonnull;
  * A root of an input/output VFS.
  */
 public interface InputOutputVFS extends InputVFS, OutputVFS {
-  @Override
   @Nonnull
-  InputOutputVDir getRootDir();
+  InputOutputVDir getRootInputOutputVDir();
 }

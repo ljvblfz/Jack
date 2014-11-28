@@ -113,7 +113,7 @@ public abstract class DexWritingTool {
       dexName = DexFileWriter.DEX_PREFIX + dexCount + FileType.DEX.getFileExtension();
     }
     try {
-      return outputVfs.getRootDir().createOutputVFile(new VPath(dexName, '/'));
+      return outputVfs.getRootOutputVDir().createOutputVFile(new VPath(dexName, '/'));
     } catch (CannotCreateFileException e) {
       throw new DexWritingException(e);
     }
@@ -165,7 +165,8 @@ public abstract class DexWritingTool {
       inputVFile = jackOutputLibrary.getFile(FileType.DEX,
           new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
     } else {
-      inputVFile = getIntermediateDexDir().getRootDir().getInputVFile(DexWriter.getFilePath(type));
+      inputVFile =
+          getIntermediateDexDir().getRootInputVDir().getInputVFile(DexWriter.getFilePath(type));
     }
 
     return inputVFile;

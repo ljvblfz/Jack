@@ -23,5 +23,5 @@ import javax.annotation.Nonnull;
  */
 public interface InputVFS extends VFS {
   @Nonnull
-  InputVDir getRootDir();
+  InputVDir getRootInputVDir();
 }

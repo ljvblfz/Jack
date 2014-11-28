@@ -44,7 +44,7 @@ public abstract class ResourceOrMetaImporter {
 
   public void doImport(@Nonnull JSession session) {
     for (InputVFS resourceDir : resourceDirs) {
-      importResourceDirElement(resourceDir.getRootDir().list(), session, "");
+      importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "");
     }
   }
 

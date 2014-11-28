@@ -99,7 +99,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
         } else {
           assert intermediateDexDir != null;
-          vFile = intermediateDexDir.getRootDir().createOutputVFile(getFilePath(type));
+          vFile = intermediateDexDir.getRootInputOutputVDir().createOutputVFile(getFilePath(type));
         }
 
         InputStream is = in.openRead();
@@ -134,7 +134,7 @@ public class IntermediateDexPerTypeWriter extends DexWriter implements
             new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
       } else {
         assert intermediateDexDir != null;
-        vFile = intermediateDexDir.getRootDir().createOutputVFile(getFilePath(type));
+        vFile = intermediateDexDir.getRootInputOutputVDir().createOutputVFile(getFilePath(type));
       }
     } catch (IOException e) {
       throw new JackIOException("Could not create Dex file in output "

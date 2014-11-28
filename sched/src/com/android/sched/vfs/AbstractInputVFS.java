@@ -32,7 +32,7 @@ public abstract class AbstractInputVFS extends AbstractVFS implements InputVFS {
 
   @Override
   @Nonnull
-  public InputVDir getRootDir() {
+  public InputVDir getRootInputVDir() {
     assert root != null;
 
     return root;

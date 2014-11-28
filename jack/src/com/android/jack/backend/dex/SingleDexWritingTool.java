@@ -55,7 +55,7 @@ public class SingleDexWritingTool extends DexWritingTool {
       inputVFileIt = jackOutputLibrary.iterator(FileType.DEX);
     } else {
       List<InputVFile> dexList = new ArrayList<InputVFile>();
-      getAllDexFilesFromDir(getIntermediateDexDir().getRootDir(), dexList);
+      getAllDexFilesFromDir(getIntermediateDexDir().getRootInputVDir(), dexList);
       inputVFileIt = dexList.iterator();
     }
 

@@ -89,7 +89,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throws CannotCreateFileException {
     putProperty(fileType.buildPropertyName(null /*suffix*/), String.valueOf(true));
     addFileType(fileType);
-    return vfs.getRootDir().createOutputVFile(fileType.buildFileVPath(typePath));
+    return vfs.getRootInputOutputVDir().createOutputVFile(fileType.buildFileVPath(typePath));
   }
 
   @Override
@@ -108,7 +108,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     OutputStream os = null;
     try {
       OutputVFile libraryPropertiesOut =
-          vfs.getRootDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+          vfs.getRootInputOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
       os = libraryPropertiesOut.openWrite();
       libraryProperties.store(os, "Library properties");
     } catch (CannotCreateFileException e) {
@@ -140,7 +140,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(vfs.getRootDir(), fileType, inputVFiles);
+    fillFiles(vfs.getRootInputOutputVDir(), fileType, inputVFiles);
     return inputVFiles.listIterator();
   }
 
@@ -149,7 +149,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return vfs.getRootDir().getInputVFile(fileType.buildFileVPath(typePath));
+      return vfs.getRootInputOutputVDir().getInputVFile(fileType.buildFileVPath(typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {

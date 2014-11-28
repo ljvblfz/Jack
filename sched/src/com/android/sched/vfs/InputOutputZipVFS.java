@@ -55,7 +55,7 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   @Override
   public void close() throws IOException {
     try {
-      addDirToZip(zipOS, getRootDir());
+      addDirToZip(zipOS, getRootInputOutputVDir());
     } finally {
       zipOS.close();
       FileUtils.deleteDir(dir);
@@ -64,8 +64,8 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
 
   @Override
   @Nonnull
-  public InputOutputZipVDir getRootDir() {
-    return (InputOutputZipVDir) super.getRootDir();
+  public InputOutputZipVDir getRootInputOutputVDir() {
+    return (InputOutputZipVDir) super.getRootInputOutputVDir();
   }
 
   private void addDirToZip(@Nonnull ZipOutputStream zos, @Nonnull InputOutputZipVDir vDir)

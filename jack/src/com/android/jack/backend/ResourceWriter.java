@@ -66,7 +66,7 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
-      OutputVFile outputFile = outputVDir.getRootDir().createOutputVFile(path);
+      OutputVFile outputFile = outputVDir.getRootOutputVDir().createOutputVFile(path);
       InputStream is = inputFile.openRead();
       OutputStream os = outputFile.openWrite();
       try {
