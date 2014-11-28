@@ -30,6 +30,7 @@ import com.android.sched.util.log.stats.StatisticId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -56,6 +57,16 @@ public interface UnmodifiableCollections {
     public <T> List<T> getUnmodifiableList(@Nonnull List<T> list) {
       tracer.getStatistic(COUNT).incValue();
       return Collections.unmodifiableList(list);
+    }
+
+    /**
+     * @see Collections#unmodifiableSet(Set)
+     */
+    @Override
+    @Nonnull
+    public <T> Set<T> getUnmodifiableSet(@Nonnull Set<T> set) {
+      tracer.getStatistic(COUNT).incValue();
+      return Collections.unmodifiableSet(set);
     }
 
     /**
@@ -87,6 +98,13 @@ public interface UnmodifiableCollections {
 
     @Override
     @Nonnull
+    public <T> Set<T> getUnmodifiableSet(@Nonnull Set<T> set) {
+      tracer.getStatistic(COUNT).incValue();
+      return set;
+    }
+
+    @Override
+    @Nonnull
     public <T> Collection<T> getUnmodifiableCollection(@Nonnull Collection<T> collection) {
       tracer.getStatistic(COUNT).incValue();
       return collection;
@@ -111,6 +129,12 @@ public interface UnmodifiableCollections {
    */
   @Nonnull
   public <T> List<T> getUnmodifiableList(@Nonnull List<T> list);
+
+  /**
+   * @see Collections#unmodifiableSet(Set)
+   */
+  @Nonnull
+  public <T> Set<T> getUnmodifiableSet(@Nonnull Set<T> set);
 
   /**
    * @see Collections#unmodifiableList(List)
