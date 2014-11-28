@@ -147,12 +147,12 @@ public class JayceFileImporter {
       name = ((ZipLocation) jayceFile.getLocation()).getEntryName();
       if (jackLibrary.getMajorVersion() != 0) {
         name = name.substring(
-            fileType.getVPathPrefix().split().iterator().next().length() + 1);
+            fileType.buildDirVPath(VPath.ROOT).split().iterator().next().length() + 1);
       }
     } else {
       name = ((FileLocation) jayceFile.getLocation()).getPath();
       if (jackLibrary.getMajorVersion() != 0) {
-        String prefix = fileType.getVPathPrefix().split().iterator().next() + '/';
+        String prefix = fileType.buildDirVPath(VPath.ROOT).split().iterator().next() + '/';
         name = name.substring(name.lastIndexOf(prefix) + prefix.length());
       }
     }

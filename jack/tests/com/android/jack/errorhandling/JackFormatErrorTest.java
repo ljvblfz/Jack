@@ -63,7 +63,7 @@ public class JackFormatErrorTest {
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
         + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
         + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-        + JayceProperties.KEY_JAYCE + "=true\n"
+        + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
 
@@ -108,7 +108,7 @@ public class JackFormatErrorTest {
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
         + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
         + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-        + JayceProperties.KEY_JAYCE + "=true\n"
+        + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
 
@@ -152,7 +152,7 @@ public class JackFormatErrorTest {
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
         + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
         + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-        + JayceProperties.KEY_JAYCE + "=true\n"
+        + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
         + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=0\n"
         + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=0\n");
 

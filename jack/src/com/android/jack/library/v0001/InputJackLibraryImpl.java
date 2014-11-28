@@ -100,10 +100,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      VPath clonedPath = typePath.clone();
-      clonedPath.addSuffix(fileType.getFileExtension());
-      clonedPath.prependPath(fileType.getVPathPrefix());
-      return vfs.getRootDir().getInputVFile(clonedPath);
+      return vfs.getRootDir().getInputVFile(fileType.buildFileVPath(typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -117,9 +114,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVDir getDir(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      VPath clonedPath = typePath.clone();
-      clonedPath.prependPath(fileType.getVPathPrefix());
-      return vfs.getRootDir().getInputVDir(clonedPath);
+      return vfs.getRootDir().getInputVDir(fileType.buildDirVPath(typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -136,7 +131,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
     try {
-      fillFiles(vfs.getRootDir().getInputVDir(fileType.getVPathPrefix()), fileType, inputVFiles);
+      fillFiles(vfs.getRootDir().getInputVDir(fileType.buildDirVPath(VPath.ROOT)), fileType,
+          inputVFiles);
     } catch (NotFileOrDirectoryException e) {
       throw new AssertionError(
           getLocation().getDescription() + " is an invalid library: " + e.getMessage());

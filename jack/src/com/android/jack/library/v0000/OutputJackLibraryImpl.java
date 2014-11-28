@@ -87,7 +87,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException {
-    putProperty(fileType.getPropertyPrefix(), String.valueOf(true));
+    putProperty(fileType.buildPropertyName(null /*suffix*/), String.valueOf(true));
     addFileType(fileType);
     VPath clonedPath = typePath.clone();
     clonedPath.addSuffix(fileType.getFileExtension());
@@ -141,10 +141,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      VPath clonedPath = typePath.clone();
-      clonedPath.addSuffix(fileType.getFileExtension());
-      clonedPath.prependPath(fileType.getVPathPrefix());
-      return vfs.getRootDir().getInputVFile(clonedPath);
+      return vfs.getRootDir().getInputVFile(fileType.buildFileVPath(typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
