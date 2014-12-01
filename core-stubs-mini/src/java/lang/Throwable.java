@@ -76,4 +76,12 @@ public class Throwable implements java.io.Serializable {
   public java.lang.Throwable getCause() {
     throw new RuntimeException("Stub!");
   }
+
+  public final void addSuppressed(Throwable throwable) {
+    throw new RuntimeException("Stub!");
+  }
+
+  public final Throwable[] getSuppressed() {
+    throw new RuntimeException("Stub!");
+  }
 }
