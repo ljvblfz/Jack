@@ -113,10 +113,15 @@ public abstract class CommandLine {
       logger.log(Level.FINE, "Jack fatal exception:", e);
       System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (Throwable e) {
-      String message = "Internal compiler error (version " + Jack.getVersionString() + ")";
-      System.err.println(message + '.');
+      String info = "Internal compiler error (version " + Jack.getVersionString() + ")";
+      logger.log(Level.SEVERE, info + ':', e);
+      e.printStackTrace();
+      System.err.println();
+      System.err.println(info + '.');
+      if (e.getMessage() != null) {
+        System.err.println(e.getMessage() + '.');
+      }
       System.err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.SEVERE, message + ':', e);
       System.exit(ExitStatus.FAILURE_INTERNAL);
     }
   }
