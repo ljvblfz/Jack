@@ -35,6 +35,9 @@ public final class VPath implements Cloneable {
   private static final char INTERNAL_SEPARATOR = '/';
 
   @Nonnull
+  private static final Splitter splitter = Splitter.on(INTERNAL_SEPARATOR).omitEmptyStrings();
+
+  @Nonnull
   ArrayList<VPathFragment> pathFragments;
 
   /**
@@ -100,7 +103,6 @@ public final class VPath implements Cloneable {
    */
   @Nonnull
   public Iterable<String> split() {
-    Splitter splitter = Splitter.on(INTERNAL_SEPARATOR).omitEmptyStrings();
     return splitter.split(getInternalPath());
   }
 
