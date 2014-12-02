@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class BuildCfgErrorTest {
 
-  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/jack/FibonacciThreeAddress";
+  private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
 
   @Before
   public void setUp() throws Exception {

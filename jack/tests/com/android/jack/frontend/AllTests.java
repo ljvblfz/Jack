@@ -25,12 +25,8 @@ import org.junit.runners.Suite.SuiteClasses;
     TypeModifierTest.class,
     FieldModifierTest.class,
     MethodModifierTest.class,
-    MissingClassTest.class,
     ClinitTest.class,
     InitTest.class,
-    InstanceTest.class,
-    LabelTest.class,
-    StringTest.class,
     GotoTest.class,
     SwitchTest.class,
     SynchronizedTest.class})

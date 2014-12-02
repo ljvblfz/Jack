@@ -45,8 +45,8 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
   @Override
   @Nonnull
-  public void srcToExe(@Nonnull String classpath, @Nonnull File out, @Nonnull File... sources)
-      throws Exception {
+  public void srcToExe(@Nonnull String classpath, @Nonnull File out, boolean zipFile,
+      @Nonnull File... sources) throws Exception {
     try {
 
       File jarFile         = AbstractTestTools.createTempFile("legacyLib", ".jar");
@@ -71,7 +71,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       File jillLib = AbstractTestTools.createTempFile("jillLib", ".jar");
       executeJill(jarFileProguard, jillLib, true);
 
-      libToDex(jillLib, out);
+      libToExe(jillLib, out, zipFile);
 
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
@@ -112,7 +112,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
   @Override
   @Nonnull
-  public void libToLib(@Nonnull File in, @Nonnull File out) throws Exception {
+  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     throw new AssertionError("Not Yet Implemented");
   }
 

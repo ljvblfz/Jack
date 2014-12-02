@@ -50,11 +50,12 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static final String JUNIT_RUNNER_NAME = "org.junit.runner.JUnitCore";
-  @Nonnull
-  public static final String TESTS_CONFIGURATION_FILE_VARIABLE = "TESTS_CONFIGURATION_FILE";
 
   @Nonnull
   private static HashMap<String, ToolchainBuilder> toolchainBuilders;
+
+  @Nonnull
+  private static final File JACK_ROOT_DIR;
 
   @Nonnull
   private static final String JACK_TESTS_FOLDER =
@@ -84,6 +85,57 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static final Map<String, File> runtimeEnvironmentLocations = new HashMap<String, File>();
 
+
+  static {
+
+    toolchainBuilders = new HashMap<String, ToolchainBuilder>();
+    toolchainBuilders.put("jack-cli"   , new JackCliToolchainBuilder());
+    toolchainBuilders.put("jack-api"   , new JackApiToolchainBuilder());
+    toolchainBuilders.put("legacy"     , new LegacyToolchainBuilder());
+    toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
+
+    testsProperties = new Properties();
+    String filePath = System.getProperty("tests.config");
+
+    if (filePath == null) {
+      throw new TestConfigurationException(
+          "Configuration file not specified. It must be passed with -Dtests.config on command"
+          + "line.");
+    }
+
+    File propertyFile;
+    propertyFile = new File(filePath);
+    if (!propertyFile.isAbsolute()) {
+      propertyFile =
+          new File(System.getenv("user.dir") , filePath);
+    }
+
+    if (!propertyFile.exists()) {
+      throw new TestConfigurationException("Configuration file not found: '" + filePath + "'");
+    }
+
+    try {
+      testsProperties.load(new FileInputStream(propertyFile));
+      runtimes.addAll(parseRuntimeList(testsProperties.getProperty(RUNTIME_LIST_KEY)));
+    } catch (FileNotFoundException e) {
+      throw new TestConfigurationException(e);
+    } catch (IOException e) {
+      throw new TestConfigurationException(e);
+    } catch (SecurityException e) {
+      throw new TestConfigurationException(e);
+    } catch (IllegalArgumentException e) {
+      throw new TestConfigurationException(e);
+    } catch (RuntimeRunnerException e) {
+      throw new TestConfigurationException(e);
+    }
+
+    String jackHome = testsProperties.getProperty("jack.home");
+
+    if (jackHome == null) {
+      throw new TestConfigurationException("'jack.home' property is not set");
+    }
+    JACK_ROOT_DIR = new File(jackHome);
+  }
 
   private interface ToolchainBuilder {
     IToolchain build();
@@ -126,12 +178,15 @@ public abstract class AbstractTestTools {
     }
   }
 
-  private static File getPrebuilt(@Nonnull String prebuiltName) {
-    String prebuiltPath = getProperty(TOOLCHAIN_PREBUILT_PREFIX + prebuiltName);
+  public static File getPrebuilt(@Nonnull String prebuiltName) {
+    String prebuiltVarName = TOOLCHAIN_PREBUILT_PREFIX + prebuiltName;
+    String prebuiltPath;
 
-    if (prebuiltPath == null) {
+    try {
+      prebuiltPath = getProperty(prebuiltVarName);
+    } catch (TestConfigurationException e) {
       throw new TestConfigurationException(
-          "Cannot find path for prebuilt 'prebuiltName' in test.properties");
+          "Cannot find path for prebuilt '" + prebuiltName + "'", e);
     }
 
     File result = new File(prebuiltPath);
@@ -146,56 +201,10 @@ public abstract class AbstractTestTools {
     return result;
   }
 
-  static {
-    toolchainBuilders = new HashMap<String, ToolchainBuilder>();
-    toolchainBuilders.put("jack-cli"   , new JackCliToolchainBuilder());
-    toolchainBuilders.put("jack-api"   , new JackApiToolchainBuilder());
-    toolchainBuilders.put("legacy"     , new LegacyToolchainBuilder());
-    toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
-
-    testsProperties = new Properties();
-    String filePath = System.getenv(TESTS_CONFIGURATION_FILE_VARIABLE);
-    File propertyFile;
-    if (filePath != null) {
-      propertyFile = new File(filePath);
-      if (!propertyFile.isAbsolute()) {
-        propertyFile = new File(System.getProperty("user.dir"), filePath);
-      }
-    } else {
-      filePath = JACK_TESTS_FOLDER + File.separatorChar + "tests.properties";
-      propertyFile =
-          new File(getJackRootDir(), filePath);
-    }
-
-    if (!propertyFile.exists()) {
-      throw new TestConfigurationException("Configuration file not found: '" + filePath + "'");
-    }
-
-    try {
-      testsProperties.load(new FileInputStream(propertyFile));
-      runtimes.addAll(parseRuntimeList(testsProperties.getProperty(RUNTIME_LIST_KEY)));
-    } catch (FileNotFoundException e) {
-      throw new TestConfigurationException(e);
-    } catch (IOException e) {
-      throw new TestConfigurationException(e);
-    } catch (SecurityException e) {
-      throw new TestConfigurationException(e);
-    } catch (IllegalArgumentException e) {
-      throw new TestConfigurationException(e);
-    } catch (RuntimeRunnerException e) {
-      throw new TestConfigurationException(e);
-    }
-  }
 
   @Nonnull
   public static final File getJackRootDir() {
-    String pwdPath = System.getProperty("user.dir");
-    String[] splitPath = pwdPath.split(JACK_TESTS_FOLDER);
-    if (splitPath[0].equals(pwdPath)) {
-      assert splitPath.length == 1;
-      throw new AssertionError("Unable to compute tests root directory");
-    }
-    return new File(splitPath[0]);
+    return JACK_ROOT_DIR;
   }
 
   @Nonnull
@@ -208,42 +217,59 @@ public abstract class AbstractTestTools {
     return new File(getTestsRootDir(), packageName.replace(".", File.separator));
   }
 
-  /**
-   * Return the {@link IToolchain} specified in the tests configuration file if it matches the
-   * requirements expressed in paramters. Otherwise, test is ignored.
-   *
-   * @param classes Optional list of types. The first one is used to check that the candidate type
-   *        is of this type. Otherwise JUnit test will be ignored. If more types are provided, they
-   *        serve to narrow the expected type set, and are used for exclusion, i.e. if returned
-   *        type is of one of these types, test is ignored.
-   * @return The candidate toolchain that fulfills the requirements.
-   */
   @SuppressWarnings("unchecked")
+  @Nonnull
+  public static final <T extends IToolchain> T getCandidateToolchain() {
+    IToolchain result = createToolchain("candidate.toolchain");
+    return (T) result;
+  }
+
   @Nonnull
   public static final <T extends IToolchain> T getCandidateToolchain(
-      @Nonnull Class<? extends IToolchain>... classes) {
-    IToolchain result = createToolchain("candidate.toolchain");
-    if (classes.length > 0) {
-      Assume.assumeTrue(classes[0].isAssignableFrom(result.getClass()));
-      for (int i = 1; i < classes.length; i++) {
-        Assume.assumeTrue(!classes[i].isAssignableFrom(result.getClass()));
-      }
-    }
-    return (T) result;
+      @Nonnull Class<? extends IToolchain> clazz) {
+    T result = getCandidateToolchain();
+    Assume.assumeTrue(clazz.isAssignableFrom(result.getClass()));
+    return result;
   }
 
   @Nonnull
-  public static final IToolchain getReferenceToolchain() {
-    return createToolchain("reference.toolchain");
+  public static final <T extends IToolchain> T getCandidateToolchain(
+      @Nonnull Class<? extends IToolchain> clazz,
+      @Nonnull List<Class<? extends IToolchain>> excludeClazz) {
+    T result = getCandidateToolchain(clazz);
+
+    for (Class<? extends IToolchain> c : excludeClazz) {
+      Assume.assumeTrue(!c.isAssignableFrom(result.getClass()));
+    }
+
+    return result;
   }
 
   @SuppressWarnings("unchecked")
   @Nonnull
+  public static final <T extends IToolchain> T getReferenceToolchain() {
+    return (T) createToolchain("reference.toolchain");
+  }
+
+  @Nonnull
   public static final <T extends IToolchain> T getReferenceToolchain(
-      @Nonnull Class<?> expectedClass) {
-    IToolchain result = getReferenceToolchain();
-    Assume.assumeTrue(expectedClass.isAssignableFrom(result.getClass()));
-    return (T) result;
+      @Nonnull Class<? extends IToolchain> clazz) {
+    T result = getReferenceToolchain();
+    Assume.assumeTrue(clazz.isAssignableFrom(result.getClass()));
+    return result;
+  }
+
+  @Nonnull
+  public static final <T extends IToolchain> T getReferenceToolchain(
+      @Nonnull Class<? extends IToolchain> clazz,
+      @Nonnull List<Class<? extends IToolchain>> excludeClazz) {
+    T result = getReferenceToolchain(clazz);
+
+    for (Class<? extends IToolchain> c : excludeClazz) {
+      Assume.assumeTrue(!c.isAssignableFrom(result.getClass()));
+    }
+
+    return result;
   }
 
   @Nonnull
@@ -374,7 +400,7 @@ public abstract class AbstractTestTools {
   }
 
   @Nonnull
-  public static File createJavaFile(@Nonnull File folder, @Nonnull String packageName,
+  public static File createFile(@Nonnull File folder, @Nonnull String packageName,
       @Nonnull String fileName, @Nonnull String fileContent) throws IOException {
     File packageFolder = new File(folder, packageName.replace('.', File.separatorChar));
     if (!packageFolder.exists() && !packageFolder.mkdirs()) {
@@ -549,7 +575,8 @@ public abstract class AbstractTestTools {
 
     if (rtLocationPath == null) {
       throw new TestConfigurationException(
-          "Location for runtime '" + rtName + "' is not specified");
+          "Location for runtime '" + rtName + "' is not specified. Set property '"
+              + RUNTIME_LOCATION_PREFIX + rtName + "'");
     }
     File rtLocation = new File(rtLocationPath);
     if (!rtLocation.exists()) {

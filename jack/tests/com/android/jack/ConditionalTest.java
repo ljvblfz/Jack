@@ -49,45 +49,6 @@ public class ConditionalTest {
     ThreadConfig.setConfig(options.getConfig());
   }
 
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("conditional/test001")));
-  }
-
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile2() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("conditional/test002")));
-  }
-
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  @Test
-  public void testCompile3() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("conditional/test003")));
-  }
-
-  @Test
-  public void testCompile4() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("conditional/test004")));
-  }
-
-  @Test
-  public void testCompile5() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("conditional/test005")));
-  }
-
   @Test
   public void testCompile6() throws Exception {
     Options options = new Options();

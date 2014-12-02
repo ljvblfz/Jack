@@ -17,6 +17,8 @@
 package com.android.jack.test.helper;
 
 
+import com.android.jack.test.toolchain.AndroidToolchain;
+
 import java.io.File;
 
 import javax.annotation.Nonnull;
@@ -26,8 +28,74 @@ import javax.annotation.Nonnull;
  */
 public class CheckDexStructureTestHelper extends SourceToDexComparisonTestHelper {
 
-  public CheckDexStructureTestHelper(@Nonnull File fileOrSourceList) throws Exception {
-    super(fileOrSourceList);
+  public CheckDexStructureTestHelper(@Nonnull File... filesOrSourceList) throws Exception {
+    super(filesOrSourceList);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setCandidateTestTools(
+      @Nonnull AndroidToolchain candidateTestTools) {
+    return (CheckDexStructureTestHelper) super.setCandidateTestTools(candidateTestTools);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setReferenceTestTools(
+      @Nonnull AndroidToolchain referenceTestTools) {
+    return (CheckDexStructureTestHelper) super.setReferenceTestTools(referenceTestTools);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setCandidateClasspath(@Nonnull File[] classpath) {
+    return (CheckDexStructureTestHelper) super.setCandidateClasspath(classpath);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setReferenceClasspath(@Nonnull File[] classpath) {
+    return (CheckDexStructureTestHelper) super.setReferenceClasspath(classpath);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setWithDebugInfo(boolean withDebugInfo) {
+    return (CheckDexStructureTestHelper) super.setWithDebugInfo(withDebugInfo);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setJarjarRulesFile(@Nonnull File jarjarRulesFile) {
+    return (CheckDexStructureTestHelper) super.setJarjarRulesFile(jarjarRulesFile);
+  }
+
+  @Override
+  @Nonnull
+  public CheckDexStructureTestHelper setProguardFlags(@Nonnull File... proguardFlags) {
+    return (CheckDexStructureTestHelper) super.setProguardFlags(proguardFlags);
+  }
+
+  @Override
+  @Nonnull
+  protected void executeCandidateToolchain() throws Exception {
+    if (withDebugInfos) {
+      getCandidateToolchain().disableDxOptimizations();
+    } else {
+      getCandidateToolchain().enableDxOptimizations();
+    }
+    super.executeCandidateToolchain();
+  }
+
+  @Override
+  @Nonnull
+  protected void executeReferenceToolchain() throws Exception {
+    if (withDebugInfos) {
+      getReferenceToolchain().disableDxOptimizations();
+    } else {
+      getReferenceToolchain().enableDxOptimizations();
+    }
+    super.executeReferenceToolchain();
   }
 
   public void compare() throws Exception {

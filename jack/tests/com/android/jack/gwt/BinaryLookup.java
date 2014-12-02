@@ -51,7 +51,7 @@ public class BinaryLookup {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
 
     Options fiboArgs = TestTools.buildCommandLineArgs(
-        TestTools.getJackTestFromBinaryName("com/android/jack/fibonacci/jack/Fibo"));
+        TestTools.getJackTestFromBinaryName("com/android/jack/fibonacci/test001/jack/Fibo"));
     fiboArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     hooks = new RunnableHooks();
     session = TestTools.buildSession(fiboArgs, hooks);

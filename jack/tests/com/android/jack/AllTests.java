@@ -16,22 +16,14 @@
 
 package com.android.jack;
 
-import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTest;
 import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
-import com.android.jack.errorhandling.ErrorHandlingAllTests;
-import com.android.jack.experimental.incremental.DependencyAllTests;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
-import com.android.jack.multidex.MultiDexOverflowTests;
-import com.android.jack.multidex.MultiDexTests;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
-import com.android.jack.optimizations.UselessVariableCopyTest;
 import com.android.jack.preprocessor.PreProcessorTest;
-import com.android.jack.tools.merger.MergerAllTests;
 import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
-import com.android.jack.transformations.flow.CompileFlowTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -43,77 +35,34 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-    AnnotationTest.class,
-    ArithmeticTest.class,
-    ArrayTest.class,
-    AssertionTest.class,
-    AssignmentTest.class,
-    BoxTest.class,
-    BridgeTest.class,
-    CastTest.class,
     com.android.jack.cfg.AllTests.class,
     com.android.jack.compile.androidtree.AllTests.class,
     com.android.jack.compile.androidtree.dalvik.AllTests.class,
     com.android.jack.frontend.AllTests.class,
     com.android.jack.gwt.AllTests.class,
-    com.android.jack.java7.AllTest.class,
     com.android.jack.shrob.AllTests.class,
     com.android.jack.transformations.ast.AllTests.class,
-    ComparisonTest.class,
-    CompileFlowTest.class,
-    CompileTimeTest.class,
-    ConcatTest.class,
     ConditionalTest.class,
-    ConstantTest.class,
-    DependencyAllTests.class,
-    DxTest.class,
-    EnumTest.class,
-    ErrorTest.class,
-    ErrorHandlingAllTests.class,
     EscapeStringTest.class,
     ExpressionSimplifierTest.class,
     FibonacciThreeAddressTest.class,
-    FieldAccessTest.class,
-    FieldTest.class,
-    FileConflictTest.class,
     FinallyTest.class,
-    FlowTest.class,
-    GenericTest.class,
-    IfTest.class,
-    ImplicitCastTest.class,
-    ImportTest.class,
-    InnerTest.class,
-    InvokesTest.class,
     JarjarTest.class,
-    LookupTest.class,
     MainTest.class,
     MarkerCollectorTest.class,
-    MergerAllTests.class,
-    MultiDexOverflowTests.class,
-    MultiDexTests.class,
+    /* MultiDexOverflowTests.class, */
+    /* MultiDexTests.class, */
     NoClasspathTest.class,
-    NoPackageTest.class,
-    OpcodesTest.class,
-    OrderTest.class,
     PreProcessorTest.class,
-    ReachingDefsTest.class,
-    ResourceTest.class,
-    ReturnTest.class,
+//    ReachingDefsTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,
     StringSplittingTest.class,
-    SwitchesTest.class,
-    SynchronizeTest.class,
-    ThreeAddressTest.class,
-    ThrowsTest.class,
     ToolchainTest.class,
-    TryCatchTest.class,
     Types.class,
     UnaryTest.class,
     UselessCastRemoverTest.class,
-    UselessVariableCopyTest.class,
     WithPhantomTest.class,
-    ClasspathTest.class,
     TracingTest.class})
 public class AllTests {
 }

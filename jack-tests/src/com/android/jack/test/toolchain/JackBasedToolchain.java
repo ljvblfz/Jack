@@ -16,6 +16,10 @@
 
 package com.android.jack.test.toolchain;
 
+import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +34,15 @@ import javax.annotation.Nonnull;
  */
 public abstract class JackBasedToolchain extends AndroidToolchain {
 
+  /**
+   * Available mode for the multidex feature
+   */
+  public enum MultiDexKind {
+    NONE,
+    NATIVE,
+    LEGACY
+  }
+
   @Nonnull
   protected final Map<String, String> properties = new HashMap<String, String>();
   @CheckForNull
@@ -41,6 +54,23 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   public final JackBasedToolchain addProperty(@Nonnull String propertyName,
       @Nonnull String propertyValue) {
     properties.put(propertyName, propertyValue);
+    return this;
+  }
+
+  public final JackBasedToolchain setMultiDexKind(@Nonnull MultiDexKind kind) {
+    switch (kind) {
+      case NATIVE:
+        addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+        break;
+      case LEGACY:
+        addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+        addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
+        break;
+      case NONE:
+        break;
+      default:
+        throw new AssertionError("Unsupported multi dex kind: '" + kind.name() + "'");
+    }
     return this;
   }
 
@@ -79,10 +109,24 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
+  public JackBasedToolchain disableDxOptimizations() {
+    addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "false");
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public JackBasedToolchain enableDxOptimizations() {
+    addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true");
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public File[] getDefaultBootClasspath() {
     return new File[] {new File(AbstractTestTools.getJackRootDir(),
         "toolchain/jack/jack-tests/libs/core-stubs-mini.jar"), new File(
         AbstractTestTools.getJackRootDir(),
-        "toolchain/jack/jack-tests/prebuilts/junit4-hostdex.jar")};
+        "toolchain/jack/jack-tests/prebuilts/junit4-targetdex-jack.zip")};
   }
 }

@@ -67,21 +67,32 @@ public abstract class Toolchain implements IToolchain {
 
   @Override
   @Nonnull
-  public abstract void srcToExe(@Nonnull String classpath, @Nonnull File out,
-      @Nonnull File... sources) throws Exception;
+  public abstract void srcToExe(@CheckForNull String classpath, @Nonnull File out,
+      boolean zipFile, @Nonnull File... sources) throws Exception;
 
   @Override
   @Nonnull
-  public abstract void srcToLib(@Nonnull String classpath, @Nonnull File out,
+  public abstract void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception;
 
   @Override
   @Nonnull
-  public abstract void libToDex(@Nonnull File in, @Nonnull File out) throws Exception;
+  public abstract void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile)
+      throws Exception;
 
   @Override
   @Nonnull
-  public abstract void libToLib(@Nonnull File in, @Nonnull File out) throws Exception;
+  public final void libToLib(@Nonnull File in, @Nonnull File out, boolean zipFiles)
+      throws Exception {
+    libToLib(new File[] {in}, out, zipFiles);
+  }
+
+  @Override
+  @Nonnull
+  public final void libToLib(@Nonnull List<File> in, @Nonnull File out, boolean zipFiles)
+      throws Exception {
+    libToLib(in.toArray(new File[in.size()]), out, zipFiles);
+  }
 
   @Override
   @Nonnull
@@ -135,9 +146,6 @@ public abstract class Toolchain implements IToolchain {
   @Override
   @Nonnull
   public final Toolchain setOutputStream(@Nonnull OutputStream outputStream) {
-    if (outRedirectStream != null) {
-      outRedirectStream.close();
-    }
     outRedirectStream = new PrintStream(outputStream);
     return this;
   }
@@ -145,9 +153,6 @@ public abstract class Toolchain implements IToolchain {
   @Override
   @Nonnull
   public final Toolchain setErrorStream(@Nonnull OutputStream errorStream) {
-    if (errRedirectStream != null) {
-      errRedirectStream.close();
-    }
     errRedirectStream = new PrintStream(errorStream);
     return this;
   }

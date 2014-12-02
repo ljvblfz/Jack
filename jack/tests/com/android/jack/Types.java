@@ -510,15 +510,4 @@ public class Types {
         .getType());
   }
 
-  @Test
-  public void test001() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("type/test001")));
-  }
-
-  @Test
-  public void test002() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(
-        TestTools.getJackTestsWithJackFolder("type/test002")));
-  }
 }

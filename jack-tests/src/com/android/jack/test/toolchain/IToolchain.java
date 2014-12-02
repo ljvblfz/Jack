@@ -20,7 +20,9 @@ import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 
@@ -31,18 +33,24 @@ import javax.annotation.processing.Processor;
 public interface IToolchain {
 
   @Nonnull
-  void srcToExe(@Nonnull String classpath, @Nonnull File out, @Nonnull File... sources)
-      throws Exception;
-
-  @Nonnull
-  void srcToLib(@Nonnull String classpath, @Nonnull File out, boolean zipFiles,
+  void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
       @Nonnull File... sources) throws Exception;
 
   @Nonnull
-  void libToDex(@Nonnull File in, @Nonnull File out) throws Exception;
+  void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
+      @Nonnull File... sources) throws Exception;
 
   @Nonnull
-  void libToLib(@Nonnull File in, @Nonnull File out) throws Exception;
+  void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception;
+
+  @Nonnull
+  void libToLib(@Nonnull File in, @Nonnull File out, boolean zipFiles) throws Exception;
+
+  @Nonnull
+  void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception;
+
+  @Nonnull
+  void libToLib(@Nonnull List<File> in, @Nonnull File out, boolean zipFiles) throws Exception;
 
   @Nonnull
   IToolchain addStaticLibs(@Nonnull File... staticLibs);

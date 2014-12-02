@@ -23,8 +23,8 @@ import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JUnlock;
@@ -54,7 +54,7 @@ public class SynchronizedTest {
 
   @Before
   public void setUp() throws Exception {
-    StringTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    SynchronizedTest.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
   @Test

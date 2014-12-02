@@ -19,6 +19,8 @@ package com.android.jack.error;
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Main;
 import com.android.jack.NothingToDoException;
+import com.android.jack.test.category.KnownBugs;
+import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -27,6 +29,7 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -56,7 +59,7 @@ public class CommandLineErrorTest {
       jackApiToolchain.srcToExe(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
           + File.pathSeparator + ite.getJackFolder(), ite.getOutputDexFolder(),
-          ite.getSourceFolder());
+          /* zipFile = */ false, ite.getSourceFolder());
       Assert.fail();
     } catch (IllegalOptionsException e) {
       // Failure is ok since a bad options is passed to ecj.
@@ -82,13 +85,42 @@ public class CommandLineErrorTest {
       jackApiToolchain.srcToExe(
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
           + File.pathSeparator + ite.getJackFolder(), ite.getOutputDexFolder(),
-          ite.getSourceFolder());
+          /* zipFile = */ false, ite.getSourceFolder());
       Assert.fail();
     } catch (NothingToDoException e) {
       // Failure is ok since there is no source files.
     } finally {
       Assert.assertEquals("", errOut.toString());
       Assert.assertTrue(out.toString().contains("Usage:"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails correctly when java.lang.Object does not exist on classpath.
+   */
+  @Test
+  public void testCommandLineError003() throws Exception {
+    ErrorTestHelper ite = new ErrorTestHelper();
+
+    File sourceFile = AbstractTestTools.createFile(ite.getSourceFolder(), "jack.incremental",
+        "A.java", "package jack.incremental; \n" + "public class A {} \n");
+
+    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    jackApiToolchain.setErrorStream(errOut);
+    jackApiToolchain.setOutputStream(out);
+
+    try {
+      jackApiToolchain.srcToExe(null, ite.getOutputDexFolder(),
+          /* zipFile = */ false, ite.getSourceFolder());
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      // Failure is ok, since java.lang.Object does not exists.
+    } finally {
+      Assert.assertEquals("", out.toString());
+      Assert.assertTrue(errOut.toString().contains("The type java.lang.Object cannot be found in source files, "
+          + "imported jack libs or the classpath"));
     }
   }
 

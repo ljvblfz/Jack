@@ -16,7 +16,6 @@
 
 package com.android.jack.test.toolchain;
 
-import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.util.ExecuteFile;
 
 import java.io.File;
@@ -47,8 +46,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void srcToExe(@Nonnull String classpath, @Nonnull File out,
-      @Nonnull File... sources) throws Exception {
+  public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
+      boolean zipFile, @Nonnull File... sources) throws Exception {
 
     List<String> args = new ArrayList<String>();
     args.add("java");
@@ -63,40 +62,36 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(com.android.jack.Main.class.getName());
     }
 
-    if (withDebugInfos) {
-      args.add("-D");
-      args.add("jack.dex.optimize=false");
-    } else {
-      args.add("-D");
-      args.add("jack.dex.optimize=true");
-    }
-
     addProperties(properties, args);
 
-    args.add("--classpath");
-    args.add(classpath);
+    if (classpath != null) {
+      args.add("--classpath");
+      args.add(classpath);
+    }
 
-    args.add("-o");
+    if (zipFile) {
+      args.add("--output-dex-zip");
+    } else {
+      args.add("--output-dex");
+    }
     args.add(out.getAbsolutePath());
 
     if (jarjarRules != null) {
-      args.add("--jarjar-rules");
+      args.add("--config-jarjar");
       args.add(jarjarRules.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
-      args.add("--proguard-flags");
+      args.add("--config-proguard");
       args.add(flags.getAbsolutePath());
     }
 
     for (File staticLib : staticLibs) {
-      args.add("--import-jack");
+      args.add("--import");
       args.add(staticLib.getAbsolutePath());
     }
 
     args.addAll(extraJackArgs);
-
-    args.add("--ecj");
 
     if (withDebugInfos) {
       args.add("-g");
@@ -129,7 +124,7 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void srcToLib(@Nonnull String classpath, @Nonnull File out,
+  public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception {
 
     List<String> args = new ArrayList<String>();
@@ -147,19 +142,29 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     addProperties(properties, args);
 
-    args.add("--classpath");
-    args.add(classpath);
+    if (classpath != null) {
+      args.add("--classpath");
+      args.add(classpath);
+    }
 
     if (zipFiles) {
-      args.add("--jack-output-zip");
+      args.add("--output-jack");
     } else {
-      args.add("--jack-output");
+      args.add("--output-jack-dir");
     }
     args.add(out.getAbsolutePath());
 
     args.addAll(extraJackArgs);
 
-    args.add("--ecj");
+    if (jarjarRules != null) {
+      args.add("--config-jarjar");
+      args.add(jarjarRules.getAbsolutePath());
+    }
+
+    for (File flags : proguardFlags) {
+      args.add("--config-proguard");
+      args.add(flags.getAbsolutePath());
+    }
 
     if (withDebugInfos) {
       args.add("-g");
@@ -192,7 +197,7 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void libToDex(@Nonnull File in, @Nonnull File out) throws Exception {
+  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
 
     List<String> args = new ArrayList<String>();
     args.add("java");
@@ -217,15 +222,20 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     addProperties(properties, args);
 
-    args.add("--import-jack");
+    args.add("--import");
     args.add(in.getAbsolutePath());
 
     for (File staticLib : staticLibs) {
-      args.add("--import-jack");
+      args.add("--import");
       args.add(staticLib.getAbsolutePath());
     }
 
-    args.add("-o");
+    if (zipFile) {
+      args.add("--output-dex-zip");
+    } else {
+      args.add("--output-dex");
+    }
+
     args.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
@@ -240,22 +250,58 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  public void libToLib(@Nonnull File in, @Nonnull File out) throws Exception {
-    throw new AssertionError("Not Yet Implemented");
-  }
+  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
+    List<String> args = new ArrayList<String>();
+    args.add("java");
+    args.add("-cp");
+    args.add(jackPrebuilt.getAbsolutePath());
 
-  @Override
-  @Nonnull
-  public JackCliToolchain disableDxOptimizations() {
-    addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "false");
-    return this;
-  }
+    if (incrementalFolder != null) {
+      args.add(com.android.jack.experimental.incremental.Main.class.getName());
+      args.add("--incremental-folder");
+      args.add(incrementalFolder.getAbsolutePath());
+    } else {
+      args.add(com.android.jack.Main.class.getName());
+    }
 
-  @Override
-  @Nonnull
-  public JackCliToolchain enableDxOptimizations() {
-    addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true");
-    return this;
+    addProperties(properties, args);
+
+    if (jarjarRules != null) {
+      args.add("--config-jarjar");
+      args.add(jarjarRules.getAbsolutePath());
+    }
+
+    for (File flags : proguardFlags) {
+      args.add("--config-proguard");
+      args.add(flags.getAbsolutePath());
+    }
+
+    for (File staticlib : in) {
+      args.add("--import");
+      args.add(staticlib.getAbsolutePath());
+    }
+
+    for (File staticLib : staticLibs) {
+      args.add("--import");
+      args.add(staticLib.getAbsolutePath());
+    }
+
+    if (zipFiles) {
+      args.add("--output-jack");
+    } else {
+      args.add("--output-jack-dir");
+    }
+    args.add(out.getAbsolutePath());
+
+    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    exec.setErr(outRedirectStream);
+    exec.setOut(errRedirectStream);
+    exec.setVerbose(true);
+
+    if (!exec.run()) {
+      throw new RuntimeException("Jack compiler exited with an error");
+    }
+
   }
 
   @Nonnull
@@ -278,4 +324,5 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(entry.getKey() + "=" + entry.getValue());
     }
   }
+
 }

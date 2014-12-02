@@ -68,7 +68,7 @@ public class ExceptionsTest {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     jackBasedToolchain.setSourceLevel(SourceLevel.JAVA_7).srcToExe(
         AbstractTestTools.getClasspathAsString(jackBasedToolchain.getDefaultBootClasspath()),
-        AbstractTestTools.createTempDir(), new File(
+        AbstractTestTools.createTempDir(), /* zipFile = */ false, new File(
             AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions." + name), "jack"));
   }
 }

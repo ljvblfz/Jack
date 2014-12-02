@@ -93,7 +93,7 @@ $(call declare-test-with-name,assertion/test002)
 $(call declare-test-with-name,assertion/test003)
 
 # Assign
-$(call declare-test-with-name,assign)
+$(call declare-test-with-name,assign/test001)
 
 # Box
 $(call declare-test-with-name,box/test001)
@@ -173,7 +173,7 @@ $(call declare-test-with-name,tryfinally/finally003)
 $(call declare-test-with-name,tryfinally/finally004)
 
 # Fibonacci
-$(call declare-test-with-name,fibonacci)
+$(call declare-test-with-name,fibonacci/test001)
 
 # Flow
 $(call declare-test-with-name,flow/loop)
@@ -242,7 +242,7 @@ $(call declare-test-with-name,optimizations/exprsimplifier/test001)
 $(call declare-test,$(JACK_PATH)/tests/com/android/jack/opcodes/test-opcodes.mk)
 
 # Order
-$(call declare-test-with-name,order)
+$(call declare-test-with-name,order/test001)
 
 # Return
 $(call declare-test-with-name,returnstatement/returnvoid)
@@ -275,7 +275,7 @@ $(call declare-test-with-name,switchstatement/test010)
 $(call declare-test-with-name,synchronize/test001)
 
 # Three Address
-$(call declare-test-with-name,threeaddress)
+$(call declare-test-with-name,threeaddress/test001)
 
 # Throws
 $(call declare-test-with-name,throwstatement/test001)

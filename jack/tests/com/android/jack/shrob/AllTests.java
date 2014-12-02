@@ -23,16 +23,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-//    AnnotationsTest.class,
-    ShrinkTest.class,
-    ShrinkMultiDexTest.class,
-    ObfuscationWithMappingTest.class,
-//    ObfuscationWithAttributesTest.class,
-//    ObfuscationWithDebugInfoTest.class,
-    ObfuscationWithoutMappingTest.class,
-    RepackagingTest.class,
-    FlattenPackageTest.class,
-    SeedTest.class,
     TreeTest.class
     })
 public class AllTests {

@@ -46,7 +46,7 @@ public class SwitchTest {
 
   @Before
   public void setUp() throws Exception {
-    StringTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    SwitchTest.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
   @Test

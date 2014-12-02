@@ -20,11 +20,13 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.scheduler.ScheduleInstance;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -33,9 +35,9 @@ public class MergerTestTools {
 
   @Nonnull
   protected File buildOneDexPerType(@CheckForNull String classpath, @Nonnull File sourceFolder,
-      boolean withDebug) throws Exception {
-    JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      boolean withDebug, @CheckForNull OutputStream out, @CheckForNull OutputStream err) throws Exception {
+    JackApiToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     try {
       File multiDexFolder = TestTools.createTempDir("multi", "dex");
       File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);
@@ -47,7 +49,14 @@ public class MergerTestTools {
       toolchain.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(),
           multiDexOnTypePerTypeFolder.getAbsolutePath());
 
-      toolchain.srcToExe(classpath, multiDexFolder, sourceFolder);
+      if (out != null) {
+        toolchain.setOutputStream(out);
+      }
+      if (err != null) {
+        toolchain.setErrorStream(err);
+      }
+
+      toolchain.srcToExe(classpath, multiDexFolder, /* zipFile = */ false, sourceFolder);
 
       return multiDex;
 

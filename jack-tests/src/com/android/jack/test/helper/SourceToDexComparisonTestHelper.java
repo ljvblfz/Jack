@@ -47,7 +47,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   private File[] referenceClasspath;
 
   @Nonnull
-  private File fileOrSourceList;
+  private File[] filesOrSourceList;
 
   @CheckForNull
   private File jarjarRulesFile = null;
@@ -61,9 +61,9 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
 
   protected boolean withDebugInfos = false;
 
-  public SourceToDexComparisonTestHelper(@Nonnull File fileOrSourceList) throws Exception {
+  public SourceToDexComparisonTestHelper(@Nonnull File... filesOrSourceList) throws Exception {
 
-    this.fileOrSourceList = fileOrSourceList;
+    this.filesOrSourceList = filesOrSourceList;
 
     candidateTestTools = getCandidateToolchain();
     referenceTestTools = getReferenceToolchain();
@@ -120,6 +120,22 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     return this;
   }
 
+  public File getCandidateDex() {
+    return candidateDex;
+  }
+
+  public File getCandidateDexDir() {
+    return candidateDexDir;
+  }
+
+  public File getReferenceDex() {
+    return refDex;
+  }
+
+  public File getReferenceDexDir() {
+    return refDexDir;
+  }
+
   @Nonnull
   public Comparator createDexFileComparator() {
     ComparatorDex comparator = new ComparatorDex(candidateDex, refDex);
@@ -138,7 +154,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   }
 
   @Nonnull
-  public SourceToDexComparisonTestHelper setProguardFlags(@Nonnull File[] proguardFlags) {
+  public SourceToDexComparisonTestHelper setProguardFlags(@Nonnull File... proguardFlags) {
     this.proguardFlagFiles = proguardFlags;
     return this;
   }
@@ -149,9 +165,10 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     if (jarjarRulesFile != null) {
       candidateTestTools.setJarjarRules(jarjarRulesFile);
     }
+    candidateTestTools.setWithDebugInfos(withDebugInfos);
     candidateTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
         AbstractTestTools.getClasspathAsString(candidateClasspath), candidateDexDir,
-        fileOrSourceList);
+        /* zipFile = */ false, filesOrSourceList);
   }
 
   @Override
@@ -160,7 +177,9 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     if (jarjarRulesFile != null) {
       referenceTestTools.setJarjarRules(jarjarRulesFile);
     }
+    referenceTestTools.setWithDebugInfos(withDebugInfos);
     referenceTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
-        AbstractTestTools.getClasspathAsString(referenceClasspath), refDexDir, fileOrSourceList);
+        AbstractTestTools.getClasspathAsString(referenceClasspath), refDexDir,
+        /* zipFile = */ false, filesOrSourceList);
   }
 }

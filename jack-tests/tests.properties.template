@@ -1,0 +1,20 @@
+jack.home=
+
+# Toolchain names among legacy, jill-legacy, jack-api, jack-cli
+reference.toolchain=
+candidate.toolchain=
+
+toolchain.prebuilt.jack=toolchain/jack/jack/dist/jack.jar
+toolchain.prebuilt.jill=toolchain/jill/jill/dist/jill.jar
+toolchain.prebuilt.jarjar=toolchain/jack/jack-tests/prebuilts/jarjar.jar
+toolchain.prebuilt.proguard=toolchain/jack/jack-tests/prebuilts/proguard.jar
+toolchain.prebuilt.dexdump=toolchain/jack/jack-tests/prebuilts/dexdump
+
+# dalvik-fast-host, dalvik-jit-host, art-host,
+runtime.list=
+runtime.location.dalvik-fast-host=
+runtime.location.dalvik-jit-host=
+runtime.location.art-host=
+
+toolchain.prebuilt.legacy-java-compiler=
+

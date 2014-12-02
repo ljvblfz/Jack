@@ -18,6 +18,7 @@ package com.android.jack.test.helper;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import com.google.common.io.Files;
 
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -45,14 +46,11 @@ import javax.annotation.Nonnull;
 public class RuntimeTestHelper {
 
   @Nonnull
-  private AndroidToolchain candidateTestTools;
-  @Nonnull
-  private AndroidToolchain referenceTestTools;
-
-  @Nonnull
   private List<File> baseDirs = new ArrayList<File>(1);
   @Nonnull
   private List<String> jUnitClasses = new ArrayList<String>(1);
+  @Nonnull
+  private List<File> referenceExtraSources = new ArrayList<File>(0);
 
   @Nonnull
   private String srcDirName = "jack";
@@ -65,6 +63,11 @@ public class RuntimeTestHelper {
 
   private boolean withDebugInfos = false;
 
+  private SourceLevel level = SourceLevel.JAVA_6;
+
+  @Nonnull
+  private List<FileChecker> testExeCheckers = new ArrayList<FileChecker>(0);
+
   @CheckForNull
   private String jarjarRulesFileName;
   @CheckForNull
@@ -72,11 +75,6 @@ public class RuntimeTestHelper {
 
   @Nonnull
   private String propertyFileName = "test.properties";
-
-  {
-    candidateTestTools = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    referenceTestTools = AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
-  }
 
   public RuntimeTestHelper(@Nonnull RuntimeTestInfo... rtTestInfos) {
     for (RuntimeTestInfo info : rtTestInfos) {
@@ -117,8 +115,7 @@ public class RuntimeTestHelper {
 
   @Nonnull
   public RuntimeTestHelper setSourceLevel(@Nonnull SourceLevel level) {
-    candidateTestTools.setSourceLevel(level);
-    referenceTestTools.setSourceLevel(level);
+    this.level = level;
     return this;
   }
 
@@ -140,7 +137,25 @@ public class RuntimeTestHelper {
     return this;
   }
 
+  @Nonnull
+  public RuntimeTestHelper addTestExeFileChecker(@Nonnull FileChecker checker) {
+    this.testExeCheckers.add(checker);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestHelper addReferenceExtraSources (@Nonnull File... extraSrc) {
+    for (File file : extraSrc) {
+      referenceExtraSources.add(file);
+    }
+    return this;
+  }
+
   public void compileAndRunTest() throws Exception {
+    compileAndRunTest(/* checkStructure = */ false);
+  }
+
+  public void compileAndRunTest(boolean checkStructure) throws Exception {
     Properties testProperties = new Properties();
     try {
       loadTestProperties(testProperties);
@@ -148,8 +163,19 @@ public class RuntimeTestHelper {
       // No file, no pb
     }
 
-    candidateTestTools.setWithDebugInfos(withDebugInfos);
-    referenceTestTools.setWithDebugInfos(withDebugInfos);
+//    AndroidToolchain candidateTestTools =
+//        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+//    AndroidToolchain referenceTestTools =
+//        AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
+//
+//    candidateTestTools.setSourceLevel(level);
+//    referenceTestTools.setSourceLevel(level);
+//
+//    candidateTestTools.setWithDebugInfos(withDebugInfos);
+//    referenceTestTools.setWithDebugInfos(withDebugInfos);
+
+    AndroidToolchain candidateTestTools = createCandidateToolchain();
+    AndroidToolchain referenceTestTools = createReferenceToolchain();
 
     File[] candidateBootClasspath = candidateTestTools.getDefaultBootClasspath();
     File[] referenceBootClasspath = referenceTestTools.getDefaultBootClasspath();
@@ -165,27 +191,30 @@ public class RuntimeTestHelper {
     File libLibCandidate = null;
     if (getLibSrc().length != 0) {
       libLibRef =
-          AbstractTestTools.createTempFile("-lib-ref", referenceTestTools.getLibraryExtension());
+          AbstractTestTools.createTempFile("lib-ref", referenceTestTools.getLibraryExtension());
       File libBinaryRefDir = AbstractTestTools.createTempDir();
       libBinaryRef = new File(libBinaryRefDir, referenceTestTools.getBinaryFileName());
-      referenceTestTools.srcToLib(referenceBootClasspathAsString, libLibRef, /* zipFiles = */true,
+      referenceTestTools.srcToLib(referenceBootClasspathAsString, libLibRef, /* zipFiles = */ true,
           getLibSrc());
-      referenceTestTools.libToDex(libLibRef, libBinaryRefDir);
+      referenceTestTools.libToExe(libLibRef, libBinaryRefDir, /* zipFile */ false);
 
-      libLibCandidate = AbstractTestTools.createTempFile("-lib-candidate",
+      libLibCandidate = AbstractTestTools.createTempFile("lib-candidate",
           candidateTestTools.getLibraryExtension());
       candidateTestTools.srcToLib(candidateBootClasspathAsString, libLibCandidate,
-      /* zipFiles = */true, getLibSrc());
+      /* zipFiles = */ true, getLibSrc());
     }
 
     // Compile test src
+    candidateTestTools = createCandidateToolchain();
+
     String candidateClasspathAsString;
     String referenceClasspathAsString;
+    File[] candidateClassPath = candidateBootClasspath;
     if (getLibSrc().length != 0) {
-      File[] candidateClassPath = new File[candidateBootClasspath.length + 1];
+      candidateClassPath = new File[candidateBootClasspath.length + 1];
       System.arraycopy(candidateBootClasspath, 0, candidateClassPath, 0,
           candidateBootClasspath.length);
-      candidateClassPath[candidateClassPath.length - 1] = libLibRef;
+      candidateClassPath[candidateClassPath.length - 1] = libLibCandidate;
       candidateClasspathAsString = AbstractTestTools.getClasspathAsString(candidateClassPath);
       File[] referenceClasspath = new File[referenceBootClasspath.length + 1];
       System.arraycopy(referenceBootClasspath, 0, referenceClasspath, 0,
@@ -202,28 +231,53 @@ public class RuntimeTestHelper {
 
     File testBinaryDir = AbstractTestTools.createTempDir();
     File testBinary = new File(testBinaryDir, candidateTestTools.getBinaryFileName());
-    if (jarjarRules != null) {
-      candidateTestTools.setJarjarRules(jarjarRules);
-    }
-    candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
-    candidateTestTools.srcToExe(candidateClasspathAsString, testBinaryDir, getSrcDir());
 
+    if (checkStructure) {
+      CheckDexStructureTestHelper helper = new CheckDexStructureTestHelper(getSrcDir());
+      helper.setCandidateClasspath(candidateClassPath);
+      helper.setCandidateTestTools(candidateTestTools);
+      if (jarjarRules != null) {
+        helper.setJarjarRulesFile(jarjarRules);
+      }
+      helper.setProguardFlags(proguargFlags.toArray(new File[proguargFlags.size()]));
+      helper.compare();
+      Files.copy(helper.getCandidateDex(),
+          new File(testBinaryDir, helper.getCandidateDex().getName()));
+    } else {
+      if (jarjarRules != null) {
+        candidateTestTools.setJarjarRules(jarjarRules);
+      }
+      candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
+      candidateTestTools.srcToExe(candidateClasspathAsString, testBinaryDir, /* zipFile = */ false,
+          getSrcDir());
+    }
+
+    for (FileChecker checker : testExeCheckers) {
+      checker.check(testBinary);
+    }
+
+    referenceTestTools = createReferenceToolchain();
     File testLib =
         AbstractTestTools.createTempFile("testRef", referenceTestTools.getLibraryExtension());
-    referenceTestTools.srcToLib(referenceClasspathAsString, testLib, /* zipFiles = */true,
+    referenceTestTools.srcToLib(referenceClasspathAsString, testLib, /* zipFiles = */ true,
         getSrcDir());
 
     // Compile link src
+    candidateTestTools = createCandidateToolchain();
+
     File linkBinary = null;
     if (getLinkSrc().length != 0) {
       File linkBinaryDir = AbstractTestTools.createTempDir();
       linkBinary = new File(linkBinaryDir, candidateTestTools.getBinaryFileName());
       candidateTestTools.setJarjarRules(jarjarRules);
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
-      candidateTestTools.srcToExe(candidateBootClasspathAsString, linkBinaryDir, getLinkSrc());
+      candidateTestTools.srcToExe(candidateBootClasspathAsString, linkBinaryDir,
+          /* zipFile = */ false, getLinkSrc());
     }
 
     // Compile ref part src
+    referenceTestTools = createReferenceToolchain();
+
     List<File> referenceClasspath = new ArrayList<File>();
     for (File f : referenceBootClasspath) {
       referenceClasspath.add(f);
@@ -234,12 +288,29 @@ public class RuntimeTestHelper {
     if (testLib != null) {
       referenceClasspath.add(testLib);
     }
+
     referenceClasspathAsString = AbstractTestTools.getClasspathAsString(
         referenceClasspath.toArray(new File[referenceClasspath.size()]));
 
+
+    File [] refSources = getRefSrcDir();
+//    File [] sources = new File [referenceExtraSources.size() + refSources.length];
+    List<File> sources = new ArrayList<File>(referenceExtraSources.size() + refSources.length);
+    sources = Lists.addAll(sources, refSources);
+    sources = Lists.addAll(sources, referenceExtraSources);
+
     File refPartBinaryDir = AbstractTestTools.createTempDir();
+//    File [] sources = new File [referenceExtraSources.size() + 1];
+//    sources[0] = getRefSrcDir()[0];
+//    for (int i = 1; i < sources.length; i++) {
+//      sources[i] = referenceExtraSources.get(i - 1);
+//    }
     File refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
-    referenceTestTools.srcToExe(referenceClasspathAsString, refPartBinaryDir, getRefSrcDir());
+    referenceTestTools.srcToExe(
+        referenceClasspathAsString,
+        refPartBinaryDir,
+        /* zipFile = */ false,
+        sources.toArray(new File[sources.size()]));
 
     List<File> rtClasspath = new ArrayList<File>();
     rtClasspath.add(new File(AbstractTestTools.getJackRootDir(),
@@ -264,13 +335,32 @@ public class RuntimeTestHelper {
         rtClasspath.toArray(new File[rtClasspath.size()]));
   }
 
+  @Nonnull
+  private AndroidToolchain createCandidateToolchain() {
+    AndroidToolchain candidateTestTools =
+        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    candidateTestTools.setSourceLevel(level);
+    candidateTestTools.setWithDebugInfos(withDebugInfos);
+    return candidateTestTools;
+  }
+
+  @Nonnull
+  private AndroidToolchain createReferenceToolchain() {
+    AndroidToolchain referenceTestTools =
+        AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
+    referenceTestTools.setSourceLevel(level);
+    referenceTestTools.setWithDebugInfos(withDebugInfos);
+    return referenceTestTools;
+  }
+
   private static void runOnRuntimeEnvironments(@Nonnull List<String> jUnitClasses,
       @Nonnull Properties testProperties, @Nonnull File... classpathFiles) throws Exception {
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(testProperties);
+    String[] names = Lists.add(jUnitClasses, 0, AbstractTestTools.JUNIT_RUNNER_NAME).toArray(
+        new String[jUnitClasses.size()]);
     for (RuntimeRunner runner : runnerList) {
       Assert.assertEquals(0, runner.run(
-          getRuntimeArgs(runner.getClass().getSimpleName(), testProperties), Lists.add(jUnitClasses,
-              0, AbstractTestTools.JUNIT_RUNNER_NAME).toArray(new String[jUnitClasses.size() + 1]),
+          getRuntimeArgs(runner.getClass().getSimpleName(), testProperties), names,
           classpathFiles));
     }
   }

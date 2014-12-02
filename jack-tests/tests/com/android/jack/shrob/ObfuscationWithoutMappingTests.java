@@ -17,7 +17,7 @@
 package com.android.jack.shrob;
 
 import com.android.jack.Options;
-import com.android.jack.category.KnownBugs;
+import com.android.jack.test.category.KnownBugs;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
@@ -42,8 +42,6 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
       @Nonnull String flagNumber,
       @Nonnull String mappingNumber)
       throws Exception {
-
-    String testName = "shrob/test" + testNumber;
 
     String testPackageName = "com.android.jack.shrob.test" + testNumber;
     File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
