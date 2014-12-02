@@ -168,11 +168,10 @@ test-jack-unit-all: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(l
 	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.AllTests
 
 .PHONY: clean-jack-files
-clean-jack-files:
-	$(hide) find $(OUT_DIR) -name "*.jayce" | xargs rm -f
-	$(hide) for i in `find $(OUT_DIR) -name "*.jar"` ; do ((unzip -l $$i 2> /dev/null | \
-				grep -q "\.jayce$$" && rm -f $$i) || continue ) ; done
-	@echo "All jack files and archives containing jack files have been removed."
+clean-jack-files: clean-dex-files
+	$(hide) find $(OUT_DIR) -name "*.jack" | xargs rm -f
+	$(hide) find $(OUT_DIR) -type d -name "jack" | xargs rm -rf
+	@echo "All jack files have been removed."
 
 .PHONY: clean-dex-files
 clean-dex-files:
