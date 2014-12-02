@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception representing a problem related to a library.
  */
-public abstract class LibraryException extends JackUserException {
+public abstract class LibraryException extends Exception {
 
   private static final long serialVersionUID = 1L;
 

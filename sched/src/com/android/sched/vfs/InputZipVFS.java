@@ -120,4 +120,10 @@ public class InputZipVFS extends AbstractInputVFS {
   public Location getLocation() {
     return location;
   }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return file.getPath();
+  }
 }

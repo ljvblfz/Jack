@@ -16,8 +16,8 @@
 
 package com.android.sched.util.config.id;
 
-
 import com.android.sched.util.HasDescription;
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
@@ -43,6 +43,9 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
   @Nonnull
   private final StringCodec<T> codec;
 
+  @CheckForNull
+  private ShutdownRunnable<T> shutdownRunner;
+
   @Nonnull
   private final List<Value> defaultValues = new ArrayList<Value>(1);
   @CheckForNull
@@ -64,6 +67,20 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
 
     this.description = description;
     this.codec = codec;
+  }
+
+  /**
+   * A interface to shutdown a PropertyId after the end of the session.
+   */
+  public static interface ShutdownRunnable<T> {
+    void run(@Nonnull T object);
+  }
+
+  @Nonnull
+  public PropertyId<T> setShutdownHook(@Nonnull ShutdownRunnable<T> shutdownRunner) {
+    this.shutdownRunner = shutdownRunner;
+
+    return this;
   }
 
   @Nonnull
@@ -156,6 +173,10 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
       this.value = new IValueObject<T>(value);
     }
 
+    public Value (@Nonnull CodecContext context, @Nonnull T value) {
+      this.value = new IValueObject<T>(context, value);
+    }
+
     public Value (@Nonnull String value) {
       this.value = new IValueString(value);
     }
@@ -221,7 +242,7 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
       T val = PropertyId.this.codec.checkString(context, value);
 
       if (val != null) {
-        return new IValueObject<T>(val);
+        return new IValueObject<T>(context, val);
       } else {
         return new IValueCheckedString(value);
       }
@@ -256,7 +277,7 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     @Override
     @Nonnull
     public PropertyId<?>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
-      return new IValueObject<T>(PropertyId.this.codec.parseString(context, value));
+      return new IValueObject<T>(context, PropertyId.this.codec.parseString(context, value));
     }
   }
 
@@ -265,6 +286,25 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     private final T value;
 
     public IValueObject (@Nonnull T value) {
+      this.value = value;
+    }
+
+    public IValueObject(@Nonnull CodecContext context, @Nonnull final T value) {
+      @SuppressWarnings("unchecked")
+      final ShutdownRunnable<T> shutdownRunner =
+          (ShutdownRunnable<T>) PropertyId.this.shutdownRunner;
+      if (shutdownRunner != null) {
+        RunnableHooks hooks = context.getRunnableHooks();
+        if (hooks != null) {
+          hooks.addHook(new Runnable() {
+            @Override
+            public void run() {
+              shutdownRunner.run(value);
+            }
+          });
+        }
+      }
+
       this.value = value;
     }
 

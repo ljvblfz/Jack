@@ -19,7 +19,6 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputOutputVDir;
@@ -27,7 +26,6 @@ import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputOutputZipVFS;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -49,19 +47,7 @@ public class ZipInputOutputVDirCodec extends InputOutputVDirCodec
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
-
-    sb.append("a path to a zip archive (must ");
-
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-
-    sb.append((permissions & Permission.READ)     != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)    != 0, "be writable");
-
-    sb.append(")");
-
-    return sb.toString();
+    return "a path to a zip archive (" + getUsageDetails() + ")";
   }
 
   @Override
@@ -72,17 +58,6 @@ public class ZipInputOutputVDirCodec extends InputOutputVDirCodec
     try {
       final InputOutputZipVFS vDir =
           new InputOutputZipVFS(new OutputZipFile(string, hooks, existence, change));
-      assert hooks != null;
-      hooks.addHook(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            vDir.close();
-          } catch (IOException e) {
-            logger.log(Level.WARNING, "Failed to create zip for '" + string + "'.", e);
-          }
-        }
-      });
       return vDir;
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

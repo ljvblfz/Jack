@@ -32,7 +32,6 @@ import com.android.sched.vfs.InputZipVFS;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -48,6 +47,8 @@ public class InputVDirCodec extends FileOrDirCodec
 
   public InputVDirCodec() {
     super(Existence.MUST_EXIST, Permission.READ);
+
+    assert (permissions & Permission.EXECUTE) == 0;
   }
 
   @Nonnull
@@ -67,20 +68,7 @@ public class InputVDirCodec extends FileOrDirCodec
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
-
-    sb.append("a path to an input directory or zip archive");
-    sb.append(" (must ");
-
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-
-    sb.append((permissions & Permission.READ)     != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)    != 0, "be writable");
-
-    sb.append(")");
-
-    return sb.toString();
+    return "a path to an input directory or zip archive (" + getUsageDetails() + ")";
   }
 
   @Override
@@ -97,16 +85,6 @@ public class InputVDirCodec extends FileOrDirCodec
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;
         vfs = new InputZipVFS(new InputZipFile(string, hooks, Existence.MUST_EXIST, change));
-        hooks.addHook(new Runnable() {
-          @Override
-          public void run() {
-            try {
-              vfs.close();
-            } catch (IOException e) {
-              logger.log(Level.FINE, "Failed to close zip for '" + string + "'.", e);
-            }
-          }
-        });
       }
 
       return vfs;
@@ -132,6 +110,6 @@ public class InputVDirCodec extends FileOrDirCodec
   @Override
   @Nonnull
   public String formatValue(@Nonnull InputVFS directory) {
-    return directory.getLocation().getDescription();
+    return directory.getPath();
   }
 }

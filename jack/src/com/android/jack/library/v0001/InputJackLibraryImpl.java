@@ -24,6 +24,7 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -34,6 +35,7 @@ import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,22 +43,23 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Jack library used as input.
  */
 public class InputJackLibraryImpl extends InputJackLibrary {
-
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final InputVFS vfs;
+  @Nonnegative
+  private final int minorVersion;
 
   @Nonnull
   private final InputLibraryLocation location = new InputLibraryLocation() {
-
     @Override
     @Nonnull
     public String getDescription() {
@@ -86,6 +89,15 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       LibraryFormatException {
     super(libraryProperties);
     this.vfs = libraryVDir;
+
+    try {
+      minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
+    } catch (NumberFormatException e) {
+      logger.log(Level.SEVERE, "Fails to parse the property " + KEY_LIB_MINOR_VERSION
+          + " from " + getLocation().getDescription(), e);
+      throw new LibraryFormatException(getLocation());
+    }
+
     check();
     fillFileTypes();
   }
@@ -145,29 +157,34 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
-  public int getMinorVersion() throws LibraryFormatException {
-    int minor;
+  public void close() throws LibraryIOException {
     try {
-      minor = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
-    } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Fails to parse the property " + KEY_LIB_MINOR_VERSION
-          + " from " + getLocation().getDescription(), e);
-      throw new LibraryFormatException(getLocation());
+      vfs.close();
+    } catch (IOException e) {
+      throw new LibraryIOException(getLocation(), e);
     }
-    return minor;
   }
 
   @Override
+  @Nonnegative
+  public int getMinorVersion() {
+    return minorVersion;
+  }
+
+  @Override
+  @Nonnegative
   public int getMajorVersion() {
     return Version.MAJOR;
   }
 
   @Override
+  @Nonnegative
   public int getSupportedMinorMin() {
     return Version.MINOR_MIN;
   }
 
   @Override
+  @Nonnegative
   public int getSupportedMinor() {
     return Version.MINOR;
   }
@@ -176,6 +193,12 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotDeleteFileException {
-     vfs.getRootInputVDir().delete(fileType.buildFileVPath(typePath));
+    vfs.getRootInputVDir().delete(fileType.buildFileVPath(typePath));
+  }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return vfs.getPath();
   }
 }

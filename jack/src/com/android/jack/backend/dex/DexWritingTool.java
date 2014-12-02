@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
-import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
@@ -110,7 +109,7 @@ public abstract class DexWritingTool {
   }
 
   protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
-      @Nonnull List<InputVFile> anyDexList) throws LibraryFormatException {
+      @Nonnull List<InputVFile> anyDexList) {
     OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
     boolean generateLibWithDex =
         jackOutputLibrary != null && jackOutputLibrary.containsFileType(FileType.DEX);

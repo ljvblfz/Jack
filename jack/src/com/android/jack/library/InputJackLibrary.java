@@ -21,6 +21,7 @@ import com.android.jack.Jack;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 
@@ -67,7 +68,9 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
     }
   }
 
+  @Nonnegative
   public abstract int getSupportedMinor();
 
+  @Nonnegative
   public abstract int getSupportedMinorMin();
 }

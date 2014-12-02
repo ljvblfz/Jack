@@ -18,12 +18,18 @@ package com.android.jack.library;
 
 import com.android.sched.util.location.HasLocation;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * Common interface for libraries used as input and as output.
  */
 public interface Library extends HasLocation {
-
-  public int getMinorVersion() throws LibraryFormatException;
-
-  public int getMajorVersion();
+  void close() throws LibraryIOException;
+  @Nonnegative
+  int getMinorVersion();
+  @Nonnegative
+  int getMajorVersion();
+  @Nonnull
+  String getPath();
 }

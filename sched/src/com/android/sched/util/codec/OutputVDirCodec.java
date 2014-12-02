@@ -66,6 +66,6 @@ abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<Out
   @Override
   @Nonnull
   public String formatValue(@Nonnull OutputVFS directory) {
-    return directory.getLocation().getDescription();
+    return directory.getPath();
   }
 }

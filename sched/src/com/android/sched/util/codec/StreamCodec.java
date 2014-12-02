@@ -44,15 +44,9 @@ public abstract class StreamCodec extends FileOrDirCodec {
   public String getUsage() {
     StringBuilderAppender sb = new StringBuilderAppender(", ");
 
-    sb.append("a path to a file");
+    sb.append("a path to a file (");
 
-    sb.append(" (must ");
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-    sb.append((permissions & Permission.READ)    != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)   != 0, "be writable");
-    sb.append((permissions & Permission.EXECUTE) != 0, "be executable");
-
+    sb.append(getUsageDetails());
     if (allowStandard) {
       StringBuilderAppender ssb = new StringBuilderAppender("/");
 

@@ -125,6 +125,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
         }
       }
     }
+
+    try {
+      vfs.close();
+    } catch (IOException e) {
+      throw new LibraryIOException(getLocation(), e);
+    }
   }
 
   @Override
@@ -163,5 +169,11 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotDeleteFileException {
      vfs.getRootInputOutputVDir().delete(fileType.buildFileVPath(typePath));
+  }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return vfs.getPath();
   }
 }

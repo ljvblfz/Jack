@@ -37,12 +37,12 @@ import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.dex.DexInLibraryWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
-import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
@@ -91,6 +91,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
@@ -666,16 +667,27 @@ public abstract class Jack {
         } catch (Exception e) {
           throw new AssertionError(e);
         } finally {
-          OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
-          if (jackOutputLibrary != null) {
-            jackOutputLibrary.close();
-          }
-          if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
-              || ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-            OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
-            if (jackInternalOutputLibrary != null) {
-              jackInternalOutputLibrary.close();
+          try {
+            OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
+            if (jackOutputLibrary != null) {
+              jackOutputLibrary.close();
             }
+            if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
+                || ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+              OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
+              if (jackInternalOutputLibrary != null) {
+                jackInternalOutputLibrary.close();
+              }
+            }
+            //TODO(jack-team): auto-close
+            if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
+                && ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
+              ThreadConfig.get(Options.DEX_OUTPUT_ZIP).close();
+            }
+          } catch (LibraryIOException e) {
+            throw new AssertionError(e);
+          } catch (IOException e) {
+            throw new AssertionError(e);
           }
         }
       } finally {

@@ -36,8 +36,6 @@ public interface OutputLibrary extends Library {
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException;
 
-  public void close() throws LibraryIOException;
-
   @Override
   @Nonnull
   public OutputLibraryLocation getLocation();

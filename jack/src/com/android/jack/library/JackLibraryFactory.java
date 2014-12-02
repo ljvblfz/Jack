@@ -17,10 +17,15 @@
 package com.android.jack.library;
 
 import com.android.jack.library.v0001.OutputJackLibraryImpl;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.MessageDigestInputOutputVFS;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -35,7 +40,16 @@ import javax.annotation.Nonnull;
 /**
  * Factory to instantiate {@link JackLibrary}.
  */
+@HasKeyId
 public abstract class JackLibraryFactory {
+  @Nonnull
+  private static final BooleanPropertyId GENERATE_JACKLIB_DIGEST = BooleanPropertyId.create(
+      "jack.library.digest", "Generate message digest in Jack library").addDefaultValue(
+      Boolean.FALSE);
+  @Nonnull
+  private static final MessageDigestPropertyId MESSAGE_DIGEST_ALGO = MessageDigestPropertyId
+      .create("jack.library.digest.algo", "Message digest algorithm use in Jack library")
+      .requiredIf(GENERATE_JACKLIB_DIGEST.getValue().isTrue()).addDefaultValue("SHA");
 
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
@@ -65,9 +79,12 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVFS vdir,
+  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVFS vfs,
       @Nonnull String emitterId, @Nonnull String emitterVersion) {
-    return new OutputJackLibraryImpl(vdir, emitterId, emitterVersion);
+    if (ThreadConfig.get(GENERATE_JACKLIB_DIGEST).booleanValue()) {
+      vfs = new MessageDigestInputOutputVFS(vfs, ThreadConfig.get(MESSAGE_DIGEST_ALGO));
+    }
+    return new OutputJackLibraryImpl(vfs, emitterId, emitterVersion);
   }
 
   private static String getMajorVersionAsString(@Nonnull InputVFS vdir,

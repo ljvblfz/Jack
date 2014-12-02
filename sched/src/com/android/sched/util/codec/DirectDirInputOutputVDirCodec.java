@@ -19,7 +19,6 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputOutputVFS;
@@ -42,19 +41,7 @@ public class DirectDirInputOutputVDirCodec extends InputOutputVDirCodec
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
-
-    sb.append("a path to a directory (must ");
-
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-
-    sb.append((permissions & Permission.READ)     != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)    != 0, "be writable");
-
-    sb.append(")");
-
-    return sb.toString();
+    return "a path to a directory (" + getUsageDetails() + ")";
   }
 
   @Override

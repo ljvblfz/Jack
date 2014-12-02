@@ -273,7 +273,7 @@ public class AsapConfigBuilder {
       }
     }
 
-    valuesById.put(propertyId, propertyId.new Value(value));
+    valuesById.put(propertyId, propertyId.new Value(context, value));
     locationsByKeyId.put(propertyId, location);
 
     return this;

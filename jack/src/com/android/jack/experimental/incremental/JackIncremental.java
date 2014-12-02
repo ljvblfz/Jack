@@ -37,6 +37,9 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.load.JackLoadingException;
@@ -341,6 +344,12 @@ public class JackIncremental extends CommandLine {
     } catch (CannotCreateFileException e) {
       throw new AssertionError(e);
     } catch (CannotReadException e) {
+      throw new IncrementalException(e);
+    } catch (LibraryVersionException e) {
+      throw new AssertionError(e);
+    } catch (LibraryFormatException e) {
+      throw new AssertionError(e);
+    } catch (LibraryIOException e) {
       throw new IncrementalException(e);
     }
   }

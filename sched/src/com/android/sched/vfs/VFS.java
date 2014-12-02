@@ -20,8 +20,12 @@ import com.android.sched.util.location.HasLocation;
 
 import java.io.Closeable;
 
+import javax.annotation.Nonnull;
+
 /**
  * An a root of a VFS.
  */
 public interface VFS extends HasLocation, Closeable {
+  @Nonnull
+  String getPath();
 }

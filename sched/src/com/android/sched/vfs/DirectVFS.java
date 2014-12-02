@@ -49,4 +49,10 @@ public class DirectVFS extends AbstractInputOutputVFS implements ParallelOutputV
   public Location getLocation() {
     return dir.getLocation();
   }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return dir.getPath();
+  }
 }

@@ -91,4 +91,10 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   public Location getLocation() {
     return zipFile.getLocation();
   }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return zipFile.getPath();
+  }
 }

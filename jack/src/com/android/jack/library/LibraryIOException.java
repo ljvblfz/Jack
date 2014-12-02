@@ -19,6 +19,8 @@ package com.android.jack.library;
 import com.android.jack.LibraryException;
 import com.android.sched.util.location.Location;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -31,7 +33,7 @@ public class LibraryIOException extends LibraryException {
   @Nonnull
   private final Location location;
 
-  public LibraryIOException(@Nonnull Location location, @Nonnull Throwable cause) {
+  public LibraryIOException(@Nonnull Location location, @Nonnull IOException cause) {
     super(cause);
     this.location = location;
   }
@@ -39,6 +41,7 @@ public class LibraryIOException extends LibraryException {
   @Override
   @Nonnull
   public String getMessage() {
+    // XXX Update message, it is an IO exception
     return location.getDescription() + " is an invalid library: " + getCause().getMessage();
   }
 }

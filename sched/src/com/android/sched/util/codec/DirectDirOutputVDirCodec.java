@@ -18,13 +18,10 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.ParallelOutputVFS;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -33,10 +30,6 @@ import javax.annotation.Nonnull;
  * a filesystem directory.
  */
 public class DirectDirOutputVDirCodec extends OutputVDirCodec {
-
-  @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
-
   public DirectDirOutputVDirCodec(@Nonnull Existence existence) {
     super(existence);
   }
@@ -44,19 +37,7 @@ public class DirectDirOutputVDirCodec extends OutputVDirCodec {
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
-
-    sb.append("a path to an output directory (must ");
-
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-
-    sb.append((permissions & Permission.READ)     != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)    != 0, "be writable");
-
-    sb.append(")");
-
-    return sb.toString();
+    return "a path to an output directory (" + getUsageDetails() + ")";
   }
 
   @Override

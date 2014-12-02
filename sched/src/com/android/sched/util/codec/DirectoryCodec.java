@@ -36,8 +36,7 @@ public class DirectoryCodec extends FileOrDirCodec
   public DirectoryCodec(@Nonnull Existence existence, int permissions) {
     super(existence, permissions);
 
-    assert (permissions & Permission.EXECUTE)
-        == 0 : "Execute permission is not supported by " + DirectoryCodec.class.getSimpleName();
+    assert (permissions & Permission.EXECUTE) == 0;
   }
 
   @Nonnull
@@ -57,20 +56,7 @@ public class DirectoryCodec extends FileOrDirCodec
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
-
-    sb.append("a path to a directory");
-    sb.append(" (must ");
-
-    sb.append(existence == Existence.MUST_EXIST, "exist");
-    sb.append(existence == Existence.NOT_EXIST,  "not exist");
-
-    sb.append((permissions & Permission.READ)     != 0, "be readable");
-    sb.append((permissions & Permission.WRITE)    != 0, "be writable");
-
-    sb.append(")");
-
-    return sb.toString();
+    return "a path to a directory (" + getUsageDetails() + ")";
   }
 
   @Override

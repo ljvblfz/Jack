@@ -69,4 +69,10 @@ public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputV
   public Location getLocation() {
     return file.getLocation();
   }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return file.getPath();
+  }
 }

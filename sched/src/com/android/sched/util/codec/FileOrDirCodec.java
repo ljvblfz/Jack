@@ -19,6 +19,7 @@ package com.android.sched.util.codec;
 import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +85,21 @@ public abstract class FileOrDirCodec {
     public String toString() {
       return sb.toString();
     }
+  }
+
+  public String getUsageDetails() {
+    StringBuilderAppender sb = new StringBuilderAppender(", ");
+
+    sb.append("must ");
+
+    sb.append(existence == Existence.MUST_EXIST, "exist");
+    sb.append(existence == Existence.NOT_EXIST,  "not exist");
+
+    sb.append((permissions & Permission.READ)    != 0, "be readable");
+    sb.append((permissions & Permission.WRITE)   != 0, "be writable");
+    sb.append((permissions & Permission.EXECUTE) != 0, "be executable");
+
+    return sb.toString();
   }
 
   @Nonnull
