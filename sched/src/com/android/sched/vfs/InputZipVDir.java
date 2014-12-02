@@ -47,7 +47,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
   @Nonnull
   @Override
   public String getName() {
-    return ZipUtils.getSimpleName(entry);
+    return ZipUtils.getDirSimpleName(entry);
   }
 
   @Nonnull
