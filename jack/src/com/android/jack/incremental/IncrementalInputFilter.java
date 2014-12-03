@@ -190,7 +190,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
     List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
-    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(classpathContent,
+    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(
+        classpathContent,
         config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);

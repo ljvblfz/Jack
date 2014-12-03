@@ -28,7 +28,7 @@ public class JVisitorWithConcurrentModification extends JVisitor {
 
   @Override
   public <T extends JNode> void accept(@Nonnull ArrayList<T> array) {
-    accept((Collection<T>)array);
+    accept((Collection<T>) array);
   }
 
   @Override

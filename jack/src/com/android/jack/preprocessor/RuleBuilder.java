@@ -49,7 +49,7 @@ class RuleBuilder {
 
   @Nonnull
   public JAnnotation getAnnotation(@Nonnull String annotationName) {
-    return session.getPhantomLookup().getAnnotation(
+    return session.getLookup().getAnnotation(
         NamingTools.getTypeSignatureName(annotationName));
   }
 

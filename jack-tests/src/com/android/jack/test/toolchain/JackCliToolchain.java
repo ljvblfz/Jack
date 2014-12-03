@@ -61,6 +61,7 @@ public class JackCliToolchain extends JackBasedToolchain {
   public JackCliToolchain setVerbose(boolean isVerbose) {
     super.setVerbose(isVerbose);
     verbosityLevel = isVerbose ? VerbosityLevel.DEBUG : VerbosityLevel.WARNING;
+    addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
     return this;
   }
 

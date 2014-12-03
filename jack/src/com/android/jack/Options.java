@@ -394,6 +394,12 @@ public class Options {
         "Use annotation processor classpath for annotation processor loading")
         .addDefaultValue(false);
 
+
+  @Nonnull
+  public static final BooleanPropertyId USE_DEFAULT_LIBRARIES = BooleanPropertyId.create(
+      "jack.classpath.default-libraries", "Use default libraries as first classpath entries")
+      .addDefaultValue(Boolean.TRUE);
+
   @Nonnull
   public static final ListPropertyId<FileOrDirectory> ANNOTATION_PROCESSOR_PATH_LIST =
       new ListPropertyId<FileOrDirectory>("jack.annotation-processor.path.list",

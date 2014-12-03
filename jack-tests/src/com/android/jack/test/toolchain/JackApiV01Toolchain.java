@@ -49,6 +49,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
   JackApiV01Toolchain(@Nonnull File jackPrebuilt) {
     super(jackPrebuilt, Api01Config.class);
     apiV01Config = (Api01Config) config;
+    addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
   }
 
   @Override

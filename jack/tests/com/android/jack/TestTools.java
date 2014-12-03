@@ -301,7 +301,9 @@ public class TestTools {
   @Nonnull
   public static JSession buildJAst(@Nonnull Options options) throws Exception {
     RunnableHooks hooks = new RunnableHooks();
+
     try {
+      options.addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
       options.checkValidity(hooks);
       ThreadConfig.setConfig(options.getConfig());
 
@@ -333,6 +335,7 @@ public class TestTools {
   @Nonnull
   public static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws Exception {
+    options.addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();

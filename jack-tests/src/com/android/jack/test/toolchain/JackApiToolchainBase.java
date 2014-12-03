@@ -62,7 +62,6 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
   @Nonnull
   private static String compilerVersion;
 
-
   @Nonnull
   public static String getReleaseName() {
     return releaseName;

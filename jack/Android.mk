@@ -109,9 +109,44 @@ LOCAL_JAVA_LIBRARIES := \
 include $(BUILD_HOST_JAVA_LIBRARY)
 $(LOCAL_INSTALLED_MODULE) : $(jack_script)
 
-# overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
-$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+JACK_JAR_INTERMEDIATE:=$(LOCAL_BUILT_MODULE).intermediate.jar
+$(JACK_JAR_INTERMEDIATE): $(LOCAL_BUILT_MODULE)
 	java -jar $(call java-lib-libs,sched-build,true) $< $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $@
+
+JACK_CORE_STUBS_MINI := $(LOCAL_BUILT_MODULE).core-stub-mini.jack
+JACK_CORE_STUBS_MINI_SRC := $(addprefix $(TOP_DIR)$(LOCAL_PATH)/,$(call all-java-files-under, ../core-stubs-mini/src))
+
+JACK_DEFAULT_LIB := $(LOCAL_BUILT_MODULE).defaultlib.jack
+JACK_DEFAULT_LIB_SRC :=$(addprefix $(TOP_DIR)$(LOCAL_PATH)/,$(call all-java-files-under, src/com/android/jack/annotations))
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM_ARGS := $(DEFAULT_JACK_VM_ARGS)
+ifneq ($(ANDROID_JACK_VM_ARGS),)
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM_ARGS := $(ANDROID_JACK_VM_ARGS)
+endif
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_EXTRA_ARGS := $(DEFAULT_JACK_EXTRA_ARGS)
+ifneq ($(ANDROID_JACK_EXTRA_ARGS),)
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_EXTRA_ARGS := $(ANDROID_JACK_EXTRA_ARGS)
+endif
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM := $(DEFAULT_JACK_VM)
+ifneq ($(strip $(ANDROID_JACK_VM)),)
+$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM := $(ANDROID_JACK_VM)
+endif
+
+$(JACK_CORE_STUBS_MINI): $(JACK_CORE_STUBS_MINI_SRC) $(JACK_JAR_INTERMEDIATE)
+	$(PRIVATE_JACK_VM) $(PRIVATE_JACK_VM_ARGS) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
+		-D jack.classpath.default-libraries=false --output-jack $(JACK_CORE_STUBS_MINI) $(JACK_CORE_STUBS_MINI_SRC)
+
+$(JACK_DEFAULT_LIB): $(JACK_DEFAULT_LIB_SRC) $(JACK_CORE_STUBS_MINI) $(JACK_JAR_INTERMEDIATE)
+	$(PRIVATE_JACK_VM) $(PRIVATE_JACK_VM_ARGS) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
+		--classpath $(JACK_CORE_STUBS_MINI) -D jack.classpath.default-libraries=false --output-jack $(JACK_DEFAULT_LIB) $(JACK_DEFAULT_LIB_SRC)
+
+# overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
+$(LOCAL_INSTALLED_MODULE): PRIVATE_JAR_MANIFEST := $(LOCAL_PATH)/$(LOCAL_JAR_MANIFEST)
+$(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
+	$(hide) rm -rf $<.tmp
+	$(hide) mkdir -p $<.tmp/jack-default-lib
+	$(hide) unzip -d $<.tmp $<
+	$(hide) unzip -d $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
+	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
 
 # Merge with sched lib support
 $(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)

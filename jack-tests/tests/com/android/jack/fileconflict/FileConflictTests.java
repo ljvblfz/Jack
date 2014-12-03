@@ -19,6 +19,7 @@ package com.android.jack.fileconflict;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.FileType;

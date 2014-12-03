@@ -17,6 +17,8 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
+import com.android.jack.annotations.ForceInMainDex;
+import com.android.jack.annotations.MultiDexInstaller;
 import com.android.jack.backend.dex.MultiDexLegacyTracerBrush.MultiDexInstallerMarker;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -25,10 +27,13 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+
+import java.lang.annotation.Annotation;
 
 import javax.annotation.Nonnull;
 
@@ -71,10 +76,14 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
   private final JAnnotation mainDexAnnotation;
 
   public MultiDexAnnotationsFinder() {
-    installerAnnotation = Jack.getSession().getPhantomLookup()
-        .getAnnotation("Lcom/android/jack/annotations/MultiDexInstaller;");
-    mainDexAnnotation = Jack.getSession().getPhantomLookup()
-        .getAnnotation("Lcom/android/jack/annotations/ForceInMainDex;");
+    installerAnnotation = getJAnnotation(MultiDexInstaller.class);
+    mainDexAnnotation = getJAnnotation(ForceInMainDex.class);
+  }
+
+  @Nonnull
+  private JAnnotation getJAnnotation(@Nonnull Class<? extends Annotation> clazz) {
+    String signature = NamingTools.getTypeSignatureName(clazz.getName());
+    return Jack.getSession().getPhantomLookup().getAnnotation(signature);
   }
 
   @Override

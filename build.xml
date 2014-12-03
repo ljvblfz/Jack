@@ -56,7 +56,8 @@
     dex-lib-clean,
     ddm-lib-clean,
     dx-ref-lib-clean,
-    core-stubs-mini-clean" />
+    core-stubs-mini-clean,
+    jack-default-lib-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
 
@@ -223,6 +224,50 @@
       basedir="${jack.build.outdir}" includes="**"/>
   </target>
 
+  <!-- ******************* -->
+  <!-- jack-intermediate   -->
+  <!-- ******************* -->
+
+  <target name="jack-intermediate-check">
+    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
+    <uptodate property="jack-intermediate.uptodate"
+      targetfile="${jack.intermediate.dist.dir}/${jack.execname}">
+        <srcfiles dir="${jack.build.outdir}"/>
+        <srcfiles dir="${jack.dir}/rsc"/>
+        <srcfiles dir="${jack.intermediate.build.outdir}"/>
+        <srcfiles dir="/" includes="${jack.static.libs.list}"/>
+    </uptodate>
+  </target>
+  <property name="jack.intermediate.dist.dir" value="${jack.dir}/dist/jack-intermediate"/>
+  <property name="jack.intermediate.build.dir" value="${jack.dir}/build/jack-intermediate"/>
+  <property name="jack.intermediate.build.outdir" value="${jack.intermediate.build.dir}/classes"/>
+  <property name="jack.intermediatename" value="jack-intermediate.jar"/>
+
+  <target name="jack-intermediate-clean" depends="jack-lib-clean">
+    <delete dir="${jack.intermediate.build.dir}"/>
+    <delete dir="${jack.intermediate.build.outdir}"/>
+    <delete file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
+  </target>
+
+  <target name="jack-intermediate" depends="jack-lib-compile-step2,jack-intermediate-check" unless="jack-intermediate.uptodate">
+    <copy todir="${jack.intermediate.build.outdir}">
+      <fileset dir="${jack.build.outdir}"/>
+    </copy>
+    <!-- package -->
+    <copy todir="${jack.intermediate.build.outdir}">
+      <fileset dir="${jack.dir}/rsc" includes="**"/>
+    </copy>
+    <jar destfile="${jack.intermediate.build.dir}/${jack.execname}"
+       manifest="${jack.dir}/etc/manifest.txt" basedir="${jack.intermediate.build.outdir}" includes="**"/>
+    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
+    <!-- add sched support -->
+    <mkdir dir="${jack.intermediate.dist.dir}"/>
+    <java jar="${jack.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
+      <arg value="${jack.intermediate.build.dir}/${jack.execname}" />
+      <arg line="${jack.static.libs.list}" />
+      <arg value="${jack.intermediate.dist.dir}/${jack.execname}" />
+    </java>
+  </target>
 
   <!-- ******************* -->
   <!-- jack                -->
@@ -236,23 +281,28 @@
     <delete file="${jack.dist.dir}/${jack.execname}"/>
   </target>
 
-  <target name="jack" depends="jack-lib-compile-step2">
+  <target name="jack.check">
+    <uptodate property="jack.uptodate"
+      targetfile="${jack.dist.dir}/${jack.execname}">
+      <srcfiles dir="${jack.build.outdir}"/>
+      <srcfiles file="${jack.intermediate.dist.dir}/${jack.execname}"/>
+      <srcfiles dir="${jack-default-lib.build.outdir}"/>
+      <srcfiles file="${jack.dir}/etc/manifest.txt"/>
+    </uptodate>
+  </target>
+
+  <target name="jack" depends="jack-intermediate,jack-default-lib,jack.check" unless="${jack.uptodate}">
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.build.outdir}"/>
     </copy>
     <!-- package -->
-    <copy todir="${jack.exec.build.outdir}">
-      <fileset dir="${jack.dir}/rsc" includes="**"/>
+    <unzip dest="${jack.exec.build.outdir}" src="${jack.intermediate.dist.dir}/${jack.execname}"/>
+    <mkdir dir="${jack.exec.build.outdir}/jack-default-lib"/>
+    <copy todir="${jack.exec.build.outdir}/jack-default-lib">
+      <fileset dir="${jack-default-lib.build.outdir}"/>
     </copy>
-    <jar destfile="${jack.exec.build.dir}/${jack.execname}"
+    <jar destfile="${jack.dist.dir}/${jack.execname}"
        manifest="${jack.dir}/etc/manifest.txt" basedir="${jack.exec.build.outdir}" includes="**"/>
-    <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
-    <!-- add sched support -->
-    <java jar="${jack.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
-      <arg value="${jack.exec.build.dir}/${jack.execname}" />
-      <arg line="${jack.static.libs.list}" />
-      <arg value="${jack.dist.dir}/${jack.execname}" />
-    </java>
   </target>
 
 
@@ -1466,6 +1516,43 @@
             includes="**"/>
   </target>
 
+  <!-- ******************* -->
+  <!-- jack-default-lib    -->
+  <!-- ******************* -->
+  <property name="jack-default-lib.build.outdir" value="${jack.dir}/default-lib/build"/>
+
+  <target name="jack-default-lib-clean">
+    <delete dir="${jack-default-lib.build.outdir}" />
+  </target>
+
+  <target name="jack-default-lib.check">
+    <uptodate property="jack-default-lib.uptodate"
+      targetfile="${jack-default-lib.build.outdir}">
+      <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+      <srcfiles file="${jack.intermediate.dist.dir}/${jack.execname}"/>
+    </uptodate>
+  </target>
+
+
+  <target name="jack-default-lib" depends="jack-intermediate,core-stubs-mini,jack-default-lib.check" unless="jack-default-lib.uptodate">
+    <delete dir="${jack-default-lib.build.outdir}" quiet="true"/>
+    <mkdir dir="${jack-default-lib.build.outdir}"/>
+    <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+    <pathconvert property="jack-default-lib.src.list" pathsep=" " refid="jack-default-lib.src.fileset" />
+
+    <java jar="${jack.intermediate.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+      <arg value="--verbose"/>
+      <arg value="error"/>
+      <arg value="-D"/>
+      <arg value="jack.classpath.default-libraries=false"/>
+      <arg value="--classpath"/>
+      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
+      <arg value="--output-jack-dir"/>
+      <arg value="${jack-default-lib.build.outdir}"/>
+      <arg line="${jack-default-lib.src.list}"/>
+    </java>
+  </target>
+
 
   <!-- ******************* -->
   <!-- core-stubs-mini     -->
@@ -1481,15 +1568,26 @@
     <delete dir="${core-stubs-mini.dist.dir}" />
   </target>
 
-  <target name="core-stubs-mini" depends="jack">
+  <target name="core-stubs-mini-check">
+    <uptodate property="core-stubs-mini.uptodate"
+      targetfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}">
+      <srcfiles dir="${core-stubs-mini.dir}/src">
+        <include name="**/*.java"/>
+      </srcfiles>
+    </uptodate>
+  </target>
+
+  <target name="core-stubs-mini" depends="jack-intermediate,core-stubs-mini-check" unless="core-stubs-mini.uptodate">
     <mkdir dir="${core-stubs-mini.dist.dir}"/>
     <mkdir dir="${core-stubs-mini.build.outdir}"/>
     <fileset dir="${core-stubs-mini.dir}/src">
       <include name="**/*.java"/>
     </fileset>
-    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+    <java jar="${jack.intermediate.dist.dir}/${jack.execname}" fork="true" failonerror="true">
       <arg value="--verbose"/>
       <arg value="error"/>
+      <arg value="-D"/>
+      <arg value="jack.classpath.default-libraries=false"/>
       <arg value="--output-jack"/>
       <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
       <arg value="${core-stubs-mini.dir}/src"/>

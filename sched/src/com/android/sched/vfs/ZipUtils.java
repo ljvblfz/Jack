@@ -23,9 +23,9 @@ import javax.annotation.Nonnull;
 /**
  * Utilities for Zip VFS implementations.
  */
-final class ZipUtils {
+public final class ZipUtils {
 
-  static final char ZIP_SEPARATOR = '/';
+  public static final char ZIP_SEPARATOR = '/';
 
   static final String ZIP_SEPARATOR_STRING = "/";
 

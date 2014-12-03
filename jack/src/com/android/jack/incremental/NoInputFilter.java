@@ -62,6 +62,7 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
     librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(
         ThreadConfig.get(Options.CLASSPATH),
         ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
+
     LibraryDependencies libraryDependencies = session.getLibraryDependencies();
     libraryDependencies.addImportedLibraries(importedLibrariesFromCommandLine);
     libraryDependencies.addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
