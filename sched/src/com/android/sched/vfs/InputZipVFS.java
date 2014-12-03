@@ -20,6 +20,7 @@ import com.google.common.base.Splitter;
 
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.ZipLocation;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -27,6 +28,7 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,37 +38,65 @@ public class InputZipVFS extends AbstractInputVFS {
   @Nonnull
   private final ZipFile zip;
   @Nonnull
-  private final InputZipFile file;
+  private final Location location;
+  private static final Splitter splitter = Splitter.on(ZipUtils.IN_ZIP_SEPARATOR);
 
   public InputZipVFS(@Nonnull InputZipFile zipFile) {
     setRootDir(new InputZipVDir(this, new ZipEntry("")));
     this.zip  = zipFile.getZipFile();
-    this.file = zipFile;
+    this.location = zipFile.getLocation();
 
-    Splitter splitter = Splitter.on(ZipUtils.IN_ZIP_SEPARATOR);
+    fillSubElements(zip, null);
+  }
+
+  public InputZipVFS(@Nonnull InputZipFile zipFile, @Nonnull String prefix) {
+    setRootDir(new InputZipVDir(this, new ZipEntry(prefix)));
+    this.zip  = zipFile.getZipFile();
+    this.location = new ZipLocation(zipFile.getLocation(), new ZipEntry(prefix));
+
+    assert prefix.endsWith("" + ZipUtils.IN_ZIP_SEPARATOR);
+    fillSubElements(zip, prefix);
+  }
+
+  private void fillSubElements(@Nonnull ZipFile zip, @CheckForNull String prefix) {
+
     for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
       ZipEntry entry = entries.nextElement();
       if (!entry.isDirectory()) {
         String entryName = entry.getName();
-        Iterator<String> names = splitter.split(entryName).iterator();
-        InputZipVDir dir = getRootInputVDir();
-        StringBuilder inZipPath = new StringBuilder();
-        String simpleName = null;
-        while (names.hasNext()) {
-          simpleName = names.next();
-          if (names.hasNext()) {
-            inZipPath.append(ZipUtils.IN_ZIP_SEPARATOR).append(simpleName);
-            InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
-            if (nextDir == null) {
-              nextDir = new InputZipVDir(this, new ZipEntry(inZipPath.toString()));
-              dir.subs.put(simpleName, nextDir);
-            }
-            dir = nextDir;
+        if (prefix == null || entryName.startsWith(prefix)) {
+          InputZipVDir dir = getRootInputVDir();
+          StringBuilder inZipPath = new StringBuilder();
+          String relativePath;
+          if (prefix != null) {
+            relativePath = entryName.substring(prefix.length(), entryName.length());
+            inZipPath.append(prefix);
+          } else {
+            relativePath = entryName;
           }
+          Iterator<String> names = splitter.split(relativePath).iterator();
+
+          String simpleName = null;
+          while (names.hasNext()) {
+            simpleName = names.next();
+            assert !simpleName.isEmpty();
+            if (names.hasNext()) {
+              // simpleName is a dir name
+              inZipPath.append(simpleName).append(ZipUtils.IN_ZIP_SEPARATOR);
+              InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
+              if (nextDir == null) {
+                // VDir does not already exist
+                nextDir = new InputZipVDir(this, new ZipEntry(inZipPath.toString()));
+                dir.subs.put(simpleName, nextDir);
+              }
+              dir = nextDir;
+            }
+          }
+          dir.subs.put(simpleName, new InputZipVFile(this, entry));
         }
-        dir.subs.put(simpleName, new InputZipVFile(this, entry));
       }
     }
+
   }
 
   @Nonnull
@@ -88,6 +118,6 @@ public class InputZipVFS extends AbstractInputVFS {
   @Override
   @Nonnull
   public Location getLocation() {
-    return file.getLocation();
+    return location;
   }
 }

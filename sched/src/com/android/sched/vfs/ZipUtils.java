@@ -34,12 +34,22 @@ final class ZipUtils {
   @Nonnull
   static String getSimpleName(@Nonnull ZipEntry entry) {
     String name = entry.getName();
+    assert !name.endsWith("" + IN_ZIP_SEPARATOR);
     int index = name.lastIndexOf(IN_ZIP_SEPARATOR);
     if (index < 0) {
       return name;
     } else {
       return name.substring(index + 1);
     }
+  }
+
+  @Nonnull
+  static String getDirSimpleName(@Nonnull ZipEntry entry) {
+    String name = entry.getName();
+    assert name.endsWith("" + IN_ZIP_SEPARATOR);
+    int index = name.lastIndexOf(IN_ZIP_SEPARATOR, name.length() - 2);
+    int startIndex = index + 1; // if '/' was not found, startIndex will be 0
+    return name.substring(startIndex, name.length() - 1);
   }
 
 }
