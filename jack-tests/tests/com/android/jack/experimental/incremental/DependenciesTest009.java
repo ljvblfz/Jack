@@ -19,16 +19,17 @@ package com.android.jack.experimental.incremental;
 import com.android.jack.Main;
 import com.android.jack.TestTools;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
@@ -77,9 +78,10 @@ public class DependenciesTest009 {
     try {
       directVFS = new DirectVFS(new Directory(ite.getCompilerStateFolder().getPath(), null,
           Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
-      InputVDir incrementalVDir = directVFS.getRootInputVDir();
+      InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(directVFS);
 
-      TypeDependencies typeDependencies = readTypeDependencies(incrementalVDir);
+      TypeDependencies typeDependencies = readTypeDependencies(inputJackLibrary);
+
       Map<String, Set<String>> dependencies1 = typeDependencies.getRecompileDependencies();
 
       ite.addJavaFile("jack.incremental", "A.java",
@@ -87,7 +89,7 @@ public class DependenciesTest009 {
 
       ite.incrementalBuildFromFolder();
 
-      typeDependencies = readTypeDependencies(incrementalVDir);
+      typeDependencies = readTypeDependencies(inputJackLibrary);
       Map<String, Set<String>> dependencies2 = typeDependencies.getRecompileDependencies();
 
       assert dependencies1.equals(dependencies2);
@@ -100,10 +102,11 @@ public class DependenciesTest009 {
   }
 
   @Nonnull
-  private static TypeDependencies readTypeDependencies(@Nonnull InputVDir incrementalVDir)
-      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
+  private static TypeDependencies readTypeDependencies(InputJackLibrary inputJackLibrary)
+      throws FileTypeDoesNotExistException, CannotReadException {
     TypeDependencies typeDependencies = new TypeDependencies();
-    InputVFile typeDependenciesVFile = incrementalVDir.getInputVFile(TypeDependencies.vpath);
+    InputVFile typeDependenciesVFile =
+        inputJackLibrary.getFile(FileType.DEPENDENCIES, TypeDependencies.vpath);
     InputStreamReader reader = null;
     try {
       reader = new InputStreamReader(typeDependenciesVFile.openRead());

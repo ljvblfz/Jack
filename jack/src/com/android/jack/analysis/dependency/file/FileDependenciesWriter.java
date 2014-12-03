@@ -19,27 +19,19 @@ package com.android.jack.analysis.dependency.file;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
-import com.android.jack.Options;
 import com.android.jack.experimental.incremental.IncrementalException;
-import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
-import com.android.jack.library.OutputLibrary;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.vfs.InputOutputVFS;
-import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
 import java.io.PrintStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -50,30 +42,12 @@ import javax.annotation.Nonnull;
 @Constraint(need = FileDependencies.Collected.class)
 public class FileDependenciesWriter implements RunnableSchedulable<JSession>{
 
-  @CheckForNull
-  private final OutputLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
-
-  @CheckForNull
-  protected InputOutputVFS intermediateDexDir = ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
-
-  private final boolean isIncrementalMode =
-      ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue();
-
   @Override
-  public void run(@Nonnull JSession program) throws JackUserException {
-    PrintStream ps = null;
+  public void run(@Nonnull JSession session) throws JackUserException {
+  PrintStream ps = null;
     try {
-      OutputVFile outputVFile;
-      if (outputLibrary != null && !isIncrementalMode && intermediateDexDir == null) {
-        outputVFile =
-            outputLibrary.createFile(FileType.DEPENDENCIES, FileDependencies.vpath);
-      } else {
-        assert intermediateDexDir != null;
-        VPath fileDependencyPath = FileDependencies.vpath.clone();
-        fileDependencyPath.prependPath(new VPath("..", '/'));
-        outputVFile = intermediateDexDir.getRootOutputVDir().createOutputVFile(fileDependencyPath);
-      }
-      ps = new PrintStream(outputVFile.openWrite());
+      ps = new PrintStream(session.getJackInternalOutputLibrary().createFile(
+          FileType.DEPENDENCIES, FileDependencies.vpath).openWrite());
       Jack.getSession().getFileDependencies().write(ps);
     } catch (CannotCreateFileException e) {
       IncrementalException incrementalException = new IncrementalException(e);

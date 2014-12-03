@@ -87,7 +87,7 @@ public class IncrementalTestingEnvironment extends TestTools {
     if (!compilerStateDir.exists() && !compilerStateDir.mkdir()) {
       throw new IOException("Failed to create folder " + compilerStateDir.getAbsolutePath());
     }
-    jackFolder = new File(compilerStateDir, "jackFiles");
+    jackFolder = new File(compilerStateDir, FileType.JAYCE.getPrefix());
   }
 
   public void addJavaFile(@Nonnull String packageName, @Nonnull String fileName,
@@ -190,8 +190,7 @@ public class IncrementalTestingEnvironment extends TestTools {
       if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
         String jackFileName = jackFile.getAbsolutePath();
         String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
-        binaryTypeName = binaryTypeName.substring((jackFolder.getAbsolutePath() + File.separatorChar
-            + FileType.JAYCE.getPrefix()).length() + 1);
+        binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
         fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar,'.'));
       }
     }

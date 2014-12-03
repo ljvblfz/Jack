@@ -25,6 +25,8 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.MethodFormatter;
+import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.ListingComparator;
@@ -38,7 +40,12 @@ import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
+import com.android.sched.vfs.DirectVFS;
 
 import junit.framework.Assert;
 
@@ -550,11 +557,24 @@ public class TestTools {
       request.addProduction(JayceFormatProduct.class);
     }
 
-    PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
-    Jack.fillDexPlan(options, planBuilder);
-    request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
+    OutputJackLibrary outputLibrary = null;
+    try {
+      outputLibrary = JackLibraryFactory.getOutputLibrary(new DirectVFS(new Directory(
+          TestTools.createTempDir("unused", "").getPath(), hooks, Existence.MUST_EXIST,
+          Permission.WRITE, ChangePermission.NOCHANGE)), Jack.getEmitterId(),
+          Jack.getVersionString());
+      session.setJackInternalOutputLibrary(outputLibrary);
 
-    planBuilder.getPlan().getScheduleInstance().process(session);
+      PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
+      Jack.fillDexPlan(options, planBuilder);
+      request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
+
+      planBuilder.getPlan().getScheduleInstance().process(session);
+    } finally {
+      if (outputLibrary != null) {
+        outputLibrary.close();
+      }
+    }
 
     return (session);
   }

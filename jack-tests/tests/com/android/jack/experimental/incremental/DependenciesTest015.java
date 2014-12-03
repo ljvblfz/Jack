@@ -66,7 +66,7 @@ public class DependenciesTest015 {
     iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B extends A { \n" + " @Override public void m(){} }");
 
-    iteProg.incrementalBuildFromFolder(new File[]{iteLib.getJackFolder()});
+    iteProg.incrementalBuildFromFolder(new File[]{iteLib.getCompilerStateFolder()});
     iteProg.snapshotJackFilesModificationDate();
     Assert.assertEquals(1, iteProg.getJackFiles().size());
 
@@ -81,7 +81,7 @@ public class DependenciesTest015 {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     iteProg.setErr(err);
     try {
-      iteProg.incrementalBuildFromFolder(new File[] {iteLib.getJackFolder()});
+      iteProg.incrementalBuildFromFolder(new File[] {iteLib.getCompilerStateFolder()});
       Assert.fail();
     } catch (FrontendCompilationException e) {
       Assert.assertTrue(err.toString().contains(
@@ -112,7 +112,8 @@ public class DependenciesTest015 {
     iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B { \n" + " public void m(){} }");
 
-    iteProg.incrementalBuildFromFolder(null /*classpath*/, Arrays.asList(iteLib.getJackFolder()));
+    iteProg.incrementalBuildFromFolder(null /* classpath */,
+        Arrays.asList(iteLib.getCompilerStateFolder()));
     iteProg.snapshotJackFilesModificationDate();
     Assert.assertEquals(2, iteProg.getJackFiles().size());
 
@@ -128,7 +129,7 @@ public class DependenciesTest015 {
     Assert.assertEquals(2, jackFilesLib.size());
 
 
-    iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getJackFolder()));
+    iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getCompilerStateFolder()));
     iteProg.snapshotJackFilesModificationDate();
     Assert.assertEquals(3, iteProg.getJackFiles().size());
 

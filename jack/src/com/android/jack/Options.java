@@ -24,6 +24,7 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
+import com.android.jack.config.id.Private;
 import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -135,11 +136,13 @@ public class Options {
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVFS> INTERMEDIATE_DEX_DIR = PropertyId.create(
-      "jack.dex.intermediate.output.dir", "Intermediate dex output folder",
-      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      GENERATE_INTERMEDIATE_DEX.getValue().isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
-      .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))));
+  public static final PropertyId<InputOutputVFS> INTERNAL_LIBRARY_OUTPUT_DIR = PropertyId.create(
+      "jack.internal.library.output.dir", "Output folder for internal library",
+      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST))
+      .withCategory(Private.get()).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
+          .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
+              .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
+              .and(GENERATE_JACK_LIBRARY.getValue().isFalse())));
 
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
@@ -605,13 +608,11 @@ public class Options {
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-      configBuilder.set(INTERMEDIATE_DEX_DIR, null);
     } else if (libraryOutDir != null) {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
-      configBuilder.set(INTERMEDIATE_DEX_DIR, null);
     }
 
     switch (multiDexKind) {
@@ -634,7 +635,8 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectVFS(createTempDirForTypeDexFiles(hooks)));
+        configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
+            new DirectVFS(createTempDirForTypeDexFiles(hooks)));
       }
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
@@ -642,7 +644,8 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
       configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(INTERMEDIATE_DEX_DIR, new DirectVFS(createTempDirForTypeDexFiles(hooks)));
+        configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
+            new DirectVFS(createTempDirForTypeDexFiles(hooks)));
       }
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
@@ -651,7 +654,7 @@ public class Options {
 
     if (incrementalFolder != null) {
       configBuilder.set(JackIncremental.GENERATE_COMPILER_STATE, true);
-      configBuilder.setString(JackIncremental.COMPILER_STATE_OUTPUT_DIR,
+      configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
           incrementalFolder.getAbsolutePath());
     }
 
