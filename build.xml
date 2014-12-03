@@ -303,6 +303,7 @@
       <filelist dir="/" >
         <file name="${junit4.dist.dir}/${junit4.execname}"/>
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
         <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
         <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
@@ -1095,6 +1096,7 @@
   <property name="core-stubs-mini.build.dir" value="${core-stubs-mini.dir}/build"/>
   <property name="core-stubs-mini.build.outdir" value="${core-stubs-mini.build.dir}/classes"/>
   <property name="core-stubs-mini.libname" value="core-stubs-mini.jar"/>
+  <property name="core-stubs-mini.jack.libname" value="core-stubs-mini.jack"/>
 
   <target name="core-stubs-mini-clean">
     <delete dir="${core-stubs-mini.build.dir}" />
@@ -1109,11 +1111,9 @@
     </fileset>
     <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
       <arg value="--output-jack"/>
-      <arg value="${core-stubs-mini.build.dir}/${core-stubs-mini.libname}"/>
+      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
       <arg value="${core-stubs-mini.dir}/src"/>
     </java>
-    <unzip src = "${core-stubs-mini.build.dir}/${core-stubs-mini.libname}"
-           dest = "${core-stubs-mini.build.outdir}" />
     <javac srcdir="${core-stubs-mini.dir}/src"
       destdir="${core-stubs-mini.build.outdir}"
       source="1.5" target="1.5" debug="true" includeantruntime="false"  includeDestClasses="false"/>
@@ -1123,6 +1123,7 @@
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/">
         <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
       </filelist>
     </copy>
   </target>

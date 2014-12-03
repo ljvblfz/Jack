@@ -339,13 +339,13 @@ public class TestTools {
   @Nonnull
   public static File[] getDefaultBootclasspath() {
     return new File[] {getFromAndroidTree(
-        "toolchain/jack/jack/libs/core-stubs-mini.jar")};
+        "toolchain/jack/jack/libs/core-stubs-mini.jack")};
   }
 
   @Nonnull
   public static String getDefaultBootclasspathString() {
     return getFromAndroidTree(
-        "toolchain/jack/jack/libs/core-stubs-mini.jar")
+        "toolchain/jack/jack/libs/core-stubs-mini.jack")
           .getAbsolutePath();
   }
 
@@ -1002,12 +1002,14 @@ public class TestTools {
     List<String> arguments = new ArrayList<String>(compilerArgs.ecjArguments);
     if (compilerArgs.classpath != null) {
       arguments.add("-classpath");
-      arguments.add(compilerArgs.classpath);
+      // TODO(jmhenaff): This hack will be removed as soon as TestTools will be removed
+      arguments.add(compilerArgs.classpath.replace("core-stubs-mini.jack", "core-stubs-mini.jar"));
     }
 
     if (compilerArgs.bootclasspath != null) {
       arguments.add("-bootclasspath");
-      arguments.add(compilerArgs.bootclasspath);
+      // TODO(jmhenaff): This hack will be removed as soon as TestTools will be removed
+      arguments.add(compilerArgs.bootclasspath.replace("core-stubs-mini.jack", "core-stubs-mini.jar"));
     }
     return arguments;
   }
