@@ -46,7 +46,7 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   public InputOutputZipVFS(@Nonnull OutputZipFile zipFile) {
     this.zipFile = zipFile;
     dir = Files.createTempDir();
-    setRootDir(new InputOutputZipVDir(this, dir, new ZipEntry("")));
+    setRootDir(new InputOutputZipVDir(this, dir, new ZipEntry(ZipUtils.ROOT_ENTRY_NAME)));
     // it would be better to open the stream in the close() method, but it's not possible because
     // close() is called by a shutdown hook and OutputZipFile.getOutputStream() modifies those hooks
     zipOS = zipFile.getOutputStream();

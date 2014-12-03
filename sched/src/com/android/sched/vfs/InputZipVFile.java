@@ -39,7 +39,7 @@ class InputZipVFile extends AbstractVElement implements InputVFile {
   @Nonnull
   @Override
   public String getName() {
-    return ZipUtils.getSimpleName(entry);
+    return ZipUtils.getFileSimpleName(entry);
   }
 
   @Nonnull

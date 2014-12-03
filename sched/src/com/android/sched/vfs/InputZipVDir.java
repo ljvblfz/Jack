@@ -75,7 +75,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
-    String pathAsString = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
+    String pathAsString = path.getPathAsString(ZipUtils.ZIP_SEPARATOR);
 
     if (ive == null) {
       throw new NoSuchFileException(new FileLocation(pathAsString));
@@ -84,8 +84,8 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     if (iterator.hasNext()) {
       if (ive instanceof InputVDir) {
         ive = ((InputVDir) ive).getInputVFile(new VPath(
-            pathAsString.substring(pathAsString.indexOf(ZipUtils.IN_ZIP_SEPARATOR) + 1),
-            ZipUtils.IN_ZIP_SEPARATOR));
+            pathAsString.substring(pathAsString.indexOf(ZipUtils.ZIP_SEPARATOR) + 1),
+            ZipUtils.ZIP_SEPARATOR));
       }
     }
 
@@ -108,7 +108,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     assert iterator.hasNext();
     String firstElement = iterator.next();
     InputVElement ive = subs.get(firstElement);
-    String pathAsString = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
+    String pathAsString = path.getPathAsString(ZipUtils.ZIP_SEPARATOR);
 
     if (ive == null) {
       throw new NoSuchFileException(new DirectoryLocation(pathAsString));
@@ -117,8 +117,8 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     if (iterator.hasNext()) {
       if (ive instanceof InputVDir) {
         ive = ((InputVDir) ive).getInputVDir(new VPath(
-            pathAsString.substring(pathAsString.indexOf(ZipUtils.IN_ZIP_SEPARATOR) + 1),
-            ZipUtils.IN_ZIP_SEPARATOR));
+            pathAsString.substring(pathAsString.indexOf(ZipUtils.ZIP_SEPARATOR) + 1),
+            ZipUtils.ZIP_SEPARATOR));
       }
     }
 

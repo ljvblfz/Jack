@@ -38,7 +38,7 @@ public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputV
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
 
   public OutputZipVFS(@Nonnull OutputZipFile file) {
-    setRootDir(new OutputZipVDir(this, new ZipEntry("")));
+    setRootDir(new OutputZipVDir(this, new ZipEntry(ZipUtils.ROOT_ENTRY_NAME)));
     zos = file.getOutputStream();
     this.file = file;
   }

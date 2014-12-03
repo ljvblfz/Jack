@@ -39,10 +39,10 @@ public class InputZipVFS extends AbstractInputVFS {
   private final ZipFile zip;
   @Nonnull
   private final Location location;
-  private static final Splitter splitter = Splitter.on(ZipUtils.IN_ZIP_SEPARATOR);
+  private static final Splitter splitter = Splitter.on(ZipUtils.ZIP_SEPARATOR);
 
   public InputZipVFS(@Nonnull InputZipFile zipFile) {
-    setRootDir(new InputZipVDir(this, new ZipEntry("")));
+    setRootDir(new InputZipVDir(this, new ZipEntry(ZipUtils.ROOT_ENTRY_NAME)));
     this.zip  = zipFile.getZipFile();
     this.location = zipFile.getLocation();
 
@@ -54,7 +54,7 @@ public class InputZipVFS extends AbstractInputVFS {
     this.zip  = zipFile.getZipFile();
     this.location = new ZipLocation(zipFile.getLocation(), new ZipEntry(prefix));
 
-    assert prefix.endsWith("" + ZipUtils.IN_ZIP_SEPARATOR);
+    assert prefix.endsWith(ZipUtils.ZIP_SEPARATOR_STRING);
     fillSubElements(zip, prefix);
   }
 
@@ -82,7 +82,7 @@ public class InputZipVFS extends AbstractInputVFS {
             assert !simpleName.isEmpty();
             if (names.hasNext()) {
               // simpleName is a dir name
-              inZipPath.append(simpleName).append(ZipUtils.IN_ZIP_SEPARATOR);
+              inZipPath.append(simpleName).append(ZipUtils.ZIP_SEPARATOR);
               InputZipVDir nextDir = (InputZipVDir) dir.subs.get(simpleName);
               if (nextDir == null) {
                 // VDir does not already exist
