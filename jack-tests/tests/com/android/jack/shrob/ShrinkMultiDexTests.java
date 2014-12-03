@@ -26,6 +26,7 @@ import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.BeforeClass;
@@ -79,6 +80,7 @@ public class ShrinkMultiDexTests extends AbstractTest {
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
     env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
     env.setWithDebugInfo(true);
     env.setProguardFlags(dontObfuscateFlagFile,
         new ProguardFlags(shrobTestsDir, "keepAllAttributes.flags"),
