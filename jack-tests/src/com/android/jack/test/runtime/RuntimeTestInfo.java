@@ -17,6 +17,8 @@
 package com.android.jack.test.runtime;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -30,10 +32,74 @@ public class RuntimeTestInfo {
   public File directory;
   @Nonnull
   public String jUnit;
+  @Nonnull
+  public String srcDirName = "jack";
+  @Nonnull
+  public String libDirName = "lib";
+  @Nonnull
+  public String refDirName = "dx";
+  @Nonnull
+  public String linkDirName = "link";
+  @Nonnull
+  public String propertyFileName = "test.properties";
+  @Nonnull
+  public String jarjarRulesFileName = "jarjar-rules.txt";
+  @Nonnull
+  public List<String> proguardFilesNames = new ArrayList<String>();
+  @Nonnull
+  public List<File> referenceExtraSources = new ArrayList<File>();
 
   public RuntimeTestInfo(@Nonnull File directory, @Nonnull String jUnit) {
     this.directory = directory;
     this.jUnit = jUnit;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setSrcDirName(@Nonnull String srcDirName) {
+    this.srcDirName = srcDirName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setLibDirName(@Nonnull String libDirName) {
+    this.libDirName = libDirName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setRefDirName(@Nonnull String refDirName) {
+    this.refDirName = refDirName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setLinkDirName(@Nonnull String linkDirName) {
+    this.linkDirName = linkDirName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setPropertyFileName(@Nonnull String propertyFileName) {
+    this.propertyFileName = propertyFileName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo setJarjarRulesFileName(String jarjarRulesFileName) {
+    this.jarjarRulesFileName = jarjarRulesFileName;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo addProguardFlagsFileName(@Nonnull String name) {
+    proguardFilesNames.add(name);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo addReferenceExtraSources(File file) {
+    referenceExtraSources.add(file);
+    return this;
   }
 
 }

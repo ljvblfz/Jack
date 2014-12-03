@@ -55,14 +55,12 @@ public class JarjarTests {
   @Test
   public void jarjar001() throws Exception {
     new RuntimeTestHelper(JARJAR001)
-    .setJarjarRulesFileName("jarjar-rules.txt")
     .compileAndRunTest();
   }
 
   @Test
   public void jarjar003() throws Exception {
     new RuntimeTestHelper(JARJAR003)
-    .setJarjarRulesFileName("jarjar-rules.txt")
     .compileAndRunTest();
   }
 

@@ -93,7 +93,7 @@ public class RegressionTests {
       new InvokeTests(),
       new NewarrayTests(),
       new NotsimplifierTests(),
-//      new OpcodesTests(),
+      new OpcodesTests(),
       new OrderTests(),
       new ReturnstatementTests(),
       new ShrobRuntimeTests(),

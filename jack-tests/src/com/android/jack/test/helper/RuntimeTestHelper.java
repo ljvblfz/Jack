@@ -34,8 +34,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -46,20 +50,10 @@ import javax.annotation.Nonnull;
 public class RuntimeTestHelper {
 
   @Nonnull
-  private List<File> baseDirs = new ArrayList<File>(1);
-  @Nonnull
   private List<String> jUnitClasses = new ArrayList<String>(1);
-  @Nonnull
-  private List<File> referenceExtraSources = new ArrayList<File>(0);
 
   @Nonnull
-  private String srcDirName = "jack";
-  @Nonnull
-  private String libDirName = "lib";
-  @Nonnull
-  private String refDirName = "dx";
-  @Nonnull
-  private String linkDirName = "link";
+  RuntimeTestInfo[] runtimeTestInfos;
 
   private boolean withDebugInfos = false;
 
@@ -68,43 +62,12 @@ public class RuntimeTestHelper {
   @Nonnull
   private List<FileChecker> testExeCheckers = new ArrayList<FileChecker>(0);
 
-  @CheckForNull
-  private String jarjarRulesFileName;
-  @CheckForNull
-  private String[] proguardFlagsFileNames;
-
-  @Nonnull
-  private String propertyFileName = "test.properties";
-
   public RuntimeTestHelper(@Nonnull RuntimeTestInfo... rtTestInfos) {
+    runtimeTestInfos = Arrays.copyOf(rtTestInfos, rtTestInfos.length);
+
     for (RuntimeTestInfo info : rtTestInfos) {
-      baseDirs.add(info.directory);
       jUnitClasses.add(info.jUnit);
     }
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setSrcDirName(@Nonnull String srcDirName) {
-    this.srcDirName = srcDirName;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setLibDirName(@Nonnull String libDirName) {
-    this.libDirName = libDirName;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setRefDirName(@Nonnull String refDirName) {
-    this.refDirName = refDirName;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setLinkDirName(@Nonnull String linkDirName) {
-    this.linkDirName = linkDirName;
-    return this;
   }
 
   @Nonnull
@@ -120,36 +83,20 @@ public class RuntimeTestHelper {
   }
 
   @Nonnull
-  public RuntimeTestHelper setPropertyFileName(@Nonnull String propertyFileName) {
-    this.propertyFileName = propertyFileName;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setJarjarRulesFileName(@Nonnull String name) {
-    this.jarjarRulesFileName = name;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper setProguardFlagsFileNames(@Nonnull String[] proguardFlagsFileNames) {
-    this.proguardFlagsFileNames = proguardFlagsFileNames;
-    return this;
-  }
-
-  @Nonnull
   public RuntimeTestHelper addTestExeFileChecker(@Nonnull FileChecker checker) {
     this.testExeCheckers.add(checker);
     return this;
   }
 
   @Nonnull
-  public RuntimeTestHelper addReferenceExtraSources (@Nonnull File... extraSrc) {
-    for (File file : extraSrc) {
-      referenceExtraSources.add(file);
+  List<File> getReferenceExtraSources() {
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      result.addAll(info.referenceExtraSources);
     }
-    return this;
+    return result;
   }
+
 
   public void compileAndRunTest() throws Exception {
     compileAndRunTest(/* checkStructure = */ false);
@@ -162,17 +109,6 @@ public class RuntimeTestHelper {
     } catch (FileNotFoundException e) {
       // No file, no pb
     }
-
-//    AndroidToolchain candidateTestTools =
-//        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-//    AndroidToolchain referenceTestTools =
-//        AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
-//
-//    candidateTestTools.setSourceLevel(level);
-//    referenceTestTools.setSourceLevel(level);
-//
-//    candidateTestTools.setWithDebugInfos(withDebugInfos);
-//    referenceTestTools.setWithDebugInfos(withDebugInfos);
 
     AndroidToolchain candidateTestTools = createCandidateToolchain();
     AndroidToolchain referenceTestTools = createReferenceToolchain();
@@ -189,19 +125,20 @@ public class RuntimeTestHelper {
     File libLibRef = null;
     File libBinaryRef = null;
     File libLibCandidate = null;
-    if (getLibSrc().length != 0) {
+    File[] libSources = getLibSrc();
+    if (libSources.length != 0) {
       libLibRef =
           AbstractTestTools.createTempFile("lib-ref", referenceTestTools.getLibraryExtension());
       File libBinaryRefDir = AbstractTestTools.createTempDir();
       libBinaryRef = new File(libBinaryRefDir, referenceTestTools.getBinaryFileName());
       referenceTestTools.srcToLib(referenceBootClasspathAsString, libLibRef, /* zipFiles = */ true,
-          getLibSrc());
+          libSources);
       referenceTestTools.libToExe(libLibRef, libBinaryRefDir, /* zipFile */ false);
 
       libLibCandidate = AbstractTestTools.createTempFile("lib-candidate",
           candidateTestTools.getLibraryExtension());
       candidateTestTools.srcToLib(candidateBootClasspathAsString, libLibCandidate,
-      /* zipFiles = */ true, getLibSrc());
+      /* zipFiles = */ true, libSources);
     }
 
     // Compile test src
@@ -210,7 +147,7 @@ public class RuntimeTestHelper {
     String candidateClasspathAsString;
     String referenceClasspathAsString;
     File[] candidateClassPath = candidateBootClasspath;
-    if (getLibSrc().length != 0) {
+    if (libSources.length != 0) {
       candidateClassPath = new File[candidateBootClasspath.length + 1];
       System.arraycopy(candidateBootClasspath, 0, candidateClassPath, 0,
           candidateBootClasspath.length);
@@ -294,17 +231,12 @@ public class RuntimeTestHelper {
 
 
     File [] refSources = getRefSrcDir();
-//    File [] sources = new File [referenceExtraSources.size() + refSources.length];
-    List<File> sources = new ArrayList<File>(referenceExtraSources.size() + refSources.length);
+    List<File> extras = getReferenceExtraSources();
+    List<File> sources = new ArrayList<File>(extras.size() + refSources.length);
     sources = Lists.addAll(sources, refSources);
-    sources = Lists.addAll(sources, referenceExtraSources);
+    sources = Lists.addAll(sources, extras);
 
     File refPartBinaryDir = AbstractTestTools.createTempDir();
-//    File [] sources = new File [referenceExtraSources.size() + 1];
-//    sources[0] = getRefSrcDir()[0];
-//    for (int i = 1; i < sources.length; i++) {
-//      sources[i] = referenceExtraSources.get(i - 1);
-//    }
     File refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
     referenceTestTools.srcToExe(
         referenceClasspathAsString,
@@ -381,49 +313,80 @@ public class RuntimeTestHelper {
 
   private void loadTestProperties(@Nonnull Properties properties) throws FileNotFoundException,
       IOException {
-    File[] propertyFile = getDirectoryOrFile(propertyFileName);
-    if (propertyFile.length != 0) {
-      if (baseDirs.size() > 1) {
-        throw new AssertionError("Non regression test found");
-      }
-      if (propertyFile[0].exists()) {
-        properties.load(new FileInputStream(propertyFile[0]));
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File propertyFile = new File(info.directory, info.propertyFileName);
+      if (propertyFile.exists()) {
+        if (runtimeTestInfos.length > 1) {
+          throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
+        }
+        properties.load(new FileInputStream(propertyFile));
+        break;
       }
     }
   }
 
   @Nonnull
   private File[] getSrcDir() {
-    return getDirectoryOrFile(srcDirName);
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File f = new File(info.directory, info.srcDirName);
+      if (f.exists()) {
+        result.add(f);
+      }
+    }
+    return result.toArray(new File[result.size()]);
   }
 
   @Nonnull
   private File[] getLibSrc() {
-    return getDirectoryOrFile(libDirName);
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File f = new File(info.directory, info.libDirName);
+      if (f.exists()) {
+        result.add(f);
+      }
+    }
+    return result.toArray(new File[result.size()]);
   }
 
   @Nonnull
   private File[] getLinkSrc() {
-    File[] result = getDirectoryOrFile(linkDirName);
-    if (result.length != 0 && baseDirs.size() > 1) {
-      throw new AssertionError("Not a regression test");
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File f = new File(info.directory, info.linkDirName);
+      if (f.exists()) {
+        if (runtimeTestInfos.length > 1) {
+          // TODO(jmhenaff): check it's necessary
+          throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
+        }
+        result.add(f);
+      }
     }
-    return result;
+    return result.toArray(new File[result.size()]);
   }
 
   @Nonnull
   private File[] getRefSrcDir() {
-    return getDirectoryOrFile(refDirName);
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File f = new File(info.directory, info.refDirName);
+      if (f.exists()) {
+        result.add(f);
+      }
+    }
+    return result.toArray(new File[result.size()]);
   }
 
   @CheckForNull
   private File getJarjarRules() {
-    File[] result = getDirectoryOrFile(jarjarRulesFileName);
-    if (result.length != 0) {
-      if (baseDirs.size() > 1) {
-        throw new AssertionError("Not a regression test");
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      File f = new File(info.directory, info.jarjarRulesFileName);
+      if (f.exists()) {
+        if (runtimeTestInfos.length > 1) {
+          throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
+        }
+        return f;
       }
-      return result[0];
     }
     return null;
   }
@@ -431,33 +394,18 @@ public class RuntimeTestHelper {
   @Nonnull
   private List<File> getProguardFlags() {
     List<File> result = new ArrayList<File>();
-    if (proguardFlagsFileNames != null) {
-      for (String s : proguardFlagsFileNames) {
-        File[] f = getDirectoryOrFile(s);
-        if (f.length != 0 && f[0].exists()) {
-          result.add(f[0]);
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      for (String name : info.proguardFilesNames) {
+        File f = new File(info.directory, name);
+        if (f.exists()) {
+          if (runtimeTestInfos.length > 1) {
+            throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
+          }
+          result.add(f);
         }
       }
     }
-
-    if (!result.isEmpty() && baseDirs.size() > 1) {
-      throw new AssertionError("Not a regression test");
-    }
-
     return result;
   }
 
-  @Nonnull
-  private File[] getDirectoryOrFile(@CheckForNull String name) {
-    List<File> result = new ArrayList<File>();
-    if (name != null) {
-      for (File f : baseDirs) {
-        File absFile = new File(f, name);
-        if (absFile.exists()) {
-          result.add(absFile);
-        }
-      }
-    }
-    return result.toArray(new File[result.size()]);
-  }
 }
