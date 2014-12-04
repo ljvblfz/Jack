@@ -17,7 +17,9 @@
 package com.android.jack.transformations.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAsgOperation.NonReusedAsg;
 import com.android.jack.ir.ast.JBlock;
@@ -47,8 +49,11 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
+import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.transformations.LocalVarCreator;
+import com.android.jack.transformations.TransformationException;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -241,15 +246,24 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
             Collections.singletonList(catchBlock),
             finallyBlock);
 
-        // Lookup AutoCloseable.close() method
-        JInterface autoCloseableInterface =
-            Jack.getSession().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
-        JMethodId closeMethodId = autoCloseableInterface.getMethodId(
-            CLOSE_METHOD_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
+        JMethodId closeMethodId;
+        JMethodId addSuppressedMethodId;
+        try {
+          // Lookup AutoCloseable.close() method
+          JInterface autoCloseableInterface =
+              Jack.getSession().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
+          closeMethodId = autoCloseableInterface.getMethodId(
+              CLOSE_METHOD_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
 
-        // Lookup Throwable.addSuppressed(Throwable t) method
-        JMethodId addSuppressedMethodId = throwableClass.getMethodId(ADD_SUPPRESSED_METHOD_NAME,
-            Collections.singletonList(throwableClass), MethodKind.INSTANCE_VIRTUAL);
+          // Lookup Throwable.addSuppressed(Throwable t) method
+          addSuppressedMethodId = throwableClass.getMethodId(ADD_SUPPRESSED_METHOD_NAME,
+              Collections.singletonList(throwableClass), MethodKind.INSTANCE_VIRTUAL);
+        } catch (JMethodLookupException e) {
+          TransformationException transformationException =
+              new TransformationException(new MissingJavaSupportException(JavaVersion.JAVA_7, e));
+          Jack.getSession().getReporter().report(Severity.FATAL, transformationException);
+          throw new JackAbortException(transformationException);
+        }
 
         // Fill finally block
         for (int i = x.getResourcesDeclarations().size() - 1; i >= 0; i--) {
