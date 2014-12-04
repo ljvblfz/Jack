@@ -48,9 +48,7 @@ import com.android.sched.scheduler.Request;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
@@ -87,12 +85,7 @@ import javax.annotation.Nonnull;
 /**
  * Executable class to run the jack compiler with incremental support.
  */
-@HasKeyId
 public class JackIncremental extends CommandLine {
-
-  public static final BooleanPropertyId GENERATE_COMPILER_STATE = BooleanPropertyId.create(
-  "jack.experimental.compilerstate.generate", "Generate compiler state").addDefaultValue(
-  Boolean.FALSE);
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
