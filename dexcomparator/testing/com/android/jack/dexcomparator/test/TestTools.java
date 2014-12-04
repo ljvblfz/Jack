@@ -30,7 +30,7 @@ public class TestTools {
   @Nonnull
   private static final File jackJar = new File("../jack/dist/jack.jar");
   @Nonnull
-  private static final File coreStubsMini = new File("../jack/libs/core-stubs-mini.jar");
+  private static final File coreStubsMini = new File("../jack/libs/core-stubs-mini.jack");
 
   public static void compileToDexWithJack(@Nonnull List<File> sources, @Nonnull File dex) {
     int size = 8 + sources.size();
