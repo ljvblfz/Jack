@@ -37,8 +37,6 @@ import javax.annotation.Nonnull;
  * A directory in an {@link InputOutputZipVFS} VFS.
  */
 class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
-  @Nonnull
-  private static final char ZIP_ENTRY_SEPARATOR = ZipUtils.IN_ZIP_SEPARATOR;
 
   @Nonnull
   protected final File dir;
@@ -73,18 +71,12 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
 
     ArrayList<InputVElement> items = new ArrayList<InputVElement>(subs.length);
     for (File sub : subs) {
-      String zipEntryName = zipEntry.getName();
-      String subZipEntryName;
-      if (zipEntryName.isEmpty()) {
-        subZipEntryName = sub.getName();
-      } else {
-        subZipEntryName = zipEntryName + ZIP_ENTRY_SEPARATOR + sub.getName();
-      }
-      ZipEntry subZipEntry = new ZipEntry(subZipEntryName);
+      String subZipEntryName = zipEntry.getName() + sub.getName();
       if (sub.isFile()) {
-        items.add(new InputOutputZipVFile(vfs, sub, subZipEntry));
+        items.add(new InputOutputZipVFile(vfs, sub, new ZipEntry(subZipEntryName)));
       } else {
-        items.add(new InputOutputZipVDir(vfs, sub, subZipEntry));
+        items.add(new InputOutputZipVDir(vfs, sub,
+            new ZipEntry(subZipEntryName + ZipUtils.ZIP_SEPARATOR)));
       }
     }
 
@@ -105,16 +97,16 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   @Override
   @Nonnull
   public OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException {
-    File file = new File(dir, path.getPathAsString(ZIP_ENTRY_SEPARATOR));
+    File file = new File(dir, path.getPathAsString(ZipUtils.ZIP_SEPARATOR));
     if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
       throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));
     }
 
     assert !(path.equals(VPath.ROOT));
-    String newEntryName = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
+    String newEntryName = path.getPathAsString(ZipUtils.ZIP_SEPARATOR);
     String parentEntryName = zipEntry.getName();
     if (!parentEntryName.isEmpty()) {
-      newEntryName = parentEntryName + ZipUtils.IN_ZIP_SEPARATOR + newEntryName;
+      newEntryName = parentEntryName + newEntryName;
     }
     return new InputOutputZipVFile(vfs, file, new ZipEntry(newEntryName));
   }
@@ -131,7 +123,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
       throw new NotFileOrDirectoryException(new FileLocation(file));
     }
     return new InputOutputZipVDir(vfs, file,
-        new ZipEntry(path.getPathAsString(ZIP_ENTRY_SEPARATOR)));
+        new ZipEntry(path.getPathAsString(ZipUtils.ZIP_SEPARATOR) + ZipUtils.ZIP_SEPARATOR));
   }
 
   @Override
@@ -146,7 +138,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
       throw new NotFileOrDirectoryException(new FileLocation(file));
     }
     return new InputOutputZipVFile(vfs, file,
-        new ZipEntry(path.getPathAsString(ZIP_ENTRY_SEPARATOR)));
+        new ZipEntry(path.getPathAsString(ZipUtils.ZIP_SEPARATOR)));
   }
 
 }

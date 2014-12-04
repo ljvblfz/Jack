@@ -63,7 +63,7 @@ class OutputZipVFile extends AbstractVElement implements OutputVFile {
   @Override
   @Nonnull
   public String getName() {
-    return ZipUtils.getSimpleName(entry);
+    return ZipUtils.getFileSimpleName(entry);
   }
 
   private static class UnclosableVFileOutputStream extends FilterOutputStream {

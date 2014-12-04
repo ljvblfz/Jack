@@ -25,17 +25,21 @@ import javax.annotation.Nonnull;
  */
 final class ZipUtils {
 
-  static final char IN_ZIP_SEPARATOR = '/';
+  static final char ZIP_SEPARATOR = '/';
+
+  static final String ZIP_SEPARATOR_STRING = "/";
+
+  static final String ROOT_ENTRY_NAME = "";
 
   private ZipUtils() {
     // do not instantiate
   }
 
   @Nonnull
-  static String getSimpleName(@Nonnull ZipEntry entry) {
+  static String getFileSimpleName(@Nonnull ZipEntry entry) {
     String name = entry.getName();
-    assert !name.endsWith("" + IN_ZIP_SEPARATOR);
-    int index = name.lastIndexOf(IN_ZIP_SEPARATOR);
+    assert !name.endsWith(ZIP_SEPARATOR_STRING);
+    int index = name.lastIndexOf(ZIP_SEPARATOR);
     if (index < 0) {
       return name;
     } else {
@@ -46,8 +50,11 @@ final class ZipUtils {
   @Nonnull
   static String getDirSimpleName(@Nonnull ZipEntry entry) {
     String name = entry.getName();
-    assert name.endsWith("" + IN_ZIP_SEPARATOR);
-    int index = name.lastIndexOf(IN_ZIP_SEPARATOR, name.length() - 2);
+    if (name.equals(ROOT_ENTRY_NAME)) { // necessary special case for root zip entry
+      return "";
+    }
+    assert name.endsWith(ZIP_SEPARATOR_STRING);
+    int index = name.lastIndexOf(ZIP_SEPARATOR, name.length() - 2);
     int startIndex = index + 1; // if '/' was not found, startIndex will be 0
     return name.substring(startIndex, name.length() - 1);
   }

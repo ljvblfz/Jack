@@ -40,7 +40,7 @@ public class OutputZipVDir extends AbstractVElement implements OutputVDir {
   @Override
   @Nonnull
   public String getName() {
-    return ZipUtils.getSimpleName(entry);
+    return ZipUtils.getDirSimpleName(entry);
   }
 
   @Override
@@ -53,10 +53,10 @@ public class OutputZipVDir extends AbstractVElement implements OutputVDir {
   @Nonnull
   public OutputVFile createOutputVFile(@Nonnull VPath path) {
     assert !(path.equals(VPath.ROOT));
-    String newEntryName = path.getPathAsString(ZipUtils.IN_ZIP_SEPARATOR);
+    String newEntryName = path.getPathAsString(ZipUtils.ZIP_SEPARATOR);
     String parentEntryName = entry.getName();
     if (!parentEntryName.isEmpty()) {
-      newEntryName = parentEntryName + ZipUtils.IN_ZIP_SEPARATOR + newEntryName;
+      newEntryName = parentEntryName + ZipUtils.ZIP_SEPARATOR + newEntryName;
     }
     return new OutputZipVFile(vfs, new ZipEntry(newEntryName));
   }
