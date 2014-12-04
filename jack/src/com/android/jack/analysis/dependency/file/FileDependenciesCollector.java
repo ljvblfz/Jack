@@ -18,6 +18,7 @@ package com.android.jack.analysis.dependency.file;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -36,7 +37,7 @@ public class FileDependenciesCollector implements
 
   @Override
   public synchronized void run(JDefinedClassOrInterface declaredType) throws Exception {
-    if (declaredType.isExternal()) {
+    if (declaredType.isExternal() || declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return;
     }
 

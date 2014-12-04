@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
@@ -52,7 +51,6 @@ public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedCl
     private final JType currentType;
 
     public Visitor(@Nonnull JType currentType) {
-      assert currentType.getSourceInfo() != SourceInfo.UNKNOWN;
       this.currentType = currentType;
 
       if (currentType instanceof JDefinedClassOrInterface) {
