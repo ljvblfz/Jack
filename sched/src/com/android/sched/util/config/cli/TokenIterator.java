@@ -204,7 +204,8 @@ public class TokenIterator {
       while (tokenizer != null) {
         try {
           if (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
-            if (allowFileRefInFile && tokenizer.sval.charAt(0) == filePrefix) {
+            if (allowFileRefInFile && (!tokenizer.sval.isEmpty())
+                && tokenizer.sval.charAt(0) == filePrefix) {
               // If it is a @<file_name>, create a tokenizer with this file, and set it to current
               pushFileTokenizer(tokenizer.sval.substring(1));
               tokenizer = tokenizers.peek();
@@ -237,7 +238,7 @@ public class TokenIterator {
       }
 
       // Else, analyze the next arg
-      if (allowFileRefInArray && args[index].charAt(0) == filePrefix) {
+      if (allowFileRefInArray && (!args[index].isEmpty()) && args[index].charAt(0) == filePrefix) {
         // If it is a @<file_name>, create a tokenizer with this file, and set it to current
         pushFileTokenizer(args[index].substring(1));
         index++;
