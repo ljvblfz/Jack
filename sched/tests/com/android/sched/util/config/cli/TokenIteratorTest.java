@@ -84,6 +84,63 @@ public class TokenIteratorTest {
   }
 
   @Test
+  public void testTokenIteratorEmptyArg() {
+    Location loc = new StringLocation("Default location");
+
+    try {
+      test(
+          new TokenIterator(loc, ""),
+          new String[]   {""},
+          new Location[] {loc});
+    } catch (NoSuchElementException e) {
+      fail();
+    } catch (WrongPermissionException e) {
+      fail();
+    } catch (NoSuchFileException e) {
+      fail();
+    } catch (NotFileOrDirectoryException e) {
+      fail();
+    } catch (CannotReadException e) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testTokenIteratorEmptyArgFile() throws IOException {
+    Location loc = new StringLocation("Default location");
+    File file = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-1");
+    file.deleteOnExit();
+    Location floc = new FileLocation(file);
+
+    String fileArg = "@" + file.getAbsolutePath();
+    PrintStream printer = new PrintStream(file);
+    printer.print("\"\"");
+    printer.close();
+
+
+    try {
+      test(
+          new TokenIterator(loc, fileArg),
+          new String[]   {""},
+          new Location[] {floc});
+      test(
+          new TokenIterator(loc, fileArg).allowFileReferenceInFile(),
+          new String[]   {""},
+          new Location[] {floc});
+    } catch (NoSuchElementException e) {
+      fail();
+    } catch (WrongPermissionException e) {
+      fail();
+    } catch (NoSuchFileException e) {
+      fail();
+    } catch (NotFileOrDirectoryException e) {
+      fail();
+    } catch (CannotReadException e) {
+      fail();
+    }
+  }
+
+  @Test
   public void testTokenIteratorWithSimpleFile() throws IOException {
     Location loc = new StringLocation("Default location");
 
