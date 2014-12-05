@@ -52,6 +52,10 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   private static final long ADB_CONNECTION_TIMEOUT = 5000;
   private static final long ADB_WAIT_STEP = ADB_CONNECTION_TIMEOUT / 10;
 
+  private static final String TEST_SCRIPT_NAME = "test-exit-status.sh";
+  private static final File TEST_SCRIPT_FILE =
+      new File(AbstractTestTools.getJackRootDir(), "etc/" + TEST_SCRIPT_NAME);
+
   @Nonnull
   private MyShellOuputReceiver shellOutput = new MyShellOuputReceiver();
 
@@ -166,18 +170,18 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
         if (isVerbose) {
           outRedirectStream.println("adb -s " + device.getSerialNumber() + " push  "
-              + System.getProperty("user.dir") + File.separator + "test-exit-status.sh "
-              + testsRootDir.getAbsolutePath() + "/test-exit-status.sh");
+              + TEST_SCRIPT_FILE.getAbsolutePath() + " "
+              + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
         }
-        device.pushFile(System.getProperty("user.dir") + File.separator + "test-exit-status.sh",
-            testsRootDir.getAbsolutePath() + "/test-exit-status.sh");
+        device.pushFile(TEST_SCRIPT_FILE.getAbsolutePath(),
+            testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
 
         if (isVerbose) {
           outRedirectStream.println("adb -s " + device.getSerialNumber() + " shell chmod 777 "
-              + testsRootDir.getAbsolutePath() + "/test-exit-status.sh");
+              + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
         }
         device.executeShellCommand(
-            "chmod 777 " + testsRootDir.getAbsolutePath() + "/test-exit-status.sh", shellOutput);
+            "chmod 777 " + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME, shellOutput);
 
         int i = 0;
         for (File f : classpathFiles) {
@@ -212,10 +216,10 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
         if (isVerbose) {
           outRedirectStream.println("adb -s " + device.getSerialNumber() + " shell "
-              + testsRootDir.getAbsolutePath() + "/test-exit-status.sh " + args);
+              + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME + ' ' + args);
         }
         device.executeShellCommand(
-            testsRootDir.getAbsolutePath() + "/test-exit-status.sh " + args,
+            testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME + ' ' + args,
             shellOutput);
 
         File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
