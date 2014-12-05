@@ -16,9 +16,17 @@
 
 package com.android.sched.vfs;
 
+import javax.annotation.Nonnull;
+
 
 /**
  * A root of a VFS.
  */
 public abstract class AbstractVFS implements VFS {
+
+  @Nonnull
+  @Override
+  public String toString() {
+    return '_' + getLocation().getDescription() + '_';
+  }
 }
