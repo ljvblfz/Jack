@@ -23,6 +23,7 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.library.OutputLibraryLocation;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputOutputVFS;
@@ -147,5 +148,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
+  }
+
+  @Override
+  @Nonnull
+  public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws CannotDeleteFileException {
+    vfs.getRootInputOutputVDir().delete(fileType.buildFileVPath(typePath));
   }
 }

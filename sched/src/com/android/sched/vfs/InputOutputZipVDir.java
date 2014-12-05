@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.DirectoryLocation;
@@ -141,4 +142,13 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
         new ZipEntry(path.getPathAsString(ZipUtils.ZIP_SEPARATOR)));
   }
 
+  @Override
+  @Nonnull
+  public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
+    File file = new File(dir, path.getPathAsString(File.separatorChar));
+    if (!file.delete()) {
+      throw new CannotDeleteFileException(
+          file.isDirectory() ? new DirectoryLocation(file) : new FileLocation(file));
+    }
+  }
 }
