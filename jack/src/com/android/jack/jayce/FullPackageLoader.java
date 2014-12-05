@@ -16,9 +16,12 @@
 
 package com.android.jack.jayce;
 
+import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
@@ -26,7 +29,8 @@ import javax.annotation.Nonnull;
 class FullPackageLoader extends JaycePackageLoader {
 
   public FullPackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
-      @Nonnull JPhantomLookup lookup) {
-    super(inputJackLibrary, null, lookup, NodeLevel.FULL);
+      @Nonnull JPhantomLookup lookup) throws FileTypeDoesNotExistException {
+    super(inputJackLibrary, inputJackLibrary.getDir(FileType.JAYCE, VPath.ROOT), lookup,
+        NodeLevel.FULL);
   }
 }
