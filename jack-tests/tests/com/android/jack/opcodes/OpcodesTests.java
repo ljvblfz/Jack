@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes;
 
-import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -24,7 +23,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -573,7 +571,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INVOKE_STATIC)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -583,7 +581,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(ARRAY_LENGTH)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -593,7 +591,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(NEG_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -603,7 +601,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SUB_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -613,7 +611,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -623,7 +621,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT_BYTE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -633,7 +631,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_NEW)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -643,7 +641,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CMPL_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -653,7 +651,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_GTZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -663,7 +661,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(FLOAT_TO_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -673,7 +671,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(ADD_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -683,7 +681,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(ADD_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -693,7 +691,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IPUT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -703,7 +701,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DIV_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -713,7 +711,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(USHR_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -723,7 +721,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CONST_WIDE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -733,7 +731,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(XOR_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -743,7 +741,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET_OBJECT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -753,7 +751,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CONST4_16)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -763,7 +761,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(REM_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -773,7 +771,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(USHR_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -783,7 +781,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_GE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -793,7 +791,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SUB_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -803,7 +801,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(FLOAT_TO_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -813,7 +811,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -823,7 +821,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OR_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -833,7 +831,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_GEZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -843,7 +841,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SHL_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -853,7 +851,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(LONG_TO_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -863,7 +861,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DIV_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -873,7 +871,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AND_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -883,7 +881,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DOUBLE_TO_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -893,7 +891,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(MUL_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -903,7 +901,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DOUBLE_TO_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -913,7 +911,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_NEZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -923,7 +921,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT_OBJECT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -933,7 +931,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_LT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -943,7 +941,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -953,7 +951,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(MUL_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -963,7 +961,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SPUT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -973,7 +971,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SHL_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -983,7 +981,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(NEG_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -993,7 +991,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(LONG_TO_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1003,7 +1001,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_GOTO)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1013,7 +1011,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1023,7 +1021,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(XOR_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1033,7 +1031,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(MONITOR_ENTER)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1043,7 +1041,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_EQZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1053,7 +1051,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INVOKE_DIRECT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1063,7 +1061,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CMPL_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1073,7 +1071,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CHECK_CAST)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1083,7 +1081,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_THROW)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1093,7 +1091,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_SHORT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1103,7 +1101,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(PACKED_SWITCH)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1113,7 +1111,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET_CHAR)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1123,7 +1121,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(RETURN_OBJECT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1133,7 +1131,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_CONST)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1143,7 +1141,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SUB_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1153,7 +1151,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT_CHAR)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1163,7 +1161,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(NEG_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1173,7 +1171,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(MUL_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1183,7 +1181,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DOUBLE_TO_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1193,7 +1191,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_BYTE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1203,7 +1201,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_LE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1213,7 +1211,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INVOKE_VIRTUAL)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1223,7 +1221,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DIV_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1233,7 +1231,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_GT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1243,7 +1241,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET_SHORT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1253,7 +1251,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CONST_STRING)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1263,7 +1261,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OR_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1273,7 +1271,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(REM_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1283,7 +1281,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(REM_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1293,7 +1291,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(LONG_TO_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1303,7 +1301,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_NE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1313,7 +1311,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CMP_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1323,7 +1321,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SGET)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1333,7 +1331,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET_WIDE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1343,7 +1341,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_LTZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1353,7 +1351,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_INSTANCEOF)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1363,7 +1361,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(NEG_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1373,7 +1371,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(RETURN_WIDE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1383,7 +1381,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(FLOAT_TO_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1393,7 +1391,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT_SHORT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1403,7 +1401,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CMPG_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1413,7 +1411,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_LEZ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1423,7 +1421,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IF_EQ)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1433,7 +1431,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(NEW_ARRAY)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1443,7 +1441,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SHR_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1453,7 +1451,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(ADD_DOUBLE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1463,7 +1461,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(DIV_LONG)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1473,7 +1471,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SPARSE_SWITCH)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1483,7 +1481,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INVOKE_INTERFACE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1493,7 +1491,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT_WIDE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1503,7 +1501,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AGET_BYTE)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1513,7 +1511,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(APUT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1523,7 +1521,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SHR_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1533,7 +1531,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(OPC_RETURN)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1543,7 +1541,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INVOKE_SUPER)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1553,7 +1551,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(MUL_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1563,7 +1561,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(SUB_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1573,7 +1571,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(ADD_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1583,7 +1581,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(INT_TO_CHAR)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1593,7 +1591,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(AND_INT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1603,7 +1601,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(CMPG_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1613,7 +1611,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(IGET)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 
@@ -1623,7 +1621,7 @@ public class OpcodesTests extends RuntimeTest {
     new RuntimeTestHelper(REM_FLOAT)
     .setSrcDirName("jm")
     .setRefDirName( ".")
-    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "toolchain/jack/jack-tests/src/com/android/jack/DxTestCase.java"))
+    .addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(), "jack-tests/src/com/android/jack/DxTestCase.java"))
     .compileAndRunTest();
   }
 

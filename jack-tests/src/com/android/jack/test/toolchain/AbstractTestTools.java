@@ -58,8 +58,7 @@ public abstract class AbstractTestTools {
   private static final File JACK_ROOT_DIR;
 
   @Nonnull
-  private static final String JACK_TESTS_FOLDER =
-      "toolchain" + File.separator + "jack" + File.separator + "jack-tests";
+  private static final String JACK_TESTS_FOLDER = "jack-tests";
 
   @Nonnull
   private static final Properties testsProperties;

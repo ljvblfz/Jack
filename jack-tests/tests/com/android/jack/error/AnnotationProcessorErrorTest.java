@@ -225,7 +225,7 @@ public class AnnotationProcessorErrorTest {
 
     for (Class<?> annotationClass : annotationClasses) {
     Files.copy(new File(AbstractTestTools.getJackRootDir(),
-        "toolchain/jack/jack/tests/com/android/jack/errorhandling/annotationprocessor/"
+        "jack/tests/com/android/jack/errorhandling/annotationprocessor/"
         + annotationClass.getSimpleName() + ".java"), new File(
         targetAnnotationFileFolder, annotationClass.getSimpleName() + ".java"));
     }

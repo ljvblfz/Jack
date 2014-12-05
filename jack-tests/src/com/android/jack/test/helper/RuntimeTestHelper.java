@@ -314,9 +314,9 @@ public class RuntimeTestHelper {
 
     List<File> rtClasspath = new ArrayList<File>();
     rtClasspath.add(new File(AbstractTestTools.getJackRootDir(),
-        "toolchain/jack/jack-tests/prebuilts/core-hostdex.jar"));
+        "jack-tests/prebuilts/core-hostdex.jar"));
     rtClasspath.add(new File(AbstractTestTools.getJackRootDir(),
-        "toolchain/jack/jack-tests/prebuilts/junit4-hostdex.jar"));
+        "jack-tests/prebuilts/junit4-hostdex.jar"));
    if (refPartBinary != null) {
       rtClasspath.add(refPartBinary);
     }

@@ -292,34 +292,17 @@ public class MultiDexTests {
   @Nonnull
   private static File prepareFrameworks() throws IOException, Exception {
     return prepareLib(AbstractTestTools.getTestRootDir("com.android.jack.multidex.fakeframeworks"));
-//    File frameworks = TestTools.createTempDir("frameworks", "");
-//    TestTools.compileSourceToJack(new Options(),
-//        TestTools.getJackTestFolder("multidex/fakeframeworks"),
-//        TestTools.getDefaultBootclasspathString(), frameworks, false);
-//    return frameworks;
   }
 
   @Nonnull
   protected static File prepareAnnotations() throws IOException, Exception {
     return prepareLib(AbstractTestTools.getTestRootDir("com.android.jack.annotations"));
-//    File annotations = TestTools.createTempDir("multidexAnnotations", "");
-//    TestTools.compileSourceToJack(new Options(),
-//        TestTools.getFromAndroidTree(
-//            "toolchain/jack/jack-tests/tests/com/android/jack/annotations/"),
-//            TestTools.getDefaultBootclasspathString(), annotations, false);
-//    return annotations;
   }
 
   @Nonnull
   private static File prepareLibrary(@Nonnull File frameworks) throws IOException, Exception {
     return prepareLib(AbstractTestTools.getTestRootDir("com.android.jack.multidex.fakelibrary"),
         frameworks);
-//    File library = TestTools.createTempDir("multidexLibrary", "");
-//    TestTools.compileSourceToJack(new Options(),
-//        TestTools.getJackTestFolder("multidex/fakelibrary"),
-//        TestTools.getDefaultBootclasspathString() + File.pathSeparator + frameworks.getPath(),
-//        library, false);
-//    return library;
   }
 
   private static void setMetaIntoJackProperties(@Nonnull File library) throws IOException {

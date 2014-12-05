@@ -14,25 +14,25 @@
 
 To run the tests a configuration file must be provided.
 
-Make a copy of the template so that your settings are not committed.
+Make a copy of tests.properties.template so that your settings are not committed.
 
-It can be passed by setting the property tests.config (with -D) with the path to the file.
+It can be passed by setting the property "tests.config" (with -D) with the path to the file.
 
-To be able to use jack-tests to run the tests, the configuration file 
+To be able to use jack-tests to run the tests, the configuration file
 must define following properties:
- * jack.home: it must point to the parent dir of Jack git project
+ * jack.home: absolute path to Jack directory
  * runtime.location.<runtime environment name>: location of host android runtime environments
 
-The follwing values are supported:
+The following values are supported:
  * runtime.location.dalvik-fast-host
  * runtime.location.dalvik-jit
  * runtime.location.art-host
 
-Indicate the location of the legacy java compiler with:
+Indicate the location of the legacy java compiler executable with:
  * toolchain.prebuilt.legacy-java-compiler
 
 In Eclipse: define a run configuration with -Dtests.config as a VM argument.
 On the command line:
  * use run-jack-tests script with the config file path as first parameter, and the test suite to
 run as the second parameter
- * use Ant tasks (e.g. jack-test) to run common sets of tests.
+ * use Ant tasks (e.g. test-jack) to run common sets of tests.
