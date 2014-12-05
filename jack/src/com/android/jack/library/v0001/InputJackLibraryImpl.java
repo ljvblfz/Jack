@@ -25,6 +25,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
@@ -169,5 +170,12 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   public int getSupportedMinor() {
     return Version.MINOR;
+  }
+
+  @Override
+  @Nonnull
+  public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws CannotDeleteFileException {
+     vfs.getRootInputVDir().delete(fileType.buildFileVPath(typePath));
   }
 }

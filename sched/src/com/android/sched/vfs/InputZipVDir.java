@@ -128,4 +128,10 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
 
     return (InputVDir) ive;
   }
+
+  @Override
+  @Nonnull
+  public void delete(@Nonnull VPath path) {
+    throw new UnsupportedOperationException();
+  }
 }

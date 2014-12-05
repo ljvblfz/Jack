@@ -16,6 +16,7 @@
 
 package com.android.jack.library;
 
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -49,4 +50,8 @@ public interface InputLibrary extends Library {
   @Override
   @Nonnull
   public InputLibraryLocation getLocation();
+
+  @Nonnull
+  public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
+      throws CannotDeleteFileException;
 }
