@@ -21,5 +21,6 @@ then
 fi
 set -x
 CURRENT_DIR=$(dirname $0)
-java -Dtests.config=$1 -cp $CURRENT_DIR/dist/jack-tests.jar:$CURRENT_DIR/../jack/dist/jackunittests-lib.jar org.junit.runner.JUnitCore $2
+java -Dtests.config=$1 -cp $CURRENT_DIR/dist/jack-tests.jar:\
+$CURRENT_DIR/libs/ddmlib.jar org.junit.runner.JUnitCore $2
 
