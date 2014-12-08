@@ -97,6 +97,9 @@ public class JSession extends JNode {
   @CheckForNull
   private OutputJackLibrary jackOutputLibrary;
 
+  @CheckForNull
+  private OutputJackLibrary jackInternalOutputLibrary;
+
   @Nonnull
   private final List<InputLibrary> importedLibraries = new ArrayList<InputLibrary>(0);
 
@@ -219,6 +222,16 @@ public class JSession extends JNode {
     if (parent != null) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  @Nonnull
+  public OutputJackLibrary getJackInternalOutputLibrary() {
+    assert jackInternalOutputLibrary != null;
+    return jackInternalOutputLibrary;
+  }
+
+  public void setJackInternalOutputLibrary(@Nonnull OutputJackLibrary jackInternalOutputLibrary) {
+    this.jackInternalOutputLibrary = jackInternalOutputLibrary;
   }
 
   @CheckForNull

@@ -20,7 +20,6 @@ import com.android.jack.CommandLine;
 import com.android.jack.ExitStatus;
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Jack;
-import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
 import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
@@ -30,12 +29,16 @@ import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.NotJackLibraryException;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.util.TextUtils;
@@ -43,14 +46,13 @@ import com.android.sched.scheduler.IllegalRequestException;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.UnrecoverableException;
-import com.android.sched.util.codec.DirectDirOutputVDirCodec;
 import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
@@ -63,9 +65,7 @@ import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -95,19 +95,16 @@ public class JackIncremental extends CommandLine {
   Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<OutputVFS> COMPILER_STATE_OUTPUT_DIR = PropertyId.create(
-      "jack.experimental.compilerstate.output.dir", "Compiler state output folder",
-      new DirectDirOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
-      GENERATE_COMPILER_STATE.getValue().isTrue());
-
-  @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
-  @CheckForNull
-  private static File dexFilesFolder;
+  @Nonnull
+  private static List<String> deletedTypes = new ArrayList<String>();
 
   @CheckForNull
-  private static File jackFilesFolder;
+  private static File incrementalFolder;
+
+  @CheckForNull
+  private static InputJackLibrary incrementalInputLibrary;
 
   @CheckForNull
   private static final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
@@ -183,43 +180,86 @@ public class JackIncremental extends CommandLine {
     }
   }
 
-  public static void run(@Nonnull Options options) throws ConfigurationException,
-      IllegalOptionsException, NothingToDoException, JackUserException, IncrementalException {
+  public static void run(@Nonnull Options options)
+      throws ConfigurationException,
+      IllegalOptionsException,
+      NothingToDoException,
+      JackUserException,
+      IncrementalException {
 
-    File incrementalFolder = options.getIncrementalFolder();
-    assert incrementalFolder != null;
+    deletedTypes.clear();
+    incrementalFolder = options.getIncrementalFolder();
 
-    dexFilesFolder = new File(incrementalFolder, "dexFiles");
+    try {
+      boolean firstCompilation = false;
 
-    jackFilesFolder = new File(incrementalFolder, "jackFiles");
-
-    // Add options to control incremental support
-    assert dexFilesFolder != null;
-    options.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(), dexFilesFolder.getPath());
-    options.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
-    options.addProperty(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
-    assert jackFilesFolder != null;
-    options.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), jackFilesFolder.getPath());
-
-    File typeDependenciesFile =
-        new File(incrementalFolder, TypeDependencies.vpath.getPathAsString(File.pathSeparatorChar));
-
-    File fileDependenciesFile =
-        new File(incrementalFolder, FileDependencies.vpath.getPathAsString(File.pathSeparatorChar));
-
-    if (isIncrementalCompilation(options, typeDependenciesFile, fileDependenciesFile)
-        && !needFullRebuild(options)) {
-      logger.log(Level.FINE, "Incremental compilation");
-      DirectVFS directVFS = null;
       try {
-        directVFS = new DirectVFS(new Directory(incrementalFolder.getPath(), null,
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
-        InputVDir incrementalVDir = directVFS.getRootInputVDir();
+      assert incrementalFolder != null;
+      incrementalInputLibrary = JackLibraryFactory.getInputLibrary(new DirectVFS(new Directory(
+          incrementalFolder.getPath(), null, Existence.MAY_EXIST, Permission.WRITE,
+          ChangePermission.NOCHANGE)));
+      } catch (NotJackLibraryException e) {
+        // Nothing to do, it is the first compilation
+        firstCompilation = true;
+      }
+
+      options.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
+      options.addProperty(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+      assert incrementalFolder != null;
+      options.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
+
+      if (!firstCompilation && !needFullRebuild(options)) {
+        assert incrementalInputLibrary != null;
+        InputVFile typeDependenciesVFile = null;
+        InputVFile fileDependenciesVFile = null;
+        try {
+          typeDependenciesVFile =
+              incrementalInputLibrary.getFile(FileType.DEPENDENCIES, TypeDependencies.vpath);
+        } catch (FileTypeDoesNotExistException e) {
+          throw new AssertionError(e);
+        }
+        try {
+          fileDependenciesVFile =
+              incrementalInputLibrary.getFile(FileType.DEPENDENCIES, FileDependencies.vpath);
+        } catch (FileTypeDoesNotExistException e) {
+          throw new AssertionError(e);
+        }
+
+        logger.log(Level.FINE, "Incremental compilation");
 
         List<String> javaFilesNames = getJavaFilesSpecifiedOnCommandLine(options);
 
-        TypeDependencies typeDependencies = readTypeDependencies(incrementalVDir);
-        FileDependencies fileDependencies = readFileDependencies(incrementalVDir);
+        TypeDependencies typeDependencies = new TypeDependencies();
+        InputStreamReader typeReader = null;
+        try {
+          typeReader = new InputStreamReader(typeDependenciesVFile.openRead());
+          typeDependencies.read(typeReader);
+        } catch (IOException e) {
+          throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+        } finally {
+          if (typeReader != null) {
+            try {
+              typeReader.close();
+            } catch (IOException e) {
+            }
+          }
+        }
+
+        FileDependencies fileDependencies = new FileDependencies();
+        InputStreamReader fileReader = null;
+        try {
+          fileReader = new InputStreamReader(fileDependenciesVFile.openRead());
+          fileDependencies.read(fileReader);
+        } catch (IOException e) {
+          throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+        } finally {
+          if (fileReader != null) {
+            try {
+              fileReader.close();
+            } catch (IOException e) {
+            }
+          }
+        }
 
         Map<String, Set<String>> typeRecompileDependencies =
             typeDependencies.getRecompileDependencies();
@@ -265,12 +305,25 @@ public class JackIncremental extends CommandLine {
             planBuilder.append(FileDependenciesWriter.class);
             planBuilder.append(DexFileWriter.class);
 
+            assert incrementalFolder != null;
+            OutputJackLibrary incrementalOutputLibrary =
+                JackLibraryFactory.getOutputLibrary(new DirectVFS(new Directory(
+                    incrementalFolder.getPath(), null, Existence.MAY_EXIST, Permission.WRITE,
+                    ChangePermission.NOCHANGE)), Jack.getEmitterId(), Jack.getVersionString());
+
+            assert incrementalInputLibrary != null;
+            session.setJackInternalOutputLibrary(incrementalOutputLibrary);
+
             try {
               planBuilder.getPlan().getScheduleInstance().process(Jack.getSession());
             } catch (RuntimeException runtimeExcept) {
               throw runtimeExcept;
             } catch (Exception except) {
               throw new AssertionError(except);
+            } finally {
+              if (incrementalOutputLibrary != null) {
+                incrementalOutputLibrary.close();
+              }
             }
           } finally {
             ThreadConfig.unsetConfig();
@@ -279,72 +332,24 @@ public class JackIncremental extends CommandLine {
         } else {
           logger.log(Level.FINE, "No files to recompile");
         }
-      } catch (WrongPermissionException e) {
-        throw new AssertionError(e);
-      } catch (CannotSetPermissionException e) {
-        throw new AssertionError(e);
-      } catch (NoSuchFileException e) {
-        throw new AssertionError(e);
-      } catch (NotFileOrDirectoryException e) {
-        throw new AssertionError(e);
-      } catch (FileAlreadyExistsException e) {
-        throw new AssertionError(e);
-      } catch (CannotCreateFileException e) {
-        throw new AssertionError(e);
-      } catch (CannotReadException e) {
-        throw new IncrementalException(e);
-      } finally {
-        if (directVFS != null) {
-          directVFS.close();
-        }
+      } else {
+        Jack.run(options);
       }
-    } else {
-      Jack.run(options);
+    } catch (WrongPermissionException e) {
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      throw new AssertionError(e);
+    } catch (NoSuchFileException e) {
+      throw new AssertionError(e);
+    } catch (NotFileOrDirectoryException e) {
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    } catch (CannotReadException e) {
+      throw new IncrementalException(e);
     }
-  }
-
-  @Nonnull
-  private static TypeDependencies readTypeDependencies(@Nonnull InputVDir incrementalVDir)
-      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
-    TypeDependencies typeDependencies = new TypeDependencies();
-    InputVFile typeDependenciesVFile = incrementalVDir.getInputVFile(TypeDependencies.vpath);
-    InputStreamReader reader = null;
-    try {
-      reader = new InputStreamReader(typeDependenciesVFile.openRead());
-      typeDependencies.read(reader);
-    } catch (IOException e) {
-      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-        }
-      }
-    }
-    return typeDependencies;
-  }
-
-  @Nonnull
-  private static FileDependencies readFileDependencies(@Nonnull InputVDir incrementalVDir)
-      throws NotFileOrDirectoryException, NoSuchFileException, CannotReadException {
-    FileDependencies fileDependencies = new FileDependencies();
-    InputVFile fileDependenciesVFile = incrementalVDir.getInputVFile(FileDependencies.vpath);
-    InputStreamReader reader = null;
-    try {
-      reader = new InputStreamReader(fileDependenciesVFile.openRead());
-      fileDependencies.read(reader);
-    } catch (IOException e) {
-      throw new CannotReadException(fileDependenciesVFile.getLocation(), e);
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-        }
-      }
-    }
-    return fileDependencies;
   }
 
   /*
@@ -468,8 +473,8 @@ public class JackIncremental extends CommandLine {
       newEcjArguments.add(fileToRecompile);
     }
 
-    assert jackFilesFolder != null;
-    StringBuilder newClasspath = new StringBuilder(jackFilesFolder.getPath());
+    assert incrementalFolder != null;
+    StringBuilder newClasspath = new StringBuilder(incrementalFolder.getPath());
 
     String oldClasspath = options.getClasspathAsString();
     if (oldClasspath != null) {
@@ -497,7 +502,7 @@ public class JackIncremental extends CommandLine {
   @Nonnull
   private static Set<String> getFilesToRecompile(@Nonnull FileDependencies fileDependencies,
       @Nonnull Map<String, Set<String>> typeRecompileDependencies,
-      @Nonnull List<String> javaFileNames, Set<String> deletedFiles) throws JackUserException {
+      @Nonnull List<String> javaFileNames, Set<String> deletedFiles) throws IncrementalException {
     Set<String> filesToRecompile = new HashSet<String>();
 
     filesToRecompile.addAll(getModifiedFiles(fileDependencies, typeRecompileDependencies,
@@ -549,16 +554,28 @@ public class JackIncremental extends CommandLine {
 
   private static void deleteOldFilesFromJavaFiles(
       @Nonnull FileDependencies fileDependencies, @Nonnull String javaFileName)
-      throws JackUserException {
+      throws IncrementalException {
+    assert incrementalInputLibrary != null;
     for (String typeNameToRemove : fileDependencies.getTypeNames(javaFileName)) {
-      File jackFile = getJackFile(typeNameToRemove);
-      if (jackFile.exists() && !jackFile.delete()) {
-        throw new JackIOException("Failed to delete file " + jackFile.getPath());
+      if (!deletedTypes.contains(typeNameToRemove)) {
+        deletedTypes.add(typeNameToRemove);
+        VPath vpath = new VPath(typeNameToRemove, fileSeparator);
+        deleteFile(FileType.JAYCE, vpath);
+        deleteFile(FileType.DEX, vpath);
       }
-      File dexFile = getDexFile(typeNameToRemove);
-      if (dexFile.exists() && !dexFile.delete()) {
-        throw new JackIOException("Failed to delete file " + dexFile.getPath());
-      }
+    }
+  }
+
+  private static void deleteFile(@Nonnull FileType fileType, @Nonnull VPath vpath)
+      throws IncrementalException {
+    try {
+      // Check that file exists
+      assert incrementalInputLibrary != null;
+      incrementalInputLibrary.getFile(fileType, vpath);
+      incrementalInputLibrary.delete(fileType, vpath);
+    } catch (FileTypeDoesNotExistException e) {
+    } catch (CannotDeleteFileException e) {
+      throw new IncrementalException(e);
     }
   }
 
@@ -641,32 +658,24 @@ public class JackIncremental extends CommandLine {
     return javaFiles;
   }
 
-  private static boolean isIncrementalCompilation(@Nonnull Options options,
-      @Nonnull File typeDependencies, @Nonnull File fileDependencies) {
-    if (!options.getEcjArguments().isEmpty() && typeDependencies.exists()
-        && fileDependencies.exists()) {
-      return true;
-    }
-
-    return false;
-  }
-
   public static TypeFormatter getFormatter() {
     return formatter;
   }
 
   @Nonnull
-  protected static File getJackFile(@Nonnull String typeName) {
-    return new File(jackFilesFolder,
-        FileType.JAYCE.getPrefix()
-            + File.separatorChar
-            + new VPath(typeName + JayceFileImporter.JAYCE_FILE_EXTENSION, fileSeparator)
-                .getPathAsString(File.separatorChar));
+  protected static InputVFile getJackFile(@Nonnull String typeName) {
+    try {
+      assert incrementalInputLibrary != null;
+      return incrementalInputLibrary.getFile(FileType.JAYCE, new VPath(typeName, fileSeparator));
+    } catch (FileTypeDoesNotExistException e) {
+      throw new AssertionError(e);
+    }
   }
 
   @Nonnull
   protected static File getDexFile(@Nonnull String typeName) {
-    return new File(dexFilesFolder, new VPath(typeName + FileType.DEX.getFileExtension(),
-        fileSeparator).getPathAsString(File.separatorChar));
+    assert incrementalInputLibrary != null;
+    return new File(incrementalFolder, FileType.DEX.buildFileVPath(
+        new VPath(typeName, fileSeparator)).getPathAsString(File.separatorChar));
   }
 }

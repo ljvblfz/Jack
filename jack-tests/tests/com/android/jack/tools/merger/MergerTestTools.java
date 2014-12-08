@@ -21,7 +21,6 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.scheduler.ScheduleInstance;
 
 import java.io.File;
@@ -41,13 +40,13 @@ public class MergerTestTools {
     try {
       File multiDexFolder = TestTools.createTempDir("multi", "dex");
       File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);
-      File multiDexOnTypePerTypeFolder = TestTools.createTempDir("multiOnDexPerType", "dex");
+      File internalJackLibraryOutput = TestTools.createTempDir("multiOnDexPerType", "dex");
 
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebug));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-      toolchain.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(),
-          multiDexOnTypePerTypeFolder.getAbsolutePath());
+      toolchain.addProperty(Options.INTERNAL_LIBRARY_OUTPUT_DIR.getName(),
+          internalJackLibraryOutput.getAbsolutePath());
 
       if (out != null) {
         toolchain.setOutputStream(out);

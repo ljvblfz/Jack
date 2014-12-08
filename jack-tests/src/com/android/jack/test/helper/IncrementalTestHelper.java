@@ -83,7 +83,7 @@ public class IncrementalTestHelper {
       throw new IOException("Failed to create folder " + dexOutDir.getAbsolutePath());
     }
     dexFile = new File(dexOutDir, "classes.dex");
-    jackFolder = new File(compilerStateFolder, "jackFiles");
+    jackFolder = new File(compilerStateFolder, FileType.JAYCE.getPrefix());
   }
 
   public void setOut(OutputStream out) {
@@ -148,8 +148,7 @@ public class IncrementalTestHelper {
       if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
         String jackFileName = jackFile.getAbsolutePath();
         String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
-        binaryTypeName = binaryTypeName.substring((jackFolder.getAbsolutePath() + File.separatorChar
-            + FileType.JAYCE.getPrefix()).length() + 1);
+        binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
         fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar, '.'));
       }
     }

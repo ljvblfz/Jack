@@ -93,6 +93,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryWritingException;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -488,8 +489,14 @@ public abstract class Jack {
           } else {
             outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
           }
-          session.setJackOutputLibrary(JackLibraryFactory.getOutputLibrary(outputDir,
-              Jack.getEmitterId(), Jack.getVersionString()));
+          OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(outputDir,
+              Jack.getEmitterId(), Jack.getVersionString());
+          session.setJackOutputLibrary(outputLibrary);
+          session.setJackInternalOutputLibrary(outputLibrary);
+        } else if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()) {
+          session.setJackInternalOutputLibrary(JackLibraryFactory.getOutputLibrary(
+              ThreadConfig.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
+              Jack.getVersionString()));
         }
 
         Request request = createInitialRequest();
@@ -651,10 +658,6 @@ public abstract class Jack {
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
           plan.getScheduleInstance().process(session);
-          OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
-          if (jackOutputLibrary != null) {
-            jackOutputLibrary.close();
-          }
         } catch (LibraryWritingException e) {
           session.getReporter().report(Severity.FATAL, e);
           throw new JackAbortException(e);
@@ -662,11 +665,24 @@ public abstract class Jack {
           throw e;
         } catch (Exception e) {
           throw new AssertionError(e);
+        } finally {
+          OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
+          if (jackOutputLibrary != null) {
+            jackOutputLibrary.close();
+          }
+          if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
+              || ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+            OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
+            if (jackInternalOutputLibrary != null) {
+              jackInternalOutputLibrary.close();
+            }
+          }
         }
       } finally {
         event.end();
       }
     } finally {
+
       hooks.runHooks();
       ThreadConfig.unsetConfig();
     }

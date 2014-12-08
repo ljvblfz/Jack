@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
-import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
@@ -33,10 +32,7 @@ import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
@@ -69,12 +65,6 @@ public abstract class DexWritingTool {
   }
 
   public abstract void write(@Nonnull OutputVFS outputVDir) throws DexWritingException;
-
-
-  @Nonnull
-  protected InputVFS getIntermediateDexDir() {
-    return ThreadConfig.get(Options.INTERMEDIATE_DEX_DIR);
-  }
 
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
       throws DexWritingException {
@@ -144,31 +134,14 @@ public abstract class DexWritingTool {
       } catch (FileTypeDoesNotExistException e) {
         // this was created by Jack, so this should not happen
         throw new AssertionError(e);
-      } catch (NotFileOrDirectoryException e) {
-        // this was created by Jack, so this should not happen
-        throw new AssertionError(e);
-      } catch (NoSuchFileException e) {
-        // this was created by Jack, so this should not happen
-        throw new AssertionError(e);
       }
     }
   }
 
   @Nonnull
   private InputVFile getIntermediateDexFile(@Nonnull JDefinedClassOrInterface type)
-      throws NotFileOrDirectoryException, NoSuchFileException, FileTypeDoesNotExistException {
-    InputVFile inputVFile = null;
-
-    // Intermediate dex files can be located into the intermediate dex dir or into a library
-    OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
-    if (jackOutputLibrary != null && jackOutputLibrary.containsFileType(FileType.DEX)) {
-      inputVFile = jackOutputLibrary.getFile(FileType.DEX,
-          new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-    } else {
-      inputVFile =
-          getIntermediateDexDir().getRootInputVDir().getInputVFile(DexWriter.getFilePath(type));
-    }
-
-    return inputVFile;
+      throws FileTypeDoesNotExistException {
+    return Jack.getSession().getJackInternalOutputLibrary().getFile(FileType.DEX,
+        new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
   }
 }

@@ -62,14 +62,14 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
     // One dex per type
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    File oneDexPerTypeFolder;
+    File internalJackOutputLib;
     try {
-      oneDexPerTypeFolder = TestTools.createTempDir("oneDexPerType", "dex");
+      internalJackOutputLib = TestTools.createTempDir("oneDexPerType", "dex");
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebugInfos));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-      toolchain.addProperty(Options.INTERMEDIATE_DEX_DIR.getName(),
-          oneDexPerTypeFolder.getAbsolutePath());
+      toolchain.addProperty(Options.INTERNAL_LIBRARY_OUTPUT_DIR.getName(),
+          internalJackOutputLib.getAbsolutePath());
     } catch (IOException e) {
       throw new AssertionError(e);
     }
