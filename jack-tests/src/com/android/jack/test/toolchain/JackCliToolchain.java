@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.android.jack.Options;
+import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.util.ExecuteFile;
 
 import java.io.File;
@@ -39,9 +41,18 @@ public class JackCliToolchain extends JackBasedToolchain {
   private List<String> extraJackArgs = new ArrayList<String>(0);
   @CheckForNull
   private File incrementalFolder;
+  @Nonnull
+  private Options.VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
 
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
+  }
+
+  @Override
+  @Nonnull
+  protected JackCliToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level) {
+    verbosityLevel = level;
+    return this;
   }
 
   @Override
@@ -53,6 +64,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
+
+    args.add("--verbose");
+    args.add(verbosityLevel.name());
 
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
@@ -118,7 +132,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
     exec.setErr(outRedirectStream);
     exec.setOut(errRedirectStream);
-    exec.setVerbose(true);
+    exec.setVerbose(isVerbose);
 
     if (!exec.run()) {
       throw new RuntimeException("Jack compiler exited with an error");
@@ -135,6 +149,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
+
+    args.add("--verbose");
+    args.add(verbosityLevel.name());
 
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
@@ -194,7 +211,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
     exec.setErr(outRedirectStream);
     exec.setOut(errRedirectStream);
-    exec.setVerbose(true);
+    exec.setVerbose(isVerbose);
 
     if (!exec.run()) {
       throw new RuntimeException("Jack compiler exited with an error");
@@ -210,6 +227,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
+
+    args.add("--verbose");
+    args.add(verbosityLevel.name());
 
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
@@ -251,7 +271,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
     exec.setErr(outRedirectStream);
     exec.setOut(errRedirectStream);
-    exec.setVerbose(true);
+    exec.setVerbose(isVerbose);
 
     if (!exec.run()) {
       throw new RuntimeException("Jack compiler exited with an error");
@@ -265,6 +285,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
+
+    args.add("--verbose");
+    args.add(verbosityLevel.name());
 
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
@@ -309,7 +332,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
     exec.setErr(outRedirectStream);
     exec.setOut(errRedirectStream);
-    exec.setVerbose(true);
+    exec.setVerbose(isVerbose);
 
     if (!exec.run()) {
       throw new RuntimeException("Jack compiler exited with an error");

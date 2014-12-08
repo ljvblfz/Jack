@@ -39,8 +39,9 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   JackApiToolchain() {}
 
+  @Override
   @Nonnull
-  public JackApiToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level) {
+  protected JackApiToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level) {
     jackOptions.setVerbosityLevel(level);
     return this;
   }

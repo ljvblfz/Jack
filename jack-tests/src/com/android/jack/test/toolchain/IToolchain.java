@@ -86,4 +86,7 @@ public interface IToolchain {
   @Nonnull
   IToolchain setErrorStream(@Nonnull OutputStream errorStream);
 
+  @Nonnull
+  IToolchain setVerbose(boolean isVerbose);
+
 }

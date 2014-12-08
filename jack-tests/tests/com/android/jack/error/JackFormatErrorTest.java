@@ -18,8 +18,6 @@ package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.Main;
-import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceProperties;
 import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
@@ -27,7 +25,6 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.v0001.Version;
-import com.android.jack.load.JackLoadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -75,7 +72,7 @@ public class JackFormatErrorTest {
 
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
-    toolchain.setVerbosityLevel(VerbosityLevel.DEBUG);
+    toolchain.setVerbose(true);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -121,7 +118,7 @@ public class JackFormatErrorTest {
 
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
-    toolchain.setVerbosityLevel(VerbosityLevel.DEBUG);
+    toolchain.setVerbose(true);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -166,7 +163,7 @@ public class JackFormatErrorTest {
 
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
-    toolchain.setVerbosityLevel(VerbosityLevel.DEBUG);
+    toolchain.setVerbose(true);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);

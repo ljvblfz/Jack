@@ -44,6 +44,8 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     args.add("java");
     args.add("-jar");
     args.add(jillPrebuilt.getAbsolutePath());
+    args.add("--verbose");
+    args.add(String.valueOf(isVerbose));
     if (zipFiles) {
       args.add("--container");
       args.add("zip");
@@ -55,7 +57,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
 
     try {
       if (execFile.run() != 0) {

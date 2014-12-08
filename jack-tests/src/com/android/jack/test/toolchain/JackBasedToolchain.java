@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.android.jack.Options;
+import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
@@ -121,6 +123,21 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "false");
     return this;
   }
+
+  @Override
+  @Nonnull
+  public JackBasedToolchain setVerbose(boolean isVerbose) {
+    super.setVerbose(isVerbose);
+    if (isVerbose) {
+      setVerbosityLevel(VerbosityLevel.DEBUG);
+    } else {
+      setVerbosityLevel(VerbosityLevel.WARNING);
+    }
+    return this;
+  }
+
+  @Nonnull
+  protected abstract JackBasedToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level);
 
   @Override
   @Nonnull

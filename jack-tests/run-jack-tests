@@ -19,7 +19,6 @@ then
   echo "Usage: $(basename $0) <tests config file path> <test suite>+"
   exit 1
 fi
-set -x
 CURRENT_DIR=$(dirname $0)
 java -Dtests.config=$1 -cp $CURRENT_DIR/dist/jack-tests.jar:\
 $CURRENT_DIR/libs/ddmlib.jar org.junit.runner.JUnitCore $2

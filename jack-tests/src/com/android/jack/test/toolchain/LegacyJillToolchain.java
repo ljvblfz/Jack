@@ -134,6 +134,9 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
     arguments.add(refCompilerPath.trim());
 
+    arguments.add("-verbose");
+    arguments.add(String.valueOf(isVerbose));
+
     addSourceLevel(sourceLevel, arguments);
 
     if (annotationProcessorClass != null) {
@@ -154,7 +157,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     ExecuteFile execFile = new ExecuteFile(arguments.toArray(new String[arguments.size()]));
     execFile.setErr(outRedirectStream);
     execFile.setOut(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
     try {
       if (execFile.run() != 0) {
         throw new RuntimeException("Reference compiler exited with an error");
@@ -166,14 +169,14 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
   private void processWithJarJar(@Nonnull File jarjarRules,
       @Nonnull File inJar, @Nonnull File outJar) {
-    String[] args = new String[]{"java", "-jar", jarjarPrebuilt.getAbsolutePath(),
-        "process", jarjarRules.getAbsolutePath(),
+    String[] args = new String[]{"java", "-Dverbose=" + String.valueOf(isVerbose), "-jar",
+        jarjarPrebuilt.getAbsolutePath(), "process", jarjarRules.getAbsolutePath(),
         inJar.getAbsolutePath(), outJar.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(args);
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
 
     try {
       if (execFile.run() != 0) {
@@ -197,9 +200,9 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     args.add(outJar.getAbsolutePath());
     args.add("-libraryjars");
     args.add(bootclasspathStr);
-    args.add("-verbose");
-    args.add("-forceprocessing");
-    args.add("-dontoptimize");
+    if (isVerbose) {
+      args.add("-verbose");
+    }
     for (File flags : proguardFlags) {
       args.add("-include");
       args.add(flags.getAbsolutePath());
@@ -208,7 +211,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
 
     try {
       if (execFile.run() != 0) {

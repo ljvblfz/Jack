@@ -63,6 +63,8 @@ public abstract class Toolchain implements IToolchain {
   @Nonnull
   protected PrintStream errRedirectStream = System.err;
 
+  protected boolean isVerbose = false;
+
   Toolchain() {}
 
   @Override
@@ -154,6 +156,13 @@ public abstract class Toolchain implements IToolchain {
   @Nonnull
   public final Toolchain setErrorStream(@Nonnull OutputStream errorStream) {
     errRedirectStream = new PrintStream(errorStream);
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public Toolchain setVerbose(boolean isVerbose) {
+    this.isVerbose = isVerbose;
     return this;
   }
 }

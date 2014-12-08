@@ -140,14 +140,14 @@ public class LegacyToolchain extends AndroidToolchain {
 
   private void processWithJarJar(@Nonnull File jarjarRules,
       @Nonnull File inJar, @Nonnull File outJar) {
-    String[] args = new String[]{"java", "-jar", jarjarPrebuilt.getAbsolutePath(),
-        "process", jarjarRules.getAbsolutePath(),
+    String[] args = new String[]{"java", "-Dverbose=" + String.valueOf(isVerbose), "-jar",
+        jarjarPrebuilt.getAbsolutePath(), "process", jarjarRules.getAbsolutePath(),
         inJar.getAbsolutePath(), outJar.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(args);
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
 
     try {
       if (execFile.run() != 0) {
@@ -173,9 +173,9 @@ public class LegacyToolchain extends AndroidToolchain {
       args.add("-libraryjars");
       args.add(bootclasspathStr);
     }
-    args.add("-verbose");
-    args.add("-forceprocessing");
-    args.add("-dontoptimize");
+    if (isVerbose) {
+      args.add("-verbose");
+    }
     for (File flags : proguardFlags) {
       args.add("-include");
       args.add(flags.getAbsolutePath());
@@ -184,7 +184,7 @@ public class LegacyToolchain extends AndroidToolchain {
     ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
 
     try {
       if (execFile.run() != 0) {
@@ -201,6 +201,9 @@ public class LegacyToolchain extends AndroidToolchain {
     if (classpath != null) {
       args.add("-classpath");
       args.add(classpath);
+    }
+    if (isVerbose) {
+      args.add("-verbose");
     }
     addSourceLevel(sourceLevel, args);
     args.add("-noExit");
@@ -248,6 +251,10 @@ public class LegacyToolchain extends AndroidToolchain {
 
     arguments.add(legacyCompilerPrebuilt.getAbsolutePath());
 
+    if (isVerbose) {
+      arguments.add("-verbose");
+    }
+
     addSourceLevel(sourceLevel, arguments);
 
     if (annotationProcessorClass != null) {
@@ -268,7 +275,7 @@ public class LegacyToolchain extends AndroidToolchain {
     ExecuteFile execFile = new ExecuteFile(arguments.toArray(new String[arguments.size()]));
     execFile.setErr(outRedirectStream);
     execFile.setOut(errRedirectStream);
-    execFile.setVerbose(true);
+    execFile.setVerbose(isVerbose);
     try {
       if (execFile.run() != 0) {
         throw new RuntimeException("Reference compiler exited with an error");
@@ -292,6 +299,7 @@ public class LegacyToolchain extends AndroidToolchain {
       arguments.optimize = !withDebugInfos && useDxOptimization;
       // this only means we deactivate the check that no core classes are included
       arguments.coreLibrary = true;
+      arguments.verbose = isVerbose;
       arguments.parse(new String[] {in.getAbsolutePath()});
 
       int retValue = com.android.dx.command.dexer.Main.run(arguments);
