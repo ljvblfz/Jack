@@ -18,6 +18,7 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackEventType;
+import com.android.jack.config.id.Brest;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
@@ -97,10 +98,10 @@ public class JayceFileImporter {
 
   @Nonnull
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
-      "jack.import.jackfile.policy",
-      "Defines the policy to follow concerning type collision from imported jayce files",
+      "jack.import.type.policy",
+      "Defines the policy to follow concerning type collision",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
-      .addDefaultValue(CollisionPolicy.FAIL);
+      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Brest.get());
 
   @Nonnull
   private final CollisionPolicy collisionPolicy = ThreadConfig.get(COLLISION_POLICY);
