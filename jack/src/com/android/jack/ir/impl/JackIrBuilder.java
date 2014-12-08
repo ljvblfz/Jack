@@ -16,7 +16,7 @@
 package com.android.jack.ir.impl;
 
 import com.android.jack.Jack;
-import com.android.jack.experimental.incremental.JackIncremental;
+import com.android.jack.Options;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.Annotable;
@@ -2878,7 +2878,7 @@ public class JackIrBuilder {
       SourceInfo info = makeSourceInfo(x);
 
       if (x.constant != Constant.NotAConstant) {
-        if (ThreadConfig.get(JackIncremental.GENERATE_COMPILER_STATE).booleanValue()) {
+        if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
           if (x.binding instanceof FieldBinding) {
             FieldBinding b = ((FieldBinding) x.binding).original();
             JField field = getTypeMap().get(b);

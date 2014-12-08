@@ -25,7 +25,6 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.Private;
-import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -653,7 +652,6 @@ public class Options {
         FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (incrementalFolder != null) {
-      configBuilder.set(JackIncremental.GENERATE_COMPILER_STATE, true);
       configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
           incrementalFolder.getAbsolutePath());
     }
