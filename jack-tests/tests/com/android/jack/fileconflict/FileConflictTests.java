@@ -16,21 +16,18 @@
 
 package com.android.jack.fileconflict;
 
-import com.android.jack.Jack;
-import com.android.jack.Options;
-import com.android.jack.ProguardFlags;
-import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
+import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
@@ -47,9 +44,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -453,92 +447,33 @@ public class FileConflictTests {
       @CheckForNull String collisionPolicy) throws Exception {
     // compile source files to a Jack dir
     File jackImport1 = AbstractTestTools.createTempDir();
-    Options options = new Options();
     File lib1 = new File(TEST002_DIR, "lib1");
-    options.addResource(new File(lib1, "rsc"));
-    TestTools.compileSourceToJack(options, lib1, TestTools.getDefaultBootclasspathString(),
-        jackImport1, false /* non-zipped */);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(lib1, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackImport1,
+        /* zipFiles = */ false,
+        lib1);
 
     File jackImport2 = AbstractTestTools.createTempDir();
-    options = new Options();
     File lib2 = new File(TEST002_DIR, "lib2");
-    options.addResource(new File(lib2, "rsc"));
-    TestTools.compileSourceToJack(options, lib2, TestTools.getDefaultBootclasspathString(),
-        jackImport2, false /* non-zipped */);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(lib2, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackImport2,
+        /* zipFiles = */ false,
+        lib2);
 
     // run Jack on Jack dirs
-    ProguardFlags flags = new ProguardFlags(new File(TEST002_DIR, "proguard.flags"));
-    options = new Options();
-    List<File> jayceImports = new ArrayList<File>(2);
-    jayceImports.add(jackImport1);
-    jayceImports.add(jackImport2);
-    options.setJayceImports(jayceImports);
-    options.setProguardFlagsFile(Collections.<File>singletonList(flags));
-    if (zip) {
-      options.setJayceOutputZip(jackOutput);
-    } else {
-      options.setJayceOutputDir(jackOutput);
-    }
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProguardFlags(new File(TEST002_DIR, "proguard.flags"));
     if (collisionPolicy != null) {
-      options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
+      toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     }
-    Jack.run(options);
+    toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
   }
-
-//  private void runTest002(@Nonnull File jackOutput, boolean zip,
-//      @CheckForNull String collisionPolicy) throws Exception {
-//    // compile source files to a Jack dir
-//    // TODO(jmhenaff): adapt this when resources are added to toolchain APIs
-//    File jackImport1 = TestTools.createTempDir("jack", "dir");
-//    Options options = new Options();
-//    File lib1 = new File(TEST002_DIR, "lib1");
-//    options.addResource(new File(lib1, "rsc"));
-//    TestTools.compileSourceToJack(options, lib1, TestTools.getDefaultBootclasspathString(),
-//        jackImport1, false /* non-zipped */);
-//
-//    File jackImport2 = TestTools.createTempDir("jack", "dir");
-//    options = new Options();
-//    File lib2 = new File(TEST002_DIR, "lib2");
-//    options.addResource(new File(lib2, "rsc"));
-//    TestTools.compileSourceToJack(options, lib2, TestTools.getDefaultBootclasspathString(),
-//        jackImport2, false /* non-zipped */);
-////    File tempJackFolder = AbstractTestTools.createTempDir();
-////    JackApiToolchain toolchain =
-////        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-////    toolchain.srcToLib(
-////        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-////        tempJackFolder,
-////        /* zipFile = */ false,
-////        TEST002_DIR);
-////
-////    // get paths for Jack files
-////    File myClass1 = new File(tempJackFolder, JACK_FILE_PATH_002_1);
-////    File myClass2 = new File(tempJackFolder, JACK_FILE_PATH_002_2);
-////
-////    // get paths for resources
-////    File resource1 = new File(TEST002_DIR, RESOURCE1_SHORTPATH);
-////    File resource2 = new File(TEST002_DIR, RESOURCE2_SHORTPATH);
-////    File resource3 = new File(TEST002_DIR, RESOURCE3_SHORTPATH);
-////
-////    // create Jack dirs to import
-////    File jackImport1 = AbstractTestTools.createTempDir();
-////    File jackImport2 = AbstractTestTools.createTempDir();
-////    copyFileToDir(myClass1, JACK_FILE_PATH_002_1, jackImport1);
-////    copyFileToDir(resource1, RESOURCE1_LONGPATH, jackImport1);
-////    copyFileToDir(resource2, RESOURCE2_LONGPATH, jackImport1);
-////    copyFileToDir(myClass2, JACK_FILE_PATH_002_2, jackImport2);
-////    copyFileToDir(resource2, RESOURCE1_LONGPATH, jackImport2);
-////    copyFileToDir(resource3, RESOURCE3_LONGPATH, jackImport2);
-//
-//    // run Jack on Jack dirs
-//    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-//    toolchain.addProguardFlags(new File(TEST002_DIR, "proguard.flags"));
-//    if (collisionPolicy != null) {
-//      toolchain.addProperty(JayceFileImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
-//    }
-//    toolchain.libToLib(new File [] {jackImport1, jackImport2},  jackOutput, zip);
-//
-//  }
 
   private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
       @Nonnull File dir) throws IOException {

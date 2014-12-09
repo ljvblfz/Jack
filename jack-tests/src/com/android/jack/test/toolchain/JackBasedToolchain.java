@@ -49,6 +49,8 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   protected File annotationProcessorOutDir;
   @Nonnull
   protected List<String> extraEcjArgs = new ArrayList<String>();
+  @Nonnull
+  protected List<File> resImport = new ArrayList<File>();
 
   @Nonnull
   public final JackBasedToolchain addProperty(@Nonnull String propertyName,
@@ -77,6 +79,12 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   public final JackBasedToolchain addEcjArgs(@Nonnull String arg) {
     extraEcjArgs.add(arg);
+    return this;
+  }
+
+  @Nonnull
+  public JackBasedToolchain addResource(@Nonnull File resource) {
+    resImport.add(resource);
     return this;
   }
 

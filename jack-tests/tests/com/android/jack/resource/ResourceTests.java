@@ -16,12 +16,9 @@
 
 package com.android.jack.resource;
 
-import com.android.jack.Options;
-import com.android.jack.ProguardFlags;
-import com.android.jack.TestTools;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.library.FileType;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
+import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
@@ -40,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -83,7 +79,7 @@ public class ResourceTests {
     File jackAr = createJackArchiveWithResources();
 
     // compile Jack archive to a dex dir
-    File dexDir = TestTools.createTempDir("resourcetestdex", "dir");
+    File dexDir = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.libToExe(jackAr, dexDir, /* zipFile = */ false);
 
@@ -114,19 +110,20 @@ public class ResourceTests {
 
   @Test
   public void testJackDirToDexArchive() throws Exception {
-
-    // TODO(jmhenaff) adapt this after rebase. Add API for resources
-
     // compile source file to a Jack dir
-    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackFolder, false /* non-zipped */);
+    File jackFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackFolder,
+        /* zipFiles = */ false,
+        FILE);
 
     // compile Jack dir to dex archive
-    File dexAr = TestTools.createTempFile("resourcetestdex", ".zip");
-    TestTools.compileJackToDex(new Options(), jackFolder, dexAr, true /* zipped */);
+    File dexAr = AbstractTestTools.createTempFile("resourcetestdex", ".zip");
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.libToExe(jackFolder, dexAr, /* zipFile = */ true);
 
     // check that resources are contained in dex archive
     ZipFile zipFile = new ZipFile(dexAr);
@@ -134,33 +131,6 @@ public class ResourceTests {
     checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
     checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
     checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
-
-//    // compile source file to a Jack dir
-//    File jackFolder = AbstractTestTools.createTempDir();
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        jackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//    // add resources to Jack dir
-//    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
-//
-//    // compile Jack dir to dex archive
-//    File dexAr = TestTools.createTempFile("resourcetestdex", ".zip");
-//    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.libToDex(jackFolder, dexAr, /* zipFile = */ true);
-//
-//    // check that resources are contained in dex archive
-//    ZipFile zipFile = new ZipFile(dexAr);
-//    checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
-//    checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
-//    checkResourceContent(zipFile, RESOURCE3_LONGPATH, "Res3");
-//    checkResourceContent(zipFile, RESOURCE4_LONGPATH, "Res4");
   }
 
   @Test
@@ -185,21 +155,20 @@ public class ResourceTests {
   @Test
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
-    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackFolder, false /* non-zipped */);
+    File jackFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackFolder,
+        /* zipFiles = */ false,
+        FILE);
 
     // run shrobbing from Jack dir to Jack archive
-    File shrobbedJackAr = TestTools.createTempFile("shrobbedJackAr", ".zip");
-    ProguardFlags flags = new ProguardFlags(new File(FILE, "proguard.flags"));
-    TestTools.shrobJackToJack(new Options(),
-        jackFolder,
-        null /* classpath */,
-        shrobbedJackAr,
-        Collections.singletonList(flags),
-        true /* zipped */);
+    File shrobbedJackAr = AbstractTestTools.createTempFile("shrobbedJackAr", ".zip");
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.libToLib(jackFolder, shrobbedJackAr, /* zipFiles = */ true);
 
     // check that resources are contained in Jack archive
     ZipFile zipFile = new ZipFile(shrobbedJackAr);
@@ -207,35 +176,6 @@ public class ResourceTests {
     checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
     checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
     checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
-
-//    // compile source file to a Jack dir
-//    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        jackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//
-//    // add resources to Jack dir
-//    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
-//
-//    // run shrobbing from Jack dir to Jack archive
-//    File shrobbedJackAr = AbstractTestTools.createTempFile("shrobbedJackAr", ".zip");
-//    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
-//    toolchain.libToLib(jackFolder, shrobbedJackAr, /* zipFiles = */ true);
-//
-//    // check that resources are contained in Jack archive
-//    ZipFile zipFile = new ZipFile(shrobbedJackAr);
-//    checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
-//    checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
-//    checkResourceContent(zipFile, RESOURCE3_LONGPATH, "Res3");
-//    checkResourceContent(zipFile, RESOURCE4_LONGPATH, "Res4");
   }
 
   @Test
@@ -259,149 +199,75 @@ public class ResourceTests {
 
   @Test
   public void testJackDirToJackDir() throws Exception {
-    /// compile source file to a Jack dir
-    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackFolder, false /* non-zipped */);
+    // compile source file to a Jack dir
+    File jackFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackFolder,
+        /* zipFiles = */ false,
+        FILE);
 
     // run shrobbing from Jack dir to Jack dir
-    File shrobbedJackDir = TestTools.createTempDir("shrobbedJack", "dir");
-    ProguardFlags flags = new ProguardFlags(new File(FILE, "proguard.flags"));
-    TestTools.shrobJackToJack(new Options(),
-        jackFolder,
-        null /* classpath */,
-        shrobbedJackDir,
-        Collections.singletonList(flags),
-        false /* non-zipped */);
+    File shrobbedJackDir = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.libToLib(jackFolder, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir
     checkResourceContentFromDir(shrobbedJackDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ true);
     checkResourceContentFromDir(shrobbedJackDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
     checkResourceContentFromDir(shrobbedJackDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
     checkResourceContentFromDir(shrobbedJackDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
-
-
-//    // compile source file to a Jack dir
-//    File jackFolder = AbstractTestTools.createTempDir();
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        jackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//    // add resources to Jack dir
-//    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
-//
-//    // run shrobbing from Jack dir to Jack dir
-//    File shrobbedJackDir = AbstractTestTools.createTempDir();
-//    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
-//    toolchain.libToLib(jackFolder, shrobbedJackDir, /* zipFiles = */ false);
-//
-//
-//    // check that resources are contained in Jack dir
-//    checkResourceContent(shrobbedJackDir, RESOURCE1_LONGPATH, "Res1");
-//    checkResourceContent(shrobbedJackDir, RESOURCE2_LONGPATH, "Res2");
-//    checkResourceContent(shrobbedJackDir, RESOURCE3_LONGPATH, "Res3");
-//    checkResourceContent(shrobbedJackDir, RESOURCE4_LONGPATH, "Res4");
   }
 
   @Test
   public void testJackDirToDexDir() throws Exception {
     // compile source file to a Jack dir
-    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackFolder, false /* non-zipped */);
+    File jackFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackFolder,
+        /* zipFiles = */ false,
+        FILE);
 
     // compile Jack dir to a dex dir
-    File dexDir = TestTools.createTempDir("resourcetestdex", "dir");
-    TestTools.compileJackToDex(new Options(), jackFolder, dexDir, false /* zipped */);
+    File dexDir = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
     checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
-
-//    // compile source file to a Jack dir
-//    File jackFolder = AbstractTestTools.createTempDir();
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        jackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//    // add resources to Jack dir
-//    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
-//
-//    // compile Jack dir to a dex dir
-//    File dexDir = AbstractTestTools.createTempDir();
-//    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
-//      .libToDex(jackFolder, dexDir, /* zipFile = */ false);
-//
-//    // check that resources are contained in dex dir
-//    checkResourceContent(dexDir, RESOURCE1_LONGPATH, "Res1");
-//    checkResourceContent(dexDir, RESOURCE2_LONGPATH, "Res2");
-//    checkResourceContent(dexDir, RESOURCE3_LONGPATH, "Res3");
-//    checkResourceContent(dexDir, RESOURCE4_LONGPATH, "Res4");
   }
 
   @Test
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
-    File jackFolder = TestTools.createTempDir("tempjack", "dir");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackFolder, false /* non-zipped */);
+    File jackFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackFolder,
+        /* zipFiles = */ false,
+        FILE);
 
     // compile Jack dir to same dir
     File dexDir = jackFolder;
-    TestTools.compileJackToDex(new Options(), jackFolder, dexDir, false /* zipped */);
+    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+      .libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
     checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
     checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
-
-//    // compile source file to a Jack dir
-//    File jackFolder = AbstractTestTools.createTempDir();
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        jackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//    // add resources to Jack dir
-//    copyFileToDir(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, jackFolder);
-//    copyFileToDir(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, jackFolder);
-//
-//    // compile Jack dir to same dir
-//    File dexDir = jackFolder;
-//    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
-//      .libToDex(jackFolder, dexDir, /* zipFile = */ false);
-//
-//    // check that resources are contained in dex dir
-//    checkResourceContent(dexDir, RESOURCE1_LONGPATH, "Res1");
-//    checkResourceContent(dexDir, RESOURCE2_LONGPATH, "Res2");
-//    checkResourceContent(dexDir, RESOURCE3_LONGPATH, "Res3");
-//    checkResourceContent(dexDir, RESOURCE4_LONGPATH, "Res4");
   }
 
   @Test
@@ -443,42 +309,16 @@ public class ResourceTests {
   @Nonnull
   private File createJackArchiveWithResources() throws Exception {
     // compile source file to a Jack file
-    //File tempJackFolder = TestTools.createTempDir("jack", "dir");
-    File jackAr = TestTools.createTempFile("resourcetestjack", ".zip");
-    Options options = new Options();
-    options.addResource(new File(FILE, "rsc"));
-    TestTools.compileSourceToJack(options, FILE, TestTools.getDefaultBootclasspathString(),
-        jackAr, true /* non-zipped */);
+    File jackAr = AbstractTestTools.createTempFile("resourcetestjack", ".zip");
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.srcToLib(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        jackAr,
+        /* zipFiles = */ true,
+        FILE);
 
     return jackAr;
-
-//    // compile source file to a Jack file
-//    File tempJackFolder = AbstractTestTools.createTempDir();
-//    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-//    toolchain.srcToLib(
-//        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-//        tempJackFolder,
-//        /* zipFiles = */ false,
-//        FILE);
-//
-//    // create Jack archive with resources
-//    File singleJackFile = new File(tempJackFolder, JACK_FILE_PATH);
-//    File jackAr = AbstractTestTools.createTempFile("resourcetestjack", ".zip");
-//    ZipOutputStream zos = null;
-//    try {
-//      zos = new ZipOutputStream(new FileOutputStream(jackAr));
-//
-//      copyFileToZip(singleJackFile, JACK_FILE_PATH, zos);
-//      copyFileToZip(new File(FILE, RESOURCE1_SHORTPATH), RESOURCE1_LONGPATH, zos);
-//      copyFileToZip(new File(FILE, RESOURCE2_SHORTPATH), RESOURCE2_LONGPATH, zos);
-//      copyFileToZip(new File(FILE, RESOURCE3_SHORTPATH), RESOURCE3_LONGPATH, zos);
-//      copyFileToZip(new File(FILE, RESOURCE4_SHORTPATH), RESOURCE4_LONGPATH, zos);
-//    } finally {
-//      if (zos != null) {
-//        zos.close();
-//      }
-//    }
-//    return jackAr;
   }
 
   private void checkResourceContentFromZip(@Nonnull ZipFile zipFile, @Nonnull String entryName,

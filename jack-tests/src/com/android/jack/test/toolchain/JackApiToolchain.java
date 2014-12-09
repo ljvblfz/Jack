@@ -69,6 +69,10 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
       }
 
+      for (File res : resImport) {
+        jackOptions.addResource(res);
+      }
+
       for (String ecjArg : extraEcjArgs) {
         jackOptions.getEcjArguments().add(ecjArg);
       }
@@ -136,6 +140,10 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
       }
 
+      for (File res : resImport) {
+        jackOptions.addResource(res);
+      }
+
       for (String ecjArg : extraEcjArgs) {
         jackOptions.getEcjArguments().add(ecjArg);
       }
@@ -188,6 +196,10 @@ public class JackApiToolchain extends JackBasedToolchain {
       jackOptions.getJayceImport().add(in);
       jackOptions.getJayceImport().addAll(staticLibs);
 
+      for (File res : resImport) {
+        jackOptions.addResource(res);
+      }
+
       if (zipFile) {
         jackOptions.setOutputZip(out);
       } else {
@@ -214,6 +226,10 @@ public class JackApiToolchain extends JackBasedToolchain {
 
     if (proguardFlags.size() > 0) {
       jackOptions.setProguardFlagsFile(proguardFlags);
+    }
+
+    for (File res : resImport) {
+      jackOptions.addResource(res);
     }
 
     for (File staticLib : in) {

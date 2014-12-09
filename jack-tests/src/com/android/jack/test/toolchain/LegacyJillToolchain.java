@@ -116,6 +116,12 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     throw new AssertionError("Not Yet Implemented");
   }
 
+  @Override
+  @Nonnull
+  public JackBasedToolchain addResource(@Nonnull File resource) {
+    throw new AssertionError("Not applicable");
+  }
+
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
       @Nonnull String classpath, @Nonnull File out) {
 

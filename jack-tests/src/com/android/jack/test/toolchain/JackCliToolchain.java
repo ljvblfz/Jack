@@ -68,6 +68,11 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(classpath);
     }
 
+    for (File res : resImport) {
+      args.add("--import-resource");
+      args.add(res.getPath());
+    }
+
     if (zipFile) {
       args.add("--output-dex-zip");
     } else {
@@ -144,6 +149,11 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(classpath);
     }
 
+    for (File res : resImport) {
+      args.add("--import-resource");
+      args.add(res.getPath());
+    }
+
     if (zipFiles) {
       args.add("--output-jack");
     } else {
@@ -207,6 +217,11 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
     args.add(com.android.jack.Main.class.getName());
 
+    for (File res : resImport) {
+      args.add("--import-resource");
+      args.add(res.getPath());
+    }
+
     if (withDebugInfos) {
       args.add("-D");
       args.add("jack.dex.optimize=false");
@@ -256,6 +271,11 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(incrementalFolder.getAbsolutePath());
     }
     args.add(com.android.jack.Main.class.getName());
+
+    for (File res : resImport) {
+      args.add("--import-resource");
+      args.add(res.getPath());
+    }
 
     addProperties(properties, args);
 
