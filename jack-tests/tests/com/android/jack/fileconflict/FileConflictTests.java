@@ -22,15 +22,15 @@ import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
-import com.android.jack.backend.jayce.ResourceImportConflictException;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
+import com.android.jack.resource.ResourceImportConflictException;
+import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
@@ -480,7 +480,7 @@ public class FileConflictTests {
       options.setJayceOutputDir(jackOutput);
     }
     if (collisionPolicy != null) {
-      options.addProperty(JayceFileImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
+      options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     }
     Jack.run(options);
   }

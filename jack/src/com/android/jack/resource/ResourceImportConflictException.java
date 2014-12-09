@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.jack.backend.jayce;
+package com.android.jack.resource;
 
+import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Thrown when a conflict prevents an import of a resource from a jack container.
+ * Thrown when a conflict prevents an import of a resource.
  */
 public class ResourceImportConflictException extends ImportConflictException {
 
@@ -44,7 +45,7 @@ public class ResourceImportConflictException extends ImportConflictException {
     return "Failed to perform import: Resource in "
         + newResourceLocation.getDescription() + " has already been imported from "
         + existingResourceLocation.getDescription()
-        + " (see property '" + JayceFileImporter.RESOURCE_COLLISION_POLICY.getName()
+        + " (see property '" + ResourceImporter.RESOURCE_COLLISION_POLICY.getName()
         + "' for resource collision policy)";
    }
 }

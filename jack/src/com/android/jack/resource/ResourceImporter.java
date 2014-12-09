@@ -16,20 +16,39 @@
 
 package com.android.jack.resource;
 
+import com.android.jack.backend.jayce.JayceFileImporter.CollisionPolicy;
+import com.android.jack.config.id.Arzon;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
+import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
 
 /**
  * Imports resources.
  */
+@HasKeyId
 public class ResourceImporter extends ResourceOrMetaImporter {
+
+  @Nonnull
+  public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId.create(
+      "jack.import.resource.policy",
+      "Defines the policy to follow concerning resource collision",
+      new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
+      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
+
+  @Nonnull
+  private final CollisionPolicy resourceCollisionPolicy =
+      ThreadConfig.get(RESOURCE_COLLISION_POLICY);
 
   public ResourceImporter(@Nonnull List<InputVFS> resourceDirs) {
     super(resourceDirs);
@@ -40,6 +59,20 @@ public class ResourceImporter extends ResourceOrMetaImporter {
       @Nonnull String currentPath) {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
     Resource newResource = new Resource(path, file);
+    for (Resource existingResource : session.getResources()) {
+      if (existingResource.getPath().equals(path)) {
+        if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
+          throw new ResourceImportConflictException(newResource.getLocation(),
+              existingResource.getLocation());
+        } else {
+          session.getUserLogger().log(Level.INFO,
+              "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
+                  newResource.getLocation().getDescription(),
+                  existingResource.getLocation().getDescription()});
+        }
+        return;
+      }
+    }
     session.addResource(newResource);
   }
 }

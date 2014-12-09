@@ -18,7 +18,6 @@ package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
 import com.android.jack.JackEventType;
-import com.android.jack.config.id.Arzon;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
@@ -29,6 +28,8 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.resource.ResourceImportConflictException;
+import com.android.jack.resource.ResourceImporter;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.HasKeyId;
@@ -73,7 +74,10 @@ public class JayceFileImporter {
 
   private static final char VPATH_SEPARATOR = JLookup.PACKAGE_SEPARATOR;
 
-  private enum CollisionPolicy implements HasDescription {
+  /**
+   * How to handle file collisions.
+   */
+  public enum CollisionPolicy implements HasDescription {
     KEEP_FIRST("keep the first element encountered"),
     FAIL("fail when a collision occurs");
 
@@ -102,15 +106,8 @@ public class JayceFileImporter {
   private final CollisionPolicy collisionPolicy = ThreadConfig.get(COLLISION_POLICY);
 
   @Nonnull
-  public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId.create(
-      "jack.import.resource.policy",
-      "Defines the policy to follow concerning resource collision in imported jack containers",
-      new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
-      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
-
-  @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =
-      ThreadConfig.get(RESOURCE_COLLISION_POLICY);
+      ThreadConfig.get(ResourceImporter.RESOURCE_COLLISION_POLICY);
 
   public JayceFileImporter(@Nonnull List<InputJackLibrary> jackLibraries) {
     this.jackLibraries = jackLibraries;
