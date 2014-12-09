@@ -35,14 +35,16 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
   }
 
   @Override
-  public int run(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) throws RuntimeRunnerException {
-    return runOnHost(buildCommandLine(options, mainClasses, classpathFiles), "ANDROID_ROOT");
+  public int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
+      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
+      throws RuntimeRunnerException {
+    return runOnHost(buildCommandLine(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
+        "ANDROID_ROOT");
   }
 
   @Nonnull
-  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) {
+  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
+      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles) {
     List<String> args = new ArrayList<String>();
 
     args.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvik");
@@ -63,7 +65,9 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
     }
     args.add(sb.toString());
 
-    for (String className : mainClasses) {
+    args.add(jUnitRunnerName);
+
+    for (String className : jUnitTestClasses) {
       args.add(className);
     }
     return args;

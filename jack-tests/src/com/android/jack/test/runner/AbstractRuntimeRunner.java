@@ -37,10 +37,6 @@ public abstract class AbstractRuntimeRunner extends RuntimeRunner {
     super(rtEnvRootDir);
   }
 
-  @Override
-  public abstract int run(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) throws RuntimeRunnerException;
-
   @Nonnull
   public final AbstractRuntimeRunner setOutputStream(@Nonnull OutputStream outputStream) {
     outRedirectStream = outputStream;

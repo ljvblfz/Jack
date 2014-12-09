@@ -32,14 +32,16 @@ public class ArtRunnerHost extends HostRunner {
   }
 
   @Override
-  public int run(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) throws RuntimeRunnerException {
-    return runOnHost(buildCommandLine(options, mainClasses, classpathFiles), "ANDROID_HOST_OUT");
+  public int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
+      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
+      throws RuntimeRunnerException {
+    return runOnHost(buildCommandLine(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
+        "ANDROID_HOST_OUT");
   }
 
   @Nonnull
-  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) {
+  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
+      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles) {
     List<String> args = new ArrayList<String>();
 
     args.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
@@ -58,7 +60,9 @@ public class ArtRunnerHost extends HostRunner {
     }
     args.add(sb.toString());
 
-    for (String className : mainClasses) {
+    args.add(jUnitRunnerName);
+
+    for (String className : jUnitTestClasses) {
       args.add(className);
     }
     return args;

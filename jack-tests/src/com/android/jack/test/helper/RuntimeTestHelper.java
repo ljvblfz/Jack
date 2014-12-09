@@ -285,12 +285,11 @@ public class RuntimeTestHelper {
   private static void runOnRuntimeEnvironments(@Nonnull List<String> jUnitClasses,
       @Nonnull Properties testProperties, @Nonnull File... classpathFiles) throws Exception {
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(testProperties);
-    String[] names = Lists.add(jUnitClasses, 0, AbstractTestTools.JUNIT_RUNNER_NAME).toArray(
-        new String[jUnitClasses.size()]);
+    String[] names = jUnitClasses.toArray(new String[jUnitClasses.size()]);
     for (RuntimeRunner runner : runnerList) {
-      Assert.assertEquals(0, runner.run(
-          getRuntimeArgs(runner.getClass().getSimpleName(), testProperties), names,
-          classpathFiles));
+      Assert.assertEquals(0, runner.runJUnit(
+          getRuntimeArgs(runner.getClass().getSimpleName(), testProperties),
+          AbstractTestTools.JUNIT_RUNNER_NAME, names, classpathFiles));
     }
   }
 

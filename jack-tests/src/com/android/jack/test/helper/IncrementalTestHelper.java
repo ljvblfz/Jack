@@ -193,7 +193,8 @@ public class IncrementalTestHelper {
         (DalvikRunnerHost) RuntimeRunnerFactory.create("dalvik-fast-host");
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     runner.setOutputStream(out);
-    Assert.assertEquals(0, runner.run(new String [0], new String[] {mainClass}, dexFile));
+    Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
+        new String[] {mainClass}, dexFile));
     return out.toString();
   }
 
