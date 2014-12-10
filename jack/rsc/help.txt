@@ -3,6 +3,12 @@ Usage: java -jar jack.jar <options> <source files>
 Options:
  -cp (--classpath) PATH : set classpath
  --import FILE          : import the given file into the output (repeatable)
+ --import-meta DIRECTORY
+                        : import the given directory into the output as meta-files
+                          (repeatable)
+ --import-resource DIRECTORY
+                        : import the given directory into the output as resource files
+                          (repeatable)
  --output-dex DIRECTORY : output dex files and resources to the folder
  --output-jack FILE     : output jack library file
  --config-jarjar FILE   : use a jarjar rules file (default: none)

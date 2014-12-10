@@ -230,13 +230,13 @@ public class Options {
       metaVar = "FILE")
   protected List<File> jayceImport = new ArrayList<File>();
 
-  @Option(name = "--import-res",
-      usage = "import the contents of this folder into the output as resources (repeatable)",
+  @Option(name = "--import-resource",
+      usage = "import the given directory into the output as resource files (repeatable)",
       metaVar = "DIRECTORY")
   protected List<File> resImport = new ArrayList<File>();
 
   @Option(name = "--import-meta",
-      usage = "import the contents of this folder into the output as meta (repeatable)",
+      usage = "import the given directory into the output as meta-files (repeatable)",
       metaVar = "DIRECTORY")
   protected List<File> metaImport = new ArrayList<File>();
 
