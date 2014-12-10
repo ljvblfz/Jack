@@ -25,6 +25,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
 
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -62,5 +63,11 @@ public class SeedTests extends AbstractTest {
     env.setReferenceTestTools(new DummyToolchain());
 
     env.runTest(new ComparatorSeeds(refOutputSeeds, candidateOutputSeeds));
+  }
+
+  @Override
+  @Test
+  public void test41_001() throws Exception {
+    super.test41_001();
   }
 }

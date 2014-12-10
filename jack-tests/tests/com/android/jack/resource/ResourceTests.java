@@ -359,7 +359,6 @@ public class ResourceTests {
   }
 
   @Test
-  @Category(KnownBugs.class)
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = TestTools.createTempDir("tempjack", "dir");

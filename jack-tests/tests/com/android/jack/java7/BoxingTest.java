@@ -41,7 +41,6 @@ public class BoxingTest {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
   }
 
-  @Category(KnownBugs.class)
   @Test
   public void java7Boxing001() throws Exception {
     IToolchain toolchain =
