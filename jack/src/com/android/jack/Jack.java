@@ -839,10 +839,7 @@ public abstract class Jack {
         InputVFS vDir = wrapAsVDir(jackFile, hooks);
         InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
         inputJackLibraries.add(inputJackLibrary);
-        // add to classpath
-        JaycePackageLoader rootPLoader =
-            factory.create(inputJackLibrary, session.getPhantomLookup());
-        session.getTopLevelPackage().addLoader(rootPLoader);
+        addPackageLoaderForLibrary(session, factory, inputJackLibrary);
         session.addImportedLibrary(inputJackLibrary);
       } catch (IOException ioException) {
         throw new LibraryReadingException(ioException);
@@ -862,9 +859,7 @@ public abstract class Jack {
       try {
         InputVFS vDir = wrapAsVDir(jackFile, hooks);
         InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
-        JaycePackageLoader rootPLoader =
-            factory.create(inputJackLibrary, session.getPhantomLookup());
-        session.getTopLevelPackage().addLoader(rootPLoader);
+        addPackageLoaderForLibrary(session, factory, inputJackLibrary);
         session.addLibraryOnClasspath(inputJackLibrary);
       } catch (IOException ioException) {
         if (ThreadConfig.get(STRICT_CLASSPATH).booleanValue()) {
@@ -883,6 +878,15 @@ public abstract class Jack {
               new ClasspathEntryIgnoredReportable(e));
         }
       }
+    }
+  }
+
+  private static void addPackageLoaderForLibrary(JSession session,
+      ReflectFactory<JaycePackageLoader> factory, InputJackLibrary inputJackLibrary) {
+    if (inputJackLibrary.containsFileType(FileType.JAYCE)) {
+      JaycePackageLoader rootPLoader =
+          factory.create(inputJackLibrary, session.getPhantomLookup());
+      session.getTopLevelPackage().addLoader(rootPLoader);
     }
   }
 
