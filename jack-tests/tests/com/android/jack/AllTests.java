@@ -36,6 +36,7 @@ import com.android.jack.invoke.InvokeTests;
 import com.android.jack.jarjar.JarjarTests;
 import com.android.jack.java7.Java7AllTest;
 import com.android.jack.label.LabelTest;
+import com.android.jack.library.LibraryTest;
 import com.android.jack.lookup.LookupTests;
 import com.android.jack.multidex.MultiDexAllTests;
 import com.android.jack.newarray.NewarrayTests;
@@ -102,6 +103,7 @@ import org.junit.runners.Suite.SuiteClasses;
     InvokeTests.class,
     Java7AllTest.class,
     LabelTest.class,
+    LibraryTest.class,
     LookupTests.class,
     MergerAllTests.class,
     MissingClassTest.class,
