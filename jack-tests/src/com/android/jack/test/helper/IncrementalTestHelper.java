@@ -18,8 +18,8 @@ package com.android.jack.test.helper;
 
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
-import com.android.jack.test.runner.DalvikRunnerHost;
-import com.android.jack.test.runner.RuntimeRunnerFactory;
+import com.android.jack.test.runner.AbstractRuntimeRunner;
+import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -188,14 +188,15 @@ public class IncrementalTestHelper {
   }
 
   @Nonnull
-  public String run(@Nonnull String mainClass) throws Exception {
-    DalvikRunnerHost runner =
-        (DalvikRunnerHost) RuntimeRunnerFactory.create("dalvik-fast-host");
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    runner.setOutputStream(out);
-    Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
-        new String[] {mainClass}, dexFile));
-    return out.toString();
+  public void run(@Nonnull String mainClass, @Nonnull String expected) throws Exception {
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    for (RuntimeRunner runner : runnerList) {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      ((AbstractRuntimeRunner) runner).setOutputStream(out);
+      Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
+          new String[] {mainClass}, dexFile));
+      Assert.assertEquals(expected, out.toString());
+    }
   }
 
   @Nonnull

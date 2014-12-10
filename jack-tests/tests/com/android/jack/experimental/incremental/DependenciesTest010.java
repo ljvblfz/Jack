@@ -75,7 +75,7 @@ public class DependenciesTest010 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals("2", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "2");
 
     ite.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B { \n"
@@ -89,7 +89,7 @@ public class DependenciesTest010 {
     Assert.assertEquals(2, fqnOfRebuiltTypes.size());
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.A"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
-    Assert.assertEquals("0", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "0");
 
     ite.snapshotJackFilesModificationDate();
     ite.addJavaFile("jack.incremental", "C.java", "package jack.incremental; \n"
@@ -101,7 +101,7 @@ public class DependenciesTest010 {
     fqnOfRebuiltTypes = ite.getFQNOfRebuiltTypes();
     Assert.assertEquals(1, fqnOfRebuiltTypes.size());
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.C"));
-    Assert.assertEquals("0", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "0");
 
     ite.snapshotJackFilesModificationDate();
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
@@ -122,7 +122,7 @@ public class DependenciesTest010 {
     fqnOfRebuiltTypes = ite.getFQNOfRebuiltTypes();
     Assert.assertEquals(1, fqnOfRebuiltTypes.size());
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.A"));
-    Assert.assertEquals("2", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "2");
   }
 
 
@@ -163,7 +163,7 @@ public class DependenciesTest010 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals("1", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "1");
 
     ite.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public enum B { \n"
@@ -178,7 +178,7 @@ public class DependenciesTest010 {
     Assert.assertEquals(2, fqnOfRebuiltTypes.size());
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.A"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
-    Assert.assertEquals("1", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "1");
   }
 
 }

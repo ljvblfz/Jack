@@ -75,7 +75,7 @@ public class DependenciesTest005 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.A"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
 
-    Assert.assertEquals("STRING:INCREMENTAL", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "STRING:INCREMENTAL");
   }
 
 
@@ -116,7 +116,7 @@ public class DependenciesTest005 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.C"));
 
-    Assert.assertEquals("HELLO EVERYBODY", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "HELLO EVERYBODY");
   }
 
   /**
@@ -144,7 +144,7 @@ public class DependenciesTest005 {
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
 
-    Assert.assertEquals("BA", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "BA");
 
     ite.addJavaFile("jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -159,7 +159,7 @@ public class DependenciesTest005 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.A"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
 
-    Assert.assertEquals("BAB", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "BAB");
   }
 
   /**
@@ -207,7 +207,7 @@ public class DependenciesTest005 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.C"));
 
-    Assert.assertEquals("HELLO/EVERYBODY", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "HELLO/EVERYBODY");
 
     ite.snapshotJackFilesModificationDate();
 
@@ -224,6 +224,6 @@ public class DependenciesTest005 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.D"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.E"));
 
-    Assert.assertEquals("HELLO EVERYBODY", ite.run("jack.incremental.A"));
+    ite.run("jack.incremental.A", "HELLO EVERYBODY");
   }
 }
