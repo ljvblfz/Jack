@@ -16,6 +16,7 @@
 
 package com.android.jack.experimental.incremental;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
@@ -275,6 +276,6 @@ public class IncrementalTestingEnvironment extends TestTools {
     addFile(sourceFolderOrSourceList, options.getEcjArguments());
     options.setClasspath(classpath);
     options.setOutputDir(out);
-    JackIncremental.run(options);
+    Jack.run(options);
   }
 }

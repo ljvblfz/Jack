@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -239,6 +240,8 @@ public class JackBatchCompiler extends Main {
     super.configure(argv);
     checkedClasspaths = new FileSystem.Classpath[] {
         new JAstClasspath("<jack-logical-entry>", session.getLookup(), null)};
+    List<String> fileNamesToCompile = session.getInputFilter().getFileNamesToCompile();
+    filenames = fileNamesToCompile.toArray(new String[fileNamesToCompile.size()]);
   }
 
   @SuppressWarnings("rawtypes")

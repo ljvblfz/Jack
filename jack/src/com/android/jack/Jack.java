@@ -23,10 +23,8 @@ import com.android.jack.analysis.UsedVariableRemover;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainComputation;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainRemover;
 import com.android.jack.analysis.defsuses.UseDefsChecker;
-import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.analysis.dependency.file.FileDependenciesCollector;
 import com.android.jack.analysis.dependency.file.FileDependenciesWriter;
-import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
@@ -400,11 +398,6 @@ public abstract class Jack {
     return unmodifiableCollections;
   }
 
-  public static void run(@Nonnull Options options) throws ConfigurationException, JackUserException,
-      IllegalOptionsException, NothingToDoException {
-    Jack.run(options, new TypeDependencies(), new FileDependencies());
-  }
-
   /**
    * Runs the jack compiler on source files and generates a dex file.
    *
@@ -419,9 +412,7 @@ public abstract class Jack {
    * @throws JPackageLookupException thrown when the lookup of a package failed.
    * @throws JTypeLookupException thrown when the lookup of a type failed.
    */
-  // TODO(jack-team): Remove typeDependencies and fileDependencies parameters
-  public static void run(@Nonnull Options options, @Nonnull TypeDependencies typeDependencies,
-      @Nonnull FileDependencies fileDependencies)
+  public static void run(@Nonnull Options options)
       throws IllegalOptionsException,
       NothingToDoException,
       ConfigurationException,
@@ -475,10 +466,7 @@ public abstract class Jack {
         logger.log(Level.INFO, "Jack sanity checks {0}",
             (options.hasSanityChecks() ? "enabled" : "disabled"));
 
-
         JSession session = getSession();
-        session.setTypeDependencies(typeDependencies);
-        session.setFileDependencies(fileDependencies);
 
         buildSession(options, hooks);
 
@@ -732,12 +720,12 @@ public abstract class Jack {
   @Nonnull
   static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws JackUserException {
-
     Tracer tracer = TracerFactory.getTracer();
 
     List<String> ecjArguments = options.ecjArguments;
 
     JSession session =  getSession();
+    session.setInputFilter(ThreadConfig.get(Options.INPUT_FILTER).create(options));
 
     try {
       getMetaImporter(options.metaImport, hooks).doImport(session);
@@ -750,7 +738,7 @@ public abstract class Jack {
     try {
       jayceImporter = getJayceFileImporter(options.jayceImport, hooks, session);
       putInJackClasspath(options.getBootclasspath(), hooks, session);
-      putInJackClasspath(options.getClasspath(), hooks, session);
+      putInJackClasspath(session.getInputFilter().getClasspath(), hooks, session);
     } catch (LibraryReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);

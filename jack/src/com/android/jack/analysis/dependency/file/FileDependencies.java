@@ -70,15 +70,19 @@ public class FileDependencies extends Dependency {
     types.add(typeFqn);
   }
 
+  public void update(@Nonnull Set<String> deleteFileNames, @Nonnull Set<String> modifiedFileNames) {
+    for (String deletedJavaFileName : deleteFileNames) {
+      javaFileToTypes.remove(deletedJavaFileName);
+    }
+    for (String modifiedJavaFileName : modifiedFileNames) {
+      javaFileToTypes.remove(modifiedJavaFileName);
+    }
+  }
+
   public void write(@Nonnull PrintStream ps) {
     writeMapOne2Many(ps, javaFileToTypes);
     ps.print(Dependency.MAP_SEPARATOR);
     ps.println();
-  }
-
-  @Nonnull
-  public void read(@Nonnull Readable reader) throws IOException {
-    javaFileToTypes = readMapOne2Many(new LineReader(reader));
   }
 
   @Nonnull
@@ -104,5 +108,10 @@ public class FileDependencies extends Dependency {
   @Nonnull
   public Set<String> getCompiledJavaFiles() {
     return Jack.getUnmodifiableCollections().getUnmodifiableSet(javaFileToTypes.keySet());
+  }
+
+  @Nonnull
+  public void read(@Nonnull Readable reader) throws IOException {
+    javaFileToTypes = readMapOne2Many(new LineReader(reader));
   }
 }

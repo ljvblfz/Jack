@@ -55,12 +55,11 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(jackPrebuilt.getAbsolutePath());
 
     if (incrementalFolder != null) {
-      args.add(com.android.jack.experimental.incremental.Main.class.getName());
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
-    } else {
-      args.add(com.android.jack.Main.class.getName());
     }
+
+    args.add(com.android.jack.Main.class.getName());
 
     addProperties(properties, args);
 
@@ -133,12 +132,10 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(jackPrebuilt.getAbsolutePath());
 
     if (incrementalFolder != null) {
-      args.add(com.android.jack.experimental.incremental.Main.class.getName());
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
-    } else {
-      args.add(com.android.jack.Main.class.getName());
     }
+    args.add(com.android.jack.Main.class.getName());
 
     addProperties(properties, args);
 
@@ -205,12 +202,10 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(jackPrebuilt.getAbsolutePath());
 
     if (incrementalFolder != null) {
-      args.add(com.android.jack.experimental.incremental.Main.class.getName());
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
-    } else {
-      args.add(com.android.jack.Main.class.getName());
     }
+    args.add(com.android.jack.Main.class.getName());
 
     if (withDebugInfos) {
       args.add("-D");
@@ -257,12 +252,10 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(jackPrebuilt.getAbsolutePath());
 
     if (incrementalFolder != null) {
-      args.add(com.android.jack.experimental.incremental.Main.class.getName());
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
-    } else {
-      args.add(com.android.jack.Main.class.getName());
     }
+    args.add(com.android.jack.Main.class.getName());
 
     addProperties(properties, args);
 

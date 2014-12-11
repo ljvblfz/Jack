@@ -19,6 +19,7 @@ package com.android.jack.analysis.dependency.type;
 import com.google.common.io.LineReader;
 
 import com.android.jack.analysis.dependency.Dependency;
+import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.sched.item.Description;
@@ -86,14 +87,6 @@ public class TypeDependencies extends Dependency {
     writeMapOne2Many(ps, codeDependencies);
     ps.print(Dependency.MAP_SEPARATOR);
     ps.println();
-  }
-
-  @Nonnull
-  public void read(@Nonnull Readable readable) throws IOException {
-    LineReader lr = new LineReader(readable);
-    hierarchyDependencies = readMapOne2Many(lr);
-    constantDependencies = readMapOne2Many(lr);
-    codeDependencies = readMapOne2Many(lr);
   }
 
   @Nonnull
@@ -198,6 +191,32 @@ public class TypeDependencies extends Dependency {
           computeHierarchyRecompileDependencies(recompileDependencies, newHierarchyDependencies,
               typeToRecompile);
         }
+      }
+    }
+  }
+
+  @Nonnull
+  public void read(@Nonnull Readable readable) throws IOException {
+    LineReader lr = new LineReader(readable);
+    hierarchyDependencies = readMapOne2Many(lr);
+    constantDependencies = readMapOne2Many(lr);
+    codeDependencies = readMapOne2Many(lr);
+  }
+
+  public void update(@Nonnull FileDependencies fileDependencies,
+      @Nonnull Set<String> deleteFileNames, @Nonnull Set<String> modifiedFileNames) {
+    for (String deletedJavaFileName : deleteFileNames) {
+      for (String deleteTypeName : fileDependencies.getTypeNames(deletedJavaFileName)) {
+        codeDependencies.remove(deleteTypeName);
+        constantDependencies.remove(deleteTypeName);
+        hierarchyDependencies.remove(deleteTypeName);
+      }
+    }
+    for (String modifiedJavaFileName : modifiedFileNames) {
+      for (String deleteTypeName : fileDependencies.getTypeNames(modifiedJavaFileName)) {
+        codeDependencies.remove(deleteTypeName);
+        constantDependencies.remove(deleteTypeName);
+        hierarchyDependencies.remove(deleteTypeName);
       }
     }
   }

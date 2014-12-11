@@ -19,9 +19,10 @@ package com.android.jack.analysis.dependency.type;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
-import com.android.jack.experimental.incremental.IncrementalException;
+import com.android.jack.incremental.IncrementalException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -44,11 +45,16 @@ public class TypeDependenciesWriter implements RunnableSchedulable<JSession>{
 
   @Override
   public void run(@Nonnull JSession session) throws JackUserException {
+    write(session.getJackInternalOutputLibrary(), Jack.getSession().getTypeDependencies());
+  }
+
+  public static void write(@Nonnull OutputJackLibrary ojl,
+      @Nonnull TypeDependencies typeDependencies) {
     PrintStream ps = null;
     try {
-      ps = new PrintStream(session.getJackInternalOutputLibrary()
-          .createFile(FileType.DEPENDENCIES, TypeDependencies.vpath).openWrite());
-      Jack.getSession().getTypeDependencies().write(ps);
+      ps = new PrintStream(
+          ojl.createFile(FileType.DEPENDENCIES, TypeDependencies.vpath).openWrite());
+      typeDependencies.write(ps);
     } catch (CannotCreateFileException e) {
       IncrementalException incrementalException = new IncrementalException(e);
       Jack.getSession().getReporter().report(Severity.FATAL, incrementalException);

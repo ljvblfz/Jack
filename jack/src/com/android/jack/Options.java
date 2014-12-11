@@ -25,6 +25,7 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.Private;
+import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -52,6 +53,7 @@ import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.ReflectFactoryPropertyId;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -93,6 +95,11 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class Options {
+
+  @Nonnull
+  public static final ReflectFactoryPropertyId<InputFilter> INPUT_FILTER = ReflectFactoryPropertyId
+      .create("jack.input.filter", "Inputs filter", InputFilter.class)
+      .addDefaultValue("no-filter").addArgType(Options.class);
 
   @Nonnull
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
@@ -140,9 +147,10 @@ public class Options {
       "jack.internal.library.output.dir", "Output folder for internal library",
       new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST))
       .withCategory(Private.get()).requiredIf(GENERATE_DEX_IN_LIBRARY.getValue()
-          .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
-              .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
-              .and(GENERATE_JACK_LIBRARY.getValue().isFalse())));
+          .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(
+              DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)).and(GENERATE_JACK_LIBRARY.getValue()
+              .isFalse())).or(GENERATE_JACK_LIBRARY.getValue()
+              .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR))));
 
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
@@ -611,6 +619,8 @@ public class Options {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
+      configBuilder.set(GENERATE_DEX_IN_LIBRARY, true);
+      configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR, libraryOutDir.getPath());
     }
 
     switch (multiDexKind) {
@@ -649,6 +659,10 @@ public class Options {
         FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (incrementalFolder != null) {
+      configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
+      configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
+      configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+      configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
       configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
           incrementalFolder.getAbsolutePath());
     }
@@ -702,7 +716,7 @@ public class Options {
 
       try {
         compiler.configure(ecjArguments.toArray(new String[ecjArguments.size()]));
-        if (!compiler.proceed) {
+        if (!compiler.proceed && incrementalFolder == null) {
           throw new NothingToDoException();
         }
         compiler.getLibraryAccess().cleanup();

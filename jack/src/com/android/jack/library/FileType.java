@@ -29,22 +29,22 @@ import javax.annotation.Nonnull;
 public enum FileType {
   DEX("dex", "dex", ".dex", "dex") {
     @Override
-    public void check() throws LibraryFormatException {
+    public void check() {
     }
   },
   JAYCE("jayce", "jayce", ".jayce", "jayce") {
     @Override
-    public void check() throws LibraryFormatException {
+    public void check() {
     }
   },
   JPP("jpp", "jpp", ".jpp", "java pre-processor") {
     @Override
-    public void check() throws LibraryFormatException {
+    public void check() {
     }
   },
   RSC("rsc", "rsc", "", "resource") {
     @Override
-    public void check() throws LibraryFormatException {
+    public void check() {
     }
   },
   DEPENDENCIES("dependencies", "dependencies", ".dep", "dependencies") {
@@ -53,7 +53,7 @@ public enum FileType {
       return "dependencies";
     }
     @Override
-    public void check() throws LibraryFormatException {
+    public void check() {
     }
   };
 

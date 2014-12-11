@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.experimental.incremental;
+package com.android.jack.incremental;
 
 import com.android.jack.reporting.ReportableException;
 

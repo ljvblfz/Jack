@@ -21,6 +21,7 @@ import com.google.common.collect.Iterators;
 import com.android.jack.Jack;
 import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -112,6 +113,9 @@ public class JSession extends JNode {
   @CheckForNull
   private FileDependencies fileDependencies;
 
+  @CheckForNull
+  private InputFilter inputFilter;
+
   public JSession() {
     super(SourceInfo.UNKNOWN);
     topLevelPackage = new JPackage("", this, null);
@@ -119,6 +123,18 @@ public class JSession extends JNode {
     lookup = new JNodeLookup(topLevelPackage);
     phantomLookup = new JPhantomLookup(lookup);
   }
+
+  @Nonnull
+  public InputFilter getInputFilter() {
+    assert inputFilter != null;
+    return inputFilter;
+  }
+
+  @Nonnull
+  public void setInputFilter(@Nonnull InputFilter inputFilter) {
+    this.inputFilter = inputFilter;
+  }
+
 
   @Nonnull
   public JNodeLookup getLookup() {

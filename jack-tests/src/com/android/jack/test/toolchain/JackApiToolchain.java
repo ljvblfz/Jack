@@ -19,7 +19,6 @@ package com.android.jack.test.toolchain;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
-import com.android.jack.experimental.incremental.JackIncremental;
 import com.android.jack.shrob.spec.Flags;
 
 import java.io.File;
@@ -58,7 +57,6 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.applyShrobFlags();
       }
 
-      // jackOptions.setEcjArguments(AbstractTestTools.buildEcjArgs());
       jackOptions.setEcjArguments(new ArrayList<String>());
 
       if (annotationProcessorClass != null) {
@@ -99,12 +97,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      if (jackOptions.getIncrementalFolder() != null) {
-        JackIncremental.run(jackOptions);
-      } else {
-        Jack.run(jackOptions);
-      }
-
+      Jack.run(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -166,12 +159,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      if (jackOptions.getIncrementalFolder() != null) {
-        JackIncremental.run(jackOptions);
-      } else {
-        Jack.run(jackOptions);
-      }
-
+      Jack.run(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -206,12 +194,7 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.setOutputDir(out);
       }
 
-      if (jackOptions.getIncrementalFolder() != null) {
-        JackIncremental.run(jackOptions);
-      } else {
-        Jack.run(jackOptions);
-      }
-
+      Jack.run(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -247,11 +230,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       jackOptions.setJayceOutputDir(out);
     }
 
-    if (jackOptions.getIncrementalFolder() != null) {
-      JackIncremental.run(jackOptions);
-    } else {
-      Jack.run(jackOptions);
-    }
+    Jack.run(jackOptions);
   }
 
   @Nonnull
