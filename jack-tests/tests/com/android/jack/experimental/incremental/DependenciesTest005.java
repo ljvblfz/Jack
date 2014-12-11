@@ -17,8 +17,8 @@
 package com.android.jack.experimental.incremental;
 
 import com.android.jack.Main;
-import com.android.jack.TestTools;
 import com.android.jack.test.helper.IncrementalTestHelper;
+import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
@@ -45,7 +45,7 @@ public class DependenciesTest005 {
   @Test
   public void testDependency001() throws Exception {
     IncrementalTestHelper ite =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_001"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
@@ -85,7 +85,7 @@ public class DependenciesTest005 {
   @Test
   public void testDependency002() throws Exception {
     IncrementalTestHelper ite =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_002"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
@@ -125,7 +125,7 @@ public class DependenciesTest005 {
   @Test
   public void testDependency003() throws Exception {
     IncrementalTestHelper ite =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_003"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
@@ -168,7 +168,7 @@ public class DependenciesTest005 {
   @Test
   public void testDependency004() throws Exception {
     IncrementalTestHelper ite =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_004"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+

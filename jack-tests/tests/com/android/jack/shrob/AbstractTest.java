@@ -18,9 +18,9 @@ package com.android.jack.shrob;
 
 import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
-import com.android.jack.TestTools;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
+import com.android.jack.test.toolchain.AbstractTestTools;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public abstract class AbstractTest {
       throws Exception;
 
   protected ProguardFlags generateApplyMapping(@Nonnull File mappingFile) throws IOException {
-    File applyMapping = TestTools.createTempFile("mapping.flags", null);
+    File applyMapping = AbstractTestTools.createTempFile("mapping.flags", null);
     BufferedWriter writer = new BufferedWriter(new FileWriter(applyMapping));
     writer.append("-applymapping ");
     writer.append(mappingFile.getAbsolutePath());
@@ -59,7 +59,7 @@ public abstract class AbstractTest {
   }
 
   protected ProguardFlags generateInjars(@Nonnull File injar) throws IOException {
-    File injarFlags = TestTools.createTempFile("injars", ".flags");
+    File injarFlags = AbstractTestTools.createTempFile("injars", ".flags");
     BufferedWriter writer = new BufferedWriter(new FileWriter(injarFlags));
     writer.append("-injars ");
     writer.append(injar.getAbsolutePath());

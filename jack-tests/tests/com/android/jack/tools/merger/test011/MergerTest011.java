@@ -17,12 +17,11 @@
 package com.android.jack.tools.merger.test011;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.JackUserException;
 import com.android.jack.Main;
-import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexWritingException;
 import com.android.jack.backend.dex.SingleDexOverflowException;
 import com.android.jack.test.category.SlowTests;
+import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
 import com.android.jack.tools.merger.MethodIdOverflowException;
@@ -62,7 +61,7 @@ public class MergerTest011 extends MergerTestTools {
 
   @Test
   public void testMergerWithHighNumberOfMethods() throws Exception {
-    File srcFolder = TestTools.createTempDir("oneDexPerType", "SrcFolder");
+    File srcFolder = AbstractTestTools.createTempDir();
 
     // One CstMethodRef is also created for call to object.init()
     for (int fileIdx = 0; fileIdx < fileCount; fileIdx++) {
@@ -73,8 +72,7 @@ public class MergerTest011 extends MergerTestTools {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
-          /* withDebug = */false, /* out = */ null, err);
+      buildOneDexPerType(srcFolder, /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
     }  catch (JackAbortException e) {
       Throwable cause = e.getCause();
@@ -87,7 +85,7 @@ public class MergerTest011 extends MergerTestTools {
 
   @Test
   public void testMergerWithHighNumberOfFields() throws Exception {
-    File srcFolder = TestTools.createTempDir("oneDexPerType", "SrcFolder");
+    File srcFolder = AbstractTestTools.createTempDir();
 
     for (int fileIdx = 0; fileIdx < fileCount; fileIdx++) {
       generateJavaFileWithFields(srcFolder, fileIdx, 100);
@@ -97,8 +95,7 @@ public class MergerTest011 extends MergerTestTools {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
-          /* withDebug = */false, /* out = */ null, err);
+      buildOneDexPerType(srcFolder, /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
     } catch (JackAbortException e) {
       Throwable cause = e.getCause();
@@ -112,7 +109,7 @@ public class MergerTest011 extends MergerTestTools {
   @Test
   @Category(SlowTests.class)
   public void testMergerWithHighNumberOfTypes() throws Exception {
-    File srcFolder = TestTools.createTempDir("oneDexPerType", "SrcFolder");
+    File srcFolder = AbstractTestTools.createTempDir();
 
     for (int fileIdx = 0; fileIdx < fileCount; fileIdx++) {
       generateJavaFileWithTypes(srcFolder, fileIdx, 100);
@@ -122,8 +119,7 @@ public class MergerTest011 extends MergerTestTools {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
     try {
-      buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder,
-          /* withDebug = */false, /* out = */ null, err);
+      buildOneDexPerType(srcFolder, /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
     } catch (JackAbortException e) {
       Throwable cause = e.getCause();

@@ -16,7 +16,6 @@
 
 package com.android.jack.trycatch;
 
-import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
