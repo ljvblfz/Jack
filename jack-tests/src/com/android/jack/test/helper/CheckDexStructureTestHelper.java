@@ -48,13 +48,13 @@ public class CheckDexStructureTestHelper extends SourceToDexComparisonTestHelper
 
   @Override
   @Nonnull
-  public CheckDexStructureTestHelper setCandidateClasspath(@Nonnull File[] classpath) {
+  public CheckDexStructureTestHelper setCandidateClasspath(@Nonnull File... classpath) {
     return (CheckDexStructureTestHelper) super.setCandidateClasspath(classpath);
   }
 
   @Override
   @Nonnull
-  public CheckDexStructureTestHelper setReferenceClasspath(@Nonnull File[] classpath) {
+  public CheckDexStructureTestHelper setReferenceClasspath(@Nonnull File... classpath) {
     return (CheckDexStructureTestHelper) super.setReferenceClasspath(classpath);
   }
 

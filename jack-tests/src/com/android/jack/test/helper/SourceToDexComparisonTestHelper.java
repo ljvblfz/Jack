@@ -16,10 +16,10 @@
 
 package com.android.jack.test.helper;
 
-import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import java.io.File;
 
@@ -53,6 +53,9 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   private File jarjarRulesFile = null;
   @Nonnull
   private File[] proguardFlagFiles = new File[0];
+
+  @Nonnull
+  private SourceLevel sourceLevel = SourceLevel.JAVA_6;
 
   @Nonnull
   private AndroidToolchain candidateTestTools;
@@ -103,13 +106,13 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   }
 
   @Nonnull
-  public SourceToDexComparisonTestHelper setCandidateClasspath(@Nonnull File[] classpath) {
+  public SourceToDexComparisonTestHelper setCandidateClasspath(@Nonnull File... classpath) {
     candidateClasspath = classpath;
     return this;
   }
 
   @Nonnull
-  public SourceToDexComparisonTestHelper setReferenceClasspath(@Nonnull File[] classpath) {
+  public SourceToDexComparisonTestHelper setReferenceClasspath(@Nonnull File... classpath) {
     referenceClasspath = classpath;
     return this;
   }
@@ -118,6 +121,10 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   public SourceToDexComparisonTestHelper setWithDebugInfo(boolean withDebugInfo) {
     this.withDebugInfos = withDebugInfo;
     return this;
+  }
+
+  public void setSourceLevel(SourceLevel sourceLevel) {
+    this.sourceLevel = sourceLevel;
   }
 
   public File getCandidateDex() {
@@ -137,7 +144,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   }
 
   @Nonnull
-  public Comparator createDexFileComparator() {
+  public ComparatorDex createDexFileComparator() {
     ComparatorDex comparator = new ComparatorDex(candidateDex, refDex);
     comparator.setWithDebugInfo(withDebugInfos);
     comparator.setStrict(false);
@@ -166,6 +173,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
       candidateTestTools.setJarjarRules(jarjarRulesFile);
     }
     candidateTestTools.setWithDebugInfos(withDebugInfos);
+    candidateTestTools.setSourceLevel(sourceLevel);
     candidateTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
         AbstractTestTools.getClasspathAsString(candidateClasspath), candidateDexDir,
         /* zipFile = */ false, filesOrSourceList);
@@ -178,6 +186,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
       referenceTestTools.setJarjarRules(jarjarRulesFile);
     }
     referenceTestTools.setWithDebugInfos(withDebugInfos);
+    referenceTestTools.setSourceLevel(sourceLevel);
     referenceTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
         AbstractTestTools.getClasspathAsString(referenceClasspath), refDexDir,
         /* zipFile = */ false, filesOrSourceList);

@@ -18,7 +18,6 @@ package com.android.jack.test.helper;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
-import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorComposite;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.comparator.ComparatorDexAnnotations;
@@ -75,9 +74,7 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
     return toolchain;
   }
 
-  @Override
-  @Nonnull
-  public Comparator createDexFileComparator() {
+  public void compare() throws Exception {
     ComparatorDex comparatorDex = new ComparatorDex(candidateDex, refDex);
     comparatorDex.setWithDebugInfo(false);
     comparatorDex.setStrict(true);
@@ -87,10 +84,6 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
     ComparatorDexAnnotations comparatorAnnotations =
         new ComparatorDexAnnotations(candidateDex, refDex);
     ComparatorDiff comparatorDiff = new ComparatorDiff(candidateDex, refDex);
-    return new ComparatorComposite(comparatorDex, comparatorAnnotations, comparatorDiff);
-  }
-
-  public void compare() throws Exception {
-    runTest(createDexFileComparator());
+    runTest(new ComparatorComposite(comparatorDex, comparatorAnnotations, comparatorDiff));
   }
 }

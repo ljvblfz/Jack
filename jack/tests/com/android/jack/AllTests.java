@@ -36,8 +36,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses(value = {
     com.android.jack.cfg.AllTests.class,
-    com.android.jack.compile.androidtree.AllTests.class,
-    com.android.jack.compile.androidtree.dalvik.AllTests.class,
     com.android.jack.frontend.AllTests.class,
     com.android.jack.gwt.AllTests.class,
     com.android.jack.shrob.AllTests.class,
@@ -52,17 +50,14 @@ import org.junit.runners.Suite.SuiteClasses;
     MarkerCollectorTest.class,
     /* MultiDexOverflowTests.class, */
     /* MultiDexTests.class, */
-    NoClasspathTest.class,
     PreProcessorTest.class,
 //    ReachingDefsTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,
     StringSplittingTest.class,
-    ToolchainTest.class,
     Types.class,
     UnaryTest.class,
     UselessCastRemoverTest.class,
-    WithPhantomTest.class,
     TracingTest.class})
 public class AllTests {
 }

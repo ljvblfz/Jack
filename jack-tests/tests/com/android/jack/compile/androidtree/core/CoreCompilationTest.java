@@ -18,14 +18,18 @@ package com.android.jack.compile.androidtree.core;
 
 import com.android.jack.DexAnnotationsComparator;
 import com.android.jack.DexComparator;
-import com.android.jack.JarJarRules;
 import com.android.jack.Options;
-import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.test.comparator.ComparatorDex;
+import com.android.jack.test.helper.CheckDexStructureTestHelper;
+import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.vfs.Container;
 
 import org.junit.BeforeClass;
@@ -49,48 +53,59 @@ public class CoreCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileCore() throws Exception {
-    File outDexFolder = TestTools.createTempDir("core", ".dex");
-    Options options = new Options();
-    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
-    TestTools.compileSourceToDex(options, SOURCELIST, null, outDexFolder, false);
+    File outDexFolder = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
+    toolchain.srcToExe(
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+        outDexFolder,
+        /* zipFile = */ false,
+        SOURCELIST);
   }
 
   @Test
   public void compareLibCoreStructure() throws Exception {
-    Options options = new Options();
-    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
-    TestTools.checkStructure(options,
-        /* classpath = */ null,
-        /* refClasspath = */ null,
-        SOURCELIST,
-        /* withDebugInfo = */ false,
-        /* compareInstructionNumber = */ false,
-        0.1f,
-        (JarJarRules) null,
-        (ProguardFlags[]) null);
+    SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(SOURCELIST);
+    helper.setCandidateClasspath(/* empty */);
+    helper.setReferenceClasspath(/* empty */);
+    helper.setSourceLevel(SourceLevel.JAVA_7);
+
+    ComparatorDex comparator = helper.createDexFileComparator();
+    comparator.setCompareDebugInfoBinary(false);
+    comparator.setCompareInstructionNumber(false);
+    comparator.setInstructionNumberTolerance(0.1f);
+
+    helper.runTest(comparator);
   }
 
   @Test
   @Category(SlowTests.class)
   public void compileCoreWithJackAndDex() throws Exception {
-    File coreDexFolderFromJava = TestTools.createTempDir("coreFromJava", "dex");
+    File coreDexFolderFromJava = AbstractTestTools.createTempDir();
     File coreDexFromJava = new File(coreDexFolderFromJava, DexFileWriter.DEX_FILENAME);
 
-    Options options = new Options();
-    options.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
-    File outputFile = new File("/tmp/jackIncrementalOutput");
-    options.addProperty(
-        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
-    options.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
-    options.addProperty(
-        Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
-    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
-    TestTools.compileSourceToDex(options, SOURCELIST, null, coreDexFolderFromJava, false);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
 
-    File coreDexFolderFromJack = TestTools.createTempDir("coreFromJack", "dex");
+    File outputFile = new File("/tmp/jackIncrementalOutput");
+
+    toolchain.addProperty(
+        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+    toolchain.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
+    toolchain.addProperty(
+        Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+    toolchain.setSourceLevel(SourceLevel.JAVA_7);
+
+    toolchain.srcToExe(
+        /* classpath = */ null,
+        coreDexFolderFromJava,
+        /* zipFile = */ false,
+        SOURCELIST);
+
+    File coreDexFolderFromJack = AbstractTestTools.createTempDir();
     File coreDexFromJack = new File(coreDexFolderFromJack, DexFileWriter.DEX_FILENAME);
-    TestTools.compileJackToDex(new Options(), outputFile, coreDexFolderFromJack,
-        false);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.libToExe(outputFile, coreDexFolderFromJack, /* zipFile = */ false);
 
     // Compare dex files structures and number of instructions
     new DexComparator(false /* withDebugInfo */, false /* strict */,

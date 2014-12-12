@@ -212,6 +212,10 @@ public class LegacyToolchain extends AndroidToolchain {
       args.add("-verbose");
     }
     addSourceLevel(sourceLevel, args);
+
+    args.add("-encoding");
+    args.add("utf8");
+
     args.add("-noExit");
     args.add("-preserveAllLocals");
     args.add("-d");
@@ -262,6 +266,9 @@ public class LegacyToolchain extends AndroidToolchain {
     }
 
     addSourceLevel(sourceLevel, arguments);
+
+    arguments.add("-encoding");
+    arguments.add("utf8");
 
     if (annotationProcessorClass != null) {
       arguments.add("-processor");

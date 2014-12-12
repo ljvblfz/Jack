@@ -19,8 +19,6 @@ package com.android.jack.multidex;
 import com.google.common.io.Files;
 
 import com.android.jack.DifferenceFoundException;
-import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.dx.io.ClassDef;
@@ -37,6 +35,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;
@@ -168,74 +167,61 @@ public class MultiDexTests {
 
   @Test
   public void versionedTest001a_withoutAnnotations() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
+    File out = AbstractTestTools.createTempDir();
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = addCommonOptionsForMultiDex(new File(testFolder, "config-001.jpp"));
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
-
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath(),
-        out, false);
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-001.txt"), outList);
     Assert.assertFalse(new File(out, "classes2.dex").exists());
-    return;
   }
 
   @Test
   public void versionedTest001b_minimal_withoutAnnotations() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
+    File out = AbstractTestTools.createTempDir();
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = addCommonOptionsForMultiDex(new File(testFolder, "config-001.jpp"));
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath(),
-        out, false);
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-002-1.txt"), outList);
     String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
-    return;
   }
 
   @Test
   public void versionedTest001c_withoutAnnotations() throws Exception {
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = addCommonOptionsForMultiDex(new File(testFolder, "config-003.jpp"));
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
+    File out = AbstractTestTools.createTempDir();
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-003.jpp"));
 
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath(),
-        out, false);
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-003-1.txt"), outList);
     String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-003-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
-    return;
   }
 
-  private Options addCommonOptionsForMultiDex(@Nonnull File configFile) {
-    Options app1Options = new Options();
-    app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
-    app1Options.addProperty(PreProcessor.ENABLE.getName(), "true");
-    app1Options.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
-    return app1Options;
-  }
-
-  private void addCommonOptionsForMultiDex(@Nonnull JackApiToolchain toolchain,
+  private void addCommonOptionsForMultiDex(@Nonnull JackBasedToolchain toolchain,
       @Nonnull File configFile) {
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(PreProcessor.ENABLE.getName(), "true");
@@ -409,16 +395,17 @@ public class MultiDexTests {
   @Test
   @Category(SlowTests.class)
   public void legacyAppTest002a_withoutAnnotations() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
+    File out = AbstractTestTools.createTempDir();
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = addCommonOptionsForMultiDex(
-        new File(testFolder,"config-001.jpp"));
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"config-001.jpp"));
 
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath()
-        + File.pathSeparator + library.getPath(), out, false);
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
+
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + frameworks.getPath() + File.pathSeparator + library.getPath(), out,
+        /* zipFile = */ false, testFolder);
 
     File classesDex = new File(out, "classes.dex");
     Assert.assertTrue(classesDex.exists());
@@ -428,23 +415,22 @@ public class MultiDexTests {
     Assert.assertFalse(classes3Dex.exists());
     int totalTypeNumber = getTypeCountInDex(classesDex) + getTypeCountInDex(classes2Dex);
     Assert.assertEquals(100, totalTypeNumber);
-    return;
   }
 
   @Test
   @Category(SlowTests.class)
   public void legacyAppTest002b_withoutAnnotations() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
+    File out = AbstractTestTools.createTempDir();
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = addCommonOptionsForMultiDex(
-        new File(testFolder,"config-001.jpp"));
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-    app1Options.addImportedLibrary(library);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"config-001.jpp"));
 
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath(),
-        out, false);
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+    toolchain.addStaticLibs(library);
+
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()) + File.pathSeparator + frameworks.getPath(),
+        out, /* zipFile = */ false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
@@ -455,28 +441,25 @@ public class MultiDexTests {
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
-    return;
   }
 
   @Test
   public void legacyAppTest002b_auto_withoutAnnotations() throws Exception {
-
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareLibrary(frameworks);
     setMetaIntoJackProperties(autoLibrary);
     File jackInf = new File(autoLibrary, FileType.JPP.getPrefix());
     Assert.assertTrue(jackInf.mkdir());
     Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
 
-    File out = TestTools.createTempDir("out", "");
-    Options app1Options = new Options();
-    app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
-    app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-    app1Options.addImportedLibrary(autoLibrary);
+    File out = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
+    toolchain.addStaticLibs(autoLibrary);
 
-    TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
-        + File.pathSeparator + frameworks.getPath(),
-        out, false);
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */ false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
@@ -487,7 +470,6 @@ public class MultiDexTests {
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
-    return;
   }
 
   /**
@@ -495,17 +477,15 @@ public class MultiDexTests {
    */
   @Test
   public void annotatedTest003() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test003.jack");
+    File out = AbstractTestTools.createTempDir();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test003");
-
-    File out = TestTools.createTempDir("out", "");
-    Options appOptions = new Options();
-    appOptions.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
-    appOptions.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-
-    TestTools.compileSourceToDex(appOptions, testFolder, TestTools.getDefaultClasspathString()
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
-        out, false);
+        /* zipFile = */ out, false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(
@@ -514,6 +494,5 @@ public class MultiDexTests {
     ListingComparator.compare(
         new File(testFolder,"ref-list-003-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
-    return;
   }
 }

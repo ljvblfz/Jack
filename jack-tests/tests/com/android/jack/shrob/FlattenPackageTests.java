@@ -66,7 +66,7 @@ public class FlattenPackageTests extends AbstractTest {
 
     // TODO(jmhenaff): Find a way to avoid this line?
     // This removes JUnit from default cp, otherwise this tests seems endless
-    env.setCandidateClasspath(new File[] {toolchain.getDefaultBootClasspath()[0]});
+    env.setCandidateClasspath(toolchain.getDefaultBootClasspath()[0]);
 
     env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
   }

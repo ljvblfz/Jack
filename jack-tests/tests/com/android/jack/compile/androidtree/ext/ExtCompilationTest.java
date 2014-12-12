@@ -16,12 +16,14 @@
 
 package com.android.jack.compile.androidtree.ext;
 
-import com.android.jack.JarJarRules;
-import com.android.jack.Options;
-import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
 import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
+import com.android.jack.test.comparator.ComparatorDex;
+import com.android.jack.test.helper.CheckDexStructureTestHelper;
+import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -34,6 +36,7 @@ import java.io.File;
 public class ExtCompilationTest {
 
   private static File[] CLASSPATH;
+  private static File[] REF_CLASSPATH;
 
   private static File SOURCELIST;
 
@@ -42,7 +45,11 @@ public class ExtCompilationTest {
     ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")
+      };
+    REF_CLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")
       };
     SOURCELIST = TestTools.getTargetLibSourcelist("ext");
   }
@@ -50,22 +57,27 @@ public class ExtCompilationTest {
   @Test
   @Category(RedundantTests.class)
   public void compileExt() throws Exception {
-    File outDexFolder = TestTools.createTempDir("ext", ".dex");
-    TestTools.compileSourceToDex(new Options(), SOURCELIST,
-        TestTools.getClasspathAsString(CLASSPATH), outDexFolder, false);
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    toolchain.srcToExe(
+        AbstractTestTools.getClasspathAsString(CLASSPATH),
+        AbstractTestTools.createTempDir(),
+        /* zipFile = */ false,
+        SOURCELIST);
   }
 
   @Test
   @Category(SlowTests.class)
   public void compareExtStructure() throws Exception {
-    TestTools.checkStructure(new Options(),
-        /* classpath = */ null,
-        /* refClasspath = */ null,
-        SOURCELIST,
-        /* compareDebugInfoBinary = */ false,
-        /* compareInstructionNumber = */ true,
-        0.4f,
-        (JarJarRules) null,
-        (ProguardFlags[]) null);
+    // TODO(jmhenaff): use setBootclasspath
+    SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(SOURCELIST);
+    helper.setCandidateClasspath(CLASSPATH);
+    helper.setReferenceClasspath(REF_CLASSPATH);
+
+    ComparatorDex comparator = helper.createDexFileComparator();
+    comparator.setCompareDebugInfoBinary(false);
+    comparator.setCompareInstructionNumber(true);
+    comparator.setInstructionNumberTolerance(0.4f);
+
+    helper.runTest(comparator);
   }
 }

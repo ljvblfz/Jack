@@ -14,34 +14,40 @@
  * limitations under the License.
  */
 
-package com.android.jack.compile.androidtree.dalvik.compilerregressions;
+package com.android.jack.compile.androidtree.dalvik.omnibus;
 
-import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.category.SlowTests;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
 @Ignore("Tree")
-public class CompilerRegressionsTest {
+public class OmnibusCompilationTest {
 
   private static File[] BOOTCLASSPATH;
 
   @BeforeClass
   public static void setUpClass() {
-    CompilerRegressionsTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    OmnibusCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")};
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
   }
 
   @Test
-  public void compileRegressions() throws Exception {
-    File out = TestTools.createTempFile("out", ".zip");
-    String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
-    TestTools.compileSourceToDex(new Options(),
-        TestTools.getArtTestFolder("083-compiler-regressions"), classpath, out, /* zip = */ true);
+  @Category(SlowTests.class)
+  public void compileOmnibus() throws Exception {
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    toolchain.srcToExe(
+        AbstractTestTools.getClasspathAsString(BOOTCLASSPATH),
+        AbstractTestTools.createTempFile("out", ".zip"),
+        /* zipFile = */ true,
+        TestTools.getArtTestFolder("003-omnibus-opcodes"));
   }
 }

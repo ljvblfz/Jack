@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.compile.androidtree.dalvik.finalizer;
+package com.android.jack.compile.androidtree.dalvik.compilerregressions;
 
-import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -26,22 +27,24 @@ import org.junit.Test;
 import java.io.File;
 
 @Ignore("Tree")
-public class FinalizerTest {
+public class CompilerRegressionsTest {
 
   private static File[] BOOTCLASSPATH;
 
   @BeforeClass
   public static void setUpClass() {
-    FinalizerTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    CompilerRegressionsTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")};
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
   }
 
   @Test
-  public void compileFinalizer() throws Exception {
-    File out = TestTools.createTempFile("out", ".zip");
-    String classpath = TestTools.getClasspathAsString(BOOTCLASSPATH);
-    TestTools.compileSourceToDex(new Options(), TestTools.getArtTestFolder("036-finalizer"),
-        classpath, out, /* zip = */ true);
+  public void compileRegressions() throws Exception {
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    toolchain.srcToExe(
+        AbstractTestTools.getClasspathAsString(BOOTCLASSPATH),
+        AbstractTestTools.createTempFile("out", ".zip"),
+        /* zipFile = */ true,
+        TestTools.getArtTestFolder("083-compiler-regressions"));
   }
 }

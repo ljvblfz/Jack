@@ -151,24 +151,16 @@ public class ClasspathTests {
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     String defaultClasspath =
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
-    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath/test004");
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     String classpathWithMissingEntry = defaultClasspath + File.pathSeparator +
         new File(srcDir, "missing.jack").getAbsolutePath();
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
-    toolchain.srcToLib(
-        classpathWithMissingEntry,
-        testOut,
-        /* zipFiles = */ true,
-        srcDir);
+    toolchain.srcToLib(classpathWithMissingEntry, testOut, /* zipFiles = */ true, srcDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
-      toolchain.srcToLib(
-          classpathWithMissingEntry,
-          testOut,
-          /* zipFiles = */ true,
-          srcDir);
+      toolchain.srcToLib(classpathWithMissingEntry, testOut, /* zipFiles = */ true, srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
@@ -186,26 +178,20 @@ public class ClasspathTests {
   private void compileWithInvalidClasspathEntry(File srcDir, File invalidJack) throws IOException,
       Exception {
     Assert.assertTrue(invalidJack.isFile());
+
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     String classpathWithInvalidEntry =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()) +
-        File.pathSeparator + invalidJack.getAbsolutePath();
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
+        + File.pathSeparator + invalidJack.getAbsolutePath();
 
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
-    toolchain.srcToLib(
-        classpathWithInvalidEntry,
-        testOut,
-        /* zipFile = */ true,
-        srcDir);
+    toolchain.srcToLib(classpathWithInvalidEntry, testOut, /* zipFiles = */ true, srcDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+
     try {
-      toolchain.srcToLib(
-          classpathWithInvalidEntry,
-          testOut,
-          /* zipFiles = */ true,
-          srcDir);
+      toolchain.srcToLib(classpathWithInvalidEntry, testOut, /* zipFiles = */ true, srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
