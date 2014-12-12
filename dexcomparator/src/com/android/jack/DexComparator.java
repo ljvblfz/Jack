@@ -163,7 +163,7 @@ public class DexComparator {
     /* build a lookup table for candidate classes */
     HashMap<String, ClassDef> candidateClassDefItemLookUpTable = new HashMap<String, ClassDef>();
     for (ClassDef classDef : candidateDexFile.classDefs()) {
-      String typeName = candidateDexFile.typeNames().get(classDef.getTypeIndex());
+      String typeName = classDef.getTypeName();
       candidateClassDefItemLookUpTable.put(typeName, classDef);
     }
 
@@ -172,9 +172,9 @@ public class DexComparator {
     for (ClassDef classDefItem : refClassDefs) {
 
       if (!IGNORE_ANONYMOUS_CLASSES
-          || !isAnomymousTypeName(referenceDexFile.typeNames().get(classDefItem.getTypeIndex()))) {
+          || !isAnomymousTypeName(classDefItem.getTypeName())) {
 
-        String className = getClassName(referenceDexFile, classDefItem);
+        String className = classDefItem.getTypeName();
 
         ClassDef candidateClassDefItem =
             candidateClassDefItemLookUpTable.get(className);
@@ -192,11 +192,11 @@ public class DexComparator {
 
         } else {
           logger.log(
-              ERROR_LEVEL, "Class {0} NOK: missing", getClassName(referenceDexFile, classDefItem));
+              ERROR_LEVEL, "Class {0} NOK: missing", classDefItem.getTypeName());
 
           if (!TOLERATE_MISSING_SYNTHETICS || !isSynthetic(classDefItem.getAccessFlags())) {
             throw new DifferenceFoundException("Class "
-                + getClassName(referenceDexFile, classDefItem) + " was not found in candidate.");
+                + classDefItem.getTypeName() + " was not found in candidate.");
           }
         }
       }
@@ -204,8 +204,8 @@ public class DexComparator {
     if (strict) {
       for (ClassDef classDefItem : candidateClassDefItemLookUpTable.values()) {
         if (!IGNORE_ANONYMOUS_CLASSES || !isAnomymousTypeName(
-            candidateDexFile.typeNames().get(classDefItem.getTypeIndex()))) {
-          String className = getClassName(candidateDexFile, classDefItem);
+            classDefItem.getTypeName())) {
+          String className = classDefItem.getTypeName();
           logger.log(
               ERROR_LEVEL, "Class {0} NOK: missing", className);
 
@@ -317,7 +317,7 @@ public class DexComparator {
 
   private void checkAccessFlags(ClassDef classDefItem, ClassDef candidateClassDefItem)
       throws DifferenceFoundException {
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
     int candidateAccessFlags = candidateClassDefItem.getAccessFlags();
     int refAccessFlags = classDefItem.getAccessFlags();
     if (refAccessFlags == candidateAccessFlags) {
@@ -336,7 +336,7 @@ public class DexComparator {
 
   private void checkClassData(ClassDef classDefItem, ClassDef candidateClassDefItem)
       throws DifferenceFoundException {
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
     boolean referenceDexFileHasClassData = classDefItem.getClassDataOffset() != 0;
     boolean candidateDexFileHasClassData = candidateClassDefItem.getClassDataOffset() != 0;
 
@@ -375,7 +375,7 @@ public class DexComparator {
   private void checkMethods(
       ClassData classDataItem, ClassData candidateClassDataItem, ClassDef classDefItem)
       throws DifferenceFoundException {
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
 
     ClassData.Method[] methods = classDataItem.allMethods();
     ClassData.Method[] candidateMethods = candidateClassDataItem.allMethods();
@@ -386,7 +386,7 @@ public class DexComparator {
   private void checkFields(
       ClassData classDataItem, ClassData candidateClassDataItem, ClassDef classDefItem)
       throws DifferenceFoundException {
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
 
     /* Instance fields */
     {
@@ -409,7 +409,7 @@ public class DexComparator {
   private void checkInterfaces(ClassDef classDefItem, ClassDef candidateClassDefItem)
       throws DifferenceFoundException {
 
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
     short[] interfaces = classDefItem.getInterfaces();
     short[] candidateInterfaces = candidateClassDefItem.getInterfaces();
 
@@ -442,7 +442,7 @@ public class DexComparator {
 
   private void checkSuperclass(ClassDef classDefItem, ClassDef candidateClassDefItem)
       throws DifferenceFoundException {
-    String className = getClassName(referenceDexFile, classDefItem);
+    String className = classDefItem.getTypeName();
     String superClass = (classDefItem.getSupertypeIndex() == ClassDef.NO_INDEX) ? ("empty")
         : (getSuperclassName(referenceDexFile, classDefItem));
     String candidateSuperClass =
@@ -933,10 +933,6 @@ public class DexComparator {
         thisIdx);
     decoder.decode();
     return new DebugInfo(decoder, dex, codeItem, bai.getPosition() - codeItem.getDebugInfoOffset());
-  }
-
-  private static String getClassName(DexBuffer dex, ClassDef classDef) {
-    return dex.typeNames().get(classDef.getTypeIndex());
   }
 
   private static String getMethodName(DexBuffer dex, int methodIndex) {

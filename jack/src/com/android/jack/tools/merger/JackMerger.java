@@ -72,7 +72,7 @@ public class JackMerger extends MergerTools {
 
     for (ClassDef classDefToMerge : dexToMerge.classDefs()) {
       List<String> typeNames = dexToMerge.typeNames();
-      String typeNameDesc = typeNames.get(classDefToMerge.getTypeIndex());
+      String typeNameDesc = classDefToMerge.getTypeName();
       CstType superType = null;
       int supertypeIndex = classDefToMerge.getSupertypeIndex();
       if (supertypeIndex != ClassDef.NO_INDEX) {

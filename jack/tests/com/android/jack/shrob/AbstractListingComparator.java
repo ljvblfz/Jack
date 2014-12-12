@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,45 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 public abstract class AbstractListingComparator {
+  protected static interface Readable {
+    @Nonnull
+    BufferedReader openReader() throws IOException;
+  }
+
+  protected static class FileReadable implements Readable {
+
+    @Nonnull
+    private final File input;
+
+    protected FileReadable(@Nonnull File input) {
+      this.input = input;
+    }
+
+    @Nonnull
+    @Override
+    public BufferedReader openReader() throws IOException {
+      return new BufferedReader(new InputStreamReader(new FileInputStream(input)));
+    }
+
+  }
+
+  protected static class StringReadable implements Readable {
+
+    @Nonnull
+    private final String input;
+
+    protected StringReadable(@Nonnull String input) {
+      this.input = input;
+    }
+
+    @Nonnull
+    @Override
+    public BufferedReader openReader() {
+      return new BufferedReader(new StringReader(input));
+    }
+
+  }
+
   protected static class ParseException extends IOException {
 
     private static final long serialVersionUID = 1L;

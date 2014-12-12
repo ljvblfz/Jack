@@ -23,6 +23,8 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.dx.io.ClassDef;
+import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
@@ -35,7 +37,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
-import com.android.jack.util.ExecuteFile;
+import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;
 
@@ -43,13 +45,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -179,7 +179,7 @@ public class MultiDexTests {
         + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-001.txt"), outList);
     Assert.assertFalse(new File(out, "classes2.dex").exists());
     return;
@@ -198,9 +198,9 @@ public class MultiDexTests {
         + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-002-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
     return;
@@ -219,9 +219,9 @@ public class MultiDexTests {
         + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-003-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-003-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
     return;
@@ -242,41 +242,24 @@ public class MultiDexTests {
     toolchain.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
   }
 
-  private File getListingOfDex(@Nonnull File dex) throws IOException, FileNotFoundException {
+  private String getListingOfDex(@Nonnull File dex) throws IOException {
     assert dex.isFile();
-    ExecuteFile exec =
-        new ExecuteFile(new String[]{
-            "bash", "-c", AbstractTestTools.getPrebuilt("dexdump").getAbsolutePath() + " "
-        + dex.getAbsolutePath() +
-        " | grep \"  Class descriptor  : \" | cut -d\\' -f2 | sed -e 's/$/:/'"});
-
-    File outList = TestTools.createTempFile("types", ".txt");
-
-    exec.setOut(outList);
-    Assert.assertTrue(exec.run());
-    return outList;
+    StringBuilder sb = new StringBuilder();
+    for (ClassDef def : new DexBuffer(dex).classDefs()) {
+      sb.append(def.getTypeName());
+      sb.append(":");
+      sb.append(TextUtils.LINE_SEPARATOR);
+    }
+    return sb.toString();
   }
 
   private int getTypeCountInDex(@Nonnull File dex) throws IOException, FileNotFoundException {
     assert dex.isFile();
-    ExecuteFile exec =
-        new ExecuteFile(new String[]{
-            "bash", "-c", AbstractTestTools.getPrebuilt("dexdump").getAbsolutePath() + " "
-        + dex.getAbsolutePath() +
-        " | grep \"  Class descriptor  : \" | wc -l"});
-
-    File out = TestTools.createTempFile("typeNumber", ".txt");
-
-    exec.setOut(out);
-    Assert.assertTrue(exec.run());
-    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(out)));
-    try {
-      String readLine = reader.readLine();
-      assert readLine != null;
-      return Integer.parseInt(readLine.trim());
-    } finally {
-      reader.close();
+    int count = 0;
+    for (ClassDef def : new DexBuffer(dex).classDefs()) {
+      count++;
     }
+    return count;
   }
 
   @Nonnull
@@ -379,12 +362,12 @@ public class MultiDexTests {
         /* zipFile = */ false,
         testFolder);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
@@ -463,12 +446,12 @@ public class MultiDexTests {
         + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
@@ -495,12 +478,12 @@ public class MultiDexTests {
         + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
         new File(testFolder,"ref-list-002-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
@@ -524,10 +507,10 @@ public class MultiDexTests {
         + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
         out, false);
 
-    File outList = getListingOfDex(new File(out, "classes.dex"));
+    String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(
         new File(testFolder,"ref-list-003-1.txt"), outList);
-    File outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
         new File(testFolder,"ref-list-003-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());

@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.io;
 
+import javax.annotation.Nonnull;
+
 /**
  * A type definition.
  */
@@ -62,6 +64,11 @@ public final class ClassDef {
     return typeIndex;
   }
 
+  @Nonnull
+  public String getTypeName() {
+    return buffer.typeNames().get(typeIndex);
+  }
+
   public int getSupertypeIndex() {
     return supertypeIndex;
   }
@@ -101,7 +108,7 @@ public final class ClassDef {
     }
 
     StringBuilder result = new StringBuilder();
-    result.append(buffer.typeNames().get(typeIndex));
+    result.append(getTypeName());
     if (supertypeIndex != NO_INDEX) {
       result.append(" extends ").append(buffer.typeNames().get(supertypeIndex));
     }

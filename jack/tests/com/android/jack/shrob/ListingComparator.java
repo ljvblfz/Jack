@@ -35,14 +35,21 @@ public class ListingComparator extends AbstractListingComparator {
 
   public static void compare(@Nonnull File reference, @Nonnull File candidate)
       throws IOException, DifferenceFoundException {
-    new ListingComparator().compareFiles(reference, candidate);
+    new ListingComparator().compareReadables(new FileReadable(reference),
+        new FileReadable(candidate));
   }
 
-  private void compareFiles(@Nonnull File reference, @Nonnull File candidate)
+  public static void compare(@Nonnull File reference, @Nonnull String candidate)
+      throws IOException, DifferenceFoundException {
+    new ListingComparator().compareReadables(new FileReadable(reference),
+        new StringReadable(candidate));
+  }
+
+  private void compareReadables(@Nonnull Readable reference, @Nonnull Readable candidate)
       throws IOException, DifferenceFoundException {
     List<String> candidateTypesList;
     {
-      BufferedReader candidateReader = createStreamReader(candidate);
+      BufferedReader candidateReader = candidate.openReader();
       try {
         candidateTypesList = getTypeList(candidateReader);
       } finally {
@@ -50,7 +57,7 @@ public class ListingComparator extends AbstractListingComparator {
       }
     }
 
-    BufferedReader referenceReader = createStreamReader(reference);
+    BufferedReader referenceReader = reference.openReader();
     try {
       String currentReferenceLine = referenceReader.readLine();
       while (currentReferenceLine != null) {
@@ -61,7 +68,7 @@ public class ListingComparator extends AbstractListingComparator {
         int typeIndex = candidateTypesList.indexOf(currentReferenceLine);
         if (typeIndex != -1) {
           candidateTypesList.remove(currentReferenceLine);
-          BufferedReader candidateReader = createStreamReader(candidate);
+          BufferedReader candidateReader = candidate.openReader();
           try {
             if (findLine(currentReferenceLine, candidateReader)) {
               currentReferenceLine = checkMembers(referenceReader, candidateReader, currentType);
