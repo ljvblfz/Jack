@@ -48,12 +48,12 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
- * Write intermediate dex files per type.
+ * Write dex files in library.
  */
-@Description("Write intermediate dex files per type")
+@Description("Write dex files in library")
 @Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
-@Produce(IntermediateDexProduct.class)
-public class IntermediateDexPerTypeWriter extends DexWriter implements
+@Produce(DexInLibraryProduct.class)
+public class DexInLibraryWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
