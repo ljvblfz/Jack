@@ -151,13 +151,13 @@ public class FileAccessErrorTest {
           AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
           te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
       Assert.fail();
-    } catch (FrontendCompilationException e) {
+    } catch (JackUserException e) {
       // Failure is ok since source file is not readable
+      Assert.assertTrue(e.getMessage().contains("is not readable"));
     } finally {
       if (!a.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + a.getAbsolutePath());
       }
-      Assert.assertTrue(errOut.toString().contains("Permission denied"));
     }
   }
 
@@ -231,7 +231,8 @@ public class FileAccessErrorTest {
       Assert.fail();
     } catch (JackUserException e) {
       // Failure is ok since source file is not readable
-      Assert.assertTrue(e.getMessage().contains("A.java is missing"));
+      Assert.assertTrue(e.getMessage().contains("A.java"));
+      Assert.assertTrue(e.getMessage().contains("does not exist"));
     }
   }
 }
