@@ -20,9 +20,9 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Production;
 
 /**
- * Intermediate dex files per type production.
+ * {@link Production} of dex files in a library
  */
-@Description("Intermediate dex files per type production")
-public class IntermediateDexProduct implements Production {
+@Description("Production of dex files in a library")
+public class DexInLibraryProduct implements Production {
 
 }

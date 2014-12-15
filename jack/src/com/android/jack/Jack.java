@@ -37,12 +37,12 @@ import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.DexInLibraryWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
-import com.android.jack.backend.dex.IntermediateDexPerTypeWriter;
-import com.android.jack.backend.dex.IntermediateDexProduct;
+import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
@@ -590,17 +590,17 @@ public abstract class Jack {
           }
         }
 
+        if (ThreadConfig.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
+          request.addProduction(DexInLibraryProduct.class);
+        }
+
         if (options.out != null || options.outZip != null) {
-          request.addProduction(IntermediateDexProduct.class);
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
         }
 
         if (options.libraryOutDir != null || options.libraryOutZip != null) {
-          if (ThreadConfig.get(Options.GENERATE_INTERMEDIATE_DEX).booleanValue()) {
-            request.addProduction(IntermediateDexProduct.class);
-          }
-          request.addProduction(JayceFormatProduct.class);
+            request.addProduction(JayceFormatProduct.class);
         }
 
         ProductionSet targetProduction = request.getTargetProductions();
@@ -650,8 +650,8 @@ public abstract class Jack {
               || targetProduction.contains(DexFileProduct.class)
               || (plan.computeFinalTagsOrMarkers(
                   request.getInitialTags()).contains(JackFormatIr.class)
-                  && !targetProduction.contains(IntermediateDexProduct.class))
-              || (targetProduction.contains(IntermediateDexProduct.class)
+                  && !targetProduction.contains(DexInLibraryProduct.class))
+              || (targetProduction.contains(DexInLibraryProduct.class)
                   && targetProduction.contains(JayceFormatProduct.class));
         }
 
@@ -1341,8 +1341,8 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (productions.contains(IntermediateDexProduct.class)) {
-        typePlan.append(IntermediateDexPerTypeWriter.class);
+      if (productions.contains(DexInLibraryProduct.class)) {
+        typePlan.append(DexInLibraryWriter.class);
       }
     }
 
@@ -1742,8 +1742,8 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (productions.contains(IntermediateDexProduct.class)) {
-        typePlan.append(IntermediateDexPerTypeWriter.class);
+      if (productions.contains(DexInLibraryProduct.class)) {
+        typePlan.append(DexInLibraryWriter.class);
       }
     }
 

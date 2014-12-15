@@ -101,16 +101,17 @@ public class Options {
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId.create(
-      "jack.dex.generate", "Generate dex file").addDefaultValue(Boolean.FALSE);
+      "jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_INTERMEDIATE_DEX = BooleanPropertyId.create(
-      "jack.dex.intermediate.generate", "Generate intermediate dex files per type")
-      .addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId.create(
+      "jack.library.dex", "Generate dex files in library")
+      .addDefaultValue(Boolean.TRUE).withCategory(Private.get());
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
-      "jack.library.generate", "Generate jack library").addDefaultValue(Boolean.FALSE);
+      "jack.library", "Generate jack library").addDefaultValue(Boolean.FALSE);
+
 
   @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
@@ -138,7 +139,7 @@ public class Options {
   public static final PropertyId<InputOutputVFS> INTERNAL_LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.internal.library.output.dir", "Output folder for internal library",
       new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST))
-      .withCategory(Private.get()).requiredIf(GENERATE_INTERMEDIATE_DEX.getValue()
+      .withCategory(Private.get()).requiredIf(GENERATE_DEX_IN_LIBRARY.getValue()
           .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR)
               .or(DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
               .and(GENERATE_JACK_LIBRARY.getValue().isFalse())));
@@ -606,12 +607,10 @@ public class Options {
       configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
-      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
     } else if (libraryOutDir != null) {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
-      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
     }
 
     switch (multiDexKind) {
@@ -632,7 +631,6 @@ public class Options {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
         configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
             new DirectVFS(createTempDirForTypeDexFiles(hooks)));
@@ -641,7 +639,6 @@ public class Options {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      configBuilder.set(GENERATE_INTERMEDIATE_DEX, true);
       if (libraryOutZip == null && libraryOutDir == null) {
         configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
             new DirectVFS(createTempDirForTypeDexFiles(hooks)));
