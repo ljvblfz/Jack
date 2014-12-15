@@ -39,22 +39,26 @@ public class InputZipVFS extends AbstractInputVFS {
   private final ZipFile zip;
   @Nonnull
   private final Location location;
+  @Nonnull
+  private final String path;
   private static final Splitter splitter = Splitter.on(ZipUtils.ZIP_SEPARATOR);
 
   public InputZipVFS(@Nonnull InputZipFile zipFile) {
     setRootDir(new InputZipVDir(this, new ZipEntry(ZipUtils.ROOT_ENTRY_NAME)));
     this.zip  = zipFile.getZipFile();
     this.location = zipFile.getLocation();
+    this.path = zipFile.getPath();
 
     fillSubElements(zip, null);
   }
 
   public InputZipVFS(@Nonnull InputZipFile zipFile, @Nonnull String prefix) {
     setRootDir(new InputZipVDir(this, new ZipEntry(prefix)));
+    assert prefix.endsWith(ZipUtils.ZIP_SEPARATOR_STRING);
     this.zip  = zipFile.getZipFile();
     this.location = new ZipLocation(zipFile.getLocation(), new ZipEntry(prefix));
+    this.path = zipFile.getPath().substring(prefix.length());
 
-    assert prefix.endsWith(ZipUtils.ZIP_SEPARATOR_STRING);
     fillSubElements(zip, prefix);
   }
 
@@ -124,6 +128,6 @@ public class InputZipVFS extends AbstractInputVFS {
   @Override
   @Nonnull
   public String getPath() {
-    return file.getPath();
+    return path;
   }
 }
