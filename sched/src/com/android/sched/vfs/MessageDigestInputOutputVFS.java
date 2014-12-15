@@ -38,6 +38,7 @@ import javax.annotation.Nonnull;
  * An {@link InputOutputVFS} which generated a file with message digest of each file in a VFS.
  */
 public class MessageDigestInputOutputVFS implements InputOutputVFS {
+  private boolean closed = false;
   @Nonnull
   protected OutputVFS vfs;
   @Nonnull
@@ -78,6 +79,8 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Override
     @Nonnull
     public OutputStream openWrite() throws IOException {
+      assert !closed;
+
       return new DigestOutputStream(file.openWrite(),
           MessageDigestInputOutputVFS.this.mdFactory.create()) {
         @Override
@@ -128,7 +131,10 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
 
     @Override
     @Nonnull
-    public OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException {
+    public synchronized OutputVFile createOutputVFile(@Nonnull VPath path)
+        throws CannotCreateFileException {
+      assert !closed;
+
       MessageDigestOutputVFile file =
           new MessageDigestOutputVFile(dir.createOutputVFile(path), path);
       files.add(file);
@@ -136,7 +142,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
       return file;
     }
 
-    public void close() throws CannotCreateFileException, IOException {
+    private synchronized void close() throws CannotCreateFileException, IOException {
       OutputStream os = dir.createOutputVFile(new VPath("jack.sha1", '/')).openWrite();
       PrintStream printer = new PrintStream(os);
 
@@ -156,6 +162,8 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Override
     @Nonnull
     public Collection<? extends InputVElement> list() {
+      assert !closed;
+
       return dir.list();
     }
 
@@ -163,6 +171,8 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Nonnull
     public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
         NoSuchFileException {
+      assert !closed;
+
       return dir.getInputVDir(path);
     }
 
@@ -170,12 +180,16 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Nonnull
     public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
         NoSuchFileException {
+      assert !closed;
+
       return dir.getInputVFile(path);
     }
 
     @Override
     @Nonnull
     public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
+      assert !closed;
+
       dir.delete(path);
     }
   }
@@ -194,26 +208,35 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
   }
 
   @Override
-  public void close() throws IOException {
-    root.close();
-    vfs.close();
+  public synchronized void close() throws IOException {
+    if (!closed) {
+      root.close();
+      vfs.close();
+      closed = true;
+    }
   }
 
   @Override
   @Nonnull
   public OutputVDir getRootOutputVDir() {
+    assert !closed;
+
     return root;
   }
 
   @Override
   @Nonnull
   public InputVDir getRootInputVDir() {
+    assert !closed;
+
     return root;
   }
 
   @Override
   @Nonnull
   public InputOutputVDir getRootInputOutputVDir() {
+    assert !closed;
+
     return root;
   }
 
