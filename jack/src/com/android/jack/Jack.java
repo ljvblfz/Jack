@@ -675,7 +675,8 @@ public abstract class Jack {
             if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
                 || ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
               OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
-              if (jackInternalOutputLibrary != null) {
+              if (jackInternalOutputLibrary != null
+                  && jackInternalOutputLibrary != jackOutputLibrary) {
                 jackInternalOutputLibrary.close();
               }
             }
