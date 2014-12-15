@@ -1130,21 +1130,21 @@
 
   <property name="tests.config" value="no-file"/>
   <property name="test-jack.script" location="${jack-tests.dir}/run-jack-tests" />
-  <target name="test-jack" >
+  <target name="test-jack" depends="jack-tests" >
     <exec executable="${test-jack.script}" failonerror="true">
       <arg value="${tests.config}" />
       <arg value="com.android.jack.PreSubmitTests" />
     </exec>
   </target>
 
-  <target name="test-jack-long" >
+  <target name="test-jack-long" depends="jack-tests">
     <exec executable="${test-jack.script}" failonerror="true">
       <arg value="${tests.config}" />
       <arg value="com.android.jack.LongLastingTests" />
     </exec>
   </target>
 
-  <target name="test-jack-all" >
+  <target name="test-jack-all" depends="jack-tests" >
     <exec executable="${test-jack.script}" failonerror="true">
       <arg value="${tests.config}" />
       <arg value="com.android.jack.AllTests" />
