@@ -116,8 +116,15 @@ public class Options {
       .addDefaultValue(Boolean.TRUE).withCategory(Private.get());
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
-      "jack.library", "Generate jack library").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId GENERATE_JAYCE_IN_LIBRARY = BooleanPropertyId.create(
+      "jack.library.jayce", "Generate Jayce files in library")
+      .addDefaultValue(Boolean.FALSE).withCategory(Private.get());
+
+  @Nonnull
+  public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId
+      .create("jack.library", "Generate jack library")
+      .addDefaultValue(Boolean.FALSE).requiredIf(GENERATE_DEX_IN_LIBRARY.getValue().isTrue()
+          .or(GENERATE_JAYCE_IN_LIBRARY.getValue().isTrue()));
 
 
   @Nonnull
@@ -615,11 +622,12 @@ public class Options {
       configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
+      configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
     } else if (libraryOutDir != null) {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
-      configBuilder.set(GENERATE_DEX_IN_LIBRARY, true);
+      configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
       configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR, libraryOutDir.getPath());
     }
 

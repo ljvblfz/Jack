@@ -25,14 +25,11 @@ import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.scheduling.feature.JayceFileOutput;
 import com.android.sched.item.Description;
-import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.schedulable.Support;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -43,14 +40,12 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
- * Writer of Jayce files in a folder organized according to package names.
+ * Writer of Jayce files in a library organized according to package names.
  */
-@Description("Writer of Jayce files in a folder organized according to package names")
-@Name("JayceSingleTypeWriter")
+@Description("Writer of Jayce files in a library organized according to package names")
 @Constraint(need = {JackFormatIr.class}, no = {NonJackFormatIr.class})
-@Produce(JayceFormatProduct.class)
-@Support(JayceFileOutput.class)
-public class JayceSingleTypeWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
+@Produce(JayceInLibraryProduct.class)
+public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
   private final OutputJackLibrary outputJackLibrary;

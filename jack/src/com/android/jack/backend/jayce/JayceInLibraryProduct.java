@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.scheduling.feature;
+package com.android.jack.backend.jayce;
 
 import com.android.sched.item.Description;
-import com.android.sched.item.Feature;
-import com.android.sched.item.Name;
+import com.android.sched.item.Production;
 
 /**
- * Jayce file output
+ * {@link Production} of Jayce files in a library.
  */
-@Description("Jayce file output")
-@Name("JayceFileOutput")
-public class JayceFileOutput implements Feature {
+@Description("Production of Jayce files in a library")
+public class JayceInLibraryProduct implements Production {
 }

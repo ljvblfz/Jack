@@ -20,7 +20,7 @@ import com.android.dx.command.dexer.Main.Arguments;
 import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexInLibraryProduct;
-import com.android.jack.backend.jayce.JayceFormatProduct;
+import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
@@ -554,7 +554,7 @@ public class TestTools {
     request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
     request.addProduction(DexInLibraryProduct.class);
     if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-      request.addProduction(JayceFormatProduct.class);
+      request.addProduction(JayceInLibraryProduct.class);
     }
 
     OutputJackLibrary outputLibrary = null;
