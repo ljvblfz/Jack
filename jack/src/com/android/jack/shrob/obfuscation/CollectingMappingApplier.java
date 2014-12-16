@@ -68,7 +68,7 @@ public class CollectingMappingApplier extends MappingApplier {
       if (previousNewName != null && !previousNewName.equals(newName)) {
         logger.log(Level.WARNING, "{0}:{1}: Cannot rename field {2} in {3} to {4} "
             + "because it has already been mapped to {5}",
-            new Object[] {mappingFile.getAbsolutePath(),
+            new Object[] {mappingFile.getPath(),
                 Integer.valueOf(lineNumber),
                 oldName,
                 Jack.getUserFriendlyFormatter().getName(field.getEnclosingType()),
@@ -92,7 +92,7 @@ public class CollectingMappingApplier extends MappingApplier {
         if (previousNewName != null && !previousNewName.equals(newName)) {
           logger.log(Level.WARNING, "{0}:{1}: Cannot rename method {2} in {3} to {4} "
               + "because it has already been mapped to {5}",
-              new Object[] {mappingFile.getAbsolutePath(),
+              new Object[] {mappingFile.getPath(),
                   Integer.valueOf(lineNumber),
                   Jack.getUserFriendlyFormatter().getName(method),
                   Jack.getUserFriendlyFormatter().getName(method.getEnclosingType()),

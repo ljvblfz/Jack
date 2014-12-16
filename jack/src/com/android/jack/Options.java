@@ -466,17 +466,17 @@ public class Options {
     if (propertiesFile != null) {
       if (!propertiesFile.exists()) {
         throw new IllegalOptionsException(
-            "The specified config file '" + propertiesFile.getAbsolutePath() + "' does not exist.");
+            "The specified config file '" + propertiesFile.getPath() + "' does not exist.");
       }
 
       if (!propertiesFile.isFile()) {
         throw new IllegalOptionsException(
-            "The specified config file '" + propertiesFile.getAbsolutePath() + "' is not a file.");
+            "The specified config file '" + propertiesFile.getPath() + "' is not a file.");
       }
 
       if (!propertiesFile.canRead()) {
         throw new IllegalOptionsException(
-            "The specified config file '" + propertiesFile.getAbsolutePath() + "' cannot be read.");
+            "The specified config file '" + propertiesFile.getPath() + "' cannot be read.");
       }
 
       configBuilder = new GatherConfigBuilder();
@@ -496,7 +496,7 @@ public class Options {
         throw new AssertionError();
       } catch (IOException e) {
         throw new IllegalOptionsException(
-            "The specified config file '" + propertiesFile.getAbsolutePath() + "' cannot be read.",
+            "The specified config file '" + propertiesFile.getPath() + "' cannot be read.",
             e.getCause());
       }
     } else {
@@ -536,20 +536,20 @@ public class Options {
       File mapping = flags.getObfuscationMapping();
       if (mapping != null) {
         configBuilder.set(Renamer.USE_MAPPING, true);
-        configBuilder.setString(Renamer.MAPPING_FILE, mapping.getAbsolutePath());
+        configBuilder.setString(Renamer.MAPPING_FILE, mapping.getPath());
       } else {
         configBuilder.set(Renamer.USE_MAPPING, false);
       }
 
       File seeds = flags.getSeedsFile();
       if (seeds != null) {
-        configBuilder.setString(SeedPrinter.SEEDS_OUTPUT_FILE, seeds.getAbsolutePath());
+        configBuilder.setString(SeedPrinter.SEEDS_OUTPUT_FILE, seeds.getPath());
       }
 
       File dictionary = flags.getObfuscationDictionary();
       if (dictionary != null) {
         configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, true);
-        configBuilder.setString(Renamer.OBFUSCATION_DICTIONARY, dictionary.getAbsolutePath());
+        configBuilder.setString(Renamer.OBFUSCATION_DICTIONARY, dictionary.getPath());
       } else {
         configBuilder.set(Renamer.USE_OBFUSCATION_DICTIONARY, false);
       }
@@ -558,7 +558,7 @@ public class Options {
       if (classDictionary != null) {
         configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, true);
         configBuilder.setString(Renamer.CLASS_OBFUSCATION_DICTIONARY,
-            classDictionary.getAbsolutePath());
+            classDictionary.getPath());
       } else {
         configBuilder.set(Renamer.USE_CLASS_OBFUSCATION_DICTIONARY, false);
       }
@@ -567,7 +567,7 @@ public class Options {
       if (packageDictionary != null) {
         configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, true);
         configBuilder.setString(
-            Renamer.PACKAGE_OBFUSCATION_DICTIONARY, packageDictionary.getAbsolutePath());
+            Renamer.PACKAGE_OBFUSCATION_DICTIONARY, packageDictionary.getPath());
       } else {
         configBuilder.set(Renamer.USE_PACKAGE_OBFUSCATION_DICTIONARY, false);
       }
@@ -575,7 +575,7 @@ public class Options {
       File outputmapping = flags.getOutputMapping();
       if (outputmapping != null) {
         configBuilder.setString(MappingPrinter.MAPPING_OUTPUT_FILE,
-            outputmapping.getAbsolutePath());
+            outputmapping.getPath());
       }
 
       if (flags.getUseMixedCaseClassName()) {
@@ -619,12 +619,12 @@ public class Options {
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
     if (libraryOutZip != null) {
-      configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getAbsolutePath());
+      configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getPath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
     } else if (libraryOutDir != null) {
-      configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getAbsolutePath());
+      configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getPath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
@@ -646,7 +646,7 @@ public class Options {
     }
 
     if (outZip != null) {
-      configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getAbsolutePath());
+      configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
       if (libraryOutZip == null && libraryOutDir == null) {
@@ -654,7 +654,7 @@ public class Options {
             new DirectVFS(createTempDirForTypeDexFiles(hooks)));
       }
     } else if (out != null) {
-      configBuilder.setString(DEX_OUTPUT_DIR, out.getAbsolutePath());
+      configBuilder.setString(DEX_OUTPUT_DIR, out.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
       if (libraryOutZip == null && libraryOutDir == null) {
@@ -673,12 +673,12 @@ public class Options {
       configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
       configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
       configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
-          incrementalFolder.getAbsolutePath());
+          incrementalFolder.getPath());
     }
 
     if (tracerDir != null) {
       configBuilder.setString(TracerFactory.TRACER, "html");
-      configBuilder.setString(StatsTracerFtl.TRACER_DIR, tracerDir.getAbsolutePath());
+      configBuilder.setString(StatsTracerFtl.TRACER_DIR, tracerDir.getPath());
     }
 
     configBuilder.set(SANITY_CHECKS, sanityChecks);
@@ -743,24 +743,24 @@ public class Options {
     if (libraryOutDir != null) {
       if (!libraryOutDir.exists()) {
         throw new IllegalOptionsException("The specified output folder '"
-            + libraryOutDir.getAbsolutePath() + "' for jayce files does not exist.");
+            + libraryOutDir.getPath() + "' for jayce files does not exist.");
       }
 
       if (!libraryOutDir.canWrite()) {
         throw new IllegalOptionsException("The specified output folder '"
-            + libraryOutDir.getAbsolutePath() + "' for jayce files cannot be written to.");
+            + libraryOutDir.getPath() + "' for jayce files cannot be written to.");
       }
     }
 
     if (jarjarRulesFile != null) {
       if (!jarjarRulesFile.exists()) {
         throw new IllegalOptionsException("The specified rules file '"
-            + jarjarRulesFile.getAbsolutePath() + "' for package renaming does not exist.");
+            + jarjarRulesFile.getPath() + "' for package renaming does not exist.");
       }
 
       if (!jarjarRulesFile.canRead()) {
         throw new IllegalOptionsException("The specified rules file '"
-            + jarjarRulesFile.getAbsolutePath() + "' for package renaming cannot be read.");
+            + jarjarRulesFile.getPath() + "' for package renaming cannot be read.");
       }
     }
   }

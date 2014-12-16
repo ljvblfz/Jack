@@ -112,7 +112,7 @@ public class ExecuteFile {
     cmdLine = new String[args.length + 1];
     System.arraycopy(args, 0, cmdLine, 1, args.length);
 
-    cmdLine[0] = exec.getAbsolutePath();
+    cmdLine[0] = exec.getPath();
   }
 
   public ExecuteFile(@Nonnull String exec, @Nonnull String[] args) {
@@ -124,7 +124,7 @@ public class ExecuteFile {
 
   public ExecuteFile(@Nonnull File exec) {
     cmdLine = new String[1];
-    cmdLine[0] = exec.getAbsolutePath();
+    cmdLine[0] = exec.getPath();
   }
 
   public ExecuteFile(@Nonnull String[] cmdLine) {

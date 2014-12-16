@@ -308,10 +308,10 @@ public class GrammarActions {
   @CheckForNull
   private static ProguardParser createParserFromFile(@Nonnull File file) {
     try {
-      ProguardParser parser = createParserCommon(new ANTLRFileStream(file.getAbsolutePath()));
+      ProguardParser parser = createParserCommon(new ANTLRFileStream(file.getPath()));
       return parser;
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Error while creating parser for file {0}", file.getAbsolutePath());
+      logger.log(Level.SEVERE, "Error while creating parser for file {0}", file.getPath());
     }
     return null;
   }
@@ -332,7 +332,7 @@ public class GrammarActions {
     ProguardParser parser = createParserFromFile(proguardFile);
     if (parser != null) {
       try {
-        parser.prog(flags, proguardFile.getParentFile().getAbsolutePath());
+        parser.prog(flags, proguardFile.getParentFile().getPath());
       } catch (RecoverableRecognitionException e) {
         // A recoverable error happened, but we do not want to ignore it.
         throw e.getCause();
@@ -382,7 +382,7 @@ public class GrammarActions {
     assert baseDir != null;
     File mappingFile = getFileFromBaseDir(baseDir, mappingFilename);
     if (!mappingFile.exists()) {
-      logger.log(Level.WARNING, "Mapping file {0} not found", mappingFile.getAbsolutePath());
+      logger.log(Level.WARNING, "Mapping file {0} not found", mappingFile.getPath());
     } else {
       flags.setObfuscationMapping(mappingFile);
     }
@@ -411,7 +411,7 @@ public class GrammarActions {
     assert baseDir != null;
     File dictionary = getFileFromBaseDir(baseDir, fileName);
     if (!dictionary.exists()) {
-      throw new AssertionError(dictionary.getAbsolutePath() + " not found");
+      throw new AssertionError(dictionary.getPath() + " not found");
     }
     flags.setObfuscationDictionary(dictionary);
   }
@@ -422,7 +422,7 @@ public class GrammarActions {
     assert baseDir != null;
     File dictionary = getFileFromBaseDir(baseDir, fileName);
     if (!dictionary.exists()) {
-      throw new AssertionError(dictionary.getAbsolutePath() + " not found");
+      throw new AssertionError(dictionary.getPath() + " not found");
     }
     flags.setClassObfuscationDictionary(dictionary);
   }
@@ -433,7 +433,7 @@ public class GrammarActions {
     assert baseDir != null;
     File dictionary = getFileFromBaseDir(baseDir, fileName);
     if (!dictionary.exists()) {
-      throw new AssertionError(dictionary.getAbsolutePath() + " not found");
+      throw new AssertionError(dictionary.getPath() + " not found");
     }
     flags.setPackageObfuscationDictionary(dictionary);
   }
@@ -520,7 +520,7 @@ public class GrammarActions {
     List<File> pathList = getPathFromBaseDirAsList(baseDir, path);
     StringBuffer sb = new StringBuffer();
     for (Iterator<File> iter = pathList.iterator(); iter.hasNext(); ) {
-      sb.append(iter.next().getAbsolutePath());
+      sb.append(iter.next().getPath());
       if (iter.hasNext()) {
         sb.append(File.pathSeparatorChar);
       }

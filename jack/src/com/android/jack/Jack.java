@@ -426,7 +426,7 @@ public abstract class Jack {
       }
       for (File proguardFlagsFile : options.proguardFlagsFiles) {
         try {
-          GrammarActions.parse(proguardFlagsFile.getAbsolutePath(), ".", options.flags);
+          GrammarActions.parse(proguardFlagsFile.getPath(), ".", options.flags);
         } catch (RecognitionException e) {
           throw new IllegalOptionsException(
               "Error while parsing " + proguardFlagsFile.getPath() + ":" + e.line, e);

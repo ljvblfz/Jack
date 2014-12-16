@@ -94,7 +94,7 @@ public class MappingApplier {
 
   private void throwException(@Nonnull File mappingFile, int lineNumber, @Nonnull String message)
       throws JackIOException {
-    throw new JackIOException(mappingFile.getAbsolutePath() + ":" + lineNumber + ":" + message);
+    throw new JackIOException(mappingFile.getPath() + ":" + lineNumber + ":" + message);
   }
 
   @CheckForNull
@@ -108,12 +108,12 @@ public class MappingApplier {
       type = (JClassOrInterface) lookup.getType(typeSignature);
       if (!session.getTypesToEmit().contains(type)) {
         logger.log(Level.WARNING, "{0}:{1}: Type {2} has a mapping but was removed",
-            new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber), oldName});
+            new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber), oldName});
         return null;
       }
     } catch (JLookupException e) {
       logger.log(Level.WARNING, "{0}:{1}: Type {2} not found",
-          new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber), oldName});
+          new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber), oldName});
     }
     if (type instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface clOrI = (JDefinedClassOrInterface) type;
@@ -261,7 +261,7 @@ public class MappingApplier {
         renameField(field, mappingFile, lineNumber, newName);
       } else {
         logger.log(Level.WARNING, "{0}:{1}: Field {2} not found in {3}", new Object[] {
-            mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber), oldName,
+            mappingFile.getPath(), Integer.valueOf(lineNumber), oldName,
             Jack.getUserFriendlyFormatter().getName(currentType)});
       }
     } catch (ArrayIndexOutOfBoundsException e) {
@@ -338,14 +338,14 @@ public class MappingApplier {
         renameMethod(method, mappingFile, lineNumber, newName);
       } catch (JMethodLookupException e) {
         logger.log(Level.WARNING, "{0}:{1}: Method {2} not found in {3}", new Object[] {
-            mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber), oldName,
+            mappingFile.getPath(), Integer.valueOf(lineNumber), oldName,
             Jack.getUserFriendlyFormatter().getName(currentType)});
       }
     } catch (ArrayIndexOutOfBoundsException e) {
       throwException(
           mappingFile, lineNumber, "The mapping file is badly formatted (method mapping expected)");
     } catch (JTypeLookupException e) {
-      logger.log(Level.WARNING, "{0}:{1}: {2}", new Object[]{mappingFile.getAbsolutePath(),
+      logger.log(Level.WARNING, "{0}:{1}: {2}", new Object[]{mappingFile.getPath(),
           Integer.valueOf(lineNumber), e.getMessage()});
     }
   }
@@ -362,10 +362,10 @@ public class MappingApplier {
     String oldName = method.getName();
     if (oldName.equals(NamingTools.INIT_NAME)) {
       logger.log(Level.WARNING, "{0}:{1}: Constructors cannot be renamed",
-          new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber)});
+          new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber)});
     } else if (oldName.equals(NamingTools.STATIC_INIT_NAME)) {
       logger.log(Level.WARNING, "{0}:{1}: Static initializers cannot be renamed",
-          new Object[] {mappingFile.getAbsolutePath(), Integer.valueOf(lineNumber)});
+          new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber)});
     } else {
       rename(method.getMethodId(), newName);
     }
@@ -406,14 +406,14 @@ public class MappingApplier {
         line = reader.readLine();
       }
     } catch (IOException e) {
-      throw new JackIOException("Error while reading mapping " + mappingFile.getAbsolutePath(), e);
+      throw new JackIOException("Error while reading mapping " + mappingFile.getPath(), e);
     } finally {
       if (reader != null) {
         try {
           reader.close();
         } catch (IOException e) {
           logger.log(Level.WARNING,
-              "Failed to close reader while reading mapping {0}", mappingFile.getAbsolutePath());
+              "Failed to close reader while reading mapping {0}", mappingFile.getPath());
         }
       }
     }

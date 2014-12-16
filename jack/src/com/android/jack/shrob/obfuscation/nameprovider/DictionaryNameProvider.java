@@ -41,7 +41,7 @@ public class DictionaryNameProvider implements NameProvider {
     try {
       scanner = new Scanner(dictionary);
     } catch (FileNotFoundException e) {
-      throw new JackIOException("Dictionary " + dictionary.getAbsolutePath() + " not found", e);
+      throw new JackIOException("Dictionary " + dictionary.getPath() + " not found", e);
     }
     scanner.useDelimiter("?|,|;|'|\"|-|(|)|{|}");
     scanner.skip("^#.*$");
