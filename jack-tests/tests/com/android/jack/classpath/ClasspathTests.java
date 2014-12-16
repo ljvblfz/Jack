@@ -18,12 +18,11 @@ package com.android.jack.classpath;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
-import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiToolchain;
 
 import junit.framework.Assert;
 
@@ -149,20 +148,27 @@ public class ClasspathTests {
 
   @Test
   public void testMissingClasspathEntry() throws Exception {
-    String defaultClasspath = TestTools.getDefaultBootclasspathString();
-    File srcDir = TestTools.getJackTestsWithJackFolder("classpath/test004");
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    String defaultClasspath =
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath/test004");
     String classpathWithMissingEntry = defaultClasspath + File.pathSeparator +
         new File(srcDir, "missing.jack").getAbsolutePath();
+    File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
+    toolchain.srcToLib(
+        classpathWithMissingEntry,
+        testOut,
+        /* zipFiles = */ true,
+        srcDir);
 
-    File testOut = TestTools.createTempFile("ClasspathTest", "missing");
-    TestTools.compileSourceToJack(new Options(), srcDir, classpathWithMissingEntry,
-        testOut, true);
-
-    Options strict = new Options();
-    strict.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
-      TestTools.compileSourceToJack(strict, srcDir, classpathWithMissingEntry,
-        testOut, true);
+      toolchain.srcToLib(
+          classpathWithMissingEntry,
+          testOut,
+          /* zipFiles = */ true,
+          srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
@@ -171,7 +177,7 @@ public class ClasspathTests {
 
   @Test
   public void testInvalidClasspathEntry() throws Exception {
-    File srcDir = TestTools.getJackTestsWithJackFolder("classpath/test004");
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "Classpath004.java"));
     compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "invalid.jack"));
     compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "notjack.zip"));
@@ -180,18 +186,26 @@ public class ClasspathTests {
   private void compileWithInvalidClasspathEntry(File srcDir, File invalidJack) throws IOException,
       Exception {
     Assert.assertTrue(invalidJack.isFile());
-    String classpathWithInvalidEntry = TestTools.getDefaultBootclasspathString() +
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    String classpathWithInvalidEntry =
+        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()) +
         File.pathSeparator + invalidJack.getAbsolutePath();
 
-    File testOut = TestTools.createTempFile("ClasspathTest", "invalid");
-    TestTools.compileSourceToJack(new Options(), srcDir, classpathWithInvalidEntry,
-        testOut, true);
+    File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
+    toolchain.srcToLib(
+        classpathWithInvalidEntry,
+        testOut,
+        /* zipFile = */ true,
+        srcDir);
 
-    Options strict = new Options();
-    strict.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
-      TestTools.compileSourceToJack(strict, srcDir, classpathWithInvalidEntry,
-          testOut, true);
+      toolchain.srcToLib(
+          classpathWithInvalidEntry,
+          testOut,
+          /* zipFiles = */ true,
+          srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
