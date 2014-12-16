@@ -140,7 +140,7 @@ public abstract class DexWritingTool {
   @Nonnull
   private InputVFile getIntermediateDexFile(@Nonnull JDefinedClassOrInterface type)
       throws FileTypeDoesNotExistException {
-    return Jack.getSession().getJackInternalOutputLibrary().getFile(FileType.DEX,
+    return Jack.getSession().getJackOutputLibrary().getFile(FileType.DEX,
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
   }
 }

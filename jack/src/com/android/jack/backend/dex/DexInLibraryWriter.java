@@ -57,7 +57,7 @@ public class DexInLibraryWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  private final OutputLibrary outputLibrary = Jack.getSession().getJackInternalOutputLibrary();
+  private final OutputLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 

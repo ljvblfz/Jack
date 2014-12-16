@@ -67,8 +67,8 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebugInfos));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-      toolchain.addProperty(Options.INTERNAL_LIBRARY_OUTPUT_DIR.getName(),
-          internalJackOutputLib.getAbsolutePath());
+      toolchain.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(),
+        internalJackOutputLib.getAbsolutePath());
     } catch (IOException e) {
       throw new AssertionError(e);
     }

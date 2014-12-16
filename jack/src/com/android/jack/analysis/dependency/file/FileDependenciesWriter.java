@@ -45,7 +45,7 @@ public class FileDependenciesWriter implements RunnableSchedulable<JSession>{
 
   @Override
   public void run(@Nonnull JSession session) throws JackUserException {
-    write(session.getJackInternalOutputLibrary(), Jack.getSession().getFileDependencies());
+    write(session.getJackOutputLibrary(), Jack.getSession().getFileDependencies());
   }
 
   public static void write(@Nonnull OutputJackLibrary ojl,

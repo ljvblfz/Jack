@@ -45,8 +45,8 @@ public class MergerTestTools {
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebug));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
-      toolchain.addProperty(Options.INTERNAL_LIBRARY_OUTPUT_DIR.getName(),
-          internalJackLibraryOutput.getAbsolutePath());
+      toolchain.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(),
+      internalJackLibraryOutput.getAbsolutePath());
 
       if (out != null) {
         toolchain.setOutputStream(out);

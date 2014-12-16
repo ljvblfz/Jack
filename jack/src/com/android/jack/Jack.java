@@ -480,11 +480,6 @@ public abstract class Jack {
           OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(outputDir,
               Jack.getEmitterId(), Jack.getVersionString());
           session.setJackOutputLibrary(outputLibrary);
-          session.setJackInternalOutputLibrary(outputLibrary);
-        } else if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
-          session.setJackInternalOutputLibrary(JackLibraryFactory.getOutputLibrary(
-              config.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
-              Jack.getVersionString()));
         }
 
         Request request = createInitialRequest();
@@ -648,13 +643,6 @@ public abstract class Jack {
             OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
             if (jackOutputLibrary != null) {
               jackOutputLibrary.close();
-            }
-            if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
-                || config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-              OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
-              if (jackInternalOutputLibrary != null) {
-                jackInternalOutputLibrary.close();
-              }
             }
             //TODO(jack-team): auto-close
             if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
