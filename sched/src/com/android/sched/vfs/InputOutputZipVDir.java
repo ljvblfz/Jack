@@ -98,6 +98,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   @Override
   @Nonnull
   public OutputVFile createOutputVFile(@Nonnull VPath path) throws CannotCreateFileException {
+    assert !vfs.isClosed();
     File file = new File(dir, path.getPathAsString(ZipUtils.ZIP_SEPARATOR));
     if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
       throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));
@@ -145,6 +146,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
   @Override
   @Nonnull
   public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
+    assert !vfs.isClosed();
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.delete()) {
       throw new CannotDeleteFileException(

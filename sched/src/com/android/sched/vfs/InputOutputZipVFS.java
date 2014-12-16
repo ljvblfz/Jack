@@ -36,6 +36,8 @@ import javax.annotation.Nonnull;
  * closed.
  */
 public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOutputVFS {
+
+  private boolean closed = false;
   @Nonnull
   private final OutputZipFile zipFile;
   @Nonnull
@@ -53,12 +55,15 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   }
 
   @Override
-  public void close() throws IOException {
-    try {
-      addDirToZip(zipOS, getRootInputOutputVDir());
-    } finally {
-      zipOS.close();
-      FileUtils.deleteDir(dir);
+  public synchronized void close() throws IOException {
+    if (!closed) {
+      try {
+        addDirToZip(zipOS, getRootInputOutputVDir());
+      } finally {
+        zipOS.close();
+        FileUtils.deleteDir(dir);
+        closed = true;
+      }
     }
   }
 
@@ -96,5 +101,9 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   @Nonnull
   public String getPath() {
     return zipFile.getPath();
+  }
+
+  synchronized boolean isClosed() {
+    return closed;
   }
 }

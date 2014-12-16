@@ -45,6 +45,8 @@ import javax.annotation.Nonnull;
  */
 public class OutputJackLibraryImpl extends OutputJackLibrary {
 
+  private boolean closed;
+
   @Nonnull
   private final InputOutputVFS vfs;
 
@@ -88,6 +90,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotCreateFileException {
+    assert !isClosed();
     putProperty(fileType.buildPropertyName(null /*suffix*/), String.valueOf(true));
     addFileType(fileType);
     VPath clonedPath = typePath.clone();
@@ -107,21 +110,24 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   }
 
   @Override
-  public void close() throws LibraryIOException {
-    try {
-      OutputVFile libraryPropertiesOut =
-          vfs.getRootInputOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
-      libraryProperties.store(libraryPropertiesOut.openWrite(), "Library properties");
-    } catch (CannotCreateFileException e) {
-      throw new LibraryIOException(getLocation(), e);
-    } catch (IOException e) {
-      throw new LibraryIOException(getLocation(), e);
-    }
+  public synchronized void close() throws LibraryIOException {
+    if (!closed) {
+      try {
+        OutputVFile libraryPropertiesOut =
+            vfs.getRootInputOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+        libraryProperties.store(libraryPropertiesOut.openWrite(), "Library properties");
+      } catch (CannotCreateFileException e) {
+        throw new LibraryIOException(getLocation(), e);
+      } catch (IOException e) {
+        throw new LibraryIOException(getLocation(), e);
+      }
 
-    try {
-      vfs.close();
-    } catch (IOException e) {
-      throw new LibraryIOException(getLocation(), e);
+      try {
+        vfs.close();
+      } catch (IOException e) {
+        throw new LibraryIOException(getLocation(), e);
+      }
+      closed = true;
     }
   }
 
@@ -160,6 +166,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotDeleteFileException {
+    assert !isClosed();
     vfs.getRootInputOutputVDir().delete(fileType.buildFileVPath(typePath));
   }
 
@@ -167,5 +174,9 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public String getPath() {
     return vfs.getPath();
+  }
+
+  private synchronized boolean isClosed() {
+    return closed;
   }
 }

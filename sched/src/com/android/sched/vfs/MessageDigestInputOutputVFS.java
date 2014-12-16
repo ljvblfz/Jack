@@ -79,7 +79,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Override
     @Nonnull
     public OutputStream openWrite() throws IOException {
-      assert !closed;
+      assert !isClosed();
 
       return new DigestOutputStream(file.openWrite(),
           MessageDigestInputOutputVFS.this.mdFactory.create()) {
@@ -133,7 +133,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Nonnull
     public synchronized OutputVFile createOutputVFile(@Nonnull VPath path)
         throws CannotCreateFileException {
-      assert !closed;
+      assert !isClosed();
 
       MessageDigestOutputVFile file =
           new MessageDigestOutputVFile(dir.createOutputVFile(path), path);
@@ -162,7 +162,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Override
     @Nonnull
     public Collection<? extends InputVElement> list() {
-      assert !closed;
+      assert !isClosed();
 
       return dir.list();
     }
@@ -171,7 +171,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Nonnull
     public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
         NoSuchFileException {
-      assert !closed;
+      assert !isClosed();
 
       return dir.getInputVDir(path);
     }
@@ -180,7 +180,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Nonnull
     public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
         NoSuchFileException {
-      assert !closed;
+      assert !isClosed();
 
       return dir.getInputVFile(path);
     }
@@ -188,7 +188,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     @Override
     @Nonnull
     public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
-      assert !closed;
+      assert !isClosed();
 
       dir.delete(path);
     }
@@ -216,10 +216,14 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
     }
   }
 
+  synchronized boolean isClosed() {
+    return closed;
+  }
+
   @Override
   @Nonnull
   public OutputVDir getRootOutputVDir() {
-    assert !closed;
+    assert !isClosed();
 
     return root;
   }
@@ -227,7 +231,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
   @Override
   @Nonnull
   public InputVDir getRootInputVDir() {
-    assert !closed;
+    assert !isClosed();
 
     return root;
   }
@@ -235,7 +239,7 @@ public class MessageDigestInputOutputVFS implements InputOutputVFS {
   @Override
   @Nonnull
   public InputOutputVDir getRootInputOutputVDir() {
-    assert !closed;
+    assert !isClosed();
 
     return root;
   }
