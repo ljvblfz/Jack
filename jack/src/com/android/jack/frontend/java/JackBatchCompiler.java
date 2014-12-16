@@ -20,6 +20,14 @@ import com.android.jack.JackUserException;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.reporting.Reporter;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -27,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathSourceJar;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -205,9 +214,8 @@ public class JackBatchCompiler extends Main {
     try {
       batchCompiler.compile(getCompilationUnits());
     } catch (IllegalArgumentException e) {
-      // ECJ is throwing this one for missing source files, let them be reported correctly.
-      // Most other IllegalArgumentException are wrapped by JAstBuilder.
-      throw new TransportJUEAroundEcjError(new JackUserException(e));
+      // IllegalArgumentException should no longer exist
+      throw new AssertionError(e);
     } catch (TransportJUEAroundEcjError e) {
       throw e;
     } catch (RuntimeException e) {
@@ -239,5 +247,31 @@ public class JackBatchCompiler extends Main {
       Map customDefaultOptions, CompilationProgress compilationProgress) {
     super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
     logger = new EcjLogger(this, outWriter, errWriter, this);
+  }
+
+  @Override
+  public CompilationUnit[] getCompilationUnits() {
+    CompilationUnit[] cu = new CompilationUnit[filenames.length];
+    int idx = 0;
+    for (String fileName : filenames) {
+      try {
+        new InputStreamFile(fileName, ChangePermission.NOCHANGE);
+        cu[idx] = new CompilationUnit(null, fileName, encodings[idx]);
+        idx++;
+      } catch (FileAlreadyExistsException e) {
+        throw new AssertionError();
+      } catch (CannotCreateFileException e) {
+        throw new AssertionError();
+      } catch (CannotSetPermissionException e) {
+        throw new AssertionError();
+      } catch (WrongPermissionException e) {
+        throw new JackUserException(e);
+      } catch (NoSuchFileException e) {
+        throw new JackUserException(e);
+      } catch (NotFileOrDirectoryException e) {
+        throw new JackUserException(e);
+      }
+    }
+    return cu;
   }
 }
