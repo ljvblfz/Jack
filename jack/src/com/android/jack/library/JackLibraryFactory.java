@@ -45,7 +45,7 @@ public abstract class JackLibraryFactory {
   @Nonnull
   private static final BooleanPropertyId GENERATE_JACKLIB_DIGEST = BooleanPropertyId.create(
       "jack.library.digest", "Generate message digest in Jack library").addDefaultValue(
-      Boolean.FALSE);
+      Boolean.TRUE);
   @Nonnull
   private static final MessageDigestPropertyId MESSAGE_DIGEST_ALGO = MessageDigestPropertyId
       .create("jack.library.digest.algo", "Message digest algorithm use in Jack library")
