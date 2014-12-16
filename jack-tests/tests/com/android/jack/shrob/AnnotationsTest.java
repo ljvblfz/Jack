@@ -17,7 +17,6 @@
 package com.android.jack.shrob;
 
 import com.android.jack.ProguardFlags;
-import com.android.jack.TestTools;
 import com.android.jack.test.comparator.ComparatorDexAnnotations;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -35,7 +34,8 @@ public class AnnotationsTest extends AbstractTest {
       @Nonnull String flagNumber,
       @Nonnull String mappingNumber)
       throws Exception {
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File shrobFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob");
+    File testFolder = new File(shrobFolder, "test" + testNumber);
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
 
     SourceToDexComparisonTestHelper env =
@@ -44,7 +44,7 @@ public class AnnotationsTest extends AbstractTest {
     env.setProguardFlags(
         generateApplyMapping(new File(testFolder,"proguard.flags" + flagNumber + ".mapping" + mappingNumber)),
 //      new ProguardFlags(TestTools.getJackTestFolder("shrob"),"keepDebugInfo.flags"),
-      new ProguardFlags(TestTools.getJackTestFolder("shrob"),"keepAllAttributes.flags"),
+      new ProguardFlags(shrobFolder,"keepAllAttributes.flags"),
       new ProguardFlags(testFolder,"proguard.flags" + flagNumber));
     env.runTest(new ComparatorDexAnnotations(env.getCandidateDex(), env.getReferenceDex()));
   }

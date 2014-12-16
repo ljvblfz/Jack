@@ -17,7 +17,6 @@
 package com.android.jack.multidex;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexWritingException;
 import com.android.jack.backend.dex.MainDexOverflowException;
@@ -56,8 +55,8 @@ public class MultiDexOverflowTests {
 
   @Test
   public void testMinimalMainDexOverflowWithMethods() throws Exception {
-    File srcFolder = TestTools.createTempDir("src", "dir");
-    File outFolder = TestTools.createTempDir("out", "dir");
+    File srcFolder = AbstractTestTools.createTempDir();
+    File outFolder = AbstractTestTools.createTempDir();
 
     int fileCount = 655;
     for (int fileIdx = 0; fileIdx < fileCount; fileIdx++) {
@@ -94,8 +93,8 @@ public class MultiDexOverflowTests {
 
   @Test
   public void testStandardMainDexOverflowWithFields() throws Exception {
-    File srcFolder = TestTools.createTempDir("src", "dir");
-    File outFolder = TestTools.createTempDir("out", "dir");
+    File srcFolder = AbstractTestTools.createTempDir();
+    File outFolder = AbstractTestTools.createTempDir();
 
     int fileCount = 655;
     for (int fileIdx = 0; fileIdx < fileCount; fileIdx++) {

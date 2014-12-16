@@ -17,7 +17,6 @@
 package com.android.jack.test.helper;
 
 import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorComposite;
@@ -64,7 +63,7 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File internalJackOutputLib;
     try {
-      internalJackOutputLib = TestTools.createTempDir("oneDexPerType", "dex");
+      internalJackOutputLib = AbstractTestTools.createTempDir();
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebugInfos));
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");

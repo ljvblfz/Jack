@@ -16,7 +16,6 @@
 
 package com.android.jack.inner;
 
-import com.android.jack.TestTools;
 import com.android.jack.test.category.RedundantTests;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.comparator.ComparatorDex;

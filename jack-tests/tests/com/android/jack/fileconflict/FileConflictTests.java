@@ -452,14 +452,14 @@ public class FileConflictTests {
   private void runTest002(@Nonnull File jackOutput, boolean zip,
       @CheckForNull String collisionPolicy) throws Exception {
     // compile source files to a Jack dir
-    File jackImport1 = TestTools.createTempDir("jack", "dir");
+    File jackImport1 = AbstractTestTools.createTempDir();
     Options options = new Options();
     File lib1 = new File(TEST002_DIR, "lib1");
     options.addResource(new File(lib1, "rsc"));
     TestTools.compileSourceToJack(options, lib1, TestTools.getDefaultBootclasspathString(),
         jackImport1, false /* non-zipped */);
 
-    File jackImport2 = TestTools.createTempDir("jack", "dir");
+    File jackImport2 = AbstractTestTools.createTempDir();
     options = new Options();
     File lib2 = new File(TEST002_DIR, "lib2");
     options.addResource(new File(lib2, "rsc"));

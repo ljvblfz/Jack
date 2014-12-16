@@ -17,10 +17,10 @@
 package com.android.jack.experimental.incremental;
 
 import com.android.jack.Main;
-import com.android.jack.TestTools;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
+import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
@@ -49,7 +49,7 @@ public class DependenciesTest015 {
   @Test
   public void testDependency001() throws Exception {
     IncrementalTestHelper iteLib =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_001_lib"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     File f = iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public abstract class A { \n" + "public abstract void m(); }");
@@ -61,7 +61,7 @@ public class DependenciesTest015 {
 
 
     IncrementalTestHelper iteProg =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_001_prog"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B extends A { \n" + " @Override public void m(){} }");
@@ -95,7 +95,7 @@ public class DependenciesTest015 {
   @Test
   public void testDependency002() throws Exception {
     IncrementalTestHelper iteLib =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_001_lib"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public class A { \n" + "public void m() {} }");
@@ -107,7 +107,7 @@ public class DependenciesTest015 {
 
 
     IncrementalTestHelper iteProg =
-        new IncrementalTestHelper(TestTools.createTempDir("DependenciesTest_", "_001_prog"));
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
     iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B { \n" + " public void m(){} }");

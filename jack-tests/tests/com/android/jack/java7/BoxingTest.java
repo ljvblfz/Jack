@@ -17,19 +17,12 @@
 package com.android.jack.java7;
 
 import com.android.jack.Main;
-import com.android.jack.Options;
-import com.android.jack.TestTools;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import java.io.File;
 
 /**
  * JUnit test for compilation of Java 7 features

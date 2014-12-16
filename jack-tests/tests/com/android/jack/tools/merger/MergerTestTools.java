@@ -17,7 +17,6 @@
 package com.android.jack.tools.merger;
 
 import com.android.jack.Options;
-import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -33,14 +32,15 @@ import javax.annotation.Nonnull;
 public class MergerTestTools {
 
   @Nonnull
-  protected File buildOneDexPerType(@CheckForNull String classpath, @Nonnull File sourceFolder,
+  protected File buildOneDexPerType(@Nonnull File sourceFolder,
       boolean withDebug, @CheckForNull OutputStream out, @CheckForNull OutputStream err) throws Exception {
     JackApiToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    String classpath = AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
     try {
-      File multiDexFolder = TestTools.createTempDir("multi", "dex");
+      File multiDexFolder = AbstractTestTools.createTempDir();
       File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);
-      File internalJackLibraryOutput = TestTools.createTempDir("multiOnDexPerType", "dex");
+      File internalJackLibraryOutput = AbstractTestTools.createTempDir();
 
       toolchain.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(),
           Boolean.toString(withDebug));
