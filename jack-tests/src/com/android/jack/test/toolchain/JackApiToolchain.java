@@ -178,8 +178,6 @@ public class JackApiToolchain extends JackBasedToolchain {
   @Override
   @Nonnull
   public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
-    System.setOut(outRedirectStream);
-    System.setErr(errRedirectStream);
 
     try {
       addProperties(properties, jackOptions);
@@ -207,6 +205,9 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.setOutputDir(out);
       }
 
+      System.setOut(outRedirectStream);
+      System.setErr(errRedirectStream);
+
       Jack.run(jackOptions);
     } finally {
       System.setOut(stdOut);
@@ -217,37 +218,46 @@ public class JackApiToolchain extends JackBasedToolchain {
   @Override
   @Nonnull
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
-    addProperties(properties, jackOptions);
 
-    jackOptions.setJarjarRulesFile(jarjarRules);
+    try {
+      addProperties(properties, jackOptions);
 
-    if (jackOptions.getFlags() != null) {
-      jackOptions.applyShrobFlags();
+      jackOptions.setJarjarRulesFile(jarjarRules);
+
+      if (jackOptions.getFlags() != null) {
+        jackOptions.applyShrobFlags();
+      }
+
+      if (proguardFlags.size() > 0) {
+        jackOptions.setProguardFlagsFile(proguardFlags);
+      }
+
+      for (File res : resImport) {
+        jackOptions.addResource(res);
+      }
+
+      for (File staticLib : in) {
+        jackOptions.getJayceImport().add(staticLib);
+      }
+
+      for (File staticLib : staticLibs) {
+        jackOptions.getJayceImport().add(staticLib);
+      }
+
+      if (zipFiles) {
+        jackOptions.setJayceOutputZip(out);
+      } else {
+        jackOptions.setJayceOutputDir(out);
+      }
+
+      System.setOut(outRedirectStream);
+      System.setErr(errRedirectStream);
+
+      Jack.run(jackOptions);
+    } finally {
+      System.setOut(stdOut);
+      System.setErr(stdErr);
     }
-
-    if (proguardFlags.size() > 0) {
-      jackOptions.setProguardFlagsFile(proguardFlags);
-    }
-
-    for (File res : resImport) {
-      jackOptions.addResource(res);
-    }
-
-    for (File staticLib : in) {
-      jackOptions.getJayceImport().add(staticLib);
-    }
-
-    for (File staticLib : staticLibs) {
-      jackOptions.getJayceImport().add(staticLib);
-    }
-
-    if (zipFiles) {
-      jackOptions.setJayceOutputZip(out);
-    } else {
-      jackOptions.setJayceOutputDir(out);
-    }
-
-    Jack.run(jackOptions);
   }
 
   @Nonnull
