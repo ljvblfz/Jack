@@ -469,21 +469,21 @@ public abstract class Jack {
 
         buildSession(options, hooks);
 
-        if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+        if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
           Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
           InputOutputVFS outputDir;
           if (containerType == Container.DIR) {
-            outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+            outputDir = config.get(Options.LIBRARY_OUTPUT_DIR);
           } else {
-            outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+            outputDir = config.get(Options.LIBRARY_OUTPUT_ZIP);
           }
           OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(outputDir,
               Jack.getEmitterId(), Jack.getVersionString());
           session.setJackOutputLibrary(outputLibrary);
           session.setJackInternalOutputLibrary(outputLibrary);
-        } else if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()) {
+        } else if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           session.setJackInternalOutputLibrary(JackLibraryFactory.getOutputLibrary(
-              ThreadConfig.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
+              config.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
               Jack.getVersionString()));
         }
 
@@ -568,7 +568,7 @@ public abstract class Jack {
         request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
         request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
 
-        if (ThreadConfig.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
+        if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
           request.addProduction(DexInLibraryProduct.class);
         }
 
@@ -577,7 +577,7 @@ public abstract class Jack {
           session.addGeneratedFileType(FileType.DEX);
         }
 
-        if (ThreadConfig.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
+        if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
             request.addProduction(JayceInLibraryProduct.class);
         }
 
@@ -649,17 +649,17 @@ public abstract class Jack {
             if (jackOutputLibrary != null) {
               jackOutputLibrary.close();
             }
-            if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
-                || ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+            if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
+                || config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
               OutputLibrary jackInternalOutputLibrary = session.getJackInternalOutputLibrary();
               if (jackInternalOutputLibrary != null) {
                 jackInternalOutputLibrary.close();
               }
             }
             //TODO(jack-team): auto-close
-            if (ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue()
-                && ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
-              ThreadConfig.get(Options.DEX_OUTPUT_ZIP).close();
+            if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
+                && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
+              config.get(Options.DEX_OUTPUT_ZIP).close();
             }
           } catch (LibraryIOException e) {
             throw new AssertionError(e);
