@@ -669,6 +669,7 @@ public class Options {
     if (incrementalFolder != null) {
       configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
       configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
+      configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
       configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
       configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
       configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
