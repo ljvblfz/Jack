@@ -79,6 +79,7 @@ class InputOutputZipVFile extends AbstractVElement implements InputOutputVFile {
   @Nonnull
   @Override
   public OutputStream openWrite() throws FileNotFoundException {
+    assert !vfs.isClosed();
     return new FileOutputStream(file);
   }
 
