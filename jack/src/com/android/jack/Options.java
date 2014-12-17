@@ -150,16 +150,6 @@ public class Options {
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVFS> INTERNAL_LIBRARY_OUTPUT_DIR = PropertyId.create(
-      "jack.internal.library.output.dir", "Output folder for internal library",
-      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST))
-      .withCategory(Private.get()).requiredIf(GENERATE_DEX_IN_LIBRARY.getValue()
-          .isTrue().and(DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR).or(
-              DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)).and(GENERATE_JACK_LIBRARY.getValue()
-              .isFalse())).or(GENERATE_JACK_LIBRARY.getValue()
-              .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR))));
-
-  @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
       new DirectDirOutputVDirCodec(Existence.MUST_EXIST)).requiredIf(
@@ -628,7 +618,11 @@ public class Options {
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
-      configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR, libraryOutDir.getPath());
+    } else {
+      configBuilder.set(GENERATE_JACK_LIBRARY, true);
+      configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
+      configBuilder.set(Options.LIBRARY_OUTPUT_DIR,
+          new DirectVFS(createTempDirForTypeDexFiles(hooks)));
     }
 
     switch (multiDexKind) {
@@ -645,22 +639,16 @@ public class Options {
         throw new AssertionError("Unsupported multi dex kind: '" + multiDexKind.name() + "'");
     }
 
+
+
     if (outZip != null) {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
-            new DirectVFS(createTempDirForTypeDexFiles(hooks)));
-      }
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
-      if (libraryOutZip == null && libraryOutDir == null) {
-        configBuilder.set(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
-            new DirectVFS(createTempDirForTypeDexFiles(hooks)));
-      }
     }
     configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
     configBuilder.set(
@@ -672,8 +660,6 @@ public class Options {
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
       configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
       configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
-      configBuilder.setString(Options.INTERNAL_LIBRARY_OUTPUT_DIR,
-          incrementalFolder.getPath());
     }
 
     if (tracerDir != null) {

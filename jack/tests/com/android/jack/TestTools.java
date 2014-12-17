@@ -553,7 +553,7 @@ public class TestTools {
     Request request = Jack.createInitialRequest();
     request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
     request.addProduction(DexInLibraryProduct.class);
-    if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+    if (ThreadConfig.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
       request.addProduction(JayceInLibraryProduct.class);
     }
 
@@ -563,7 +563,7 @@ public class TestTools {
           TestTools.createTempDir("unused", "").getPath(), hooks, Existence.MUST_EXIST,
           Permission.WRITE, ChangePermission.NOCHANGE)), Jack.getEmitterId(),
           Jack.getVersionString());
-      session.setJackInternalOutputLibrary(outputLibrary);
+      session.setJackOutputLibrary(outputLibrary);
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
       Jack.fillDexPlan(options, planBuilder);

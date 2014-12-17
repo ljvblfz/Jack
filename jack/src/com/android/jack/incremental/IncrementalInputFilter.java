@@ -174,7 +174,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     typeDependencies.update(fileDependencies, getDeleteFileNames(), getModifiedFileNames());
 
     OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(
-        ThreadConfig.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
+        ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
         Jack.getVersionString());
 
     FileDependenciesWriter.write(outputLibrary, fileDependencies);
@@ -294,7 +294,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private InputJackLibrary getIncrementalInternalLibrary() {
     try {
       return JackLibraryFactory.getInputLibrary(
-          ThreadConfig.get(Options.INTERNAL_LIBRARY_OUTPUT_DIR));
+          ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR));
     } catch (NotJackLibraryException e) {
       // No incremental internal library, it is the first compilation
     } catch (LibraryVersionException e) {

@@ -42,7 +42,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir);
     Iterator<InputVFile> inputVFileIt =
-        Jack.getSession().getJackInternalOutputLibrary().iterator(FileType.DEX);
+        Jack.getSession().getJackOutputLibrary().iterator(FileType.DEX);
 
     while (inputVFileIt.hasNext()) {
       try {
