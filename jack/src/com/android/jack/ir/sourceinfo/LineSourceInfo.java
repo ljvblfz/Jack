@@ -76,6 +76,6 @@ class LineSourceInfo extends SourceInfo {
   @Override
   @Nonnull
   public String toString() {
-    return fileSourceInfo.getFileName() + '(' + getStartLine() + ')';
+    return getFileName() + ":" + getStartLine() + '-' + getEndLine();
   }
 }

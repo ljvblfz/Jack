@@ -16,6 +16,8 @@
 
 package com.android.jack.ir.sourceinfo;
 
+import javax.annotation.Nonnull;
+
 
 /**
  * Represents the source information when the origin of a node is unknown.
@@ -26,4 +28,9 @@ public class UnknownSourceInfo extends FileSourceInfo {
     super("Unknown");
   }
 
+  @Override
+  @Nonnull
+  public String toString() {
+    return "Unknown source info";
+  }
 }

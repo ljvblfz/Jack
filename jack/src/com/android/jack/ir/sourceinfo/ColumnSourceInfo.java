@@ -73,6 +73,13 @@ class ColumnSourceInfo extends SourceInfo {
   }
 
   @Override
+  @Nonnull
+  public String toString() {
+    return lineSourceInfo.getFileName() + ':' + getStartLine() + '.' + getStartColumn() + '-'
+        + getEndLine() + '.' + getEndColumn();
+  }
+
+  @Override
   public final int hashCode() {
     return lineSourceInfo.hashCode() + 29 * startCol + 31 * endCol;
   }
