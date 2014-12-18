@@ -76,4 +76,10 @@ public class FileSourceInfo extends SourceInfo {
   public FileSourceInfo getFileSourceInfo() {
     return this;
   }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return getFileName();
+  }
 }
