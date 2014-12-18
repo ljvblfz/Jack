@@ -1,0 +1,2 @@
+com.android.jack.annotation.processor.sample.processors.SourceAnnotationProcessor
+com.android.jack.annotation.processor.sample.processors.ResourceAnnotationProcessor

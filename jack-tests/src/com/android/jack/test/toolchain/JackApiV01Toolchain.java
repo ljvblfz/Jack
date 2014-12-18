@@ -16,6 +16,7 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 import com.android.jack.Options;
@@ -193,6 +194,20 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     apiV01Config.setProguardConfigFiles(proguardFlags);
     if (jarjarRules != null) {
       apiV01Config.setJarJarConfigFile(jarjarRules);
+    }
+    apiV01Config.setProcessorOptions(annotationProcessorOptions);
+
+    if (annotationProcessorClasses != null) {
+      apiV01Config.setProcessorNames(annotationProcessorClasses);
+    }
+
+
+    if (processorPath != null) {
+      List<File> fileList = new ArrayList<File>();
+      for (String entry : Splitter.on(File.pathSeparatorChar).split(processorPath)) {
+        fileList.add(new File(entry));
+      }
+      apiV01Config.setProcessorPath(fileList);
     }
   }
 

@@ -23,7 +23,9 @@ import com.android.jack.test.TestsProperties;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -42,15 +44,30 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     LEGACY
   }
 
-
-  @CheckForNull
-  protected File annotationProcessorOutDir;
   @Nonnull
   protected List<File> resImport = new ArrayList<File>();
+  @Nonnull
+  protected final Map<String, String> annotationProcessorOptions = new HashMap<String, String>();
+  @CheckForNull
+  protected String processorPath;
 
   @Nonnull
   public abstract JackBasedToolchain addProperty(@Nonnull String propertyName,
       @Nonnull String propertyValue);
+
+  @Nonnull
+  public final JackBasedToolchain addAnnotationProcessorOption(@Nonnull String propertyName,
+      @Nonnull String propertyValue) {
+    annotationProcessorOptions.put(propertyName, propertyValue);
+    return this;
+  }
+
+  @Nonnull
+  public final JackBasedToolchain setAnnotationProcessorPath(
+      @Nonnull String processorPath) {
+    this.processorPath = processorPath;
+    return this;
+  }
 
   public final JackBasedToolchain setMultiDexKind(@Nonnull MultiDexKind kind) {
     switch (kind) {
@@ -72,13 +89,6 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   public JackBasedToolchain addResource(@Nonnull File resource) {
     resImport.add(resource);
-    return this;
-  }
-
-  @Nonnull
-  public final JackBasedToolchain setAnnotationProcessorOutDir(
-      @Nonnull File annotationProcessorOutDir) {
-    this.annotationProcessorOutDir = annotationProcessorOutDir;
     return this;
   }
 

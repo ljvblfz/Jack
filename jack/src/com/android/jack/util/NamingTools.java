@@ -120,16 +120,21 @@ public class NamingTools {
   }
 
   public static boolean isPackageBinaryName(@Nonnull String name) {
-    return isPackageName(name.toCharArray(), 0, name.length(), JLookup.PACKAGE_SEPARATOR,
+    return isClassOrPackageName(name.toCharArray(), 0, name.length(), JLookup.PACKAGE_SEPARATOR,
         PACKAGE_SOURCE_SEPARATOR);
   }
 
   public static boolean isPackageSourceName(@Nonnull String name) {
-    return isPackageName(name.toCharArray(), 0, name.length(), PACKAGE_SOURCE_SEPARATOR,
+    return isClassOrPackageName(name.toCharArray(), 0, name.length(), PACKAGE_SOURCE_SEPARATOR,
         JLookup.PACKAGE_SEPARATOR);
   }
 
-  private static boolean isPackageName(
+  public static boolean isClassSourceName(@Nonnull String name) {
+    return isClassOrPackageName(name.toCharArray(), 0, name.length(), PACKAGE_SOURCE_SEPARATOR,
+        JLookup.PACKAGE_SEPARATOR);
+  }
+
+  private static boolean isClassOrPackageName(
       @Nonnull char[] buffer, @Nonnegative int pos, @Nonnegative int length, char usedSeparator,
       char forbiddenSeparator) {
     while (pos < length) {

@@ -18,14 +18,17 @@ package com.android.jack.error;
 
 import com.google.common.io.Files;
 
-import com.android.jack.JackUserException;
+import com.android.jack.JackAbortException;
 import com.android.jack.Main;
+import com.android.jack.backend.jayce.JayceFileImporter.CollisionPolicy;
 import com.android.jack.errorhandling.annotationprocessor.ResourceAnnotationProcessor;
 import com.android.jack.errorhandling.annotationprocessor.ResourceAnnotationTest;
 import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationProcessor;
 import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationTest;
 import com.android.jack.errorhandling.annotationprocessor.SourceErrorAnnotationTest;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.resource.ResourceImporter;
+import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -43,6 +46,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -55,32 +59,6 @@ public class AnnotationProcessorErrorTest {
   @BeforeClass
   public static void setUpClass() {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
-  /**
-   * Checks that compilation fails correctly when annotation processor is called without specifying
-   * output folder.
-   */
-  @Test
-  public void testAnnotationProcessorError001() throws Exception {
-    ErrorTestHelper te = new ErrorTestHelper();
-
-    AbstractTestTools.createFile(te.getSourceFolder(),"jack.incremental", "A.java",
-        "package jack.incremental; \n"+
-        "public class A {} \n");
-
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
-
-    try {
-      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
-      .srcToExe(te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
-      Assert.fail();
-    } catch (JackUserException e) {
-      // Failure is ok since output for annotation processor is not specify.
-      Assert.assertTrue(e.getMessage().contains("Unknown location"));
-    }
   }
 
   /**
@@ -101,12 +79,14 @@ public class AnnotationProcessorErrorTest {
 
     runAnnotProcBuildingResource(te);
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
-    jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
+  JackApiToolchainBase jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    jackApiToolchain.setAnnotationProcessorClasses(
+        Collections.singletonList(ResourceAnnotationProcessor.class.getName()));
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
+    jackApiToolchain.addResource(te.getOutputDexFolder());
+    jackApiToolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(),
+        CollisionPolicy.FAIL.name());
 
     try {
 
@@ -115,10 +95,9 @@ public class AnnotationProcessorErrorTest {
       .srcToExe(te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
 
       Assert.fail();
-    } catch (FrontendCompilationException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof ResourceReadingException);
       // Failure is ok since created file already exists
-    } finally {
-      Assert.assertTrue(errOut.toString().contains("Resource already created"));
     }
   }
 
@@ -139,10 +118,9 @@ public class AnnotationProcessorErrorTest {
         + "public class A {}\n");
 
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    jackApiToolchain.setAnnotationProcessorClass(SourceAnnotationProcessor.class);
-    jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
+    JackApiToolchainBase jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    jackApiToolchain.setAnnotationProcessorClasses(
+        Collections.singletonList(SourceAnnotationProcessor.class.getName()));
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
 
@@ -173,10 +151,9 @@ public class AnnotationProcessorErrorTest {
         + "@" + SourceAnnotationTest.class.getSimpleName() + "\n"
         + "public class A {}\n");
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    jackApiToolchain.setAnnotationProcessorClass(SourceAnnotationProcessor.class);
-    jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
+    JackApiToolchainBase jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    jackApiToolchain.setAnnotationProcessorClasses(
+        Collections.singletonList(SourceAnnotationProcessor.class.getName()));
 
     File dexOutput = te.getOutputDexFolder();
     jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
@@ -202,16 +179,15 @@ public class AnnotationProcessorErrorTest {
         + "@" + ResourceAnnotationTest.class.getSimpleName() + "\n"
         + "public class A {}\n");
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
-    jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
+    JackApiToolchainBase jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    jackApiToolchain.setAnnotationProcessorClasses(
+        Collections.singletonList(ResourceAnnotationProcessor.class.getName()));
 
     jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
     .addToClasspath(te.getJackFolder())
     .srcToExe(te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
 
-    File discoverFile = new File(te.getTestingFolder(), ResourceAnnotationProcessor.FILENAME);
+    File discoverFile = new File(te.getOutputDexFolder(), ResourceAnnotationProcessor.FILENAME);
     Assert.assertTrue(discoverFile.exists());
     LineNumberReader lnr = new LineNumberReader(new FileReader(discoverFile));
     Assert.assertEquals(ResourceAnnotationTest.class.getName(), lnr.readLine());

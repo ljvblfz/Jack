@@ -20,6 +20,7 @@ import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 
 import javax.annotation.Nonnull;
@@ -82,6 +83,13 @@ public class EnumPropertyId<T extends Enum<T>> extends PropertyId<T> {
   public EnumPropertyId<T> sorted() {
     getCodec().sorted();
 
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public EnumPropertyId<T> withCategory(@Nonnull Category category) {
+    super.withCategory(category);
     return this;
   }
 

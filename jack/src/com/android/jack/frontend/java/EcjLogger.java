@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.Main.Logger;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -39,14 +40,19 @@ public class EcjLogger extends Logger {
   @CheckForNull
   private Reporter reporter;
 
-  public EcjLogger(Main main, PrintWriter out, PrintWriter err,
+  public EcjLogger(@Nonnull Main main, @Nonnull PrintWriter out, @Nonnull PrintWriter err,
       @Nonnull JackBatchCompiler jackBatchCompiler) {
     super(main, out, err);
     this.jackBatchCompiler = jackBatchCompiler;
   }
 
   @Override
-  public int logProblems(CategorizedProblem[] problems, char[] unitSource, Main currentMain) {
+  public int logProblems(@Nonnull CategorizedProblem[] problems, @Nonnull char[] unitSource,
+      @Nonnull Main currentMain) {
+    return report(problems, currentMain);
+  }
+
+  private int report(@Nonnull CategorizedProblem[] problems, @Nonnull Main currentMain) {
     if (reporter == null) {
       // lazy because the Reporter is not yet available when the EcjLogger is instantiated.
       reporter = jackBatchCompiler.getReporter();
@@ -72,5 +78,13 @@ public class EcjLogger extends Logger {
   public void logProblemsSummary(int globalProblemsCount, int globalErrorsCount,
       int globalWarningsCount, int globalTasksCount) {
     // Do nothing
+  }
+
+  @Override
+  public void loggingExtraProblems(@Nonnull Main currentMain) {
+    List<CategorizedProblem> extras = jackBatchCompiler.getExtraProblems();
+    if (extras != null) {
+      report(extras.toArray(new CategorizedProblem[extras.size()]), currentMain);
+    }
   }
 }

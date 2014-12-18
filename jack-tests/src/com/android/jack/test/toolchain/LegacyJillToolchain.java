@@ -307,9 +307,9 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
     addSourceLevel(sourceLevel, arguments);
 
-    if (annotationProcessorClass != null) {
+    if (annotationProcessorClasses != null) {
       arguments.add("-processor");
-      arguments.add(annotationProcessorClass.getName());
+      arguments.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
     arguments.add("-bootclasspath");

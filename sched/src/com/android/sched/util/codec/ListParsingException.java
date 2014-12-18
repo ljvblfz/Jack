@@ -30,7 +30,7 @@ public class ListParsingException extends ParsingException {
   private final int index;
 
   public ListParsingException(@Nonnegative int index, @Nonnull String message) {
-    super(message);
+    super("element #" + (index + 1) + ": " + message);
     this.index = index;
   }
 

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.errorhandling.annotationprocessor;
+package com.android.jack.annotation.processor.sample.processors;
+
+import com.android.jack.annotation.processor.sample.annotations.ResourceAnnotationTest;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,7 +59,7 @@ public class ResourceAnnotationProcessor extends AbstractProcessor {
   public final static String FILENAME = "rscGeneratedFile";
 
   @Override
-  public synchronized void init(ProcessingEnvironment env) {
+  public synchronized void init(@Nonnull ProcessingEnvironment env) {
     this.env = env;
     try {
       env.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", FILENAME);
@@ -67,14 +69,27 @@ public class ResourceAnnotationProcessor extends AbstractProcessor {
   }
 
   @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+  public boolean process(@Nonnull Set<? extends TypeElement> annotations,
+      @Nonnull RoundEnvironment roundEnv) {
+    assert env != null;
+    env.getMessager().printMessage(Kind.NOTE,
+        "ResourceAnnotationProcessor.process");
     if (roundEnv.processingOver()) {
       try {
         assert env != null;
 
-        FileObject resource = env.getFiler()
-            .createResource(StandardLocation.CLASS_OUTPUT, "", FILENAME);
-        OutputStream os = resource
+        int count = 0;
+        while (true) {
+        try {
+          FileObject fo = env.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", FILENAME + count);
+          fo.openInputStream().close();
+          count ++;
+        } catch (IOException e) {
+          break;
+        }
+        }
+        OutputStream os = env.getFiler()
+            .createResource(StandardLocation.CLASS_OUTPUT, "", FILENAME + count)
             .openOutputStream();
         Writer writer = new OutputStreamWriter(os);
         try {

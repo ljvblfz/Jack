@@ -184,6 +184,7 @@ public class FileAccessErrorTest {
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
+    jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
       for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {

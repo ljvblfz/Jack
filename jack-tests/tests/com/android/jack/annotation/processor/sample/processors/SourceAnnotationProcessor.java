@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.errorhandling.annotationprocessor;
+package com.android.jack.annotation.processor.sample.processors;
+
+import com.android.jack.annotation.processor.sample.annotations.SourceAnnotationTest;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -38,72 +36,57 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
+import javax.tools.JavaFileObject;
 
 /**
- * Annotation processor generating a dedicated resource file called {@code rscGeneratedFile}.
+ * Annotation processor to generate a new source file.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("*")
-public class ResourceAnnotationProcessor extends AbstractProcessor {
+public class SourceAnnotationProcessor extends AbstractProcessor {
+  @Nonnull
+  public static final String SOURCE_ANNOTATION_PROCESSOR_SUFFIX =
+      "SourceAnnotationProcessor.suffix";
   @CheckForNull
   private ProcessingEnvironment env;
-
   @Nonnull
-  private final List<String> data = new ArrayList<String>();
-
-  @Nonnull
-  public final static String FILENAME = "rscGeneratedFile";
+  private String suffix;
 
   @Override
-  public synchronized void init(ProcessingEnvironment env) {
+  public synchronized void init(@Nonnull ProcessingEnvironment env) {
     this.env = env;
-    try {
-      env.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", FILENAME);
-    } catch (IOException e) {
-      // Best effort
+    suffix = env.getOptions().get(SOURCE_ANNOTATION_PROCESSOR_SUFFIX);
+    if (suffix == null) {
+      suffix = "Duplicated";
     }
   }
 
   @Override
-  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    if (roundEnv.processingOver()) {
-      try {
-        assert env != null;
+  public boolean process(@Nonnull Set<? extends TypeElement> annotations, @Nonnull RoundEnvironment roundEnv) {
+    assert env != null;
+    env.getMessager().printMessage(Kind.NOTE,
+        "SourceAnnotationProcessor.process");
+    if (!roundEnv.processingOver()) {
 
-        FileObject resource = env.getFiler()
-            .createResource(StandardLocation.CLASS_OUTPUT, "", FILENAME);
-        OutputStream os = resource
-            .openOutputStream();
-        Writer writer = new OutputStreamWriter(os);
-        try {
-          for (String val : data) {
-            writer.write(val);
-            writer.write("\n");
-          }
-        } finally {
-          writer.close();
-        }
-      } catch (IOException e) {
-        env.getMessager().printMessage(Kind.ERROR,
-            "Can not write resource file for '" + FILENAME + "': " + e.getMessage());
-      }
-    } else {
       //
-      // @ResourceAnnotationTest
+      // @SourceAnnotationTest
       //
 
-      for (Element element : getElementsAnnotatedWith(roundEnv, ResourceAnnotationTest.class)) {
-        assert data != null;
-
+      for (Element element : getElementsAnnotatedWith(roundEnv, SourceAnnotationTest.class)) {
         TypeMirror type = element.asType();
 
         if (type.getKind() == TypeKind.DECLARED) {
-          data.add(ResourceAnnotationTest.class.getCanonicalName());
-          assert env != null;
-          data.add(env.getElementUtils().getBinaryName((TypeElement) element).toString());
-
+          TypeElement classElement = (TypeElement) element;
+          try {
+            assert env != null;
+            JavaFileObject jfo =
+                env.getFiler().createSourceFile(classElement.getQualifiedName() + suffix);
+            Writer writer = jfo.openWriter();
+            writer.write("public class " + classElement.getSimpleName() + suffix + " {}");
+            writer.close();
+          } catch (IOException e) {
+            throw new AssertionError(e);
+          }
         }
       }
     }
