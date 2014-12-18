@@ -23,10 +23,11 @@ import com.android.jack.analysis.UsedVariableRemover;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainComputation;
 import com.android.jack.analysis.defsuses.DefUsesAndUseDefsChainRemover;
 import com.android.jack.analysis.defsuses.UseDefsChecker;
+import com.android.jack.analysis.dependency.DependencyInLibraryProduct;
 import com.android.jack.analysis.dependency.file.FileDependenciesCollector;
-import com.android.jack.analysis.dependency.file.FileDependenciesWriter;
+import com.android.jack.analysis.dependency.file.FileDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
-import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
+import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
@@ -567,6 +568,10 @@ public abstract class Jack {
         if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
             request.addProduction(JayceInLibraryProduct.class);
         }
+
+        if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
+          request.addProduction(DependencyInLibraryProduct.class);
+      }
 
         ProductionSet targetProduction = request.getTargetProductions();
         FeatureSet features = request.getFeatures();
@@ -1165,6 +1170,8 @@ public abstract class Jack {
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
+      }
+      if (productions.contains(DependencyInLibraryProduct.class)) {
         typePlan.append(TypeDependenciesCollector.class);
         typePlan.append(FileDependenciesCollector.class);
       }
@@ -1218,9 +1225,9 @@ public abstract class Jack {
       }
     }
 
-    if (productions.contains(JayceInLibraryProduct.class)) {
-      planBuilder.append(TypeDependenciesWriter.class);
-      planBuilder.append(FileDependenciesWriter.class);
+    if (productions.contains(DependencyInLibraryProduct.class)) {
+      planBuilder.append(TypeDependenciesInLibraryWriter.class);
+      planBuilder.append(FileDependenciesInLibraryWriter.class);
     }
 
     if (productions.contains(Mapping.class)) {
