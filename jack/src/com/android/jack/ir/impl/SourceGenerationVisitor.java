@@ -43,7 +43,7 @@ import javax.annotation.Nonnull;
  * compatable with the real ones, which breaks string literals, class literals,
  * try/catch/throw, and overrides of Object methods.
  */
-public class SourceGenerationVisitor extends ToStringGenerationVisitor {
+public class SourceGenerationVisitor extends BaseGenerationVisitor {
 
   public SourceGenerationVisitor(TextOutput textOutput) {
     super(textOutput);

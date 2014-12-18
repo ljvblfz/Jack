@@ -20,6 +20,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {BinaryLookup.class, ToString.class})
+@SuiteClasses(value = {BinaryLookup.class, BaseGenerationTest.class})
 public class AllTests {
 }

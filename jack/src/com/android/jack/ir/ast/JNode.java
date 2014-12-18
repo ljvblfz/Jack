@@ -138,10 +138,19 @@ public abstract class JNode extends LocalMarkerManager
   // Causes source generation to delegate to the one visitor
   @Override
   public final String toString() {
+    String str;
+
     DefaultTextOutput out = new DefaultTextOutput(true);
     ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
     v.accept(this);
-    return out.toString();
+    str = out.toString();
+
+    SourceInfo sourceInfo = getSourceInfo();
+    if (sourceInfo != SourceInfo.UNKNOWN) {
+      str += " (" + getSourceInfo().toString() + ")";
+    }
+
+    return str;
   }
 
   public final void remove(@Nonnull JNode existingNode)

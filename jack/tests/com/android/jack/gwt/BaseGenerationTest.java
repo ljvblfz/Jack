@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.impl.ToStringGenerationVisitor;
+import com.android.jack.ir.impl.BaseGenerationVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.DefaultTextOutput;
 
@@ -35,7 +35,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ToString {
+public class BaseGenerationTest {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -50,7 +50,7 @@ public class ToString {
         JNewArray.createWithDims(SourceInfo.UNKNOWN,
             JPrimitiveTypeEnum.INT.getType().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
-    ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
+    BaseGenerationVisitor v = new BaseGenerationVisitor(out);
     v.accept(newArray);
     Assert.assertTrue("new int[]".equals(out.toString()));
   }
@@ -63,7 +63,7 @@ public class ToString {
     JNewArray newArray = JNewArray.createWithDims(
         SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
-    ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
+    BaseGenerationVisitor v = new BaseGenerationVisitor(out);
     v.accept(newArray);
     Assert.assertTrue("new int[][]".equals(out.toString()));
   }
@@ -76,7 +76,7 @@ public class ToString {
     JNewArray newArray = JNewArray.createWithDims(
         SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray().getArray(), dims);
     DefaultTextOutput out = new DefaultTextOutput(false);
-    ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
+    BaseGenerationVisitor v = new BaseGenerationVisitor(out);
     v.accept(newArray);
     Assert.assertTrue("new int[][4]".equals(out.toString()));
   }
@@ -90,7 +90,7 @@ public class ToString {
         JNewArray.createWithInits(SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray(),
             init);
     DefaultTextOutput out = new DefaultTextOutput(false);
-    ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
+    BaseGenerationVisitor v = new BaseGenerationVisitor(out);
     v.accept(newArray);
     Assert.assertTrue("new int[]{4, 5}".equals(out.toString()));
   }
@@ -106,7 +106,7 @@ public class ToString {
     JNewArray newArray = JNewArray.createWithInits(
         SourceInfo.UNKNOWN, intArray1.getArray(), init);
     DefaultTextOutput out = new DefaultTextOutput(false);
-    ToStringGenerationVisitor v = new ToStringGenerationVisitor(out);
+    BaseGenerationVisitor v = new BaseGenerationVisitor(out);
     v.accept(newArray);
     Assert.assertTrue("new int[][]{new int[]{4, 5}}".equals(out.toString()));
   }
