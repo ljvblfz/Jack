@@ -146,7 +146,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    Event event = logAndTrace(runner, managedSchedulable);
+    Event event = logAndTrace(runner, managedSchedulable, data);
     try {
       runner.run(data);
     } finally {
@@ -165,7 +165,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    Event event = logAndTrace(visitor, managedSchedulable);
+    Event event = logAndTrace(visitor, managedSchedulable, data);
     try {
       assert data instanceof SchedulerVisitable<?>;
       ((SchedulerVisitable<X>) data).visit((X) visitor, new TransformRequest());
@@ -182,7 +182,7 @@ public abstract class ScheduleInstance<T extends Component> {
     ManagedSchedulable managedSchedulable =
         schedulableManager.getManagedSchedulable(adapter.getClass());
 
-    Event event = logAndTrace(adapter, managedSchedulable);
+    Event event = logAndTrace(adapter, managedSchedulable, data);
     try {
       return adapter.adapt(data);
     } finally {
@@ -191,15 +191,16 @@ public abstract class ScheduleInstance<T extends Component> {
   }
 
   @Nonnull
-  private Event logAndTrace(
-      @Nonnull Schedulable schedulable, @CheckForNull ManagedSchedulable managedSchedulable) {
-    String name = (managedSchedulable != null) ? managedSchedulable.getName()
-        : ("<" + schedulable.getClass().getSimpleName() + ">");
+  private <U extends Component> Event logAndTrace(@Nonnull Schedulable schedulable,
+      @CheckForNull ManagedSchedulable managedSchedulable, @Nonnull U data) {
+    String name =
+        (managedSchedulable != null) ? managedSchedulable.getName() : ("<"
+            + schedulable.getClass().getSimpleName() + ">");
 
     if (schedulable instanceof AdapterSchedulable) {
-      logger.log(Level.FINEST, "Run visitor ''{0}''", name);
+      logger.log(Level.FINEST, "Run adapter ''{0}'' on ''{1}''", new Object[] {name, data});
     } else {
-      logger.log(Level.FINEST, "Run runner ''{0}''", name);
+      logger.log(Level.FINEST, "Run runner ''{0}'' on ''{1}''", new Object[] {name, data});
     }
 
     Event event = tracer.start(name);
