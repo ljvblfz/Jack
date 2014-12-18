@@ -19,6 +19,7 @@ package com.android.jack;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
+import com.android.sched.scheduler.ProcessException;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.Parser.ValueDescription;
@@ -57,8 +58,17 @@ public abstract class CommandLine {
   private static Logger logger = LoggerFactory.getLogger();
 
   protected static void runJackAndExitOnError(@Nonnull Options options) {
+    ProcessException pe = null;
+
     try {
-      Jack.run(options);
+      try {
+        Jack.run(options);
+      } catch (ProcessException e) {
+        // Handle the cause, but keep the ProcessException in case of
+        // Internal Compiler Error only
+        pe = e;
+        throw e.getCause();
+      }
     } catch (NothingToDoException e1) {
       // End normally since there is nothing to do
     } catch (ConfigurationException exceptions) {
@@ -113,6 +123,13 @@ public abstract class CommandLine {
       logger.log(Level.FINE, "Jack fatal exception:", e);
       System.exit(ExitStatus.FAILURE_COMPILATION);
     } catch (Throwable e) {
+      // Internal Compiler Error here
+      // If the exception come from a ProcessException, we want
+      // to report ProcessException instead of the cause
+      if (pe != null) {
+        e = pe;
+      }
+
       String info = "Internal compiler error (version " + Jack.getVersionString() + ")";
       logger.log(Level.SEVERE, info + ':', e);
       e.printStackTrace();

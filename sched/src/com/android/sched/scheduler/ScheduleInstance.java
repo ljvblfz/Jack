@@ -132,14 +132,14 @@ public abstract class ScheduleInstance<T extends Component> {
    * @throws Exception if an Exception is thrown by a {@code Schedulable}
    */
   public abstract <X extends VisitorSchedulable<T>, U extends Component> void process(
-      @Nonnull T data) throws Exception;
+      @Nonnull T data) throws ProcessException;
 
   //
   // Methods to log and assert
   //
 
   protected <U extends Component> void runWithLog(
-      @Nonnull RunnableSchedulable<U> runner, @Nonnull U data) throws Exception {
+      @Nonnull RunnableSchedulable<U> runner, @Nonnull U data) throws RunnerProcessException {
     ManagedSchedulable managedSchedulable =
         schedulableManager.getManagedSchedulable(runner.getClass());
     Stack<ElementStack> visitStack = tlsVisitStack.get();
@@ -148,7 +148,11 @@ public abstract class ScheduleInstance<T extends Component> {
 
     Event event = logAndTrace(runner, managedSchedulable, data);
     try {
-      runner.run(data);
+      try {
+        runner.run(data);
+      } catch (Throwable e) {
+        throw new RunnerProcessException(runner, managedSchedulable, data, e);
+      }
     } finally {
       event.end();
     }
@@ -158,7 +162,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
   @SuppressWarnings("unchecked")
   protected <X extends VisitorSchedulable<T>, U extends Component> void visitWithLog(
-      @Nonnull VisitorSchedulable<U> visitor, @Nonnull U data) throws Exception {
+      @Nonnull VisitorSchedulable<U> visitor, @Nonnull U data) throws VisitorProcessException {
     ManagedSchedulable managedSchedulable =
         schedulableManager.getManagedSchedulable(visitor.getClass());
     Stack<ElementStack> visitStack = tlsVisitStack.get();
@@ -168,7 +172,11 @@ public abstract class ScheduleInstance<T extends Component> {
     Event event = logAndTrace(visitor, managedSchedulable, data);
     try {
       assert data instanceof SchedulerVisitable<?>;
-      ((SchedulerVisitable<X>) data).visit((X) visitor, new TransformRequest());
+      try {
+        ((SchedulerVisitable<X>) data).visit((X) visitor, new TransformRequest());
+      } catch (Throwable e) {
+        throw new VisitorProcessException(visitor, managedSchedulable, data, e);
+      }
     } finally {
       event.end();
     }
@@ -178,13 +186,15 @@ public abstract class ScheduleInstance<T extends Component> {
 
   @Nonnull
   protected <DST extends Component> Iterator<DST> adaptWithLog(
-      @Nonnull AdapterSchedulable<T, DST> adapter, @Nonnull T data) throws Exception {
+      @Nonnull AdapterSchedulable<T, DST> adapter, @Nonnull T data) throws AdapterProcessException {
     ManagedSchedulable managedSchedulable =
         schedulableManager.getManagedSchedulable(adapter.getClass());
 
     Event event = logAndTrace(adapter, managedSchedulable, data);
     try {
       return adapter.adapt(data);
+    } catch (Throwable e) {
+      throw new AdapterProcessException(adapter, managedSchedulable, data, e);
     } finally {
       event.end();
     }

@@ -52,7 +52,7 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
   private FeatureSet features;
 
   @Nonnull
-  public ScheduleInstance<T> getScheduleInstance() throws Exception {
+  public ScheduleInstance<T> getScheduleInstance() {
     return ScheduleInstance.<T> createScheduleInstance(this);
   }
 
