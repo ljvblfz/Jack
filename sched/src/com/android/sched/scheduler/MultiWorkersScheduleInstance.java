@@ -282,7 +282,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
       super(queue);
     }
 
-    public void throwPending() throws Exception, Error {
+    @SuppressWarnings("unused")
+    public void throwPending() throws ProcessException, AssertionError {
     }
 
     @Override
@@ -306,18 +307,18 @@ public class MultiWorkersScheduleInstance<T extends Component>
     }
   }
 
-  private static class ExceptionTask extends ShutdownTask {
+  private static class ProcessExceptionTask extends ShutdownTask {
     @Nonnull
-    private final Exception exception;
+    private final ProcessException exception;
 
-    public ExceptionTask(@Nonnull Deque<Task> queue, @Nonnull Exception exception) {
+    public ProcessExceptionTask(@Nonnull Deque<Task> queue, @Nonnull ProcessException exception) {
       super(queue);
 
       this.exception = exception;
     }
 
     @Override
-    public void throwPending() throws Exception {
+    public void throwPending() throws ProcessException {
       throw exception;
     }
 
@@ -329,18 +330,18 @@ public class MultiWorkersScheduleInstance<T extends Component>
     }
   }
 
-  private static class ErrorTask extends ShutdownTask {
+  private static class AssertionErrorTask extends ShutdownTask {
     @Nonnull
-    private final Error error;
+    private final AssertionError error;
 
-    public ErrorTask(@Nonnull Deque<Task> queue, @Nonnull Error error) {
+    public AssertionErrorTask(@Nonnull Deque<Task> queue, @Nonnull AssertionError error) {
       super(queue);
 
       this.error = error;
     }
 
     @Override
-    public void throwPending() throws Error {
+    public void throwPending() throws AssertionError {
       throw error;
     }
 
@@ -406,11 +407,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
             } else {
               throw new AssertionError();
             }
-          } catch (Exception e) {
-            new ExceptionTask(queue, e).commit();
-            break;
-          } catch (Error e) {
-            new ErrorTask(queue, e).commit();
+          } catch (ProcessException e) {
+            new ProcessExceptionTask(queue, e).commit();
             break;
           } finally {
             if (sync != null) {
@@ -437,7 +435,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
   @Override
   public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T data)
-      throws Exception {
+      throws ProcessException       {
     BlockingDeque<Task> queue = new LinkedBlockingDeque<Task>();
 
     // Initialize queue with the initial plan, and block a shutdown Task on it
@@ -466,7 +464,11 @@ public class MultiWorkersScheduleInstance<T extends Component>
     while (activeWorkers.size() > 0) {
       Thread thread = activeWorkers.get(0);
 
-      thread.join(checkEvery);
+      try {
+        thread.join(checkEvery);
+      } catch (InterruptedException e) {
+        // Nothing to do
+      }
       if (!thread.isAlive()) {
         activeWorkers.remove(0);
       }
@@ -474,7 +476,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
       if (!detector.check(activeWorkers) && !shutdownInProgress) {
         // If there is a blocked thread detected, shutdown all tasks
         shutdownInProgress = true;
-        new ErrorTask(queue, new AssertionError()).commit();
+        new AssertionErrorTask(queue, new AssertionError()).commit();
       }
     }
 

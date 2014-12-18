@@ -49,7 +49,6 @@ import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
 import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
-import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceFormatProduct;
 import com.android.jack.backend.jayce.JayceSingleTypeWriter;
@@ -75,10 +74,8 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
@@ -249,6 +246,7 @@ import com.android.sched.scheduler.Plan;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.PlanNotFoundException;
 import com.android.sched.scheduler.PlanPrinterFactory;
+import com.android.sched.scheduler.ProcessException;
 import com.android.sched.scheduler.ProductionSet;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
@@ -364,18 +362,13 @@ public abstract class Jack {
    * @throws ConfigurationException thrown from the configuration framework.
    * @throws IllegalOptionsException thrown when an {@code Options} is not valid.
    * @throws NothingToDoException thrown when there is nothing to compile.
-   * @throws ImportConflictException thrown when a conflict prevents the import of a Jack container
-   *         entry.
-   * @throws JackIOException thrown when a Jack-related {@code IOException} should be brought to the
-   *         attention of the user.
-   * @throws JPackageLookupException thrown when the lookup of a package failed.
-   * @throws JTypeLookupException thrown when the lookup of a type failed.
+   * @throws ProcessException thrown during schedulable execution
    */
   public static void run(@Nonnull Options options)
       throws IllegalOptionsException,
       NothingToDoException,
       ConfigurationException,
-      JackUserException {
+      JackUserException, ProcessException {
     boolean assertEnable = false;
     // assertEnable = true if assertion is already enable
     assert true == (assertEnable = true);
@@ -612,17 +605,16 @@ public abstract class Jack {
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
         try {
           plan.getScheduleInstance().process(session);
-          OutputLibrary outputLibrary = session.getOutputLibrary();
-          if (outputLibrary != null) {
-            outputLibrary.close();
+        } finally {
+          try {
+            OutputLibrary jackOutputLibrary = session.getOutputLibrary();
+            if (jackOutputLibrary != null) {
+              jackOutputLibrary.close();
+            }
+          } catch (LibraryWritingException e) {
+            session.getReporter().report(Severity.FATAL, e);
+            throw new JackAbortException(e);
           }
-        } catch (LibraryWritingException e) {
-          session.getReporter().report(Severity.FATAL, e);
-          throw new JackAbortException(e);
-        } catch (RuntimeException e) {
-          throw e;
-        } catch (Exception e) {
-          throw new AssertionError(e);
         }
       } finally {
         event.end();

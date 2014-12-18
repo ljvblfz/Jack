@@ -48,7 +48,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
   @Override
   @SuppressWarnings({"rawtypes", "unchecked"})
   public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T t)
-      throws Exception {
+      throws ProcessException {
     for (SchedStep step : steps) {
       Schedulable instance = step.getInstance();
 

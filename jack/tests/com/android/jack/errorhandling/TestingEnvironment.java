@@ -24,6 +24,7 @@ import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.util.NamingTools;
+import com.android.sched.scheduler.ProcessException;
 import com.android.sched.util.config.ConfigurationException;
 
 import java.io.ByteArrayOutputStream;
@@ -91,7 +92,7 @@ public class TestingEnvironment {
   public void compile(@Nonnull Options options)
       throws ConfigurationException,
       IllegalOptionsException,
-      NothingToDoException, JackUserException {
+      NothingToDoException, JackUserException, ProcessException {
     Jack.run(options);
   }
 

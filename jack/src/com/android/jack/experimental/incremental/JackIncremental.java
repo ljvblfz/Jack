@@ -37,6 +37,7 @@ import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.util.TextUtils;
 import com.android.sched.scheduler.IllegalRequestException;
 import com.android.sched.scheduler.PlanBuilder;
+import com.android.sched.scheduler.ProcessException;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.DirectDirOutputVDirCodec;
@@ -164,7 +165,7 @@ public class JackIncremental extends CommandLine {
   }
 
   public static void run(@Nonnull Options options) throws ConfigurationException,
-      IllegalOptionsException, NothingToDoException, JackUserException {
+      IllegalOptionsException, NothingToDoException, JackUserException, ProcessException {
 
     File incrementalFolder = options.getIncrementalFolder();
     assert incrementalFolder != null;
