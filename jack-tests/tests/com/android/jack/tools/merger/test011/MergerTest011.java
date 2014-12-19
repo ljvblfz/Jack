@@ -24,6 +24,7 @@ import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
 import com.android.jack.tools.merger.MethodIdOverflowException;
 import com.android.jack.tools.merger.TypeIdOverflowException;
+import com.android.sched.scheduler.ProcessException;
 
 import junit.framework.Assert;
 
@@ -67,9 +68,10 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
-      Throwable cause = e.getCause();
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackUserException);
+      Assert.assertEquals(expectedExceptionMessage, e.getCause().getMessage());
+      Throwable cause = e.getCause().getCause();
       Assert.assertTrue(cause instanceof MethodIdOverflowException);
     }
   }
@@ -86,9 +88,10 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
-      Throwable cause = e.getCause();
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackUserException);
+      Assert.assertEquals(expectedExceptionMessage, e.getCause().getMessage());
+      Throwable cause = e.getCause().getCause();
       Assert.assertTrue(cause instanceof FieldIdOverflowException);
     }
   }
@@ -106,9 +109,10 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackUserException e) {
-      Assert.assertEquals(expectedExceptionMessage, e.getMessage());
-      Throwable cause = e.getCause();
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackUserException);
+      Assert.assertEquals(expectedExceptionMessage, e.getCause().getMessage());
+      Throwable cause = e.getCause().getCause();
       Assert.assertTrue(cause instanceof TypeIdOverflowException);
     }
   }

@@ -25,6 +25,7 @@ import com.android.jack.backend.dex.MainDexOverflowException;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MethodIdOverflowException;
+import com.android.sched.scheduler.ProcessException;
 
 import junit.framework.Assert;
 
@@ -76,11 +77,12 @@ public class MultiDexOverflowTests {
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
           );
       Assert.fail();
-    } catch (JackAbortException e) {
-      Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof DexWritingException);
-      Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
-      Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackAbortException);
+      Throwable contextException = e.getCause().getCause();
+      Assert.assertTrue(contextException instanceof DexWritingException);
+      Assert.assertTrue(contextException.getCause() instanceof MainDexOverflowException);
+      Assert.assertTrue(contextException.getCause().getCause() instanceof MethodIdOverflowException);
       Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
     } finally {
       redirectStream.close();
@@ -109,11 +111,12 @@ public class MultiDexOverflowTests {
           TestTools.getDefaultBootclasspath(), new File[] {annotations}), outFolder, false /* zip */
           );
       Assert.fail();
-    } catch (JackAbortException e) {
-      Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof DexWritingException);
-      Assert.assertTrue(cause.getCause() instanceof MainDexOverflowException);
-      Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackAbortException);
+      Throwable contextException = e.getCause().getCause();
+      Assert.assertTrue(contextException instanceof DexWritingException);
+      Assert.assertTrue(contextException.getCause() instanceof MainDexOverflowException);
+      Assert.assertTrue(contextException.getCause().getCause() instanceof FieldIdOverflowException);
       Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
     } finally {
       redirectStream.close();
