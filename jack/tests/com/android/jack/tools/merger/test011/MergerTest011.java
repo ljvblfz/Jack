@@ -26,6 +26,7 @@ import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
 import com.android.jack.tools.merger.MethodIdOverflowException;
 import com.android.jack.tools.merger.TypeIdOverflowException;
+import com.android.sched.scheduler.ProcessException;
 
 import junit.framework.Assert;
 
@@ -74,11 +75,12 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackAbortException e) {
-      Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof DexWritingException);
-      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
-      Assert.assertTrue(cause.getCause().getCause() instanceof MethodIdOverflowException);
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackAbortException);
+      Throwable contextException = e.getCause().getCause();
+      Assert.assertTrue(contextException instanceof DexWritingException);
+      Assert.assertTrue(contextException.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(contextException.getCause().getCause() instanceof MethodIdOverflowException);
       Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
     } finally {
       redirectStream.close();
@@ -100,11 +102,12 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackAbortException e) {
-      Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof DexWritingException);
-      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
-      Assert.assertTrue(cause.getCause().getCause() instanceof FieldIdOverflowException);
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackAbortException);
+      Throwable contextException = e.getCause().getCause();
+      Assert.assertTrue(contextException instanceof DexWritingException);
+      Assert.assertTrue(contextException.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(contextException.getCause().getCause() instanceof FieldIdOverflowException);
       Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
     } finally {
       redirectStream.close();
@@ -127,11 +130,12 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(TestTools.getDefaultBootclasspathString(), srcFolder, false /* withDebug */);
       Assert.fail();
-    } catch (JackAbortException e) {
-      Throwable cause = e.getCause();
-      Assert.assertTrue(cause instanceof DexWritingException);
-      Assert.assertTrue(cause.getCause() instanceof SingleDexOverflowException);
-      Assert.assertTrue(cause.getCause().getCause() instanceof TypeIdOverflowException);
+    } catch (ProcessException e) {
+      Assert.assertTrue(e.getCause() instanceof JackAbortException);
+      Throwable contextException = e.getCause().getCause();
+      Assert.assertTrue(contextException instanceof DexWritingException);
+      Assert.assertTrue(contextException.getCause() instanceof SingleDexOverflowException);
+      Assert.assertTrue(contextException.getCause().getCause() instanceof TypeIdOverflowException);
       Assert.assertTrue(baos.toString().contains(EXPECTED_MESSAGE));
     } finally {
       redirectStream.close();
