@@ -20,9 +20,9 @@ import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.analysis.dependency.file.FileDependencies;
-import com.android.jack.analysis.dependency.file.FileDependenciesWriter;
+import com.android.jack.analysis.dependency.file.FileDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
-import com.android.jack.analysis.dependency.type.TypeDependenciesWriter;
+import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -177,8 +177,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
         Jack.getVersionString());
 
-    FileDependenciesWriter.write(outputLibrary, fileDependencies);
-    TypeDependenciesWriter.write(outputLibrary, typeDependencies);
+    FileDependenciesInLibraryWriter.write(outputLibrary, fileDependencies);
+    TypeDependenciesInLibraryWriter.write(outputLibrary, typeDependencies);
 
     Jack.getSession().setFileDependencies(fileDependencies);
     Jack.getSession().setTypeDependencies(typeDependencies);

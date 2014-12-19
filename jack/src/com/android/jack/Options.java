@@ -107,25 +107,29 @@ public class Options {
       .withCategory(Arzon.get());
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId.create(
-      "jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
+      "jack.library", "Generate jack library").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId.create(
-      "jack.library.dex", "Generate dex files in library")
-      .addDefaultValue(Boolean.TRUE).withCategory(Private.get());
+  public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
+      .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_JAYCE_IN_LIBRARY = BooleanPropertyId.create(
-      "jack.library.jayce", "Generate Jayce files in library")
-      .addDefaultValue(Boolean.FALSE).withCategory(Private.get());
+  public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
+      .create("jack.library.dex", "Generate dex files in library").addDefaultValue(Boolean.TRUE)
+      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId
-      .create("jack.library", "Generate jack library")
-      .addDefaultValue(Boolean.FALSE).requiredIf(GENERATE_DEX_IN_LIBRARY.getValue().isTrue()
-          .or(GENERATE_JAYCE_IN_LIBRARY.getValue().isTrue()));
+  public static final BooleanPropertyId GENERATE_JAYCE_IN_LIBRARY = BooleanPropertyId
+      .create("jack.library.jayce", "Generate Jayce files in library")
+      .addDefaultValue(Boolean.FALSE).withCategory(Private.get())
+      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
+  @Nonnull
+  public static final BooleanPropertyId GENERATE_DEPENDENCIES_IN_LIBRARY = BooleanPropertyId
+      .create("jack.library.dependencies", "Generate Dependency files in library")
+      .addDefaultValue(Boolean.FALSE).withCategory(Private.get())
+      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
@@ -613,11 +617,13 @@ public class Options {
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
+      configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
     } else if (libraryOutDir != null) {
       configBuilder.setString(LIBRARY_OUTPUT_DIR, libraryOutDir.getPath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
+      configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
     } else {
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
@@ -658,6 +664,7 @@ public class Options {
       configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
       configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
+      configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
       configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
       configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
     }

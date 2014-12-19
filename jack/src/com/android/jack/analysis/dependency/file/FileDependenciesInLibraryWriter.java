@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.jack.analysis.dependency.type;
+package com.android.jack.analysis.dependency.file;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
+import com.android.jack.analysis.dependency.DependencyInLibraryProduct;
 import com.android.jack.incremental.IncrementalException;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
-import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.file.CannotCreateFileException;
 
@@ -36,25 +37,25 @@ import java.io.PrintStream;
 import javax.annotation.Nonnull;
 
 /**
- * This {@code RunnableSchedulable} write type dependencies to the disk.
+ * This {@code RunnableSchedulable} write file dependencies in a library.
  */
-@Description("Write type dependencies to the disk")
-@Name("TypeDependenciesWriter")
-@Constraint(need = TypeDependencies.Collected.class)
-public class TypeDependenciesWriter implements RunnableSchedulable<JSession>{
+@Description("Write file dependencies in a library")
+@Constraint(need = FileDependencies.Collected.class)
+@Produce(DependencyInLibraryProduct.class)
+public class FileDependenciesInLibraryWriter implements RunnableSchedulable<JSession>{
 
   @Override
   public void run(@Nonnull JSession session) throws JackUserException {
-    write(session.getJackOutputLibrary(), Jack.getSession().getTypeDependencies());
+    write(session.getJackOutputLibrary(), Jack.getSession().getFileDependencies());
   }
 
   public static void write(@Nonnull OutputJackLibrary ojl,
-      @Nonnull TypeDependencies typeDependencies) {
+      @Nonnull FileDependencies fileDependencies) {
     PrintStream ps = null;
     try {
       ps = new PrintStream(
-          ojl.createFile(FileType.DEPENDENCIES, TypeDependencies.vpath).openWrite());
-      typeDependencies.write(ps);
+          ojl.createFile(FileType.DEPENDENCIES, FileDependencies.vpath).openWrite());
+      fileDependencies.write(ps);
     } catch (CannotCreateFileException e) {
       IncrementalException incrementalException = new IncrementalException(e);
       Jack.getSession().getReporter().report(Severity.FATAL, incrementalException);
