@@ -34,6 +34,9 @@ public abstract class RuntimeRunner {
     this.rtEnvironmentRootDir = rtEnvironmentRootDir;
   }
 
+  public abstract int run(@Nonnull String[] options, @Nonnull String mainClasses,
+      @Nonnull File... classpathFiles) throws RuntimeRunnerException;
+
   public abstract int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
       @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException;
