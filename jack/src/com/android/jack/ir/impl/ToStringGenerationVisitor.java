@@ -69,6 +69,8 @@ public class ToStringGenerationVisitor extends BaseGenerationVisitor {
     print(JModifier.getStringFieldModifier(x.getModifier()));
     printType(x);
     space();
+    printTypeName(x.getEnclosingType());
+    print('.');
     printName(x);
     return false;
   }
@@ -103,6 +105,13 @@ public class ToStringGenerationVisitor extends BaseGenerationVisitor {
   protected void printMethodHeader(JMethod x) {
     // Modifiers
     print(JModifier.getStringMethodModifier(x.getModifier()));
-    print(formatter.getName(x));
+    printType(x);
+    space();
+    printTypeName(x.getEnclosingType());
+    print('.');
+    printName(x);
+
+    // Parameters
+    printParameterList(x);
   }
 }
