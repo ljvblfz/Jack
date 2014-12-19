@@ -103,11 +103,6 @@ public class ToStringGenerationVisitor extends BaseGenerationVisitor {
   protected void printMethodHeader(JMethod x) {
     // Modifiers
     print(JModifier.getStringMethodModifier(x.getModifier()));
-    printType(x);
-    space();
-    printName(x);
-
-    // Parameters
-    printParameterList(x);
+    print(formatter.getName(x));
   }
 }
