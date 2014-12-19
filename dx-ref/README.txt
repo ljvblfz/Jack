@@ -1,9 +1,9 @@
-latest commit in jack-wip-dev for dalvik project:
+latest commit in aosp-master for dalvik project:
 
-commit 68f077763234a531482b78534d6c6a75412800bc
-Merge: 858dfec 21e30d9
-Author: The Android Automerger <android-build@android.com>
-Date:   Wed May 8 05:55:15 2013 -0700
+commit e2808cf44a08f7e39163f79c9483c17602f58266
+Merge: c954851 bb404aa
+Author: Benoit Lamarche <benoitlamarche@google.com>
+Date:   Fri Dec 19 09:46:22 2014 +0000
 
-    merge in jb-mr2-release history after reset to jb-mr2-dev
+    Merge "Do not keep the DexFile field in Main between runs"
 
