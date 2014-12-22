@@ -150,6 +150,15 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
     this.name = StringInterner.get().intern(newName);
   }
 
+  boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes,
+      @Nonnull MethodKind kind) {
+    if (this.methodKind != kind) {
+      return false;
+    }
+
+    return equals(otherName, otherParamTypes);
+  }
+
   boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes) {
     if (!(this.name.equals(otherName) && this.paramTypes.size() == otherParamTypes.size())) {
       return false;
@@ -161,6 +170,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
         return false;
       }
     }
+
     return true;
   }
 
