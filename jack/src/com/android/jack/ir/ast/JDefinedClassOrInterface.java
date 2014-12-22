@@ -277,6 +277,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     loader.ensureMethod(this, name, args, returnType);
     for (JMethod m : methods) {
       if (m.getMethodId().equals(name, args) && m.getType().isSameType(returnType)) {
+        // Only one method can be found due to the fact that we also use return type to filter
         return m;
       }
     }
@@ -442,7 +443,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     loader.ensureMethods(this);
     for (JMethod method : methods) {
       JMethodId id = method.getMethodId();
-      if (id.equals(name, argsType)) {
+      if (id.equals(name, argsType, kind)) {
         return id;
       }
     }
@@ -539,8 +540,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
       @Nonnull MethodKind kind) {
     synchronized (phantomMethods) {
       for (JMethodId id : phantomMethods) {
-        if (id.equals(name, argsType)) {
-          assert id.getKind() == kind;
+        if (id.equals(name, argsType, kind)) {
           return id;
         }
       }

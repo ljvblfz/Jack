@@ -138,7 +138,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
       @Nonnull MethodKind kind) {
     synchronized (methodIds) {
       for (JMethodId id : methodIds) {
-        if (id.equals(name, argsType)) {
+        if (id.equals(name, argsType, kind)) {
           return id;
         }
       }
