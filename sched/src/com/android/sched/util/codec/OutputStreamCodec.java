@@ -17,11 +17,11 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputStreamFile;
-import com.android.sched.util.file.StreamFile;
 
 import java.io.IOException;
 
@@ -70,13 +70,13 @@ public class OutputStreamCodec extends StreamCodec
   @Override
   @Nonnull
   public String formatValue(@Nonnull OutputStreamFile stream) {
-    return formatValue((StreamFile) stream);
+    return formatValue((AbstractStreamFile) stream);
   }
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull OutputStreamFile stream)
       throws CheckingException {
-    checkValue(context, (StreamFile) stream);
+    checkValue(context, (AbstractStreamFile) stream);
   }
 
   @Override

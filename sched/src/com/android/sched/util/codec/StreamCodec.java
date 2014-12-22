@@ -16,6 +16,7 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
@@ -65,7 +66,7 @@ public abstract class StreamCodec extends FileOrDirCodec {
   }
 
   @CheckForNull
-  protected StreamFile checkString(@Nonnull CodecContext context, @Nonnull String value)
+  protected AbstractStreamFile checkString(@Nonnull CodecContext context, @Nonnull String value)
       throws ParsingException {
     if (value.equals(STANDARD_IO_NAME)) {
       if (!allowStandard) {
@@ -76,7 +77,7 @@ public abstract class StreamCodec extends FileOrDirCodec {
     return null;
   }
 
-  protected void checkValue(@Nonnull CodecContext context, @Nonnull StreamFile stream)
+  protected void checkValue(@Nonnull CodecContext context, @Nonnull AbstractStreamFile stream)
       throws CheckingException {
     if (stream.isStandard() && !allowStandard) {
       throw new CheckingException(getStandardStreamDescription() + " is not allowed");
@@ -96,7 +97,7 @@ public abstract class StreamCodec extends FileOrDirCodec {
   }
 
   @Nonnull
-  protected String formatValue(@Nonnull StreamFile stream) {
+  protected String formatValue(@Nonnull AbstractStreamFile stream) {
     if (stream.isStandard()) {
       return STANDARD_IO_NAME;
     } else {

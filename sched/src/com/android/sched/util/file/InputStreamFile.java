@@ -28,16 +28,20 @@ import javax.annotation.Nonnull;
 /**
  * Class representing a input stream from a file path or a standard input.
  */
-public class InputStreamFile extends StreamFile {
-  public InputStreamFile(@Nonnull String name,
-      @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException,
-      CannotCreateFileException,
-      CannotSetPermissionException,
-      WrongPermissionException,
-      NoSuchFileException,
-      NotFileOrDirectoryException {
-    super(name, null /* hooks */, Existence.MUST_EXIST, Permission.READ, change);
+public class InputStreamFile extends AbstractStreamFile {
+  public InputStreamFile(@Nonnull String name)
+      throws WrongPermissionException, NotFileOrDirectoryException, NoSuchFileException {
+    super(name, null /* hooks */);
+
+    try {
+      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      throw new AssertionError(e);
+    }
   }
 
   public InputStreamFile() {
