@@ -65,6 +65,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 
+    args.add(com.android.jack.Main.class.getName());
+
     args.add("--verbose");
     args.add(verbosityLevel.name());
 
@@ -72,8 +74,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
     }
-
-    args.add(com.android.jack.Main.class.getName());
 
     addProperties(properties, args);
 
@@ -150,6 +150,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 
+    args.add(com.android.jack.Main.class.getName());
+
     args.add("--verbose");
     args.add(verbosityLevel.name());
 
@@ -157,7 +159,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
     }
-    args.add(com.android.jack.Main.class.getName());
 
     addProperties(properties, args);
 
@@ -228,6 +229,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 
+    args.add(com.android.jack.Main.class.getName());
+
     args.add("--verbose");
     args.add(verbosityLevel.name());
 
@@ -235,7 +238,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
     }
-    args.add(com.android.jack.Main.class.getName());
 
     for (File res : resImport) {
       args.add("--import-resource");
@@ -286,6 +288,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 
+    args.add(com.android.jack.Main.class.getName());
+
     args.add("--verbose");
     args.add(verbosityLevel.name());
 
@@ -293,7 +297,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
     }
-    args.add(com.android.jack.Main.class.getName());
 
     for (File res : resImport) {
       args.add("--import-resource");
