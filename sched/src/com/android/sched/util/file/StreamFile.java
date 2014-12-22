@@ -17,28 +17,15 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.FileOrDirLocation;
-import com.android.sched.util.location.StandardInputLocation;
-import com.android.sched.util.location.StandardOutputLocation;
-import com.android.sched.util.log.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+
 /**
  * Class representing a stream from a file path or a standard input/output.
  */
-public class StreamFile extends FileOrDirectory {
-  @Nonnull
-  private final Logger  logger = LoggerFactory.getLogger();
-  @CheckForNull
-  protected final File    file;
+public class StreamFile extends AbstractStreamFile {
 
   public StreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -51,102 +38,14 @@ public class StreamFile extends FileOrDirectory {
       WrongPermissionException,
       NoSuchFileException,
       NotFileOrDirectoryException {
-    super(hooks);
+    super(name, hooks);
 
-    this.file = new File(name);
-    this.location = new FileLocation(file);
-
-    if (existence == Existence.MAY_EXIST) {
-      if (file.exists()) {
-        existence = Existence.MUST_EXIST;
-      } else {
-        existence = Existence.NOT_EXIST;
-      }
-    }
-
-    switch (existence) {
-      case MUST_EXIST:
-        processExisting(permissions);
-        break;
-      case NOT_EXIST:
-        processNotExisting(permissions, change);
-        break;
-      case MAY_EXIST:
-        throw new AssertionError();
-    }
+    performChecks(existence, permissions, change);
   }
 
   public StreamFile(int permissions) {
-    super(null);
-
-    assert permissions == Permission.READ || permissions == Permission.WRITE;
-
-    this.file = null;
-
-    if (permissions == Permission.READ) {
-      this.location = new StandardInputLocation();
-    } else {
-      this.location = new StandardOutputLocation();
-    }
+    super(permissions);
   }
 
-  public boolean isStandard() {
-    return this.file == null;
-  }
 
-  @Override
-  @Nonnull
-  public String toString() {
-    return location.getDescription();
-  }
-
-  private void processNotExisting(int permissions, @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException, CannotCreateFileException, CannotSetPermissionException,
-      WrongPermissionException {
-    assert file != null;
-
-    // Check existing
-    if (file.exists()) {
-      throw new FileAlreadyExistsException((FileOrDirLocation) location);
-    }
-
-    // Create file
-    try {
-      if (file.createNewFile()) {
-        logger.log(Level.FINE, "Create {0} (''{1}'')",
-            new Object[] {location.getDescription(), file.getAbsoluteFile()});
-        addRemover(file);
-      } else {
-        throw new CannotCreateFileException((FileOrDirLocation) location);
-      }
-    } catch (IOException e) {
-      throw new CannotCreateFileException((FileOrDirLocation) location);
-    }
-
-    setPermissions(file, permissions, change);
-    checkPermissions(file, permissions);
-  }
-
-  private void processExisting(int permissions)
-      throws NoSuchFileException, NotFileOrDirectoryException, WrongPermissionException {
-    assert file != null;
-
-    // Check existing
-    if (!file.exists()) {
-      throw new NoSuchFileException((FileOrDirLocation) location);
-    }
-
-    // Check it is a file
-    if (!file.isFile()) {
-      throw new NotFileOrDirectoryException((FileOrDirLocation) location);
-    }
-
-    checkPermissions(file, permissions);
-  }
-
-  @Override
-  @Nonnull
-  public String getPath() {
-    return ((FileLocation) location).getPath();
-  }
 }

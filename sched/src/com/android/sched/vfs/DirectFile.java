@@ -18,10 +18,6 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -57,13 +53,7 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Override
   public InputStream openRead() throws WrongPermissionException {
     try {
-      return new InputStreamFile(file.getPath(), ChangePermission.NOCHANGE).getInputStream();
-    } catch (FileAlreadyExistsException e) {
-      throw new AssertionError();
-    } catch (CannotCreateFileException e) {
-      throw new AssertionError();
-    } catch (CannotSetPermissionException e) {
-      throw new AssertionError();
+      return new InputStreamFile(file.getPath()).getInputStream();
     } catch (NoSuchFileException e) {
       // we have already checked that the file exists when creating the VFile in the VDir
       throw new ConcurrentIOException(e);
@@ -84,16 +74,8 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
       }
     }
 
-    try {
-      return new VFileOutputStream(new OutputStreamFile(file.getPath(), null, Existence.MAY_EXIST,
-          ChangePermission.NOCHANGE, false).getOutputStream(), vfs);
-    } catch (FileAlreadyExistsException e) {
-      throw new AssertionError();
-    } catch (CannotSetPermissionException e) {
-      throw new AssertionError();
-    } catch (NoSuchFileException e) {
-      throw new AssertionError();
-    }
+    return new VFileOutputStream(new OutputStreamFile(file.getPath(), null).getOutputStream(),
+        vfs);
   }
 
   @Nonnull

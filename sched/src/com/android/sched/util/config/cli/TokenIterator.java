@@ -16,11 +16,7 @@
 
 package com.android.sched.util.config.cli;
 
-import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
-import com.android.sched.util.file.CannotSetPermissionException;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -250,17 +246,7 @@ public class TokenIterator {
 
   private void pushFileTokenizer(@Nonnull String fileName) throws WrongPermissionException,
       NoSuchFileException, NotFileOrDirectoryException {
-    InputStreamFile file;
-
-    try {
-      file = new InputStreamFile(fileName, ChangePermission.NOCHANGE);
-    } catch (FileAlreadyExistsException e) {
-      throw new AssertionError();
-    } catch (CannotCreateFileException e) {
-      throw new AssertionError();
-    } catch (CannotSetPermissionException e) {
-      throw new AssertionError();
-    }
+    InputStreamFile file = new InputStreamFile(fileName);
 
     tokenizers.push(getTokenizer(file));
     locations.push(new FileLocation(file.getPath()));

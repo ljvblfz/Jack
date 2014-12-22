@@ -20,10 +20,6 @@ import com.android.jack.JackUserException;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.reporting.Reporter;
-import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -258,15 +254,9 @@ public class JackBatchCompiler extends Main {
     int idx = 0;
     for (String fileName : filenames) {
       try {
-        new InputStreamFile(fileName, ChangePermission.NOCHANGE);
+        new InputStreamFile(fileName);
         cu[idx] = new CompilationUnit(null, fileName, encodings[idx]);
         idx++;
-      } catch (FileAlreadyExistsException e) {
-        throw new AssertionError();
-      } catch (CannotCreateFileException e) {
-        throw new AssertionError();
-      } catch (CannotSetPermissionException e) {
-        throw new AssertionError();
       } catch (WrongPermissionException e) {
         throw new JackUserException(e);
       } catch (NoSuchFileException e) {

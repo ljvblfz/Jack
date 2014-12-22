@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 /**
  * Class representing a output stream from a file path or a standard output.
  */
-public class OutputStreamFile extends StreamFile {
+public class OutputStreamFile extends AbstractStreamFile {
   private final boolean append;
 
   public OutputStreamFile(@Nonnull String name,
@@ -46,9 +46,35 @@ public class OutputStreamFile extends StreamFile {
       WrongPermissionException,
       NoSuchFileException,
       NotFileOrDirectoryException {
-    super(name, hooks, existence, Permission.WRITE, change);
+    super(name, hooks);
+
+    performChecks(existence, Permission.WRITE, change);
 
     this.append = append;
+  }
+
+  /**
+   * Creates a new instance of {@link OutputStreamFile} assuming the file may exist or not, without
+   * modifying its permissions. If the file already exists it will be overwritten.
+   */
+  public OutputStreamFile(@Nonnull String name,
+      @CheckForNull RunnableHooks hooks)
+      throws CannotCreateFileException,
+      WrongPermissionException,
+      NotFileOrDirectoryException {
+    super(name, hooks);
+
+    try {
+      performChecks(Existence.MAY_EXIST, Permission.WRITE, ChangePermission.NOCHANGE);
+    } catch (NoSuchFileException e) {
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      throw new AssertionError(e);
+    }
+
+    this.append = false;
   }
 
   public OutputStreamFile() {

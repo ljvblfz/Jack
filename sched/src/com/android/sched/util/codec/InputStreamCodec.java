@@ -17,11 +17,10 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
-import com.android.sched.util.file.StreamFile;
 
 import java.io.IOException;
 
@@ -37,20 +36,6 @@ public class InputStreamCodec extends StreamCodec
   }
 
   @Nonnull
-  public InputStreamCodec changeOwnerPermission() {
-    setChangePermission(ChangePermission.OWNER);
-
-    return this;
-  }
-
-  @Nonnull
-  public InputStreamCodec changeAllPermission() {
-    setChangePermission(ChangePermission.EVERYBODY);
-
-    return this;
-  }
-
-  @Nonnull
   public InputStreamCodec allowStandard() {
     this.allowStandard = true;
 
@@ -60,13 +45,13 @@ public class InputStreamCodec extends StreamCodec
   @Override
   @Nonnull
   public String formatValue(@Nonnull InputStreamFile stream) {
-    return formatValue((StreamFile) stream);
+    return formatValue((AbstractStreamFile) stream);
   }
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull InputStreamFile stream)
       throws CheckingException {
-    checkValue(context, (StreamFile) stream);
+    checkValue(context, (AbstractStreamFile) stream);
   }
 
   @Override
@@ -89,7 +74,7 @@ public class InputStreamCodec extends StreamCodec
       return new InputStreamFile();
     } else {
       try {
-        return new InputStreamFile(string, change);
+        return new InputStreamFile(string);
       } catch (IOException e) {
         throw new ParsingException(e.getMessage(), e);
       }
