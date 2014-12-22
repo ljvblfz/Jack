@@ -23,7 +23,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,7 +30,6 @@ import java.util.List;
 /**
  * JUnit test checking dependencies between Java files.
  */
-@Ignore("Tree")
 public class DependenciesTest007 {
 
   @BeforeClass
