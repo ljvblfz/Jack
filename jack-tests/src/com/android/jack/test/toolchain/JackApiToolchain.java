@@ -161,8 +161,10 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.setProguardFlagsFile(proguardFlags);
       }
 
-      jackOptions.getJayceImport().add(in);
-      jackOptions.getJayceImport().addAll(staticLibs);
+      List<File> libsToImport = new ArrayList<File>();
+      libsToImport.add(in);
+      libsToImport.addAll(staticLibs);
+      jackOptions.setJayceImports(libsToImport);
 
       for (File res : resImport) {
         jackOptions.addResource(res);
@@ -205,13 +207,12 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.addResource(res);
       }
 
+      List<File> libsToImport = new ArrayList<File>();
       for (File staticLib : in) {
-        jackOptions.getJayceImport().add(staticLib);
+        libsToImport.add(staticLib);
       }
-
-      for (File staticLib : staticLibs) {
-        jackOptions.getJayceImport().add(staticLib);
-      }
+      libsToImport.addAll(staticLibs);
+      jackOptions.setJayceImports(libsToImport);
 
       if (zipFiles) {
         jackOptions.setJayceOutputZip(out);

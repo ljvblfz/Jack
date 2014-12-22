@@ -203,6 +203,12 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("-d");
       args.add(annotationProcessorOutDir.getAbsolutePath());
     }
+
+    for (File staticLib : staticLibs) {
+      args.add("--import");
+      args.add(staticLib.getAbsolutePath());
+    }
+
     for (String ecjArg : extraEcjArgs) {
       args.add(ecjArg);
     }
