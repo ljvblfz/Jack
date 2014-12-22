@@ -38,32 +38,25 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
   public int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
       @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException {
-    return runOnHost(buildCommandLine(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
+    return runOnHost(
+        buildCommandLineJUnit(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
         "ANDROID_ROOT");
   }
 
+  @Override
+  public int run(@Nonnull String[] options, @Nonnull String mainClass,
+      @Nonnull File... classpathFiles) throws RuntimeRunnerException {
+    return runOnHost(buildCommandLine(options, mainClass, classpathFiles),
+        "ANDROID_HOST_OUT");
+  }
+
   @Nonnull
-  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
-      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles) {
+  private List<String> buildCommandLineJUnit(@Nonnull String[] options,
+      @Nonnull String jUnitRunnerName, @Nonnull String[] jUnitTestClasses,
+      @Nonnull File... classpathFiles) {
     List<String> args = new ArrayList<String>();
 
-    args.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvik");
-
-    args.add(mode.getArg());
-
-    for (String option : options) {
-      args.add(option);
-    }
-
-    args.add("-classpath");
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < classpathFiles.length; i++) {
-      if (i > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(classpathFiles[i].getAbsolutePath());
-    }
-    args.add(sb.toString());
+    addStartOfCommandLine(options, classpathFiles, args);
 
     args.add(jUnitRunnerName);
 
@@ -73,10 +66,42 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
     return args;
   }
 
+  @Nonnull
+  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String mainClass,
+      @Nonnull File... classpathFiles) {
+    List<String> args = new ArrayList<String>();
+
+    addStartOfCommandLine(options, classpathFiles, args);
+    args.add(mainClass);
+
+    return args;
+  }
+
   @Override
   @Nonnull
   public DalvikRunnerHost setMode(@Nonnull DalvikMode mode) {
     this.mode = mode;
     return this;
+  }
+
+  private void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
+      @Nonnull List<String> result) {
+    result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvik");
+
+    result.add(mode.getArg());
+
+    for (String option : options) {
+      result.add(option);
+    }
+
+    result.add("-classpath");
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < classpathFiles.length; i++) {
+      if (i > 0) {
+        sb.append(File.pathSeparatorChar);
+      }
+      sb.append(classpathFiles[i].getAbsolutePath());
+    }
+    result.add(sb.toString());
   }
 }

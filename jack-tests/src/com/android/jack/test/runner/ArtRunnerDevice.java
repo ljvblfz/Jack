@@ -31,7 +31,14 @@ public class ArtRunnerDevice extends DeviceRunner {
   public int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
       @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException {
-    return runJunitOnDevice(options, jUnitRunnerName, jUnitTestClasses, classpathFiles);
+    return runOnDevice(options, jUnitRunnerName, jUnitTestClasses, classpathFiles);
+  }
+
+  @Override
+  public int run(@Nonnull String[] options, @Nonnull String mainClasses,
+      @Nonnull File... classpathFiles) throws RuntimeRunnerException {
+    return runOnDevice(options, /* jUnitRunnerName = */null, new String[] {mainClasses},
+        classpathFiles);
   }
 
   @Override

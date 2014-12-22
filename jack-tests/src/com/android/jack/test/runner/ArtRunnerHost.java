@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -35,30 +36,36 @@ public class ArtRunnerHost extends HostRunner {
   public int runJUnit(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
       @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException {
-    return runOnHost(buildCommandLine(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
+    return runOnHost(
+        buildCommandLineJunit(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
+        "ANDROID_HOST_OUT");
+  }
+
+  @Override
+  public int run(@Nonnull String[] options, @Nonnull String mainClass,
+      @Nonnull File... classpathFiles) throws RuntimeRunnerException {
+    return runOnHost(buildCommandLine(options, mainClass, classpathFiles),
         "ANDROID_HOST_OUT");
   }
 
   @Nonnull
-  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
-      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles) {
+  private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String mainClass,
+      @Nonnull File... classpathFiles) {
     List<String> args = new ArrayList<String>();
 
-    args.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
+    addStartOfCommandLine(options, classpathFiles, args);
+    args.add(mainClass);
 
-    for (String option : options) {
-      args.add(option);
-    }
+    return args;
+  }
 
-    args.add("-classpath");
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < classpathFiles.length; i++) {
-      if (i > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(classpathFiles[i].getAbsolutePath());
-    }
-    args.add(sb.toString());
+  @Nonnull
+  private List<String> buildCommandLineJunit(@Nonnull String[] options,
+      @CheckForNull String jUnitRunnerName, @Nonnull String[] jUnitTestClasses,
+      @Nonnull File... classpathFiles) {
+    List<String> args = new ArrayList<String>();
+
+    addStartOfCommandLine(options, classpathFiles, args);
 
     args.add(jUnitRunnerName);
 
@@ -67,4 +74,24 @@ public class ArtRunnerHost extends HostRunner {
     }
     return args;
   }
+
+  private void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
+      @Nonnull List<String> result) {
+    result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
+
+    for (String option : options) {
+      result.add(option);
+    }
+
+    result.add("-classpath");
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < classpathFiles.length; i++) {
+      if (i > 0) {
+        sb.append(File.pathSeparatorChar);
+      }
+      sb.append(classpathFiles[i].getAbsolutePath());
+    }
+    result.add(sb.toString());
+  }
+
 }

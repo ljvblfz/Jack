@@ -193,8 +193,7 @@ public class IncrementalTestHelper {
     for (RuntimeRunner runner : runnerList) {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       ((AbstractRuntimeRunner) runner).setOutputStream(out);
-      Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
-          new String[] {mainClass}, dexFile));
+      Assert.assertEquals(0, runner.run(new String[0], mainClass, dexFile));
       Assert.assertEquals(expected, out.toString());
     }
   }

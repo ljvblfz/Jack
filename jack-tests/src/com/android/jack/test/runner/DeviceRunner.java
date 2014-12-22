@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -127,8 +128,8 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
     }
   }
 
-  protected int runJunitOnDevice(@Nonnull String[] options, @Nonnull String jUnitRunnerName,
-      @Nonnull String[] jUnitTestClasses, @Nonnull File... classpathFiles)
+  protected int runOnDevice(@Nonnull String[] options, @CheckForNull String jUnitRunnerName,
+      @Nonnull String[] classes, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException {
 
     // Assumes adb is in PATH
@@ -226,13 +227,15 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
       // Split command line to have at most MAX_NB_CLASSES jUnit classes per invocation
       List<List<String>> splittedMainClasses = new ArrayList<List<String>>();
       int currentChunk = 0;
-      for (String mainClass : jUnitTestClasses) {
+      for (String classToRun : classes) {
         if (splittedMainClasses.size() == currentChunk) {
           splittedMainClasses.add(new ArrayList<String>(MAX_NB_CLASSES));
-          splittedMainClasses.get(currentChunk).add(jUnitRunnerName);
+          if (jUnitRunnerName != null) {
+            splittedMainClasses.get(currentChunk).add(jUnitRunnerName);
+          }
         }
 
-        splittedMainClasses.get(currentChunk).add(mainClass);
+        splittedMainClasses.get(currentChunk).add(classToRun);
 
         if (splittedMainClasses.get(currentChunk).size() == MAX_NB_CLASSES) {
           currentChunk++;
