@@ -144,34 +144,46 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     filesToRecompile.addAll(getAddedFileNames());
 
-    for (String modifiedFileName : getModifiedFileNames()) {
-      filesToRecompile.add(modifiedFileName);
-      filesToRecompile.addAll(
-          getDependencyFileNamesToRecompile(typeRecompileDependencies, modifiedFileName));
-    }
+    addDependencies(filesToRecompile, typeRecompileDependencies, getModifiedFileNames());
 
-    for (String deletedFileName : getDeleteFileNames()) {
-      filesToRecompile.addAll(
-          getDependencyFileNamesToRecompile(typeRecompileDependencies, deletedFileName));
-    }
+    addDependencies(filesToRecompile, typeRecompileDependencies, getDeleteFileNames());
 
     return filesToRecompile;
+  }
+
+  private void addDependencies(@Nonnull List<String> filesToRecompile,
+      @Nonnull Map<String, Set<String>> typeRecompileDependencies, @Nonnull Set<String> fileNames) {
+    for (String fileName : fileNames) {
+      if (!filesToRecompile.contains(fileName)) {
+        filesToRecompile.add(fileName);
+        for (String dependencyFileName :
+            getDependencyFileNamesToRecompile(typeRecompileDependencies, fileName)) {
+          if (!filesToRecompile.contains(dependencyFileName)) {
+            filesToRecompile.add(dependencyFileName);
+          }
+        }
+      }
+    }
   }
 
   private void updateLibrary() throws IncrementalException {
     assert fileDependencies != null;
     assert typeDependencies != null;
 
+    Set<String> deleteFileNames = getDeleteFileNames();
+    Set<String> modifiedFileNames = getModifiedFileNames();
+
+
     for (String fileToRecompile : getFileNamesToCompile()) {
       deleteOldFilesFromJavaFiles(fileToRecompile);
     }
 
-    for (String deletedFileName : getDeleteFileNames()) {
+    for (String deletedFileName : deleteFileNames) {
       deleteOldFilesFromJavaFiles(deletedFileName);
     }
 
-    fileDependencies.update(getDeleteFileNames(), getModifiedFileNames());
-    typeDependencies.update(fileDependencies, getDeleteFileNames(), getModifiedFileNames());
+    typeDependencies.update(fileDependencies, deleteFileNames, modifiedFileNames);
+    fileDependencies.update(deleteFileNames, modifiedFileNames);
 
     OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(
         ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
