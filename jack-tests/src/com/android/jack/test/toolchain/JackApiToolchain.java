@@ -23,6 +23,7 @@ import com.android.jack.shrob.spec.Flags;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -58,28 +59,12 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.applyShrobFlags();
       }
 
-      jackOptions.setEcjArguments(new ArrayList<String>());
-
-      if (annotationProcessorClass != null) {
-        jackOptions.getEcjArguments().add("-processor");
-        jackOptions.getEcjArguments().add(annotationProcessorClass.getName());
-      }
-
-      if (annotationProcessorOutDir != null) {
-        jackOptions.getEcjArguments().add("-d");
-        jackOptions.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
-      }
+      fillEcjArgs(sources);
 
       for (File res : resImport) {
         jackOptions.addResource(res);
       }
 
-      for (String ecjArg : extraEcjArgs) {
-        jackOptions.getEcjArguments().add(ecjArg);
-      }
-
-      AbstractTestTools.addFile(jackOptions.getEcjArguments(),
-      /* mustExist = */false, sources);
       jackOptions.setClasspath(classpath);
 
       if (zipFile) {
@@ -129,29 +114,13 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.setJayceOutputDir(out);
       }
 
-      jackOptions.setEcjArguments(new ArrayList<String>());
-
-      if (annotationProcessorClass != null) {
-        jackOptions.getEcjArguments().add("-processor");
-        jackOptions.getEcjArguments().add(annotationProcessorClass.getName());
-      }
-
-      if (annotationProcessorOutDir != null) {
-        jackOptions.getEcjArguments().add("-d");
-        jackOptions.getEcjArguments().add(annotationProcessorOutDir.getAbsolutePath());
-      }
+      fillEcjArgs(sources);
 
       for (File res : resImport) {
         jackOptions.addResource(res);
       }
 
-      for (String ecjArg : extraEcjArgs) {
-        jackOptions.getEcjArguments().add(ecjArg);
-      }
-
-      AbstractTestTools.addFile(jackOptions.getEcjArguments(),
-      /* mustExist = */false, sources);
-
+      jackOptions.setJayceImports(staticLibs);
 
       jackOptions.setJarjarRulesFile(jarjarRules);
 
@@ -279,4 +248,29 @@ public class JackApiToolchain extends JackBasedToolchain {
       jackOptions.addProperty(entry.getKey(), entry.getValue());
     }
   }
+
+  private final void fillEcjArgs(@Nonnull File... sources) {
+    List<String> ecjArgs = new ArrayList<String>();
+
+    if (annotationProcessorClass != null) {
+      ecjArgs.add("-processor");
+      ecjArgs.add(annotationProcessorClass.getName());
+    }
+
+    if (annotationProcessorOutDir != null) {
+      ecjArgs.add("-d");
+      ecjArgs.add(annotationProcessorOutDir.getAbsolutePath());
+    }
+
+    for (String ecjArg : extraEcjArgs) {
+      ecjArgs.add(ecjArg);
+    }
+
+    AbstractTestTools.addFile(ecjArgs, /* mustExist = */false, sources);
+
+    if (ecjArgs.size() > 0) {
+      jackOptions.setEcjArguments(ecjArgs);
+    }
+  }
+
 }
