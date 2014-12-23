@@ -267,9 +267,9 @@ public class JackApiToolchain extends JackBasedToolchain {
       ecjArgs.add(ecjArg);
     }
 
-    AbstractTestTools.addFile(ecjArgs, /* mustExist = */false, sources);
+    AbstractTestTools.addFile(ecjArgs, /* mustExist = */ false, sources);
 
-    if (ecjArgs.size() > 0) {
+    if (sources.length > 0) {
       jackOptions.setEcjArguments(ecjArgs);
     }
   }
