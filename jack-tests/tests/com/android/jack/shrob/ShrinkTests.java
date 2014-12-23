@@ -185,11 +185,13 @@ public class ShrinkTests extends AbstractTest {
     File testFolder = new File(shrobTestsDir, "test028");
     File jackar = null;
     File shrinkedjackar = null;
-    jackar = AbstractTestTools.createTempFile("jackar", ".zip");
-    shrinkedjackar = AbstractTestTools.createTempFile("shrinkedjackar", ".zip");
-    ProguardFlags flags = new ProguardFlags(testFolder, "proguard.flags001");
 
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+
+    jackar = AbstractTestTools.createTempFile("jackar", toolchain.getLibraryExtension());
+    shrinkedjackar = AbstractTestTools.createTempFile("shrinkedjackar", toolchain.getLibraryExtension());
+    ProguardFlags flags = new ProguardFlags(testFolder, "proguard.flags001");
+
     String classpath = AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
     toolchain.srcToLib(
         classpath,

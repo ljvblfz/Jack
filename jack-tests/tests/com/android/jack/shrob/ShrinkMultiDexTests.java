@@ -75,8 +75,6 @@ public class ShrinkMultiDexTests extends AbstractTest {
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     toolchain.disableDxOptimizations();
 
-    File out = AbstractTestTools.createTempFile("checklisting", ".zip");
-
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
     env.setCandidateTestTools(toolchain);

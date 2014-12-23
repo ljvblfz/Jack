@@ -75,4 +75,10 @@ public class DummyToolchain extends AndroidToolchain {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public String getLibraryExtension() {
+    return ".dummy";
+  }
+
 }

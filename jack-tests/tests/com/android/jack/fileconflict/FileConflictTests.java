@@ -166,9 +166,9 @@ public class FileConflictTests {
    */
   @Test
   public void test002a() throws Exception {
-    File jackOutput = AbstractTestTools.createTempDir();
+    File jackOutput;
     try {
-      runTest002(jackOutput, false /* non-zipped */, null);
+      jackOutput = runTest002(false /* non-zipped */, null);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -181,9 +181,9 @@ public class FileConflictTests {
    */
   @Test
   public void test002b() throws Exception {
-    File jackOutput = AbstractTestTools.createTempDir();
+    File jackOutput;
     try {
-      runTest002(jackOutput, false /* non-zipped */, "fail");
+      jackOutput = runTest002(false /* non-zipped */, "fail");
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -196,8 +196,8 @@ public class FileConflictTests {
    */
   @Test
   public void test002c() throws Exception {
-    File jackOutput = AbstractTestTools.createTempDir();
-    runTest002(jackOutput, false /* non-zipped */, "keep-first");
+    File jackOutput;
+    jackOutput = runTest002(false /* non-zipped */, "keep-first");
     checkResourceContent(jackOutput, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(jackOutput, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(jackOutput, RESOURCE3_LONGPATH, "Res3");
@@ -210,9 +210,9 @@ public class FileConflictTests {
    */
   @Test
   public void test002d() throws Exception {
-    File jackOutput = AbstractTestTools.createTempFile("jackoutput", ".zip");
+    File jackOutput;
     try {
-      runTest002(jackOutput, true /* zipped */, null);
+      jackOutput = runTest002(true /* zipped */, null);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -225,9 +225,9 @@ public class FileConflictTests {
    */
   @Test
   public void test002e() throws Exception {
-    File jackOutput = AbstractTestTools.createTempFile("jackoutput", ".zip");
+    File jackOutput;
     try {
-      runTest002(jackOutput, true /* zipped */, "fail");
+      jackOutput = runTest002(true /* zipped */, "fail");
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -240,8 +240,8 @@ public class FileConflictTests {
    */
   @Test
   public void test002f() throws Exception {
-    File jackOutput = AbstractTestTools.createTempFile("jackoutput", ".zip");
-    runTest002(jackOutput, true /* zipped */, "keep-first");
+    File jackOutput;
+    jackOutput = runTest002(true /* zipped */, "keep-first");
     ZipFile zipFile = new ZipFile(jackOutput);
     checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
@@ -443,8 +443,8 @@ public class FileConflictTests {
     toolchain.libToLib(new File [] {jackImport1, jackImport2}, jackOutput, /* zipFiles = */ false);
   }
 
-  private void runTest002(@Nonnull File jackOutput, boolean zip,
-      @CheckForNull String collisionPolicy) throws Exception {
+  @Nonnull
+  private File runTest002(boolean zip, @CheckForNull String collisionPolicy) throws Exception {
     // compile source files to a Jack dir
     File jackImport1 = AbstractTestTools.createTempDir();
     File lib1 = new File(TEST002_DIR, "lib1");
@@ -472,7 +472,15 @@ public class FileConflictTests {
     if (collisionPolicy != null) {
       toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     }
+    File jackOutput;
+    if (zip) {
+      jackOutput = AbstractTestTools.createTempFile("jackOutput", toolchain.getLibraryExtension());
+    } else {
+      jackOutput = AbstractTestTools.createTempDir();
+    }
     toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
+
+    return jackOutput;
   }
 
   private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,

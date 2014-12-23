@@ -138,6 +138,12 @@ public class LegacyToolchain extends AndroidToolchain {
     };
   }
 
+  @Override
+  @Nonnull
+  public final String getLibraryExtension() {
+    return ".jar";
+  }
+
   private void processWithJarJar(@Nonnull File jarjarRules,
       @Nonnull File inJar, @Nonnull File outJar) {
     String[] args = new String[]{"java", "-Dverbose=" + String.valueOf(isVerbose), "-jar",

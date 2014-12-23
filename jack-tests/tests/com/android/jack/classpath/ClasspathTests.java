@@ -129,18 +129,18 @@ public class ClasspathTests {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     String defaultClasspath =
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
-    File libOfLibOut = AbstractTestTools.createTempFile("libOfLibOut", ".zip");
+    File libOfLibOut = AbstractTestTools.createTempFile("libOfLibOut", toolchain.getLibraryExtension());
     File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.lib2");
     toolchain.srcToLib(defaultClasspath, libOfLibOut, /* zipFiles = */ true, sourceDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain();
-    File libOut = AbstractTestTools.createTempFile("libOut", ".zip");
+    File libOut = AbstractTestTools.createTempFile("libOut", toolchain.getLibraryExtension());
     sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.lib");
     toolchain.srcToLib(defaultClasspath + File.pathSeparatorChar + libOfLibOut.getAbsolutePath(),
         libOut, /* zipFiles = */ true, sourceDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain();
-    File mainOut = AbstractTestTools.createTempFile("mainOut", ".zip");
+    File mainOut = AbstractTestTools.createTempFile("mainOut", toolchain.getLibraryExtension());
     sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.main");
     toolchain.srcToLib(defaultClasspath + File.pathSeparatorChar + libOut.getAbsolutePath(),
         mainOut, /* zipFiles = */ true, sourceDir);
