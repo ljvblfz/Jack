@@ -69,5 +69,8 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
     if (!(parent instanceof JMethod)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+    if (parent != enclosingMethod) {
+      throw new JNodeInternalError(this, "Invalid parent or enclosing method");
+    }
   }
 }
