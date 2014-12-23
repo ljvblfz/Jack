@@ -48,41 +48,18 @@ public class JackApiToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
       @Nonnull File... sources) throws Exception {
 
     try {
-      addProperties(properties, jackOptions);
 
-      if (jackOptions.getFlags() != null) {
-        jackOptions.applyShrobFlags();
-      }
-
-      fillEcjArgs(sources);
-
-      for (File res : resImport) {
-        jackOptions.addResource(res);
-      }
-
-      jackOptions.setClasspath(classpath);
+      srcToCommon(classpath, sources);
 
       if (zipFile) {
         jackOptions.setOutputZip(out);
       } else {
         jackOptions.setOutputDir(out);
       }
-
-      jackOptions.setImportedLibraries(staticLibs);
-
-      jackOptions.setJarjarRulesFile(jarjarRules);
-
-      if (proguardFlags.size() > 0) {
-        jackOptions.setProguardFlagsFile(proguardFlags);
-      }
-
-      jackOptions.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
-          Boolean.toString(withDebugInfos));
 
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
@@ -95,44 +72,18 @@ public class JackApiToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
       @Nonnull File... sources) throws Exception {
 
     try {
-      addProperties(properties, jackOptions);
 
-      if (jackOptions.getFlags() != null) {
-        jackOptions.applyShrobFlags();
-      }
-
-      jackOptions.setClasspath(classpath);
+      srcToCommon(classpath, sources);
 
       if (zipFiles) {
         jackOptions.setJayceOutputZip(out);
       } else {
         jackOptions.setJayceOutputDir(out);
       }
-
-      fillEcjArgs(sources);
-
-      for (File res : resImport) {
-        jackOptions.addResource(res);
-      }
-
-      jackOptions.setImportedLibraries(staticLibs);
-
-      jackOptions.setJarjarRulesFile(jarjarRules);
-
-      if (proguardFlags.size() > 0) {
-        jackOptions.setProguardFlagsFile(proguardFlags);
-      }
-
-      jackOptions.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
-          Boolean.toString(withDebugInfos));
-
-      jackOptions.addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(),
-          Boolean.toString(!withDebugInfos));
 
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
@@ -144,31 +95,43 @@ public class JackApiToolchain extends JackBasedToolchain {
     }
   }
 
+  private void srcToCommon(@CheckForNull String classpath, @Nonnull File... sources) {
+    addProperties(properties, jackOptions);
+
+    if (jackOptions.getFlags() != null) {
+      jackOptions.applyShrobFlags();
+    }
+
+    jackOptions.setClasspath(classpath);
+
+    fillEcjArgs(sources);
+
+    for (File res : resImport) {
+      jackOptions.addResource(res);
+    }
+
+    jackOptions.setImportedLibraries(staticLibs);
+
+    jackOptions.setJarjarRulesFile(jarjarRules);
+
+    if (proguardFlags.size() > 0) {
+      jackOptions.setProguardFlagsFile(proguardFlags);
+    }
+
+    jackOptions.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(),
+        Boolean.toString(withDebugInfos));
+
+    jackOptions.addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(),
+        Boolean.toString(!withDebugInfos));
+
+  }
+
   @Override
-  @Nonnull
-  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
+  public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
 
     try {
-      addProperties(properties, jackOptions);
 
-      if (jackOptions.getFlags() != null) {
-        jackOptions.applyShrobFlags();
-      }
-
-      jackOptions.setJarjarRulesFile(jarjarRules);
-
-      if (proguardFlags.size() > 0) {
-        jackOptions.setProguardFlagsFile(proguardFlags);
-      }
-
-      List<File> libsToImport = new ArrayList<File>();
-      libsToImport.add(in);
-      libsToImport.addAll(staticLibs);
-      jackOptions.setImportedLibraries(libsToImport);
-
-      for (File res : resImport) {
-        jackOptions.addResource(res);
-      }
+      libToCommon(in);
 
       if (zipFile) {
         jackOptions.setOutputZip(out);
@@ -187,32 +150,11 @@ public class JackApiToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
 
     try {
-      addProperties(properties, jackOptions);
 
-      jackOptions.setJarjarRulesFile(jarjarRules);
-
-      if (jackOptions.getFlags() != null) {
-        jackOptions.applyShrobFlags();
-      }
-
-      if (proguardFlags.size() > 0) {
-        jackOptions.setProguardFlagsFile(proguardFlags);
-      }
-
-      for (File res : resImport) {
-        jackOptions.addResource(res);
-      }
-
-      List<File> libsToImport = new ArrayList<File>();
-      for (File staticLib : in) {
-        libsToImport.add(staticLib);
-      }
-      libsToImport.addAll(staticLibs);
-      jackOptions.setImportedLibraries(libsToImport);
+      libToCommon(in);
 
       if (zipFiles) {
         jackOptions.setJayceOutputZip(out);
@@ -228,6 +170,32 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(stdOut);
       System.setErr(stdErr);
     }
+  }
+
+  private void libToCommon(@Nonnull File[] in) {
+    addProperties(properties, jackOptions);
+
+    jackOptions.setJarjarRulesFile(jarjarRules);
+
+    if (jackOptions.getFlags() != null) {
+      jackOptions.applyShrobFlags();
+    }
+
+    if (proguardFlags.size() > 0) {
+      jackOptions.setProguardFlagsFile(proguardFlags);
+    }
+
+    for (File res : resImport) {
+      jackOptions.addResource(res);
+    }
+
+    List<File> libsToImport = new ArrayList<File>();
+    for (File staticLib : in) {
+      libsToImport.add(staticLib);
+    }
+    libsToImport.addAll(staticLibs);
+    jackOptions.setImportedLibraries(libsToImport);
+
   }
 
   @Nonnull

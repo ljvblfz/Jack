@@ -44,7 +44,6 @@ public class LegacyJillToolchain extends JillBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToExe(@Nonnull String classpath, @Nonnull File out, boolean zipFile,
       @Nonnull File... sources) throws Exception {
     try {
@@ -79,7 +78,6 @@ public class LegacyJillToolchain extends JillBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToLib(@Nonnull String classpath, @Nonnull File out, boolean zipFiles,
       @Nonnull File... sources) throws Exception {
 
@@ -111,7 +109,6 @@ public class LegacyJillToolchain extends JillBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     throw new AssertionError("Not Yet Implemented");
   }

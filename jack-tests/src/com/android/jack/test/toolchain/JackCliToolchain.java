@@ -56,36 +56,12 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFile, @Nonnull File... sources) throws Exception {
 
     List<String> args = new ArrayList<String>();
-    args.add("java");
-    args.add("-cp");
-    args.add(jackPrebuilt.getAbsolutePath());
 
-    args.add(com.android.jack.Main.class.getName());
-
-    args.add("--verbose");
-    args.add(verbosityLevel.name());
-
-    if (incrementalFolder != null) {
-      args.add("--incremental-folder");
-      args.add(incrementalFolder.getAbsolutePath());
-    }
-
-    addProperties(properties, args);
-
-    if (classpath != null) {
-      args.add("--classpath");
-      args.add(classpath);
-    }
-
-    for (File res : resImport) {
-      args.add("--import-resource");
-      args.add(res.getPath());
-    }
+    srcToCommon(args, classpath, sources);
 
     if (zipFile) {
       args.add("--output-dex-zip");
@@ -93,21 +69,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--output-dex");
     }
     args.add(out.getAbsolutePath());
-
-    if (jarjarRules != null) {
-      args.add("--config-jarjar");
-      args.add(jarjarRules.getAbsolutePath());
-    }
-
-    for (File flags : proguardFlags) {
-      args.add("--config-proguard");
-      args.add(flags.getAbsolutePath());
-    }
-
-    for (File staticLib : staticLibs) {
-      args.add("--import");
-      args.add(staticLib.getAbsolutePath());
-    }
 
     args.addAll(extraJackArgs);
 
@@ -141,36 +102,12 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception {
 
     List<String> args = new ArrayList<String>();
-    args.add("java");
-    args.add("-cp");
-    args.add(jackPrebuilt.getAbsolutePath());
 
-    args.add(com.android.jack.Main.class.getName());
-
-    args.add("--verbose");
-    args.add(verbosityLevel.name());
-
-    if (incrementalFolder != null) {
-      args.add("--incremental-folder");
-      args.add(incrementalFolder.getAbsolutePath());
-    }
-
-    addProperties(properties, args);
-
-    if (classpath != null) {
-      args.add("--classpath");
-      args.add(classpath);
-    }
-
-    for (File res : resImport) {
-      args.add("--import-resource");
-      args.add(res.getPath());
-    }
+    srcToCommon(args, classpath, sources);
 
     if (zipFiles) {
       args.add("--output-jack");
@@ -179,6 +116,51 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
     args.add(out.getAbsolutePath());
 
+    for (String ecjArg : extraEcjArgs) {
+      args.add(ecjArg);
+    }
+
+    AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
+
+    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    exec.setErr(outRedirectStream);
+    exec.setOut(errRedirectStream);
+    exec.setVerbose(isVerbose);
+
+    if (!exec.run()) {
+      throw new RuntimeException("Jack compiler exited with an error");
+    }
+
+  }
+
+  private void srcToCommon(@Nonnull List<String> args, @CheckForNull String classpath,
+      @Nonnull File... sources) {
+    args.add("java");
+    args.add("-cp");
+    args.add(jackPrebuilt.getAbsolutePath());
+
+    args.add(com.android.jack.Main.class.getName());
+
+    args.add("--verbose");
+    args.add(verbosityLevel.name());
+
+    if (incrementalFolder != null) {
+      args.add("--incremental-folder");
+      args.add(incrementalFolder.getAbsolutePath());
+    }
+
+    addProperties(properties, args);
+
+    if (classpath != null) {
+      args.add("--classpath");
+      args.add(classpath);
+    }
+
+    for (File res : resImport) {
+      args.add("--import-resource");
+      args.add(res.getPath());
+    }
+
     args.addAll(extraJackArgs);
 
     if (jarjarRules != null) {
@@ -208,65 +190,13 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--import");
       args.add(staticLib.getAbsolutePath());
     }
-
-    for (String ecjArg : extraEcjArgs) {
-      args.add(ecjArg);
-    }
-
-    AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
-
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
-    exec.setVerbose(isVerbose);
-
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
-    }
-
   }
 
   @Override
-  @Nonnull
-  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
-
+  public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
     List<String> args = new ArrayList<String>();
-    args.add("java");
-    args.add("-cp");
-    args.add(jackPrebuilt.getAbsolutePath());
 
-    args.add(com.android.jack.Main.class.getName());
-
-    args.add("--verbose");
-    args.add(verbosityLevel.name());
-
-    if (incrementalFolder != null) {
-      args.add("--incremental-folder");
-      args.add(incrementalFolder.getAbsolutePath());
-    }
-
-    for (File res : resImport) {
-      args.add("--import-resource");
-      args.add(res.getPath());
-    }
-
-    if (withDebugInfos) {
-      args.add("-D");
-      args.add("jack.dex.optimize=false");
-    } else {
-      args.add("-D");
-      args.add("jack.dex.optimize=true");
-    }
-
-    addProperties(properties, args);
-
-    args.add("--import");
-    args.add(in.getAbsolutePath());
-
-    for (File staticLib : staticLibs) {
-      args.add("--import");
-      args.add(staticLib.getAbsolutePath());
-    }
+    libToCommon(args, in);
 
     if (zipFile) {
       args.add("--output-dex-zip");
@@ -287,9 +217,30 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   @Override
-  @Nonnull
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     List<String> args = new ArrayList<String>();
+
+    libToCommon(args, in);
+
+    if (zipFiles) {
+      args.add("--output-jack");
+    } else {
+      args.add("--output-jack-dir");
+    }
+    args.add(out.getAbsolutePath());
+
+    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    exec.setErr(outRedirectStream);
+    exec.setOut(errRedirectStream);
+    exec.setVerbose(isVerbose);
+
+    if (!exec.run()) {
+      throw new RuntimeException("Jack compiler exited with an error");
+    }
+
+  }
+
+  private void libToCommon(@Nonnull List<String> args, @Nonnull File[] in) {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
@@ -330,23 +281,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--import");
       args.add(staticLib.getAbsolutePath());
     }
-
-    if (zipFiles) {
-      args.add("--output-jack");
-    } else {
-      args.add("--output-jack-dir");
-    }
-    args.add(out.getAbsolutePath());
-
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
-    exec.setVerbose(isVerbose);
-
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
-    }
-
   }
 
   @Nonnull

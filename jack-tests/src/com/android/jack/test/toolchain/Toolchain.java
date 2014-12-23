@@ -68,29 +68,31 @@ public abstract class Toolchain implements IToolchain {
   Toolchain() {}
 
   @Override
-  @Nonnull
   public abstract void srcToExe(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFile, @Nonnull File... sources) throws Exception;
 
   @Override
-  @Nonnull
   public abstract void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception;
 
   @Override
-  @Nonnull
-  public abstract void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile)
-      throws Exception;
+  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
+    libToExe(new File[] {in}, out, zipFile);
+  }
 
   @Override
-  @Nonnull
+  public void libToExe(@Nonnull List<File> in, @Nonnull File out, boolean zipFile)
+      throws Exception {
+    libToExe(in.toArray(new File[in.size()]), out, zipFile);
+  }
+
+  @Override
   public final void libToLib(@Nonnull File in, @Nonnull File out, boolean zipFiles)
       throws Exception {
     libToLib(new File[] {in}, out, zipFiles);
   }
 
   @Override
-  @Nonnull
   public final void libToLib(@Nonnull List<File> in, @Nonnull File out, boolean zipFiles)
       throws Exception {
     libToLib(in.toArray(new File[in.size()]), out, zipFiles);

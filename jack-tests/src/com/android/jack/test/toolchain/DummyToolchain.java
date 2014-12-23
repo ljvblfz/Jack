@@ -34,26 +34,18 @@ public class DummyToolchain extends AndroidToolchain {
   public DummyToolchain() {}
 
   @Override
-  @Nonnull
-  public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
-      boolean zipFile, @Nonnull File... sources) throws Exception {
-  }
+  public void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
+      @Nonnull File... sources) throws Exception {}
 
   @Override
-  @Nonnull
-  public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
-      boolean zipFiles, @Nonnull File... sources) throws Exception {
-  }
+  public void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
+      @Nonnull File... sources) throws Exception {}
 
   @Override
-  @Nonnull
-  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
-  }
+  public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {}
 
   @Override
-  @Nonnull
-  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
-  }
+  public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {}
 
   @Override
   @Nonnull

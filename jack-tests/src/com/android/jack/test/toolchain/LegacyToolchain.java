@@ -50,7 +50,6 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFile, @Nonnull File... sources) throws Exception {
 
@@ -83,7 +82,6 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   @Override
-  @Nonnull
   public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception {
 
@@ -113,18 +111,21 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   @Override
-  @Nonnull
-  public void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception {
+  public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
 
     try {
-      compileWithDx(in, out, zipFile);
+      if (in.length > 1) {
+        throw new AssertionError("Not yet supported");
+      }
+      for (File lib : in) {
+        compileWithDx(in[0], out, zipFile);
+      }
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
     }
   }
 
   @Override
-  @Nonnull
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     throw new AssertionError("Not Yet Implemented");
   }

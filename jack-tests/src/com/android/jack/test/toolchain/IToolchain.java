@@ -32,24 +32,22 @@ import javax.annotation.processing.Processor;
  */
 public interface IToolchain {
 
-  @Nonnull
   void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
       @Nonnull File... sources) throws Exception;
 
-  @Nonnull
   void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
       @Nonnull File... sources) throws Exception;
 
-  @Nonnull
   void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception;
 
-  @Nonnull
+  void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception;
+
+  void libToExe(@Nonnull List<File> in, @Nonnull File out, boolean zipFile) throws Exception;
+
   void libToLib(@Nonnull File in, @Nonnull File out, boolean zipFiles) throws Exception;
 
-  @Nonnull
   void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception;
 
-  @Nonnull
   void libToLib(@Nonnull List<File> in, @Nonnull File out, boolean zipFiles) throws Exception;
 
   @Nonnull
