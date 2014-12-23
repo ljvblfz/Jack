@@ -97,6 +97,11 @@ import javax.annotation.Nonnull;
 public class Options {
 
   @Nonnull
+  public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
+      .create("jack.incremental", "Enable incremental mode")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   public static final ReflectFactoryPropertyId<InputFilter> INPUT_FILTER = ReflectFactoryPropertyId
       .create("jack.input.filter", "Inputs filter", InputFilter.class)
       .addDefaultValue("no-filter").addArgType(Options.class);
@@ -653,6 +658,7 @@ public class Options {
         FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (incrementalFolder != null) {
+      configBuilder.set(Options.INCREMENTAL_MODE, true);
       configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
       configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);

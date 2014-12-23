@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -101,29 +100,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Override
   @Nonnull
   public List<File> getClasspath() {
-    InputJackLibrary incrementalInputLibrary = getIncrementalInternalLibrary();
-    List<File> classpath = options.getClasspath();
-
-    if (incrementalInputLibrary == null || needFullRebuild()) {
-      Jack.getSession().setFileDependencies(new FileDependencies());
-      Jack.getSession().setTypeDependencies(new TypeDependencies());
-      return classpath;
-    }
-
-    assert options.getIncrementalFolder() != null;
-    classpath.add(options.getIncrementalFolder());
-    classpath.addAll(options.getJayceImport());
-
-    options.setJayceImports(Collections.<File>emptyList());
-
-    try {
-      updateLibrary();
-    } catch (IncrementalException e) {
-      Jack.getSession().getReporter().report(Severity.FATAL, e);
-      throw new JackAbortException(e);
-    }
-
-    return classpath;
+    return options.getClasspath();
   }
 
   @Override
@@ -418,4 +395,24 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     return typeDependencies;
   }
 
+  @Override
+  @Nonnull
+  public List<File> getImportedLibrary() {
+    if (incrementalInputLibrary == null || needFullRebuild()) {
+      Jack.getSession().setFileDependencies(new FileDependencies());
+      Jack.getSession().setTypeDependencies(new TypeDependencies());
+      return options.getJayceImport();
+    }
+
+    try {
+      updateLibrary();
+    } catch (IncrementalException e) {
+      Jack.getSession().getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
+
+    List<File> importedJackLibrary = new ArrayList<File>(options.getJayceImport());
+    importedJackLibrary.add(options.getIncrementalFolder());
+    return importedJackLibrary;
+  }
 }

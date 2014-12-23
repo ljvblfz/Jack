@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
 import com.android.jack.JackIOException;
+import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
@@ -61,6 +62,8 @@ public class DexInLibraryWriter extends DexWriter implements
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
+  private final boolean incrementalMode = ThreadConfig.get(Options.INCREMENTAL_MODE).booleanValue();
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVFile vFile;
@@ -71,6 +74,13 @@ public class DexInLibraryWriter extends DexWriter implements
       InputLibrary inputLibrary =
           ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
       if (inputLibrary.containsFileType(FileType.DEX)) {
+
+        if (incrementalMode) {
+          // Pre-dex are not move into the output library representing the incremental state.
+          // Pre-dex will be used directly from imported libraries
+          return;
+        }
+
         try {
           in = inputLibrary.getFile(FileType.DEX,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
