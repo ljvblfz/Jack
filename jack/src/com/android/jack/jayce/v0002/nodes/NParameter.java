@@ -84,7 +84,7 @@ public class NParameter extends NVariable {
         name,
         exportSession.getLookup().getType(type),
         modifiers,
-        null); /* enclosingMethod */
+        exportSession.getCurrentMethod());
     assert id != null;
     exportSession.getParameterResolver().addTarget(id, jParameter);
     for (NAnnotationLiteral annotation : annotations) {
