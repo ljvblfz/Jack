@@ -56,10 +56,11 @@ public class SwitchesTest {
   @Test
   public void java7Switches004() throws Exception {
 
-    File jackZipFile = AbstractTestTools.createTempFile("tmp", ".zip");
-
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
+
+    File jackZipFile = AbstractTestTools.createTempFile("tmp", toolchain.getLibraryExtension());
+
     toolchain.setSourceLevel(SourceLevel.JAVA_7).srcToLib(
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
         jackZipFile,

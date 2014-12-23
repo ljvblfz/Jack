@@ -111,7 +111,7 @@ public class BridgeTests extends RuntimeTest {
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     File srcFolder = AbstractTestTools.getTestRootDir("com.android.jack.bridge.test008.jack");
-    File jackZipOfGenericPackageProtected = AbstractTestTools.createTempFile("tmpBridge", ".zip");
+    File jackZipOfGenericPackageProtected = AbstractTestTools.createTempFile("tmpBridge", toolchain.getLibraryExtension());
     toolchain.srcToLib(
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
         jackZipOfGenericPackageProtected,
@@ -120,7 +120,7 @@ public class BridgeTests extends RuntimeTest {
 
     // Build jack file from PublicExtendsGeneric.java
     toolchain = AbstractTestTools.getCandidateToolchain();
-    File jackZipOfPublicExtendsGeneric = AbstractTestTools.createTempFile("tmpBridge", ".zip");
+    File jackZipOfPublicExtendsGeneric = AbstractTestTools.createTempFile("tmpBridge", toolchain.getLibraryExtension());
     toolchain.srcToLib(
         AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(), new File [] {jackZipOfGenericPackageProtected}),
         jackZipOfPublicExtendsGeneric,

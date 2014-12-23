@@ -55,7 +55,7 @@ public class LookupTests {
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.libToLib(
         new File [] {jacks, libOverride},
-        AbstractTestTools.createTempFile("Lookup001", ".zip"),
+        AbstractTestTools.createTempFile("Lookup001", toolchain.getLibraryExtension()),
         /* zipFiles = */ true);
   }
 

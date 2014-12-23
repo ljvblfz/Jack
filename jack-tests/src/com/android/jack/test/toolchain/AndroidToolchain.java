@@ -29,12 +29,6 @@ public abstract class AndroidToolchain extends Toolchain {
     return ".dex";
   }
 
-  @Override
-  @Nonnull
-  public final String getLibraryExtension() {
-    return ".jar";
-  }
-
   @Nonnull
   public final String getBinaryFileName() {
     return "classes.dex";

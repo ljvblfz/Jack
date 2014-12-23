@@ -122,6 +122,12 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     throw new AssertionError("Not applicable");
   }
 
+  @Override
+  @Nonnull
+  public String getLibraryExtension() {
+    return ".jar";
+  }
+
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
       @Nonnull String classpath, @Nonnull File out) {
 

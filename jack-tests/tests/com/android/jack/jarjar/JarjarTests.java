@@ -68,7 +68,7 @@ public class JarjarTests {
   public void jarjar003_1() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(new File(JARJAR003.directory, "jarjar-rules.txt"));
-    File lib = AbstractTestTools.createTempFile("jarjarTest003Jack", ".zip");
+    File lib = AbstractTestTools.createTempFile("jarjarTest003Jack", toolchain.getLibraryExtension());
     toolchain.srcToLib(
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
         lib,
@@ -79,7 +79,7 @@ public class JarjarTests {
     toolchain.srcToLib(
         AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(),
             new File [] {lib}),
-        AbstractTestTools.createTempFile("jarjarTest003dx", ".zip"),
+        AbstractTestTools.createTempFile("jarjarTest003dx", toolchain.getLibraryExtension()),
         /* zipFiles = */ true,
         new File(JARJAR003.directory, "dontcompile/TestWithRelocatedReference.java"));
   }

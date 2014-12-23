@@ -139,8 +139,9 @@ public class ResourceTests {
     File jackAr = createJackArchiveWithResources();
 
     // run shrobbing from Jack archive to Jack archive
-    File shrobbedJackAr = AbstractTestTools.createTempFile("shrobbedJackAr", ".zip");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File shrobbedJackAr =
+        AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
     toolchain.libToLib(jackAr, shrobbedJackAr, /* zipFiles = */ true);
 
@@ -165,8 +166,9 @@ public class ResourceTests {
         FILE);
 
     // run shrobbing from Jack dir to Jack archive
-    File shrobbedJackAr = AbstractTestTools.createTempFile("shrobbedJackAr", ".zip");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File shrobbedJackAr =
+        AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
     toolchain.libToLib(jackFolder, shrobbedJackAr, /* zipFiles = */ true);
 
@@ -309,8 +311,8 @@ public class ResourceTests {
   @Nonnull
   private File createJackArchiveWithResources() throws Exception {
     // compile source file to a Jack file
-    File jackAr = AbstractTestTools.createTempFile("resourcetestjack", ".zip");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File jackAr = AbstractTestTools.createTempFile("resourcetestjack", toolchain.getLibraryExtension());
     toolchain.addResource(new File(FILE, "rsc"));
     toolchain.srcToLib(
         AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),

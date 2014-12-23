@@ -154,4 +154,11 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
         new File(AbstractTestTools.getJackRootDir(),
             "jack-tests/prebuilts/junit4-targetdex-jack.zip")};
   }
+
+  @Override
+  @Nonnull
+  public String getLibraryExtension() {
+    return ".jack";
+  }
+
 }
