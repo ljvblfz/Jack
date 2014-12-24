@@ -47,7 +47,7 @@ public class LibraryTest {
 
       TestTools.compileSourceToDex(new Options(),
           TestTools.getJackTestsWithJackFolder("library/test001"),
-          TestTools.getDefaultBootclasspathString() + File.pathSeparator + emptyLib.getPath(),
+          TestTools.getDefaultClasspathString() + File.pathSeparator + emptyLib.getPath(),
           TestTools.createTempFile("library001", ".zip"), /* zip = */ true);
     }
 
@@ -57,7 +57,7 @@ public class LibraryTest {
 
       TestTools.compileSourceToDex(new Options(),
           TestTools.getJackTestsWithJackFolder("library/test001"),
-          TestTools.getDefaultBootclasspathString() + File.pathSeparator + emptyLib.getPath(),
+          TestTools.getDefaultClasspathString() + File.pathSeparator + emptyLib.getPath(),
           TestTools.createTempFile("library001", ".zip"), /* zip = */ true);
     }
 
@@ -68,7 +68,7 @@ public class LibraryTest {
       options.addJayceImport(lib);
       TestTools.compileSourceToDex(options,
           TestTools.getJackTestsWithJackFolder("library/test001"),
-          TestTools.getDefaultBootclasspathString(),
+          TestTools.getDefaultClasspathString(),
           TestTools.createTempFile("library001", ".zip"), /* zip = */ true);
     }
 
@@ -80,7 +80,7 @@ public class LibraryTest {
       File out = TestTools.createTempFile("library001", ".jack");
       TestTools.compileSourceToJack(options,
           TestTools.getJackTestsWithJackFolder("library/test001"),
-          TestTools.getDefaultBootclasspathString(),
+          TestTools.getDefaultClasspathString(),
           out, /* zip = */ true);
 
       RunnableHooks hooks = new RunnableHooks();

@@ -235,12 +235,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     long timestamp = new File(options.getOutputDir(), DexFileWriter.DEX_FILENAME).lastModified();
 
-    for (File lib : options.getBootclasspath()) {
-      if (isModifiedLibrary(lib, timestamp)) {
-        return true;
-      }
-    }
-
     for (File lib : options.getClasspath()) {
       if (isModifiedLibrary(lib, timestamp)) {
         return true;

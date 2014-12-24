@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 public class WithPhantomTest {
 
   @Nonnull
-  private static final String BOOTCLASSPATH = TestTools.getDefaultBootclasspathString();
+  private static final String CLASSPATH = TestTools.getDefaultClasspathString();
   @Nonnull
   private static final String TEST001 = "withphantom/test001";
   @Nonnull
@@ -52,7 +52,7 @@ public class WithPhantomTest {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST001),
-        BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
+        CLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted =
         new File(tempJackFolder, FileType.JAYCE.getPrefix() + File.separatorChar
             + fixPath("com/android/jack/withphantom/test001/jack/A.jayce")).delete();
@@ -63,7 +63,7 @@ public class WithPhantomTest {
     File tempOut1 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut1,
         Lists.create(
             new ProguardFlags(testFolder, "shrink1.flags")),
@@ -72,7 +72,7 @@ public class WithPhantomTest {
     File tempOut2 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut2,
         Lists.create(
             new ProguardFlags(testFolder, "shrink2.flags")),
@@ -81,7 +81,7 @@ public class WithPhantomTest {
     File tempOut3 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut3,
         Lists.create(
             new ProguardFlags(testFolder, "obf1.flags")),
@@ -90,7 +90,7 @@ public class WithPhantomTest {
     File tempOut4 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut4,
         Lists.create(
             new ProguardFlags(testFolder, "obf2.flags")),
@@ -106,7 +106,7 @@ public class WithPhantomTest {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST001),
-        BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
+        CLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted =
         new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
             + "com/android/jack/withphantom/test001/jack/A$Inner1.jayce")).delete();
@@ -121,7 +121,7 @@ public class WithPhantomTest {
     File tempOut1 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut1,
         Lists.create(
             new ProguardFlags(testFolder, "shrink1.flags")),
@@ -130,7 +130,7 @@ public class WithPhantomTest {
     File tempOut2 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut2,
         Lists.create(
             new ProguardFlags(testFolder, "shrink2.flags")),
@@ -139,7 +139,7 @@ public class WithPhantomTest {
     File tempOut3 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut3,
         Lists.create(
             new ProguardFlags(testFolder, "obf1.flags")),
@@ -148,7 +148,7 @@ public class WithPhantomTest {
     File tempOut4 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut4,
         Lists.create(
             new ProguardFlags(testFolder, "obf2.flags")),
@@ -165,7 +165,7 @@ public class WithPhantomTest {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST002),
-        BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
+        CLASSPATH, tempJackFolder, false /* non-zipped */);
     File[] inners =
         new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
             + "com/android/jack/withphantom/test002/jack/")).listFiles(new FilenameFilter() {
@@ -183,7 +183,7 @@ public class WithPhantomTest {
     File tempOut1 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut1,
         Lists.create(
             new ProguardFlags(testFolder, "obf1.flags")),
@@ -199,7 +199,7 @@ public class WithPhantomTest {
     File tempJackFolder = TestTools.createTempDir("jack", "dir");
     TestTools.compileSourceToJack(new Options(),
         TestTools.getJackTestsWithJackFolder(TEST002),
-        BOOTCLASSPATH, tempJackFolder, false /* non-zipped */);
+        CLASSPATH, tempJackFolder, false /* non-zipped */);
     boolean deleted =
         new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
             + "com/android/jack/withphantom/test002/jack/A.jayce")).delete();
@@ -210,7 +210,7 @@ public class WithPhantomTest {
     File tempOut1 = TestTools.createTempDir("jack", "dir");
     TestTools.shrobJackToJack(new Options(),
         tempJackFolder,
-        BOOTCLASSPATH,
+        CLASSPATH,
         tempOut1,
         Lists.create(
             new ProguardFlags(testFolder, "obf1.flags")),

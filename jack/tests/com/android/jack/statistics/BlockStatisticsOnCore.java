@@ -37,26 +37,20 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-
 import javax.annotation.Nonnull;
 
 @Ignore("Tree")
 public class BlockStatisticsOnCore {
 
-  private static File[] BOOTCLASSPATH;
-
   @BeforeClass
   public static void setUpClass() {
     BlockStatisticsOnCore.class.getClassLoader().setDefaultAssertionStatus(true);
-    BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
-        "out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar")};
   }
 
   @Test
   public void computeBlockStatOnCore() throws Exception {
-    Options compilerArgs = TestTools.buildCommandLineArgs(BOOTCLASSPATH, null,
-        TestTools.getFromAndroidTree("libcore/luni/src/main/java/"));
+    Options compilerArgs =
+        TestTools.buildCommandLineArgs(TestTools.getFromAndroidTree("libcore/luni/src/main/java/"));
     compilerArgs.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     JSession session = buildSession(compilerArgs);
     Assert.assertNotNull(session);

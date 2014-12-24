@@ -19,7 +19,6 @@ package com.android.jack.error;
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Main;
 import com.android.jack.NothingToDoException;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -29,7 +28,6 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
