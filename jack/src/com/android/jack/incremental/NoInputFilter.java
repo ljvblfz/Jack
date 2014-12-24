@@ -24,6 +24,7 @@ import com.android.sched.util.codec.ImplementationName;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -34,7 +35,7 @@ import javax.annotation.Nonnull;
 public class NoInputFilter extends CommonFilter implements InputFilter {
 
   @Nonnull
-  private final List<String> fileNamesToCompile;
+  private final Set<String> fileNamesToCompile;
 
   @Nonnull
   private final Options options;
@@ -46,7 +47,7 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
 
   @Override
   @Nonnull
-  public List<String> getFileNamesToCompile() {
+  public Set<String> getFileNamesToCompile() {
     return fileNamesToCompile;
   }
 

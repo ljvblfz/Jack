@@ -73,7 +73,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private TypeDependencies typeDependencies;
 
   @Nonnull
-  private final List<String> fileNamesOnCmdLine;
+  private final Set<String> fileNamesOnCmdLine;
 
   public IncrementalInputFilter(@Nonnull Options options) {
     this.options = options;
@@ -105,7 +105,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Override
   @Nonnull
-  public List<String> getFileNamesToCompile() {
+  public Set<String> getFileNamesToCompile() {
     InputJackLibrary incrementalInputLibrary = getIncrementalInternalLibrary();
 
     if (incrementalInputLibrary == null || needFullRebuild()) {
@@ -117,7 +117,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     Map<String, Set<String>> typeRecompileDependencies =
         typeDependencies.getRecompileDependencies();
 
-    List<String> filesToRecompile = new ArrayList<String>();
+    Set<String> filesToRecompile = new HashSet<String>();
 
     filesToRecompile.addAll(getAddedFileNames());
 
@@ -128,16 +128,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     return filesToRecompile;
   }
 
-  private void addDependencies(@Nonnull List<String> filesToRecompile,
+  private void addDependencies(@Nonnull Set<String> filesToRecompile,
       @Nonnull Map<String, Set<String>> typeRecompileDependencies, @Nonnull Set<String> fileNames) {
     for (String fileName : fileNames) {
-      if (!filesToRecompile.contains(fileName)) {
-        filesToRecompile.add(fileName);
+      if (filesToRecompile.add(fileName)) {
         for (String dependencyFileName :
             getDependencyFileNamesToRecompile(typeRecompileDependencies, fileName)) {
-          if (!filesToRecompile.contains(dependencyFileName)) {
-            filesToRecompile.add(dependencyFileName);
-          }
+          filesToRecompile.add(dependencyFileName);
         }
       }
     }

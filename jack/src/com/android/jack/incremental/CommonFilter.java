@@ -18,13 +18,13 @@ package com.android.jack.incremental;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.android.jack.Options;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -34,12 +34,12 @@ import javax.annotation.Nonnull;
 public abstract class CommonFilter {
 
   @Nonnull
-  protected List<String> getJavaFileNamesSpecifiedOnCommandLine(@Nonnull Options options) {
-    final List<File> folders = new ArrayList<File>();
+  protected Set<String> getJavaFileNamesSpecifiedOnCommandLine(@Nonnull Options options) {
+    final Set<File> folders = new HashSet<File>();
     final String extension = ".java";
 
-    List<String> javaFileNames =
-        Lists.newArrayList(Collections2.filter(options.getEcjArguments(), new Predicate<String>() {
+    Set<String> javaFileNames =
+        Sets.newHashSet(Collections2.filter(options.getEcjArguments(), new Predicate<String>() {
           @Override
           public boolean apply(String arg) {
             File argFile = new File(arg);
@@ -58,13 +58,13 @@ public abstract class CommonFilter {
   }
 
   private void fillFiles(@Nonnull File folder, @Nonnull String fileExt,
-      @Nonnull List<String> fileNames) {
+      @Nonnull Set<String> fileNames) {
     for (File subFile : folder.listFiles()) {
       if (subFile.isDirectory()) {
         fillFiles(subFile, fileExt, fileNames);
       } else {
         String path = subFile.getPath();
-        if (subFile.getName().endsWith(fileExt) && !fileNames.contains(path)) {
+        if (subFile.getName().endsWith(fileExt)) {
           fileNames.add(path);
         }
       }

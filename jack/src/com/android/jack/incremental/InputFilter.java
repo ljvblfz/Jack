@@ -18,6 +18,7 @@ package com.android.jack.incremental;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
 public interface InputFilter {
 
   @Nonnull
-  public List<String> getFileNamesToCompile();
+  public Set<String> getFileNamesToCompile();
 
   @Nonnull
   public List<File> getClasspath();
