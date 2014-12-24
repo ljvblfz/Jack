@@ -476,13 +476,16 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     try {
       return getMethodId(name, argsType, kind);
     } catch (JMethodLookupException e) {
-      JMethodId id = getPhantomMethod(name, argsType, kind);
+      synchronized (phantomMethods) {
+        JMethodId id = getPhantomMethod(name, argsType, kind);
 
-      if (id == null) {
-        id = new JMethodId(name, argsType, kind);
-        phantomMethods.add(id);
+        if (id == null) {
+          id = new JMethodId(name, argsType, kind);
+          phantomMethods.add(id);
+        }
+
+        return id;
       }
-      return id;
     }
   }
 
