@@ -38,6 +38,11 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -61,6 +66,35 @@ import javax.annotation.Nonnull;
 public class IncrementalInputFilter extends CommonFilter implements InputFilter {
 
   @Nonnull
+  public static final StatisticId<Counter> RECOMPILED_FILES = new StatisticId<Counter>(
+  "jack.incremental.source.recompiled",
+  "Source files that must be recompiled from the previous incremental compilation",
+  CounterImpl.class, Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> MODIFIED_FILES = new StatisticId<Counter>(
+  "jack.incremental.source.modified",
+  "Source files modified from the previous incremental compilation", CounterImpl.class,
+  Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> DELETED_FILES = new StatisticId<Counter>(
+  "jack.incremental.source.deleted",
+  "Source files deleted from the previous incremental compilation", CounterImpl.class,
+  Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> ADDED_FILES = new StatisticId<Counter>(
+  "jack.incremental.source.added",
+  "Source files added from the previous incremental compilation", CounterImpl.class,
+  Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> SOURCE_FILES = new StatisticId<Counter>(
+  "jack.incremental.source", "Source files to compile",
+  CounterImpl.class, Counter.class);
+
+  @Nonnull
   private final Options options;
 
   @CheckForNull
@@ -75,10 +109,28 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final Set<String> fileNamesOnCmdLine;
 
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
+  private final Set<String> deletedFileNames = new HashSet<String>();
+
+  @Nonnull
+  private final Set<String> addedFileNames = new HashSet<String>();
+
+  @Nonnull
+  private final Set<String> modifiedFileNames = new HashSet<String>();
+
+  @Nonnull
+  private final Set<String> filesToRecompile;
+
   public IncrementalInputFilter(@Nonnull Options options) {
     this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
     fileNamesOnCmdLine = getJavaFileNamesSpecifiedOnCommandLine(options);
+
+    tracer.getStatistic(IncrementalInputFilter.SOURCE_FILES).incValue(fileNamesOnCmdLine.size());
+
     if (incrementalInputLibrary != null) {
       try {
         fileDependencies = getFileDependencies(incrementalInputLibrary);
@@ -94,7 +146,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         Jack.getSession().getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       }
+
+      fillAddedFileNames(addedFileNames);
+      fillModifiedFileNames(modifiedFileNames);
+      fillDeletedFileNames(deletedFileNames);
     }
+
+    filesToRecompile = getInternalFileNamesToCompile();
   }
 
   @Override
@@ -106,6 +164,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Override
   @Nonnull
   public Set<String> getFileNamesToCompile() {
+    return filesToRecompile;
+  }
+
+  @Nonnull
+  private Set<String> getInternalFileNamesToCompile() {
     InputJackLibrary incrementalInputLibrary = getIncrementalInternalLibrary();
 
     if (incrementalInputLibrary == null || needFullRebuild()) {
@@ -113,17 +176,18 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
 
     assert typeDependencies != null;
-
     Map<String, Set<String>> typeRecompileDependencies =
         typeDependencies.getRecompileDependencies();
 
     Set<String> filesToRecompile = new HashSet<String>();
 
-    filesToRecompile.addAll(getAddedFileNames());
+    filesToRecompile.addAll(addedFileNames);
+    filesToRecompile.addAll(modifiedFileNames);
 
-    addDependencies(filesToRecompile, typeRecompileDependencies, getModifiedFileNames());
+    addDependencies(filesToRecompile, typeRecompileDependencies, modifiedFileNames);
+    addDependencies(filesToRecompile, typeRecompileDependencies, deletedFileNames);
 
-    addDependencies(filesToRecompile, typeRecompileDependencies, getDeleteFileNames());
+    tracer.getStatistic(IncrementalInputFilter.RECOMPILED_FILES).incValue(filesToRecompile.size());
 
     return filesToRecompile;
   }
@@ -131,11 +195,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private void addDependencies(@Nonnull Set<String> filesToRecompile,
       @Nonnull Map<String, Set<String>> typeRecompileDependencies, @Nonnull Set<String> fileNames) {
     for (String fileName : fileNames) {
-      if (filesToRecompile.add(fileName)) {
-        for (String dependencyFileName :
-            getDependencyFileNamesToRecompile(typeRecompileDependencies, fileName)) {
-          filesToRecompile.add(dependencyFileName);
-        }
+      for (String dependencyFileName :
+          getDependencyFileNamesToRecompile(typeRecompileDependencies, fileName)) {
+        filesToRecompile.add(dependencyFileName);
       }
     }
   }
@@ -144,20 +206,16 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     assert fileDependencies != null;
     assert typeDependencies != null;
 
-    Set<String> deleteFileNames = getDeleteFileNames();
-    Set<String> modifiedFileNames = getModifiedFileNames();
-
-
     for (String fileToRecompile : getFileNamesToCompile()) {
       deleteOldFilesFromJavaFiles(fileToRecompile);
     }
 
-    for (String deletedFileName : deleteFileNames) {
+    for (String deletedFileName : deletedFileNames) {
       deleteOldFilesFromJavaFiles(deletedFileName);
     }
 
-    typeDependencies.update(fileDependencies, deleteFileNames, modifiedFileNames);
-    fileDependencies.update(deleteFileNames, modifiedFileNames);
+    typeDependencies.update(fileDependencies, deletedFileNames, modifiedFileNames);
+    fileDependencies.update(deletedFileNames, modifiedFileNames);
 
     OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(
         ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
@@ -255,13 +313,12 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       @Nonnull Map<String, Set<String>> typeRecompileDependencies,
       @Nonnull String modifiedJavaFileName) {
     List<String> fileNamesToRecompile = new ArrayList<String>();
-    Set<String> deleteFileNames = getDeleteFileNames();
 
     assert fileDependencies != null;
     for (String modifiedTypeName : fileDependencies.getTypeNames(modifiedJavaFileName)) {
       for (String typeName : typeRecompileDependencies.get(modifiedTypeName)) {
         String dependentFileName = fileDependencies.getJavaFileName(typeName);
-        if (dependentFileName != null && !deleteFileNames.contains(dependentFileName)) {
+        if (dependentFileName != null && !deletedFileNames.contains(dependentFileName)) {
           fileNamesToRecompile.add(dependentFileName);
         }
       }
@@ -286,9 +343,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   }
 
   @Nonnull
-  private Set<String> getAddedFileNames() {
+  private void fillAddedFileNames(@Nonnull Set<String> addedFileNames) {
     assert fileDependencies != null;
-    Set<String> addedFileNames = new HashSet<String>();
     Set<String> previousFiles = fileDependencies.getCompiledJavaFiles();
 
     for (String javaFileName : fileNamesOnCmdLine) {
@@ -297,13 +353,12 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       }
     }
 
-    return addedFileNames;
+    tracer.getStatistic(IncrementalInputFilter.ADDED_FILES).incValue(addedFileNames.size());
   }
 
   @Nonnull
-  private Set<String> getModifiedFileNames() {
+  private void fillModifiedFileNames(@Nonnull Set<String> modifiedFileNames) {
     assert fileDependencies != null;
-    Set<String> modifiedFileNames = new HashSet<String>();
 
     for (String javaFileName : fileDependencies.getCompiledJavaFiles()) {
       if (fileNamesOnCmdLine.contains(javaFileName)) {
@@ -317,14 +372,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       }
     }
 
-    return modifiedFileNames;
+    tracer.getStatistic(IncrementalInputFilter.MODIFIED_FILES).incValue(modifiedFileNames.size());
   }
 
 
   @Nonnull
-  private Set<String> getDeleteFileNames() {
+  private void fillDeletedFileNames(@Nonnull Set<String> deletedFileNames) {
     assert fileDependencies != null;
-    Set<String> deletedFileNames = new HashSet<String>();
 
     for (String javaFileName : fileDependencies.getCompiledJavaFiles()) {
       if (!fileNamesOnCmdLine.contains(javaFileName)) {
@@ -332,7 +386,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       }
     }
 
-    return deletedFileNames;
+    tracer.getStatistic(IncrementalInputFilter.DELETED_FILES).incValue(deletedFileNames.size());
   }
 
   @Nonnull
