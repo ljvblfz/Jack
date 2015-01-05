@@ -19,7 +19,6 @@ package com.android.jack.ir.ast;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.sched.item.Description;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -83,19 +82,6 @@ public interface JClassOrInterface extends JReferenceType, HasEnclosingPackage {
   @Nonnull
   JFieldId getFieldId(@Nonnull String name, @Nonnull JType type, @Nonnull FieldKind kind)
       throws JFieldLookupException;
-
-  /**
-   * Return ids of methods referenced in this class but corresponding to no defined method.
-   */
-  @Nonnull
-  public Collection<JMethodId> getPhantomMethods();
-
-
-  /**
-   * Return ids of fields referenced in this class but corresponding to no defined field.
-   */
-  @Nonnull
-  public Collection<JFieldId> getPhantomFields();
 
   /**
    * Get the primitive type that can be wrapped by this type if any.
