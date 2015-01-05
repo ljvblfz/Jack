@@ -344,13 +344,13 @@ public class TestTools {
 
 
   @Nonnull
-  public static File[] getDefaultBootclasspath() {
+  public static File[] getDefaultClasspath() {
     return new File[] {getFromAndroidTree(
         "toolchain/jack/jack/libs/core-stubs-mini.jack")};
   }
 
   @Nonnull
-  public static String getDefaultBootclasspathString() {
+  public static String getDefaultClasspathString() {
     return getFromAndroidTree(
         "toolchain/jack/jack/libs/core-stubs-mini.jack")
           .getAbsolutePath();
@@ -430,8 +430,7 @@ public class TestTools {
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
       @CheckForNull File jarjarRules) throws IOException {
-    Options options = buildCommandLineArgs(null /* bootclasspath */, null /* classpath */,
-        new File[]{fileOrSourcelist});
+    Options options = buildCommandLineArgs(null /* classpath */, new File[] {fileOrSourcelist});
     options.jarjarRulesFile = jarjarRules;
 
     return options;
@@ -440,55 +439,28 @@ public class TestTools {
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File[] filesOrSourcelists)
       throws IOException {
-    return buildCommandLineArgs(null /* bootclasspath */, null /* classpath */, filesOrSourcelists);
+    return buildCommandLineArgs(null /* classpath */, filesOrSourcelists);
   }
 
   @Nonnull
-  public static Options buildCommandLineArgs(
-      @CheckForNull File[] bootclasspath, @CheckForNull File[] classpath,
-      @Nonnull File fileOrSourceList, @CheckForNull ProguardFlags[] proguardFlagsFiles,
-      boolean runDxOptimizations, boolean emitDebugInfo) throws IOException {
-    Options options = buildCommandLineArgs(bootclasspath, classpath, fileOrSourceList);
-    options.proguardFlagsFiles = new ArrayList<File>();
-    options.emitLocalDebugInfo = emitDebugInfo;
-    if (runDxOptimizations) {
-      options.enableDxOptimizations();
-    } else {
-      options.disableDxOptimizations();
-    }
-    if (proguardFlagsFiles != null) {
-      for (ProguardFlags proguardFlagsFile : proguardFlagsFiles) {
-        options.proguardFlagsFiles.add(proguardFlagsFile);
-      }
-    }
-    options.setOutputDir(TestTools.createTempDir("test", "dex"));
-    return options;
+  public static Options buildCommandLineArgs(@CheckForNull File[] classpath,
+      @Nonnull File fileOrSourcelist) throws IOException {
+    return buildCommandLineArgs(classpath, new File[] {fileOrSourcelist});
   }
 
   @Nonnull
-  public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File fileOrSourcelist) throws IOException {
-    return buildCommandLineArgs(bootclasspath, classpath, new File[]{fileOrSourcelist});
-  }
-  @Nonnull
-  public static Options buildCommandLineArgs(@CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath, @Nonnull File[] filesOrSourcelists) throws IOException {
+  public static Options buildCommandLineArgs(@CheckForNull File[] classpath,
+      @Nonnull File[] filesOrSourcelists) throws IOException {
     Options options = new Options();
 
-    if (bootclasspath == null) {
-      bootclasspath = getDefaultBootclasspath();
-    }
-    if (bootclasspath.length != 0) {
-      String bootclasspathStr = getClasspathAsString(bootclasspath);
-      assert bootclasspathStr != null;
-      options.bootclasspath = bootclasspathStr;
-    }
+    String classpathStr = getDefaultClasspathString();
+    classpathStr += File.pathSeparatorChar;
 
     if (classpath != null && classpath.length != 0) {
-      String classpathStr = getClasspathAsString(classpath);
-      assert classpathStr != null;
-      options.classpath = classpathStr;
+      classpathStr += getClasspathAsString(classpath);
     }
+
+    options.classpath = classpathStr;
 
     List<String> ecjArgs = buildEcjArgs();
     for (File file : filesOrSourcelists) {
@@ -579,11 +551,11 @@ public class TestTools {
     return (session);
   }
 
-  public static void checkStructure(@CheckForNull File[] bootclasspath,
+  public static void checkStructure(
       @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList,
       boolean withDebugInfo) throws Exception {
-    checkStructure(bootclasspath,
+    checkStructure(
         classpath,
         fileOrSourceList,
         withDebugInfo,
@@ -593,13 +565,13 @@ public class TestTools {
         (ProguardFlags[]) null);
   }
 
-  public static void checkStructure(@CheckForNull File[] bootclasspath,
+  public static void checkStructure(
       @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList,
       boolean withDebugInfo,
       boolean compareInstructionNumber,
       float instructionNumberTolerance) throws Exception {
-    checkStructure(bootclasspath,
+    checkStructure(
         classpath,
         fileOrSourceList,
         withDebugInfo,
@@ -609,12 +581,12 @@ public class TestTools {
         (ProguardFlags[]) null);
   }
 
-  public static void checkStructure(@CheckForNull File[] bootclasspath,
+  public static void checkStructure(
       @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList,
       boolean withDebugInfo,
       @CheckForNull ProguardFlags[] proguardFlagFiles) throws Exception {
-    checkStructure(bootclasspath,
+    checkStructure(
         classpath,
         fileOrSourceList,
         withDebugInfo,
@@ -624,7 +596,7 @@ public class TestTools {
         proguardFlagFiles);
   }
 
-  public static void checkStructure(@CheckForNull File[] bootclasspath,
+  public static void checkStructure(
       @CheckForNull File[] classpath,
       @Nonnull File fileOrSourceList,
       boolean withDebugInfo,
@@ -633,9 +605,7 @@ public class TestTools {
       @CheckForNull JarJarRules jarjarRules,
       @CheckForNull ProguardFlags[] proguardFlagFiles) throws Exception {
     checkStructure(new Options(),
-        bootclasspath,
         classpath,
-        /* refBootclasspath = */ null,
         /* refClasspath = */ null,
         fileOrSourceList,
         withDebugInfo,
@@ -646,9 +616,7 @@ public class TestTools {
   }
 
     public static void checkStructure(@Nonnull Options options,
-        @CheckForNull File[] bootclasspath,
         @CheckForNull File[] classpath,
-        @CheckForNull File[] refBootclasspath,
         @CheckForNull File[] refClasspath,
         @Nonnull File fileOrSourceList,
         boolean withDebugInfo,
@@ -659,7 +627,7 @@ public class TestTools {
 
     boolean runDxOptimizations = !withDebugInfo;
     boolean useEcjAsRefCompiler = withDebugInfo;
-    String classpathStr = getClasspathsAsString(bootclasspath, classpath);
+    String classpathStr = getClasspathsAsString(getDefaultClasspath(), classpath);
 
     File jackDexFolder = TestTools.createTempDir("jack", "dex");
 
@@ -678,7 +646,7 @@ public class TestTools {
         proguardFlagFiles,
         withDebugInfo);
 
-    Options refOptions = buildCommandLineArgs(refBootclasspath, refClasspath, fileOrSourceList);
+    Options refOptions = buildCommandLineArgs(refClasspath, fileOrSourceList);
 
     TestTools.compareDexToReference(jackDexFolder,
         refOptions,
@@ -962,7 +930,7 @@ public class TestTools {
       @Nonnull File inJar, @Nonnull File outJar, @CheckForNull File[] bootclasspath) {
     String bootclasspathStr = null;
     if (bootclasspath == null) {
-      bootclasspathStr = getDefaultBootclasspathString();
+      bootclasspathStr = getDefaultClasspathString();
     } else {
       bootclasspathStr = getClasspathAsString(bootclasspath);
     }
@@ -1024,12 +992,6 @@ public class TestTools {
       arguments.add("-classpath");
       // TODO(jmhenaff): This hack will be removed as soon as TestTools will be removed
       arguments.add(compilerArgs.classpath.replace("core-stubs-mini.jack", "core-stubs-mini.jar"));
-    }
-
-    if (compilerArgs.bootclasspath != null) {
-      arguments.add("-bootclasspath");
-      // TODO(jmhenaff): This hack will be removed as soon as TestTools will be removed
-      arguments.add(compilerArgs.bootclasspath.replace("core-stubs-mini.jack", "core-stubs-mini.jar"));
     }
     return arguments;
   }

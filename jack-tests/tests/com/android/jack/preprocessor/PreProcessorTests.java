@@ -72,7 +72,8 @@ public class PreProcessorTests {
 
     Options args = TestTools.buildCommandLineArgs(
         new File(testDir, "app1/ApplicationActivity1.java"));
-    args.setClasspath(tempDir.getPath());
+    args.setClasspath(AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(),
+        new File[] {tempDir}));
     RunnableHooks hooks = new RunnableHooks();
     JSession session = TestTools.buildSession(args, hooks);
     ANTLRFileStream in = new ANTLRFileStream(new File(testDir, "config.jpp").getAbsolutePath());

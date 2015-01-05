@@ -60,9 +60,7 @@ public class CoreCompilationTest {
     Options options = new Options();
     options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
     TestTools.checkStructure(options,
-        /* bootclasspath = */ null,
         /* classpath = */ null,
-        /* refBootclasspath = */ null,
         /* refClasspath = */ null,
         SOURCELIST,
         /* withDebugInfo = */ false,

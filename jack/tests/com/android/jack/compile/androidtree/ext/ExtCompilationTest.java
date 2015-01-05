@@ -33,21 +33,16 @@ import java.io.File;
 @Ignore("Tree")
 public class ExtCompilationTest {
 
-  private static File[] BOOTCLASSPATH;
-  private static File[] REF_BOOTCLASSPATH;
+  private static File[] CLASSPATH;
 
   private static File SOURCELIST;
 
   @BeforeClass
   public static void setUpClass() {
     ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
-    BOOTCLASSPATH = new File[] {
+    CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
             "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")
-      };
-    REF_BOOTCLASSPATH = new File[] {
-        TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")
       };
     SOURCELIST = TestTools.getTargetLibSourcelist("ext");
   }
@@ -57,16 +52,14 @@ public class ExtCompilationTest {
   public void compileExt() throws Exception {
     File outDexFolder = TestTools.createTempDir("ext", ".dex");
     TestTools.compileSourceToDex(new Options(), SOURCELIST,
-        TestTools.getClasspathAsString(BOOTCLASSPATH), outDexFolder, false);
+        TestTools.getClasspathAsString(CLASSPATH), outDexFolder, false);
   }
 
   @Test
   @Category(SlowTests.class)
   public void compareExtStructure() throws Exception {
     TestTools.checkStructure(new Options(),
-        BOOTCLASSPATH,
         /* classpath = */ null,
-        REF_BOOTCLASSPATH,
         /* refClasspath = */ null,
         SOURCELIST,
         /* compareDebugInfoBinary = */ false,

@@ -281,9 +281,6 @@ public class Options {
   @Option(name = "-cp", aliases = "--classpath", usage = "classpath", metaVar = "PATH")
   protected String classpath = null;
 
-  @Option(name = "--bootclasspath", usage = "bootclasspath", metaVar = "PATH")
-  protected String bootclasspath = null;
-
   @Argument
   protected List<String> ecjArguments;
 
@@ -406,11 +403,6 @@ public class Options {
   @Nonnull
   public List<File> getClasspath() {
     return getFilesFromPathString(classpath);
-  }
-
-  @Nonnull
-  public List<File> getBootclasspath() {
-    return getFilesFromPathString(bootclasspath);
   }
 
   @Nonnull

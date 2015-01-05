@@ -33,8 +33,7 @@ import java.io.File;
 @Ignore("Tree")
 public class BouncycastleCompilationTest {
 
-  private static File[] BOOTCLASSPATH;
-  private static File[] REF_BOOTCLASSPATH;
+  private static File[] CLASSPATH;
 
   private static File SOURCELIST;
 
@@ -43,13 +42,9 @@ public class BouncycastleCompilationTest {
   @BeforeClass
   public static void setUpClass() {
     BouncycastleCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
-    BOOTCLASSPATH = new File[] {
+    CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
             "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.zip")
-      };
-    REF_BOOTCLASSPATH = new File[] {
-        TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")
       };
     SOURCELIST = TestTools.getTargetLibSourcelist("bouncycastle");
     JARJAR_RULES = new JarJarRules(
@@ -64,7 +59,7 @@ public class BouncycastleCompilationTest {
     options.disableDxOptimizations();
     TestTools.compileSourceToDex(options,
         SOURCELIST,
-        TestTools.getClasspathAsString(BOOTCLASSPATH),
+        TestTools.getClasspathAsString(CLASSPATH),
         outDexFolder,
         false /* zip */,
         JARJAR_RULES,
@@ -77,9 +72,7 @@ public class BouncycastleCompilationTest {
   public void compareBouncycastleStructure() throws Exception {
     TestTools.checkStructure(
         new Options(),
-        BOOTCLASSPATH,
         /* classpath = */ null,
-        REF_BOOTCLASSPATH,
         /* refClasspath = */ null,
         SOURCELIST,
         /* compareDebugInfoBinary = */ false,
