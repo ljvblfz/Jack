@@ -16,17 +16,19 @@
 
 package com.android.jack.analysis.dependency;
 
+import com.google.common.base.Joiner;
 import com.google.common.io.LineReader;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -36,12 +38,17 @@ import javax.annotation.Nonnull;
 public abstract class Dependency {
 
   @Nonnull
-  public static final String MAP_SEPARATOR = "#";
+  protected static final String END_OF_MAP = "#";
 
-  public static final char MAP_VALUE_SEPARATOR = ',';
+  private static final char LIST_VALUE_SEPARATOR = ',';
 
-  public static final char MAP_KEY_VALUE_SEPARATOR = ':';
+  private static final char MAP_VALUE_SEPARATOR = ',';
 
+  private static final char MAP_KEY_VALUE_SEPARATOR = ':';
+
+  /**
+   * Line parser
+   */
   private static class LineParser {
     @Nonnull
     private final String line;
@@ -49,14 +56,21 @@ public abstract class Dependency {
     @Nonnegative
     private int lineCharIdx = 0;
 
-    LineParser(@Nonnull String line) {
+    public LineParser(@Nonnull String line) {
       this.line = line;
     }
 
-    @CheckForNull
-    private String nextToken(char separator) {
+    public boolean hasNextToken() {
       if (lineCharIdx >= line.length()) {
-        return null;
+        return false;
+      }
+      return true;
+    }
+
+    @Nonnull
+    public String nextToken(char separator) {
+      if (lineCharIdx >= line.length()) {
+        throw new NoSuchElementException();
       }
 
       char c;
@@ -76,15 +90,12 @@ public abstract class Dependency {
     Map<String, Set<String>> one2many = new HashMap<String, Set<String>>();
     String line;
 
-    while ((line = lr.readLine()) != null && !line.equals(MAP_SEPARATOR)) {
+    while ((line = lr.readLine()) != null && !line.equals(END_OF_MAP)) {
       Set<String> values = new HashSet<String>();
       LineParser lp = new LineParser(line);
       String key = lp.nextToken(MAP_KEY_VALUE_SEPARATOR);
-      assert key != null;
-      String value = lp.nextToken(MAP_VALUE_SEPARATOR);
-      while (value != null) {
-        values.add(value);
-        value = lp.nextToken(MAP_VALUE_SEPARATOR);
+      while (lp.hasNextToken()) {
+        values.add(lp.nextToken(MAP_VALUE_SEPARATOR));
       }
       one2many.put(key, values);
     }
@@ -98,15 +109,28 @@ public abstract class Dependency {
       StringBuffer sb = new StringBuffer();
       sb.append(entry.getKey());
       sb.append(MAP_KEY_VALUE_SEPARATOR);
-      Iterator<String> itValues = entry.getValue().iterator();
-      while (itValues.hasNext()) {
-        sb.append(itValues.next());
-        if (itValues.hasNext()) {
-          sb.append(MAP_VALUE_SEPARATOR);
-        }
-      }
+      sb.append(Joiner.on(MAP_VALUE_SEPARATOR).join(entry.getValue().iterator()));
       ps.print(sb.toString());
       ps.println();
     }
   }
+
+  protected void writeList(@Nonnull PrintStream ps, @Nonnull List<String> list) {
+    ps.print(Joiner.on(LIST_VALUE_SEPARATOR).useForNull("").join(list.iterator()));
+  }
+
+  @Nonnull
+  protected List<String> readList(@Nonnull LineReader lr) throws IOException {
+    List<String> digestValues = new ArrayList<String>();
+    String line = lr.readLine();
+
+    LineParser lp = new LineParser(line);
+    while (lp.hasNextToken()) {
+      digestValues.add(lp.nextToken(LIST_VALUE_SEPARATOR));
+    }
+
+    return digestValues;
+  }
+
+  public abstract void read(@Nonnull Readable readable) throws IOException;
 }

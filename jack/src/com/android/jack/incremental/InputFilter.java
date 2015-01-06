@@ -16,9 +16,9 @@
 
 package com.android.jack.incremental;
 
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -33,11 +33,11 @@ public interface InputFilter {
   public Set<String> getFileNamesToCompile();
 
   @Nonnull
-  public List<File> getClasspath();
-
-  @Nonnull
-  public List<File> getImportedLibrary();
+  public List<InputLibrary> getClasspath();
 
   @Nonnull
   public OutputJackLibrary getOutputJackLibrary();
+
+  @Nonnull
+  public List<InputLibrary> getImportedLibrary();
 }

@@ -20,6 +20,7 @@ import com.google.common.collect.Iterators;
 
 import com.android.jack.Jack;
 import com.android.jack.analysis.dependency.file.FileDependencies;
+import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JNodeInternalError;
@@ -103,6 +104,9 @@ public class JSession extends JNode {
 
   @Nonnull
   private final List<InputLibrary> librariesOnClasspath = new ArrayList<InputLibrary>(0);
+
+  @Nonnull
+  private final LibraryDependencies libDependencies = new LibraryDependencies();
 
   @CheckForNull
   private TypeDependencies typeDependencies;
@@ -274,6 +278,7 @@ public class JSession extends JNode {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(librariesOnClasspath);
   }
 
+
   @Nonnull
   public Iterator<InputLibrary> getPathSources() {
     return Iterators.concat(
@@ -291,6 +296,11 @@ public class JSession extends JNode {
   public FileDependencies getFileDependencies() {
     assert fileDependencies != null;
     return fileDependencies;
+  }
+
+  @Nonnull
+  public LibraryDependencies getLibraryDependencies() {
+    return libDependencies;
   }
 
   public void setTypeDependencies(@Nonnull TypeDependencies typeDependencies) {

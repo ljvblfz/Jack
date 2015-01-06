@@ -79,13 +79,13 @@ public class TypeDependencies extends Dependency {
 
   public void write(@Nonnull PrintStream ps) {
     writeMapOne2Many(ps, hierarchyDependencies);
-    ps.print(Dependency.MAP_SEPARATOR);
+    ps.print(Dependency.END_OF_MAP);
     ps.println();
     writeMapOne2Many(ps, constantDependencies);
-    ps.print(Dependency.MAP_SEPARATOR);
+    ps.print(Dependency.END_OF_MAP);
     ps.println();
     writeMapOne2Many(ps, codeDependencies);
-    ps.print(Dependency.MAP_SEPARATOR);
+    ps.print(Dependency.END_OF_MAP);
     ps.println();
   }
 
@@ -195,6 +195,7 @@ public class TypeDependencies extends Dependency {
     }
   }
 
+  @Override
   @Nonnull
   public void read(@Nonnull Readable readable) throws IOException {
     LineReader lr = new LineReader(readable);

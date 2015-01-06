@@ -40,6 +40,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -111,6 +112,8 @@ public class DependenciesTest009 {
     try {
       reader = new InputStreamReader(typeDependenciesVFile.openRead());
       typeDependencies.read(reader);
+    } catch (NoSuchElementException e) {
+      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
     } catch (IOException e) {
       throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
     } finally {

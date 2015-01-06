@@ -54,8 +54,7 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
     }
 
     // add metas from --import-jack libs
-    List<InputLibrary> importedLibraries = session.getImportedLibraries();
-    for (InputLibrary importedLibrary : importedLibraries) {
+    for (InputLibrary importedLibrary : session.getImportedLibraries()) {
       if (importedLibrary.containsFileType(FileType.JPP)) {
         Iterator<InputVFile> jppIter = importedLibrary.iterator(FileType.JPP);
         while (jppIter.hasNext()) {

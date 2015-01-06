@@ -105,7 +105,7 @@ public class Options {
   @Nonnull
   public static final ReflectFactoryPropertyId<InputFilter> INPUT_FILTER = ReflectFactoryPropertyId
       .create("jack.input.filter", "Inputs filter", InputFilter.class)
-      .addDefaultValue("no-filter").addArgType(Options.class);
+      .addDefaultValue("no-filter").addArgType(Options.class).addArgType(RunnableHooks.class);
 
   @Nonnull
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId

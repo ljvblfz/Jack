@@ -19,11 +19,15 @@ package com.android.jack.incremental;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.analysis.dependency.file.FileDependencies;
+import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.config.ThreadConfig;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -41,9 +45,26 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   private final Options options;
 
-  public NoInputFilter(@Nonnull Options options) {
+  @Nonnull
+  private final List<InputLibrary> importedLibrariesFromCommandLine;
+
+  @Nonnull
+  private final List<InputLibrary> librariesOnClasspathFromCommandLine;
+
+  public NoInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
+    super(hooks);
     this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
+    JSession session = Jack.getSession();
+    session.setFileDependencies(new FileDependencies());
+    session.setTypeDependencies(new TypeDependencies());
+    importedLibrariesFromCommandLine =
+        getInputLibrariesFromFiles(options.getImportedLibraries(), true);
+    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
+        ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
+    LibraryDependencies libraryDependencies = session.getLibraryDependencies();
+    libraryDependencies.addImportedLibraries(importedLibrariesFromCommandLine);
+    libraryDependencies.addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
   }
 
   @Override
@@ -54,16 +75,14 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
 
   @Override
   @Nonnull
-  public List<File> getClasspath() {
-    Jack.getSession().setFileDependencies(new FileDependencies());
-    Jack.getSession().setTypeDependencies(new TypeDependencies());
-    return options.getClasspath();
+  public List<InputLibrary> getClasspath() {
+    return librariesOnClasspathFromCommandLine;
   }
 
   @Override
   @Nonnull
-  public List<File> getImportedLibrary() {
-    return options.getImportedLibraries();
+  public List<InputLibrary> getImportedLibrary() {
+    return importedLibrariesFromCommandLine;
   }
 
   @Override
