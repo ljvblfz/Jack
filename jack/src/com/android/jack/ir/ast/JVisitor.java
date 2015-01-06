@@ -16,6 +16,8 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.ir.HasSourceInfo;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.Collection;
@@ -42,13 +44,42 @@ public class JVisitor {
   }
 
   public void accept(@Nonnull JVisitable node) {
-    node.traverse(this);
+    try {
+      node.traverse(this);
+    } catch (RuntimeException e) {
+      throw wrapException(node, e);
+    } catch (Error e) {
+      throw wrapException(node, e);
+    }
   }
 
   public <T extends JNode> void accept(@Nonnull Collection<T> collection) {
     for (T element : collection) {
-      element.traverse(this);
+      try {
+        element.traverse(this);
+      } catch (RuntimeException e) {
+        throw wrapException(element, e);
+      } catch (Error e) {
+        throw wrapException(element, e);
+      }
     }
+  }
+
+  @Nonnull
+  protected static JNodeInternalError wrapException(@Nonnull JVisitable node,
+      @Nonnull Throwable e) {
+    if (e instanceof VirtualMachineError) {
+      // Always rethrow VM errors (an attempt to wrap may fail).
+      throw (VirtualMachineError) e;
+    }
+    JNodeInternalError ice;
+    if (e instanceof JNodeInternalError) {
+      ice = (JNodeInternalError) e;
+    } else {
+      ice = new JNodeInternalError("Unexpected error during visit", e);
+    }
+    ice.addNode((HasSourceInfo) node);
+    return ice;
   }
 
   public boolean didChange() {
