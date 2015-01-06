@@ -33,6 +33,7 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.MessageDigestInputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
@@ -43,6 +44,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -54,7 +56,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final InputVFS vfs;
+  private final MessageDigestInputVFS vfs;
   @Nonnegative
   private final int minorVersion;
 
@@ -84,11 +86,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
   };
 
-  public InputJackLibraryImpl(@Nonnull InputVFS libraryVDir,
+  public InputJackLibraryImpl(@Nonnull InputVFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
     super(libraryProperties);
-    this.vfs = libraryVDir;
+    this.vfs = new MessageDigestInputVFS(vfs);
 
     try {
       minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
@@ -200,5 +202,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   public String getPath() {
     return vfs.getPath();
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return vfs.getDigest();
   }
 }

@@ -24,6 +24,7 @@ import com.android.sched.vfs.VPath;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -50,6 +51,9 @@ public interface InputLibrary extends Library {
   @Override
   @Nonnull
   public InputLibraryLocation getLocation();
+
+  @CheckForNull
+  public String getDigest();
 
   @Nonnull
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)

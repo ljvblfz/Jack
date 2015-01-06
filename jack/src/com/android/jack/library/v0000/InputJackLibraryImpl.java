@@ -43,6 +43,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -192,5 +193,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   public String getPath() {
     return vfs.getPath();
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
   }
 }
