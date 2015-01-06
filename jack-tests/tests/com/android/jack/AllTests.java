@@ -16,6 +16,7 @@ import com.android.jack.compiletime.CompileTimeTests;
 import com.android.jack.conditional.ConditionalTests;
 import com.android.jack.constant.ConstantTests;
 import com.android.jack.debug.DebugTests;
+import com.android.jack.dextag.DexTagTests;
 import com.android.jack.dx.DxTests;
 import com.android.jack.enums.EnumsTests;
 import com.android.jack.error.ErrorHandlingAllTests;
@@ -85,6 +86,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ConstantTests.class,
     DebugTests.class,
     DependencyAllTests.class,
+    DexTagTests.class,
     DxTests.class,
     EnumsTests.class,
     ExternalTests.class,

@@ -1757,6 +1757,26 @@ public abstract class Jack {
     return version;
   }
 
+  @CheckForNull
+  public static String getBuildId() {
+    String version = null;
+
+    InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+    if (is != null) {
+      Properties prop = new Properties();
+      try {
+        prop.load(is);
+        version = prop.getProperty("jack.version.buildid");
+      } catch (IOException e) {
+        logger.log(Level.WARNING, "Failed to read Jack properties from " + PROPERTIES_FILE, e);
+      }
+    } else {
+      logger.log(Level.WARNING, "Failed to open Jack properties file " + PROPERTIES_FILE);
+    }
+
+    return version;
+  }
+
   @Nonnull
   public static TypePackageAndMethodFormatter getLookupFormatter() {
     return lookupFormatter;

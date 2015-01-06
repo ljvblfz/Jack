@@ -112,6 +112,7 @@ public class DexInLibraryWriter extends DexWriter implements
     }
     try {
       outStream = vFile.openWrite();
+      typeDex.getStringIds().intern(DexWriter.getJackDexTag());
       typeDex.prepare();
       typeDex.writeTo(outStream, null, false);
     } catch (IOException e) {
