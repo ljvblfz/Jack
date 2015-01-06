@@ -25,8 +25,6 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -119,14 +117,6 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
     return getOrCreateFieldId(name, type, kind);
   }
 
-
-  @Nonnull
-  @Override
-  public Collection<JFieldId> getPhantomFields() {
-    return Collections.unmodifiableCollection(fields);
-  }
-
-
   @Override
   public boolean canBeSafelyUpcast(@Nonnull JReferenceType castTo) {
     return isTrivialCast(castTo);
@@ -154,12 +144,6 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
       @Nonnull List<? extends JType> argsType,
       @Nonnull MethodKind kind) {
     return getMethodId(name, argsType, kind);
-  }
-
-  @Nonnull
-  @Override
-  public Collection<JMethodId> getPhantomMethods() {
-    return Collections.unmodifiableCollection(methodIds);
   }
 
   @Override

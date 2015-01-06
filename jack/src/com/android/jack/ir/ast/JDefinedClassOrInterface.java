@@ -239,12 +239,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return fieldsFound;
   }
 
-  @Nonnull
-  @Override
-  public Collection<JFieldId> getPhantomFields() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(phantomFields);
-  }
-
   @Override
   @Nonnull
   public JPackage getEnclosingPackage() {
@@ -258,12 +252,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public List<JMethod> getMethods() {
     loader.ensureMethods(this);
     return methods;
-  }
-
-  @Nonnull
-  @Override
-  public Collection<JMethodId> getPhantomMethods() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(phantomMethods);
   }
 
   /**
