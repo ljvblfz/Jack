@@ -1741,8 +1741,13 @@ public abstract class Jack {
             version += " \'" + codeName + '\'';
           }
 
-          String codeBase = prop.getProperty("jack.version.codebase", "engineering");
-          version += " (" + codeBase + ")";
+          String bid = prop.getProperty("jack.version.buildid", "engineering");
+          String sha = prop.getProperty("jack.version.sha");
+          if (sha != null) {
+            version += " (" + bid + ' ' + sha + ')';
+          } else {
+            version += " (" + bid + ')';
+          }
         }
       } catch (IOException e) {
         // Return default version
