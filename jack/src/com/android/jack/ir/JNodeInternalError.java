@@ -122,6 +122,18 @@ public class JNodeInternalError extends Error {
     super(message, cause);
   }
 
+  @Override
+  public String getMessage() {
+    String message = super.getMessage();
+    if (nodeTrace.isEmpty()) {
+      return message;
+    } else {
+      NodeInfo bottomNode = nodeTrace.get(0);
+      return message + ": " + bottomNode.getClassName() + " at \""
+          + bottomNode.getSourceInfo() + '"';
+    }
+  }
+
   /**
    * Adds a node to the end of the node trace. This is similar to how a stack
    * trace works.
