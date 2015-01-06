@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JConstructor;
@@ -44,9 +43,6 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
-import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,19 +57,7 @@ import javax.annotation.Nonnull;
  */
 @ValidOn(JDefinedClass.class)
 @Description("This marker indicates that a method has an associated wrapper.")
-//TODO(delphinemartin): Warning: The index is not thread-safe.
-@HasKeyId
 public class WrapperMarker implements Marker {
-
-  // Private option that must be used only for incremental test in order to use dex comparator.
-  @Nonnull
-  public static final BooleanPropertyId USE_DETERMINISTIC_NAME = BooleanPropertyId.create(
-      "jack.internal.inner-wrapper.determinist-name",
-      "Generate inner-wrapper name in a deterministic way").addDefaultValue(Boolean.FALSE)
-      .withCategory(Private.get());
-
-  private final boolean useDeterministicName =
-      ThreadConfig.get(USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String WRAPPER_PREFIX = NamingTools.getNonSourceConflictingName("wrap");
@@ -81,8 +65,6 @@ public class WrapperMarker implements Marker {
   @Nonnull
   private final HashMap<MethodCallDescriptor, JMethod> wrappers =
     new HashMap<MethodCallDescriptor, JMethod>();
-
-  private int index = 0;
 
   private static class WrapperFormatter extends SourceFormatter {
 
@@ -223,11 +205,9 @@ public class WrapperMarker implements Marker {
         wrapper = new JConstructor(sourceInfo, accessorClass, JModifier.SYNTHETIC);
       } else {
         String wrapperName = WRAPPER_PREFIX;
-        if (useDeterministicName) {
-          wrapperName += WrapperFormatter.getFormatter().getName(method) + isSuper;
-        } else {
-          wrapperName += index++;
-        }
+        // It is a temporary deterministic name that will be replace by an index into
+        // InnerAccessorAdder
+        wrapperName += WrapperFormatter.getFormatter().getName(method) + isSuper;
         wrapper =
             new JMethod(sourceInfo, new JMethodId(wrapperName, MethodKind.STATIC), accessorClass,
                 method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);

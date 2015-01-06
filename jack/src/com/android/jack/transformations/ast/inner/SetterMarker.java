@@ -40,7 +40,6 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
-import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,11 +51,7 @@ import javax.annotation.Nonnull;
  */
 @ValidOn(JDefinedClass.class)
 @Description("This marker indicates that a field has an associated setter.")
-//TODO(delphinemartin): Warning: The index is not thread-safe.
 public class SetterMarker implements Marker {
-
-  private final boolean useDeterministicName =
-      ThreadConfig.get(WrapperMarker.USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String SETTER_PREFIX = NamingTools.getNonSourceConflictingName("set");
@@ -66,8 +61,6 @@ public class SetterMarker implements Marker {
 
   @Nonnull
   private final HashMap<JField, JMethod> setters = new HashMap<JField, JMethod>();
-
-  private int index = 0;
 
   @Nonnull
   Collection<JMethod> getAllSetters() {
@@ -106,11 +99,9 @@ public class SetterMarker implements Marker {
     if (setter == null) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
       String setterName = SETTER_PREFIX;
-      if (useDeterministicName) {
-        setterName += field.getName();
-      } else {
-        setterName += index++;
-      }
+      // It is a temporary deterministic name that will be replace by an index into
+      // InnerAccessorAdder
+      setterName += field.getName();
       JMethodId id = new JMethodId(setterName, MethodKind.STATIC);
       JType fieldType = field.getType();
       setter = new JMethod(sourceInfo, id, accessorClass, fieldType,
