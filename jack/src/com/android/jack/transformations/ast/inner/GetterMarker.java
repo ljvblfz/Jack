@@ -38,7 +38,6 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
-import com.android.sched.util.config.ThreadConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,19 +49,13 @@ import javax.annotation.Nonnull;
  */
 @ValidOn(JDefinedClass.class)
 @Description("This marker indicates that a field has an associated getter.")
-//TODO(delphinemartin): Warning: The index is not thread-safe.
 public class GetterMarker implements Marker {
-
-  private final boolean useDeterministicName =
-      ThreadConfig.get(WrapperMarker.USE_DETERMINISTIC_NAME).booleanValue();
 
   @Nonnull
   private static final String GETTER_PREFIX = NamingTools.getNonSourceConflictingName("get");
 
   @Nonnull
   private final HashMap<JField, JMethod> getters = new HashMap<JField, JMethod>();
-
-  private int index = 0;
 
   @Nonnull
   Collection<JMethod> getAllGetters() {
@@ -98,11 +91,9 @@ public class GetterMarker implements Marker {
     if (getter == null) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
       String getterName = GETTER_PREFIX;
-      if (useDeterministicName) {
-        getterName += field.getName();
-      } else {
-        getterName += index++;
-      }
+      // It is a temporary deterministic name that will be replace by an index into
+      // InnerAccessorAdder
+      getterName += field.getName();
       JMethodId id = new JMethodId(getterName, MethodKind.STATIC);
       getter = new JMethod(sourceInfo, id, accessorClass, field.getType(),
           JModifier.SYNTHETIC | JModifier.STATIC);
