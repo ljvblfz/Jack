@@ -133,16 +133,14 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     @Override
     public void endVisit(@Nonnull JDefinedClassOrInterface x) {
+      addMemberClasses(x);
+
       JClassOrInterface enclosingType = x.getEnclosingType();
+
       if (enclosingType != null) {
         addInnerClass(x);
-        boolean isLocal =
-            (x instanceof JDefinedClass) && ((JDefinedClass) x).getEnclosingMethod() != null;
-        // !anonymous && !local
-        if (!isLocal && !JModifier.isAnonymousType(x.getModifier())) {
-          addMemberClasses(x);
-        }
-        if (isLocal) {
+
+        if ((x instanceof JDefinedClass) && ((JDefinedClass) x).getEnclosingMethod() != null) {
           addEnclosingMethod(x);
         } else {
           addEnclosingClass(x);
@@ -209,26 +207,36 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         List<JClass> throwns = marker.getThrownExceptions();
         SourceInfo info = method.getSourceInfo();
         JAnnotationLiteral annotation = createAnnotation(method, throwsAnnotation, info);
-        List<JLiteral> classLiterals = new ArrayList<JLiteral>();
+        List<JLiteral> literals = new ArrayList<JLiteral>();
         for (JClass thrown : throwns) {
-          classLiterals.add(new JClassLiteral(info, thrown, javaLangClass));
+          literals.add(new JClassLiteral(info, thrown, javaLangClass));
         }
         JMethodId methodId = getOrCreateMethodId(throwsAnnotation, ELT_VALUE);
-        addClassLiterals(classLiterals, annotation, methodId, info);
+        JArrayLiteral array = new JArrayLiteral(info, literals);
+        JNameValuePair valuePair = new JNameValuePair(info, methodId, array);
+        request.append(new PutNameValuePair(annotation, valuePair));
       }
    }
 
-    private void addMemberClasses(@Nonnull JDefinedClassOrInterface innerType) {
-      JClassOrInterface enclosingType = innerType.getEnclosingType();
-      if (!enclosingType.isExternal() && enclosingType instanceof JDefinedClassOrInterface) {
-          SourceInfo info = enclosingType.getSourceInfo();
-          JAnnotationLiteral annotation =
-              getAnnotation((JDefinedClassOrInterface) enclosingType, memberClassAnnotation, info);
-          JLiteral newValue = new JClassLiteral(info, innerType, javaLangClass);
-          List<JLiteral> literals = new ArrayList<JLiteral>();
-          literals.add(newValue);
-          JMethodId methodId = getOrCreateMethodId(memberClassAnnotation, ELT_VALUE);
-          addClassLiterals(literals, annotation, methodId, info);
+    private void addMemberClasses(@Nonnull JDefinedClassOrInterface type) {
+      List<JLiteral> literals = new ArrayList<JLiteral>();
+      SourceInfo info = type.getSourceInfo();
+      for (JClassOrInterface members : type.getMemberTypes()) {
+        // The method getMemberTypes returns all classes contained directly by another class
+        // without taking into account if the class is declared locally to a method or not.
+        // The built annotation requires to contain only classes declared outside a method.
+        if (members instanceof JDefinedClass
+            && ((JDefinedClass) members).getEnclosingMethod() != null) {
+          continue;
+        }
+        literals.add(new JClassLiteral(info, members, javaLangClass));
+      }
+      if (!literals.isEmpty()) {
+        JMethodId methodId = getOrCreateMethodId(memberClassAnnotation, ELT_VALUE);
+        JAnnotationLiteral annotation = getAnnotation(type, memberClassAnnotation, info);
+        JArrayLiteral array = new JArrayLiteral(info, literals);
+        JNameValuePair valuePair = new JNameValuePair(info, methodId, array);
+        request.append(new PutNameValuePair(annotation, valuePair));
       }
     }
 
@@ -276,27 +284,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       JNameValuePair flagsValuePair =
           new JNameValuePair(info, flagsMethodId, new JIntLiteral(info, accessFlags));
       request.append(new PutNameValuePair(annotation, flagsValuePair));
-    }
-
-    /**
-     * Adds class literals in {@code innerAnnotation} as values of {@code element}
-     */
-    private void addClassLiterals(@Nonnull List<JLiteral> literals,
-        @Nonnull JAnnotationLiteral annotation, @Nonnull JMethodId methodId,
-        @Nonnull SourceInfo info) {
-      JNameValuePair valuePair = annotation.getNameValuePair(methodId);
-      if (valuePair != null) {
-        JLiteral oldValue = valuePair.getValue();
-        if (oldValue instanceof JArrayLiteral) {
-          literals.addAll(((JArrayLiteral) oldValue).getValues());
-        } else {
-          assert oldValue instanceof JClassLiteral;
-          literals.add(oldValue);
-        }
-      }
-      JArrayLiteral array = new JArrayLiteral(info, literals);
-      valuePair = new JNameValuePair(info, methodId, array);
-      request.append(new PutNameValuePair(annotation, valuePair));
     }
 
     @Nonnull
