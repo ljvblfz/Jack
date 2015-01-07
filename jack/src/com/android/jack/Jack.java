@@ -703,7 +703,8 @@ public abstract class Jack {
 
     JayceFileImporter jayceImporter;
     try {
-      jayceImporter = getJayceFileImporter(options.jayceImport, hooks, session);
+      jayceImporter =
+          getJayceFileImporter(session.getInputFilter().getImportedLibrary(), hooks, session);
       putInJackClasspath(session.getInputFilter().getClasspath(), hooks, session);
     } catch (LibraryReadingException e) {
       session.getReporter().report(Severity.FATAL, e);

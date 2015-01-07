@@ -31,4 +31,7 @@ public interface InputFilter {
 
   @Nonnull
   public List<File> getClasspath();
+
+  @Nonnull
+  public List<File> getImportedLibrary();
 }

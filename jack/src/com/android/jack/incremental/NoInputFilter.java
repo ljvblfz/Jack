@@ -57,4 +57,10 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
     Jack.getSession().setTypeDependencies(new TypeDependencies());
     return options.getClasspath();
   }
+
+  @Override
+  @Nonnull
+  public List<File> getImportedLibrary() {
+    return options.getJayceImport();
+  }
 }
