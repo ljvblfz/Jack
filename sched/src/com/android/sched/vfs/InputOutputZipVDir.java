@@ -115,7 +115,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
 
   @Override
   @Nonnull
-  public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {

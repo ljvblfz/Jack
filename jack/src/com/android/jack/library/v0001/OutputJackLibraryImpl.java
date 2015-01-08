@@ -34,14 +34,18 @@ import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.MessageDigestOutputVFS;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.PrefixedInputVFS;
+import com.android.sched.vfs.PrefixedOutputVFS;
 import com.android.sched.vfs.SequentialOutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Nonnull;
@@ -53,17 +57,19 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   private boolean closed = false;
 
+  private final boolean generateJacklibDigest;
   @Nonnull
-  private final InputVFS iVfs;
+  private final InputOutputVFS baseVFS;
   @Nonnull
-  private final OutputVFS oVfs;
+  private final Map<FileType, VFSPair> sectionVFS =
+      new EnumMap<FileType, VFSPair>(FileType.class);
 
   @Nonnull
   private final OutputLibraryLocation location = new OutputLibraryLocation() {
     @Override
     @Nonnull
     public String getDescription() {
-      return oVfs.getLocation().getDescription();
+      return baseVFS.getLocation().getDescription();
     }
 
     @Override
@@ -84,18 +90,13 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     }
   };
 
-  public OutputJackLibraryImpl(@Nonnull InputOutputVFS vfs, @Nonnull String emitterId,
+  public OutputJackLibraryImpl(@Nonnull InputOutputVFS baseVFS, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
     super(new Properties());
+    this.baseVFS = baseVFS;
 
-    this.iVfs = vfs;
-
-    if (ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue()) {
-      this.oVfs =
-          new MessageDigestOutputVFS(vfs, ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
-    } else {
-      this.oVfs = vfs;
-    }
+    generateJacklibDigest =
+        ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue();
 
     putProperty(KEY_LIB_EMITTER, emitterId);
     putProperty(KEY_LIB_EMITTER_VERSION, emitterVersion);
@@ -110,13 +111,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     assert !isClosed();
     putProperty(fileType.buildPropertyName(null /*suffix*/), String.valueOf(true));
     addFileType(fileType);
-    return oVfs.getRootOutputVDir().createOutputVFile(fileType.buildFileVPath(typePath));
+    return baseVFS.getRootInputOutputVDir().createOutputVFile(fileType.buildFileVPath(typePath));
   }
 
   @Override
   public boolean needsSequentialWriting() {
-    // XXX Rework
-    return iVfs instanceof SequentialOutputVFS;
+    return baseVFS instanceof SequentialOutputVFS;
   }
 
   @Override
@@ -125,13 +125,33 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     return location;
   }
 
+  @Nonnull
+  private synchronized VFSPair getSectionVFS(@Nonnull FileType fileType)
+      throws NotFileOrDirectoryException, NoSuchFileException {
+    VFSPair currentSectionVFS;
+    if (sectionVFS.containsKey(fileType)) {
+      currentSectionVFS = sectionVFS.get(fileType);
+    } else {
+      VPath prefixPath = new VPath(fileType.getPrefix(), '/');
+      InputVFS inputVFS = new PrefixedInputVFS(baseVFS, prefixPath);
+      OutputVFS outputVFS = new PrefixedOutputVFS(baseVFS, prefixPath);
+      if (generateJacklibDigest && fileType == FileType.DEX) {
+        outputVFS = new MessageDigestOutputVFS(outputVFS,
+            ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
+      }
+      currentSectionVFS = new VFSPair(inputVFS, outputVFS);
+      sectionVFS.put(fileType, currentSectionVFS);
+    }
+    return currentSectionVFS;
+  }
+
   @Override
   public synchronized void close() throws LibraryIOException {
     if (!closed) {
       OutputStream os = null;
       try {
         OutputVFile libraryPropertiesOut =
-            oVfs.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+            baseVFS.getRootInputOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
         os = libraryPropertiesOut.openWrite();
         libraryProperties.store(os, "Library properties");
       } catch (CannotCreateFileException e) {
@@ -149,8 +169,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       }
 
       try {
-        oVfs.close();
-        iVfs.close();
+        baseVFS.close();
       } catch (IOException e) {
         throw new LibraryIOException(getLocation(), e);
       }
@@ -172,7 +191,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(iVfs.getRootInputVDir(), fileType, inputVFiles);
+    fillFiles(baseVFS.getRootInputOutputVDir(), fileType, inputVFiles);
     return inputVFiles.listIterator();
   }
 
@@ -181,7 +200,9 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return iVfs.getRootInputVDir().getInputVFile(fileType.buildFileVPath(typePath));
+      VFSPair currentSectionVFS = getSectionVFS(fileType);
+      return currentSectionVFS.getInputVFS().getRootInputVDir().getInputVFile(
+          buildFileVPath(fileType, typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -192,18 +213,55 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   @Nonnull
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
-      throws CannotDeleteFileException {
+      throws CannotDeleteFileException, FileTypeDoesNotExistException {
     assert !isClosed();
-    iVfs.getRootInputVDir().delete(fileType.buildFileVPath(typePath));
+    try {
+      VFSPair currentSectionVFS = getSectionVFS(fileType);
+      currentSectionVFS.getInputVFS().getRootInputVDir().delete(buildFileVPath(fileType, typePath));
+    } catch (NotFileOrDirectoryException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (NoSuchFileException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    }
   }
 
   @Override
   @Nonnull
   public String getPath() {
-    return oVfs.getPath();
+    return baseVFS.getPath();
+  }
+
+  @Nonnull
+  public VPath buildFileVPath(@Nonnull FileType fileType, @Nonnull VPath vpath) {
+    VPath clonedPath = vpath.clone();
+    clonedPath.addSuffix(fileType.getFileExtension());
+    return clonedPath;
   }
 
   private synchronized boolean isClosed() {
     return closed;
+  }
+
+  private static class VFSPair {
+
+    @Nonnull
+    private final InputVFS inputVFS;
+    @Nonnull
+    private final OutputVFS outputVFS;
+
+    public VFSPair(@Nonnull InputVFS inputVFS, @Nonnull OutputVFS outputVFS) {
+      this.inputVFS = inputVFS;
+      this.outputVFS = outputVFS;
+    }
+
+    @Nonnull
+    public InputVFS getInputVFS() {
+      return inputVFS;
+    }
+
+    @Nonnull
+    public OutputVFS getOutputVFS() {
+      return outputVFS;
+    }
   }
 }

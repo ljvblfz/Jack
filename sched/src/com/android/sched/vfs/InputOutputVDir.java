@@ -16,8 +16,18 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+
+import javax.annotation.Nonnull;
+
 /**
  * Virtual directory to be read or written to.
  */
 public interface InputOutputVDir extends InputVDir, OutputVDir {
+
+  @Override
+  @Nonnull
+  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+      NoSuchFileException;
 }
