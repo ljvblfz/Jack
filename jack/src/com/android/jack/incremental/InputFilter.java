@@ -16,6 +16,8 @@
 
 package com.android.jack.incremental;
 
+import com.android.jack.library.OutputJackLibrary;
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -35,4 +37,7 @@ public interface InputFilter {
 
   @Nonnull
   public List<File> getImportedLibrary();
+
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary();
 }

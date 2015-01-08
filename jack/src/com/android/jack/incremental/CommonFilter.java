@@ -20,7 +20,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.OutputJackLibrary;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.vfs.Container;
+import com.android.sched.vfs.InputOutputVFS;
 
 import java.io.File;
 import java.util.HashSet;
@@ -69,5 +75,20 @@ public abstract class CommonFilter {
         }
       }
     }
+  }
+
+  @Nonnull
+  protected OutputJackLibrary getOutputJackLibraryFromVfs() {
+    InputOutputVFS outputDir;
+    Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
+
+    if (containerType == Container.DIR) {
+      outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+    } else {
+      outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+    }
+
+    return (JackLibraryFactory.getOutputLibrary(outputDir, Jack.getEmitterId(),
+        Jack.getVersionString()));
   }
 }

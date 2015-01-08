@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.io.File;
@@ -63,5 +64,11 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   public List<File> getImportedLibrary() {
     return options.getImportedLibraries();
+  }
+
+  @Override
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary() {
+    return getOutputJackLibraryFromVfs();
   }
 }

@@ -59,7 +59,6 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
-  private final InputVFS baseVFS;
   @Nonnull
   private final Map<FileType, InputVFS> sectionVFS =
       new EnumMap<FileType, InputVFS>(FileType.class);
@@ -96,8 +95,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputJackLibraryImpl(@Nonnull InputVFS baseVFS,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
-    super(libraryProperties);
-    this.baseVFS = baseVFS;
+    super(baseVFS, libraryProperties);
 
     try {
       minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));

@@ -20,6 +20,7 @@ import com.google.common.collect.Iterators;
 
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
@@ -49,7 +50,6 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
@@ -60,9 +60,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   private boolean closed = false;
 
-  private final boolean generateJacklibDigest;
-  @Nonnull
-  private final InputOutputVFS baseVFS;
+  private final boolean generateJacklibDigest =
+
+      ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue();
+
   @Nonnull
   private final Map<FileType, VFSPair> sectionVFS =
       new EnumMap<FileType, VFSPair>(FileType.class);
@@ -95,16 +96,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   public OutputJackLibraryImpl(@Nonnull InputOutputVFS baseVFS, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
-    super(new Properties());
-    this.baseVFS = baseVFS;
+    super(baseVFS, emitterId, emitterVersion);
+  }
 
-    generateJacklibDigest =
-        ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue();
-
-    putProperty(KEY_LIB_EMITTER, emitterId);
-    putProperty(KEY_LIB_EMITTER_VERSION, emitterVersion);
-    putProperty(KEY_LIB_MAJOR_VERSION, String.valueOf(getMajorVersion()));
-    putProperty(KEY_LIB_MINOR_VERSION, String.valueOf(getMinorVersion()));
+  public OutputJackLibraryImpl(@Nonnull InputJackLibrary inputJackLibrary,
+      @Nonnull String emitterId, @Nonnull String emitterVersion) {
+    super(inputJackLibrary, emitterId, emitterVersion);
   }
 
   @Override

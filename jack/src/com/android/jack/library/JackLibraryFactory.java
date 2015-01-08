@@ -82,6 +82,12 @@ public abstract class JackLibraryFactory {
     return new OutputJackLibraryImpl(vfs, emitterId, emitterVersion);
   }
 
+  @Nonnull
+  public static OutputJackLibrary getOutputLibrary(@Nonnull InputJackLibrary inputLibrary,
+      @Nonnull String emitterId, @Nonnull String emitterVersion) {
+    return new OutputJackLibraryImpl(inputLibrary, emitterId, emitterVersion);
+  }
+
   private static String getMajorVersionAsString(@Nonnull InputVFS vdir,
       @Nonnull Properties libraryProperties) throws LibraryFormatException {
     try {

@@ -16,7 +16,11 @@
 
 package com.android.jack.library;
 
+import com.android.sched.vfs.InputOutputVFS;
+
 import java.util.Properties;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -24,7 +28,27 @@ import java.util.Properties;
  */
 public abstract class OutputJackLibrary extends CommonJackLibrary implements OutputLibrary {
 
-  public OutputJackLibrary(Properties libraryProperties) {
-    super(libraryProperties);
+  @Nonnull
+  protected final InputOutputVFS baseVFS;
+
+  public OutputJackLibrary(@Nonnull InputJackLibrary inputJackLibrary, @Nonnull String emitterId,
+      @Nonnull String emitterVersion) {
+    super(inputJackLibrary.libraryProperties);
+    setEmitter(emitterId, emitterVersion);
+    this.baseVFS = (InputOutputVFS) inputJackLibrary.baseVFS;
+  }
+
+  public OutputJackLibrary(@Nonnull InputOutputVFS baseVFS, @Nonnull String emitterId,
+      @Nonnull String emitterVersion) {
+    super(new Properties());
+    setEmitter(emitterId, emitterVersion);
+    this.baseVFS = baseVFS;
+  }
+
+  private void setEmitter(String emitterId, String emitterVersion) {
+    putProperty(KEY_LIB_EMITTER, emitterId);
+    putProperty(KEY_LIB_EMITTER_VERSION, emitterVersion);
+    putProperty(KEY_LIB_MAJOR_VERSION, String.valueOf(getMajorVersion()));
+    putProperty(KEY_LIB_MINOR_VERSION, String.valueOf(getMinorVersion()));
   }
 }

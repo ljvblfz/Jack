@@ -466,4 +466,15 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     importedJackLibrary.add(options.getIncrementalFolder());
     return importedJackLibrary;
   }
+
+  @Override
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary() {
+    if (incrementalInputLibrary == null) {
+      return getOutputJackLibraryFromVfs();
+    }
+
+    return (JackLibraryFactory.getOutputLibrary(incrementalInputLibrary, Jack.getEmitterId(),
+        Jack.getVersionString()));
+  }
 }

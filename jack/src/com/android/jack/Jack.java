@@ -90,7 +90,6 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
-import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -282,7 +281,6 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputZipVFS;
 
@@ -464,16 +462,7 @@ public abstract class Jack {
         buildSession(options, hooks);
 
         if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-          Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
-          InputOutputVFS outputDir;
-          if (containerType == Container.DIR) {
-            outputDir = config.get(Options.LIBRARY_OUTPUT_DIR);
-          } else {
-            outputDir = config.get(Options.LIBRARY_OUTPUT_ZIP);
-          }
-          OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(outputDir,
-              Jack.getEmitterId(), Jack.getVersionString());
-          session.setJackOutputLibrary(outputLibrary);
+          session.setJackOutputLibrary(session.getInputFilter().getOutputJackLibrary());
         }
 
         Request request = createInitialRequest();
