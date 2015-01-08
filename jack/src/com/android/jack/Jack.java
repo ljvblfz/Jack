@@ -368,7 +368,7 @@ public abstract class Jack {
           .addArgType(InputJackLibrary.class)
           .addArgType(JPhantomLookup.class)
           .bypassAccessibility()
-          .addDefaultValue("full");
+          .addDefaultValue("structure");
 
   @Nonnull
   public static final BooleanPropertyId STRICT_CLASSPATH = BooleanPropertyId.create(
