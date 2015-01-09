@@ -189,6 +189,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   public synchronized void close() throws LibraryIOException {
     try {
+      for (InputVFS currentSectionVFS : sectionVFS.values()) {
+        currentSectionVFS.close();
+      }
       baseVFS.close();
     } catch (IOException e) {
       throw new LibraryIOException(getLocation(), e);

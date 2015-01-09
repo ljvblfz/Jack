@@ -179,6 +179,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       }
 
       try {
+        for (VFSPair currentSectionVFS : sectionVFS.values()) {
+          currentSectionVFS.getInputVFS().close();
+          currentSectionVFS.getOutputVFS().close();
+        }
         baseVFS.close();
       } catch (IOException e) {
         throw new LibraryIOException(getLocation(), e);
