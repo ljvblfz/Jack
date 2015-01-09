@@ -18,7 +18,6 @@ package com.android.jack.lookup;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.IncompatibleJTypeLookupException;
-import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
@@ -29,8 +28,6 @@ import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.ast.MissingJTypeLookupException;
-import com.android.jack.util.NamingTools;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Percent;
@@ -38,7 +35,6 @@ import com.android.sched.util.log.stats.PercentImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -58,6 +54,30 @@ public class JNodeLookup extends JLookup {
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
+  @Nonnull
+  private final Adapter<JType> adapter =
+    new Adapter<JType>() {
+    @Nonnull
+    @Override
+    public Map<String, JType> getCache() {
+      return types;
+    }
+
+    @Nonnull
+    @Override
+    public JType getType(@Nonnull JPackage pack, @Nonnull String simpleName)
+        throws JTypeLookupException {
+      return pack.getType(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JPackage getPackage(@Nonnull JPackage pack, @Nonnull String simpleName)
+        throws JPackageLookupException {
+      return pack.getSubPackage(simpleName);
+    }
+  };
+
   /**
    * Initialize lookup.
    */
@@ -76,7 +96,7 @@ public class JNodeLookup extends JLookup {
    */
   public boolean isPackageOnPath(@Nonnull String packageName) {
     try {
-      return getPackage(packageName).isOnPath();
+      return getPackage(packageName, adapter).isOnPath();
     } catch (JPackageLookupException e) {
       return false;
     }
@@ -87,44 +107,13 @@ public class JNodeLookup extends JLookup {
   @Override
   @Nonnull
   public JType getType(@Nonnull String typeName) throws JTypeLookupException {
+
     Percent statistic = tracer.getStatistic(SUCCESS_LOOKUP);
     statistic.addFalse();
-    synchronized (types) {
-      JType result = types.get(typeName);
-
-      if (result == null) {
-        int typeNameLength = typeName.length();
-        assert typeNameLength > 1 : "Invalid signature or missing primitive type '" + typeName
-        + "'";
-        if (typeName.charAt(0) == '[') {
-          JArrayType arrayType = getArrayType(typeName);
-          types.put(typeName, arrayType);
-          return arrayType;
-        }
-
-        assert NamingTools.isClassDescriptor(typeName) : "Invalid signature '" + typeName + "'";
-
-        int separatorIndex = typeName.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
-        JPackage currentPackage;
-        String simpleName;
-        if (separatorIndex == -1) {
-          currentPackage = topLevelPackage;
-          simpleName = typeName.substring(1, typeNameLength - 1);
-        } else {
-          try {
-            currentPackage = getPackage(typeName.substring(1, separatorIndex));
-            simpleName = typeName.substring(separatorIndex + 1, typeNameLength - 1);
-          } catch (JPackageLookupException e) {
-            throw new MissingJTypeLookupException(typeName);
-          }
-        }
-        result = currentPackage.getType(simpleName);
-        types.put(typeName, result);
-      }
-      statistic.removeFalse();
-      statistic.addTrue();
-      return result;
-    }
+    JType result = getType(typeName, adapter);
+    statistic.removeFalse();
+    statistic.addTrue();
+    return result;
   }
 
   @Override
@@ -195,19 +184,5 @@ public class JNodeLookup extends JLookup {
     addType(JPrimitiveTypeEnum.DOUBLE.getType());
     addType(JPrimitiveTypeEnum.LONG.getType());
     addType(JNullType.INSTANCE);
-  }
-
-  @Nonnull
-  private JPackage getPackage(@Nonnull String packageName)
-      throws JPackageLookupException {
-    assert !packageName.contains(".");
-    JPackage currentPackage = topLevelPackage;
-    Iterator<String> iterator = packageBinaryNameSplitter.split(packageName).iterator();
-    while (iterator.hasNext()) {
-      String name = iterator.next();
-      currentPackage = currentPackage.getSubPackage(name);
-    }
-    assert Jack.getLookupFormatter().getName(currentPackage).equals(packageName);
-    return currentPackage;
   }
 }
