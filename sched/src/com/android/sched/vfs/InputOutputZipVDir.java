@@ -121,7 +121,7 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
     if (!file.exists()) {
       throw new NoSuchFileException(new FileLocation(file));
     }
-    if (!file.isFile()) {
+    if (file.isFile()) {
       throw new NotFileOrDirectoryException(new FileLocation(file));
     }
     return new InputOutputZipVDir(vfs, file,
