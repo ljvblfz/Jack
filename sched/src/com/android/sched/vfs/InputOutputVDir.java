@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 
@@ -30,4 +31,8 @@ public interface InputOutputVDir extends InputVDir, OutputVDir {
   @Nonnull
   public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
       NoSuchFileException;
+
+  @Nonnull
+  public OutputVDir createOutputVDir(@Nonnull VPath path) throws CannotCreateFileException,
+      NotFileOrDirectoryException;
 }

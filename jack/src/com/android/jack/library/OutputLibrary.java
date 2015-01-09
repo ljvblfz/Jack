@@ -18,6 +18,7 @@ package com.android.jack.library;
 
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
@@ -34,7 +35,7 @@ public interface OutputLibrary extends Library {
   public boolean needsSequentialWriting();
 
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
-      throws CannotCreateFileException;
+      throws CannotCreateFileException, NotFileOrDirectoryException;
 
   @Override
   @Nonnull

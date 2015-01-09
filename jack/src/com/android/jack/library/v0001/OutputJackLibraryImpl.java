@@ -16,6 +16,8 @@
 
 package com.android.jack.library.v0001;
 
+import com.google.common.collect.Iterators;
+
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.JackLibraryFactory;
@@ -107,11 +109,12 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   @Nonnull
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull final VPath typePath)
-      throws CannotCreateFileException {
+      throws CannotCreateFileException, NotFileOrDirectoryException {
     assert !isClosed();
     putProperty(fileType.buildPropertyName(null /*suffix*/), String.valueOf(true));
     addFileType(fileType);
-    return baseVFS.getRootInputOutputVDir().createOutputVFile(fileType.buildFileVPath(typePath));
+    return getSectionVFS(fileType).getOutputVFS().getRootOutputVDir()
+        .createOutputVFile(buildFileVPath(fileType, typePath));
   }
 
   @Override
@@ -125,16 +128,23 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     return location;
   }
 
+  @SuppressWarnings("resource")
   @Nonnull
   private synchronized VFSPair getSectionVFS(@Nonnull FileType fileType)
-      throws NotFileOrDirectoryException, NoSuchFileException {
+      throws NotFileOrDirectoryException, CannotCreateFileException {
     VFSPair currentSectionVFS;
     if (sectionVFS.containsKey(fileType)) {
       currentSectionVFS = sectionVFS.get(fileType);
     } else {
       VPath prefixPath = new VPath(fileType.getPrefix(), '/');
-      InputVFS inputVFS = new PrefixedInputVFS(baseVFS, prefixPath);
       OutputVFS outputVFS = new PrefixedOutputVFS(baseVFS, prefixPath);
+      InputVFS inputVFS;
+      try {
+        inputVFS = new PrefixedInputVFS(baseVFS, prefixPath);
+      } catch (NoSuchFileException e) {
+        // prefix dir should have been created when instantiating the PrefixedOutputVFS.
+        throw new AssertionError(e);
+      }
       if (generateJacklibDigest && fileType == FileType.DEX) {
         outputVFS = new MessageDigestOutputVFS(outputVFS,
             ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
@@ -190,8 +200,21 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
+    if (!containsFileType(fileType)) {
+      return Iterators.emptyIterator();
+    }
+
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(baseVFS.getRootInputOutputVDir(), fileType, inputVFiles);
+    try {
+      VFSPair currentSectionVFS = getSectionVFS(fileType);
+      fillFiles(currentSectionVFS.getInputVFS().getRootInputVDir(), fileType, inputVFiles);
+    } catch (NotFileOrDirectoryException e) {
+      // we already checked that the library contained the file type
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      // we already checked that the library contained the file type
+      throw new AssertionError(e);
+    }
     return inputVFiles.listIterator();
   }
 
@@ -207,6 +230,8 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (CannotCreateFileException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }
 
@@ -220,7 +245,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       currentSectionVFS.getInputVFS().getRootInputVDir().delete(buildFileVPath(fileType, typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
-    } catch (NoSuchFileException e) {
+    } catch (CannotCreateFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }

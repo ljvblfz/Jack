@@ -128,6 +128,20 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
   }
 
   @Override
+  @Nonnull
+  public OutputVDir createOutputVDir(@Nonnull VPath path) throws CannotCreateFileException,
+      NotFileOrDirectoryException {
+    File file = new File(dir, path.getPathAsString(File.separatorChar));
+    if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
+      throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));
+    }
+    if (!file.mkdir()) {
+      throw new CannotCreateFileException(new DirectoryLocation(file));
+    }
+    return new DirectDir(file, vfs);
+  }
+
+  @Override
   public boolean isVDir() {
     return true;
   }

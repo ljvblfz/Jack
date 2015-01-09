@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
@@ -29,9 +30,15 @@ import javax.annotation.Nonnull;
 public class PrefixedOutputVFS extends AbstractOutputVFS {
 
   public PrefixedOutputVFS(@Nonnull InputOutputVFS outputVFS, @Nonnull VPath path)
-      throws NotFileOrDirectoryException, NoSuchFileException {
+      throws NotFileOrDirectoryException, CannotCreateFileException {
     InputOutputVDir previousRootDir = outputVFS.getRootInputOutputVDir();
-    setRootDir(previousRootDir.getInputVDir(path));
+    OutputVDir newRootDir = null;
+    try {
+      newRootDir = previousRootDir.getInputVDir(path);
+    } catch (NoSuchFileException e) {
+      newRootDir = previousRootDir.createOutputVDir(path);
+    }
+    setRootDir(newRootDir);
   }
 
   @Override
