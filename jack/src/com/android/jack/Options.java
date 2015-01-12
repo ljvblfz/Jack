@@ -87,6 +87,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -658,13 +659,18 @@ public class Options {
         FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (incrementalFolder != null) {
-      configBuilder.set(Options.INCREMENTAL_MODE, true);
-      configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
-      configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
-      configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
-      configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
-      configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
-      configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
+      if (multiDexKind == MultiDexKind.LEGACY) {
+        LoggerFactory.getLogger().log(Level.INFO,
+            "Incremental mode is disable due to multi-dex legacy mode");
+      } else {
+        configBuilder.set(Options.INCREMENTAL_MODE, true);
+        configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
+        configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
+        configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
+        configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
+        configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+        configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
+      }
     }
 
     if (tracerDir != null) {
