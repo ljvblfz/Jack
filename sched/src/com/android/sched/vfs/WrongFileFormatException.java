@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.file;
+package com.android.sched.vfs;
+
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a path is not from the expected file or directory kind.
+ * Exception when a file has a wrong format.
  */
-public abstract class NotFileOrDirectoryException extends IOException {
+public class WrongFileFormatException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public NotFileOrDirectoryException(@Nonnull String string) {
-    super(string);
-  }
-
-  public NotFileOrDirectoryException(@Nonnull String string, @CheckForNull Throwable cause) {
-    super(string, cause);
+  public WrongFileFormatException(@Nonnull Location location) {
+    super("Wrong format in " + location.getDescription());
   }
 }

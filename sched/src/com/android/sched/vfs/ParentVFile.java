@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.file;
+package com.android.sched.vfs;
 
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a path is not from the expected file or directory kind.
+ * A {@link VFile} implementation for a {@link DirectFS}.
  */
-public abstract class NotFileOrDirectoryException extends IOException {
-  private static final long serialVersionUID = 1L;
+public class ParentVFile extends BaseVFile {
+  @Nonnull
+  protected final VDir parent;
 
-  public NotFileOrDirectoryException(@Nonnull String string) {
-    super(string);
+  ParentVFile(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs,
+      @Nonnull VDir parent, @Nonnull String name) {
+    super(vfs, name);
+    this.parent = parent;
   }
 
-  public NotFileOrDirectoryException(@Nonnull String string, @CheckForNull Throwable cause) {
-    super(string, cause);
+  @Override
+  @Nonnull
+  public VPath getPath() {
+    return parent.getPath().clone().appendPath(new VPath(name, '/'));
   }
 }

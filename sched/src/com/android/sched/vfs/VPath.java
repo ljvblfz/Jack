@@ -117,6 +117,16 @@ public final class VPath implements Cloneable {
   }
 
   /**
+   * Returns the last element of a VFS-relative path as a {@link String}.
+   */
+  @Nonnull
+  public String getLastElement() {
+    String last = Iterators.getLast(split().iterator());
+
+    return (last == null) ? "" : last;
+  }
+
+  /**
    * Returns the VFS-relative path using the given separator.
    * @param separator the file separator wanted
    * @return the relative path
@@ -177,14 +187,15 @@ public final class VPath implements Cloneable {
       String stringSeparator = String.valueOf(separator);
       String doubleSeparator = stringSeparator + separator;
       if (toString.contains(doubleSeparator)) {
-        return false;
+        throw new AssertionError("Path: " + toString);
       }
       if (toString.startsWith(stringSeparator)) {
-        return false;
+        throw new AssertionError("Path: " + toString);
       }
       if (toString.endsWith(stringSeparator)) {
-        return false;
+        throw new AssertionError("Path: " + toString);
       }
+
       return true;
     }
 

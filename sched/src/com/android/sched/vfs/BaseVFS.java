@@ -22,6 +22,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.Location;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,9 +34,15 @@ import javax.annotation.Nonnull;
  * A base implementation of a {@link VFS}.
  */
 abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements VFS {
+  protected boolean closed = false;
+
   @Override
   @Nonnull
   public abstract DIR getRootDir();
+
+  //
+  // Stream related
+  //
 
   @Nonnull
   abstract InputStream openRead(@Nonnull FILE file) throws WrongPermissionException;
@@ -43,25 +50,59 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @Nonnull
   abstract OutputStream openWrite(@Nonnull FILE file) throws WrongPermissionException;
 
-  @Nonnull
-  abstract void delete(@Nonnull FILE file) throws CannotDeleteFileException;
+  //
+  // VElement related
+  //
 
   @Nonnull
-  abstract Collection<? extends BaseVElement> list(DIR dir);
+  abstract DIR getVDir(@Nonnull DIR parent, @Nonnull String name) throws NotDirectoryException,
+  NoSuchFileException;
+
+  @Nonnull
+  abstract FILE getVFile(@Nonnull DIR parent, @Nonnull String name) throws NotFileException,
+  NoSuchFileException;
+
+  @Nonnull
+  abstract DIR createVDir(@Nonnull DIR parent, @Nonnull String name)
+    throws CannotCreateFileException;
 
   @Nonnull
   abstract FILE createVFile(@Nonnull DIR parent, @Nonnull String name)
       throws CannotCreateFileException;
 
   @Nonnull
-  abstract DIR createVDir(@Nonnull DIR parent, @Nonnull String name)
-      throws CannotCreateFileException;
+  abstract void delete(@Nonnull FILE file) throws CannotDeleteFileException;
 
   @Nonnull
-  abstract DIR getVDir(@Nonnull DIR parent, @Nonnull String name) throws NotDirectoryException,
-      NoSuchFileException;
+  abstract Collection<? extends BaseVElement> list(DIR dir);
+
+  //
+  // Location related
+  //
 
   @Nonnull
-  abstract FILE getVFile(@Nonnull DIR parent, @Nonnull String name) throws NotFileException,
-      NoSuchFileException;
+  abstract Location getVFileLocation(@Nonnull FILE file);
+
+  @Nonnull
+  abstract Location getVFileLocation(@Nonnull DIR parent, @Nonnull String name);
+
+  @Nonnull
+  abstract Location getVFileLocation(@Nonnull DIR parent, @Nonnull VPath path);
+
+  @Nonnull
+  abstract Location getVDirLocation(@Nonnull DIR dir);
+
+  @Nonnull
+  abstract Location getVDirLocation(@Nonnull DIR parent, @Nonnull String name);
+
+  @Nonnull
+  abstract Location getVDirLocation(@Nonnull DIR parent, @Nonnull VPath path);
+
+  //
+  // Misc
+  //
+
+  synchronized boolean isClosed() {
+    return closed;
+  }
 }

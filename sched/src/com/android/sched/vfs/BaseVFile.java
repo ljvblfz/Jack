@@ -17,6 +17,7 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.Location;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,5 +54,11 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   @Nonnull
   public String getName() {
     return name;
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return vfs.getVFileLocation(this);
   }
 }

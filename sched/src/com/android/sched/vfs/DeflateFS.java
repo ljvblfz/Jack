@@ -42,6 +42,12 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return "deflater wrapper";
+  }
+
   @SuppressWarnings("unchecked")
   public DeflateFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
@@ -142,5 +148,41 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Override
   public boolean needsSequentialWriting() {
     return vfs.needsSequentialWriting();
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVFile file) {
+    return vfs.getVFileLocation(file);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return vfs.getVFileLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir dir) {
+    return vfs.getVDirLocation(dir);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return vfs.getVDirLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return vfs.getVFileLocation(parent, path);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return vfs.getVDirLocation(parent, path);
   }
 }
