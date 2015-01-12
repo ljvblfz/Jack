@@ -450,7 +450,7 @@ public class MultiDexTests {
     Options app1Options = addCommonOptionsForMultiDex(
         new File(testFolder,"config-001.jpp"));
     app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-    app1Options.addJayceImport(library);
+    app1Options.addImportedLibrary(library);
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
         + File.pathSeparator + frameworks.getPath(),
@@ -482,7 +482,7 @@ public class MultiDexTests {
     Options app1Options = new Options();
     app1Options.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     app1Options.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
-    app1Options.addJayceImport(autoLibrary);
+    app1Options.addImportedLibrary(autoLibrary);
 
     TestTools.compileSourceToDex(app1Options, testFolder, TestTools.getDefaultClasspathString()
         + File.pathSeparator + frameworks.getPath(),

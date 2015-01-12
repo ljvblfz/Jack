@@ -62,6 +62,6 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Override
   @Nonnull
   public List<File> getImportedLibrary() {
-    return options.getJayceImport();
+    return options.getImportedLibraries();
   }
 }

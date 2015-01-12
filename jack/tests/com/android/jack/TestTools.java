@@ -244,8 +244,8 @@ public class TestTools {
 
   public static void compileJackToDex(
       Options options, File in, File out, boolean zip) throws Exception {
-    options.jayceImport = new ArrayList<File>(1);
-    options.jayceImport.add(in);
+    options.importedLibraries = new ArrayList<File>(1);
+    options.importedLibraries.add(in);
     if (zip) {
       options.outZip = out;
     } else {
@@ -260,8 +260,8 @@ public class TestTools {
       File out,
       List<ProguardFlags> flagFiles,
       boolean zip) throws Exception {
-    options.jayceImport = new ArrayList<File>(1);
-    options.jayceImport.add(in);
+    options.importedLibraries = new ArrayList<File>(1);
+    options.importedLibraries.add(in);
     options.classpath = classpath;
     if (zip) {
       options.libraryOutZip = out;
@@ -323,8 +323,8 @@ public class TestTools {
       File out,
       File jarjarRules,
       boolean zip) throws Exception {
-    options.jayceImport = new ArrayList<File>(1);
-    options.jayceImport.add(in);
+    options.importedLibraries = new ArrayList<File>(1);
+    options.importedLibraries.add(in);
     options.classpath = classpath;
     if (zip) {
       options.libraryOutZip = out;

@@ -73,7 +73,7 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.setOutputDir(out);
       }
 
-      jackOptions.setJayceImports(staticLibs);
+      jackOptions.setImportedLibraries(staticLibs);
 
       jackOptions.setJarjarRulesFile(jarjarRules);
 
@@ -120,7 +120,7 @@ public class JackApiToolchain extends JackBasedToolchain {
         jackOptions.addResource(res);
       }
 
-      jackOptions.setJayceImports(staticLibs);
+      jackOptions.setImportedLibraries(staticLibs);
 
       jackOptions.setJarjarRulesFile(jarjarRules);
 
@@ -164,7 +164,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       List<File> libsToImport = new ArrayList<File>();
       libsToImport.add(in);
       libsToImport.addAll(staticLibs);
-      jackOptions.setJayceImports(libsToImport);
+      jackOptions.setImportedLibraries(libsToImport);
 
       for (File res : resImport) {
         jackOptions.addResource(res);
@@ -212,7 +212,7 @@ public class JackApiToolchain extends JackBasedToolchain {
         libsToImport.add(staticLib);
       }
       libsToImport.addAll(staticLibs);
-      jackOptions.setJayceImports(libsToImport);
+      jackOptions.setImportedLibraries(libsToImport);
 
       if (zipFiles) {
         jackOptions.setJayceOutputZip(out);
