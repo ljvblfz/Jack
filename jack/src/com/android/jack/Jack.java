@@ -68,6 +68,7 @@ import com.android.jack.frontend.VirtualMethodsMarker;
 import com.android.jack.frontend.java.JackBatchCompiler;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportExceptionAroundEcjError;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
+import com.android.jack.incremental.Incremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JClass;
@@ -551,6 +552,9 @@ public abstract class Jack {
         }
         if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
           request.addFeature(MultiDexLegacy.class);
+        }
+        if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
+          request.addFeature(Incremental.class);
         }
 
         request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
@@ -1166,8 +1170,12 @@ public abstract class Jack {
       planBuilder.append(NameFinalizer.class);
     }
     {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan;
+      if (features.contains(Incremental.class)) {
+        typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      } else {
+        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      }
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
       }
@@ -1308,8 +1316,12 @@ public abstract class Jack {
     }
 
     {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan;
+      if (features.contains(Incremental.class)) {
+        typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      } else {
+        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      }
       if (productions.contains(DexInLibraryProduct.class)) {
         typePlan.append(DexInLibraryWriter.class);
       }

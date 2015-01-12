@@ -17,7 +17,6 @@
 package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.Options;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -26,13 +25,11 @@ import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -50,8 +47,6 @@ import javax.annotation.Nonnull;
 @Produce(JayceInLibraryProduct.class)
 public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private final boolean incrementalMode = ThreadConfig.get(Options.INCREMENTAL_MODE).booleanValue();
-
   @Nonnull
   private final OutputJackLibrary outputJackLibrary;
 
@@ -68,11 +63,6 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (incrementalMode && type.getLocation() instanceof TypeInInputLibraryLocation) {
-      // Do not move Jayce files coming from imported libraries into the output library representing
-      // the incremental state.
-        return;
-    }
     OutputVFile vFile = outputJackLibrary.createFile(FileType.JAYCE,
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
