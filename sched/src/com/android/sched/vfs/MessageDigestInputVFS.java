@@ -102,9 +102,12 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
   public class MessageDigestInputVDir implements InputVDir {
     @Nonnull
     private final InputVDir dir;
+    @Nonnull
+    private final VPath pathToRoot;
 
-    private MessageDigestInputVDir (@Nonnull InputVDir dir) {
+    private MessageDigestInputVDir (@Nonnull InputVDir dir, @Nonnull VPath pathToRoot) {
       this.dir = dir;
+      this.pathToRoot = pathToRoot;
     }
 
     @Override
@@ -134,15 +137,18 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     @Nonnull
     public MessageDigestInputVDir getInputVDir(@Nonnull VPath path)
         throws NotFileOrDirectoryException, NoSuchFileException {
-      return new MessageDigestInputVDir(dir.getInputVDir(path));
+      VPath newPathToRoot = pathToRoot.clone();
+      newPathToRoot.appendPath(path);
+      return new MessageDigestInputVDir(dir.getInputVDir(path), newPathToRoot);
     }
 
     @Override
     @Nonnull
     public MessageDigestInputVFile getInputVFile(@Nonnull VPath path)
         throws NotFileOrDirectoryException, NoSuchFileException {
-      // XXX Add relative VPath support
-      return new MessageDigestInputVFile(dir.getInputVFile(path), digests.get(path));
+      VPath filePathToRoot = pathToRoot.clone();
+      filePathToRoot.appendPath(path);
+      return new MessageDigestInputVFile(dir.getInputVFile(path), digests.get(filePathToRoot));
     }
 
     @Override
@@ -153,7 +159,7 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
   }
 
   public MessageDigestInputVFS(@Nonnull InputVFS vfs) {
-    this.root = new MessageDigestInputVDir(vfs.getRootInputVDir());
+    this.root = new MessageDigestInputVDir(vfs.getRootInputVDir(), VPath.ROOT);
     this.vfs  = vfs;
 
     // Reading digest directory is best effort
