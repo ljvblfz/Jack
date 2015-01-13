@@ -244,7 +244,7 @@ public class Options {
 
   @Option(name = "--import", usage = "import the given file into the output (repeatable)",
       metaVar = "FILE")
-  protected List<File> jayceImport = new ArrayList<File>();
+  protected List<File> importedLibraries = new ArrayList<File>();
 
   @Option(name = "--import-resource",
       usage = "import the given directory into the output as resource files (repeatable)",
@@ -770,8 +770,8 @@ public class Options {
     libraryOutZip = outputZip;
   }
 
-  public void setJayceImports(@Nonnull List<File> imports) {
-    jayceImport = imports;
+  public void setImportedLibraries(@Nonnull List<File> importedLibraries) {
+    this.importedLibraries = importedLibraries;
   }
 
   public boolean outputToZip() {
@@ -791,8 +791,8 @@ public class Options {
     assert flags != null;
     List<File> inJars = flags.getInJars();
     if (inJars.size() > 0) {
-      jayceImport = new ArrayList<File>(inJars.size());
-      jayceImport.addAll(inJars);
+      importedLibraries = new ArrayList<File>(inJars.size());
+      importedLibraries.addAll(inJars);
     }
     List<File> outJars = flags.getOutJars();
     if (outJars.size() > 0) {
@@ -824,8 +824,8 @@ public class Options {
     proguardFlagsFiles.add(flags);
   }
 
-  public void addJayceImport(@Nonnull File importFile) {
-    jayceImport.add(importFile);
+  public void addImportedLibrary(@Nonnull File importedLibrary) {
+    importedLibraries.add(importedLibrary);
   }
 
   public void addProperty(@Nonnull String propertyName, @Nonnull String propertyValue) {
@@ -871,8 +871,8 @@ public class Options {
   }
 
   @Nonnull
-  public List<File> getJayceImport() {
-    return jayceImport;
+  public List<File> getImportedLibraries() {
+    return importedLibraries;
   }
 
   @CheckForNull

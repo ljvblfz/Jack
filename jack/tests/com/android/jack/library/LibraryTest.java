@@ -65,7 +65,7 @@ public class LibraryTest {
     public void testImportEmptyLibrary() throws Exception {
       File lib = createEmptyLibrary();
       Options options = new Options();
-      options.addJayceImport(lib);
+      options.addImportedLibrary(lib);
       TestTools.compileSourceToDex(options,
           TestTools.getJackTestsWithJackFolder("library/test001"),
           TestTools.getDefaultClasspathString(),
@@ -76,7 +76,7 @@ public class LibraryTest {
     public void testImportRscLibrary() throws Exception {
       File lib = createRscLibrary();
       Options options = new Options();
-      options.addJayceImport(lib);
+      options.addImportedLibrary(lib);
       File out = TestTools.createTempFile("library001", ".jack");
       TestTools.compileSourceToJack(options,
           TestTools.getJackTestsWithJackFolder("library/test001"),

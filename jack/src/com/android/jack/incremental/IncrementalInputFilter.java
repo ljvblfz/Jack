@@ -273,7 +273,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       }
     }
 
-    for (File importedJackFiles : options.getJayceImport()) {
+    for (File importedJackFiles : options.getImportedLibraries()) {
       if (isModifiedLibrary(importedJackFiles, timestamp)) {
         return true;
       }
@@ -452,7 +452,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     if (incrementalInputLibrary == null || needFullRebuild()) {
       Jack.getSession().setFileDependencies(new FileDependencies());
       Jack.getSession().setTypeDependencies(new TypeDependencies());
-      return options.getJayceImport();
+      return options.getImportedLibraries();
     }
 
     try {
@@ -462,7 +462,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throw new JackAbortException(e);
     }
 
-    List<File> importedJackLibrary = new ArrayList<File>(options.getJayceImport());
+    List<File> importedJackLibrary = new ArrayList<File>(options.getImportedLibraries());
     importedJackLibrary.add(options.getIncrementalFolder());
     return importedJackLibrary;
   }
