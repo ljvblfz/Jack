@@ -19,6 +19,7 @@ package com.android.sched.util.config.cli;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
@@ -190,7 +191,7 @@ public class TokenIterator {
       throws NoSuchElementException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException,
+      NotFileException,
       CannotReadException {
 
     while (true) {
@@ -245,7 +246,7 @@ public class TokenIterator {
   }
 
   private void pushFileTokenizer(@Nonnull String fileName) throws WrongPermissionException,
-      NoSuchFileException, NotFileOrDirectoryException {
+      NoSuchFileException, NotFileException {
     InputStreamFile file = new InputStreamFile(fileName);
 
     tokenizers.push(getTokenizer(file));

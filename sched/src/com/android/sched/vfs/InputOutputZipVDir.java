@@ -20,7 +20,8 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
@@ -137,14 +138,14 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
 
   @Override
   @Nonnull
-  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotDirectoryException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {
-      throw new NoSuchFileException(new FileLocation(file));
+      throw new NoSuchFileException(new DirectoryLocation(file));
     }
     if (file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
+      throw new NotDirectoryException(new DirectoryLocation(file));
     }
     return new InputOutputZipVDir(vfs, file,
         new ZipEntry(path.getPathAsString(ZipUtils.ZIP_SEPARATOR) + ZipUtils.ZIP_SEPARATOR));
@@ -152,14 +153,14 @@ class InputOutputZipVDir extends AbstractVElement implements InputOutputVDir {
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {
       throw new NoSuchFileException(new FileLocation(file));
     }
     if (!file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
+      throw new NotFileException(new FileLocation(file));
     }
     return new InputOutputZipVFile(vfs, file,
         new ZipEntry(path.getPathAsString(ZipUtils.ZIP_SEPARATOR)));

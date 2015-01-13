@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a path is not from the expected file or directory kind.
  */
-public class NotFileOrDirectoryException extends IOException {
+public abstract class NotFileOrDirectoryException extends IOException {
   private static final long serialVersionUID = 1L;
 
   public NotFileOrDirectoryException(@Nonnull FileOrDirLocation location) {

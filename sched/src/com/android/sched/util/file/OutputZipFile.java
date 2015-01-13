@@ -45,7 +45,7 @@ public class OutputZipFile extends OutputStreamFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, hooks, existence, change, false);
   }
 

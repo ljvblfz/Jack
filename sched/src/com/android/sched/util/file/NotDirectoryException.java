@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,23 @@
 
 package com.android.sched.util.file;
 
-import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.DirectoryLocation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Class representing a file for output from a file path.
+ * Exception when a path is a file when it is expected to be a directory.
  */
-public class OutputFile extends InputOutputFile {
-  public OutputFile(@Nonnull String name,
-      @CheckForNull RunnableHooks hooks,
-      @Nonnull Existence existence,
-      int permissions,
-      @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException,
-      CannotCreateFileException,
-      CannotSetPermissionException,
-      WrongPermissionException,
-      NoSuchFileException,
-      NotFileException {
-    super(name, hooks, existence, permissions, change);
+public class NotDirectoryException extends NotFileOrDirectoryException {
+  private static final long serialVersionUID = 1L;
+
+  public NotDirectoryException(@Nonnull DirectoryLocation location) {
+    super(location);
+  }
+
+  public NotDirectoryException(@Nonnull DirectoryLocation location,
+      @CheckForNull Throwable cause) {
+    super(location, cause);
   }
 }

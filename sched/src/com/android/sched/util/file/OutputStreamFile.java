@@ -45,7 +45,7 @@ public class OutputStreamFile extends AbstractStreamFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, hooks);
 
     performChecks(existence, Permission.WRITE, change);
@@ -61,7 +61,7 @@ public class OutputStreamFile extends AbstractStreamFile {
       @CheckForNull RunnableHooks hooks)
       throws CannotCreateFileException,
       WrongPermissionException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, hooks);
 
     try {

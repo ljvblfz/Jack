@@ -28,6 +28,7 @@ import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
@@ -139,7 +140,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
       return currentSectionVFS.getRootInputVDir().getInputVDir(typePath);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -157,7 +158,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
       fillFiles(currentSectionVFS.getRootInputVDir(), fileType, inputVFiles);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new AssertionError(
           getLocation().getDescription() + " is an invalid library: " + e.getMessage());
     } catch (NoSuchFileException e) {
@@ -169,7 +170,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Nonnull
   private synchronized InputVFS getSectionVFS(@Nonnull FileType fileType)
-      throws NotFileOrDirectoryException, NoSuchFileException {
+      throws NotDirectoryException, NoSuchFileException {
    InputVFS currentSectionVFS;
     if (sectionVFS.containsKey(fileType)) {
       currentSectionVFS = sectionVFS.get(fileType);
@@ -229,7 +230,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
       currentSectionVFS.getRootInputVDir().delete(buildFileVPath(fileType, typePath));
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -257,7 +258,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     } else {
       try {
         return ((MessageDigestInputVFS) getSectionVFS(FileType.DEX)).getDigest();
-      } catch (NotFileOrDirectoryException e) {
+      } catch (NotDirectoryException e) {
         // we already checked that the library contained dex files
         throw new AssertionError(e);
       } catch (NoSuchFileException e) {

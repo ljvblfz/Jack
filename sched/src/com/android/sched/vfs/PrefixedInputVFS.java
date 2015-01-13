@@ -17,7 +17,7 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 public class PrefixedInputVFS extends AbstractInputVFS {
 
   public PrefixedInputVFS(@Nonnull InputVFS inputVFS, @Nonnull VPath path)
-      throws NotFileOrDirectoryException, NoSuchFileException {
+      throws NotDirectoryException, NoSuchFileException {
     InputVDir previousRootDir = inputVFS.getRootInputVDir();
     setRootDir(previousRootDir.getInputVDir(path));
   }

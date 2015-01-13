@@ -37,7 +37,7 @@ public class InputOutputFile extends StreamFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, hooks, existence, permissions, change);
   }
 

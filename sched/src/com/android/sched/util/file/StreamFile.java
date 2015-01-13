@@ -37,7 +37,7 @@ public class StreamFile extends AbstractStreamFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, hooks);
 
     performChecks(existence, permissions, change);

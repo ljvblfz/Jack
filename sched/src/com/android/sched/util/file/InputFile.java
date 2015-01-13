@@ -29,7 +29,7 @@ public class InputFile extends InputOutputFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException {
+      NotFileException {
     super(name, /* hooks */ null, Existence.MUST_EXIST, Permission.READ, change);
   }
 }

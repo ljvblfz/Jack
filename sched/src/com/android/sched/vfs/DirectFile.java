@@ -20,7 +20,7 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
@@ -57,7 +57,7 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
     } catch (NoSuchFileException e) {
       // we have already checked that the file exists when creating the VFile in the VDir
       throw new ConcurrentIOException(e);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotFileException e) {
       // we have already checked that this is not a directory when creating the VFile in the VDir
       throw new ConcurrentIOException(e);
     }
@@ -66,7 +66,7 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Nonnull
   @Override
   public OutputStream openWrite() throws CannotCreateFileException, WrongPermissionException,
-      NotFileOrDirectoryException {
+      NotFileException {
     if (vfs instanceof SequentialOutputVFS) {
       if (((SequentialOutputVFS) vfs).notifyVFileOpenAndReturnPreviousState()) {
         throw new AssertionError(getLocation().getDescription()

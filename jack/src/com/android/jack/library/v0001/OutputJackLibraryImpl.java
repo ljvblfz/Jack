@@ -29,6 +29,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFS;
@@ -131,7 +132,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @SuppressWarnings("resource")
   @Nonnull
   private synchronized VFSPair getSectionVFS(@Nonnull FileType fileType)
-      throws NotFileOrDirectoryException, CannotCreateFileException {
+      throws NotDirectoryException, CannotCreateFileException {
     VFSPair currentSectionVFS;
     if (sectionVFS.containsKey(fileType)) {
       currentSectionVFS = sectionVFS.get(fileType);
@@ -212,7 +213,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       VFSPair currentSectionVFS = getSectionVFS(fileType);
       fillFiles(currentSectionVFS.getInputVFS().getRootInputVDir(), fileType, inputVFiles);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       // we already checked that the library contained the file type
       throw new AssertionError(e);
     } catch (CannotCreateFileException e) {
@@ -247,7 +248,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       VFSPair currentSectionVFS = getSectionVFS(fileType);
       currentSectionVFS.getInputVFS().getRootInputVDir().delete(buildFileVPath(fileType, typePath));
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (CannotCreateFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);

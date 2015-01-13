@@ -17,7 +17,8 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
@@ -69,7 +70,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
       NoSuchFileException {
     Iterator<String> iterator = path.split().iterator();
     assert iterator.hasNext();
@@ -90,7 +91,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     }
 
     if (ive.isVDir()) {
-      throw new NotFileOrDirectoryException(new DirectoryLocation(pathAsString));
+      throw new NotFileException(new FileLocation(pathAsString));
     }
 
     return (InputVFile) ive;
@@ -98,7 +99,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Override
   @Nonnull
-  public InputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputVDir getInputVDir(@Nonnull VPath path) throws NotDirectoryException,
       NoSuchFileException {
     if (path.equals(VPath.ROOT)) {
       return this;
@@ -123,7 +124,7 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
     }
 
     if (!ive.isVDir()) {
-      throw new NotFileOrDirectoryException(new DirectoryLocation(pathAsString));
+      throw new NotDirectoryException(new DirectoryLocation(pathAsString));
     }
 
     return (InputVDir) ive;

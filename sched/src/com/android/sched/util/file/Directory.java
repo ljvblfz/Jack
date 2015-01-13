@@ -42,7 +42,7 @@ public class Directory extends FileOrDirectory {
       throws WrongPermissionException,
       CannotSetPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException,
+      NotDirectoryException,
       FileAlreadyExistsException,
       CannotCreateFileException {
     super(hooks);
@@ -84,7 +84,7 @@ public class Directory extends FileOrDirectory {
   }
 
   private void processExisting(int permissions)
-      throws WrongPermissionException, NoSuchFileException, NotFileOrDirectoryException {
+      throws WrongPermissionException, NoSuchFileException, NotDirectoryException {
     assert file != null;
 
     // Check existing
@@ -94,7 +94,7 @@ public class Directory extends FileOrDirectory {
 
     // Check directory
     if (!file.isDirectory()) {
-      throw new NotFileOrDirectoryException((FileOrDirLocation) location);
+      throw new NotDirectoryException((DirectoryLocation) location);
     }
 
     checkPermissions(file, permissions);

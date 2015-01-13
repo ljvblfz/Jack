@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.reporting.Reporter;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -261,7 +261,7 @@ public class JackBatchCompiler extends Main {
         throw new JackUserException(e);
       } catch (NoSuchFileException e) {
         throw new JackUserException(e);
-      } catch (NotFileOrDirectoryException e) {
+      } catch (NotFileException e) {
         throw new JackUserException(e);
       }
     }

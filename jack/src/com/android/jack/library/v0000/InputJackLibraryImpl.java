@@ -28,7 +28,8 @@ import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -126,7 +127,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       VPath clonedPath = typePath.clone();
       clonedPath.addSuffix(fileType.getFileExtension());
       return vfs.getRootInputVDir().getInputVFile(clonedPath);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -139,7 +140,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       throws FileTypeDoesNotExistException {
     try {
       return vfs.getRootInputVDir().getInputVDir(typePath);
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);

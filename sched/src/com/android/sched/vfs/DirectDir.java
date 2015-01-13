@@ -20,7 +20,8 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
@@ -42,9 +43,9 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
   private final InputOutputVFS vfs;
 
   DirectDir(@Nonnull File dir, @Nonnull InputOutputVFS vfs)
-      throws NotFileOrDirectoryException {
+      throws NotDirectoryException {
     if (!dir.isDirectory()) {
-      throw new NotFileOrDirectoryException(new DirectoryLocation(dir));
+      throw new NotDirectoryException(new DirectoryLocation(dir));
     }
     this.dir = dir;
     this.vfs = vfs;
@@ -75,7 +76,7 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
         } else {
           items.add(new DirectDir(sub, vfs));
         }
-      } catch (NotFileOrDirectoryException e) {
+      } catch (NotDirectoryException e) {
         throw new ConcurrentIOException(e);
       }
     }
@@ -91,28 +92,28 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {
       throw new NoSuchFileException(new FileLocation(file));
     }
     if (!file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
+      throw new NotFileException(new FileLocation(file));
     }
     return new DirectFile(file, vfs);
   }
 
   @Override
   @Nonnull
-  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotFileOrDirectoryException,
+  public InputOutputVDir getInputVDir(@Nonnull VPath path) throws NotDirectoryException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {
-      throw new NoSuchFileException(new FileLocation(file));
+      throw new NoSuchFileException(new DirectoryLocation(file));
     }
     if (file.isFile()) {
-      throw new NotFileOrDirectoryException(new FileLocation(file));
+      throw new NotDirectoryException(new DirectoryLocation(file));
     }
     return new DirectDir(file, vfs);
   }
@@ -130,7 +131,7 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
   @Override
   @Nonnull
   public OutputVDir createOutputVDir(@Nonnull VPath path) throws CannotCreateFileException,
-      NotFileOrDirectoryException {
+      NotDirectoryException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.getParentFile().mkdirs() && !file.getParentFile().isDirectory()) {
       throw new CannotCreateFileException(new DirectoryLocation(file.getParentFile()));

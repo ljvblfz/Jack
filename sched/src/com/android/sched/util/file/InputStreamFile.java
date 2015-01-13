@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  */
 public class InputStreamFile extends AbstractStreamFile {
   public InputStreamFile(@Nonnull String name)
-      throws WrongPermissionException, NotFileOrDirectoryException, NoSuchFileException {
+      throws WrongPermissionException, NotFileException, NoSuchFileException {
     super(name, null /* hooks */);
 
     try {

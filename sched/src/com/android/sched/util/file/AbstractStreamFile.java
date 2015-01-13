@@ -65,7 +65,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   protected void performChecks(@Nonnull Existence existence, int permissions,
       @Nonnull ChangePermission change)
       throws NoSuchFileException,
-      NotFileOrDirectoryException,
+      NotFileException,
       WrongPermissionException,
       FileAlreadyExistsException,
       CannotCreateFileException,
@@ -130,7 +130,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   }
 
   private void processExisting(int permissions)
-      throws NoSuchFileException, NotFileOrDirectoryException, WrongPermissionException {
+      throws NoSuchFileException, NotFileException, WrongPermissionException {
     assert file != null;
 
     // Check existing
@@ -140,7 +140,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
     // Check it is a file
     if (!file.isFile()) {
-      throw new NotFileOrDirectoryException((FileOrDirLocation) location);
+      throw new NotFileException((FileLocation) location);
     }
 
     checkPermissions(file, permissions);

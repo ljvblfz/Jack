@@ -18,7 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -35,7 +35,7 @@ public class DirectVFS extends AbstractInputOutputVFS implements ParallelOutputV
 
     try {
       setRootDir(new DirectDir(dir.getFile(), this));
-    } catch (NotFileOrDirectoryException e) {
+    } catch (NotDirectoryException e) {
       throw new ConcurrentIOException(e);
     }
   }

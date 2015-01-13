@@ -42,7 +42,7 @@ public class InputZipFile extends StreamFile {
       CannotSetPermissionException,
       WrongPermissionException,
       NoSuchFileException,
-      NotFileOrDirectoryException,
+      NotFileException,
       ZipException {
     super(name, hooks, existence, Permission.READ, change);
     zipFile = processZip(file);
