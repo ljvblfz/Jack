@@ -20,16 +20,15 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
-import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.CommonTypes.CommonType;
-import com.android.jack.util.NamingTools;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +40,19 @@ import javax.annotation.Nonnull;
  * Phantom lookup.
  */
 public class JPhantomLookup extends JLookup {
+
+  private abstract static class PhantomAdapter <T extends JReferenceType>
+    implements Adapter<T> {
+
+    @Override
+    @Nonnull
+    public JPackage getPackage(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getOrCreateSubPackage(simpleName);
+    }
+
+    @Nonnull
+    public abstract T getDefined(@Nonnull String signature);
+  }
 
   @Nonnull
   private final Map<String, JReferenceType> typeCache =
@@ -57,6 +69,112 @@ public class JPhantomLookup extends JLookup {
   @Nonnull
   private final Map<String, JAnnotation> annotationCache =
       new HashMap<String, JAnnotation>();
+
+  @Nonnull
+  private final PhantomAdapter<JReferenceType> coiAdapter =
+  new PhantomAdapter<JReferenceType>() {
+    @Nonnull
+    @Override
+    public Map<String, JReferenceType> getCache() {
+      return typeCache;
+    }
+
+    @Nonnull
+    @Override
+    public JReferenceType getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomClass(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JReferenceType getDefined(@Nonnull String signature) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+  @Nonnull
+  private final PhantomAdapter<JClass> classAdapter = new PhantomAdapter<JClass>() {
+    @Nonnull
+    @Override
+    public Map<String, JClass> getCache() {
+      return classCache;
+    }
+
+    @Nonnull
+    @Override
+    public JClass getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomClass(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JClass getDefined(@Nonnull String signature) {
+      return jackLookup.getClass(signature);
+    }
+  };
+
+  @Nonnull
+  private final PhantomAdapter<JEnum> enumAdapter = new PhantomAdapter<JEnum>() {
+    @Nonnull
+    @Override
+    public Map<String, JEnum> getCache() {
+      return enumCache;
+    }
+
+    @Nonnull
+    @Override
+    public JEnum getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomEnum(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JEnum getDefined(@Nonnull String signature) {
+      return jackLookup.getEnum(signature);
+    }
+  };
+
+  @Nonnull
+  private final PhantomAdapter<JInterface> interfaceAdapter = new PhantomAdapter<JInterface>() {
+    @Nonnull
+    @Override
+    public Map<String, JInterface> getCache() {
+      return interfaceCache;
+    }
+
+    @Nonnull
+    @Override
+    public JInterface getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomInterface(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JInterface getDefined(@Nonnull String signature) {
+      return jackLookup.getInterface(signature);
+    }
+  };
+
+  @Nonnull
+  private final PhantomAdapter<JAnnotation> annotationAdapter = new PhantomAdapter<JAnnotation>() {
+    @Nonnull
+    @Override
+    public Map<String, JAnnotation> getCache() {
+      return annotationCache;
+    }
+
+    @Nonnull
+    @Override
+    public JAnnotation getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomAnnotation(simpleName);
+    }
+
+    @Override
+    @Nonnull
+    public JAnnotation getDefined(@Nonnull String signature) {
+      return jackLookup.getAnnotation(signature);
+    }
+  };
 
   @Nonnull
   private final JNodeLookup jackLookup;
@@ -81,133 +199,56 @@ public class JPhantomLookup extends JLookup {
       type = jackLookup.getType(signature);
       assert !doesCacheContain(typeCache, signature);
     } catch (JLookupException e) {
-      synchronized (typeCache) {
-        type = typeCache.get(signature);
-
-        if (type == null) {
-          int typeNameLength = signature.length();
-          assert typeNameLength > 1 : "Invalid signature '" + signature + "'";
-          if (signature.charAt(0) == '[') {
-            JArrayType array = getArrayType(signature);
-            type = array;
-            typeCache.put(signature, array);
-          } else {
-            String[] splitName = splitSignature(signature);
-            JPackage pack = getPackage(splitName);
-            JClassOrInterface phantom =
-                pack.getPhantomClassOrInterface(splitName[splitName.length - 1]);
-            typeCache.put(signature, phantom);
-            type = phantom;
-          }
-        }
+      try {
+        type = getType(signature, coiAdapter);
+      } catch (MissingJTypeLookupException t) {
+        throw new AssertionError(signature);
       }
     }
     return type;
   }
 
-  @Nonnull
-  private JPackage getPackage(@Nonnull String[] splitClassOrInterfaceName) {
-    JPackage currentPackage = topLevelPackage;
-    int packageLength = splitClassOrInterfaceName.length - 1;
-    for (int i = 0; i < packageLength; i++) {
-      currentPackage = currentPackage.getOrCreateSubPackage(splitClassOrInterfaceName[i]);
+  @Override
+  protected <T extends JReferenceType> T getNonArrayType(
+      @Nonnull String signature,
+      @Nonnull Adapter<T> adapter) {
+    Map<String, T> cache = adapter.getCache();
+    T type;
+    try {
+      type = ((PhantomAdapter<T>) adapter).getDefined(signature);
+      assert !doesCacheContain(cache, signature);
+    } catch (JLookupException e) {
+      try {
+        type = super.getNonArrayType(signature, adapter);
+      } catch (MissingJTypeLookupException t) {
+        throw new AssertionError(signature);
+      }
     }
-    return currentPackage;
-  }
-
-  @Nonnull
-  private String[] splitSignature(@Nonnull String signature) {
-    assert NamingTools.isClassDescriptor(signature);
-    String[] splitName = signature.substring(1, signature.length() - 1)
-        .split(String.valueOf(JLookup.PACKAGE_SEPARATOR));
-    return splitName;
+    return type;
   }
 
   @Override
   @Nonnull
   public JClass getClass(@Nonnull String signature) {
-    JClass type;
-    try {
-      type = jackLookup.getClass(signature);
-      assert !classCache.containsKey(signature);
-    } catch (JLookupException e) {
-      synchronized (classCache) {
-        type = classCache.get(signature);
-
-        if (type == null) {
-          String[] splitName = splitSignature(signature);
-          JPackage pack = getPackage(splitName);
-          type = pack.getPhantomClass(splitName[splitName.length - 1]);
-          classCache.put(signature, type);
-        }
-      }
-    }
-    return type;
+    return getNonArrayType(signature, classAdapter);
   }
 
   @Override
   @Nonnull
   public JInterface getInterface(@Nonnull String signature) {
-    JInterface type;
-    try {
-      type = jackLookup.getInterface(signature);
-      assert !doesCacheContain(interfaceCache, signature);
-    } catch (JLookupException e) {
-      synchronized (interfaceCache) {
-        type = interfaceCache.get(signature);
-
-        if (type == null) {
-          String[] splitName = splitSignature(signature);
-          JPackage pack = getPackage(splitName);
-          type = pack.getPhantomInterface(splitName[splitName.length - 1]);
-          interfaceCache.put(signature, type);
-        }
-      }
-    }
-    return type;
+    return getNonArrayType(signature, interfaceAdapter);
   }
 
   @Override
   @Nonnull
   public JAnnotation getAnnotation(@Nonnull String signature) {
-    JAnnotation type;
-    try {
-      type = jackLookup.getAnnotation(signature);
-      assert !doesCacheContain(annotationCache, signature);
-    } catch (JLookupException e) {
-      synchronized (annotationCache) {
-        type = annotationCache.get(signature);
-
-        if (type == null) {
-          String[] splitName = splitSignature(signature);
-          JPackage pack = getPackage(splitName);
-          type = pack.getPhantomAnnotation(splitName[splitName.length - 1]);
-          annotationCache.put(signature, type);
-        }
-      }
-    }
-    return type;
+    return getNonArrayType(signature, annotationAdapter);
   }
 
   @Override
   @Nonnull
   public JEnum getEnum(@Nonnull String signature) {
-    JEnum type;
-    try {
-      type = jackLookup.getEnum(signature);
-      assert !doesCacheContain(enumCache, signature);
-    } catch (JLookupException e) {
-      synchronized (enumCache) {
-        type = enumCache.get(signature);
-        if (type == null) {
-          String[] splitName = splitSignature(signature);
-          JPackage pack = getPackage(splitName);
-          type = pack.getPhantomEnum(splitName[splitName.length - 1]);
-          enumCache.put(signature, type);
-        }
-      }
-    }
-    return type;
+    return getNonArrayType(signature, enumAdapter);
   }
 
   @Override
@@ -315,9 +356,9 @@ public class JPhantomLookup extends JLookup {
 
   @Override
   @Nonnull
-  protected JArrayType getArrayType(@Nonnull String typeName) {
+  protected JArrayType findArrayType(@Nonnull String typeName) {
     try {
-      return super.getArrayType(typeName);
+      return super.findArrayType(typeName);
     } catch (JTypeLookupException e) {
       // should not happen since this is a phantom lookup
       throw new AssertionError(e);

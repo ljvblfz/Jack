@@ -26,9 +26,16 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
+import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.lookup.CommonTypes.CommonType;
+import com.android.jack.util.NamingTools;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -37,6 +44,22 @@ import javax.annotation.Nonnull;
  * {@link JLookup} allows to lookup {@link JType} from signature.
  */
 public abstract class JLookup {
+
+  /**
+   * Adapter for the specificities of different lookup kind.
+   */
+  protected static interface Adapter<T extends JType> {
+    @Nonnull
+    Map<String, T> getCache();
+
+    @Nonnull
+    T getType(@Nonnull JPackage pack, @Nonnull String simpleName)
+        throws MissingJTypeLookupException;
+
+    @Nonnull
+    JPackage getPackage(@Nonnull JPackage pack, @Nonnull String simpleName)
+        throws JPackageLookupException;
+  }
 
   @Nonnull
   protected static final Splitter packageBinaryNameSplitter =
@@ -47,6 +70,9 @@ public abstract class JLookup {
 
   @Nonnull
   protected final JPackage topLevelPackage;
+
+  @Nonnull
+  private final Map<String, JPackage> packages = new HashMap<String, JPackage>();
 
   public static final char PACKAGE_SEPARATOR = '/';
 
@@ -123,8 +149,31 @@ public abstract class JLookup {
     return (JArrayType) array;
   }
 
+  @SuppressWarnings("unchecked")
   @Nonnull
-  protected JArrayType getArrayType(@Nonnull String typeName) throws JTypeLookupException {
+  protected <T extends JType> T getType(@Nonnull String signature,
+      @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {
+    Map<String, T> cache = adapter.getCache();
+    T type;
+    synchronized (cache) {
+      type = cache.get(signature);
+
+      if (type == null) {
+        int typeNameLength = signature.length();
+        assert typeNameLength > 1 : "Invalid signature '" + signature + "'";
+        if (signature.charAt(0) == '[') {
+          type = (T) findArrayType(signature);
+        } else {
+          type = findClassOrInterface(signature, adapter);
+        }
+        cache.put(signature, type);
+     }
+    }
+    return type;
+  }
+
+  @Nonnull
+  protected JArrayType findArrayType(@Nonnull String typeName) throws JTypeLookupException {
     int typeNameLength = typeName.length();
     assert typeNameLength > 0 && typeName.charAt(0) == '[';
 
@@ -135,6 +184,69 @@ public abstract class JLookup {
     } while (typeName.charAt(dim) == '[');
 
     return getArrayType(getType(typeName.substring(dim)), dim);
+  }
+
+  protected <T extends JReferenceType> T getNonArrayType(
+      @Nonnull String signature,
+      @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {
+    Map<String, T> cache = adapter.getCache();
+    T type;
+    synchronized (cache) {
+      type = cache.get(signature);
+
+      if (type == null) {
+        type = findClassOrInterface(signature, adapter);
+        cache.put(signature, type);
+      }
+    }
+    return type;
+  }
+
+  @Nonnull
+  protected JPackage getPackage(@Nonnull String packageName,
+      @Nonnull Adapter<? extends JType> adapter)
+      throws JPackageLookupException {
+
+    synchronized (packages) {
+      JPackage found = packages.get(packageName);
+      if (found == null) {
+        assert NamingTools.isPackageBinaryName(packageName);
+        int separatorIndex = packageName.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
+        JPackage parent;
+        String simplePackageName;
+        if (separatorIndex == -1) {
+          parent = topLevelPackage;
+          simplePackageName = packageName;
+        } else {
+          parent = getPackage(packageName.substring(0, separatorIndex), adapter);
+          simplePackageName = packageName.substring(separatorIndex + 1);
+        }
+        found = adapter.getPackage(parent, simplePackageName);
+        packages.put(packageName, found);
+      }
+      return found;
+    }
+  }
+
+  @Nonnull
+  private <T extends JType, U extends Throwable> T findClassOrInterface(@Nonnull String signature,
+      @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {
+    int typeNameLength = signature.length();
+    int separatorIndex = signature.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
+    JPackage currentPackage;
+    String simpleName;
+    if (separatorIndex == -1) {
+      currentPackage = topLevelPackage;
+      simpleName = signature.substring(1, typeNameLength - 1);
+    } else {
+      try {
+        currentPackage = getPackage(signature.substring(1, separatorIndex), adapter);
+        simpleName = signature.substring(separatorIndex + 1, typeNameLength - 1);
+      } catch (JPackageLookupException p) {
+        throw new MissingJTypeLookupException(signature);
+      }
+    }
+    return adapter.getType(currentPackage, simpleName);
   }
 
 }
