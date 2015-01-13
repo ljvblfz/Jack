@@ -21,6 +21,7 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexWritingException;
 import com.android.jack.backend.dex.MainDexOverflowException;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.tools.merger.FieldIdOverflowException;
@@ -31,6 +32,7 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,6 +57,7 @@ public class MultiDexOverflowTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void testMinimalMainDexOverflowWithMethods() throws Exception {
     File srcFolder = AbstractTestTools.createTempDir();
     File outFolder = AbstractTestTools.createTempDir();

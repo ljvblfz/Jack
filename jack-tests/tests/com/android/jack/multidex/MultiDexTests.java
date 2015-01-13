@@ -26,6 +26,7 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorException;
 import com.android.jack.test.comparator.ComparatorFile;
@@ -40,6 +41,7 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -184,7 +186,7 @@ public class MultiDexTests {
   }
 
   @Test
-  public void versionedTest001b__withoutAnnotations() throws Exception {
+  public void versionedTest001b_minimal_withoutAnnotations() throws Exception {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test001");
     File out = TestTools.createTempDir("out", "");
@@ -334,6 +336,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void legacyAppTest002a() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File out = AbstractTestTools.createTempDir();
@@ -360,6 +363,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void legacyAppTest002b() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File out = AbstractTestTools.createTempDir();
@@ -388,6 +392,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void legacyAppTest002b_auto() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareLibrary(frameworks);
@@ -419,6 +424,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void legacyAppTest002a_withoutAnnotations() throws Exception {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
@@ -443,6 +449,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Category(SlowTests.class)
   public void legacyAppTest002b_withoutAnnotations() throws Exception {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test002");
@@ -504,7 +511,7 @@ public class MultiDexTests {
    * Verifies that classes annotated with runtime visible annotations are put in main dex.
    */
   @Test
-  public void legacyAppTest003() throws Exception {
+  public void annotatedTest003() throws Exception {
 
     File testFolder = TestTools.getJackTestsWithJackFolder("multidex/test003");
 
