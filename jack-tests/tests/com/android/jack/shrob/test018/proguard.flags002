@@ -1,0 +1,4 @@
+-keep class * extends !java.io.DoesNotExist {
+    static final long serialVersionUID;
+    java.lang.Object o;
+}

@@ -1,0 +1,3 @@
+com.android.jack.shrob.test018.jack.A
+com.android.jack.shrob.test018.jack.A: long serialVersionUID
+com.android.jack.shrob.test018.jack.B

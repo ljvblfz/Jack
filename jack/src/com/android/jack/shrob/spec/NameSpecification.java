@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Class representing the name of a field, method or class in a {@code class specification}.
  */
-public class NameSpecification implements Specification<String> {
+public class NameSpecification extends SpecificationWithNegator<String> {
   @Nonnull
   private final Pattern name;
 
@@ -32,8 +32,13 @@ public class NameSpecification implements Specification<String> {
     this.name = name;
   }
 
+  public NameSpecification(@Nonnull Pattern name, boolean negator) {
+    this.name = name;
+    setNegator(negator);
+  }
+
   @Override
-  public boolean matches(@Nonnull String t) {
+  protected boolean matchesWithoutNegator(@Nonnull String t) {
     Matcher matcher = name.matcher(t);
     return matcher.find();
   }

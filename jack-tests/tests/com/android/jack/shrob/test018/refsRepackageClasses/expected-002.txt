@@ -1,0 +1,5 @@
+com.android.jack.shrob.test018.jack.A -> com.android.jack.shrob.test018.jack.A:
+    long serialVersionUID -> serialVersionUID
+    void <init>() -> <init>
+com.android.jack.shrob.test018.jack.B -> com.android.jack.shrob.test018.jack.B:
+    void <init>() -> <init>

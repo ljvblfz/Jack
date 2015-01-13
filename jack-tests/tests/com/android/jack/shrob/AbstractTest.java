@@ -228,6 +228,18 @@ public abstract class AbstractTest {
   }
 
   @Test
+  @Category(SlowTests.class)
+  public void test2_004() throws Exception {
+    runTest("002", "004", "");
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  public void test2_005() throws Exception {
+    runTest("002", "005", "");
+  }
+
+  @Test
   public void test4_001() throws Exception {
     runTest("004", "001", "");
   }
@@ -449,6 +461,12 @@ public abstract class AbstractTest {
   @Test
   public void test18_001() throws Exception {
     runTest("018", "001", "");
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  public void test18_002() throws Exception {
+    runTest("018", "002", "");
   }
 
   @Test
