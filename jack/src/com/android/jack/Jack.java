@@ -403,7 +403,7 @@ public abstract class Jack {
           GrammarActions.parse(proguardFlagsFile.getPath(), ".", options.flags);
         } catch (RecognitionException e) {
           throw new IllegalOptionsException(
-              "Error while parsing " + proguardFlagsFile.getPath() + ":" + e.line, e);
+              "Error while parsing '" + e.input.getSourceName() + "':" + e.line, e);
         }
       }
 
