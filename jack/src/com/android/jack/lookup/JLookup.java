@@ -231,6 +231,9 @@ public abstract class JLookup {
   @Nonnull
   private <T extends JType, U extends Throwable> T findClassOrInterface(@Nonnull String signature,
       @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {
+
+    assert NamingTools.isClassDescriptor(signature) : "Invalid signature '" + signature + "'";
+
     int typeNameLength = signature.length();
     int separatorIndex = signature.lastIndexOf(JLookup.PACKAGE_SEPARATOR);
     JPackage currentPackage;
