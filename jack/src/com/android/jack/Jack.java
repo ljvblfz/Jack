@@ -279,6 +279,7 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.InputVFS;
@@ -287,6 +288,9 @@ import com.android.sched.vfs.InputZipVFS;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -294,6 +298,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -612,6 +618,22 @@ public abstract class Jack {
                 && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
               config.get(Options.DEX_OUTPUT_ZIP).close();
             }
+
+            File jackLibraryOutputZip = options.getJackLibraryOutputZip();
+            if (ThreadConfig.get(Options.INCREMENTAL_MODE).booleanValue()
+                && jackLibraryOutputZip != null) {
+              File incrementalFolder = options.getIncrementalFolder();
+              assert incrementalFolder != null;
+              List<File> filesToCopy = new ArrayList<File>();
+              Event timeToZip =
+                  TracerFactory.getTracer().start(JackEventType.ZIP_JACK_LIBRARY_IN_INCREMENTAL);
+              try {
+                getAllFiles(incrementalFolder, filesToCopy);
+                writeZipFile(jackLibraryOutputZip, incrementalFolder, filesToCopy);
+              } finally {
+                timeToZip.end();
+              }
+            }
           } catch (LibraryIOException e) {
             throw new AssertionError(e);
           } catch (IOException e) {
@@ -625,6 +647,68 @@ public abstract class Jack {
 
       hooks.runHooks();
       ThreadConfig.unsetConfig();
+    }
+  }
+
+  private static void getAllFiles(@Nonnull File folder, @Nonnull List<File> files) {
+    for (File file : folder.listFiles()) {
+      if (file.isDirectory()) {
+        getAllFiles(file, files);
+      } else {
+        files.add(file);
+      }
+    }
+  }
+
+  private static void writeZipFile(@Nonnull File zipFile, @Nonnull File directoryToZip,
+      @Nonnull List<File> files) {
+    FileOutputStream fos = null;
+    ZipOutputStream zos = null;
+    try {
+      fos = new FileOutputStream(zipFile);
+      zos = new ZipOutputStream(fos);
+
+      for (File file : files) {
+        addToZip(directoryToZip, file, zos);
+      }
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    } finally {
+      try {
+        if (zos != null) {
+          zos.close();
+        }
+        if (fos != null) {
+          fos.close();
+        }
+      } catch (IOException e) {
+        throw new AssertionError(e);
+      }
+    }
+  }
+
+  private static void addToZip(@Nonnull File directoryToZip, @Nonnull File file,
+      @Nonnull ZipOutputStream os) throws IOException {
+
+    InputStream is = null;
+    try {
+      is = new FileInputStream(file);
+
+      String filePath = file.getPath();
+      String zipFilePath =
+          filePath.substring(directoryToZip.getPath().length() + 1, filePath.length());
+      ZipEntry zipEntry = new ZipEntry(zipFilePath);
+      os.putNextEntry(zipEntry);
+
+      ByteStreamSucker sucker = new ByteStreamSucker(is, os);
+      sucker.suck();
+    } catch (FileNotFoundException e) {
+      throw new AssertionError();
+    } finally {
+      if (is != null) {
+        is.close();
+      }
+      os.closeEntry();
     }
   }
 

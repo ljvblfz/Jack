@@ -40,6 +40,7 @@ public enum JackEventType implements EventType {
   DX_OPTIMIZATION("Dx optimizations on RopMethod"),
   REMOVE_DEAD_CODE("Remove dead code"),
   DOP_CREATION("Dop creation"),
+  ZIP_JACK_LIBRARY_IN_INCREMENTAL("Zip jack library in incremental mode"),
   JACK_RUN("Jack run");
 
   @Nonnull

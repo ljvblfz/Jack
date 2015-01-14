@@ -159,6 +159,7 @@ public class Options {
       new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
+
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
@@ -774,6 +775,11 @@ public class Options {
 
   public void setJayceOutputZip(@Nonnull File outputZip) {
     libraryOutZip = outputZip;
+  }
+
+  @CheckForNull
+  public File getJackLibraryOutputZip() {
+    return libraryOutZip;
   }
 
   public void setImportedLibraries(@Nonnull List<File> importedLibraries) {
