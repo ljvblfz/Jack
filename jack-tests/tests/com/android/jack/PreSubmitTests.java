@@ -29,6 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Categories.class)
 @ExcludeCategory(NonPreSubmitTests.class)
-@SuiteClasses(value = {AllWithRegressionTests.class})
+@SuiteClasses(value = {AllWithRegressionTests.class, PreSubmitUnitTests.class})
 public class PreSubmitTests {
 }

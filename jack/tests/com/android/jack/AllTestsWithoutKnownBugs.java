@@ -29,6 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Categories.class)
 @ExcludeCategory(KnownBugs.class)
-@SuiteClasses(value = {AllTests.class})
+@SuiteClasses(value = {AllUnitTests.class})
 public class AllTestsWithoutKnownBugs {
 }

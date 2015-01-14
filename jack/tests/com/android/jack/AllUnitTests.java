@@ -59,5 +59,5 @@ import org.junit.runners.Suite.SuiteClasses;
     UnaryTest.class,
     UselessCastRemoverTest.class,
     TracingTest.class})
-public class AllTests {
+public class AllUnitTests {
 }

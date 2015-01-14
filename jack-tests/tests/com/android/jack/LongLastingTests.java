@@ -35,6 +35,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Categories.class)
 @IncludeCategory(SlowTests.class)
 @ExcludeCategory(KnownBugs.class)
-@SuiteClasses(value = {AllTests.class})
+@SuiteClasses(value = {AllTests.class, LongLastingUnitTests.class})
 public class LongLastingTests {
 }

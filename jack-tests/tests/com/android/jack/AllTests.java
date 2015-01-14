@@ -70,6 +70,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+    AllUnitTests.class,
     AnnotationTests.class,
     ArithmeticTests.class,
     ArrayTests.class,

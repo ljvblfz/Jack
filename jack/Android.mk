@@ -151,7 +151,7 @@ local_unit_libs := $(call java-lib-files,core-libart-hostdex junit4-hostdex-jack
 test-jack-unit: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-unit: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-unit: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_unit_libs) $(JACK_JAR)
-	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.PreSubmitTests
+	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.PreSubmitUnitTests
 
 local_long_libs := $(call java-lib-files,core-libart bouncycastle core-junit ext framework guava services \
 	libarity prebuilt-google-play-services-first-party telephony-common,)
@@ -159,13 +159,13 @@ local_long_libs := $(call java-lib-files,core-libart bouncycastle core-junit ext
 test-jack-long: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-long: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-long: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_long_libs) $(JACK_JAR)
-	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.LongLastingTests && echo "$@: PASSED"
+	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.LongLastingUnitTests && echo "$@: PASSED"
 
 .PHONY: test-jack-unit-all
 test-jack-unit-all: PRIVATE_RUN_TESTS := ./run-jack-unit-tests
 test-jack-unit-all: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-unit-all: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_unit_libs) $(local_long_libs) $(JACK_JAR)
-	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.AllTests
+	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.AllUnitTests
 
 .PHONY: clean-jack-files
 clean-jack-files: clean-dex-files

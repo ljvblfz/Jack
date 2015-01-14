@@ -17,18 +17,22 @@
 package com.android.jack;
 
 
-import com.android.jack.category.NonPreSubmitTests;
+import com.android.jack.category.KnownBugs;
+import com.android.jack.category.SlowTests;
 
 import org.junit.experimental.categories.Categories;
 import org.junit.experimental.categories.Categories.ExcludeCategory;
+import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * Test suite to run before submitting a CL (along with regression tests).
+ * Test suite containing tests that are too time-consuming and cannot be run before submitting each
+ * CL.
  */
 @RunWith(Categories.class)
-@ExcludeCategory(NonPreSubmitTests.class)
-@SuiteClasses(value = {AllTests.class})
-public class PreSubmitTests {
+@IncludeCategory(SlowTests.class)
+@ExcludeCategory(KnownBugs.class)
+@SuiteClasses(value = {AllUnitTests.class})
+public class LongLastingUnitTests {
 }
