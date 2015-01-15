@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JMethodId.HierarchyFilter;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -35,6 +34,7 @@ import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.feature.DxLegacy;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -44,8 +44,6 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
-
-import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -72,18 +70,10 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
       for (JMethod method : superClass.getMethods()) {
         if (method.isPublic() && !(method instanceof JConstructor) && !method.isStatic()
             && !method.isFinal()) {
-
-          // test if method is declared in current class
-          Collection<JMethod> methodsInCurrentClass =
-              method.getMethodId().getMethods(declaredType, HierarchyFilter.THIS_TYPE);
-          boolean sameMethodFound = false;
-          for (JMethod methodInCurrentClass : methodsInCurrentClass) {
-            if (methodInCurrentClass.getType().isSameType(method.getType())) {
-              sameMethodFound = true;
-              break;
-            }
-          }
-          if (!sameMethodFound) {
+          try {
+            declaredType.getMethod(method.getName(), method.getType(),
+                method.getMethodId().getParamTypes());
+          } catch (JMethodLookupException e) {
             // the method is not declared in class, a bridge is required
             synthesizeBridge((JDefinedClass) declaredType, method);
           }
