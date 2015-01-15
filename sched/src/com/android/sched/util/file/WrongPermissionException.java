@@ -17,7 +17,7 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -30,11 +30,11 @@ import javax.annotation.Nonnull;
 public class WrongPermissionException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public WrongPermissionException(@Nonnull FileOrDirLocation location, int permission) {
+  public WrongPermissionException(@Nonnull Location location, int permission) {
     this(location, permission, null);
   }
 
-  public WrongPermissionException(@Nonnull FileOrDirLocation location, int permission,
+  public WrongPermissionException(@Nonnull Location location, int permission,
       @CheckForNull Throwable cause) {
     super(location.getDescription() + " is not " +
       ((permission == Permission.READ)    ? "readable" :

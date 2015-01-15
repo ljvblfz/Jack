@@ -19,6 +19,7 @@ package com.android.sched.util.file;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
 import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class AbstractStreamFile extends FileOrDirectory {
   @Nonnull
-  private final Logger  logger = LoggerFactory.getLogger();
+  private static final Logger  logger = LoggerFactory.getLogger();
   @CheckForNull
   protected final File    file;
 
@@ -82,10 +83,14 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        processExisting(permissions);
+        AbstractStreamFile.check(file, (FileOrDirLocation) location);
+        FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case NOT_EXIST:
-        processNotExisting(permissions, change);
+        AbstractStreamFile.create(file, location);
+        addRemover(file);
+        FileOrDirectory.setPermissions(file, location, permissions, change);
+        FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case MAY_EXIST:
         throw new AssertionError();
@@ -102,14 +107,13 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
     return location.getDescription();
   }
 
-  private void processNotExisting(int permissions, @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException, CannotCreateFileException, CannotSetPermissionException,
-      WrongPermissionException {
+  public static void create(@Nonnull File file, @Nonnull Location location)
+      throws FileAlreadyExistsException, CannotCreateFileException {
     assert file != null;
 
     // Check existing
     if (file.exists()) {
-      throw new FileAlreadyExistsException((FileOrDirLocation) location);
+      throw new FileAlreadyExistsException(location);
     }
 
     // Create file
@@ -117,33 +121,27 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
       if (file.createNewFile()) {
         logger.log(Level.FINE, "Create {0} (''{1}'')",
             new Object[] {location.getDescription(), file.getAbsoluteFile()});
-        addRemover(file);
       } else {
-        throw new CannotCreateFileException((FileOrDirLocation) location);
+        throw new CannotCreateFileException(location);
       }
     } catch (IOException e) {
-      throw new CannotCreateFileException((FileOrDirLocation) location);
+      throw new CannotCreateFileException(location);
     }
-
-    setPermissions(file, permissions, change);
-    checkPermissions(file, permissions);
   }
 
-  private void processExisting(int permissions)
-      throws NoSuchFileException, NotFileException, WrongPermissionException {
+  public static void check(@Nonnull File file, @Nonnull FileOrDirLocation location)
+      throws NoSuchFileException, NotFileException {
     assert file != null;
 
     // Check existing
     if (!file.exists()) {
-      throw new NoSuchFileException((FileOrDirLocation) location);
+      throw new NoSuchFileException(location);
     }
 
     // Check it is a file
     if (!file.isFile()) {
       throw new NotFileException((FileLocation) location);
     }
-
-    checkPermissions(file, permissions);
   }
 
   @Override

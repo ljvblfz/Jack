@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
@@ -70,8 +71,8 @@ class InputZipVDir extends AbstractVElement implements InputVDir {
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
-      NoSuchFileException {
+  public InputVFile getInputVFile(@Nonnull VPath path) throws NoSuchFileException,
+      NotFileOrDirectoryException {
     Iterator<String> iterator = path.split().iterator();
     assert iterator.hasNext();
     String firstElement = iterator.next();

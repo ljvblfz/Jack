@@ -34,10 +34,13 @@ import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
@@ -248,7 +251,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     try {
       // Check that file exists
       incrementalInputLibrary.getFile(fileType, vpath);
-      incrementalInputLibrary.delete(fileType, vpath);
+      try {
+        incrementalInputLibrary.delete(fileType, vpath);
+      } catch (NotFileOrDirectoryException e) {
+        throw new ConcurrentIOException(e);
+      } catch (NoSuchFileException e) {
+        throw new ConcurrentIOException(e);
+      }
     } catch (FileTypeDoesNotExistException e) {
       // Nothing to do, file does no longer exists
     } catch (CannotDeleteFileException e) {

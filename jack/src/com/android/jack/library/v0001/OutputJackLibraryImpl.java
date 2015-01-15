@@ -245,9 +245,11 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       VFSPair currentSectionVFS = getSectionVFS(fileType);
       currentSectionVFS.getInputVFS().getRootInputVDir().delete(buildFileVPath(fileType, typePath));
-    } catch (NotDirectoryException e) {
+    } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (CannotCreateFileException e) {
+      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+    } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }

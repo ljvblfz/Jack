@@ -19,7 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -146,7 +146,7 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     @Override
     @Nonnull
     public MessageDigestInputVFile getInputVFile(@Nonnull VPath path)
-        throws NotFileException, NoSuchFileException {
+        throws NoSuchFileException, NotFileOrDirectoryException {
       VPath filePathToRoot = pathToRoot.clone();
       filePathToRoot.appendPath(path);
       return new MessageDigestInputVFile(dir.getInputVFile(path), digests.get(filePathToRoot));
@@ -154,10 +154,11 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
 
     @Override
     @Nonnull
-    public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
+    public void delete(@Nonnull VPath path) throws CannotDeleteFileException,
+        NotFileOrDirectoryException, NoSuchFileException {
       dir.delete(path);
     }
-  }
+ }
 
   public MessageDigestInputVFS(@Nonnull InputVFS vfs) {
     this.root = new MessageDigestInputVDir(vfs.getRootInputVDir(), VPath.ROOT);
@@ -170,7 +171,7 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     try {
       try {
         file = root.getInputVFile(new VPath(DIGEST_DIRECTORY_NAME, '/'));
-      } catch (NotFileException e) {
+      } catch (NotFileOrDirectoryException e) {
         logger.log(Level.WARNING, "Cannot open '" + DIGEST_DIRECTORY_NAME + "' file in {0}", vfs
             .getLocation().getDescription());
         logger.log(Level.WARNING, "Stacktrace", e);

@@ -17,6 +17,7 @@
 package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,20 +63,26 @@ public final class VPath implements Cloneable {
    * Inserts a path before an existing path. The resulting path is evaluated lazily at each usage.
    * There is an implicit separator between the prepended path and the existing path.
    * @param path the path to insert before the existing path
+   * @return the current path
    */
-  public void prependPath(@Nonnull VPath path) {
+  public VPath prependPath(@Nonnull VPath path) {
     pathFragments.add(0, new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
     pathFragments.addAll(0, path.getPathFragments());
+
+    return this;
   }
 
   /**
    * Inserts a path after an existing path. The resulting path is evaluated lazily at each usage.
    * There is an implicit separator between the existing path and the appended path.
    * @param path the path to insert after the existing path
+   * @return the current path
    */
-  public void appendPath(@Nonnull VPath path) {
+  public VPath appendPath(@Nonnull VPath path) {
     pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
     pathFragments.addAll(path.getPathFragments());
+
+    return this;
   }
 
   /**
@@ -83,11 +90,14 @@ public final class VPath implements Cloneable {
    * It may be identical or different from the previous path.
    * No implicit separator will be added between the suffix and the previous path.
    * @param suffix the suffix to add to the path
+   * @return the current path
    */
-  public void addSuffix(@Nonnull CharSequence suffix) {
+  public VPath addSuffix(@Nonnull CharSequence suffix) {
     VPathFragment pe = new VPathFragment(suffix, INTERNAL_SEPARATOR);
     assert pe.isValidSuffix();
     pathFragments.add(pe);
+
+    return this;
   }
 
   @Override
@@ -181,5 +191,13 @@ public final class VPath implements Cloneable {
     private boolean isValidSuffix() {
       return !path.toString().contains(String.valueOf(separator));
     }
+  }
+
+  /**
+   * @return the last name of a path.
+   */
+  @Nonnull
+  public String getLastName() {
+    return Iterators.getLast(split().iterator(), "");
   }
 }

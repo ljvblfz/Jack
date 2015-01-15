@@ -228,7 +228,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
       currentSectionVFS.getRootInputVDir().delete(buildFileVPath(fileType, typePath));
-    } catch (NotDirectoryException e) {
+    } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);

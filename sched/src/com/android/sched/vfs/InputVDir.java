@@ -19,7 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 
 import java.util.Collection;
 
@@ -38,9 +38,10 @@ public interface InputVDir extends InputVElement {
       NoSuchFileException;
 
   @Nonnull
-  InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
+  InputVFile getInputVFile(@Nonnull VPath path) throws NotFileOrDirectoryException,
       NoSuchFileException;
 
   @Nonnull
-  void delete(@Nonnull VPath path) throws CannotDeleteFileException;
+  void delete(@Nonnull VPath path) throws CannotDeleteFileException,
+      NoSuchFileException, NotFileOrDirectoryException;
 }

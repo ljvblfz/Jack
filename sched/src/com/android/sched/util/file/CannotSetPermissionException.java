@@ -18,7 +18,7 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -31,12 +31,12 @@ import javax.annotation.Nonnull;
 public class CannotSetPermissionException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public CannotSetPermissionException(@Nonnull FileOrDirLocation location, int permission,
+  public CannotSetPermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change) {
     this(location, permission, change, null);
   }
 
-  public CannotSetPermissionException(@Nonnull FileOrDirLocation location, int permission,
+  public CannotSetPermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @CheckForNull Throwable cause) {
     super(location.getDescription() + " can not be set " +
       ((permission == Permission.READ)    ? "readable" :

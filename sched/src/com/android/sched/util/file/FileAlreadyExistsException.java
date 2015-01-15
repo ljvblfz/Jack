@@ -16,7 +16,7 @@
 
 package com.android.sched.util.file;
 
-import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -29,12 +29,12 @@ import javax.annotation.Nonnull;
 public class FileAlreadyExistsException extends IOException {
   private static final long serialVersionUID = 1L;
 
-  public FileAlreadyExistsException(@Nonnull FileOrDirLocation location) {
+  public FileAlreadyExistsException(@Nonnull Location location) {
     this(location, null);
   }
 
   public FileAlreadyExistsException(
-      @Nonnull FileOrDirLocation location, @CheckForNull Throwable cause) {
+      @Nonnull Location location, @CheckForNull Throwable cause) {
     super(location.getDescription() + " already exists", cause);
   }
 }
