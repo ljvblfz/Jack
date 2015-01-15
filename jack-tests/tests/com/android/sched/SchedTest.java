@@ -17,6 +17,8 @@
 package com.android.sched;
 
 import com.android.jack.TestTools;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,6 +42,7 @@ public class SchedTest {
    */
   @Test
   public void testCompile() throws Exception {
-    TestTools.runCompilation(TestTools.buildCommandLineArgs(SOURCE));
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()), AbstractTestTools.createTempDir(), /* zipFile = */ false, SOURCE);
   }
 }
