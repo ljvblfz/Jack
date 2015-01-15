@@ -26,6 +26,7 @@ import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationProces
 import com.android.jack.errorhandling.annotationprocessor.SourceAnnotationTest;
 import com.android.jack.errorhandling.annotationprocessor.SourceErrorAnnotationTest;
 import com.android.jack.frontend.FrontendCompilationException;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -224,7 +225,7 @@ public class AnnotationProcessorErrorTest {
     }
 
     for (Class<?> annotationClass : annotationClasses) {
-    Files.copy(new File(AbstractTestTools.getJackRootDir(),
+    Files.copy(new File(TestsProperties.getJackRootDir(),
         "jack/tests/com/android/jack/errorhandling/annotationprocessor/"
         + annotationClass.getSimpleName() + ".java"), new File(
         targetAnnotationFileFolder, annotationClass.getSimpleName() + ".java"));

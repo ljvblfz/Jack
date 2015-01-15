@@ -19,6 +19,8 @@ package com.android.jack.test.toolchain;
 import com.google.common.io.Files;
 
 import com.android.jack.Sourcelist;
+import com.android.jack.test.TestConfigurationException;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunnerException;
 import com.android.jack.test.runner.RuntimeRunnerFactory;
@@ -29,8 +31,6 @@ import com.android.jack.util.NamingTools;
 import org.junit.Assume;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,13 +55,7 @@ public abstract class AbstractTestTools {
   private static HashMap<String, ToolchainBuilder> toolchainBuilders;
 
   @Nonnull
-  private static final File JACK_ROOT_DIR;
-
-  @Nonnull
   private static final String JACK_TESTS_FOLDER = "jack-tests";
-
-  @Nonnull
-  private static final Properties testsProperties;
 
   @Nonnull
   private static final String PROPERTY_VALUE_SEPARATOR  = ",";
@@ -93,33 +87,8 @@ public abstract class AbstractTestTools {
     toolchainBuilders.put("legacy"     , new LegacyToolchainBuilder());
     toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
 
-    testsProperties = new Properties();
-    String filePath = System.getProperty("tests.config");
-
-    if (filePath == null) {
-      throw new TestConfigurationException(
-          "Configuration file not specified. It must be passed with -Dtests.config on command"
-          + "line.");
-    }
-
-    File propertyFile;
-    propertyFile = new File(filePath);
-    if (!propertyFile.isAbsolute()) {
-      propertyFile =
-          new File(System.getenv("user.dir") , filePath);
-    }
-
-    if (!propertyFile.exists()) {
-      throw new TestConfigurationException("Configuration file not found: '" + filePath + "'");
-    }
-
     try {
-      testsProperties.load(new FileInputStream(propertyFile));
-      runtimes.addAll(parseRuntimeList(testsProperties.getProperty(RUNTIME_LIST_KEY)));
-    } catch (FileNotFoundException e) {
-      throw new TestConfigurationException(e);
-    } catch (IOException e) {
-      throw new TestConfigurationException(e);
+      runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
     } catch (SecurityException e) {
       throw new TestConfigurationException(e);
     } catch (IllegalArgumentException e) {
@@ -128,12 +97,6 @@ public abstract class AbstractTestTools {
       throw new TestConfigurationException(e);
     }
 
-    String jackHome = testsProperties.getProperty("jack.home");
-
-    if (jackHome == null) {
-      throw new TestConfigurationException("'jack.home' property is not set");
-    }
-    JACK_ROOT_DIR = new File(jackHome);
   }
 
   private interface ToolchainBuilder {
@@ -182,7 +145,7 @@ public abstract class AbstractTestTools {
     String prebuiltPath;
 
     try {
-      prebuiltPath = getProperty(prebuiltVarName);
+      prebuiltPath = TestsProperties.getProperty(prebuiltVarName);
     } catch (TestConfigurationException e) {
       throw new TestConfigurationException(
           "Cannot find path for prebuilt '" + prebuiltName + "'", e);
@@ -190,7 +153,7 @@ public abstract class AbstractTestTools {
 
     File result = new File(prebuiltPath);
     if (!result.isAbsolute()) {
-      result = new File(getJackRootDir(), prebuiltPath);
+      result = new File(TestsProperties.getJackRootDir(), prebuiltPath);
     }
 
     if (!result.exists()) {
@@ -202,13 +165,9 @@ public abstract class AbstractTestTools {
 
 
   @Nonnull
-  public static final File getJackRootDir() {
-    return JACK_ROOT_DIR;
-  }
-
-  @Nonnull
   private static final File getTestsRootDir() {
-    return new File(getJackRootDir(), JACK_TESTS_FOLDER + File.separator + "tests");
+    return new File(TestsProperties.getJackRootDir(),
+        JACK_TESTS_FOLDER + File.separator + "tests");
   }
 
   @Nonnull
@@ -273,16 +232,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   private static IToolchain createToolchain(@Nonnull String propertyName) {
-    return getToolchainBuilder(getProperty(propertyName)).build();
-  }
-
-  @Nonnull
-  private static String getProperty(@Nonnull String key) {
-    String value = testsProperties.getProperty(key);
-    if (value == null) {
-      throw new TestConfigurationException("Undefined property : '" + key + "'");
-    }
-    return value;
+    return getToolchainBuilder(TestsProperties.getProperty(propertyName)).build();
   }
 
   @Nonnull
@@ -363,11 +313,6 @@ public abstract class AbstractTestTools {
       }
     }
     return classpathStr.toString();
-  }
-
-  @Nonnull
-  public static Properties getGlobalProperties() {
-    return testsProperties;
   }
 
   @Nonnull
@@ -570,7 +515,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File getRuntimeEnvironmentRootDir(@Nonnull String rtName) {
-    String rtLocationPath = testsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+    String rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
 
     if (rtLocationPath == null) {
       throw new TestConfigurationException(
@@ -589,4 +534,5 @@ public abstract class AbstractTestTools {
 
     return rtLocation;
   }
+
 }

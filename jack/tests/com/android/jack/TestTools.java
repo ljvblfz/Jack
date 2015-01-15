@@ -31,6 +31,7 @@ import com.android.jack.shrob.ListingComparator;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
@@ -69,10 +70,10 @@ import javax.annotation.Nonnull;
 public class TestTools {
 
   @Nonnull
-  private static final String JACK_UNIT_TESTS_PATH = "toolchain/jack/jack/tests/";
+  private static final String JACK_UNIT_TESTS_PATH = "jack/tests/";
 
   @Nonnull
-  private static final String JACK_TESTS_PATH = "toolchain/jack/jack-tests/tests/";
+  private static final String JACK_TESTS_PATH = "jack-tests/tests/";
 
   @Nonnull
   private static final String JACK_PACKAGE = "com/android/jack/";
@@ -110,32 +111,36 @@ public class TestTools {
 
   @Nonnull
   public static File getJackTestsWithJackFolder(@Nonnull String testName) {
-    return getFromAndroidTree(JACK_TESTS_PATH + JACK_PACKAGE + testName + "/jack");
+    return new File(getJackTestFolder(testName), "jack");
   }
 
   @Nonnull
   public static File getJackTestFolder(@Nonnull String testName) {
-    return getFromAndroidTree(JACK_TESTS_PATH + JACK_PACKAGE + testName);
+    return new File(TestsProperties.getJackRootDir(),
+        JACK_TESTS_PATH + JACK_PACKAGE + testName);
   }
 
   @Nonnull
   public static File getJackTestFromBinaryName(@Nonnull String signature) {
-    return getFromAndroidTree(JACK_TESTS_PATH + signature + ".java");
+    return new File(TestsProperties.getJackRootDir(), JACK_TESTS_PATH +
+        signature + ".java");
   }
 
   @Nonnull
   public static File getJackTestLibFolder(@Nonnull String testName) {
-    return getFromAndroidTree(JACK_TESTS_PATH + JACK_PACKAGE + testName + "/lib");
+    return new File(getJackTestFolder(testName), "lib");
   }
 
   @Nonnull
   public static File getJackUnitTestSrc(@Nonnull String path) {
-    return getFromAndroidTree(JACK_UNIT_TESTS_PATH + path);
+    return new File(TestsProperties.getJackRootDir(),
+        JACK_UNIT_TESTS_PATH + path);
   }
 
   @Nonnull
   public static File getJackUnitTestFromBinaryName(@Nonnull String signature) {
-    return getFromAndroidTree(JACK_UNIT_TESTS_PATH + signature + ".java");
+    return new File(TestsProperties.getJackRootDir(),
+        JACK_UNIT_TESTS_PATH + signature + ".java");
   }
 
   @Nonnull
@@ -150,7 +155,7 @@ public class TestTools {
 
   @Nonnull
   public static Sourcelist getSourcelistWithAbsPath(@Nonnull String fileName) {
-    File sourcelist = new File(getAndroidTop(), fileName);
+    File sourcelist = new File(TestsProperties.getAndroidRootDir(), fileName);
 
     if (!sourcelist.exists()) {
       throw new AssertionError("Failed to locate sourcelist for \"" + fileName + "\".");
@@ -164,7 +169,8 @@ public class TestTools {
 
       String line;
       while ((line = inBr.readLine()) != null) {
-        outBr.write(getAndroidTop() + File.separator + line + TextUtils.LINE_SEPARATOR);
+        outBr.write(TestsProperties.getAndroidRootDir().getPath() + File.separator + line
+            + TextUtils.LINE_SEPARATOR);
       }
 
       outBr.close();
@@ -196,7 +202,7 @@ public class TestTools {
 
   @Nonnull
   public static File getFromAndroidTree(@Nonnull String filePath) {
-    File sourceFile = new File(getAndroidTop(), filePath);
+    File sourceFile = new File(TestsProperties.getAndroidRootDir(), filePath);
     if (!sourceFile.exists()) {
       throw new AssertionError("Failed to locate file \"" + filePath + "\".");
     }
@@ -259,19 +265,16 @@ public class TestTools {
         "out/host/common/obj/JAVA_LIBRARIES/core-hostdex_intermediates/classes.dex");
   }
 
-
-
   @Nonnull
   public static File[] getDefaultClasspath() {
-    return new File[] {getFromAndroidTree(
-        "toolchain/jack/jack/prebuilts/core-stubs-mini.jack")};
+    return new File[] {
+        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jack")};
   }
 
   @Nonnull
   public static String getDefaultClasspathString() {
-    return getFromAndroidTree(
-        "toolchain/jack/jack/prebuilts/core-stubs-mini.jack")
-          .getAbsolutePath();
+    return new File(TestsProperties.getJackRootDir(),
+        "jack-tests/prebuilts/core-stubs-mini.jack").getAbsolutePath();
   }
 
   @CheckForNull
@@ -493,15 +496,6 @@ public class TestTools {
         true /* emitDebugInfo */);
 
     ListingComparator.compare(refNodeListing, candidateNodeListing);
-  }
-
-  @Nonnull
-  public static String getAndroidTop() {
-    String androidTop = System.getenv("ANDROID_BUILD_TOP");
-    if (androidTop == null) {
-      throw new AssertionError("Failed to locate environment variable ANDROID_BUILD_TOP.");
-    }
-    return androidTop;
   }
 
   @Nonnull

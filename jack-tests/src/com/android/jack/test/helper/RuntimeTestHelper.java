@@ -20,6 +20,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -242,9 +243,9 @@ public class RuntimeTestHelper {
         sources.toArray(new File[sources.size()]));
 
     List<File> rtClasspath = new ArrayList<File>();
-    rtClasspath.add(new File(AbstractTestTools.getJackRootDir(),
+    rtClasspath.add(new File(TestsProperties.getJackRootDir(),
         "jack-tests/prebuilts/core-hostdex.jar"));
-    rtClasspath.add(new File(AbstractTestTools.getJackRootDir(),
+    rtClasspath.add(new File(TestsProperties.getJackRootDir(),
         "jack-tests/prebuilts/junit4-hostdex.jar"));
    if (refPartBinary != null) {
       rtClasspath.add(refPartBinary);
