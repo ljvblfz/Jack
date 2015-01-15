@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,22 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.file.WrongPermissionException;
+
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
 
-
 /**
- * A root of a VFS.
+ * Virtual file of a {@link VFS}.
  */
-public abstract class AbstractVFS implements HasLocation {
+public interface VFile extends VElement {
+  @Nonnull
+  VPath getPath();
 
   @Nonnull
-  @Override
-  public String toString() {
-    return '_' + getLocation().getDescription() + '_';
-  }
+  InputStream openRead() throws WrongPermissionException;
+  @Nonnull
+  OutputStream openWrite() throws WrongPermissionException;
 }

@@ -75,6 +75,55 @@ public class VFSTest {
   }
 
   @Test
+  public void testDirectFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = File.createTempFile("vfs", "dir");
+    String path = file.getAbsolutePath();
+    Assert.assertTrue(file.delete());
+
+    InputOutputVFS directVFS =
+        new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
+            Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
+
+    testOutputVFS(directVFS);
+    testInputVFS(directVFS);
+    directVFS.close();
+
+    FileUtils.deleteDir(file);
+  }
+
+  @Test
+  public void testDeflateFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = File.createTempFile("vfs", "dir");
+    String path = file.getAbsolutePath();
+    Assert.assertTrue(file.delete());
+
+    InputOutputVFS directVFS =
+        new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
+            Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+            | Permission.WRITE)));
+
+    testOutputVFS(directVFS);
+    testInputVFS(directVFS);
+    directVFS.close();
+
+    FileUtils.deleteDir(file);
+  }
+
+  @Test
   public void testInputOutputZipVFS()
       throws NotDirectoryException,
       CannotCreateFileException,

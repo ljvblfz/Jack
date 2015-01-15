@@ -16,12 +16,18 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.location.HasLocation;
+
+import java.io.Closeable;
+
 import javax.annotation.Nonnull;
 
 /**
- * A root of an output VFS.
+ * An output VFS.
  */
-public interface OutputVFS extends VFS {
+public interface OutputVFS extends HasLocation, Closeable {
+  @Nonnull
+  String getPath();
   @Nonnull
   OutputVDir getRootOutputVDir();
 }

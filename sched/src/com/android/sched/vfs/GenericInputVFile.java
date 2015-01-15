@@ -16,19 +16,44 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
 
-import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.Nonnull;
 
 /**
- * A VFS.
+ * An {@link InputVFile} implementation for a {@link GenericInputVFS}.
  */
-public interface VFS extends HasLocation, Closeable {
+public class GenericInputVFile implements InputVFile {
   @Nonnull
-  String getPath();
+  private final VFile file;
 
+  GenericInputVFile(@Nonnull VFile file) {
+    this.file = file;
+  }
+
+  @Override
+  public boolean isVDir() {
+    return false;
+  }
+
+  @Override
   @Nonnull
-  VDir getRootDir();
+  public String getName() {
+    return file.getName();
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return file.getLocation();
+  }
+
+  @Override
+  @Nonnull
+  public InputStream openRead() throws IOException {
+    return file.openRead();
+  }
 }

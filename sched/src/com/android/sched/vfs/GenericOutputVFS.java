@@ -16,19 +16,44 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
 
-import java.io.Closeable;
+import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 /**
- * A VFS.
+ * A {@link OutputVFS} which take a {@link VFS}.
  */
-public interface VFS extends HasLocation, Closeable {
+public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
   @Nonnull
-  String getPath();
+  final VFS vfs;
 
+  public GenericOutputVFS(@Nonnull VFS vfs) {
+    this.vfs  = vfs;
+  }
+
+  @Override
   @Nonnull
-  VDir getRootDir();
+  public OutputVDir getRootOutputVDir() {
+    return new GenericOutputVDir(vfs.getRootDir());
+  }
+
+  @Override
+  @Nonnull
+  public String getPath() {
+    return vfs.getPath();
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return vfs.getLocation();
+  }
+
+  @Override
+  public void close() throws IOException {
+    vfs.close();
+  }
 }
+

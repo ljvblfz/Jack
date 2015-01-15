@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * A root of an input/output VFS.
+ * An input/output VFS.
  */
 public interface InputOutputVFS extends InputVFS, OutputVFS {
   @Nonnull

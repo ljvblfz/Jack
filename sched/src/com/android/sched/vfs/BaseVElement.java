@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,27 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.location.HasLocation;
-
 import javax.annotation.Nonnull;
 
 
 /**
- * A root of a VFS.
+ * A base implementation of a {@link VElement}.
  */
-public abstract class AbstractVFS implements HasLocation {
-
+public abstract class BaseVElement implements VElement {
   @Nonnull
-  @Override
-  public String toString() {
-    return '_' + getLocation().getDescription() + '_';
+  protected BaseVFS<BaseVDir, BaseVFile>  vfs;
+  @Nonnull
+  protected final String name;
+
+  @SuppressWarnings("unchecked")
+  BaseVElement(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs,
+      @Nonnull String name) {
+    this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
+    this.name = name;
+  }
+
+  @SuppressWarnings("unchecked")
+  void changeVFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
+    this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
   }
 }
