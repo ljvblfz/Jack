@@ -232,19 +232,24 @@ public class GrammarActions {
 
   @Nonnull
   static InheritanceSpecification createInheritance(
-      /*@Nonnull*/ String className, @CheckForNull AnnotationSpecification annotationType) {
+      /*@Nonnull*/ String className, boolean hasNameNegator,
+      @CheckForNull AnnotationSpecification annotationType) {
     NameSpecification nameSpec = name(className);
+    nameSpec.setNegator(hasNameNegator);
     return new InheritanceSpecification(nameSpec, annotationType);
   }
 
   @Nonnull
-  static AnnotationSpecification annotation(/*@Nonnull*/ String annotationName) {
-    return new AnnotationSpecification(name(annotationName));
+  static AnnotationSpecification annotation(/*@Nonnull*/ String annotationName,
+      boolean hasNameNegator) {
+    NameSpecification name = name(annotationName);
+    name.setNegator(hasNameNegator);
+    return new AnnotationSpecification(name);
   }
 
   @Nonnull
   static ClassSpecification classSpec(/* @Nonnull */
-      String name, @Nonnull ClassTypeSpecification classType, /* @Nonnull */
+      String name, boolean hasNameNegator, @Nonnull ClassTypeSpecification classType, /* @Nonnull */
       AnnotationSpecification annotation, @Nonnull ModifierSpecification modifier) {
     NameSpecification nameSpec;
     if (name.equals("*")) {
@@ -252,6 +257,7 @@ public class GrammarActions {
     } else {
       nameSpec = name(name);
     }
+    nameSpec.setNegator(hasNameNegator);
     ClassSpecification classSpec = new ClassSpecification(nameSpec, classType, annotation);
     classSpec.setModifier(modifier);
     return classSpec;

@@ -139,11 +139,12 @@ private nonEmptytFilter [FilterSpecification filter]
 private classSpecification returns [ClassSpecification classSpec]
 @init{
   ModifierSpecification modifier = new ModifierSpecification();
+  boolean hasNameNegator = false;
 }
   :
   (annotation)?
   cType=classModifierAndType[modifier]
-  NAME {classSpec = GrammarActions.classSpec($NAME.text, cType, $annotation.annotSpec, modifier);}
+  (NEGATOR {hasNameNegator = true;})? NAME {classSpec = GrammarActions.classSpec($NAME.text, hasNameNegator, cType, $annotation.annotSpec, modifier);}
   (inheritanceSpec=inheritance {classSpec.setInheritance(inheritanceSpec);})?
   members[classSpec]?
   ;
@@ -190,7 +191,10 @@ private member [ClassSpecification classSpec]
   ;
 
 private annotation returns [AnnotationSpecification annotSpec]
-  :  '@' NAME {$annotSpec = GrammarActions.annotation($NAME.text);};
+@init{
+  boolean hasNameNegator = false;
+}
+  :  '@' (NEGATOR {hasNameNegator = true;})? NAME {$annotSpec = GrammarActions.annotation($NAME.text, hasNameNegator);};
 
 private modifiers returns [ModifierSpecification modifiers]
 @init{
@@ -224,9 +228,12 @@ private modifier [ModifierSpecification modifiers]
   ;
 
 private inheritance returns [InheritanceSpecification inheritanceSpec]
+@init{
+  boolean hasNameNegator = false;
+}
   :
   ('extends' | 'implements')
-  annotation? NAME {inheritanceSpec = GrammarActions.createInheritance($NAME.text, $annotation.annotSpec);};
+  annotation? (NEGATOR {hasNameNegator = true;})? NAME {inheritanceSpec = GrammarActions.createInheritance($NAME.text, hasNameNegator, $annotation.annotSpec);};
 
 private arguments returns [String signature]
   :

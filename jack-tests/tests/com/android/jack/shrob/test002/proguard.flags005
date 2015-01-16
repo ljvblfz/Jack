@@ -1,0 +1,3 @@
+-keepclasseswithmembers class * {
+  @!*.NotOverride java.lang.String toString();
+}
