@@ -81,8 +81,3 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
   junit4-jack
 
 include $(BUILD_HOST_JAVA_LIBRARY)
-
-.PHONY: test-sched
-test-sched: PRIVATE_RUN_TESTS := $(LOCAL_PATH)/run-sched-tests
-test-sched: libschedtests $(LOCAL_PATH)/run-sched-tests
-	$(PRIVATE_RUN_TESTS)

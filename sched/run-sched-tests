@@ -16,15 +16,9 @@
 
 CURRENT_DIR=$(dirname $0)
 
-if [ -z "$ANDROID_BUILD_TOP" ] || [ "${ANDROID_BUILD_TOP}+testDefinedButNotSet" = "testDefinedButNotSet" ];
-then
-  echo "Error: environment not set. Please run source build/core/envsetup.sh."
-  exit
-fi
-
-java -cp ${ANDROID_BUILD_TOP}/out/host/linux-x86/framework/junit4-jack.jar:\
-${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/libschedtests_intermediates/classes:\
-${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/schedlib_intermediates/classes:\
-${ANDROID_BUILD_TOP}/out/host/common/obj/JAVA_LIBRARIES/guava-jack_intermediates/classes \
+java -cp ${CURRENT_DIR}/libs/junit4.jar:\
+${CURRENT_DIR}/dist/schedtests-lib.jar:\
+${CURRENT_DIR}/dist/sched-lib.jar:\
+${CURRENT_DIR}/libs/guava-lib.jar \
 org.junit.runner.JUnitCore \
 com.android.sched.AllTests
