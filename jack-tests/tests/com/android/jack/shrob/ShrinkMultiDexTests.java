@@ -77,6 +77,9 @@ public class ShrinkMultiDexTests extends AbstractTest {
 
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    // Otherwise test10_001 cannot work with jill based toolchains
+    env.setWithDebugInfo(true);
     env.setCandidateTestTools(toolchain);
     env.setReferenceTestTools(new DummyToolchain());
     env.setWithDebugInfo(true);

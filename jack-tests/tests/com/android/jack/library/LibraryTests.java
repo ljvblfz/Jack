@@ -18,7 +18,10 @@ package com.android.jack.library;
 
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -35,6 +38,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -81,7 +86,9 @@ public class LibraryTests {
     File lib = createRscLibrary();
     File out = AbstractTestTools.createTempFile("library001", ".jack");
 
-    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JackCliToolchain.class);
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.addStaticLibs(lib);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(out, /* zipFile = */ true,
@@ -100,9 +107,8 @@ public class LibraryTests {
 
   @Nonnull
   private File createEmptyLibrary() throws IOException, Exception {
-    File emptyLib = AbstractTestTools.createTempFile("empty", ".jack");
-
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    File emptyLib = AbstractTestTools.createTempFile("empty", toolchain.getLibraryExtension());
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
     return emptyLib;
@@ -110,10 +116,10 @@ public class LibraryTests {
 
   @Nonnull
   private File createRscLibrary() throws IOException, Exception {
-    File emptyLib = AbstractTestTools.createTempFile("rsc", ".jack");
-
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File emptyLib = AbstractTestTools.createTempFile("rsc", toolchain.getLibraryExtension());
+
     toolchain.addResource(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 

@@ -39,19 +39,17 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     this.jillPrebuilt = jillPrebuilt;
   }
 
-  protected void executeJill(@Nonnull File in, @Nonnull File out, boolean zipFiles) {
+  protected void executeJill(@Nonnull File in, @Nonnull File out) {
     List<String> args = new ArrayList<String>();
     args.add("java");
     args.add("-jar");
     args.add(jillPrebuilt.getAbsolutePath());
-    args.add("--verbose");
-    args.add(String.valueOf(isVerbose));
-    if (zipFiles) {
-      args.add("--container");
-      args.add("zip");
+    if (isVerbose) {
+      args.add("--verbose");
     }
+
     args.add(in.getAbsolutePath());
-    args.add("-o");
+    args.add("--output");
     args.add(out.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));

@@ -38,11 +38,11 @@ public class JackCliToolchain extends JackBasedToolchain {
   protected File jackPrebuilt;
 
   @Nonnull
-  private List<String> extraJackArgs = new ArrayList<String>(0);
+  protected List<String> extraJackArgs = new ArrayList<String>(0);
   @CheckForNull
-  private File incrementalFolder;
+  protected File incrementalFolder;
   @Nonnull
-  private Options.VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
+  protected Options.VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
 
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
@@ -198,7 +198,7 @@ public class JackCliToolchain extends JackBasedToolchain {
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
     List<String> args = new ArrayList<String>();
 
-    libToCommon(args, in);
+    libToCommon(args, getClasspathAsString(), in);
 
     if (zipFile) {
       args.add("--output-dex-zip");
@@ -222,7 +222,7 @@ public class JackCliToolchain extends JackBasedToolchain {
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     List<String> args = new ArrayList<String>();
 
-    libToCommon(args, in);
+    libToCommon(args, getClasspathAsString(), in);
 
     if (zipFiles) {
       args.add("--output-jack");
@@ -242,7 +242,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   }
 
-  private void libToCommon(@Nonnull List<String> args, @Nonnull File[] in) {
+  protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,
+      @Nonnull File[] in) throws Exception {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
@@ -267,9 +268,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     addProperties(properties, args);
 
-    if (classpath.size() > 0) {
+    if (!classpath.equals("")) {
       args.add("--classpath");
-      args.add(getClasspathAsString());
+      args.add(classpath);
     }
 
     if (jarjarRules != null) {
@@ -282,6 +283,12 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(flags.getAbsolutePath());
     }
 
+    libToImportStaticLibs(args, in);
+
+  }
+
+  protected void libToImportStaticLibs(@Nonnull List<String> args, @Nonnull File[] in)
+      throws Exception {
     for (File staticlib : in) {
       args.add("--import");
       args.add(staticlib.getAbsolutePath());
@@ -306,7 +313,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     return this;
   }
 
-  private static void addProperties(@Nonnull Map<String, String> properties,
+  protected static void addProperties(@Nonnull Map<String, String> properties,
       @Nonnull List<String> args) {
     for (Entry<String, String> entry : properties.entrySet()) {
       args.add("-D");
