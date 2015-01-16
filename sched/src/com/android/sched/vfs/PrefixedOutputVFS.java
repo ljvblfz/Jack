@@ -29,6 +29,8 @@ import javax.annotation.Nonnull;
  */
 public class PrefixedOutputVFS extends AbstractOutputVFS {
 
+  private final boolean needsSequentialWriting;
+
   public PrefixedOutputVFS(@Nonnull InputOutputVFS outputVFS, @Nonnull VPath path)
       throws NotDirectoryException, CannotCreateFileException {
     InputOutputVDir previousRootDir = outputVFS.getRootInputOutputVDir();
@@ -39,6 +41,7 @@ public class PrefixedOutputVFS extends AbstractOutputVFS {
       newRootDir = previousRootDir.createOutputVDir(path);
     }
     setRootDir(newRootDir);
+    needsSequentialWriting = outputVFS.needsSequentialWriting();
   }
 
   @Override
@@ -56,5 +59,10 @@ public class PrefixedOutputVFS extends AbstractOutputVFS {
   @Override
   public void close() {
     // do not actually close
+  }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return needsSequentialWriting;
   }
 }

@@ -307,4 +307,9 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
 
     return new DirectNonRootVDir(this, parent, name);
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return false;
+  }
 }

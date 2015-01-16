@@ -40,7 +40,6 @@ import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.PrefixedInputVFS;
 import com.android.sched.vfs.PrefixedOutputVFS;
-import com.android.sched.vfs.SequentialOutputVFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
@@ -117,7 +116,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   @Override
   public boolean needsSequentialWriting() {
-    return baseVFS instanceof SequentialOutputVFS;
+    return baseVFS.needsSequentialWriting();
   }
 
   @Override

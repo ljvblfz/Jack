@@ -138,4 +138,9 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
     dir.changeVFS(this);
     return dir;
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return vfs.needsSequentialWriting();
+  }
 }

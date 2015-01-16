@@ -67,4 +67,9 @@ public class GenericInputOutputVFS extends AbstractVFS implements InputOutputVFS
   public OutputVDir getRootOutputVDir() {
     return new GenericOutputVDir(vfs.getRootDir());
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return vfs.needsSequentialWriting();
+  }
 }

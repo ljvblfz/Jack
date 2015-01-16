@@ -75,4 +75,9 @@ public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputV
   public String getPath() {
     return file.getPath();
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return true;
+  }
 }

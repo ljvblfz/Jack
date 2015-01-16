@@ -55,5 +55,10 @@ public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
   public void close() throws IOException {
     vfs.close();
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return vfs.needsSequentialWriting();
+  }
 }
 

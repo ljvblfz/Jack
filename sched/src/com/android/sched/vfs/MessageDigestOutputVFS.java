@@ -232,4 +232,9 @@ public class MessageDigestOutputVFS extends MessageDigestVFS implements OutputVF
   private synchronized void addFile(@Nonnull MessageDigestOutputVFile file) {
     files.add(file);
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return vfs.needsSequentialWriting();
+  }
 }

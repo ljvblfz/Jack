@@ -31,4 +31,6 @@ public interface VFS extends HasLocation, Closeable {
 
   @Nonnull
   VDir getRootDir();
+
+  boolean needsSequentialWriting();
 }

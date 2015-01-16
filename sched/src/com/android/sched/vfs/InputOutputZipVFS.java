@@ -106,4 +106,9 @@ public class InputOutputZipVFS extends AbstractInputOutputVFS implements InputOu
   synchronized boolean isClosed() {
     return closed;
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return false;
+  }
 }

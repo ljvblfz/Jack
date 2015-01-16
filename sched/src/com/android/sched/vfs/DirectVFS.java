@@ -55,4 +55,9 @@ public class DirectVFS extends AbstractInputOutputVFS implements ParallelOutputV
   public String getPath() {
     return dir.getPath();
   }
+
+  @Override
+  public boolean needsSequentialWriting() {
+    return false;
+  }
 }

@@ -30,4 +30,6 @@ public interface OutputVFS extends HasLocation, Closeable {
   String getPath();
   @Nonnull
   OutputVDir getRootOutputVDir();
+
+  boolean needsSequentialWriting();
 }
