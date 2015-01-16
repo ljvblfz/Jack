@@ -61,17 +61,33 @@ public class VFSTest {
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
-    File file = File.createTempFile("vfs", "dir");
-    String path = file.getAbsolutePath();
-    Assert.assertTrue(file.delete());
+    File file = null;
+    DirectVFS directVFS = null;
+    DirectVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+      directVFS = new DirectVFS(new Directory(path, null, Existence.NOT_EXIST,
+          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE));
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
 
-    DirectVFS directVFS = new DirectVFS(new Directory(path, null, Existence.NOT_EXIST,
-        Permission.WRITE, ChangePermission.NOCHANGE));
-    testOutputVFS(directVFS);
-    testInputVFS(directVFS);
-    directVFS.close();
-
-    FileUtils.deleteDir(file);
+      directVFS2 = new DirectVFS(new Directory(path, null, Existence.MUST_EXIST,
+          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE));
+      testInputVFS(directVFS2);
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
   }
 
   @Test
@@ -83,19 +99,38 @@ public class VFSTest {
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
-    File file = File.createTempFile("vfs", "dir");
-    String path = file.getAbsolutePath();
-    Assert.assertTrue(file.delete());
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
 
-    InputOutputVFS directVFS =
-        new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
-            Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
+      directVFS =
+          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
+              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
 
-    testOutputVFS(directVFS);
-    testInputVFS(directVFS);
-    directVFS.close();
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
 
-    FileUtils.deleteDir(file);
+      directVFS2 =
+          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
+              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
+      testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
   }
 
   @Test
@@ -107,20 +142,40 @@ public class VFSTest {
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
-    File file = File.createTempFile("vfs", "dir");
-    String path = file.getAbsolutePath();
-    Assert.assertTrue(file.delete());
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
 
-    InputOutputVFS directVFS =
-        new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
-            Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
-            | Permission.WRITE)));
+      directVFS =
+          new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
+              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE)));
 
-    testOutputVFS(directVFS);
-    testInputVFS(directVFS);
-    directVFS.close();
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
 
-    FileUtils.deleteDir(file);
+      directVFS2 =
+          new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE)));
+      testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
   }
 
   @Test
@@ -132,20 +187,31 @@ public class VFSTest {
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
-    File file = File.createTempFile("vfs", ".zip");
-    String path = file.getAbsolutePath();
-
-    InputOutputZipVFS zipVFS = new InputOutputZipVFS(
-        new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
-    testOutputVFS(zipVFS);
-    testInputVFS(zipVFS);
-    zipVFS.close();
-
-    InputZipVFS inputZipVFS = new InputZipVFS(
-        new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
-    testInputVFS(inputZipVFS);
-    inputZipVFS.close();
-    Assert.assertTrue(file.delete());
+    File file = null;
+    InputOutputZipVFS zipVFS = null;
+    InputZipVFS inputZipVFS = null;
+    try {
+      file = File.createTempFile("vfs", ".zip");
+      String path = file.getAbsolutePath();
+      zipVFS = new InputOutputZipVFS(
+          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
+      testOutputVFS(zipVFS);
+      testInputVFS(zipVFS);
+      zipVFS.close();
+      inputZipVFS = new InputZipVFS(
+          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      testInputVFS(inputZipVFS);
+    } finally {
+      if (zipVFS != null) {
+        zipVFS.close();
+      }
+      if (inputZipVFS != null) {
+        inputZipVFS.close();
+      }
+      if (file != null) {
+        Assert.assertTrue(file.delete());
+      }
+    }
   }
 
   private void testOutputVFS(@Nonnull InputOutputVFS outputVFS) throws NotDirectoryException,
@@ -194,10 +260,45 @@ public class VFSTest {
     InputVDir dirA = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirA", '/'));
     Collection<? extends InputVElement> dirAElements = dirA.list();
     Assert.assertEquals(3, dirAElements.size());
+    Assert.assertTrue(containsFile(dirAElements, "fileA1", "dirA/fileA1"));
+    Assert.assertTrue(containsFile(dirAElements, "fileA2", "dirA/fileA2"));
+    Assert.assertTrue(containsDir(dirAElements, "dirAA"));
 
     InputVFile fileAAB1 =
         inputVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
     Assert.assertEquals("dirA/dirAA/dirAAB/fileAAB1", readFromFile(fileAAB1));
+
+    InputVDir dirB = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB", '/'));
+    InputVDir dirBA = dirB.getInputVDir(new VPath("dirBA", '/'));
+    InputVFile fileBA1 = dirBA.getInputVFile(new VPath("fileBA1", '/'));
+    Assert.assertEquals("dirB/dirBA/fileBA1", readFromFile(fileBA1));
+
+    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
+    InputVFile fileBB1 = dirBB.getInputVFile(new VPath("fileBB1", '/'));
+    Assert.assertEquals("dirB/dirBB/fileBB1", readFromFile(fileBB1));
+  }
+
+  private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
+      @Nonnull String fileSimpleName, @Nonnull String fileContent) throws IOException {
+    for (VElement element : elements) {
+      if (element.getName().equals(fileSimpleName)) {
+        return !element.isVDir()
+            && fileContent.equals(readFromFile((InputVFile) element));
+      }
+    }
+
+    return false;
+  }
+
+  private boolean containsDir(@Nonnull Collection<? extends InputVElement> elements,
+      @Nonnull String fileSimpleName) {
+    for (VElement element : elements) {
+      if (element.getName().equals(fileSimpleName)) {
+        return element.isVDir();
+      }
+    }
+
+    return false;
   }
 
   private void writeToFile(@Nonnull OutputVFile file, @Nonnull String string) throws IOException {
