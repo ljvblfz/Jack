@@ -23,6 +23,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.Location;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -55,11 +56,19 @@ public class GenericInputOutputVDir implements InputOutputVDir {
     return dir.getLocation();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   @Nonnull
   public Collection<? extends InputVElement> list() {
-    return (Collection<? extends InputVElement>) dir.list();
+    Collection<? extends VElement> vElements = dir.list();
+    Collection<InputVElement> inputVElements = new ArrayList<InputVElement>(vElements.size());
+    for (VElement vElement : vElements) {
+      if (vElement.isVDir()) {
+        inputVElements.add(new GenericInputOutputVDir((VDir) vElement));
+      } else {
+        inputVElements.add(new GenericInputOutputVFile((VFile) vElement));
+      }
+    }
+    return inputVElements;
   }
 
   @Override
