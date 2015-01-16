@@ -117,7 +117,9 @@ public class Directory extends FileOrDirectory {
       logger.log(Level.FINE, "Create {0} (''{1}'')",
           new Object[] {location.getDescription(), file.getAbsoluteFile()});
     } else {
-      throw new CannotCreateFileException(location);
+      if (!file.exists()) {
+        throw new CannotCreateFileException(location);
+      }
     }
   }
 
