@@ -1159,6 +1159,11 @@
     </exec>
   </target>
 
+  <property name="test-sched.script" location="${sched.dir}/run-sched-tests" />
+  <target name="test-sched" depends="schedtests-lib" >
+    <exec executable="${test-sched.script}" failonerror="true" />
+  </target>
+
 </project>
 
 
