@@ -232,9 +232,9 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
     ArrayList<BaseVElement> items = new ArrayList<BaseVElement>(subs.length);
     for (File sub : subs) {
       if (sub.isFile()) {
-        items.add(new DirectNonRootVDir(this, dir, sub.getName()));
-      } else {
         items.add(new DirectVFile(this, dir, sub.getName()));
+      } else {
+        items.add(new DirectNonRootVDir(this, dir, sub.getName()));
       }
     }
 
