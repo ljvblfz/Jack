@@ -19,14 +19,18 @@ package com.android.jack.incremental;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
+import com.android.jack.analysis.dependency.Dependency;
 import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.analysis.dependency.file.FileDependenciesInLibraryWriter;
+import com.android.jack.analysis.dependency.library.LibraryDependencies;
+import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
-import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryReadingException;
@@ -34,6 +38,7 @@ import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotDeleteFileException;
@@ -53,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -101,10 +107,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private final InputJackLibrary incrementalInputLibrary;
 
   @CheckForNull
-  private FileDependencies fileDependencies;
+  private final LibraryDependencies libraryDependencies = new LibraryDependencies();
 
   @CheckForNull
-  private TypeDependencies typeDependencies;
+  private final FileDependencies fileDependencies = new FileDependencies();
+
+  @CheckForNull
+  private final TypeDependencies typeDependencies = new TypeDependencies();
 
   @Nonnull
   private final Set<String> fileNamesOnCmdLine;
@@ -124,26 +133,36 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final Set<String> filesToRecompile;
 
-  public IncrementalInputFilter(@Nonnull Options options) {
+  @Nonnull
+  private final List<InputLibrary> importedLibrariesFromCommandLine;
+
+  @Nonnull
+  private final List<InputLibrary> librariesOnClasspathFromCommandLine;
+
+  public IncrementalInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
+    super(hooks);
     this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
     fileNamesOnCmdLine = getJavaFileNamesSpecifiedOnCommandLine(options);
 
     tracer.getStatistic(IncrementalInputFilter.SOURCE_FILES).incValue(fileNamesOnCmdLine.size());
 
+    JSession session = Jack.getSession();
     if (incrementalInputLibrary != null) {
       try {
-        fileDependencies = getFileDependencies(incrementalInputLibrary);
-        typeDependencies = getTypeDependencies(incrementalInputLibrary);
+        fillDependencies(incrementalInputLibrary, FileDependencies.vpath, fileDependencies);
+        fillDependencies(incrementalInputLibrary, TypeDependencies.vpath, typeDependencies);
+        fillDependencies(incrementalInputLibrary, LibraryDependencies.vpath,
+            libraryDependencies);
       } catch (CannotReadException e) {
         LibraryReadingException reportable = new LibraryReadingException(
             new LibraryFormatException(incrementalInputLibrary.getLocation()));
-        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        session.getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       } catch (FileTypeDoesNotExistException e) {
         LibraryReadingException reportable = new LibraryReadingException(
             new LibraryFormatException(incrementalInputLibrary.getLocation()));
-        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        session.getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       }
 
@@ -152,13 +171,19 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillDeletedFileNames(deletedFileNames);
     }
 
+    importedLibrariesFromCommandLine =
+        getInputLibrariesFromFiles(options.getImportedLibraries(), true);
+    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
+        ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
+    session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
+    session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
     filesToRecompile = getInternalFileNamesToCompile();
   }
 
   @Override
   @Nonnull
-  public List<File> getClasspath() {
-    return options.getClasspath();
+  public List<InputLibrary> getClasspath() {
+    return librariesOnClasspathFromCommandLine;
   }
 
   @Override
@@ -202,30 +227,32 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
   }
 
-  private void updateLibrary() throws IncrementalException {
-    assert fileDependencies != null;
-    assert typeDependencies != null;
+  private void updateIncrementalState()
+      throws IncrementalException {
+    if (incrementalInputLibrary != null) {
+      assert fileDependencies != null;
+      assert typeDependencies != null;
+      assert libraryDependencies != null;
 
-    for (String fileToRecompile : getFileNamesToCompile()) {
-      deleteOldFilesFromJavaFiles(fileToRecompile);
+      for (String fileToRecompile : getFileNamesToCompile()) {
+        deleteOldFilesFromJavaFiles(fileToRecompile);
+      }
+
+      for (String deletedFileName : deletedFileNames) {
+        deleteOldFilesFromJavaFiles(deletedFileName);
+      }
+
+      typeDependencies.update(fileDependencies, deletedFileNames, modifiedFileNames);
+      fileDependencies.update(deletedFileNames, modifiedFileNames);
+
+      OutputJackLibrary outputLibrary = getOutputJackLibrary();
+      FileDependenciesInLibraryWriter.write(outputLibrary, fileDependencies);
+      TypeDependenciesInLibraryWriter.write(outputLibrary, typeDependencies);
+      LibraryDependenciesInLibraryWriter.write(outputLibrary, libraryDependencies);
+
+      Jack.getSession().setFileDependencies(fileDependencies);
+      Jack.getSession().setTypeDependencies(typeDependencies);
     }
-
-    for (String deletedFileName : deletedFileNames) {
-      deleteOldFilesFromJavaFiles(deletedFileName);
-    }
-
-    typeDependencies.update(fileDependencies, deletedFileNames, modifiedFileNames);
-    fileDependencies.update(deletedFileNames, modifiedFileNames);
-
-    OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(
-        ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR), Jack.getEmitterId(),
-        Jack.getVersionString());
-
-    FileDependenciesInLibraryWriter.write(outputLibrary, fileDependencies);
-    TypeDependenciesInLibraryWriter.write(outputLibrary, typeDependencies);
-
-    Jack.getSession().setFileDependencies(fileDependencies);
-    Jack.getSession().setTypeDependencies(typeDependencies);
   }
 
   private void deleteOldFilesFromJavaFiles(@Nonnull String javaFileName)
@@ -265,47 +292,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       return false;
     }
 
-    long timestamp = new File(options.getOutputDir(), DexFileWriter.DEX_FILENAME).lastModified();
-
-    for (File lib : options.getClasspath()) {
-      if (isModifiedLibrary(lib, timestamp)) {
-        return true;
-      }
-    }
-
-    for (File importedJackFiles : options.getImportedLibraries()) {
-      if (isModifiedLibrary(importedJackFiles, timestamp)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private boolean isModifiedLibrary(@Nonnull File inputLibrary, long timestamp) {
-    if (inputLibrary.isFile() && (inputLibrary.lastModified() > timestamp)) {
-      return true;
-    } else if (inputLibrary.isDirectory() && hasModifiedFile(inputLibrary, timestamp)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  private boolean hasModifiedFile(@Nonnull File inputLibrary, long timestamp) {
-    assert inputLibrary.isDirectory();
-
-    for (File f : inputLibrary.listFiles()) {
-      if (f.isDirectory()) {
-        if (hasModifiedFile(f, timestamp)) {
-          return true;
-        }
-      } else if (f.lastModified() > timestamp) {
-          return true;
-      }
-    }
-
-    return false;
+    JSession session = Jack.getSession();
+    assert libraryDependencies != null;
+    return
+        !libraryDependencies.hasSameLibraryOnClasspath(session.getLibraryDependencies())
+        || !libraryDependencies.hasSameImportedLibrary(session.getLibraryDependencies());
   }
 
   @Nonnull
@@ -396,19 +387,18 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   }
 
   @Nonnull
-  private FileDependencies getFileDependencies(@Nonnull InputJackLibrary library)
+  private void fillDependencies(@Nonnull InputJackLibrary library, @Nonnull VPath dependencyVPath,
+      @Nonnull Dependency dependency)
       throws CannotReadException, FileTypeDoesNotExistException {
-    InputVFile fileDependenciesVFile =
-        library.getFile(FileType.DEPENDENCIES, FileDependencies.vpath);
-
-
-    FileDependencies fileDependencies = new FileDependencies();
+    InputVFile dependenciesVFile = library.getFile(FileType.DEPENDENCIES, dependencyVPath);
     InputStreamReader fileReader = null;
     try {
-      fileReader = new InputStreamReader(fileDependenciesVFile.openRead());
-      fileDependencies.read(fileReader);
+      fileReader = new InputStreamReader(dependenciesVFile.openRead());
+      dependency.read(fileReader);
+    } catch (NoSuchElementException e) {
+      throw new CannotReadException(dependenciesVFile.getLocation(), e);
     } catch (IOException e) {
-      throw new CannotReadException(fileDependenciesVFile.getLocation(), e);
+      throw new CannotReadException(dependenciesVFile.getLocation(), e);
     } finally {
       if (fileReader != null) {
         try {
@@ -417,54 +407,30 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         }
       }
     }
-
-    return fileDependencies;
-  }
-
-  @Nonnull
-  private TypeDependencies getTypeDependencies(@Nonnull InputJackLibrary library)
-      throws CannotReadException, FileTypeDoesNotExistException {
-    InputVFile typeDependenciesVFile =
-        library.getFile(FileType.DEPENDENCIES, TypeDependencies.vpath);
-
-    TypeDependencies typeDependencies = new TypeDependencies();
-    InputStreamReader fileReader = null;
-    try {
-      fileReader = new InputStreamReader(typeDependenciesVFile.openRead());
-      typeDependencies.read(fileReader);
-    } catch (IOException e) {
-      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
-    } finally {
-      if (fileReader != null) {
-        try {
-          fileReader.close();
-        } catch (IOException e) {
-        }
-      }
-    }
-
-    return typeDependencies;
   }
 
   @Override
   @Nonnull
-  public List<File> getImportedLibrary() {
+  public List<InputLibrary> getImportedLibrary() {
+    List<InputLibrary> inputLibraries =
+        new ArrayList<InputLibrary>(importedLibrariesFromCommandLine);
+
     if (incrementalInputLibrary == null || needFullRebuild()) {
       Jack.getSession().setFileDependencies(new FileDependencies());
       Jack.getSession().setTypeDependencies(new TypeDependencies());
-      return options.getImportedLibraries();
+      return inputLibraries;
     }
 
     try {
-      updateLibrary();
+      updateIncrementalState();
     } catch (IncrementalException e) {
       Jack.getSession().getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
     }
 
-    List<File> importedJackLibrary = new ArrayList<File>(options.getImportedLibraries());
-    importedJackLibrary.add(options.getIncrementalFolder());
-    return importedJackLibrary;
+    inputLibraries.add(incrementalInputLibrary);
+
+    return inputLibraries;
   }
 
   @Override

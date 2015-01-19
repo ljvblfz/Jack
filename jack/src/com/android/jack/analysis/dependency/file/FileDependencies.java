@@ -81,7 +81,7 @@ public class FileDependencies extends Dependency {
 
   public void write(@Nonnull PrintStream ps) {
     writeMapOne2Many(ps, javaFileToTypes);
-    ps.print(Dependency.MAP_SEPARATOR);
+    ps.print(Dependency.END_OF_MAP);
     ps.println();
   }
 
@@ -110,6 +110,7 @@ public class FileDependencies extends Dependency {
     return Jack.getUnmodifiableCollections().getUnmodifiableSet(javaFileToTypes.keySet());
   }
 
+  @Override
   @Nonnull
   public void read(@Nonnull Readable reader) throws IOException {
     javaFileToTypes = readMapOne2Many(new LineReader(reader));

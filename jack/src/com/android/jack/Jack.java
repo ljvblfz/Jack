@@ -26,6 +26,7 @@ import com.android.jack.analysis.defsuses.UseDefsChecker;
 import com.android.jack.analysis.dependency.DependencyInLibraryProduct;
 import com.android.jack.analysis.dependency.file.FileDependenciesCollector;
 import com.android.jack.analysis.dependency.file.FileDependenciesInLibraryWriter;
+import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
@@ -105,7 +106,6 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
-import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.resource.ResourceImporter;
@@ -303,26 +303,6 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public abstract class Jack {
-  private static final class ClasspathEntryIgnoredReportable implements Reportable {
-    @Nonnull
-    private final Exception cause;
-
-    private ClasspathEntryIgnoredReportable(@Nonnull Exception cause) {
-      this.cause = cause;
-    }
-
-    @Override
-    @Nonnull
-    public String getMessage() {
-      return "Bad classpath entry ignored: " + cause.getMessage();
-    }
-
-    @Override
-    @Nonnull
-    public ProblemLevel getDefaultProblemLevel() {
-      return ProblemLevel.WARNING;
-    }
-  }
 
   static {
     LoggerFactory.loadLoggerConfiguration(Jack.class, "/initial.logging.properties");
@@ -685,7 +665,16 @@ public abstract class Jack {
     List<String> ecjArguments = options.ecjArguments;
 
     JSession session =  getSession();
-    session.setInputFilter(ThreadConfig.get(Options.INPUT_FILTER).create(options));
+    try {
+      session.setInputFilter(ThreadConfig.get(Options.INPUT_FILTER).create(options, hooks));
+    } catch (RuntimeException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof JackAbortException) {
+        throw (JackAbortException) cause;
+      } else {
+        throw e;
+      }
+    }
 
     try {
       getMetaImporter(options.metaImport, hooks).doImport(session);
@@ -694,14 +683,23 @@ public abstract class Jack {
       throw new JackAbortException(e);
     }
 
-    JayceFileImporter jayceImporter;
-    try {
-      jayceImporter =
-          getJayceFileImporter(session.getInputFilter().getImportedLibrary(), hooks, session);
-      putInJackClasspath(session.getInputFilter().getClasspath(), hooks, session);
-    } catch (LibraryReadingException e) {
-      session.getReporter().report(Severity.FATAL, e);
-      throw new JackAbortException(e);
+    List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
+    for (InputLibrary library : session.getInputFilter().getImportedLibrary()) {
+      if (library instanceof InputJackLibrary) {
+        addPackageLoaderForLibrary(session, ThreadConfig.get(IMPORT_POLICY),
+            (InputJackLibrary) library);
+        inputJackLibraries.add((InputJackLibrary) library);
+        session.addImportedLibrary(library);
+      }
+    }
+    JayceFileImporter jayceImporter = new JayceFileImporter(inputJackLibraries);
+
+    for (InputLibrary library : session.getInputFilter().getClasspath()) {
+      if (library instanceof InputJackLibrary) {
+        addPackageLoaderForLibrary(session, ThreadConfig.get(CLASSPATH_POLICY),
+            (InputJackLibrary) library);
+        session.addLibraryOnClasspath(library);
+      }
     }
 
     if (ecjArguments != null) {
@@ -722,7 +720,6 @@ public abstract class Jack {
         event.end();
       }
     }
-
 
     try {
       getResourceImporter(options.resImport, hooks).doImport(session);
@@ -811,36 +808,6 @@ public abstract class Jack {
     return new JayceFileImporter(inputJackLibraries);
   }
 
-  private static void putInJackClasspath(@Nonnull List<File> jackFiles,
-      @Nonnull RunnableHooks hooks,
-      @Nonnull JSession session) throws LibraryReadingException {
-    ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(CLASSPATH_POLICY);
-    for (final File jackFile : jackFiles) {
-      try {
-        InputVFS vDir = wrapAsVDir(jackFile, hooks);
-        InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
-        addPackageLoaderForLibrary(session, factory, inputJackLibrary);
-        session.addLibraryOnClasspath(inputJackLibrary);
-      } catch (IOException ioException) {
-        if (ThreadConfig.get(STRICT_CLASSPATH).booleanValue()) {
-          throw new LibraryReadingException(ioException);
-        } else {
-          // Ignore bad entry
-          session.getReporter().report(Severity.NON_FATAL,
-              new ClasspathEntryIgnoredReportable(ioException));
-        }
-      } catch (LibraryException e) {
-        if (ThreadConfig.get(STRICT_CLASSPATH).booleanValue()) {
-          throw new LibraryReadingException(e);
-        } else {
-          // Ignore bad entry
-          session.getReporter().report(Severity.NON_FATAL,
-              new ClasspathEntryIgnoredReportable(e));
-        }
-      }
-    }
-  }
-
   private static void addPackageLoaderForLibrary(JSession session,
       ReflectFactory<JaycePackageLoader> factory, InputJackLibrary inputJackLibrary) {
     if (inputJackLibrary.containsFileType(FileType.JAYCE)) {
@@ -851,8 +818,8 @@ public abstract class Jack {
   }
 
   @Nonnull
-  private static InputVFS wrapAsVDir(@Nonnull final File dirOrZip,
-      @Nonnull RunnableHooks hooks)
+  public static InputVFS wrapAsVDir(@Nonnull final File dirOrZip,
+      @CheckForNull RunnableHooks hooks)
       throws IOException {
     final InputVFS vfs;
     if (dirOrZip.isDirectory()) {
@@ -863,16 +830,18 @@ public abstract class Jack {
           ChangePermission.NOCHANGE));
     }
 
-    hooks.addHook(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          vfs.close();
-        } catch (IOException e) {
-          logger.log(Level.FINE, "Failed to close vfs for '" + dirOrZip + "'.", e);
+    if (hooks != null) {
+      hooks.addHook(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            vfs.close();
+          } catch (IOException e) {
+            logger.log(Level.FINE, "Failed to close vfs for '" + dirOrZip + "'.", e);
+          }
         }
-      }
-    });
+      });
+    }
 
     return vfs;
   }
@@ -1225,6 +1194,7 @@ public abstract class Jack {
     if (productions.contains(DependencyInLibraryProduct.class)) {
       planBuilder.append(TypeDependenciesInLibraryWriter.class);
       planBuilder.append(FileDependenciesInLibraryWriter.class);
+      planBuilder.append(LibraryDependenciesInLibraryWriter.class);
     }
 
     if (productions.contains(Mapping.class)) {
