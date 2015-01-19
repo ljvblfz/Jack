@@ -27,8 +27,6 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 
 import java.io.File;
-import java.io.FilterOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -67,15 +65,7 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Override
   public OutputStream openWrite() throws CannotCreateFileException, WrongPermissionException,
       NotFileException {
-    if (vfs instanceof SequentialOutputVFS) {
-      if (((SequentialOutputVFS) vfs).notifyVFileOpenAndReturnPreviousState()) {
-        throw new AssertionError(getLocation().getDescription()
-            + " cannot be written to because a previous stream has not been closed.");
-      }
-    }
-
-    return new VFileOutputStream(new OutputStreamFile(file.getPath(), null).getOutputStream(),
-        vfs);
+    return new OutputStreamFile(file.getPath(), null).getOutputStream();
   }
 
   @Nonnull
@@ -93,33 +83,5 @@ public class DirectFile extends AbstractVElement implements InputOutputVFile {
   @Override
   public boolean isVDir() {
     return false;
-  }
-
-  private static class VFileOutputStream extends FilterOutputStream {
-
-    private final OutputVFS vfs;
-
-    public VFileOutputStream(@Nonnull OutputStream out, @Nonnull OutputVFS vfs) {
-      super(out);
-      this.vfs = vfs;
-    }
-
-    @Override
-    public void close() throws IOException {
-      super.close();
-      if (vfs instanceof SequentialOutputVFS) {
-        ((SequentialOutputVFS) vfs).notifyVFileClosed();
-      }
-    }
-
-    @Override
-    public void write(byte[] b) throws IOException {
-      out.write(b);
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-      out.write(b, off, len);
-    }
   }
 }

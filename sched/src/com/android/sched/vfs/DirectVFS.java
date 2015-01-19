@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * A VFS directory backed by a real filesystem directory.
  */
-public class DirectVFS extends AbstractInputOutputVFS implements ParallelOutputVFS {
+public class DirectVFS extends AbstractInputOutputVFS {
   @Nonnull
   private final Directory dir;
 

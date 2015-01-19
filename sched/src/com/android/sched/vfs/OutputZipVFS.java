@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 /**
  * A root {@link OutputVDir} backed by a zip archive.
  */
-public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputVFS {
+public class OutputZipVFS extends AbstractOutputVFS {
   @Nonnull
   protected final ZipOutputStream zos;
   @Nonnull
@@ -43,14 +43,12 @@ public class OutputZipVFS extends AbstractOutputVFS implements SequentialOutputV
     this.file = file;
   }
 
-  @Override
-  public void notifyVFileClosed() {
+  void notifyVFileClosed() {
     boolean previousState = lastVFileOpen.getAndSet(false);
     assert previousState;
   }
 
-  @Override
-  public boolean notifyVFileOpenAndReturnPreviousState() {
+  boolean notifyVFileOpenAndReturnPreviousState() {
     return lastVFileOpen.getAndSet(true);
   }
 

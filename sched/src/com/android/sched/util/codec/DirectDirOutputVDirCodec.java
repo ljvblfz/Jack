@@ -19,15 +19,15 @@ package com.android.sched.util.codec;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.ParallelOutputVFS;
+import com.android.sched.vfs.OutputVFS;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link ParallelOutputVFS} backed by
- * a filesystem directory.
+ * This {@link StringCodec} is used to create an instance of {@link OutputVFS} backed by a
+ * filesystem directory.
  */
 public class DirectDirOutputVDirCodec extends OutputVDirCodec {
   public DirectDirOutputVDirCodec(@Nonnull Existence existence) {
@@ -42,7 +42,7 @@ public class DirectDirOutputVDirCodec extends OutputVDirCodec {
 
   @Override
   @Nonnull
-  public ParallelOutputVFS checkString(@Nonnull CodecContext context,
+  public OutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
       return new DirectVFS(
