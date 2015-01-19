@@ -290,6 +290,51 @@ public class VFSTest {
   }
 
   @Test
+  public void testPrefixFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      directVFS =
+          new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
+              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE), new VPath("stuff", '/')));
+
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
+
+      directVFS2 =
+          new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE), new VPath("stuff", '/')));
+      testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
   public void testInputOutputZipVFS()
       throws NotDirectoryException,
       CannotCreateFileException,
