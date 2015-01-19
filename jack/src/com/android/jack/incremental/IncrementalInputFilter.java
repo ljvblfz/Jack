@@ -72,10 +72,9 @@ import javax.annotation.Nonnull;
 public class IncrementalInputFilter extends CommonFilter implements InputFilter {
 
   @Nonnull
-  public static final StatisticId<Counter> RECOMPILED_FILES = new StatisticId<Counter>(
-  "jack.incremental.source.recompiled",
-  "Source files that must be recompiled from the previous incremental compilation",
-  CounterImpl.class, Counter.class);
+  public static final StatisticId<Counter> COMPILED_FILES = new StatisticId<Counter>(
+      "jack.incremental.source.compiled", "Source files that will be compile", CounterImpl.class,
+      Counter.class);
 
   @Nonnull
   public static final StatisticId<Counter> MODIFIED_FILES = new StatisticId<Counter>(
@@ -197,6 +196,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     InputJackLibrary incrementalInputLibrary = getIncrementalInternalLibrary();
 
     if (incrementalInputLibrary == null || needFullRebuild()) {
+      tracer.getStatistic(IncrementalInputFilter.COMPILED_FILES).incValue(
+          fileNamesOnCmdLine.size());
       return fileNamesOnCmdLine;
     }
 
@@ -212,7 +213,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     addDependencies(filesToRecompile, typeRecompileDependencies, modifiedFileNames);
     addDependencies(filesToRecompile, typeRecompileDependencies, deletedFileNames);
 
-    tracer.getStatistic(IncrementalInputFilter.RECOMPILED_FILES).incValue(filesToRecompile.size());
+    tracer.getStatistic(IncrementalInputFilter.COMPILED_FILES).incValue(filesToRecompile.size());
 
     return filesToRecompile;
   }
