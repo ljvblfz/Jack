@@ -105,13 +105,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @CheckForNull
   private final InputJackLibrary incrementalInputLibrary;
 
-  @CheckForNull
+  @Nonnull
   private final LibraryDependencies libraryDependencies = new LibraryDependencies();
 
-  @CheckForNull
+  @Nonnull
   private final FileDependencies fileDependencies = new FileDependencies();
 
-  @CheckForNull
+  @Nonnull
   private final TypeDependencies typeDependencies = new TypeDependencies();
 
   @Nonnull
@@ -193,15 +193,12 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Nonnull
   private Set<String> getInternalFileNamesToCompile() {
-    InputJackLibrary incrementalInputLibrary = getIncrementalInternalLibrary();
-
-    if (incrementalInputLibrary == null || needFullRebuild()) {
+    if (needFullBuild()) {
       tracer.getStatistic(IncrementalInputFilter.COMPILED_FILES).incValue(
           fileNamesOnCmdLine.size());
       return fileNamesOnCmdLine;
     }
 
-    assert typeDependencies != null;
     Map<String, Set<String>> typeRecompileDependencies =
         typeDependencies.getRecompileDependencies();
 
@@ -231,10 +228,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private void updateIncrementalState()
       throws IncrementalException {
     if (incrementalInputLibrary != null) {
-      assert fileDependencies != null;
-      assert typeDependencies != null;
-      assert libraryDependencies != null;
-
       for (String fileToRecompile : getFileNamesToCompile()) {
         deleteOldFilesFromJavaFiles(fileToRecompile);
       }
@@ -258,7 +251,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   private void deleteOldFilesFromJavaFiles(@Nonnull String javaFileName)
       throws IncrementalException {
-    assert fileDependencies != null;
     List<String> deletedTypes = new ArrayList<String>();
     for (String typeNameToRemove : fileDependencies.getTypeNames(javaFileName)) {
       if (!deletedTypes.contains(typeNameToRemove)) {
@@ -285,17 +277,16 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   }
 
   /*
-   * A full rebuild is needed when an imported library was modified or when a library from classpath
-   * was modified.
+   * A full build is needed when an imported library was modified or when a library from classpath
+   * was modified or that the library representing incremental state does not exists.
    */
-  private boolean needFullRebuild() {
+  private boolean needFullBuild() {
     if (!options.isAutomaticFullRebuildEnabled()) {
       return false;
     }
 
     JSession session = Jack.getSession();
-    assert libraryDependencies != null;
-    return
+    return incrementalInputLibrary == null ||
         !libraryDependencies.hasSameLibraryOnClasspath(session.getLibraryDependencies())
         || !libraryDependencies.hasSameImportedLibrary(session.getLibraryDependencies());
   }
@@ -416,7 +407,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     List<InputLibrary> inputLibraries =
         new ArrayList<InputLibrary>(importedLibrariesFromCommandLine);
 
-    if (incrementalInputLibrary == null || needFullRebuild()) {
+    if (needFullBuild()) {
       Jack.getSession().setFileDependencies(new FileDependencies());
       Jack.getSession().setTypeDependencies(new TypeDependencies());
       return inputLibraries;
