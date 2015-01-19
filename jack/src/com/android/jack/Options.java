@@ -660,8 +660,11 @@ public class Options {
 
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
-        LoggerFactory.getLogger().log(Level.INFO,
+        LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disable due to multi-dex legacy mode");
+      } else if (flags != null) {
+        LoggerFactory.getLogger().log(Level.WARNING,
+            "Incremental mode is disable due to usage of shrink or obfuscation");
       } else {
         configBuilder.set(Options.INCREMENTAL_MODE, true);
         configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
