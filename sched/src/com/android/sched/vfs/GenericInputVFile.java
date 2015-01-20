@@ -21,6 +21,7 @@ import com.android.sched.util.location.Location;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -55,5 +56,10 @@ public class GenericInputVFile implements InputVFile {
   @Nonnull
   public InputStream openRead() throws IOException {
     return file.openRead();
+  }
+
+  @CheckForNull
+  public String getDigest() {
+    return file.getDigest();
   }
 }

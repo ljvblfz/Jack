@@ -22,6 +22,7 @@ import com.android.sched.util.location.Location;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -60,5 +61,11 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   @Nonnull
   public Location getLocation() {
     return vfs.getVFileLocation(this);
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
   }
 }

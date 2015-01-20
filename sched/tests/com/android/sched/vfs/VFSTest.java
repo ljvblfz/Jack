@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.config.AsapConfigBuilder;
 import com.android.sched.util.config.ConfigurationException;
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
@@ -44,6 +45,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.security.Provider;
+import java.security.Security;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -213,6 +216,65 @@ public class VFSTest {
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
       testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
+  public void testMessageDigestFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      Provider.Service sha1 = null;
+      for (Provider provider : Security.getProviders()) {
+        for (Provider.Service service : provider.getServices()) {
+          if (service.getType().equals("MessageDigest") && service.getAlgorithm().equals("SHA")) {
+            sha1 = service;
+          }
+        }
+      }
+      Assert.assertNotNull(sha1);
+
+      directVFS = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
+          null, Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
+
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      InputVFile fileAAB1 =
+          directVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      Assert.assertNotNull(((GenericInputVFile) fileAAB1).getDigest());
+      directVFS.close();
+
+      directVFS2 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
+          null, Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
+      testInputVFS(directVFS2);
+      InputVFile fileAAB1b =
+          directVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      Assert.assertNotNull(((GenericInputVFile) fileAAB1b).getDigest());
 
     } finally {
       if (directVFS != null) {

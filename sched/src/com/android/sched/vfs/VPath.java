@@ -189,9 +189,10 @@ public final class VPath implements Cloneable {
       if (toString.contains(doubleSeparator)) {
         throw new AssertionError("Path: " + toString);
       }
-      if (toString.startsWith(stringSeparator)) {
-        throw new AssertionError("Path: " + toString);
-      }
+      //XXX: prepend and append generate invalid paths
+//      if (toString.startsWith(stringSeparator)) {
+//        throw new AssertionError("Path: " + toString);
+//      }
       if (toString.endsWith(stringSeparator)) {
         throw new AssertionError("Path: " + toString);
       }

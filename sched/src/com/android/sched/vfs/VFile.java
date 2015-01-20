@@ -21,6 +21,7 @@ import com.android.sched.util.file.WrongPermissionException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -34,4 +35,6 @@ public interface VFile extends VElement {
   InputStream openRead() throws WrongPermissionException;
   @Nonnull
   OutputStream openWrite() throws WrongPermissionException;
+  @CheckForNull
+  String getDigest();
 }

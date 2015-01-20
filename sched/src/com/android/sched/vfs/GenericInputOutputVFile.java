@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -62,5 +63,10 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   @Nonnull
   public OutputStream openWrite() throws IOException {
     return file.openWrite();
+  }
+
+  @CheckForNull
+  public String getDigest() {
+    return file.getDigest();
   }
 }
