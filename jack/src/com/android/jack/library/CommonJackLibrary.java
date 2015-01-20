@@ -23,7 +23,7 @@ import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -45,7 +45,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   // TODO(jack-team): Change it to private
   @Nonnull
-  public final Set<FileType> fileTypes = new HashSet<FileType>(FileType.values().length);
+  public final Set<FileType> fileTypes = EnumSet.noneOf(FileType.class);
 
   public CommonJackLibrary(@Nonnull Properties libraryProperties) {
     this.libraryProperties = libraryProperties;
