@@ -29,6 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Categories.class)
 @IncludeCategory(RedundantTests.class)
-@SuiteClasses(value = {AllTests.class})
+@SuiteClasses(value = {AllUnitTests.class})
 public class RedundantTestSuite {
 }
