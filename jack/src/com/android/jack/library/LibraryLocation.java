@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,27 @@
 
 package com.android.jack.library;
 
-import javax.annotation.Nonnull;
+import com.android.sched.util.location.Location;
 
 /**
- * Class describing an input library location.
+ * Class describing a library location.
  */
-public abstract class InputLibraryLocation extends LibraryLocation {
+public abstract class LibraryLocation extends Location {
 
-  @Nonnull
-  public abstract InputLibrary getInputLibrary();
+  protected abstract Location getVFSLocation();
+
+  @Override
+  public final boolean equals(Object obj) {
+    if (obj instanceof LibraryLocation) {
+      return getVFSLocation().equals(
+          ((LibraryLocation) obj).getVFSLocation());
+    }
+
+    return false;
+  }
+
+  @Override
+  public final int hashCode() {
+    return getVFSLocation().hashCode();
+  }
 }

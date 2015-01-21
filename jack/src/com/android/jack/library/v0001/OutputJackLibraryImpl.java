@@ -32,6 +32,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
@@ -72,7 +73,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     @Override
     @Nonnull
     public String getDescription() {
-      return baseVFS.getLocation().getDescription();
+      return getVFSLocation().getDescription();
     }
 
     @Override
@@ -82,14 +83,8 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     }
 
     @Override
-    public final boolean equals(Object obj) {
-      return obj instanceof OutputLibraryLocation
-        && ((OutputLibraryLocation) obj).getOutputLibrary().equals(getOutputLibrary());
-    }
-
-    @Override
-    public final int hashCode() {
-      return OutputJackLibraryImpl.this.hashCode();
+    protected Location getVFSLocation() {
+      return baseVFS.getLocation();
     }
   };
 

@@ -23,13 +23,16 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -63,6 +66,17 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    Location loc = type.getLocation();
+    if (loc instanceof TypeInInputLibraryLocation) {
+      InputLibrary inputLibrary =
+          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+      if (inputLibrary.containsFileType(FileType.JAYCE)) {
+        if (inputLibrary.getLocation().equals(outputJackLibrary.getLocation())) {
+          return;
+        }
+      }
+    }
+
     OutputVFile vFile = outputJackLibrary.createFile(FileType.JAYCE,
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 

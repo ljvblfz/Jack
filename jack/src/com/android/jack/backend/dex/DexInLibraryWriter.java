@@ -71,25 +71,26 @@ public class DexInLibraryWriter extends DexWriter implements
       InputLibrary inputLibrary =
           ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
       if (inputLibrary.containsFileType(FileType.DEX)) {
-        try {
-          in = inputLibrary.getFile(FileType.DEX,
+        if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
+          try {
+            in = inputLibrary.getFile(FileType.DEX,
+                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+          } catch (FileTypeDoesNotExistException e) {
+            // this was created by Jack, so this should not happen
+            throw new AssertionError(e);
+          }
+
+          vFile = outputLibrary.createFile(FileType.DEX,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-        } catch (FileTypeDoesNotExistException e) {
-          // this was created by Jack, so this should not happen
-          throw new AssertionError(e);
+
+          InputStream is = in.openRead();
+          OutputStream os = vFile.openWrite();
+          try {
+            new ByteStreamSucker(is, os, true).suck();
+          } finally {
+            is.close(); // is != null or check before
+          }
         }
-
-        vFile = outputLibrary.createFile(FileType.DEX,
-            new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-
-        InputStream is = in.openRead();
-        OutputStream os = vFile.openWrite();
-        try {
-          new ByteStreamSucker(is, os, true).suck();
-        } finally {
-          is.close(); // is != null or check before
-        }
-
         return;
       }
     }

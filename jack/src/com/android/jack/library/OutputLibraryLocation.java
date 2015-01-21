@@ -16,21 +16,13 @@
 
 package com.android.jack.library;
 
-import com.android.sched.util.location.Location;
-
 import javax.annotation.Nonnull;
 
 /**
  * Class describing an output library location.
  */
-public abstract class OutputLibraryLocation extends Location {
+public abstract class OutputLibraryLocation extends LibraryLocation {
 
   @Nonnull
   public abstract OutputLibrary getOutputLibrary();
-
-  @Override
-  public abstract boolean equals(Object obj);
-
-  @Override
-  public abstract int hashCode();
 }
