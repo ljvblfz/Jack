@@ -31,8 +31,6 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.vfs.DirectFS.DirectVDir;
-import com.android.sched.vfs.DirectFS.DirectVFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,120 +47,23 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} implementation backed by a real file system.
  */
-public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
+public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
-  private final DirectVDir root;
+  private final Directory  dir;
+  @Nonnull
+  private final ParentVDir root;
 
   private final int permissions;
 
-  /**
-   * A {@link VDir} base implementation for a {@link DirectFS}.
-   */
-  public abstract static class DirectVDir extends BaseVDir {
-    private DirectVDir(BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs, String name) {
-      super(vfs, name);
-    }
-
-    @Nonnull
-    abstract File getNativePath();
-  }
-
-  /**
-   * A {@link VDir} implementation for non-root directory of a {@link DirectFS}.
-   */
-  public static class DirectNonRootVDir extends DirectVDir {
-    @Nonnull
-    protected final VDir parent;
-
-    private DirectNonRootVDir(@Nonnull DirectFS vfs, @Nonnull VDir parent, @Nonnull String name) {
-      super(vfs, name);
-      this.parent = parent;
-    }
-
-    @Override
-    @Nonnull
-    public Location getLocation() {
-      return new DirectoryLocation(getNativePath());
-    }
-
-    @Override
-    @Nonnull
-    File getNativePath() {
-      assert parent != null;
-
-      return new File(((DirectVDir) parent).getNativePath(), name);
-    }
-
-    @Override
-    @Nonnull
-    public VPath getPath() {
-      return new VPath(getNativePath().getPath(), File.separatorChar);
-    }
-  }
-
-  /**
-   * A {@link VDir} implementation for root directory of a {@link DirectFS}.
-   */
-  public static class DirectRootVDir extends DirectVDir {
-    @Nonnull
-    private final Directory dir;
-
-    private DirectRootVDir(@Nonnull DirectFS vfs, @Nonnull Directory dir) {
-      super(vfs, "");
-      this.dir = dir;
-    }
-
-    @Override
-    @Nonnull
-    public Location getLocation() {
-      return dir.getLocation();
-    }
-
-    @Override
-    @Nonnull
-    File getNativePath() {
-      return dir.getFile();
-    }
-
-    @Override
-    @Nonnull
-    public VPath getPath() {
-      return new VPath(getNativePath().getPath(), File.separatorChar);
-    }
-  }
-
-  /**
-   * A {@link VFile} implementation for a {@link DirectFS}.
-   */
-  public static class DirectVFile extends BaseVFile {
-    @Nonnull
-    protected final VDir parent;
-
-    private DirectVFile(@Nonnull DirectFS vfs, @Nonnull VDir parent, @Nonnull String name) {
-      super(vfs, name);
-      this.parent = parent;
-    }
-
-    @Override
-    @Nonnull
-    public Location getLocation() {
-      return new FileLocation(getNativePath());
-    }
-
-    @Nonnull
-    File getNativePath() {
-      return new File(((DirectVDir) parent).getNativePath(), name);
-    }
-
-    @Override
-    @Nonnull
-    public VPath getPath() {
-      return new VPath(getNativePath().getPath(), File.separatorChar);
-    }
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return "directory on disk";
   }
 
   public DirectFS(@Nonnull Directory dir, int permissions) {
-    this.root = new DirectRootVDir(this, dir);
+    this.dir = dir;
+    this.root = new ParentVDir(this, "");
     this.permissions = permissions;
   }
 
@@ -173,25 +74,28 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
   }
 
   @Override
-  public void close() {}
+  public synchronized void close() {
+    closed = true;
+  }
 
   @Override
   @Nonnull
   public String getPath() {
-    return root.getPath().getPathAsString(File.separatorChar);
+    return dir.getPath();
   }
 
   @Override
-  public DirectVDir getRootDir() {
+  public ParentVDir getRootDir() {
     return root;
   }
 
   @Override
   @Nonnull
-  InputStream openRead(@Nonnull DirectVFile file) throws WrongPermissionException {
+  InputStream openRead(@Nonnull ParentVFile file) throws WrongPermissionException {
+    assert !isClosed();
     assert (permissions & Permission.READ) != 0;
 
-    File path = file.getNativePath();
+    File path = getNativeFile(file.getPath());
     try {
       return new FileInputStream(path);
     } catch (FileNotFoundException e) {
@@ -202,11 +106,11 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
 
   @Nonnull
   @Override
-  OutputStream openWrite(@Nonnull DirectVFile file) throws WrongPermissionException {
+  OutputStream openWrite(@Nonnull ParentVFile file) throws WrongPermissionException {
+    assert !isClosed();
     assert (permissions & Permission.WRITE) != 0;
 
-    // XXX Sequential support
-    File path = file.getNativePath();
+    File path = getNativeFile(file.getPath());
     try {
       return new FileOutputStream(path);
     } catch (FileNotFoundException e) {
@@ -217,13 +121,14 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
 
   @Nonnull
   @Override
-  Collection<? extends BaseVElement> list(@Nonnull DirectVDir dir) {
+  Collection<? extends BaseVElement> list(@Nonnull ParentVDir dir) {
+    assert !isClosed();
     assert (permissions & Permission.READ) != 0;
 
-    File file = dir.getNativePath();
-    File[] subs = file.listFiles();
+    File path = getNativeFile(dir.getPath());
+    File[] subs = path.listFiles();
     if (subs == null) {
-      throw new ConcurrentIOException(new ListDirException(file));
+      throw new ConcurrentIOException(new ListDirException(path));
     }
     if (subs.length == 0) {
       return Collections.emptyList();
@@ -232,9 +137,9 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
     ArrayList<BaseVElement> items = new ArrayList<BaseVElement>(subs.length);
     for (File sub : subs) {
       if (sub.isFile()) {
-        items.add(new DirectVFile(this, dir, sub.getName()));
+        items.add(new ParentVFile(this, dir, sub.getName()));
       } else {
-        items.add(new DirectNonRootVDir(this, dir, sub.getName()));
+        items.add(new ParentVDir(this, dir, sub.getName()));
       }
     }
 
@@ -243,73 +148,129 @@ public class DirectFS extends BaseVFS<DirectVDir, DirectVFile> implements VFS {
 
   @Override
   @Nonnull
-  DirectVFile createVFile(@Nonnull DirectVDir parent, @Nonnull String name)
+  ParentVFile createVFile(@Nonnull ParentVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
+    assert !isClosed();
     assert (permissions & Permission.WRITE) != 0;
 
-    File file = new File(parent.getNativePath().getPath(), name);
+    File path = getNativeFile(parent.getPath(), name);
     try {
-      AbstractStreamFile.create(file, new FileLocation(file));
+      AbstractStreamFile.create(path, new FileLocation(path));
     } catch (FileAlreadyExistsException e) {
       // Nothing to do
     }
 
-    return new DirectVFile(this, parent, name);
+    return new ParentVFile(this, parent, name);
   }
 
   @Override
   @Nonnull
-  DirectVDir getVDir(@Nonnull DirectVDir parent, @Nonnull String name)
+  ParentVDir getVDir(@Nonnull ParentVDir parent, @Nonnull String name)
       throws NotDirectoryException, NoSuchFileException {
+    assert !isClosed();
     assert (permissions & Permission.READ) != 0;
 
-    File file = new File(parent.getNativePath(), name);
-    Directory.check(file, new DirectoryLocation(file));
+    File path = getNativeFile(parent.getPath(), name);
+    Directory.check(path, new DirectoryLocation(path));
 
-    return new DirectNonRootVDir(this, parent, name);
+    return new ParentVDir(this, parent, name);
   }
 
   @Override
   @Nonnull
-  DirectVFile getVFile(@Nonnull DirectVDir parent, @Nonnull String name)
+  ParentVFile getVFile(@Nonnull ParentVDir parent, @Nonnull String name)
       throws NotFileException, NoSuchFileException {
+    assert !isClosed();
     assert (permissions & Permission.READ) != 0;
 
-    File file = new File(parent.getNativePath(), name);
-    AbstractStreamFile.check(file, new FileLocation(file));
+    File path = getNativeFile(parent.getPath(), name);
+    AbstractStreamFile.check(path, new FileLocation(path));
 
-    return new DirectVFile(this, parent, name);
+    return new ParentVFile(this, parent, name);
   }
 
   @Override
   @Nonnull
-  void delete(@Nonnull DirectVFile file) throws CannotDeleteFileException {
+  void delete(@Nonnull ParentVFile file) throws CannotDeleteFileException {
+    assert !isClosed();
     assert (permissions & Permission.WRITE) != 0;
 
-    File rawFile = file.getNativePath();
-    if (!rawFile.delete() || rawFile.exists()) {
+    File path = getNativeFile(file.getPath());
+    if (!path.delete() || path.exists()) {
       throw new CannotDeleteFileException(file.getLocation());
     }
   }
 
   @Override
   @Nonnull
-  DirectVDir createVDir(@Nonnull DirectVDir parent, @Nonnull String name)
+  ParentVDir createVDir(@Nonnull ParentVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
+    assert !isClosed();
     assert (permissions & Permission.WRITE) != 0;
 
-    File file = new File(parent.getNativePath(), name);
+    File path = getNativeFile(parent.getPath(), name);
     try {
-      Directory.create(file, new DirectoryLocation(file));
+      Directory.create(path, new DirectoryLocation(path));
     } catch (FileAlreadyExistsException e) {
       // Nothing to do
     }
 
-    return new DirectNonRootVDir(this, parent, name);
+    return new ParentVDir(this, parent, name);
   }
 
   @Override
   public boolean needsSequentialWriting() {
     return false;
+  }
+
+  @Override
+  synchronized boolean isClosed() {
+    return closed;
+  }
+
+  @Override
+  @Nonnull
+  FileLocation getVFileLocation(@Nonnull ParentVFile file) {
+    return new FileLocation(getNativeFile(file.getPath()));
+  }
+
+  @Override
+  @Nonnull
+  FileLocation getVFileLocation(@Nonnull ParentVDir parent, @Nonnull String name) {
+    return new FileLocation(getNativeFile(parent.getPath(), name));
+  }
+
+  @Override
+  @Nonnull
+  DirectoryLocation getVDirLocation(@Nonnull ParentVDir dir) {
+    return new DirectoryLocation(getNativeFile(dir.getPath()));
+  }
+
+  @Override
+  @Nonnull
+  DirectoryLocation getVDirLocation(@Nonnull ParentVDir parent, @Nonnull String name) {
+    return new DirectoryLocation(getNativeFile(parent.getPath(), name));
+  }
+
+  @Override
+  @Nonnull
+  FileLocation getVFileLocation(ParentVDir parent, VPath path) {
+    return new FileLocation(getNativeFile(parent.getPath().clone().appendPath(path)));
+  }
+
+  @Override
+  @Nonnull
+  DirectoryLocation getVDirLocation(ParentVDir parent, VPath path) {
+    return new DirectoryLocation(getNativeFile(parent.getPath().clone().appendPath(path)));
+  }
+
+  @Nonnull
+  private File getNativeFile(@Nonnull VPath path) {
+    return new File(dir.getFile(), path.getPathAsString(File.separatorChar));
+  }
+
+  @Nonnull
+  private File getNativeFile(@Nonnull VPath path, @Nonnull String name) {
+    return new File(new File(dir.getFile(), path.getPathAsString(File.separatorChar)), name);
   }
 }

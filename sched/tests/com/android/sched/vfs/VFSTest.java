@@ -16,6 +16,9 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.config.AsapConfigBuilder;
+import com.android.sched.util.config.ConfigurationException;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
@@ -48,8 +51,9 @@ import javax.annotation.Nonnull;
 public class VFSTest {
 
   @Before
-  public void setUp() {
+  public void setUp() throws ConfigurationException {
     VFSTest.class.getClassLoader().setDefaultAssertionStatus(true);
+    ThreadConfig.setConfig(new AsapConfigBuilder().build());
   }
 
   @Test
@@ -161,6 +165,51 @@ public class VFSTest {
 
       directVFS2 =
           new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE)));
+      testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
+  public void testCaseInsensitiveFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      directVFS =
+          new GenericInputOutputVFS(new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
+              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              | Permission.WRITE)));
+
+      testOutputVFS(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
+
+      directVFS2 =
+          new GenericInputOutputVFS(new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
       testInputVFS(directVFS2);

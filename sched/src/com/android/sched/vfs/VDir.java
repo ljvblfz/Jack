@@ -38,14 +38,6 @@ public interface VDir extends VElement, HasLocation {
   Collection<? extends VElement> list();
 
   @Nonnull
-  VDir getVDir(@Nonnull VPath path) throws NotDirectoryException,
-      NoSuchFileException;
-
-  @Nonnull
-  VFile getVFile(@Nonnull VPath path) throws NotFileException,
-      NoSuchFileException, NotDirectoryException;
-
-  @Nonnull
   void delete(@Nonnull VFile file) throws CannotDeleteFileException;
 
   @Nonnull
@@ -55,8 +47,23 @@ public interface VDir extends VElement, HasLocation {
   VFile createVFile(@Nonnull VPath path) throws CannotCreateFileException;
 
   @Nonnull
+  VDir createVDir(@Nonnull String name) throws CannotCreateFileException;
+
+  @Nonnull
+  VFile createVFile(@Nonnull String name) throws CannotCreateFileException;
+
+  @Nonnull
   VDir getVDir(@Nonnull String name) throws NotDirectoryException, NoSuchFileException;
 
   @Nonnull
   VFile getVFile(@Nonnull String name) throws NotFileException, NoSuchFileException;
+
+  @Nonnull
+  VDir getVDir(@Nonnull VPath path) throws NotDirectoryException,
+      NoSuchFileException;
+
+  @Nonnull
+  VFile getVFile(@Nonnull VPath path) throws NotFileException,
+      NoSuchFileException, NotDirectoryException;
+
 }

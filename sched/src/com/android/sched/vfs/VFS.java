@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.location.HasLocation;
 
 import java.io.Closeable;
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * A VFS.
  */
-public interface VFS extends HasLocation, Closeable {
+public interface VFS extends HasLocation, Closeable, HasDescription {
   @Nonnull
   String getPath();
 

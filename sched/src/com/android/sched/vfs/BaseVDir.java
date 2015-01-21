@@ -21,6 +21,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.location.Location;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,7 +50,7 @@ abstract class BaseVDir extends BaseVElement implements VDir {
       NoSuchFileException {
     BaseVDir dir = this;
     for (String name : path.split()) {
-      dir = vfs.getVDir(dir, name);
+      dir = dir.getVDir(name);
     }
 
     return dir;
@@ -73,9 +74,9 @@ abstract class BaseVDir extends BaseVElement implements VDir {
     while (iter.hasNext()) {
       name = iter.next();
       if (iter.hasNext()) {
-        dir = vfs.getVDir(dir, name);
+        dir = dir.getVDir(name);
       } else {
-        return vfs.getVFile(dir, name);
+        return dir.getVFile(name);
       }
     }
 
@@ -94,7 +95,7 @@ abstract class BaseVDir extends BaseVElement implements VDir {
   public BaseVDir createVDir(@Nonnull VPath path) throws CannotCreateFileException {
     BaseVDir dir = this;
     for (String name : path.split()) {
-      dir = vfs.createVDir(dir, name);
+      dir = dir.createVDir(name);
     }
 
     return dir;
@@ -111,9 +112,9 @@ abstract class BaseVDir extends BaseVElement implements VDir {
     while (iter.hasNext()) {
       name = iter.next();
       if (iter.hasNext()) {
-        dir = vfs.createVDir(dir, name);
+        dir = dir.createVDir(name);
       } else {
-        return vfs.createVFile(dir, name);
+        return dir.createVFile(name);
       }
     }
 
@@ -136,5 +137,43 @@ abstract class BaseVDir extends BaseVElement implements VDir {
   @Nonnull
   public String getName() {
     return name;
+  }
+
+  @Override
+  @Nonnull
+  public BaseVDir createVDir(@Nonnull String name) throws CannotCreateFileException {
+    return vfs.createVDir(this, name);
+  }
+
+  @Override
+  @Nonnull
+  public BaseVFile createVFile(@Nonnull String name) throws CannotCreateFileException {
+    return vfs.createVFile(this, name);
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return vfs.getVDirLocation(this);
+  }
+
+  @Nonnull
+  public Location getVDirLocation(@Nonnull VPath path) {
+    return vfs.getVDirLocation(this, path);
+  }
+
+  @Nonnull
+  public Location getVFileLocation(@Nonnull VPath path) {
+    return vfs.getVFileLocation(this, path);
+  }
+
+  @Nonnull
+  public Location getVDirLocation(@Nonnull String name) {
+    return vfs.getVDirLocation(this, name);
+  }
+
+  @Nonnull
+  public Location getVFileLocation(@Nonnull String name) {
+    return vfs.getVFileLocation(this, name);
   }
 }
