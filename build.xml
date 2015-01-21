@@ -40,6 +40,7 @@
     antlr-rt-lib-clean,
     allocation-lib-clean,
     junit4-lib-clean,
+    junit4-jack-lib-clean,
     junit4-clean,
     hamcrest-core-lib-clean,
     dexcomparator-clean,
@@ -79,6 +80,7 @@
 
   <property name="jack.build.dir" value="${jack.dir}/build/jack-lib" />
   <property name="jack.libs.dir" value="${jack.dir}/libs" />
+	<property name="jack.prebuilts.dir" value="${jack.dir}/prebuilts" />
   <property name="jack.build.outdir" value="${jack.build.dir}/classes" />
   <property name="jack.tools.dir" value="${jack.dir}/tools" />
   <property name="jack.dist.dir" value="${jack.dir}/dist" />
@@ -286,6 +288,7 @@
   <!-- jack-tests          -->
   <!-- ******************* -->
   <property name="jack-tests.libs.dir" value="${jack-tests.dir}/libs" />
+	<property name="jack-tests.prebuilts.dir" value="${jack-tests.dir}/prebuilts" />
   <property name="jack-tests.build.dir" value="${jack-tests.dir}/intermediates" />
   <property name="jack-tests.build.outdir" value="${jack-tests.build.dir}/classes" />
   <property name="jack-tests.dist.dir" value="${jack-tests.dir}/dist" />
@@ -298,13 +301,11 @@
     <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
   </target>
 
-  <target name="jack-tests-copy-libs" depends="core-stubs-mini,junit4,dx-ref-lib,ddm-lib,ecj,
+  <target name="jack-tests-copy-libs" depends="junit4,dx-ref-lib,ddm-lib,ecj,
     antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib">
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${junit4.dist.dir}/${junit4.execname}"/>
-        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
-        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
         <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
         <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
@@ -961,7 +962,37 @@
 
 
   <!-- ******************* -->
-  <!-- hamcrest-core-lib       -->
+  <!-- junit4-jack-lib     -->
+  <!-- ******************* -->
+  <property name="junit4-jack.build.dir" value="${junit4.dir}/build/junit4-jack-lib" />
+  <property name="junit4-jack.build.outdir" value="${junit4-jack.build.dir}/classes" />
+  <property name="junit4-jack.dist.dir" value="${junit4.dir}/dist" />
+  <property name="junit4-jack.libname" value="junit4-lib.jack" />
+
+  <target name="junit4-jack-lib-clean">
+    <delete dir="${junit4-jack.build.dir}" />
+    <delete file="${junit4-jack.dist.dir}/${junit4-jack.libname}" />
+  </target>
+
+  <target name="junit4-jack-lib" depends="hamcrest-core-jack-lib,core-stubs-mini">
+    <!-- project layout -->
+    <mkdir dir="${junit4-jack.build.outdir}"/>
+    <mkdir dir="${junit4-jack.dist.dir}"/>
+    <!-- compile -->
+    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+      <arg value="--verbose"/>
+      <arg value="error"/>
+      <arg value="--classpath"/>
+      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}:${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
+      <arg value="--output-jack"/>
+      <arg value="${junit4-jack.dist.dir}/${junit4-jack.libname}"/>
+      <arg value="${junit4.dir}/src/main/java"/>
+    </java>
+    <copy file="${junit4-jack.dist.dir}/${junit4-jack.libname}" todir="${jack-tests.prebuilts.dir}" />
+  </target>
+
+  <!-- ******************* -->
+  <!-- hamcrest-core-lib   -->
   <!-- ******************* -->
   <property name="hamcrest-core.build.dir" value="${hamcrest-core.dir}/build" />
   <property name="hamcrest-core.build.outdir" value="${hamcrest-core.build.dir}/classes" />
@@ -988,6 +1019,34 @@
           includes="**"/>
   </target>
 
+  <!-- ************************ -->
+  <!-- hamcrest-core-jack-lib   -->
+  <!-- ************************ -->
+  <property name="hamcrest-core-jack.build.dir" value="${hamcrest-core.dir}/build" />
+  <property name="hamcrest-core-jack.build.outdir" value="${hamcrest-core-jack.build.dir}/classes" />
+  <property name="hamcrest-core-jack.dist.dir" value="${hamcrest-core-jack.dir}/dist" />
+  <property name="hamcrest-core-jack.libname" value="hamcrest-core-jack-lib.zip" />
+
+  <target name="hamcrest-core-jack-lib-clean">
+    <delete dir="${hamcrest-core-jack.build.dir}" />
+    <delete dir="${hamcrest-core-jack.dist.dir}" />
+  </target>
+
+  <target name="hamcrest-core-jack-lib" depends="core-stubs-mini">
+    <!-- project layout -->
+    <mkdir dir="${hamcrest-core-jack.build.outdir}"/>
+    <mkdir dir="${hamcrest-core-jack.dist.dir}"/>
+    <!-- compile -->
+    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+      <arg value="--verbose"/>
+      <arg value="error"/>
+      <arg value="--classpath"/>
+      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
+      <arg value="--output-jack"/>
+      <arg value="${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
+      <arg value="${hamcrest-core.dir}/src"/>
+    </java>
+  </target>
 
   <!-- *************** -->
   <!-- dexcomparator   -->
@@ -1128,11 +1187,15 @@
     <jar destfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"
             basedir="${core-stubs-mini.build.outdir}"
             includes="**"/>
-    <copy todir="${jack.libs.dir}" flatten="true">
-      <filelist dir="/">
-        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
-        <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
-      </filelist>
+    <filelist id="core-stubs-mini.result.libs" dir="/">
+      <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.libname}"/>
+      <file name="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
+    </filelist>
+    <copy todir="${jack-tests.prebuilts.dir}" flatten="true">
+      <filelist refid="core-stubs-mini.result.libs" />
+    </copy>
+    <copy todir="${jack.prebuilts.dir}" flatten="true">
+       <filelist refid="core-stubs-mini.result.libs" />
     </copy>
   </target>
 

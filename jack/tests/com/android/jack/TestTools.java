@@ -346,13 +346,13 @@ public class TestTools {
   @Nonnull
   public static File[] getDefaultClasspath() {
     return new File[] {getFromAndroidTree(
-        "toolchain/jack/jack/libs/core-stubs-mini.jack")};
+        "toolchain/jack/jack/prebuilts/core-stubs-mini.jack")};
   }
 
   @Nonnull
   public static String getDefaultClasspathString() {
     return getFromAndroidTree(
-        "toolchain/jack/jack/libs/core-stubs-mini.jack")
+        "toolchain/jack/jack/prebuilts/core-stubs-mini.jack")
           .getAbsolutePath();
   }
 

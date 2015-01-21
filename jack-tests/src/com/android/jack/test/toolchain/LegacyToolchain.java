@@ -134,7 +134,7 @@ public class LegacyToolchain extends AndroidToolchain {
   @Nonnull
   public File[] getDefaultBootClasspath() {
     return new File[] {
-        new File(AbstractTestTools.getJackRootDir(), "jack-tests/libs/core-stubs-mini.jar"),
+        new File(AbstractTestTools.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jar"),
         new File(AbstractTestTools.getJackRootDir(), "jack-tests/libs/junit4.jar")
     };
   }
