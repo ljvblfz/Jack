@@ -1137,6 +1137,11 @@ public abstract class Jack {
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
       }
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       if (productions.contains(DependencyInLibraryProduct.class)) {
         typePlan.append(TypeDependenciesCollector.class);
         typePlan.append(FileDependenciesCollector.class);
