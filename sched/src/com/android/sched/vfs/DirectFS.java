@@ -147,6 +147,14 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   }
 
   @Override
+  boolean isEmpty(@Nonnull ParentVDir dir) {
+    assert !isClosed();
+    assert (permissions & Permission.READ) != 0;
+
+    return getNativeFile(dir.getPath()).listFiles().length == 0;
+  }
+
+  @Override
   @Nonnull
   ParentVFile createVFile(@Nonnull ParentVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
