@@ -92,7 +92,8 @@ public class LibraryDependencies extends Dependency {
 
     for (String digest : digests2) {
       String digestToCompare = digestToCompareIt.next();
-      if (digest.equals("") || digestToCompare.equals("") || !digest.equals(digestToCompare)) {
+      if (digest == null || digestToCompare == null || digest.equals("")
+          || digestToCompare.equals("") || !digest.equals(digestToCompare)) {
         return false;
       }
     }
