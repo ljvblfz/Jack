@@ -68,6 +68,13 @@ public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedCl
     }
 
     @Override
+    public void endVisit(@Nonnull JType type) {
+      if (type instanceof JDefinedClassOrInterface) {
+        typeDependencies.createEmptyDependencyIfNeeded(currentType);
+      }
+    }
+
+    @Override
     protected void collect(@Nonnull JType usedType) {
       if (usedType instanceof JArrayType) {
         usedType = ((JArrayType) usedType).getLeafType();

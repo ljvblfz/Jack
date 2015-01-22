@@ -29,6 +29,7 @@ import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,6 +65,24 @@ public class TypeDependencies extends Dependency {
 
   @Nonnull
   private Map<String, Set<String>> constantDependencies = new HashMap<String, Set<String>>();
+
+  /**
+   * Create immutable empty entry for a type which does not have dependencies to avoid
+   * null object management when using recompile dependencies map. This method must be used only
+   * after that the type dependencies collector has finished to work on {@code type}.
+   */
+  void createEmptyDependencyIfNeeded(@Nonnull JType type) {
+    String typeFqn = BinaryQualifiedNameFormatter.getFormatter().getName(type);
+    if (hierarchyDependencies.get(typeFqn) == null) {
+      hierarchyDependencies.put(typeFqn, Collections.<String>emptySet());
+    }
+    if (codeDependencies.get(typeFqn) == null) {
+      codeDependencies.put(typeFqn, Collections.<String>emptySet());
+    }
+    if (constantDependencies.get(typeFqn) == null) {
+      constantDependencies.put(typeFqn, Collections.<String>emptySet());
+    }
+  }
 
   public void addHierarchyDependency(@Nonnull JType depender, @Nonnull JType dependee) {
     addDependency(hierarchyDependencies, depender, dependee);
