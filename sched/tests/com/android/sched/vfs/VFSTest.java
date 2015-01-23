@@ -335,6 +335,41 @@ public class VFSTest {
   }
 
   @Test
+  public void testWriteZipVFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS outputZipVFS = null;
+    InputZipVFS inputZipVFS = null;
+    try {
+      file = File.createTempFile("vfs", ".zip");
+      String path = file.getAbsolutePath();
+      outputZipVFS = new GenericInputOutputVFS(new WriteZipFS(
+          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
+      testOutputVFS(outputZipVFS);
+      outputZipVFS.close();
+      inputZipVFS = new InputZipVFS(
+          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      testInputVFS(inputZipVFS);
+    } finally {
+      if (outputZipVFS != null) {
+        outputZipVFS.close();
+      }
+      if (inputZipVFS != null) {
+        inputZipVFS.close();
+      }
+      if (file != null) {
+        Assert.assertTrue(file.delete());
+      }
+    }
+  }
+
+  @Test
   public void testInputOutputZipVFS()
       throws NotDirectoryException,
       CannotCreateFileException,
