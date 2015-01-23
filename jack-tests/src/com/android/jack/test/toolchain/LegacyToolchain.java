@@ -17,6 +17,7 @@
 package com.android.jack.test.toolchain;
 
 import com.android.dx.command.dexer.Main.Arguments;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
@@ -134,8 +135,8 @@ public class LegacyToolchain extends AndroidToolchain {
   @Nonnull
   public File[] getDefaultBootClasspath() {
     return new File[] {
-        new File(AbstractTestTools.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jar"),
-        new File(AbstractTestTools.getJackRootDir(), "jack-tests/libs/junit4.jar")
+        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jar"),
+        new File(TestsProperties.getJackRootDir(), "jack-tests/libs/junit4.jar")
     };
   }
 

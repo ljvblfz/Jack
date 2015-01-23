@@ -25,8 +25,9 @@ import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.SyncException;
 import com.android.ddmlib.TimeoutException;
+import com.android.jack.test.TestConfigurationException;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.TestConfigurationException;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
@@ -65,7 +66,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   private static final String TEST_SCRIPT_NAME = "test-exit-status.sh";
   @Nonnull
   private static final File TEST_SCRIPT_FILE =
-      new File(AbstractTestTools.getJackRootDir(), "etc/" + TEST_SCRIPT_NAME);
+      new File(TestsProperties.getJackRootDir(), "etc/" + TEST_SCRIPT_NAME);
 
 
 

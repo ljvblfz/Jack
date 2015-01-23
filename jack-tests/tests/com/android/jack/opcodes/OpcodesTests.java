@@ -16,6 +16,7 @@
 
 package com.android.jack.opcodes;
 
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
@@ -38,10 +39,9 @@ public class OpcodesTests extends RuntimeTest {
       super(directory, jUnit);
       setSrcDirName("jm");
       setRefDirName( ".");
-      addReferenceExtraSources(new File(AbstractTestTools.getJackRootDir(),
+      addReferenceExtraSources(new File(TestsProperties.getJackRootDir(),
           "jack-tests/src/com/android/jack/DxTestCase.java"));
     }
-
   }
 
   @Nonnull

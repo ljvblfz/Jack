@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.toolchain;
+package com.android.jack.test;
 
 import javax.annotation.Nonnull;
 

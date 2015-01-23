@@ -21,6 +21,7 @@ import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.test.TestsProperties;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -150,9 +151,9 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   public File[] getDefaultBootClasspath() {
     return new File[] {
-        new File(AbstractTestTools.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jack"),
-        new File(AbstractTestTools.getJackRootDir(),
-            "jack-tests/prebuilts/junit4-lib.jack")};
+        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jack"),
+        new File(TestsProperties.getJackRootDir(),
+            "jack-tests/prebuilts/junit4-targetdex-jack.zip")};
   }
 
   @Override
