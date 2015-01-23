@@ -34,6 +34,8 @@ public interface VDir extends VElement, HasLocation {
   @Nonnull
   VPath getPath();
 
+  boolean isEmpty();
+
   @Nonnull
   Collection<? extends VElement> list();
 

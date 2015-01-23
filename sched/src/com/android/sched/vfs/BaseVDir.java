@@ -129,6 +129,11 @@ abstract class BaseVDir extends BaseVElement implements VDir {
   }
 
   @Override
+  public boolean isEmpty() {
+    return vfs.isEmpty(this);
+  }
+
+  @Override
   public boolean isVDir() {
     return true;
   }

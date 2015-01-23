@@ -74,7 +74,9 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   abstract void delete(@Nonnull FILE file) throws CannotDeleteFileException;
 
   @Nonnull
-  abstract Collection<? extends BaseVElement> list(DIR dir);
+  abstract Collection<? extends BaseVElement> list(@Nonnull DIR dir);
+
+  abstract boolean isEmpty(@Nonnull DIR dir);
 
   //
   // Location related

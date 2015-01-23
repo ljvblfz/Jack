@@ -33,8 +33,8 @@ import javax.annotation.Nonnull;
  * A 'in-memory' implementation of a {@link VDir}. All sub-elements are cached in-memory for ever.
  *
  * When using this {@link VDir} implementation, a {@link BaseVFS} implementation has no need to
- * implement {@link BaseVFS#getVFile(BaseVDir, String)}, {@link BaseVFS#getVDir(BaseVDir, String)}
- * and {@link BaseVFS#list(BaseVDir)}.
+ * implement {@link BaseVFS#getVFile(BaseVDir, String)}, {@link BaseVFS#getVDir(BaseVDir, String)},
+ * {@link BaseVFS#isEmpty(BaseVDir)} and {@link BaseVFS#list(BaseVDir)}.
  */
 abstract class InMemoryVDir extends BaseVDir {
   @Nonnull
@@ -131,6 +131,11 @@ abstract class InMemoryVDir extends BaseVDir {
     assert !vfs.isClosed();
 
     return Collections.unmodifiableCollection(map.values());
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return map.isEmpty();
   }
 }
 

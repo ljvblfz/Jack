@@ -106,6 +106,11 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   }
 
   @Override
+  boolean isEmpty(@Nonnull BaseVDir dir) {
+    return vfs.isEmpty(dir);
+  }
+
+  @Override
   @Nonnull
   BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
       throws CannotCreateFileException {

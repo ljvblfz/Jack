@@ -150,7 +150,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       try {
         file = vfs.getRootDir().getVFile(INDEX_NAME);
       } catch (NoSuchFileException e) {
-        // No file index, consider FS empty
+        if (!vfs.getRootDir().isEmpty()) {
+          // If VFS is not empty, index file is missing
+          throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        }
+
         return;
       } catch (NotFileException e) {
         throw new WrongVFSFormatException(this, vfs.getLocation(), e);
@@ -366,6 +370,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  boolean isEmpty(@Nonnull CaseInsensitiveVDir dir) {
+    throw new UnsupportedOperationException();
+  }
+
   //
   // Location
   //
@@ -415,10 +424,6 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   public boolean needsSequentialWriting() {
     return vfs.needsSequentialWriting();
-  }
-
-  synchronized boolean isClosed() {
-    return closed;
   }
 
   //
