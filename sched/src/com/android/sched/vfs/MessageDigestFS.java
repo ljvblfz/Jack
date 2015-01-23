@@ -27,6 +27,7 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.MessageDigestFS.MessageDigestVFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,7 +55,7 @@ import javax.annotation.Nonnull;
  * A {@link VFS} filter implementation that creates a file containing a message digest for each
  * file.
  */
-public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestFS.MessageDigestVFile>
+public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile>
     implements VFS {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -67,8 +68,6 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestFS.MessageDi
   private final MessageDigestFactory mdFactory;
   @Nonnull
   private static final String DIGEST_FILE_NAME = ".digest";
-  @Nonnull
-  private static final byte[] code = "0123456789ABCDEF".getBytes();
 
   class MessageDigestVFile extends BaseVFile {
 
@@ -183,6 +182,14 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestFS.MessageDi
   }
 
   @Nonnull
+  private String getDigestString(@Nonnull byte[] digestBytes) {
+    return mdFactory.getService().getAlgorithm() + '-' + String.valueOf(encode(digestBytes));
+  }
+
+  @Nonnull
+  private static final byte[] code = "0123456789ABCDEF".getBytes();
+
+  @Nonnull
   private static char[] encode(@Nonnull byte[] bytes) {
     char[] array = new char[bytes.length * 2];
 
@@ -244,10 +251,6 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestFS.MessageDi
     }
   }
 
-  private String getDigestString(byte[] digestBytes) {
-    return mdFactory.getService().getAlgorithm() + ':' + String.valueOf(encode(digestBytes));
-  }
-
   @Override
   @Nonnull
   public String getPath() {
@@ -298,6 +301,12 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestFS.MessageDi
     }
 
     return newElements;
+  }
+
+
+  @Override
+  boolean isEmpty(@Nonnull BaseVDir dir) {
+    return vfs.isEmpty(dir);
   }
 
   @Override
