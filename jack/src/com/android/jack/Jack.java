@@ -730,24 +730,26 @@ public abstract class Jack {
 
     jayceImporter.doImport(session);
 
-    Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
+    if (options.flags != null && (options.flags.shrink() || options.flags.obfuscate())) {
+      Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
 
-    try {
-      JClass javaLangObject = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
-      MethodIdMerger merger = new MethodIdMerger(javaLangObject);
-      for (JType type : session.getTypesToEmit()) {
-        merger.accept(type);
+      try {
+        JClass javaLangObject = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+        MethodIdMerger merger = new MethodIdMerger(javaLangObject);
+        for (JType type : session.getTypesToEmit()) {
+          merger.accept(type);
+        }
+        JVisitor remover = new VirtualMethodsMarker.Remover(javaLangObject);
+        for (JType type : session.getTypesToEmit()) {
+          remover.accept(type);
+        }
+      } finally {
+        eventIdMerger.end();
       }
-      JVisitor remover = new VirtualMethodsMarker.Remover(javaLangObject);
-      for (JType type : session.getTypesToEmit()) {
-        remover.accept(type);
-      }
-    } finally {
-      eventIdMerger.end();
+
+      MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
+      methodIdDupRemover.accept(session.getTypesToEmit());
     }
-
-    MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
-    methodIdDupRemover.accept(session.getTypesToEmit());
 
     return session;
   }
