@@ -49,9 +49,10 @@ public enum FileType {
   },
   DEPENDENCIES("dependencies", "dependencies", ".dep", "dependencies") {
     @Override
-    public String toString() {
-      return "dependencies";
+    public void check() {
     }
+  },
+  LOG("logs", "logs", ".log", "logs") {
     @Override
     public void check() {
     }

@@ -33,14 +33,18 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.log.Tracer;
@@ -69,7 +73,13 @@ import javax.annotation.Nonnull;
  * {@link InputFilter} that returns filtered inputs required by incremental support.
  */
 @ImplementationName(iface = InputFilter.class, name = "incremental")
+@HasKeyId
 public class IncrementalInputFilter extends CommonFilter implements InputFilter {
+
+  @Nonnull
+  public static final BooleanPropertyId INCREMENTAL_LOG = BooleanPropertyId
+      .create("jack.incremental.log", "Enable incremental log")
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final StatisticId<Counter> COMPILED_FILES = new StatisticId<Counter>(
@@ -177,6 +187,35 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
     filesToRecompile = getInternalFileNamesToCompile();
+
+    if (ThreadConfig.get(INCREMENTAL_LOG).booleanValue()) {
+      IncrementalLogWriter incLog;
+      try {
+        File incrementalFolder = options.getIncrementalFolder();
+        assert incrementalFolder != null;
+        incLog = new IncrementalLogWriter(getOutputJackLibrary(), incrementalFolder);
+        incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
+        incLog.writeFiles("classpath", options.getClasspath());
+        incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(
+            session.getLibraryDependencies()) ? "identical"
+            : "modified") + ")",
+            session.getLibraryDependencies().getDigestOfLibrariesOnClasspath());
+        incLog.writeFiles("import", options.getImportedLibraries());
+        incLog.writeStrings("import digests (" + (libraryDependencies.hasSameImportedLibrary(
+            session.getLibraryDependencies()) ? "identical"
+            : "modified") + ")",
+            session.getLibraryDependencies().getDigestOfImportedLibraries());
+        incLog.writeStrings("added (" + addedFileNames.size() + ")", addedFileNames);
+        incLog.writeStrings("deleted (" + deletedFileNames.size() + ")", deletedFileNames);
+        incLog.writeStrings("modified (" + modifiedFileNames.size() + ")", modifiedFileNames);
+        incLog.writeStrings("compiled (" + filesToRecompile.size() + ")", filesToRecompile);
+        incLog.close();
+      } catch (LibraryIOException e) {
+        LibraryWritingException reportable = new LibraryWritingException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
+      }
+    }
   }
 
   @Override
