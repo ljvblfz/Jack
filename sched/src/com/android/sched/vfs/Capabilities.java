@@ -16,26 +16,36 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.HasDescription;
-import com.android.sched.util.location.HasLocation;
-
-import java.io.Closeable;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 /**
- * A VFS.
+ * Capabilities supported by a {@link VFS}.
  */
-public interface VFS extends HasLocation, Closeable, HasDescription {
-  @Nonnull
-  String getPath();
-
-  @Nonnull
-  VDir getRootDir();
-
-  boolean needsSequentialWriting();
-
-  @Nonnull
-  Set<Capabilities> getCapabilities();
+public enum Capabilities {
+  /**
+   * Support multiple parallel read operations.
+   */
+  PARALLEL_READ,
+  /**
+   * Support multiple parallel write operations.
+   */
+  PARALLEL_WRITE,
+  /**
+   * Support  read operations.
+   */
+  READ,
+  /**
+   * Support write operations.
+   */
+  WRITE,
+  /**
+   * Support case-sensitivity in the path and file name.
+   */
+  CASE_SENSITIVE,
+  /**
+   * Support digest operation.
+   */
+  DIGEST,
+  /**
+   * Support unique {@link VElement}.
+   */
+  UNIQUE_ELEMENT
 }

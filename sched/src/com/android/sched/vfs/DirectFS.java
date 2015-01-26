@@ -41,6 +41,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -52,8 +54,24 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   private final Directory  dir;
   @Nonnull
   private final ParentVDir root;
+  @Nonnull
+  private final Set<Capabilities> capabilities;
 
-  private final int permissions;
+  public DirectFS(@Nonnull Directory dir, int permissions) {
+    this.dir = dir;
+    this.root = new ParentVDir(this, "");
+
+    Set<Capabilities> capabilities = EnumSet.noneOf(Capabilities.class);
+    if ((permissions & Permission.READ) != 0) {
+      capabilities.add(Capabilities.READ);
+      capabilities.add(Capabilities.PARALLEL_READ);
+    }
+    if ((permissions & Permission.WRITE) != 0) {
+      capabilities.add(Capabilities.WRITE);
+      capabilities.add(Capabilities.PARALLEL_WRITE);
+    }
+    this.capabilities = Collections.unmodifiableSet(capabilities);
+  }
 
   @Override
   @Nonnull
@@ -61,10 +79,10 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     return "directory on disk";
   }
 
-  public DirectFS(@Nonnull Directory dir, int permissions) {
-    this.dir = dir;
-    this.root = new ParentVDir(this, "");
-    this.permissions = permissions;
+  @Nonnull
+  @Override
+  public Set<Capabilities> getCapabilities() {
+    return capabilities;
   }
 
   @Override
@@ -93,7 +111,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   InputStream openRead(@Nonnull ParentVFile file) throws WrongPermissionException {
     assert !isClosed();
-    assert (permissions & Permission.READ) != 0;
+    assert capabilities.contains(Capabilities.READ);
 
     File path = getNativeFile(file.getPath());
     try {
@@ -108,7 +126,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Override
   OutputStream openWrite(@Nonnull ParentVFile file) throws WrongPermissionException {
     assert !isClosed();
-    assert (permissions & Permission.WRITE) != 0;
+    assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     try {
@@ -123,7 +141,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Override
   Collection<? extends BaseVElement> list(@Nonnull ParentVDir dir) {
     assert !isClosed();
-    assert (permissions & Permission.READ) != 0;
+    assert capabilities.contains(Capabilities.READ);
 
     File path = getNativeFile(dir.getPath());
     File[] subs = path.listFiles();
@@ -149,7 +167,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Override
   boolean isEmpty(@Nonnull ParentVDir dir) {
     assert !isClosed();
-    assert (permissions & Permission.READ) != 0;
+    assert capabilities.contains(Capabilities.READ);
 
     return getNativeFile(dir.getPath()).listFiles().length == 0;
   }
@@ -159,7 +177,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   ParentVFile createVFile(@Nonnull ParentVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
     assert !isClosed();
-    assert (permissions & Permission.WRITE) != 0;
+    assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(parent.getPath(), name);
     try {
@@ -176,7 +194,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   ParentVDir getVDir(@Nonnull ParentVDir parent, @Nonnull String name)
       throws NotDirectoryException, NoSuchFileException {
     assert !isClosed();
-    assert (permissions & Permission.READ) != 0;
+    assert capabilities.contains(Capabilities.READ);
 
     File path = getNativeFile(parent.getPath(), name);
     Directory.check(path, new DirectoryLocation(path));
@@ -189,7 +207,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   ParentVFile getVFile(@Nonnull ParentVDir parent, @Nonnull String name)
       throws NotFileException, NoSuchFileException {
     assert !isClosed();
-    assert (permissions & Permission.READ) != 0;
+    assert capabilities.contains(Capabilities.READ);
 
     File path = getNativeFile(parent.getPath(), name);
     AbstractStreamFile.check(path, new FileLocation(path));
@@ -201,7 +219,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   void delete(@Nonnull ParentVFile file) throws CannotDeleteFileException {
     assert !isClosed();
-    assert (permissions & Permission.WRITE) != 0;
+    assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     if (!path.delete() || path.exists()) {
@@ -214,7 +232,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   ParentVDir createVDir(@Nonnull ParentVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
     assert !isClosed();
-    assert (permissions & Permission.WRITE) != 0;
+    assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(parent.getPath(), name);
     try {

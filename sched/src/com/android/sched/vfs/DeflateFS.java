@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -42,16 +43,22 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
+  @SuppressWarnings("unchecked")
+  public DeflateFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
+    this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
+    changeVFS(vfs.getRootDir());
+  }
+
   @Override
   @Nonnull
   public String getDescription() {
     return "deflater wrapper";
   }
 
-  @SuppressWarnings("unchecked")
-  public DeflateFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
-    this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
-    changeVFS(vfs.getRootDir());
+  @Override
+  @Nonnull
+  public Set<Capabilities> getCapabilities() {
+    return vfs.getCapabilities();
   }
 
   @Override

@@ -42,6 +42,9 @@ import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -85,6 +88,9 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   @Nonnull
   private final CaseInsensitiveVDir root = new CaseInsensitiveVDir(this, null, "");
+
+  @Nonnull
+  private final Set<Capabilities> capabilities;
 
   @Override
   @Nonnull
@@ -143,6 +149,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   public CaseInsensitiveFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs)
       throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
+
+    Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
+    capabilities.add(Capabilities.CASE_SENSITIVE);
+    capabilities.add(Capabilities.UNIQUE_ELEMENT);
+    this.capabilities = Collections.unmodifiableSet(capabilities);
 
     LineNumberReader reader = null;
     VFile file = null;
@@ -205,6 +216,12 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
         }
       }
     }
+  }
+
+  @Override
+  @Nonnull
+  public Set<Capabilities> getCapabilities() {
+    return capabilities;
   }
 
   @Override
