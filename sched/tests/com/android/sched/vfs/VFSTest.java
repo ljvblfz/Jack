@@ -504,6 +504,42 @@ public class VFSTest {
     Assert.assertEquals("dirB/dirBB/fileBB1", readFromFile(fileBB1));
   }
 
+  @Test
+  public void testReadWriteZipFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS zipVFS = null;
+    InputZipVFS inputZipVFS = null;
+    try {
+      file = File.createTempFile("vfs", ".zip");
+      String path = file.getAbsolutePath();
+      zipVFS = new GenericInputOutputVFS(new ReadWriteZipFS(
+          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
+      testOutputVFS(zipVFS);
+      testInputVFS(zipVFS);
+      zipVFS.close();
+      inputZipVFS = new InputZipVFS(
+          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      testInputVFS(inputZipVFS);
+    } finally {
+      if (zipVFS != null) {
+        zipVFS.close();
+      }
+      if (inputZipVFS != null) {
+        inputZipVFS.close();
+      }
+      if (file != null) {
+        Assert.assertTrue(file.delete());
+      }
+    }
+  }
+
   private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
       @Nonnull String fileSimpleName, @Nonnull String fileContent) throws IOException {
     for (VElement element : elements) {
