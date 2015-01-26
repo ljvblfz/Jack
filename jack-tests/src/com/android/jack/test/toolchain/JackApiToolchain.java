@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -48,12 +47,12 @@ public class JackApiToolchain extends JackBasedToolchain {
   }
 
   @Override
-  public void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
+  public void srcToExe(@Nonnull File out, boolean zipFile,
       @Nonnull File... sources) throws Exception {
 
     try {
 
-      srcToCommon(classpath, sources);
+      srcToCommon(sources);
 
       if (zipFile) {
         jackOptions.setOutputZip(out);
@@ -72,12 +71,12 @@ public class JackApiToolchain extends JackBasedToolchain {
   }
 
   @Override
-  public void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
+  public void srcToLib(@Nonnull File out, boolean zipFiles,
       @Nonnull File... sources) throws Exception {
 
     try {
 
-      srcToCommon(classpath, sources);
+      srcToCommon(sources);
 
       if (zipFiles) {
         jackOptions.setJayceOutputZip(out);
@@ -95,7 +94,7 @@ public class JackApiToolchain extends JackBasedToolchain {
     }
   }
 
-  private void srcToCommon(@CheckForNull String classpath, @Nonnull File... sources) {
+  private void srcToCommon(@Nonnull File... sources) {
     addProperties(properties, jackOptions);
 
     jackOptions.setSanityChecks(sanityChecks);
@@ -104,7 +103,9 @@ public class JackApiToolchain extends JackBasedToolchain {
       jackOptions.applyShrobFlags();
     }
 
-    jackOptions.setClasspath(classpath);
+    if (classpath.size() > 0) {
+      jackOptions.setClasspath(getClasspathAsString());
+    }
 
     fillEcjArgs(sources);
 
@@ -180,6 +181,10 @@ public class JackApiToolchain extends JackBasedToolchain {
     jackOptions.setSanityChecks(sanityChecks);
 
     jackOptions.setJarjarRulesFile(jarjarRules);
+
+    if (classpath.size() > 0) {
+      jackOptions.setClasspath(getClasspathAsString());
+    }
 
     if (jackOptions.getFlags() != null) {
       jackOptions.applyShrobFlags();

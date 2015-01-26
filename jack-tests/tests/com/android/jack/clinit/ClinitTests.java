@@ -36,8 +36,8 @@ public class ClinitTests {
   @Test
   public void testCompileWithClinit() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.clinit.jack"));

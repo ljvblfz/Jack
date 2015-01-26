@@ -100,8 +100,8 @@ public class SwitchstatementTests extends RuntimeTest {
       // build as jack
       JackBasedToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-      toolchain.srcToLib(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()), outJackTmp,
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(outJackTmp,
           /* zipFiles = */false,
           AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test002.jack"));
     }
@@ -159,8 +159,8 @@ public class SwitchstatementTests extends RuntimeTest {
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         outFolder,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test009.jack"));

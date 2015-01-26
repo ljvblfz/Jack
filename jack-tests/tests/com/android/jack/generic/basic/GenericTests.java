@@ -38,8 +38,8 @@ public class GenericTests {
   @Test
   public void testCompileBasic() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.generic.basic.jack"));

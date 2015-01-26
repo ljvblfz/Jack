@@ -66,9 +66,8 @@ public class FileAccessErrorTest {
     JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
     try {
-      jackApiToolchain.srcToLib(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .srcToLib(jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
       Assert.fail();
     } catch (PropertyIdException e) {
       // Failure is ok since jack output folder is not readable
@@ -92,9 +91,8 @@ public class FileAccessErrorTest {
     JackApiToolchain jackApiToolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
-    jackApiToolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-        helper.getJackFolder(), /* zipFiles = */ false, helper.getSourceFolder());
+    jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+    .srcToLib(helper.getJackFolder(), /* zipFiles = */ false, helper.getSourceFolder());
 
     AbstractTestTools.deleteFile(srcFile);
 
@@ -112,8 +110,8 @@ public class FileAccessErrorTest {
     jackApiToolchain.setErrorStream(errOut);
     jackApiToolchain.addStaticLibs(helper.getJackFolder());
     try {
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .srcToExe(
           helper.getOutputDexFolder(), /* zipFile = */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
@@ -147,9 +145,8 @@ public class FileAccessErrorTest {
     jackApiToolchain.setErrorStream(errOut);
 
     try {
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .srcToExe(te.getOutputDexFolder(), /* zipFile = */ false, te.getSourceFolder());
       Assert.fail();
     } catch (JackUserException e) {
       // Failure is ok since source file is not readable
@@ -174,9 +171,8 @@ public class FileAccessErrorTest {
 
     JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
-    jackApiToolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-        te.getJackFolder(), false, te.getSourceFolder());
+    jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+    .srcToLib(te.getJackFolder(), false, te.getSourceFolder());
 
     AbstractTestTools.deleteJavaFile(te.getSourceFolder(), "jack.incremental", "A.java");
 
@@ -193,10 +189,9 @@ public class FileAccessErrorTest {
       }
 
       jackApiToolchain.setErrorStream(errOut);
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
-          + File.pathSeparator + te.getJackFolder().getAbsolutePath(),
-          AbstractTestTools.createTempDir(), false, te.getSourceFolder());
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .addToClasspath(te.getJackFolder())
+      .srcToExe(AbstractTestTools.createTempDir(), false, te.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
@@ -224,9 +219,10 @@ public class FileAccessErrorTest {
 
     try {
 
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
-          te.getOutputDexFolder(), /* zipFile = */ false, new File(te.getSourceFolder(), "A.java"));
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .srcToExe(
+          te.getOutputDexFolder(), /* zipFile = */ false,
+          new File(te.getSourceFolder(), "A.java"));
 
       Assert.fail();
     } catch (JackUserException e) {

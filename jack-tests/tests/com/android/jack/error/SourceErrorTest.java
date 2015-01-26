@@ -340,8 +340,8 @@ public class SourceErrorTest {
 
   private void compile(@Nonnull IToolchain toolchain, @Nonnull ErrorTestHelper helper)
       throws Exception {
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         helper.getOutputDexFolder(),
         /* zipFile = */ false, helper.getSourceFolder());
   }

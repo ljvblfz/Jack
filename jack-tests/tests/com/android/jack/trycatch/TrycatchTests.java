@@ -94,8 +94,8 @@ public class TrycatchTests extends RuntimeTest {
     File out =  AbstractTestTools.createTempFile("uselessMovInstructions", ".dex");
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         out,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.trycatch.test004"));

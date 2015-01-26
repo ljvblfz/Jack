@@ -44,8 +44,8 @@ public class OmnibusCompilationTest {
   @Category(SlowTests.class)
   public void compileOmnibus() throws Exception {
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(BOOTCLASSPATH),
+    toolchain.addToClasspath(BOOTCLASSPATH)
+    .srcToExe(
         AbstractTestTools.createTempFile("out", ".zip"),
         /* zipFile = */ true,
         TestTools.getArtTestFolder("003-omnibus-opcodes"));

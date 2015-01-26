@@ -49,9 +49,9 @@ public class LibraryTests {
     File emptyLib = createEmptyLibrary();
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + emptyLib.getPath(),
-        AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(emptyLib)
+    .srcToExe(AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
         true, AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
   }
 
@@ -60,9 +60,9 @@ public class LibraryTests {
     File emptyLib = createRscLibrary();
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + emptyLib.getPath(),
-        AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(emptyLib)
+    .srcToExe(AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
         true, AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
   }
 
@@ -71,8 +71,8 @@ public class LibraryTests {
     File lib = createEmptyLibrary();
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.addStaticLibs(lib);
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(AbstractTestTools.createTempFile("library001", ".jack"), /* zipFile = */
         true, AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
   }
 
@@ -83,9 +83,9 @@ public class LibraryTests {
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.addStaticLibs(lib);
-    toolchain.srcToLib(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        out, /* zipFile = */
-        true, AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(out, /* zipFile = */ true,
+        AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
 
     RunnableHooks hooks = new RunnableHooks();
     VFS vfs = new ReadZipFS(
@@ -103,7 +103,7 @@ public class LibraryTests {
     File emptyLib = AbstractTestTools.createTempFile("empty", ".jack");
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(/* classpath = */ null, emptyLib, /* zipFiles = */ true);
+    toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
     return emptyLib;
   }
@@ -115,7 +115,7 @@ public class LibraryTests {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addResource(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
-    toolchain.srcToLib(/* classpath = */ null, emptyLib, /* zipFiles = */ true);
+    toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
     return emptyLib;
   }

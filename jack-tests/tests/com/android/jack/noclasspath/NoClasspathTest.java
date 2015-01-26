@@ -61,7 +61,7 @@ public class NoClasspathTest {
 
   private static File PLAY_SERVICE_JAR;
 
-  private static String corePath;
+  private static File corePath;
 
   @BeforeClass
   public static void setup() throws Exception {
@@ -92,15 +92,13 @@ public class NoClasspathTest {
 
 
     // File coreOut = AbstractTestTools.createTempFile("core", ".jack");
-    File coreOut = new File("/tmp/ + core.jack");
+    File corePath = new File("/tmp/ + core.jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
-    toolchain.srcToLib(
-        /* classpath = */ null,
-        coreOut,
+    toolchain.srcToLib(corePath,
         /* zipFile = */ true,
         CORE_SOURCELIST);
-    corePath = coreOut.getAbsolutePath();
+//    corePath = coreOut.getAbsolutePath();
   }
 
   @Test
@@ -108,7 +106,8 @@ public class NoClasspathTest {
     File extJack = AbstractTestTools.createTempFile("ext", ".jack");
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(corePath, extJack, /* zipFiles = */ true, EXT_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(extJack, /* zipFiles = */ true, EXT_SOURCELIST);
 
     File extFolder = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
@@ -119,7 +118,8 @@ public class NoClasspathTest {
   public void frameworkFromJack() throws Exception {
     File conscryptJack = AbstractTestTools.createTempFile("conscrypt", ".jack");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(corePath, conscryptJack, /* zipFiles = */ true, CONSCRYPT_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(conscryptJack, /* zipFiles = */ true, CONSCRYPT_SOURCELIST);
 
     File conscryptRenamedJack = AbstractTestTools.createTempFile("conscryptrenamed", ".jack");
     File conscyptRules =
@@ -130,8 +130,9 @@ public class NoClasspathTest {
 
     File okhttpJack = AbstractTestTools.createTempFile("okkttp", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath(),
-        okhttpJack, /* zipFiles = */ true, OKHTTP_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .addToClasspath(conscryptRenamedJack)
+    .srcToLib(okhttpJack, /* zipFiles = */ true, OKHTTP_SOURCELIST);
 
     File okhttpRenamedJack = AbstractTestTools.createTempFile("okhttprenamed", ".jack");
     File okhttpRules =
@@ -142,15 +143,18 @@ public class NoClasspathTest {
 
     File extJack = AbstractTestTools.createTempFile("ext", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(corePath, extJack, /* zipFiles = */ true, EXT_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(extJack, /* zipFiles = */ true, EXT_SOURCELIST);
 
     File bouncyCastleJack = AbstractTestTools.createTempFile("bouncyjack", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(corePath, bouncyCastleJack, /* zipFiles = */ true, BOUNCY_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(bouncyCastleJack, /* zipFiles = */ true, BOUNCY_SOURCELIST);
 
     File coreJunitJack = AbstractTestTools.createTempFile("corejunitjack", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(corePath, coreJunitJack, /* zipFiles = */ true, CORE_JUNIT_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(coreJunitJack, /* zipFiles = */ true, CORE_JUNIT_SOURCELIST);
 
     File bouncyCastleRenamedJack = AbstractTestTools.createTempFile("bouncyjackrenamed", ".jack");
     File jarjarRules =
@@ -159,16 +163,24 @@ public class NoClasspathTest {
     toolchain.setJarjarRules(jarjarRules);
     toolchain.libToLib(bouncyCastleJack, bouncyCastleRenamedJack, /* zipFiles = */ true);
 
-    String classpath = corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath()
-        + File.pathSeparatorChar + okhttpRenamedJack.getAbsolutePath()
-        + File.pathSeparatorChar + extJack.getAbsolutePath()
-        + File.pathSeparatorChar + bouncyCastleRenamedJack.getAbsolutePath()
-        + File.pathSeparatorChar + coreJunitJack.getAbsolutePath();
+//    String classpath = corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath()
+//        + File.pathSeparatorChar + okhttpRenamedJack.getAbsolutePath()
+//        + File.pathSeparatorChar + extJack.getAbsolutePath()
+//        + File.pathSeparatorChar + bouncyCastleRenamedJack.getAbsolutePath()
+//        + File.pathSeparatorChar + coreJunitJack.getAbsolutePath();
+
+    File[] classpath = new File[] {corePath,
+        conscryptRenamedJack,
+        okhttpRenamedJack,
+        extJack,
+        bouncyCastleRenamedJack,
+        coreJunitJack};
 
     File frameworkJackZip = AbstractTestTools.createTempFile("framework", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
-    toolchain.srcToLib(classpath, frameworkJackZip, /* zipFiles = */ true, FRAMEWORK_SOURCELIST);
+    toolchain.addToClasspath(classpath)
+    .srcToLib(frameworkJackZip, /* zipFiles = */ true, FRAMEWORK_SOURCELIST);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");

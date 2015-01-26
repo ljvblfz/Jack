@@ -153,8 +153,8 @@ public class ConstantTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void test008() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.constant.test008"));

@@ -112,8 +112,8 @@ public class BridgeTests extends RuntimeTest {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     File srcFolder = AbstractTestTools.getTestRootDir("com.android.jack.bridge.test008.jack");
     File jackZipOfGenericPackageProtected = AbstractTestTools.createTempFile("tmpBridge", toolchain.getLibraryExtension());
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackZipOfGenericPackageProtected,
         /* zipFiles = */ true,
         srcFolder);
@@ -121,8 +121,8 @@ public class BridgeTests extends RuntimeTest {
     // Build jack file from PublicExtendsGeneric.java
     toolchain = AbstractTestTools.getCandidateToolchain();
     File jackZipOfPublicExtendsGeneric = AbstractTestTools.createTempFile("tmpBridge", toolchain.getLibraryExtension());
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(), new File [] {jackZipOfGenericPackageProtected}),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(jackZipOfGenericPackageProtected)
+    .srcToLib(
         jackZipOfPublicExtendsGeneric,
         /* zipFiles = */ true,
         new File(srcFolder, "sub/PublicExtendsGeneric.java"));
@@ -131,8 +131,8 @@ public class BridgeTests extends RuntimeTest {
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain = toolchain.addStaticLibs(jackZipOfPublicExtendsGeneric);
     File outDexFolder = AbstractTestTools.createTempDir();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         outDexFolder,
         /* zipFile = */ false,
         new File(srcFolder, "Caller.java"));
@@ -141,8 +141,8 @@ public class BridgeTests extends RuntimeTest {
   @Test
   public void test009() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"));

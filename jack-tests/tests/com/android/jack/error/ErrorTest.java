@@ -58,8 +58,8 @@ public class ErrorTest {
     toolchain.setErrorStream(err);
 
     try {
-      toolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(
           AbstractTestTools.createTempDir(),
           /* zipFile = */ false,
           AbstractTestTools.getTestRootDir("com.android.jack." + testName + ".jack"));

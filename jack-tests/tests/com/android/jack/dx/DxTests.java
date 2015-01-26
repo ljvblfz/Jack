@@ -115,8 +115,8 @@ public class DxTests extends RuntimeTest {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     File dexOutDir = AbstractTestTools.createTempDir();
     File outFile = new File(dexOutDir, "classes.dex");
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         dexOutDir,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.dx.regallocator.jack"));

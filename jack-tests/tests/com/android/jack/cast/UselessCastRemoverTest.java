@@ -78,8 +78,8 @@ public class UselessCastRemoverTest {
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        outFolder,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(outFolder,
         /* zipFile = */false, testFolder);
 
     DexFile dexFile = new DexFile(out);

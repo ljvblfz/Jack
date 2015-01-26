@@ -46,10 +46,8 @@ public class UselessVariableCopyTest {
     File outDex = new File(out, "classes.dex");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.disableDxOptimizations();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        out,
-        /* zipFile = */ false,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(out, /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.optimizations.uselesscopy.test001.jack"));
 
     DexFile dexFile = new DexFile(outDex);

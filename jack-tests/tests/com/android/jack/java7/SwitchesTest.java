@@ -61,8 +61,9 @@ public class SwitchesTest {
 
     File jackZipFile = AbstractTestTools.createTempFile("tmp", toolchain.getLibraryExtension());
 
-    toolchain.setSourceLevel(SourceLevel.JAVA_7).srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackZipFile,
         /* zipFiles = */ true,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test001.jack"));
@@ -77,8 +78,9 @@ public class SwitchesTest {
   private void compileJava7Test(@Nonnull String name) throws Exception {
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7).srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(), /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.switches." + name + ".jack"));
   }

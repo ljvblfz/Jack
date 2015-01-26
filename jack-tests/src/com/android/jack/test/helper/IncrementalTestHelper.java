@@ -180,9 +180,11 @@ public class IncrementalTestHelper {
 
     File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
 
-    jackToolchain.srcToExe(classpath == null ? AbstractTestTools.getClasspathAsString(bootclasspath)
-        : AbstractTestTools.getClasspathsAsString(bootclasspath, classpath), dexOutDir,
-        /* zipFile = */ false, sourceFolder);
+    jackToolchain.addToClasspath(bootclasspath);
+    if(classpath != null) {
+      jackToolchain.addToClasspath(classpath);
+    }
+    jackToolchain.srcToExe(dexOutDir,/* zipFile = */ false, sourceFolder);
 
     Thread.sleep(1000);
   }

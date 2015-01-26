@@ -65,8 +65,8 @@ public class BouncycastleCompilationTest {
     File outDexFolder = AbstractTestTools.createTempDir();
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.disableDxOptimizations();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(CLASSPATH),
+    toolchain.addToClasspath(CLASSPATH)
+    .srcToExe(
         outDexFolder,
         /* zipFile = */ false,
         SOURCELIST);

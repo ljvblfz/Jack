@@ -54,9 +54,9 @@ public class CommandLineErrorTest {
     jackApiToolchain.setErrorStream(errOut);
     jackApiToolchain.addEcjArgs("-unsupported");
     try {
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
-          + File.pathSeparator + ite.getJackFolder(), ite.getOutputDexFolder(),
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .addToClasspath(ite.getJackFolder())
+      .srcToExe(ite.getOutputDexFolder(),
           /* zipFile = */ false, ite.getSourceFolder());
       Assert.fail();
     } catch (IllegalOptionsException e) {
@@ -80,9 +80,9 @@ public class CommandLineErrorTest {
     jackApiToolchain.setOutputStream(out);
 
     try {
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath())
-          + File.pathSeparator + ite.getJackFolder(), ite.getOutputDexFolder(),
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .addToClasspath(ite.getJackFolder())
+      .srcToExe(ite.getOutputDexFolder(),
           /* zipFile = */ false, ite.getSourceFolder());
       Assert.fail();
     } catch (NothingToDoException e) {
@@ -110,7 +110,7 @@ public class CommandLineErrorTest {
     jackApiToolchain.setOutputStream(out);
 
     try {
-      jackApiToolchain.srcToExe(null, ite.getOutputDexFolder(),
+      jackApiToolchain.srcToExe(ite.getOutputDexFolder(),
           /* zipFile = */ false, ite.getSourceFolder());
       Assert.fail();
     } catch (FrontendCompilationException e) {

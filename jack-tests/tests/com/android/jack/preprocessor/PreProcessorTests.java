@@ -52,9 +52,8 @@ public class PreProcessorTests {
     toolchain.addProperty(PreProcessor.ENABLE.getName(), "true");
     toolchain.addProperty(PreProcessor.FILE.getName(),
         new File(testDir, "config.jpp").getAbsolutePath());
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        AbstractTestTools.createTempFile("annotationAdderTest", ".out.zip"),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(AbstractTestTools.createTempFile("annotationAdderTest", ".out.zip"),
         /* zipFile = */ true,
         testDir);
   }
@@ -64,9 +63,8 @@ public class PreProcessorTests {
     File testDir = AbstractTestTools.getTestRootDir("com.android.jack.preprocessor.test001.jack");
     File tempDir = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        tempDir,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(tempDir,
         /* zipFiles = */ false,
         testDir);
 

@@ -41,6 +41,7 @@ public class ReachingDefsTests {
     File dexOutDir = AbstractTestTools.createTempDir();
     File testSourceDir = AbstractTestTools.getTestRootDir("com.android.jack.analysis.dfa.reachingdefs.test001");
 
-    toolchain.srcToExe(classpath, dexOutDir, /* zipFile = */ false, testSourceDir);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
   }
 }

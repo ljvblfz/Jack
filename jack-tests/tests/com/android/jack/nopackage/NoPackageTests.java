@@ -34,8 +34,8 @@ public class NoPackageTests {
   @Test
   public void test001() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.nopackage.test001.jack"));
@@ -45,8 +45,8 @@ public class NoPackageTests {
   public void test001_throughJayce() throws Exception {
     File tmpDir = AbstractTestTools.createTempDir();
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tmpDir,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.nopackage.test001.jack"));

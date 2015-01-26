@@ -78,9 +78,9 @@ public class JackFormatErrorTest {
     toolchain.setErrorStream(errOut);
 
     try {
-      toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-          + File.pathSeparatorChar + helper.getJackFolder().getAbsolutePath(),
-          helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(helper.getJackFolder())
+      .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
       // Failure is ok since jack file is corrupted.
@@ -124,9 +124,9 @@ public class JackFormatErrorTest {
     toolchain.setErrorStream(errOut);
 
     try {
-      toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-          + File.pathSeparatorChar + helper.getJackFolder().getAbsolutePath(),
-          helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(helper.getJackFolder())
+      .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
       // Failure is ok since jack file header is corrupted.
@@ -169,9 +169,9 @@ public class JackFormatErrorTest {
     toolchain.setErrorStream(errOut);
 
     try {
-      toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-          + File.pathSeparatorChar + helper.getJackFolder().getAbsolutePath(),
-          helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(helper.getJackFolder())
+      .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
       // Failure is ok since jack file header is corrupted.

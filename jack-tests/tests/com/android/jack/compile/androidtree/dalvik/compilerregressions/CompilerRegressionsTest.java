@@ -41,8 +41,8 @@ public class CompilerRegressionsTest {
   @Test
   public void compileRegressions() throws Exception {
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(BOOTCLASSPATH),
+    toolchain.addToClasspath(BOOTCLASSPATH)
+    .srcToExe(
         AbstractTestTools.createTempFile("out", ".zip"),
         /* zipFile = */ true,
         TestTools.getArtTestFolder("083-compiler-regressions"));

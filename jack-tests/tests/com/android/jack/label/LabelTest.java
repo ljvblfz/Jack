@@ -34,8 +34,8 @@ public class LabelTest {
   @Test
   public void labelMustNotBreakTree() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         new File(AbstractTestTools.getTestRootDir("com.android.jack.label.test001.jack"), "Label.java"));

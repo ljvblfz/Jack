@@ -44,15 +44,15 @@ public class LegacyJillToolchain extends JillBasedToolchain {
   }
 
   @Override
-  public void srcToExe(@Nonnull String classpath, @Nonnull File out, boolean zipFile,
-      @Nonnull File... sources) throws Exception {
+  public void srcToExe(@Nonnull File out, boolean zipFile, @Nonnull File... sources)
+      throws Exception {
     try {
 
       File jarFile         = AbstractTestTools.createTempFile("legacyLib", ".jar");
       File jarFileJarjar   = AbstractTestTools.createTempFile("legacyLibJarjar", ".jar");
       File jarFileProguard = AbstractTestTools.createTempFile("legacyLibProguard", ".jar");
 
-      srcToLib(classpath, jarFile, true /* zipFiles = */, sources);
+      srcToLib(jarFile, true /* zipFiles = */, sources);
 
       if (jarjarRules != null) {
         processWithJarJar(jarjarRules, jarFile, jarFileJarjar);
@@ -61,7 +61,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       }
 
       if (proguardFlags.size() > 0) {
-        processWithProguard(classpath, proguardFlags, jarFileJarjar,
+        processWithProguard(getClasspathAsString(), proguardFlags, jarFileJarjar,
             jarFileProguard);
       } else {
         jarFileProguard = jarFileJarjar;
@@ -78,8 +78,8 @@ public class LegacyJillToolchain extends JillBasedToolchain {
   }
 
   @Override
-  public void srcToLib(@Nonnull String classpath, @Nonnull File out, boolean zipFiles,
-      @Nonnull File... sources) throws Exception {
+  public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
+      throws Exception {
 
     if (withDebugInfos) {
       // TODO(jmhenaff): warning log?
@@ -93,7 +93,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
         classesDir = out;
       }
 
-      compileWithExternalRefCompiler(sources, classpath, classesDir);
+      compileWithExternalRefCompiler(sources, getClasspathAsString(), classesDir);
 
       if (staticLibs.size() > 0) {
         for (File staticLib : staticLibs) {

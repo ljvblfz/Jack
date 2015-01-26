@@ -120,8 +120,8 @@ public class CastTests extends RuntimeTest {
    */
   private void compileTest(@Nonnull String name) throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        AbstractTestTools.createTempDir(),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(AbstractTestTools.createTempDir(),
         /* zipFile = */false,
         AbstractTestTools.getTestRootDir("com.android.jack.cast." + name + ".jack"));
   }
