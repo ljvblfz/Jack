@@ -1215,7 +1215,8 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan;
-      if (features.contains(Incremental.class)) {
+      // In incremental library mode, Jayce files must be copied into output library
+      if (features.contains(Incremental.class) && options.getJackLibraryOutputZip() == null) {
         typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       } else {
         typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1367,7 +1368,8 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan;
-      if (features.contains(Incremental.class)) {
+      // In incremental library mode, dex files must be copied into output library
+      if (features.contains(Incremental.class) && options.getJackLibraryOutputZip() == null) {
         typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       } else {
         typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
