@@ -88,9 +88,7 @@ import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
-import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -274,7 +272,6 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -283,7 +280,6 @@ import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.DirectVFS;
 import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.InputZipVFS;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -872,28 +868,6 @@ public abstract class Jack {
     return new MetaImporter(metaVDirs);
   }
 
-  @Nonnull
-  private static JayceFileImporter getJayceFileImporter(@Nonnull List<File> jayceImport,
-      @Nonnull RunnableHooks hooks, @Nonnull JSession session) throws LibraryReadingException {
-    List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>(jayceImport.size());
-    ReflectFactory<JaycePackageLoader> factory = ThreadConfig.get(IMPORT_POLICY);
-    for (final File jackFile : jayceImport) {
-      try {
-        InputVFS vDir = wrapAsVDir(jackFile, hooks);
-        InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vDir);
-        inputJackLibraries.add(inputJackLibrary);
-        addPackageLoaderForLibrary(session, factory, inputJackLibrary);
-        session.addImportedLibrary(inputJackLibrary);
-      } catch (IOException ioException) {
-        throw new LibraryReadingException(ioException);
-      } catch (LibraryException libException) {
-        throw new LibraryReadingException(libException);
-      }
-    }
-
-    return new JayceFileImporter(inputJackLibraries);
-  }
-
   private static void addPackageLoaderForLibrary(JSession session,
       ReflectFactory<JaycePackageLoader> factory, InputJackLibrary inputJackLibrary) {
     if (inputJackLibrary.containsFileType(FileType.JAYCE)) {
@@ -901,35 +875,6 @@ public abstract class Jack {
           factory.create(inputJackLibrary, session.getPhantomLookup());
       session.getTopLevelPackage().addLoader(rootPLoader);
     }
-  }
-
-  @Nonnull
-  public static InputVFS wrapAsVDir(@Nonnull final File dirOrZip,
-      @CheckForNull RunnableHooks hooks)
-      throws IOException {
-    final InputVFS vfs;
-    if (dirOrZip.isDirectory()) {
-      vfs = new DirectVFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-          Permission.READ, ChangePermission.NOCHANGE));
-    } else { // zip
-      vfs = new InputZipVFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-          ChangePermission.NOCHANGE));
-    }
-
-    if (hooks != null) {
-      hooks.addHook(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            vfs.close();
-          } catch (IOException e) {
-            logger.log(Level.FINE, "Failed to close vfs for '" + dirOrZip + "'.", e);
-          }
-        }
-      });
-    }
-
-    return vfs;
   }
 
   @SuppressWarnings("unused")
