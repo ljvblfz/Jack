@@ -83,6 +83,16 @@ public class LibraryDependencies extends Dependency {
     return compare(importedLibrariesDexDigest, libraryDependencies.importedLibrariesDexDigest);
   }
 
+  @Nonnull
+  public List<String> getDigestOfImportedLibraries() {
+    return importedLibrariesDexDigest;
+  }
+
+  @Nonnull
+  public List<String> getDigestOfLibrariesOnClasspath() {
+    return librariesOnClasspathDexDigest;
+  }
+
   private static boolean compare(@Nonnull List<String> digests1, @Nonnull List<String> digests2) {
     if (digests1.size() != digests2.size()) {
       return false;
