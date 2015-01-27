@@ -17,6 +17,10 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.stream.ByteStreamSucker;
@@ -24,6 +28,7 @@ import com.android.sched.util.stream.ByteStreamSucker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -34,7 +39,7 @@ import javax.annotation.Nonnull;
  * A double {@link VFS} wrapper that uses a work {@link VFS} during its life, and dumps it contents
  * into a final {@link VFS} when it is closed.
  */
-public class VFSToVFSWrapper implements VFS {
+public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
 
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> workVFS;
@@ -42,8 +47,6 @@ public class VFSToVFSWrapper implements VFS {
   private final BaseVFS<BaseVDir, BaseVFile> finalVFS;
   @Nonnull
   private final Set<Capabilities> capabilities;
-
-  private boolean closed = false;
 
   @SuppressWarnings("unchecked")
   public VFSToVFSWrapper(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> workVFS,
@@ -144,7 +147,7 @@ public class VFSToVFSWrapper implements VFS {
 
   @Override
   @Nonnull
-  public VDir getRootDir() {
+  public BaseVDir getRootDir() {
     return workVFS.getRootDir();
   }
 
@@ -157,6 +160,99 @@ public class VFSToVFSWrapper implements VFS {
   @Nonnull
   public Set<Capabilities> getCapabilities() {
     return this.capabilities;
+  }
+
+  @Override
+  @Nonnull
+  InputStream openRead(@Nonnull BaseVFile file) throws WrongPermissionException {
+    return workVFS.openRead(file);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
+    return workVFS.openWrite(file);
+  }
+
+  @Override
+  @Nonnull
+  BaseVDir getVDir(@Nonnull BaseVDir parent, @Nonnull String name) throws NotDirectoryException,
+      NoSuchFileException {
+    return workVFS.getVDir(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVFile getVFile(@Nonnull BaseVDir parent, @Nonnull String name) throws NotFileException,
+      NoSuchFileException {
+    return workVFS.getVFile(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVDir createVDir(@Nonnull BaseVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
+    return workVFS.createVDir(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
+    return workVFS.createVFile(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  void delete(@Nonnull BaseVFile file) throws CannotDeleteFileException {
+    workVFS.delete(file);
+  }
+
+  @Override
+  @Nonnull
+  Collection<? extends BaseVElement> list(@Nonnull BaseVDir dir) {
+    return workVFS.list(dir);
+  }
+
+  @Override
+  boolean isEmpty(@Nonnull BaseVDir dir) {
+    return workVFS.isEmpty(dir);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVFile file) {
+    return finalVFS.getVFileLocation(file);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return finalVFS.getVFileLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return finalVFS.getVFileLocation(parent, path);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir dir) {
+    return finalVFS.getVDirLocation(dir);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return finalVFS.getVDirLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return finalVFS.getVDirLocation(parent, path);
   }
 
 }

@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.google.common.io.Files;
 
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
@@ -28,12 +29,16 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -41,7 +46,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} backed by a real filesystem directory, compressed into a zip archive when closed.
  */
-public class ReadWriteZipFS implements VFS {
+public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
 
   @Nonnull
   private final VFSToVFSWrapper vfs;
@@ -91,7 +96,7 @@ public class ReadWriteZipFS implements VFS {
 
   @Override
   @Nonnull
-  public VDir getRootDir() {
+  public BaseVDir getRootDir() {
     return vfs.getRootDir();
   }
 
@@ -104,5 +109,98 @@ public class ReadWriteZipFS implements VFS {
   @Nonnull
   public Set<Capabilities> getCapabilities() {
     return vfs.getCapabilities();
+  }
+
+  @Override
+  @Nonnull
+  InputStream openRead(@Nonnull BaseVFile file) throws WrongPermissionException {
+    return vfs.openRead(file);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
+    return vfs.openWrite(file);
+  }
+
+  @Override
+  @Nonnull
+  BaseVDir getVDir(@Nonnull BaseVDir parent, @Nonnull String name) throws NotDirectoryException,
+      NoSuchFileException {
+    return vfs.getVDir(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVFile getVFile(@Nonnull BaseVDir parent, @Nonnull String name) throws NotFileException,
+      NoSuchFileException {
+    return vfs.getVFile(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVDir createVDir(@Nonnull BaseVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
+    return vfs.createVDir(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
+    return vfs.createVFile(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  void delete(@Nonnull BaseVFile file) throws CannotDeleteFileException {
+    vfs.delete(file);
+  }
+
+  @Override
+  @Nonnull
+  Collection<? extends BaseVElement> list(@Nonnull BaseVDir dir) {
+    return vfs.list(dir);
+  }
+
+  @Override
+  boolean isEmpty(@Nonnull BaseVDir dir) {
+    return vfs.isEmpty(dir);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVFile file) {
+    return vfs.getVFileLocation(file);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return vfs.getVFileLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return vfs.getVFileLocation(parent, path);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir dir) {
+    return vfs.getVDirLocation(dir);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+    return vfs.getVDirLocation(parent, name);
+  }
+
+  @Override
+  @Nonnull
+  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+    return vfs.getVDirLocation(parent, path);
   }
 }
