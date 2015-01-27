@@ -44,9 +44,9 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
   @SuppressWarnings("unchecked")
-  public DeflateFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
+  public DeflateFS(@Nonnull VFS vfs) {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
-    changeVFS(vfs.getRootDir());
+    changeVFS(this.vfs.getRootDir());
   }
 
   @Override

@@ -146,8 +146,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
   @SuppressWarnings("unchecked")
-  public CaseInsensitiveFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs)
-      throws WrongVFSFormatException {
+  public CaseInsensitiveFS(@Nonnull VFS vfs) throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());

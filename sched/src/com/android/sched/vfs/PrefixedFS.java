@@ -34,17 +34,16 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} filter that adds a prefix to all paths.
  */
-public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
+public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
   @Nonnull
   private final BaseVDir rootDir;
 
   @SuppressWarnings("unchecked")
-  public PrefixedFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs,
-      @Nonnull VPath prefix) throws CannotCreateFileException {
+  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix) throws CannotCreateFileException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
-    rootDir = vfs.getRootDir().createVDir(prefix);
+    rootDir = this.vfs.getRootDir().createVDir(prefix);
   }
 
   @Override

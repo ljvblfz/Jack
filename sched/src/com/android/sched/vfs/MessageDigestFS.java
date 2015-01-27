@@ -136,11 +136,11 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
   }
 
   @SuppressWarnings("unchecked")
-  public MessageDigestFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs,
-      @Nonnull MessageDigestFactory factory) throws WrongVFSFormatException {
+  public MessageDigestFS(@Nonnull VFS vfs, @Nonnull MessageDigestFactory factory)
+      throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
     this.mdFactory = factory;
-    changeVFS(vfs.getRootDir());
+    changeVFS(this.vfs.getRootDir());
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
     capabilities.add(Capabilities.DIGEST);

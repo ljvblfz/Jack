@@ -49,8 +49,7 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   private final Set<Capabilities> capabilities;
 
   @SuppressWarnings("unchecked")
-  public VFSToVFSWrapper(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> workVFS,
-      @Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> finalVFS) {
+  public VFSToVFSWrapper(@Nonnull VFS workVFS, @Nonnull VFS finalVFS) {
     this.workVFS = (BaseVFS<BaseVDir, BaseVFile>) workVFS;
     this.finalVFS = (BaseVFS<BaseVDir, BaseVFile>) finalVFS;
 
