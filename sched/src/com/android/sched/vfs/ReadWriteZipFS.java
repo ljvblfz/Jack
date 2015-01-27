@@ -34,6 +34,7 @@ import com.android.sched.util.location.Location;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -97,5 +98,11 @@ public class ReadWriteZipFS implements VFS {
   @Override
   public boolean needsSequentialWriting() {
     return vfs.needsSequentialWriting();
+  }
+
+  @Override
+  @Nonnull
+  public Set<Capabilities> getCapabilities() {
+    return vfs.getCapabilities();
   }
 }
