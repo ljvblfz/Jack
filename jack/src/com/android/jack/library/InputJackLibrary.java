@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
-import com.android.sched.vfs.InputVFS;
 
 import java.util.Properties;
 import java.util.logging.Level;
@@ -31,12 +30,8 @@ import javax.annotation.Nonnull;
  */
 public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
-  @Nonnull
-  protected final InputVFS baseVFS;
-
-  public InputJackLibrary(@Nonnull InputVFS baseVFS, @Nonnull Properties libraryProperties) {
+  public InputJackLibrary(@Nonnull Properties libraryProperties) {
     super(libraryProperties);
-    this.baseVFS = baseVFS;
   }
 
   protected void check() throws LibraryVersionException, LibraryFormatException {

@@ -21,9 +21,10 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VFS;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -63,29 +64,24 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  public static InputJackLibrary getInputLibrary(@Nonnull InputVFS vdir)
+  public static InputJackLibrary getInputLibrary(@Nonnull VFS vdir)
       throws LibraryVersionException, LibraryFormatException, NotJackLibraryException {
-    Properties libraryProperties = loadLibraryProperties(vdir);
-    String majorVersion = getMajorVersionAsString(vdir, libraryProperties);
+    GenericInputVFS giVFS = new GenericInputVFS(vdir);
+    Properties libraryProperties = loadLibraryProperties(giVFS);
+    String majorVersion = getMajorVersionAsString(giVFS, libraryProperties);
 
     InputJackLibrary inputJackLibrary = (InputJackLibrary) instantiateConstructorWithParameters(
         vdir, "com.android.jack.library.v" + majorVersion + ".InputJackLibraryImpl",
-        new Class[] {InputVFS.class, Properties.class}, new Object[] {vdir, libraryProperties},
+        new Class[] {VFS.class, Properties.class}, new Object[] {vdir, libraryProperties},
         String.valueOf(majorVersion));
 
     return inputJackLibrary;
   }
 
   @Nonnull
-  public static OutputJackLibrary getOutputLibrary(@Nonnull InputOutputVFS vfs,
+  public static OutputJackLibrary getOutputLibrary(@Nonnull VFS vfs,
       @Nonnull String emitterId, @Nonnull String emitterVersion) {
     return new OutputJackLibraryImpl(vfs, emitterId, emitterVersion);
-  }
-
-  @Nonnull
-  public static OutputJackLibrary getOutputLibrary(@Nonnull InputJackLibrary inputLibrary,
-      @Nonnull String emitterId, @Nonnull String emitterVersion) {
-    return new OutputJackLibraryImpl(inputLibrary, emitterId, emitterVersion);
   }
 
   private static String getMajorVersionAsString(@Nonnull InputVFS vdir,
@@ -117,7 +113,7 @@ public abstract class JackLibraryFactory {
   }
 
   @Nonnull
-  private static Object instantiateConstructorWithParameters(@Nonnull InputVFS vdir,
+  private static Object instantiateConstructorWithParameters(@Nonnull VFS vdir,
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes,
       @Nonnull Object[] parameterInstances, @Nonnull String version)
       throws LibraryVersionException, LibraryFormatException {

@@ -18,11 +18,11 @@ package com.android.jack.library;
 
 import com.android.jack.LibraryException;
 import com.android.sched.util.codec.CodecContext;
-import com.android.sched.util.codec.InputVDirCodec;
+import com.android.sched.util.codec.DirectFSCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.vfs.InputVFS;
+import com.android.sched.vfs.VFS;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +35,10 @@ import javax.annotation.Nonnull;
  */
 public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
   @Nonnull
-  private final InputVDirCodec codec;
+  private final DirectFSCodec codec;
 
   public InputJackLibraryCodec() {
-    codec = new InputVDirCodec();
+    codec = new DirectFSCodec();
   }
 
   @Override
@@ -55,7 +55,7 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
   @CheckForNull
   public InputJackLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    InputVFS vfs = codec.checkString(context, string);
+    VFS vfs = codec.checkString(context, string);
 
     try {
       return JackLibraryFactory.getInputLibrary(vfs);

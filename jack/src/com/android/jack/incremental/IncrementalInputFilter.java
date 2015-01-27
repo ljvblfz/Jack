@@ -352,8 +352,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @CheckForNull
   private InputJackLibrary getIncrementalInternalLibrary() {
     try {
-      return JackLibraryFactory.getInputLibrary(
-          ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR));
+      return JackLibraryFactory.getInputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR));
     } catch (NotJackLibraryException e) {
       // No incremental internal library, it is the first compilation
     } catch (LibraryVersionException e) {
@@ -471,7 +470,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       return getOutputJackLibraryFromVfs();
     }
 
-    return (JackLibraryFactory.getOutputLibrary(incrementalInputLibrary, Jack.getEmitterId(),
-        Jack.getVersionString()));
+    return (JackLibraryFactory.getOutputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR),
+        Jack.getEmitterId(), Jack.getVersionString()));
   }
 }

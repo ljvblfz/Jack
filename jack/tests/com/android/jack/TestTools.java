@@ -44,7 +44,7 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
-import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.DirectFS;
 
 import junit.framework.Assert;
 
@@ -452,10 +452,11 @@ public class TestTools {
 
     OutputJackLibrary outputLibrary = null;
     try {
-      outputLibrary = JackLibraryFactory.getOutputLibrary(new DirectVFS(new Directory(
+      outputLibrary = JackLibraryFactory.getOutputLibrary(new DirectFS(new Directory(
           TestTools.createTempDir("unused", "").getPath(), hooks, Existence.MUST_EXIST,
-          Permission.WRITE, ChangePermission.NOCHANGE)), Jack.getEmitterId(),
-          Jack.getVersionString());
+          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE),
+          Jack.getEmitterId(), Jack.getVersionString());
       session.setJackOutputLibrary(outputLibrary);
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);

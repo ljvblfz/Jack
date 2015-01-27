@@ -39,9 +39,9 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.codec.DirectDirInputOutputVDirCodec;
 import com.android.sched.util.codec.DirectDirOutputVDirCodec;
-import com.android.sched.util.codec.ZipInputOutputVDirCodec;
+import com.android.sched.util.codec.DirectFSCodec;
+import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.codec.ZipOutputVDirCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
@@ -65,9 +65,9 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.OutputVFS;
+import com.android.sched.vfs.VFS;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -148,15 +148,15 @@ public class Options {
       .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<InputOutputVFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
+  public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
       "jack.library.output.zip", "Output zip archive for library",
-      new ZipInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue()
+      new ZipFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue()
       .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
 
   @Nonnull
-  public static final PropertyId<InputOutputVFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
+  public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.library.output.dir", "Output folder for library",
-      new DirectDirInputOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
+      new DirectFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
 
@@ -627,7 +627,7 @@ public class Options {
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(Options.LIBRARY_OUTPUT_DIR,
-          new DirectVFS(createTempDirForTypeDexFiles(hooks)));
+          new DirectFS(createTempDirForTypeDexFiles(hooks), Permission.READ | Permission.WRITE));
     }
 
     switch (multiDexKind) {

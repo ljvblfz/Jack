@@ -40,10 +40,9 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputOutputVFS;
-import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.InputZipVFS;
+import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.ReadZipFS;
+import com.android.sched.vfs.VFS;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,19 +130,17 @@ public abstract class CommonFilter {
   }
 
   @Nonnull
-
   protected OutputJackLibrary getOutputJackLibraryFromVfs() {
-    InputOutputVFS outputDir;
+    VFS vfs;
     Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
 
     if (containerType == Container.DIR) {
-      outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
     } else {
-      outputDir = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
     }
 
-    return (JackLibraryFactory.getOutputLibrary(outputDir, Jack.getEmitterId(),
-        Jack.getVersionString()));
+    return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersionString()));
   }
 
   protected List<InputLibrary> getInputLibrariesFromFiles(@Nonnull List<File> files,
@@ -152,7 +149,7 @@ public abstract class CommonFilter {
 
     for (final File jackFile : files) {
       try {
-        InputVFS vDir = wrapAsVDir(jackFile);
+        VFS vDir = wrapAsVDir(jackFile);
         libraries.add(JackLibraryFactory.getInputLibrary(vDir));
       } catch (IOException ioException) {
         if (strictMode) {
@@ -181,14 +178,14 @@ public abstract class CommonFilter {
   }
 
   @Nonnull
-  protected InputVFS wrapAsVDir(@Nonnull final File dirOrZip)
+  protected VFS wrapAsVDir(@Nonnull final File dirOrZip)
       throws IOException {
-    final InputVFS vfs;
+    final VFS vfs;
     if (dirOrZip.isDirectory()) {
-      vfs = new DirectVFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-          Permission.READ, ChangePermission.NOCHANGE));
+      vfs = new DirectFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+          Permission.READ, ChangePermission.NOCHANGE), Permission.READ);
     } else { // zip
-      vfs = new InputZipVFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+      vfs = new ReadZipFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
           ChangePermission.NOCHANGE));
     }
 

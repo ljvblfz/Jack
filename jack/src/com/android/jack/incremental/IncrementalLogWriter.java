@@ -25,7 +25,6 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -60,8 +59,6 @@ class IncrementalLogWriter {
       try {
         library.createFile(FileType.LOG, vpath);
       } catch (CannotCreateFileException e1) {
-        throw new LibraryIOException(library.getLocation(), e1);
-      } catch (NotFileOrDirectoryException e1) {
         throw new LibraryIOException(library.getLocation(), e1);
       }
     }

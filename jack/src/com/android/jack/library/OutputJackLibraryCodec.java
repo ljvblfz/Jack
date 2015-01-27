@@ -20,10 +20,10 @@ import com.android.jack.Jack;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
-import com.android.sched.util.codec.ZipInputOutputVDirCodec;
+import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.VFS;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,10 +36,10 @@ import javax.annotation.Nonnull;
  */
 public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
   @Nonnull
-  private final ZipInputOutputVDirCodec codec;
+  private final ZipFSCodec codec;
 
   public OutputJackLibraryCodec() {
-    codec = new ZipInputOutputVDirCodec(Existence.MAY_EXIST);
+    codec = new ZipFSCodec(Existence.MAY_EXIST);
   }
 
   @Override
@@ -56,8 +56,7 @@ public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
   @CheckForNull
   public OutputJackLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    InputOutputVFS vfs = codec.checkString(context, string);
-
+    VFS vfs = codec.checkString(context, string);
     return JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersionString());
   }
 

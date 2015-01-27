@@ -25,6 +25,8 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputZipVFS;
+import com.android.sched.vfs.ReadZipFS;
+import com.android.sched.vfs.VFS;
 
 import junit.framework.Assert;
 
@@ -86,7 +88,7 @@ public class LibraryTests {
         true, AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
 
     RunnableHooks hooks = new RunnableHooks();
-    InputVFS vfs = new InputZipVFS(
+    VFS vfs = new ReadZipFS(
         new InputZipFile(out.getPath(), hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
     try {
       InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vfs);

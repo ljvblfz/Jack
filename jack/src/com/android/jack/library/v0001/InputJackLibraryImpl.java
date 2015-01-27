@@ -23,21 +23,27 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
+import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.MessageDigestInputVFS;
-import com.android.sched.vfs.PrefixedInputVFS;
+import com.android.sched.vfs.MessageDigestFS;
+import com.android.sched.vfs.PrefixedFS;
+import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +74,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private final int minorVersion;
 
   @Nonnull
+  private final VFS vfs;
+
+  @Nonnull
   private final InputLibraryLocation location = new InputLibraryLocation() {
     @Override
     @Nonnull
@@ -83,14 +92,15 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
     @Override
     protected Location getVFSLocation() {
-      return baseVFS.getLocation();
+      return vfs.getLocation();
     }
   };
 
-  public InputJackLibraryImpl(@Nonnull InputVFS baseVFS,
+  public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
-    super(baseVFS, libraryProperties);
+    super(libraryProperties);
+    this.vfs = vfs;
 
     try {
       minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
@@ -148,32 +158,36 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    try {
-      InputVFS currentSectionVFS = getSectionVFS(fileType);
-      fillFiles(currentSectionVFS.getRootInputVDir(), fileType, inputVFiles);
-    } catch (NotDirectoryException e) {
-      throw new AssertionError(
-          getLocation().getDescription() + " is an invalid library: " + e.getMessage());
-    } catch (NoSuchFileException e) {
-      throw new AssertionError(
-          getLocation().getDescription() + " is an invalid library: " + e.getMessage());
-    }
+    fillFiles(getSectionVFS(fileType).getRootInputVDir(), fileType, inputVFiles);
     return inputVFiles.listIterator();
   }
 
   @Nonnull
-  private synchronized InputVFS getSectionVFS(@Nonnull FileType fileType)
-      throws NotDirectoryException, NoSuchFileException {
-   InputVFS currentSectionVFS;
+  private synchronized InputVFS getSectionVFS(@Nonnull FileType fileType) {
+    InputVFS currentSectionVFS;
     if (sectionVFS.containsKey(fileType)) {
       currentSectionVFS = sectionVFS.get(fileType);
     } else {
-      InputVFS prefixedInputVFS =
-          new PrefixedInputVFS(baseVFS, new VPath(fileType.getPrefix(), '/'));
+      VFS prefixedInputVFS = null;
+      try {
+        prefixedInputVFS = new PrefixedFS(vfs, new VPath(fileType.getPrefix(), '/'));
+      } catch (CannotCreateFileException e) {
+        // If library is well formed this exception can not be triggered
+        throw new AssertionError(e);
+      } catch (NotDirectoryException e) {
+        // If library is well formed this exception can not be triggered
+        throw new AssertionError(e);
+      }
       if (fileType == FileType.DEX) {
-        currentSectionVFS = new MessageDigestInputVFS(prefixedInputVFS);
+        try {
+          currentSectionVFS = new GenericInputVFS(new MessageDigestFS(prefixedInputVFS,
+              ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO)));
+        } catch (WrongVFSFormatException e) {
+          // If library is well formed this exception can not be triggered
+          throw new AssertionError(e);
+        }
       } else {
-        currentSectionVFS = prefixedInputVFS;
+        currentSectionVFS = new GenericInputVFS(prefixedInputVFS);
       }
       sectionVFS.put(fileType, currentSectionVFS);
     }
@@ -186,7 +200,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       for (InputVFS currentSectionVFS : sectionVFS.values()) {
         currentSectionVFS.close();
       }
-      baseVFS.close();
+      vfs.close();
     } catch (IOException e) {
       throw new LibraryIOException(getLocation(), e);
     }
@@ -233,7 +247,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   @Nonnull
   public String getPath() {
-    return baseVFS.getPath();
+    return vfs.getPath();
   }
 
   @Nonnull
@@ -249,15 +263,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     if (!containsFileType(FileType.DEX)) {
       return null;
     } else {
-      try {
-        return ((MessageDigestInputVFS) getSectionVFS(FileType.DEX)).getDigest();
-      } catch (NotDirectoryException e) {
-        // we already checked that the library contained dex files
-        throw new AssertionError(e);
-      } catch (NoSuchFileException e) {
-        // we already checked that the library contained dex files
-        throw new AssertionError(e);
-      }
+      return getSectionVFS(FileType.DEX).getDigest();
+
     }
   }
 }

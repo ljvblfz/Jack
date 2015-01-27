@@ -29,7 +29,7 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
@@ -75,11 +75,11 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    DirectVFS directVFS = null;
+    DirectFS directFS = null;
     try {
-      directVFS = new DirectVFS(new Directory(ite.getCompilerStateFolder().getPath(), null,
-          Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
-      InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(directVFS);
+      directFS = new DirectFS(new Directory(ite.getCompilerStateFolder().getPath(), null,
+          Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ);
+      InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(directFS);
 
       TypeDependencies typeDependencies = readTypeDependencies(inputJackLibrary);
 
@@ -96,8 +96,8 @@ public class DependenciesTest009 {
       assert dependencies1.equals(dependencies2);
       Assert.assertEquals(dependencies1, dependencies2);
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (directFS != null) {
+        directFS.close();
       }
     }
   }

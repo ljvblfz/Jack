@@ -16,6 +16,8 @@
 
 package com.android.jack.fileconflict;
 
+import com.google.common.io.Files;
+
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
@@ -279,12 +281,15 @@ public class FileConflictTests {
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
     File libProperties = new File(tempJackFolder, libPropName);
+    File digestFile = new File(tempJackFolder, FileType.DEX.getPrefix() + "/digest");
+
 
     // create Jack dirs to import
     File jackImport1 = AbstractTestTools.createTempDir();
     copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
     copyFileToDir(myClass1Dex, dexFilePath, jackImport1);
+    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
 
     // copy Jack file to output dir
     copyFileToDir(myClass1, jackFilePath, jackOutput);
@@ -418,10 +423,13 @@ public class FileConflictTests {
 
     String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
     File libProperties = new File(tempJackFolder, libPropName);
+    File digestFile = new File(tempJackFolder, FileType.DEX.getPrefix() + "/digest");
 
     // create Jack dirs to import
     File jackImport1 = AbstractTestTools.createTempDir();
     File jackImport2 = AbstractTestTools.createTempDir();
+    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
+    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport2);
     copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
     copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport1);
