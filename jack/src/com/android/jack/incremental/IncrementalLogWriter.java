@@ -89,7 +89,7 @@ class IncrementalLogWriter {
   void writeStrings(@Nonnull String prefixStr, @Nonnull Collection<String> strings) {
     ps.print(prefixStr);
     ps.print(": ");
-    ps.print(Joiner.on(",").join(strings));
+    ps.print(Joiner.on(",").useForNull("").join(strings));
     ps.println();
   }
 
