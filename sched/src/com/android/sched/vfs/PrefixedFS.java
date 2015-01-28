@@ -41,9 +41,18 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   private final BaseVDir rootDir;
 
   @SuppressWarnings("unchecked")
-  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix) throws CannotCreateFileException {
+  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix) throws CannotCreateFileException,
+      NotDirectoryException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
-    rootDir = this.vfs.getRootDir().createVDir(prefix);
+
+    BaseVDir rootDir;
+    // let's try to get the VDir before creating it because we not have write permissions.
+    try {
+      rootDir = this.vfs.getRootDir().getVDir(prefix);
+    } catch (NoSuchFileException e) {
+      rootDir = this.vfs.getRootDir().createVDir(prefix);
+    }
+    this.rootDir = rootDir;
   }
 
   @Override
