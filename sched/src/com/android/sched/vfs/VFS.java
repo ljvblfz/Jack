@@ -22,6 +22,7 @@ import com.android.sched.util.location.HasLocation;
 import java.io.Closeable;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -38,4 +39,7 @@ public interface VFS extends HasLocation, Closeable, HasDescription {
 
   @Nonnull
   Set<Capabilities> getCapabilities();
+
+  @CheckForNull
+  String getDigest();
 }

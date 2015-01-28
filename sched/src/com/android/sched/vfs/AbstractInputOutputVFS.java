@@ -53,4 +53,10 @@ public abstract class AbstractInputOutputVFS extends AbstractVFS implements Inpu
 
     return root;
   }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
+  }
 }

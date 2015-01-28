@@ -20,6 +20,7 @@ import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -54,5 +55,11 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
   @Override
   public void close() throws IOException {
     vfs.close();
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return vfs.getDigest();
   }
 }

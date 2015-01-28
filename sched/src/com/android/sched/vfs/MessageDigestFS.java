@@ -250,6 +250,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
     return vfs.getPath();
   }
 
+  @Override
   @Nonnull
   public synchronized String getDigest() {
     if (digest == null) {

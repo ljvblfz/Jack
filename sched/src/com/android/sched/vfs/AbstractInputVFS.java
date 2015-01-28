@@ -37,4 +37,10 @@ public abstract class AbstractInputVFS extends AbstractVFS implements InputVFS {
 
     return root;
   }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
+  }
 }

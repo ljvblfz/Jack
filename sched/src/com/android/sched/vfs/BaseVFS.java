@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -106,5 +107,11 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
 
   synchronized boolean isClosed() {
     return closed;
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
   }
 }
