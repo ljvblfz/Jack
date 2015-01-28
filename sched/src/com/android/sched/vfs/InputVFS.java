@@ -20,6 +20,7 @@ import com.android.sched.util.location.HasLocation;
 
 import java.io.Closeable;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -30,4 +31,6 @@ public interface InputVFS extends HasLocation, Closeable {
   String getPath();
   @Nonnull
   InputVDir getRootInputVDir();
+  @CheckForNull
+  String getDigest();
 }

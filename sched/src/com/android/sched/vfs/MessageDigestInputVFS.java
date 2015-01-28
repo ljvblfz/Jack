@@ -251,6 +251,7 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     return algorithm;
   }
 
+  @Override
   @CheckForNull
   public String getDigest() {
     return digest;
