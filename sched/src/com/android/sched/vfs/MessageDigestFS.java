@@ -107,6 +107,11 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
       }
     }
 
+    @Nonnull
+    public BaseVFile getWrappedFile() {
+      return wrappedFile;
+    }
+
     @Override
     @Nonnull
     public InputStream openRead() throws WrongPermissionException {
@@ -324,7 +329,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
   @Override
   @Nonnull
   synchronized void delete(@Nonnull MessageDigestVFile file) throws CannotDeleteFileException {
-    vfs.delete(file);
+    vfs.delete(file.getWrappedFile());
     digests.remove(file.getPath());
     digest = null;
   }
