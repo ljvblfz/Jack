@@ -16,44 +16,40 @@
 
 package com.android.sched.util.codec;
 
-
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.vfs.DirectFS;
-import com.android.sched.vfs.GenericInputOutputVFS;
-import com.android.sched.vfs.InputOutputVDir;
-import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.OutputVFS;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link InputOutputVDir} backed by a
+ * This {@link StringCodec} is used to create an instance of {@link OutputVFS} backed by a
  * filesystem directory.
  */
-public class DirectDirInputOutputVDirCodec extends InputOutputVDirCodec
-    implements StringCodec<InputOutputVFS> {
-
-  public DirectDirInputOutputVDirCodec(@Nonnull Existence existence) {
+public class DirectDirOutputVFSCodec extends OutputVFSCodec {
+  public DirectDirOutputVFSCodec(@Nonnull Existence existence) {
     super(existence);
   }
 
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a directory (" + getUsageDetails() + ")";
+    return "a path to an output directory (" + getUsageDetails() + ")";
   }
 
   @Override
   @Nonnull
-  public InputOutputVFS checkString(@Nonnull CodecContext context,
+  public OutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new GenericInputOutputVFS(new DirectFS(new Directory(string,
-          context.getRunnableHooks(), existence, permissions, change), permissions));
+      return new DirectVFS(
+          new Directory(string, context.getRunnableHooks(), existence, permissions, change));
     } catch (IOException e) {
-      throw new ParsingException(e);
+      throw new ParsingException(e.getMessage(), e);
     }
   }
+
 }

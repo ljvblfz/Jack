@@ -26,7 +26,6 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DirectVFS;
-import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputZipVFS;
 
@@ -37,29 +36,29 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link InputVDir}.
+ * This {@link StringCodec} is used to create an instance of {@link InputVFS}.
  */
-public class InputVDirCodec extends FileOrDirCodec
+public class InputVFSCodec extends FileOrDirCodec
     implements StringCodec<InputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
-  public InputVDirCodec() {
+  public InputVFSCodec() {
     super(Existence.MUST_EXIST, Permission.READ);
 
     assert (permissions & Permission.EXECUTE) == 0;
   }
 
   @Nonnull
-  public InputVDirCodec changeOwnerPermission() {
+  public InputVFSCodec changeOwnerPermission() {
     setChangePermission(ChangePermission.OWNER);
 
     return this;
   }
 
   @Nonnull
-  public InputVDirCodec changeAllPermission() {
+  public InputVFSCodec changeAllPermission() {
     setChangePermission(ChangePermission.EVERYBODY);
 
     return this;

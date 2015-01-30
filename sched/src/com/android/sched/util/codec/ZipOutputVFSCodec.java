@@ -32,12 +32,12 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link OutputVFS} backed by a zip
  * archive.
  */
-public class ZipOutputVDirCodec extends OutputVDirCodec {
+public class ZipOutputVFSCodec extends OutputVFSCodec {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
-  public ZipOutputVDirCodec(@Nonnull Existence existence) {
+  public ZipOutputVFSCodec(@Nonnull Existence existence) {
     super(existence);
   }
 

@@ -39,10 +39,10 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.codec.DirectDirOutputVDirCodec;
+import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectFSCodec;
 import com.android.sched.util.codec.ZipFSCodec;
-import com.android.sched.util.codec.ZipOutputVDirCodec;
+import com.android.sched.util.codec.ZipOutputVFSCodec;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
@@ -163,13 +163,13 @@ public class Options {
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
-      new DirectDirOutputVDirCodec(Existence.MUST_EXIST)).requiredIf(
+      new DirectDirOutputVFSCodec(Existence.MUST_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR));
 
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_ZIP = PropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
-      new ZipOutputVDirCodec(Existence.MAY_EXIST)).requiredIf(
+      new ZipOutputVFSCodec(Existence.MAY_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
