@@ -1281,7 +1281,8 @@
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
 
-  <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib">
+  <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
+    freemarker-lib,maths-lib">
       <mkdir dir="${test-jack.output.dir}/Sched/html"/>
       <junit fork="yes" errorproperty="test-jack.failure">
         <formatter type="xml"/>
@@ -1291,6 +1292,9 @@
             <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
             <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
             <file name="${guava.dist.dir}/${guava.libname}"/>
+            <file name="${freemarker.dist.dir}/${freemarker.libname}"/>
+            <file name="${maths.dist.dir}/${maths.libname}"/>
+            <file name="${watchmaker.dist.dir}/${watchmaker.libname}"/>
           </filelist>
         </classpath>
         <test name="com.android.sched.AllTests"
