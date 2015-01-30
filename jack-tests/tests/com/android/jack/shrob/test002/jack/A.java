@@ -17,7 +17,7 @@
 package com.android.jack.shrob.test002.jack;
 
 public class A {
-  @Override
+  @Deprecated
   public String toString() {
     return null;
   }
