@@ -21,7 +21,6 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.InputOutputVDir;
 import com.android.sched.vfs.InputOutputVFS;
 import com.android.sched.vfs.InputOutputZipVFS;
 
@@ -31,16 +30,16 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link InputOutputVDir} backed by a
+ * This {@link StringCodec} is used to create an instance of {@link InputOutputVFS} backed by a
  * filesystem directory, which is then zipped when closed.
  */
-public class ZipInputOutputVDirCodec extends InputOutputVDirCodec
+public class ZipInputOutputVFSCodec extends InputOutputVFSCodec
     implements StringCodec<InputOutputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
-  public ZipInputOutputVDirCodec(@Nonnull Existence existence) {
+  public ZipInputOutputVFSCodec(@Nonnull Existence existence) {
     super(existence);
   }
 

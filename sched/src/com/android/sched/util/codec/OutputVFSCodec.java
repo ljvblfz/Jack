@@ -21,29 +21,28 @@ import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.vfs.OutputVDir;
 import com.android.sched.vfs.OutputVFS;
 
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link OutputVDir}.
+ * This {@link StringCodec} is used to create an instance of {@link OutputVFS}.
  */
-abstract class OutputVDirCodec extends FileOrDirCodec implements StringCodec<OutputVFS> {
+abstract class OutputVFSCodec extends FileOrDirCodec implements StringCodec<OutputVFS> {
 
-  public OutputVDirCodec(@Nonnull Existence existence) {
+  public OutputVFSCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);
   }
 
   @Nonnull
-  public OutputVDirCodec changeOwnerPermission() {
+  public OutputVFSCodec changeOwnerPermission() {
     setChangePermission(ChangePermission.OWNER);
 
     return this;
   }
 
   @Nonnull
-  public OutputVDirCodec changeAllPermission() {
+  public OutputVFSCodec changeAllPermission() {
     setChangePermission(ChangePermission.EVERYBODY);
 
     return this;
