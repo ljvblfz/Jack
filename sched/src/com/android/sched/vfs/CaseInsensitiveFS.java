@@ -188,10 +188,10 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
           char type = line.charAt(0);
           switch (type) {
             case 'd':
-              root.createVDir(new VPath(line.substring(3), '/'));
+              root.createVDir(new VPath(line.substring(2), '/'));
               break;
             case 'f':
-              root.createVFile(new VPath(line.substring(3), '/'));
+              root.createVFile(new VPath(line.substring(2), '/'));
               break;
             default:
               throw new WrongVFSFormatException(this, vfs.getLocation(),

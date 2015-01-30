@@ -66,6 +66,7 @@ public final class VPath implements Cloneable {
    * @return the current path
    */
   public VPath prependPath(@Nonnull VPath path) {
+    assert !this.equals(VPath.ROOT);
     pathFragments.add(0, new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
     pathFragments.addAll(0, path.getPathFragments());
 
@@ -79,7 +80,9 @@ public final class VPath implements Cloneable {
    * @return the current path
    */
   public VPath appendPath(@Nonnull VPath path) {
-    pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    if (!this.equals(VPath.ROOT)) {
+      pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    }
     pathFragments.addAll(path.getPathFragments());
 
     return this;
@@ -189,10 +192,9 @@ public final class VPath implements Cloneable {
       if (toString.contains(doubleSeparator)) {
         throw new AssertionError("Path: " + toString);
       }
-      //XXX: prepend and append generate invalid paths
-//      if (toString.startsWith(stringSeparator)) {
-//        throw new AssertionError("Path: " + toString);
-//      }
+      if (toString.startsWith(stringSeparator)) {
+        throw new AssertionError("Path: " + toString);
+      }
       if (toString.endsWith(stringSeparator)) {
         throw new AssertionError("Path: " + toString);
       }
