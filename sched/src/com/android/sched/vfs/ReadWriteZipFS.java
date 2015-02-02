@@ -62,8 +62,8 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
       CannotCreateFileException {
     int permissions = Permission.READ | Permission.WRITE;
     dir = Files.createTempDir();
-    DirectFS workVFS = new DirectFS(new Directory(dir.getPath(), null, Existence.MUST_EXIST,
-        permissions, ChangePermission.NOCHANGE), permissions);
+    CachedDirectFS workVFS = new CachedDirectFS(new Directory(dir.getPath(), null,
+        Existence.MUST_EXIST, permissions, ChangePermission.NOCHANGE), permissions);
     WriteZipFS finalVFS = new WriteZipFS(file);
     this.vfs = new VFSToVFSWrapper(workVFS, finalVFS);
   }
