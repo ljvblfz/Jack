@@ -19,7 +19,7 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.vfs.CachedDirectFS;
+import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.InputOutputVFS;
 
@@ -49,7 +49,7 @@ public class DirectDirInputOutputVFSCodec extends InputOutputVFSCodec
   public InputOutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new GenericInputOutputVFS(new CachedDirectFS(new Directory(string,
+      return new GenericInputOutputVFS(new DirectFS(new Directory(string,
           context.getRunnableHooks(), existence, permissions, change), permissions));
     } catch (IOException e) {
       throw new ParsingException(e);
