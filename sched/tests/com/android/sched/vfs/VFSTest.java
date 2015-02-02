@@ -145,6 +145,50 @@ public class VFSTest {
   }
 
   @Test
+  public void testCachedDirectFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS directVFS = null;
+    InputOutputVFS directVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      directVFS = new GenericInputOutputVFS(new CachedDirectFS(new Directory(path, null,
+          Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE));
+
+      testOutputVFS(directVFS);
+      testDelete(directVFS);
+      testInputVFS(directVFS);
+      directVFS.close();
+
+      directVFS2 =
+          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
+              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
+      testInputVFS(directVFS2);
+
+    } finally {
+      if (directVFS != null) {
+        directVFS.close();
+      }
+      if (directVFS2 != null) {
+        directVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
   public void testDeflateFS()
       throws NotDirectoryException,
       CannotCreateFileException,
@@ -560,8 +604,7 @@ public class VFSTest {
     // let's delete "dirA/dirAA/dirAAB/fileAAB1"
     InputOutputVDir dirA = ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
     {
-      InputOutputVFile fileAAB1 =
-          (InputOutputVFile) dirA.getInputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
+      InputOutputVFile fileAAB1 = dirA.getInputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
       fileAAB1.delete();
       try {
         ioVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
@@ -575,7 +618,7 @@ public class VFSTest {
     InputOutputVDir dirBB =
         ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
     {
-      InputOutputVFile fileBB1 = (InputOutputVFile) dirBB.getInputVFile(new VPath("fileBB1", '/'));
+      InputOutputVFile fileBB1 = dirBB.getInputVFile(new VPath("fileBB1", '/'));
       fileBB1.delete();
       try {
         ioVFS.getRootInputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));

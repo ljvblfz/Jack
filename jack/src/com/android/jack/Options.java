@@ -64,8 +64,8 @@ import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
+import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.VFS;
 
@@ -626,8 +626,8 @@ public class Options {
     } else {
       configBuilder.set(GENERATE_JACK_LIBRARY, true);
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
-      configBuilder.set(Options.LIBRARY_OUTPUT_DIR,
-          new DirectFS(createTempDirForTypeDexFiles(hooks), Permission.READ | Permission.WRITE));
+      configBuilder.set(Options.LIBRARY_OUTPUT_DIR, new CachedDirectFS(
+          createTempDirForTypeDexFiles(hooks), Permission.READ | Permission.WRITE));
     }
 
     switch (multiDexKind) {

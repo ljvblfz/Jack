@@ -22,7 +22,7 @@ import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.VFS;
 
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class DirectFSCodec extends FileOrDirCodec implements StringCodec<VFS> {
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new DirectFS(new Directory(string,
+      return new CachedDirectFS(new Directory(string,
           context.getRunnableHooks(), existence, permissions, change), permissions);
     } catch (IOException e) {
       throw new ParsingException(e);
