@@ -882,6 +882,10 @@ public class Options {
     properties.put(CodeItemBuilder.DEX_OPTIMIZE.getName(), "false");
   }
 
+  public void setSanityChecks(boolean sanityChecks) {
+    this.sanityChecks = sanityChecks;
+  }
+
   @Nonnull
   public List<File> getImportedLibraries() {
     return importedLibraries;

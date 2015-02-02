@@ -98,6 +98,8 @@ public class JackApiToolchain extends JackBasedToolchain {
   private void srcToCommon(@CheckForNull String classpath, @Nonnull File... sources) {
     addProperties(properties, jackOptions);
 
+    jackOptions.setSanityChecks(sanityChecks);
+
     if (jackOptions.getFlags() != null) {
       jackOptions.applyShrobFlags();
     }
@@ -174,6 +176,8 @@ public class JackApiToolchain extends JackBasedToolchain {
 
   private void libToCommon(@Nonnull File[] in) {
     addProperties(properties, jackOptions);
+
+    jackOptions.setSanityChecks(sanityChecks);
 
     jackOptions.setJarjarRulesFile(jarjarRules);
 
