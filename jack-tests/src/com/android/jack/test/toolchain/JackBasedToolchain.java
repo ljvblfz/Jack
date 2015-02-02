@@ -55,6 +55,8 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   protected List<File> resImport = new ArrayList<File>();
 
+  protected boolean sanityChecks = true;
+
   @Nonnull
   public final JackBasedToolchain addProperty(@Nonnull String propertyName,
       @Nonnull String propertyValue) {
@@ -139,6 +141,12 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
 
   @Nonnull
   protected abstract JackBasedToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level);
+
+  @Nonnull
+  public JackBasedToolchain setSanityChecks(boolean sanityChecks){
+    this.sanityChecks = sanityChecks;
+    return this;
+  }
 
   @Override
   @Nonnull

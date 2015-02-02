@@ -1223,6 +1223,7 @@
     <junit fork="yes" errorproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-ea"/>
        <classpath>
         <filelist refid="junit.tests.classpath" />
        </classpath>
@@ -1244,6 +1245,7 @@
       <junit fork="yes" errorproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
+        <jvmarg value="-ea"/>
         <classpath>
           <filelist refid="junit.tests.classpath" />
         </classpath>
@@ -1265,6 +1267,7 @@
       <junit fork="yes" errorproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
+        <jvmarg value="-ea"/>
         <classpath>
           <filelist refid="junit.tests.classpath" />
         </classpath>
@@ -1285,6 +1288,7 @@
     freemarker-lib,maths-lib">
       <mkdir dir="${test-jack.output.dir}/Sched/html"/>
       <junit fork="yes" errorproperty="test-jack.failure">
+        <jvmarg value="-ea"/>
         <formatter type="xml"/>
         <classpath>
           <filelist dir="/">

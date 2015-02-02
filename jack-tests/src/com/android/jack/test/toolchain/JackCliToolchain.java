@@ -144,6 +144,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add("--verbose");
     args.add(verbosityLevel.name());
 
+    args.add("--sanity-checks");
+    args.add(Boolean.toString(sanityChecks));
+
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
       args.add(incrementalFolder.getAbsolutePath());
@@ -249,6 +252,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
+
+    args.add("--sanity-checks");
+    args.add(Boolean.toString(sanityChecks));
 
     if (incrementalFolder != null) {
       args.add("--incremental-folder");
