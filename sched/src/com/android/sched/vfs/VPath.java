@@ -66,8 +66,10 @@ public final class VPath implements Cloneable {
    * @return the current path
    */
   public VPath prependPath(@Nonnull VPath path) {
-    assert !this.equals(VPath.ROOT);
-    pathFragments.add(0, new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    if (!this.equals(VPath.ROOT)) {
+      pathFragments.add(0,
+          new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+    }
     pathFragments.addAll(0, path.getPathFragments());
 
     return this;
