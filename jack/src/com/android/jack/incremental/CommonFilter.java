@@ -39,8 +39,8 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 
@@ -182,7 +182,7 @@ public abstract class CommonFilter {
       throws IOException {
     final VFS vfs;
     if (dirOrZip.isDirectory()) {
-      vfs = new CachedDirectFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
+      vfs = new DirectFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ, ChangePermission.NOCHANGE), Permission.READ);
     } else { // zip
       vfs = new ReadZipFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
