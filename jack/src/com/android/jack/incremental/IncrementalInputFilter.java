@@ -458,7 +458,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throw new JackAbortException(e);
     }
 
-    inputLibraries.add(incrementalInputLibrary);
+    inputLibraries.add(0, incrementalInputLibrary);
 
     return inputLibraries;
   }
