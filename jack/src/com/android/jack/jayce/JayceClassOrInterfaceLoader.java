@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
@@ -62,6 +63,11 @@ import javax.annotation.Nonnull;
  */
 public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader implements
     HasInputLibrary {
+
+  @Nonnull
+  private static final StatisticId<Counter> NNODE_MINI_LOAD = new StatisticId<
+      Counter>("jayce.type.load", "Jayce file partial load",
+          CounterImpl.class, Counter.class);
 
   @Nonnull
   private static final StatisticId<Percent> NNODE_RELOAD = new StatisticId<
@@ -155,14 +161,11 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
 
   @Nonnull
   JDefinedClassOrInterface load() throws LibraryFormatException, LibraryIOException {
-    DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
-    String expectedSignature = Jack.getLookupFormatter().getName(enclosingPackage, simpleName);
-    if (!type.getSignature().equals(expectedSignature)) {
-      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
-          + " is invalid: wrong type in '" + source + "', found '" + type.getSignature()
-          + "' while expecting '" + expectedSignature + "'");
-      throw new LibraryFormatException(inputJackLibrary.getLocation());
+    if (defaultLoadLevel == NodeLevel.TYPES) {
+      tracer.getStatistic(NNODE_MINI_LOAD).incValue();
     }
+    DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
+    assert checkName(type.getSignature());
     JDefinedClassOrInterface jType = type.create(enclosingPackage, this);
     return jType;
   }
@@ -186,10 +189,7 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
       InputStream in = null;
       try {
         in = new BufferedInputStream(source.openRead());
-        NodeLevel loadLevel = defaultLoadLevel;
-        if (!loadLevel.keep(minimumLevel)) {
-          loadLevel = minimumLevel;
-        }
+        NodeLevel loadLevel = getLevelForLoading(minimumLevel);
         type = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
         nnode = new SoftReference<DeclaredTypeNode>(type);
       } catch (IOException e) {
@@ -252,5 +252,29 @@ public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader i
   @Nonnull
   public InputLibrary getInputLibrary() {
     return inputJackLibrary;
+  }
+
+  private boolean checkName(@Nonnull String signature) {
+    TypePackageAndMethodFormatter lookupFormatter = Jack.getLookupFormatter();
+    String expectedSignature = lookupFormatter.getName(enclosingPackage, simpleName);
+    if (!signature.equals(expectedSignature)) {
+      throw new AssertionError("Wrong type in '" + source + "', found '"
+          + signature + "' while expecting '" + expectedSignature + "'");
+    }
+    return true;
+  }
+
+  /**
+   * Get the appropriate {@link NodeLevel} for loading a NNode according to the default load level
+   * and the required data.
+   * @param requiredData level of data required.
+   */
+  @Nonnull
+  private NodeLevel getLevelForLoading(@Nonnull NodeLevel requiredData) {
+    NodeLevel loadLevel = defaultLoadLevel;
+    if (!loadLevel.keep(requiredData)) {
+      loadLevel = requiredData;
+    }
+    return loadLevel;
   }
 }

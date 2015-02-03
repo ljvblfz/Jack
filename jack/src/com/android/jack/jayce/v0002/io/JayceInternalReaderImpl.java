@@ -217,7 +217,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
           + nodeClass.getSimpleName() + " was expected.");
     }
 
-    if (node instanceof HasSourceInfo) {
+    if (nodeLevel != NodeLevel.TYPES && node instanceof HasSourceInfo) {
       NSourceInfo sourceInfo = new NSourceInfo();
       sourceInfo.fileName = fileName;
       sourceInfo.startLine = startLine;
@@ -226,11 +226,15 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     if (node instanceof HasCatchBlockIds) {
       ((HasCatchBlockIds) node).setCatchBlockIds(new ArrayList<String>(currentCatchBlockList));
     }
+    /* readContent can stop in the middle of the node data when nodeLevel is NodeLevel.TYPES
+     * meaning we can't read anything after and we have to skip source info.
+     */
     node.readContent(this);
-    readSourceInfoEnd(node);
-    assert !(node instanceof NMethod) || currentCatchBlockList.isEmpty();
-    tokenizer.readClose();
-
+    if (nodeLevel != NodeLevel.TYPES) {
+      readSourceInfoEnd(node);
+      assert !(node instanceof NMethod) || currentCatchBlockList.isEmpty();
+      tokenizer.readClose();
+    }
     if (nodeLevel.keep(token.getNodeLevel())) {
       if (statistic != null) {
         statistic.addFalse();

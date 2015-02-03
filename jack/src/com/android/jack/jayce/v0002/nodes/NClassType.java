@@ -114,13 +114,10 @@ public class NClassType extends NDeclaredType {
   public JDefinedClass create(@Nonnull JPackage enclosingPackage,
       @Nonnull JayceClassOrInterfaceLoader loader) {
     assert signature != null;
-    assert sourceInfo != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(
-        new ExportSession(loader.getLookup(), enclosingPackage.getSession(), NodeLevel.STRUCTURE));
     JDefinedClass jClassType =
-        new JDefinedClass(jSourceInfo, simpleName, modifiers, enclosingPackage, loader);
+        new JDefinedClass(SourceInfo.UNKNOWN, simpleName, modifiers, enclosingPackage, loader);
     return jClassType;
   }
 
@@ -134,6 +131,7 @@ public class NClassType extends NDeclaredType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jClassType);
+    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
     if (superClass != null) {
       jClassType.setSuperClass(exportSession.getLookup().getClass(superClass));
     }
@@ -203,16 +201,18 @@ public class NClassType extends NDeclaredType {
     level = in.getNodeLevel();
     modifiers = in.readInt();
     signature = in.readId();
-    superClass = in.readId();
-    superInterfaces = in.readIds();
-    enclosingType = in.readId();
-    enclosingMethodClass = in.readId();
-    enclosingMethod = in.readId();
-    inners = in.readIds();
-    fields = in.readNodes(NField.class);
-    methods = in.readNodes(NMethod.class);
-    annotations = in.readNodes(NAnnotationLiteral.class);
-    markers = in.readNodes(NMarker.class);
+    if (level != NodeLevel.TYPES) {
+      superClass = in.readId();
+      superInterfaces = in.readIds();
+      enclosingType = in.readId();
+      enclosingMethodClass = in.readId();
+      enclosingMethod = in.readId();
+      inners = in.readIds();
+      fields = in.readNodes(NField.class);
+      methods = in.readNodes(NMethod.class);
+      annotations = in.readNodes(NAnnotationLiteral.class);
+      markers = in.readNodes(NMarker.class);
+    }
   }
 
   @Nonnull

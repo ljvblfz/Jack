@@ -25,7 +25,8 @@ import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
-@ImplementationName(iface = JaycePackageLoader.class, name = "full")
+@ImplementationName(iface = JaycePackageLoader.class, name = "full", description =
+"always read full information")
 class FullPackageLoader extends JaycePackageLoader {
 
   public FullPackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
