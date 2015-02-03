@@ -162,16 +162,6 @@ public class LivenessAnalyzer {
           handleTailRecursion();
         }
       } else {
-        // Special management for registers of category 2, indeed they use
-        // two 32-bits registers thus there is an implicit interference between
-        // the result register and operands contrary to category 1 where there
-        // is no writing of registers before all operands are read.
-        RegisterSpec resultSpec = insn.getResult();
-        if (resultSpec != null && resultSpec.getCategory() == 2
-            && insn.getSources().specForRegister(regV).getCategory() == 2) {
-          interference.add(regV, resultSpec.getReg());
-        }
-
         blockN = insn.getBlock();
         statementIndex = blockN.getInsns().indexOf(insn);
 
