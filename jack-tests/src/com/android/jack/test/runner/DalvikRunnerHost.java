@@ -30,6 +30,9 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
   @Nonnull
   private DalvikMode mode = DalvikMode.FAST;
 
+  @Nonnull
+  private static final String ANDROID_ROOT = "ANDROID_ROOT";
+
   public DalvikRunnerHost(@Nonnull File rtEnvironmentRootDir) {
     super(rtEnvironmentRootDir);
   }
@@ -40,14 +43,14 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
       throws RuntimeRunnerException {
     return runOnHost(
         buildCommandLineJUnit(options, jUnitRunnerName, jUnitTestClasses, classpathFiles),
-        "ANDROID_ROOT");
+        ANDROID_ROOT);
   }
 
   @Override
   public int run(@Nonnull String[] options, @Nonnull String mainClass,
       @Nonnull File... classpathFiles) throws RuntimeRunnerException {
     return runOnHost(buildCommandLine(options, mainClass, classpathFiles),
-        "ANDROID_HOST_OUT");
+        ANDROID_ROOT);
   }
 
   @Nonnull
