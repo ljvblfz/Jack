@@ -221,37 +221,37 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVFile file) {
-    return finalVFS.getVFileLocation(file);
+    return workVFS.getVFileLocation(file);
   }
 
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
-    return finalVFS.getVFileLocation(parent, name);
+    return workVFS.getVFileLocation(parent, name);
   }
 
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
-    return finalVFS.getVFileLocation(parent, path);
+    return workVFS.getVFileLocation(parent, path);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull BaseVDir dir) {
-    return finalVFS.getVDirLocation(dir);
+    return workVFS.getVDirLocation(dir);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
-    return finalVFS.getVDirLocation(parent, name);
+    return workVFS.getVDirLocation(parent, name);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
-    return finalVFS.getVDirLocation(parent, path);
+    return workVFS.getVDirLocation(parent, path);
   }
 
 }
