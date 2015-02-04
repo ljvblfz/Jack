@@ -30,7 +30,6 @@ import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
-import com.android.sched.vfs.Container;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -85,16 +84,10 @@ public class CoreCompilationTest {
     File coreDexFromJava = new File(coreDexFolderFromJava, DexFileWriter.DEX_FILENAME);
 
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addProperty(Options.GENERATE_JACK_LIBRARY.getName(), "true");
-
-    File outputFile = new File("/tmp/jackIncrementalOutput");
-
-    toolchain.addProperty(
-        Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
-    toolchain.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(), outputFile.getAbsolutePath());
-    toolchain.addProperty(
-        Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), Container.DIR.toString());
+    File outputFile = AbstractTestTools.createTempDir();
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
+
+    toolchain.setIncrementalFolder(outputFile);
 
     toolchain.srcToExe(
         coreDexFolderFromJava,

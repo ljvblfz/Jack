@@ -61,7 +61,7 @@ public class NoClasspathTest {
 
   private static File PLAY_SERVICE_JAR;
 
-  private static File corePath;
+  private static File coreOut;
 
   @BeforeClass
   public static void setup() throws Exception {
@@ -88,17 +88,16 @@ public class NoClasspathTest {
             + "classes.jack");
     PLAY_SERVICE_JAR = TestTools
         .getFromAndroidTree("out/target/common/obj/JAVA_LIBRARIES/"
-            + "google-play-services-first-party_intermediates/classes.jack");
+            + "prebuilt-google-play-services-first-party_intermediates/classes.jack");
 
 
-    // File coreOut = AbstractTestTools.createTempFile("core", ".jack");
-    File corePath = new File("/tmp/ + core.jack");
+    coreOut = AbstractTestTools.createTempFile("core", ".jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
-    toolchain.srcToLib(corePath,
+    toolchain.srcToLib(
+        coreOut,
         /* zipFile = */ true,
         CORE_SOURCELIST);
-//    corePath = coreOut.getAbsolutePath();
   }
 
   @Test
@@ -106,7 +105,7 @@ public class NoClasspathTest {
     File extJack = AbstractTestTools.createTempFile("ext", ".jack");
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(extJack, /* zipFiles = */ true, EXT_SOURCELIST);
 
     File extFolder = AbstractTestTools.createTempDir();
@@ -118,7 +117,7 @@ public class NoClasspathTest {
   public void frameworkFromJack() throws Exception {
     File conscryptJack = AbstractTestTools.createTempFile("conscrypt", ".jack");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(conscryptJack, /* zipFiles = */ true, CONSCRYPT_SOURCELIST);
 
     File conscryptRenamedJack = AbstractTestTools.createTempFile("conscryptrenamed", ".jack");
@@ -130,7 +129,7 @@ public class NoClasspathTest {
 
     File okhttpJack = AbstractTestTools.createTempFile("okkttp", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .addToClasspath(conscryptRenamedJack)
     .srcToLib(okhttpJack, /* zipFiles = */ true, OKHTTP_SOURCELIST);
 
@@ -143,17 +142,17 @@ public class NoClasspathTest {
 
     File extJack = AbstractTestTools.createTempFile("ext", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(extJack, /* zipFiles = */ true, EXT_SOURCELIST);
 
     File bouncyCastleJack = AbstractTestTools.createTempFile("bouncyjack", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(bouncyCastleJack, /* zipFiles = */ true, BOUNCY_SOURCELIST);
 
     File coreJunitJack = AbstractTestTools.createTempFile("corejunitjack", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(coreJunitJack, /* zipFiles = */ true, CORE_JUNIT_SOURCELIST);
 
     File bouncyCastleRenamedJack = AbstractTestTools.createTempFile("bouncyjackrenamed", ".jack");
@@ -163,13 +162,7 @@ public class NoClasspathTest {
     toolchain.setJarjarRules(jarjarRules);
     toolchain.libToLib(bouncyCastleJack, bouncyCastleRenamedJack, /* zipFiles = */ true);
 
-//    String classpath = corePath + File.pathSeparatorChar + conscryptRenamedJack.getAbsolutePath()
-//        + File.pathSeparatorChar + okhttpRenamedJack.getAbsolutePath()
-//        + File.pathSeparatorChar + extJack.getAbsolutePath()
-//        + File.pathSeparatorChar + bouncyCastleRenamedJack.getAbsolutePath()
-//        + File.pathSeparatorChar + coreJunitJack.getAbsolutePath();
-
-    File[] classpath = new File[] {corePath,
+    File[] classpath = new File[] {coreOut,
         conscryptRenamedJack,
         okhttpRenamedJack,
         extJack,

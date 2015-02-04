@@ -47,4 +47,5 @@ public class FinalizerTest {
         /* zipFile = */ true,
         TestTools.getArtTestFolder("036-finalizer"));
   }
+
 }

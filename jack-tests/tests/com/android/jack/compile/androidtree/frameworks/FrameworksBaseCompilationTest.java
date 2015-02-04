@@ -33,8 +33,6 @@ import java.io.File;
 @Ignore("Tree")
 public class FrameworksBaseCompilationTest {
 
-  private static File[] BOOTCLASSPATH;
-
   private static File[] CLASSPATH;
 
   private static File SOURCELIST;
@@ -42,11 +40,9 @@ public class FrameworksBaseCompilationTest {
   @BeforeClass
   public static void setUpClass() {
     FrameworksBaseCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
-    BOOTCLASSPATH = new File[] {
-        TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")
-      };
     CLASSPATH = new File[] {
+        TestTools.getFromAndroidTree(
+            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack"),
         TestTools.getFromAndroidTree(
             "out/target/common/obj/JAVA_LIBRARIES/conscrypt_intermediates/classes.jack"),
         TestTools.getFromAndroidTree(
@@ -67,7 +63,7 @@ public class FrameworksBaseCompilationTest {
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
-    toolchain.addToClasspath(BOOTCLASSPATH).addToClasspath(CLASSPATH)
+    toolchain.addToClasspath(CLASSPATH)
     .srcToExe(
         outDexFolder,
         /* zipFile = */ false,

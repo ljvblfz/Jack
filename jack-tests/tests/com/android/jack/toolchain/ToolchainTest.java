@@ -45,7 +45,7 @@ public class ToolchainTest {
 
   private static Sourcelist JUNIT_SOURCELIST;
 
-  private static File corePath;
+  private static File coreOut;
 
   @BeforeClass
   public static void setup() throws Exception {
@@ -54,10 +54,10 @@ public class ToolchainTest {
         TestTools.getTargetLibSourcelist("bouncycastle");
     JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-hostdex-jack");
 
-    corePath = AbstractTestTools.createTempFile("core", ".jack");
+    coreOut = AbstractTestTools.createTempFile("core", ".jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
-    toolchain.srcToLib(corePath, /* zipFiles = */ true, CORE_SOURCELIST);
+    toolchain.srcToLib(coreOut, /* zipFiles = */ true, CORE_SOURCELIST);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ToolchainTest {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test001");
     File sourceDir = new File(testFolder, "jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(shrobTestJackOut, /* zipFiles = */ false, sourceDir);
 
     File shrobTestShrunkOut = AbstractTestTools.createTempDir();
@@ -88,7 +88,7 @@ public class ToolchainTest {
     File sourceDir = new File(testFolder, "jack");
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(shrobTestJackOut, /* zipFiles = */ true, sourceDir);
 
     File shrobTestShrunkOut = AbstractTestTools.createTempFile("shrunk", ".jack");
@@ -107,7 +107,7 @@ public class ToolchainTest {
   public void bouncyCastle() throws Exception {
     File bouncyCastleJack = AbstractTestTools.createTempFile("bouncyjack", ".jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(bouncyCastleJack, /* zipFiles = */ true, BOUNCY_SOURCELIST);
 
     File bouncyCastleOutFolder = AbstractTestTools.createTempDir();
@@ -119,14 +119,14 @@ public class ToolchainTest {
   public void core() throws Exception {
     File coreOutFolder = AbstractTestTools.createTempDir();
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.libToExe(corePath, coreOutFolder, /* zipFile = */ false);
+    toolchain.libToExe(coreOut, coreOutFolder, /* zipFile = */ false);
   }
 
   @Test
   public void junit() throws Exception {
     File junitJack = AbstractTestTools.createTempFile("junit", ".zip");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .addToClasspath(TestTools.getFromAndroidTree(
             "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jack"))
     .srcToLib(junitJack, /* zipFiles = */ true, JUNIT_SOURCELIST);
@@ -142,13 +142,13 @@ public class ToolchainTest {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test003");
     File sourceDir = new File(testFolder, "jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(jarjarTestJackOut, /* zipFiles = */ true, sourceDir);
 
     File dalvikAnnotations = TestTools.getFromAndroidTree("libcore/dalvik/src/main/java/");
     File dalvikAnnotationsJackOut = AbstractTestTools.createTempFile("dalvikannotations", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.addToClasspath(corePath)
+    toolchain.addToClasspath(coreOut)
     .srcToLib(dalvikAnnotationsJackOut, /* zipFiles = */ true, dalvikAnnotations);
 
     File jarjarTestRenamedOut = AbstractTestTools.createTempFile("jarjartestrenamed", ".jack");

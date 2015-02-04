@@ -24,6 +24,7 @@ import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -43,14 +44,10 @@ public class ExtCompilationTest {
   @BeforeClass
   public static void setUpClass() {
     ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
-    CLASSPATH = new File[] {
-        TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")
-      };
-    REF_CLASSPATH = new File[] {
-        TestTools.getFromAndroidTree(
-            "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")
-      };
+    CLASSPATH = new File[] {TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
+    REF_CLASSPATH = new File[] {TestTools.getFromAndroidTree(
+        "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jar")};
     SOURCELIST = TestTools.getTargetLibSourcelist("ext");
   }
 
@@ -72,6 +69,7 @@ public class ExtCompilationTest {
     SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(SOURCELIST);
     helper.setCandidateClasspath(CLASSPATH);
     helper.setReferenceClasspath(REF_CLASSPATH);
+    helper.setSourceLevel(SourceLevel.JAVA_7);
 
     ComparatorDex comparator = helper.createDexFileComparator();
     comparator.setCompareDebugInfoBinary(false);
