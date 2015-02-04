@@ -16,6 +16,8 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotDeleteFileException;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,5 +30,7 @@ public interface InputVFile extends InputVElement {
 
   @Nonnull
   InputStream openRead() throws IOException;
+
+  void delete() throws CannotDeleteFileException;
 
 }

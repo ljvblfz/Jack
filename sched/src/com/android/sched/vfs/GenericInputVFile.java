@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.location.Location;
 
 import java.io.IOException;
@@ -56,6 +57,11 @@ public class GenericInputVFile implements InputVFile {
   @Nonnull
   public InputStream openRead() throws IOException {
     return file.openRead();
+  }
+
+  @Override
+  public void delete() throws CannotDeleteFileException {
+    file.delete();
   }
 
   @CheckForNull

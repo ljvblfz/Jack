@@ -261,7 +261,8 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
       throws CannotDeleteFileException, FileTypeDoesNotExistException {
     assert !isClosed();
     try {
-      getSectionVFS(fileType).getRootInputVDir().delete(buildFileVPath(fileType, typePath));
+      getSectionVFS(fileType).getRootInputOutputVDir()
+          .getInputVFile(buildFileVPath(fileType, typePath)).delete();
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (CannotCreateFileException e) {

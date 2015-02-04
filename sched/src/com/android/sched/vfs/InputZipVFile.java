@@ -59,4 +59,9 @@ class InputZipVFile extends AbstractVElement implements InputVFile {
     return false;
   }
 
+  @Override
+  public void delete() {
+    throw new UnsupportedOperationException();
+  }
+
 }
