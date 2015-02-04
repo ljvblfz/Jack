@@ -24,7 +24,7 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,7 @@ class ForwardBranchResolver {
 
   @Nonnull
   private final Map<BasicBlock, Map<ForwardBranchKind, List<JStatement>>> bbSuccessorsToResolve =
-      new HashMap<BasicBlock, Map<ForwardBranchKind, List<JStatement>>>();
+      new LinkedHashMap<BasicBlock, Map<ForwardBranchKind, List<JStatement>>>();
 
   /**
    * Add forward branch to resolve.
@@ -88,7 +88,7 @@ class ForwardBranchResolver {
         bbSuccessorsToResolve.get(bb);
 
     if (brKindTotargetStatements == null) {
-      brKindTotargetStatements = new HashMap<ForwardBranchKind, List<JStatement>>();
+      brKindTotargetStatements = new LinkedHashMap<ForwardBranchKind, List<JStatement>>();
       bbSuccessorsToResolve.put(bb, brKindTotargetStatements);
     }
 
