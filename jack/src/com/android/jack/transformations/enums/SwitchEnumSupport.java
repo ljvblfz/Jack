@@ -116,12 +116,12 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
-  // Private option that must be used only for incremental test in order to use dex comparator.
   @Nonnull
   public static final BooleanPropertyId SORT_ENUM_FIELD = BooleanPropertyId.create(
       "jack.internal.switch-enumfield.sort",
-      "Sort enum fields by their name for enum partial recompilation support")
-      .addDefaultValue(Boolean.FALSE).withCategory(Private.get());
+      "Generate determinist code to initialize constant array indexed by ordinal "
+      + "value of enum field")
+      .addDefaultValue(Boolean.TRUE).withCategory(Private.get());
 
   private final JType noSuchFieldErrorType =
       Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");
