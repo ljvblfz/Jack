@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -33,6 +35,9 @@ import javax.annotation.processing.Processor;
 public abstract class Toolchain implements IToolchain {
 
   protected boolean withDebugInfos = false;
+
+  @Nonnull
+  protected List<File> classpath = new ArrayList<File>();
 
   @CheckForNull
   protected Class<? extends Processor> annotationProcessorClass;
@@ -68,11 +73,11 @@ public abstract class Toolchain implements IToolchain {
   Toolchain() {}
 
   @Override
-  public abstract void srcToExe(@CheckForNull String classpath, @Nonnull File out,
+  public abstract void srcToExe(@Nonnull File out,
       boolean zipFile, @Nonnull File... sources) throws Exception;
 
   @Override
-  public abstract void srcToLib(@CheckForNull String classpath, @Nonnull File out,
+  public abstract void srcToLib(@Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception;
 
   @Override
@@ -96,6 +101,18 @@ public abstract class Toolchain implements IToolchain {
   public final void libToLib(@Nonnull List<File> in, @Nonnull File out, boolean zipFiles)
       throws Exception {
     libToLib(in.toArray(new File[in.size()]), out, zipFiles);
+  }
+
+  @Override
+  @Nonnull
+  public Toolchain addToClasspath(@Nonnull File... classpath) {
+    this.classpath.addAll(Lists.newArrayList(classpath));
+    return this;
+  }
+
+  @Nonnull
+  protected String getClasspathAsString() {
+    return AbstractTestTools.getClasspathAsString(classpath.toArray(new File[classpath.size()]));
   }
 
   @Override

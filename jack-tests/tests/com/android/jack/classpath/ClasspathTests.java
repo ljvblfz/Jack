@@ -44,13 +44,14 @@ public class ClasspathTests {
     File libOut = AbstractTestTools.createTempDir();
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        libOut, false,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(libOut, false,
         new File(AbstractTestTools.getTestRootDir("com.android.jack.classpath.test001"), "lib"));
 
     File testOut = AbstractTestTools.createTempDir();
-    toolchain.srcToLib(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparatorChar + libOut.getAbsolutePath(), testOut, false,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(libOut)
+    .srcToLib(testOut, false,
         new File(AbstractTestTools.getTestRootDir("com.android.jack.classpath.test001"), "jack"));
   }
 
@@ -58,33 +59,34 @@ public class ClasspathTests {
   public void test002() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
 
-    String defaultBootCp =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
+    File[] defaultBootCp = toolchain.getDefaultBootClasspath();
 
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test002");
     File outFolder = AbstractTestTools.createTempDir();
 
     File lib1Out = AbstractTestTools.createDir(outFolder, "lib1");
-    toolchain.srcToLib(defaultBootCp,
-        lib1Out,
+    toolchain.addToClasspath(defaultBootCp)
+    .srcToLib(lib1Out,
         /* zipFiles = */ false, new File(testFolder, "lib1"));
 
     File lib1BisOut = AbstractTestTools.createDir(outFolder, "lib1override");
     toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(defaultBootCp,
-        lib1BisOut,
+    toolchain.addToClasspath(defaultBootCp)
+    .srcToLib(lib1BisOut,
         /* zipFiles = */ false, new File(testFolder, "lib1override"));
 
     File lib2Out = AbstractTestTools.createDir(outFolder, "lib2");
     toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(defaultBootCp
-        + File.pathSeparatorChar + lib1Out.getAbsolutePath(), lib2Out,
+    toolchain.addToClasspath(defaultBootCp)
+    .addToClasspath(lib1Out)
+    .srcToLib(lib2Out,
     /* zipFiles = */ false, new File(testFolder, "lib2"));
 
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addStaticLibs(lib2Out);
-    toolchain.srcToExe(defaultBootCp
-        + File.pathSeparatorChar + lib1BisOut.getAbsolutePath(), outFolder,
+    toolchain.addToClasspath(defaultBootCp)
+    .addToClasspath(lib1BisOut)
+    .srcToExe(outFolder,
         /* zipFile = */ false, new File(testFolder, "jack"));
 
   }
@@ -96,17 +98,18 @@ public class ClasspathTests {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     File libOut = AbstractTestTools.createTempDir();
     File libSrc = new File(testDir, "lib");
-    String defaultBootClasspath =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
-    toolchain.srcToLib(defaultBootClasspath, libOut, /* zipFiles = */ false, libSrc);
+    File[] defaultBootClasspath = toolchain.getDefaultBootClasspath();
+    toolchain.addToClasspath(defaultBootClasspath)
+    .srcToLib(libOut, /* zipFiles = */ false, libSrc);
 
     {
       // reference compilation
       toolchain = AbstractTestTools.getCandidateToolchain();
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
-      toolchain.srcToLib(defaultBootClasspath + File.pathSeparatorChar + libOut.getAbsolutePath(),
-          testOut, /* zipFiles = */ false, testSrc);
+      toolchain.addToClasspath(defaultBootClasspath)
+      .addToClasspath(libOut)
+      .srcToLib(testOut, /* zipFiles = */ false, testSrc);
     }
 
     {
@@ -119,48 +122,51 @@ public class ClasspathTests {
       toolchain = AbstractTestTools.getCandidateToolchain();
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
-      toolchain.srcToLib(defaultBootClasspath + File.pathSeparatorChar + libOut.getAbsolutePath(),
-          testOut, /* zipFiles = */ false, testSrc);
+      toolchain.addToClasspath(defaultBootClasspath)
+      .addToClasspath(libOut)
+      .srcToLib(testOut, /* zipFiles = */ false, testSrc);
     }
   }
 
   @Test
   public void libOfLib() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    String defaultClasspath =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     File libOfLibOut = AbstractTestTools.createTempFile("libOfLibOut", toolchain.getLibraryExtension());
     File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.lib2");
-    toolchain.srcToLib(defaultClasspath, libOfLibOut, /* zipFiles = */ true, sourceDir);
+    toolchain.addToClasspath(defaultClasspath)
+    .srcToLib(libOfLibOut, /* zipFiles = */ true, sourceDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain();
     File libOut = AbstractTestTools.createTempFile("libOut", toolchain.getLibraryExtension());
     sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.lib");
-    toolchain.srcToLib(defaultClasspath + File.pathSeparatorChar + libOfLibOut.getAbsolutePath(),
-        libOut, /* zipFiles = */ true, sourceDir);
+    toolchain.addToClasspath(defaultClasspath)
+    .addToClasspath(libOfLibOut)
+    .srcToLib(libOut, /* zipFiles = */ true, sourceDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain();
     File mainOut = AbstractTestTools.createTempFile("mainOut", toolchain.getLibraryExtension());
     sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.liboflib.main");
-    toolchain.srcToLib(defaultClasspath + File.pathSeparatorChar + libOut.getAbsolutePath(),
-        mainOut, /* zipFiles = */ true, sourceDir);
+    toolchain.addToClasspath(defaultClasspath)
+    .addToClasspath(libOut)
+    .srcToLib(mainOut, /* zipFiles = */ true, sourceDir);
   }
 
   @Test
   public void testMissingClasspathEntry() throws Exception {
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    String defaultClasspath =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
-    String classpathWithMissingEntry = defaultClasspath + File.pathSeparator +
-        new File(srcDir, "missing.jack").getAbsolutePath();
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
-    toolchain.srcToLib(classpathWithMissingEntry, testOut, /* zipFiles = */ true, srcDir);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(new File(srcDir, "missing.jack"))
+    .srcToLib(testOut, /* zipFiles = */ true, srcDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
-      toolchain.srcToLib(classpathWithMissingEntry, testOut, /* zipFiles = */ true, srcDir);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(new File(srcDir, "missing.jack"))
+      .srcToLib(testOut, /* zipFiles = */ true, srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
@@ -180,18 +186,19 @@ public class ClasspathTests {
     Assert.assertTrue(invalidJack.isFile());
 
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    String classpathWithInvalidEntry =
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + invalidJack.getAbsolutePath();
 
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
-    toolchain.srcToLib(classpathWithInvalidEntry, testOut, /* zipFiles = */ true, srcDir);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(invalidJack)
+    .srcToLib(testOut, /* zipFiles = */ true, srcDir);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
 
     try {
-      toolchain.srcToLib(classpathWithInvalidEntry, testOut, /* zipFiles = */ true, srcDir);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(invalidJack)
+      .srcToLib(testOut, /* zipFiles = */ true, srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);

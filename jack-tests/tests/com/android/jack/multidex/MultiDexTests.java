@@ -174,8 +174,9 @@ public class MultiDexTests {
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-001.txt"), outList);
@@ -191,8 +192,9 @@ public class MultiDexTests {
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-002-1.txt"), outList);
@@ -211,8 +213,9 @@ public class MultiDexTests {
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(new File(testFolder, "ref-list-003-1.txt"), outList);
@@ -252,8 +255,9 @@ public class MultiDexTests {
   private static File prepareLib(@Nonnull File sources, @Nonnull File... classpath) throws Exception {
     File outDir = AbstractTestTools.createTempDir();
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(), classpath),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(classpath)
+    .srcToLib(
         outDir,
         /* zipFiles = */ false,
         sources);
@@ -314,8 +318,11 @@ public class MultiDexTests {
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(), new File [] {annotations, frameworks, library}),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(annotations)
+    .addToClasspath(frameworks)
+    .addToClasspath(library)
+    .srcToExe(
         out,
         /* zipFile = */ false,
         testFolder);
@@ -342,8 +349,11 @@ public class MultiDexTests {
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(library);
 
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(), new File [] {annotations, frameworks}),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(annotations)
+    .addToClasspath(frameworks)
+    .srcToExe(
         out,
         /* zipFile = */ false,
         testFolder);
@@ -403,9 +413,10 @@ public class MultiDexTests {
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + frameworks.getPath() + File.pathSeparator + library.getPath(), out,
-        /* zipFile = */ false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .addToClasspath(library)
+    .srcToExe(out, /* zipFile = */ false, testFolder);
 
     File classesDex = new File(out, "classes.dex");
     Assert.assertTrue(classesDex.exists());
@@ -429,8 +440,9 @@ public class MultiDexTests {
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(library);
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()) + File.pathSeparator + frameworks.getPath(),
-        out, /* zipFile = */ false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */ false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
@@ -458,8 +470,9 @@ public class MultiDexTests {
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(autoLibrary);
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + frameworks.getPath(), out, /* zipFile = */ false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */ false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     // The old toolchain is doing a little better than us here it seems to identify when
@@ -483,9 +496,10 @@ public class MultiDexTests {
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath())
-        + File.pathSeparator + annotations.getPath() + File.pathSeparator + frameworks.getPath(),
-        /* zipFile = */ out, false, testFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(annotations)
+    .addToClasspath(frameworks)
+    .srcToExe(out, /* zipFile = */ false, testFolder);
 
     String outList = getListingOfDex(new File(out, "classes.dex"));
     ListingComparator.compare(

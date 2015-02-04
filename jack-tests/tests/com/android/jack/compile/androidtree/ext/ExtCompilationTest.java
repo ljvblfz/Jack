@@ -58,8 +58,8 @@ public class ExtCompilationTest {
   @Category(RedundantTests.class)
   public void compileExt() throws Exception {
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(CLASSPATH),
+    toolchain.addToClasspath(CLASSPATH)
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         SOURCELIST);

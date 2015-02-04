@@ -56,8 +56,8 @@ public class CoreCompilationTest {
     File outDexFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProperty(Options.JAVA_SOURCE_VERSION.getName(), JavaVersion.JAVA_7.toString());
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         outDexFolder,
         /* zipFile = */ false,
         SOURCELIST);
@@ -97,7 +97,6 @@ public class CoreCompilationTest {
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
 
     toolchain.srcToExe(
-        /* classpath = */ null,
         coreDexFolderFromJava,
         /* zipFile = */ false,
         SOURCELIST);

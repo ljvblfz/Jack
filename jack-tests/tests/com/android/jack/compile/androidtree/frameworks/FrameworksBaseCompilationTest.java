@@ -67,8 +67,8 @@ public class FrameworksBaseCompilationTest {
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathsAsString(BOOTCLASSPATH, CLASSPATH),
+    toolchain.addToClasspath(BOOTCLASSPATH).addToClasspath(CLASSPATH)
+    .srcToExe(
         outDexFolder,
         /* zipFile = */ false,
         SOURCELIST);

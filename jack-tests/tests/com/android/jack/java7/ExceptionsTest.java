@@ -66,8 +66,9 @@ public class ExceptionsTest {
   private void compileJava7Test(@Nonnull String name) throws Exception {
     JackBasedToolchain jackBasedToolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    jackBasedToolchain.setSourceLevel(SourceLevel.JAVA_7).srcToExe(
-        AbstractTestTools.getClasspathAsString(jackBasedToolchain.getDefaultBootClasspath()),
+    jackBasedToolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(jackBasedToolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(), /* zipFile = */ false, new File(
             AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions." + name), "jack"));
   }

@@ -43,6 +43,7 @@ public class SchedTest {
   @Test
   public void testCompile() throws Exception {
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()), AbstractTestTools.createTempDir(), /* zipFile = */ false, SOURCE);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(AbstractTestTools.createTempDir(), /* zipFile = */ false, SOURCE);
   }
 }

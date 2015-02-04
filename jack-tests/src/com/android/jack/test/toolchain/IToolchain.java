@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 
@@ -32,11 +31,9 @@ import javax.annotation.processing.Processor;
  */
 public interface IToolchain {
 
-  void srcToExe(@CheckForNull String classpath, @Nonnull File out, boolean zipFile,
-      @Nonnull File... sources) throws Exception;
+  void srcToExe(@Nonnull File out, boolean zipFile, @Nonnull File... sources) throws Exception;
 
-  void srcToLib(@CheckForNull String classpath, @Nonnull File out, boolean zipFiles,
-      @Nonnull File... sources) throws Exception;
+  void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources) throws Exception;
 
   void libToExe(@Nonnull File in, @Nonnull File out, boolean zipFile) throws Exception;
 
@@ -61,6 +58,9 @@ public interface IToolchain {
 
   @Nonnull
   String getLibraryExtension();
+
+  @Nonnull
+  IToolchain addToClasspath(@Nonnull File... classpath);
 
   @Nonnull
   IToolchain setWithDebugInfos(boolean withDebugInfos);

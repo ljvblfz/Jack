@@ -38,8 +38,9 @@ public class BoxingTest {
   public void java7Boxing001() throws Exception {
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7).srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.boxing.test001.jack"));

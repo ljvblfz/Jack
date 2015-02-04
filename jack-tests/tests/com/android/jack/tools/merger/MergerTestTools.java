@@ -36,7 +36,6 @@ public class MergerTestTools {
       boolean withDebug, @CheckForNull OutputStream out, @CheckForNull OutputStream err) throws Exception {
     JackApiToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    String classpath = AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
     try {
       File multiDexFolder = AbstractTestTools.createTempDir();
       File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);
@@ -55,7 +54,8 @@ public class MergerTestTools {
         toolchain.setErrorStream(err);
       }
 
-      toolchain.srcToExe(classpath, multiDexFolder, /* zipFile = */ false, sourceFolder);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(multiDexFolder, /* zipFile = */ false, sourceFolder);
 
       return multiDex;
 

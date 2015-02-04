@@ -54,11 +54,10 @@ public class ToolchainTest {
         TestTools.getTargetLibSourcelist("bouncycastle");
     JUNIT_SOURCELIST = TestTools.getHostLibSourcelist("junit4-hostdex-jack");
 
-    File coreOut = AbstractTestTools.createTempFile("core", ".jack");
+    corePath = AbstractTestTools.createTempFile("core", ".jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
     toolchain.setSourceLevel(SourceLevel.JAVA_7);
-    toolchain.srcToLib(/* classpath = */ null, coreOut, /* zipFiles = */ true, CORE_SOURCELIST);
-    corePath = coreOut;
+    toolchain.srcToLib(corePath, /* zipFiles = */ true, CORE_SOURCELIST);
   }
 
   @Test
@@ -66,9 +65,9 @@ public class ToolchainTest {
     File shrobTestJackOut = AbstractTestTools.createTempDir();
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test001");
     File sourceDir = new File(testFolder, "jack");
-    String classpath = corePath.getAbsolutePath();
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(classpath, shrobTestJackOut, /* zipFiles = */ false, sourceDir);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(shrobTestJackOut, /* zipFiles = */ false, sourceDir);
 
     File shrobTestShrunkOut = AbstractTestTools.createTempDir();
     List<ProguardFlags> flagFiles = new ArrayList<ProguardFlags>();
@@ -87,10 +86,10 @@ public class ToolchainTest {
     File shrobTestJackOut = AbstractTestTools.createTempFile("shrobtest", ".jack");
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test001");
     File sourceDir = new File(testFolder, "jack");
-    String classpath = corePath.getAbsolutePath();
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(classpath, shrobTestJackOut, /* zipFiles = */ true, sourceDir);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(shrobTestJackOut, /* zipFiles = */ true, sourceDir);
 
     File shrobTestShrunkOut = AbstractTestTools.createTempFile("shrunk", ".jack");
     List<ProguardFlags> flagFiles = new ArrayList<ProguardFlags>();
@@ -108,8 +107,8 @@ public class ToolchainTest {
   public void bouncyCastle() throws Exception {
     File bouncyCastleJack = AbstractTestTools.createTempFile("bouncyjack", ".jack");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(corePath.getAbsolutePath(), bouncyCastleJack, /* zipFiles = */ true,
-        BOUNCY_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(bouncyCastleJack, /* zipFiles = */ true, BOUNCY_SOURCELIST);
 
     File bouncyCastleOutFolder = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
@@ -127,10 +126,10 @@ public class ToolchainTest {
   public void junit() throws Exception {
     File junitJack = AbstractTestTools.createTempFile("junit", ".zip");
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(corePath.getAbsolutePath()
-        + File.pathSeparator + TestTools.getFromAndroidTree(
-            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jack"),
-            junitJack, /* zipFiles = */ true, JUNIT_SOURCELIST);
+    toolchain.addToClasspath(corePath)
+    .addToClasspath(TestTools.getFromAndroidTree(
+            "out/host/common/obj/JAVA_LIBRARIES/hamcrest-core-hostdex-jack_intermediates/classes.jack"))
+    .srcToLib(junitJack, /* zipFiles = */ true, JUNIT_SOURCELIST);
 
     File junitOutFolder = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
@@ -142,14 +141,15 @@ public class ToolchainTest {
     File jarjarTestJackOut = AbstractTestTools.createTempFile("jarjartest", ".jack");
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test003");
     File sourceDir = new File(testFolder, "jack");
-    String classpath = corePath.getAbsolutePath();
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(classpath, jarjarTestJackOut, /* zipFiles = */ true, sourceDir);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(jarjarTestJackOut, /* zipFiles = */ true, sourceDir);
 
     File dalvikAnnotations = TestTools.getFromAndroidTree("libcore/dalvik/src/main/java/");
     File dalvikAnnotationsJackOut = AbstractTestTools.createTempFile("dalvikannotations", ".jack");
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.srcToLib(classpath, dalvikAnnotationsJackOut, /* zipFiles = */ true, dalvikAnnotations);
+    toolchain.addToClasspath(corePath)
+    .srcToLib(dalvikAnnotationsJackOut, /* zipFiles = */ true, dalvikAnnotations);
 
     File jarjarTestRenamedOut = AbstractTestTools.createTempFile("jarjartestrenamed", ".jack");
     File jarjarRules = new File(testFolder, "jarjar-rules.txt");

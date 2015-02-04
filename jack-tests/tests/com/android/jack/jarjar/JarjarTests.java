@@ -69,17 +69,16 @@ public class JarjarTests {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(new File(JARJAR003.directory, "jarjar-rules.txt"));
     File lib = AbstractTestTools.createTempFile("jarjarTest003Jack", toolchain.getLibraryExtension());
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib,
         /* zipFiles = */ true,
         new File(JARJAR003.directory, "jack"));
 
     toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(),
-            new File [] {lib}),
-        AbstractTestTools.createTempFile("jarjarTest003dx", toolchain.getLibraryExtension()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(lib)
+    .srcToLib(AbstractTestTools.createTempFile("jarjarTest003dx", toolchain.getLibraryExtension()),
         /* zipFiles = */ true,
         new File(JARJAR003.directory, "dontcompile/TestWithRelocatedReference.java"));
   }

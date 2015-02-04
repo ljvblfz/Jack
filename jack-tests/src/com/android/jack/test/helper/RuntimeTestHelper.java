@@ -129,14 +129,14 @@ public class RuntimeTestHelper {
           AbstractTestTools.createTempFile("lib-ref", referenceTestTools.getLibraryExtension());
       File libBinaryRefDir = AbstractTestTools.createTempDir();
       libBinaryRef = new File(libBinaryRefDir, referenceTestTools.getBinaryFileName());
-      referenceTestTools.srcToLib(referenceBootClasspathAsString, libLibRef, /* zipFiles = */ true,
-          libSources);
+      referenceTestTools.addToClasspath(referenceBootClasspath)
+      .srcToLib(libLibRef, /* zipFiles = */ true, libSources);
       referenceTestTools.libToExe(libLibRef, libBinaryRefDir, /* zipFile */ false);
 
       libLibCandidate = AbstractTestTools.createTempFile("lib-candidate",
           candidateTestTools.getLibraryExtension());
-      candidateTestTools.srcToLib(candidateBootClasspathAsString, libLibCandidate,
-      /* zipFiles = */ true, libSources);
+      candidateTestTools.addToClasspath(candidateBootClasspath)
+      .srcToLib(libLibCandidate, /* zipFiles = */ true, libSources);
     }
 
     // Compile test src
@@ -144,19 +144,22 @@ public class RuntimeTestHelper {
 
     String candidateClasspathAsString;
     String referenceClasspathAsString;
-    File[] candidateClassPath = candidateBootClasspath;
+    File[] candidateClassPath;
+    File[] referenceClasspath;
     if (libSources.length != 0) {
       candidateClassPath = new File[candidateBootClasspath.length + 1];
       System.arraycopy(candidateBootClasspath, 0, candidateClassPath, 0,
           candidateBootClasspath.length);
       candidateClassPath[candidateClassPath.length - 1] = libLibCandidate;
       candidateClasspathAsString = AbstractTestTools.getClasspathAsString(candidateClassPath);
-      File[] referenceClasspath = new File[referenceBootClasspath.length + 1];
+      referenceClasspath = new File[referenceBootClasspath.length + 1];
       System.arraycopy(referenceBootClasspath, 0, referenceClasspath, 0,
           referenceBootClasspath.length);
       referenceClasspath[referenceClasspath.length - 1] = libLibRef;
       referenceClasspathAsString = AbstractTestTools.getClasspathAsString(referenceClasspath);
     } else {
+      candidateClassPath = candidateBootClasspath;
+      referenceClasspath = referenceBootClasspath;
       candidateClasspathAsString = candidateBootClasspathAsString;
       referenceClasspathAsString = referenceBootClasspathAsString;
     }
@@ -183,7 +186,8 @@ public class RuntimeTestHelper {
         candidateTestTools.setJarjarRules(jarjarRules);
       }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
-      candidateTestTools.srcToExe(candidateClasspathAsString, testBinaryDir, /* zipFile = */ false,
+      candidateTestTools.addToClasspath(candidateClassPath)
+      .srcToExe(testBinaryDir, /* zipFile = */ false,
           getSrcDir());
     }
 
@@ -194,7 +198,8 @@ public class RuntimeTestHelper {
     referenceTestTools = createReferenceToolchain();
     File testLib =
         AbstractTestTools.createTempFile("testRef", referenceTestTools.getLibraryExtension());
-    referenceTestTools.srcToLib(referenceClasspathAsString, testLib, /* zipFiles = */ true,
+    referenceTestTools.addToClasspath(referenceClasspath)
+    .srcToLib(testLib, /* zipFiles = */ true,
         getSrcDir());
 
     // Compile link src
@@ -206,26 +211,26 @@ public class RuntimeTestHelper {
       linkBinary = new File(linkBinaryDir, candidateTestTools.getBinaryFileName());
       candidateTestTools.setJarjarRules(jarjarRules);
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
-      candidateTestTools.srcToExe(candidateBootClasspathAsString, linkBinaryDir,
-          /* zipFile = */ false, getLinkSrc());
+      candidateTestTools.addToClasspath(candidateBootClasspath)
+      .srcToExe(linkBinaryDir, /* zipFile = */ false, getLinkSrc());
     }
 
     // Compile ref part src
     referenceTestTools = createReferenceToolchain();
 
-    List<File> referenceClasspath = new ArrayList<File>();
+    List<File> referenceClasspathAsList = new ArrayList<File>();
     for (File f : referenceBootClasspath) {
-      referenceClasspath.add(f);
+      referenceClasspathAsList.add(f);
     }
     if (libLibRef != null) {
-      referenceClasspath.add(libLibRef);
+      referenceClasspathAsList.add(libLibRef);
     }
     if (testLib != null) {
-      referenceClasspath.add(testLib);
+      referenceClasspathAsList.add(testLib);
     }
 
-    referenceClasspathAsString = AbstractTestTools.getClasspathAsString(
-        referenceClasspath.toArray(new File[referenceClasspath.size()]));
+    referenceClasspath =
+        referenceClasspathAsList.toArray(new File[referenceClasspathAsList.size()]);
 
 
     File [] refSources = getRefSrcDir();
@@ -236,8 +241,8 @@ public class RuntimeTestHelper {
 
     File refPartBinaryDir = AbstractTestTools.createTempDir();
     File refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
-    referenceTestTools.srcToExe(
-        referenceClasspathAsString,
+    referenceTestTools.addToClasspath(referenceClasspath)
+    .srcToExe(
         refPartBinaryDir,
         /* zipFile = */ false,
         sources.toArray(new File[sources.size()]));

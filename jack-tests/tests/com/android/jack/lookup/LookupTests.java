@@ -29,27 +29,25 @@ public class LookupTests {
   public void test001() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     File lib = AbstractTestTools.createTempDir();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.lib"));
 
     File libOverride = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         libOverride,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.liboverride"));
 
     File jacks = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools
-            .getClasspathsAsString(toolchain.getDefaultBootClasspath(), new File [] {lib}),
-        jacks,
-        /* zipFiles = */ false,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(lib)
+    .srcToLib(jacks, /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.jack"));
 
     toolchain = AbstractTestTools.getCandidateToolchain();

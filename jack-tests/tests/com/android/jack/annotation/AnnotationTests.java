@@ -81,8 +81,8 @@ public class AnnotationTests extends RuntimeTest {
   @Test
   public void test001_2() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         new File[] {
@@ -114,11 +114,9 @@ public class AnnotationTests extends RuntimeTest {
   public void test004() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.annotation.test004");
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToExe(
         AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        testFolder);
+        /* zipFile = */false, testFolder);
   }
 
   @Test

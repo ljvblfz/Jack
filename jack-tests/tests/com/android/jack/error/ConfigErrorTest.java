@@ -44,8 +44,8 @@ public class ConfigErrorTest {
     jackApiToolchain.addProperty("unknown", "true");
 
     try {
-      jackApiToolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(jackApiToolchain.getDefaultBootClasspath()),
+      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+      .srcToExe(
           ite.getOutputDexFolder(), /* zipFile = */ true, ite.getSourceFolder());
       Assert.fail();
     } catch (UnknownPropertyNameException e) {

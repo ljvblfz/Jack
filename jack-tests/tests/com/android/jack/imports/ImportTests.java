@@ -42,16 +42,16 @@ public class ImportTests {
   public void testCompileNonConflictingSourceAndImport() throws Exception {
     File jackOut = AbstractTestTools.createTempDir();
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackOut,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
 
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addStaticLibs(jackOut);
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.threeaddress.test001.jack"));
@@ -61,8 +61,8 @@ public class ImportTests {
   public void testCompileConflictingSourceAndImport() throws Exception {
     File jackOut = AbstractTestTools.createTempDir();
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackOut,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
@@ -70,8 +70,8 @@ public class ImportTests {
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addStaticLibs(jackOut);
     try {
-      toolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(
           AbstractTestTools.createTempDir(),
           /* zipFile = */ false,
           AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
@@ -87,8 +87,8 @@ public class ImportTests {
     File lib = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
@@ -97,8 +97,8 @@ public class ImportTests {
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addStaticLibs(lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "keep-first");
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
         AbstractTestTools.createTempFile("inner15", ".zip"),
         /* zipFile = */ true,
         AbstractTestTools.getTestRootDir(testName + ".jack"));
@@ -110,8 +110,8 @@ public class ImportTests {
     File lib = AbstractTestTools.createTempDir();
     JackApiToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
@@ -121,8 +121,8 @@ public class ImportTests {
     toolchain.addStaticLibs(lib, lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
     try {
-      toolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(
           AbstractTestTools.createTempFile("inner15", ".zip"),
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir(testName + ".jack"));
@@ -138,8 +138,8 @@ public class ImportTests {
     File lib1 = AbstractTestTools.createTempDir();
     JackApiToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib1,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
@@ -147,8 +147,8 @@ public class ImportTests {
     File lib2 = AbstractTestTools.createTempDir();
     toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         lib2,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
@@ -159,8 +159,8 @@ public class ImportTests {
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
 
     try {
-      toolchain.srcToExe(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(
           AbstractTestTools.createTempFile("inner15", ".zip"),
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir(testName + ".jack"));

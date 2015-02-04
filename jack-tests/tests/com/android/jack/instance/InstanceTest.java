@@ -34,8 +34,8 @@ public class InstanceTest {
   @Test
   public void testReturnThis() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToExe(AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
-        AbstractTestTools.createTempDir(),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         new File( AbstractTestTools.getTestRootDir("com.android.jack.instance.test001.jack"),
             "Instance.java"));

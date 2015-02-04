@@ -56,12 +56,12 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   @Override
-  public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
-      boolean zipFile, @Nonnull File... sources) throws Exception {
+  public void srcToExe(@Nonnull File out, boolean zipFile, @Nonnull File... sources)
+      throws Exception {
 
     List<String> args = new ArrayList<String>();
 
-    srcToCommon(args, classpath, sources);
+    srcToCommon(args, sources);
 
     if (zipFile) {
       args.add("--output-dex-zip");
@@ -102,12 +102,12 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   @Override
-  public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
-      boolean zipFiles, @Nonnull File... sources) throws Exception {
+  public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
+      throws Exception {
 
     List<String> args = new ArrayList<String>();
 
-    srcToCommon(args, classpath, sources);
+    srcToCommon(args, sources);
 
     if (zipFiles) {
       args.add("--output-jack");
@@ -133,8 +133,7 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   }
 
-  private void srcToCommon(@Nonnull List<String> args, @CheckForNull String classpath,
-      @Nonnull File... sources) {
+  private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
     args.add("java");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
@@ -154,9 +153,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     addProperties(properties, args);
 
-    if (classpath != null) {
+    if (classpath.size() > 0) {
       args.add("--classpath");
-      args.add(classpath);
+      args.add(getClasspathAsString());
     }
 
     for (File res : resImport) {
@@ -267,6 +266,11 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
 
     addProperties(properties, args);
+
+    if (classpath.size() > 0) {
+      args.add("--classpath");
+      args.add(getClasspathAsString());
+    }
 
     if (jarjarRules != null) {
       args.add("--config-jarjar");

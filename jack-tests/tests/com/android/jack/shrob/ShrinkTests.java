@@ -93,18 +93,17 @@ public class ShrinkTests extends AbstractTest {
     try {
       JackApiToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-      toolchain.srcToLib(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
           libOut,
           /* zipFiles = */ false,
           new File(shrobTestsDir, "test020/lib"));
 
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
       testOut = AbstractTestTools.createTempDir();
-      toolchain.srcToLib(
-          AbstractTestTools.getClasspathsAsString(
-              toolchain.getDefaultBootClasspath(), new File[] {libOut}),
-              testOut,
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(libOut)
+      .srcToLib(testOut,
           /* zipFiles = */ false,
           new File(shrobTestsDir, "test020/jack"));
 
@@ -142,8 +141,8 @@ public class ShrinkTests extends AbstractTest {
     try {
       JackApiToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-      toolchain.srcToLib(
-          AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
           jackOut,
           /* zipFiles = */ false,
           new File(shrobTestsDir, "test021/jack"));
@@ -192,9 +191,8 @@ public class ShrinkTests extends AbstractTest {
     shrinkedjackar = AbstractTestTools.createTempFile("shrinkedjackar", toolchain.getLibraryExtension());
     ProguardFlags flags = new ProguardFlags(testFolder, "proguard.flags001");
 
-    String classpath = AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
-    toolchain.srcToLib(
-        classpath,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackar,
         /* zipFiles = */ true,
         testFolder);

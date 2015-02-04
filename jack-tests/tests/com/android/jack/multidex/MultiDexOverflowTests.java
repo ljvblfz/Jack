@@ -78,11 +78,9 @@ public class MultiDexOverflowTests {
     toolchain.setErrorStream(baos);
 
     try {
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathsAsString(
-            toolchain.getDefaultBootClasspath(),
-            new File[] {annotations}),
-        outFolder,
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(annotations)
+    .srcToExe(outFolder,
         /* zipFile = */ false,
         srcFolder);
       Assert.fail();
@@ -117,13 +115,9 @@ public class MultiDexOverflowTests {
     toolchain.setErrorStream(baos);
 
     try {
-    toolchain.srcToExe(
-        AbstractTestTools.getClasspathsAsString(
-            toolchain.getDefaultBootClasspath(),
-            new File[] {annotations}),
-        outFolder,
-        /* zipFile = */ false,
-        srcFolder);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(annotations)
+    .srcToExe(outFolder, /* zipFile = */ false, srcFolder);
       Assert.fail();
     } catch (ProcessException e) {
       Assert.assertTrue(e.getCause() instanceof JackAbortException);

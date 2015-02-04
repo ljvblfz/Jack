@@ -51,7 +51,7 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   @Override
-  public void srcToExe(@CheckForNull String classpath, @Nonnull File out,
+  public void srcToExe(@Nonnull File out,
       boolean zipFile, @Nonnull File... sources) throws Exception {
 
     try {
@@ -60,7 +60,7 @@ public class LegacyToolchain extends AndroidToolchain {
       File jarFileJarjar   = AbstractTestTools.createTempFile("legacyLibJarjar", ".jar");
       File jarFileProguard = AbstractTestTools.createTempFile("legacyLibProguard", ".jar");
 
-      srcToLib(classpath, jarFile, true /* zipFiles = */, sources);
+      srcToLib(jarFile, true /* zipFiles = */, sources);
 
       if (jarjarRules != null) {
         processWithJarJar(jarjarRules, jarFile, jarFileJarjar);
@@ -69,7 +69,7 @@ public class LegacyToolchain extends AndroidToolchain {
       }
 
       if (proguardFlags.size() > 0) {
-        processWithProguard(classpath, proguardFlags, jarFileJarjar,
+        processWithProguard(getClasspathAsString(), proguardFlags, jarFileJarjar,
             jarFileProguard);
       } else {
         jarFileProguard = jarFileJarjar;
@@ -83,7 +83,7 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   @Override
-  public void srcToLib(@CheckForNull String classpath, @Nonnull File out,
+  public void srcToLib(@Nonnull File out,
       boolean zipFiles, @Nonnull File... sources) throws Exception {
 
     try {
@@ -93,10 +93,11 @@ public class LegacyToolchain extends AndroidToolchain {
       } else {
         classesDir = out;
       }
+
       if (withDebugInfos) {
-        compileWithEcj(sources, classpath, classesDir);
+        compileWithEcj(sources, getClasspathAsString(), classesDir);
       } else {
-        compileWithExternalRefCompiler(sources, classpath, classesDir);
+        compileWithExternalRefCompiler(sources, getClasspathAsString(), classesDir);
       }
       if (staticLibs.size() > 0) {
         for (File staticLib : staticLibs) {

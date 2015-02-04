@@ -174,8 +174,9 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     }
     candidateTestTools.setWithDebugInfos(withDebugInfos);
     candidateTestTools.setSourceLevel(sourceLevel);
-    candidateTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
-        AbstractTestTools.getClasspathAsString(candidateClasspath), candidateDexDir,
+    candidateTestTools.addProguardFlags(proguardFlagFiles)
+    .addToClasspath(candidateClasspath)
+    .srcToExe(candidateDexDir,
         /* zipFile = */ false, filesOrSourceList);
   }
 
@@ -187,8 +188,8 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     }
     referenceTestTools.setWithDebugInfos(withDebugInfos);
     referenceTestTools.setSourceLevel(sourceLevel);
-    referenceTestTools.addProguardFlags(proguardFlagFiles).srcToExe(
-        AbstractTestTools.getClasspathAsString(referenceClasspath), refDexDir,
-        /* zipFile = */ false, filesOrSourceList);
+    referenceTestTools.addProguardFlags(proguardFlagFiles)
+    .addToClasspath(referenceClasspath)
+    .srcToExe(refDexDir, /* zipFile = */ false, filesOrSourceList);
   }
 }

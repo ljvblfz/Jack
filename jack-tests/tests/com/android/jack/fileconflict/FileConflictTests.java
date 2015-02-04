@@ -263,8 +263,8 @@ public class FileConflictTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         testSrcDir);
@@ -314,8 +314,8 @@ public class FileConflictTests {
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003.jack");
     File tempJackFolder = AbstractTestTools.createTempDir();
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         testSrcDir);
@@ -363,8 +363,8 @@ public class FileConflictTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
 
     JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         testSrcDir);
@@ -405,8 +405,8 @@ public class FileConflictTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
     JackApiToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFile = */ false,
         TEST001_DIR);
@@ -458,8 +458,8 @@ public class FileConflictTests {
     File lib1 = new File(TEST002_DIR, "lib1");
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addResource(new File(lib1, "rsc"));
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackImport1,
         /* zipFiles = */ false,
         lib1);
@@ -468,8 +468,8 @@ public class FileConflictTests {
     File lib2 = new File(TEST002_DIR, "lib2");
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addResource(new File(lib2, "rsc"));
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         jackImport2,
         /* zipFiles = */ false,
         lib2);

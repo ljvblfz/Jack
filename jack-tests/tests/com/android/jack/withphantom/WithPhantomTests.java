@@ -56,8 +56,8 @@ public class WithPhantomTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST001_JACK));
@@ -99,8 +99,8 @@ public class WithPhantomTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST001_JACK));
@@ -147,8 +147,8 @@ public class WithPhantomTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST002_JACK));
@@ -182,8 +182,8 @@ public class WithPhantomTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.srcToLib(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST002_JACK));

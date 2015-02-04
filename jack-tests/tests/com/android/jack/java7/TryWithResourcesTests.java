@@ -41,8 +41,8 @@ public class TryWithResourcesTests {
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
     toolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test001.jack"));
@@ -56,8 +56,8 @@ public class TryWithResourcesTests {
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
     toolchain.setSourceLevel(SourceLevel.JAVA_7)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
-        AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath()),
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test002.jack"));
