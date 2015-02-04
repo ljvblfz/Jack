@@ -21,6 +21,7 @@ import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
@@ -32,6 +33,7 @@ import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.WrongPermissionException;
 
@@ -78,6 +80,7 @@ public class VFSTest {
       directVFS = new DirectVFS(new Directory(path, null, Existence.NOT_EXIST,
           Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE));
       testOutputVFS(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -119,6 +122,7 @@ public class VFSTest {
               Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
 
       testOutputVFS(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -163,6 +167,7 @@ public class VFSTest {
               | Permission.WRITE)));
 
       testOutputVFS(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -208,6 +213,8 @@ public class VFSTest {
               | Permission.WRITE)));
 
       testOutputVFS(directVFS);
+      // XXX: does not work, needs to be fixed
+      //testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -262,6 +269,7 @@ public class VFSTest {
           Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
 
       testOutputVFS(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       InputVFile fileAAB1 =
           directVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
@@ -312,6 +320,7 @@ public class VFSTest {
               | Permission.WRITE), new VPath("stuff", '/')));
 
       testOutputVFS(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -387,6 +396,7 @@ public class VFSTest {
       zipVFS = new InputOutputZipVFS(
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
       testOutputVFS(zipVFS);
+      testDelete(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
       inputZipVFS = new InputZipVFS(
@@ -522,6 +532,7 @@ public class VFSTest {
       zipVFS = new GenericInputOutputVFS(new ReadWriteZipFS(
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
       testOutputVFS(zipVFS);
+      testDelete(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
       inputZipVFS = new InputZipVFS(
@@ -539,6 +550,55 @@ public class VFSTest {
       }
     }
   }
+
+
+  private void testDelete(@Nonnull InputOutputVFS ioVFS)
+      throws NoSuchFileException,
+      CannotDeleteFileException,
+      NotFileOrDirectoryException,
+      CannotCreateFileException,
+      IOException {
+
+    // let's delete "dirA/dirAA/dirAAB/fileAAB1"
+    InputOutputVDir dirA = ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
+    dirA.delete(new VPath("dirAA/dirAAB/fileAAB1", '/'));
+    try {
+      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      Assert.fail();
+    } catch (NoSuchFileException e) {
+      //expected
+    }
+
+    // let's delete "dirB/dirBB/fileBB1"
+    InputOutputVDir dirBB =
+        ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
+    dirBB.delete(new VPath("fileBB1", '/'));
+    try {
+      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
+      Assert.fail();
+    } catch (NoSuchFileException e) {
+      //expected
+    }
+
+    // let's delete "dirC/fileC1"
+    ioVFS.getRootInputOutputVDir().delete(new VPath("dirC/fileC1", '/'));
+    try {
+      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'));
+      Assert.fail();
+    } catch (NoSuchFileException e) {
+      //expected
+    }
+
+    // let's re-create the files we've deleted to leave the VFS in the same state as before.
+    OutputVFile fileAAB1 = dirA.createOutputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
+    writeToFile(fileAAB1, "dirA/dirAA/dirAAB/fileAAB1");
+    OutputVFile fileBB1 = dirBB.createOutputVFile(new VPath("fileBB1", '/'));
+    writeToFile(fileBB1, "dirB/dirBB/fileBB1");
+    OutputVFile fileC1 =
+        ioVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
+    writeToFile(fileC1, "dirC/fileC1");
+  }
+
 
   private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
       @Nonnull String fileSimpleName, @Nonnull String fileContent) throws IOException {
