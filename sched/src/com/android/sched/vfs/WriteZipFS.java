@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
@@ -166,17 +167,11 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   synchronized OutputStream openWrite(@Nonnull ZipVFile file) {
     assert !isClosed();
 
-    try {
-      outputStream.putNextEntry(file.getZipEntry());
-      if (notifyVFileOpenAndReturnPreviousState()) {
-        throw new AssertionError(getLocation().getDescription()
-            + " cannot be written to because a previous stream has not been closed.");
-      }
-      return new UnclosableVFileOutputStream(this);
-    } catch (IOException e) {
-      // TODO(jplesot): Auto-generated catch block
-      throw new AssertionError(e);
+    if (notifyVFileOpenAndReturnPreviousState()) {
+      throw new AssertionError(getLocation().getDescription()
+          + " cannot be written to because a previous stream has not been closed.");
     }
+    return new ZipEntryOutputStream(this, file.getZipEntry());
   }
 
   //
@@ -287,29 +282,56 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     return capabilities;
   }
 
-  private static class UnclosableVFileOutputStream extends FilterOutputStream {
+  private static class ZipEntryOutputStream extends FilterOutputStream {
     @Nonnull
     private final WriteZipFS vfs;
+    @Nonnull
+    private final ZipEntry zipEntry;
 
-    public UnclosableVFileOutputStream(@Nonnull WriteZipFS vfs) {
+    private boolean entryWritten = false;
+
+    public ZipEntryOutputStream(@Nonnull WriteZipFS vfs, @Nonnull ZipEntry zipEntry) {
       super(vfs.outputStream);
       this.vfs = vfs;
+      this.zipEntry = zipEntry;
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
+      writeEntryIfNeeded();
       // we do not actually close the stream
       vfs.notifyVFileClosed();
     }
 
     @Override
     public void write(byte[] b) throws IOException {
+      writeEntryIfNeeded();
       out.write(b);
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+      writeEntryIfNeeded();
       out.write(b, off, len);
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+      writeEntryIfNeeded();
+      out.write(b);
+    }
+
+    private synchronized void writeEntryIfNeeded() throws IOException {
+      if (!entryWritten) {
+        try {
+          ((ZipOutputStream) out).putNextEntry(zipEntry);
+        } catch (ZipException e) {
+          // zip format-related exceptions should not happen, we're only interested in IOExceptions
+          // related to the underlying stream.
+          throw new AssertionError(e);
+        }
+        entryWritten = true;
+      }
     }
   }
 }
