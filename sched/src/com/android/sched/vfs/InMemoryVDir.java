@@ -17,7 +17,6 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -113,20 +112,6 @@ abstract class InMemoryVDir extends BaseVDir {
 
   @Override
   @Nonnull
-  public synchronized void delete(@Nonnull VFile file) throws CannotDeleteFileException {
-    BaseVElement element = map.get(name);
-    if (element != null && element instanceof BaseVFile) {
-      map.remove(name);
-      vfs.delete((BaseVFile) file);
-
-      return;
-    }
-
-    throw new CannotDeleteFileException(vfs.getVFileLocation(this, name));
-  }
-
-  @Override
-  @Nonnull
   public synchronized Collection<? extends BaseVElement> list() {
     assert !vfs.isClosed();
 
@@ -136,6 +121,10 @@ abstract class InMemoryVDir extends BaseVDir {
   @Override
   public boolean isEmpty() {
     return map.isEmpty();
+  }
+
+  synchronized void internalDelete(@Nonnull String name) {
+    map.remove(name);
   }
 }
 

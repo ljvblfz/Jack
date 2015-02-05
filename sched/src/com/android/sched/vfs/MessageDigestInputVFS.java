@@ -16,7 +16,6 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -95,6 +94,12 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     public String getDigest() {
       return digest;
     }
+
+    @Override
+    public void delete() {
+      // This implementation is obsolete anyway
+      throw new UnsupportedOperationException();
+    }
   }
 
   /**
@@ -150,13 +155,6 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
       VPath filePathToRoot = pathToRoot.clone();
       filePathToRoot.appendPath(path);
       return new MessageDigestInputVFile(dir.getInputVFile(path), digests.get(filePathToRoot));
-    }
-
-    @Override
-    @Nonnull
-    public void delete(@Nonnull VPath path) throws CannotDeleteFileException,
-        NotFileOrDirectoryException, NoSuchFileException {
-      dir.delete(path);
     }
  }
 

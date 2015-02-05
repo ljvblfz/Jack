@@ -236,7 +236,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       throws CannotDeleteFileException, FileTypeDoesNotExistException {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
-      currentSectionVFS.getRootInputVDir().delete(buildFileVPath(fileType, typePath));
+      currentSectionVFS.getRootInputVDir().getInputVFile(buildFileVPath(fileType, typePath))
+          .delete();
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {

@@ -140,6 +140,13 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
       return encodedFile;
     }
+
+    @Override
+    public void delete() throws CannotDeleteFileException {
+      super.delete();
+      // we need to remove the VFile from the parent dir's map
+      ((InMemoryVDir) parent).internalDelete(name);
+    }
   }
 
   @Nonnull

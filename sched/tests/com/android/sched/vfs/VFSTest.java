@@ -213,8 +213,7 @@ public class VFSTest {
               | Permission.WRITE)));
 
       testOutputVFS(directVFS);
-      // XXX: does not work, needs to be fixed
-      //testDelete(directVFS);
+      testDelete(directVFS);
       testInputVFS(directVFS);
       directVFS.close();
 
@@ -551,7 +550,6 @@ public class VFSTest {
     }
   }
 
-
   private void testDelete(@Nonnull InputOutputVFS ioVFS)
       throws NoSuchFileException,
       CannotDeleteFileException,
@@ -561,44 +559,56 @@ public class VFSTest {
 
     // let's delete "dirA/dirAA/dirAAB/fileAAB1"
     InputOutputVDir dirA = ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
-    dirA.delete(new VPath("dirAA/dirAAB/fileAAB1", '/'));
-    try {
-      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      Assert.fail();
-    } catch (NoSuchFileException e) {
-      //expected
+    {
+      InputOutputVFile fileAAB1 =
+          (InputOutputVFile) dirA.getInputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
+      fileAAB1.delete();
+      try {
+        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+        Assert.fail();
+      } catch (NoSuchFileException e) {
+        // expected
+      }
     }
 
     // let's delete "dirB/dirBB/fileBB1"
     InputOutputVDir dirBB =
         ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
-    dirBB.delete(new VPath("fileBB1", '/'));
-    try {
-      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
-      Assert.fail();
-    } catch (NoSuchFileException e) {
-      //expected
+    {
+      InputOutputVFile fileBB1 = (InputOutputVFile) dirBB.getInputVFile(new VPath("fileBB1", '/'));
+      fileBB1.delete();
+      try {
+        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
+        Assert.fail();
+      } catch (NoSuchFileException e) {
+        // expected
+      }
     }
 
     // let's delete "dirC/fileC1"
-    ioVFS.getRootInputOutputVDir().delete(new VPath("dirC/fileC1", '/'));
-    try {
-      ioVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'));
-      Assert.fail();
-    } catch (NoSuchFileException e) {
-      //expected
+    {
+      InputOutputVFile fileC1 = (InputOutputVFile) ioVFS.getRootInputOutputVDir().getInputVFile(
+          new VPath("dirC/fileC1", '/'));
+      fileC1.delete();
+      try {
+        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'));
+        Assert.fail();
+      } catch (NoSuchFileException e) {
+        // expected
+      }
     }
 
     // let's re-create the files we've deleted to leave the VFS in the same state as before.
-    OutputVFile fileAAB1 = dirA.createOutputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
-    writeToFile(fileAAB1, "dirA/dirAA/dirAAB/fileAAB1");
-    OutputVFile fileBB1 = dirBB.createOutputVFile(new VPath("fileBB1", '/'));
-    writeToFile(fileBB1, "dirB/dirBB/fileBB1");
-    OutputVFile fileC1 =
-        ioVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
-    writeToFile(fileC1, "dirC/fileC1");
+    {
+      OutputVFile fileAAB1 = dirA.createOutputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
+      writeToFile(fileAAB1, "dirA/dirAA/dirAAB/fileAAB1");
+      OutputVFile fileBB1 = dirBB.createOutputVFile(new VPath("fileBB1", '/'));
+      writeToFile(fileBB1, "dirB/dirBB/fileBB1");
+      OutputVFile fileC1 =
+          ioVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
+      writeToFile(fileC1, "dirC/fileC1");
+    }
   }
-
 
   private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
       @Nonnull String fileSimpleName, @Nonnull String fileContent) throws IOException {

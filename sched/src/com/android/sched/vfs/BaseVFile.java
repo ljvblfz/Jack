@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
@@ -67,5 +68,10 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   @CheckForNull
   public String getDigest() {
     return null;
+  }
+
+  @Override
+  public void delete() throws CannotDeleteFileException {
+    vfs.delete(this);
   }
 }

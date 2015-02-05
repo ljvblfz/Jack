@@ -18,7 +18,6 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -92,7 +91,7 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
 
   @Override
   @Nonnull
-  public InputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
+  public InputOutputVFile getInputVFile(@Nonnull VPath path) throws NotFileException,
       NoSuchFileException {
     File file = new File(dir, path.getPathAsString(File.separatorChar));
     if (!file.exists()) {
@@ -145,15 +144,5 @@ public class DirectDir extends AbstractVElement implements InputOutputVDir {
   @Override
   public boolean isVDir() {
     return true;
-  }
-
-  @Override
-  @Nonnull
-  public void delete(@Nonnull VPath path) throws CannotDeleteFileException {
-    File file = new File(dir, path.getPathAsString(File.separatorChar));
-    if (!file.delete()) {
-      throw new CannotDeleteFileException(
-          file.isDirectory() ? new DirectoryLocation(file) : new FileLocation(file));
-    }
   }
 }

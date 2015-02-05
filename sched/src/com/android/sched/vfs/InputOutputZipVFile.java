@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 
@@ -86,5 +87,13 @@ class InputOutputZipVFile extends AbstractVElement implements InputOutputVFile {
   @Nonnull
   public ZipEntry getZipEntry() {
     return zipEntry;
+  }
+
+  @Override
+  public void delete() throws CannotDeleteFileException {
+    assert !vfs.isClosed();
+    if (!file.delete()) {
+      throw new CannotDeleteFileException(getLocation());
+    }
   }
 }
