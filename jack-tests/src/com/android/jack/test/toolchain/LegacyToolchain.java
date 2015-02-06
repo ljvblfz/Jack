@@ -207,10 +207,15 @@ public class LegacyToolchain extends AndroidToolchain {
   private void compileWithEcj(@Nonnull File[] sources, @CheckForNull String classpath,
       @Nonnull File out) {
     List<String> args = new ArrayList<String>(4 + sources.length);
+
+    args.add("-bootclasspath");
+    args.add("no-bootclasspath.jar");
+
     if (classpath != null) {
       args.add("-classpath");
       args.add(classpath);
     }
+
     if (isVerbose) {
       args.add("-verbose");
     }
@@ -226,6 +231,7 @@ public class LegacyToolchain extends AndroidToolchain {
     for (File sourceFile : sources) {
       args.add(sourceFile.getAbsolutePath());
     }
+
     org.eclipse.jdt.internal.compiler.batch.Main.main(args.toArray(new String[args.size()]));
   }
 
@@ -277,6 +283,9 @@ public class LegacyToolchain extends AndroidToolchain {
       arguments.add("-processor");
       arguments.add(annotationProcessorClass.getName());
     }
+
+    arguments.add("-bootclasspath");
+    arguments.add("no-bootclasspath.jar");
 
     if (classpath != null) {
       arguments.add("-classpath");

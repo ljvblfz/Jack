@@ -22,19 +22,13 @@ import com.android.jack.Sourcelist;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.shrob.spec.Flags;
 import com.android.sched.util.config.cli.TokenIterator;
-import com.android.sched.util.file.CannotReadException;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.NoLocation;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
 import javax.annotation.Nonnull;
 

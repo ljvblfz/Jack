@@ -147,6 +147,9 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       arguments.add(annotationProcessorClass.getName());
     }
 
+    arguments.add("-bootclasspath");
+    arguments.add("no-bootclasspath.jar");
+
     if (classpath != null) {
       arguments.add("-classpath");
       arguments.add(classpath);
