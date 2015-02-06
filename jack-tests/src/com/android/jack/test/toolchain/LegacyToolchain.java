@@ -228,10 +228,7 @@ public class LegacyToolchain extends AndroidToolchain {
     args.add("-preserveAllLocals");
     args.add("-d");
     args.add(out.getAbsolutePath());
-    for (File sourceFile : sources) {
-      args.add(sourceFile.getAbsolutePath());
-    }
-
+    AbstractTestTools.addFile(args, false, sources);
     org.eclipse.jdt.internal.compiler.batch.Main.main(args.toArray(new String[args.size()]));
   }
 
