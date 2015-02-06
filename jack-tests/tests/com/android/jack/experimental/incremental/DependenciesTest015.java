@@ -21,10 +21,12 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -114,6 +116,58 @@ public class DependenciesTest015 {
 
     iteProg.incrementalBuildFromFolder(null /* classpath */,
         Arrays.asList(iteLib.getCompilerStateFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteProg.getJackFiles().size());
+
+    DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+
+    iteLib.addJavaFile("jack.incremental", "C.java", "package jack.incremental; \n"
+        + "public class C { \n" + "public void m() {} }");
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    jackFilesLib = iteLib.getJackFiles();
+    Assert.assertEquals(2, jackFilesLib.size());
+
+
+    iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getCompilerStateFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteProg.getJackFiles().size());
+
+    db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/C;"));
+  }
+
+  /**
+   * Check that incremental compilation works when library on import options is modified and that
+   * multi-dex native option is enabled.
+   */
+  @Test
+  @Ignore("Failure when using --incremental-folder --multidex native and --import")
+  public void testDependency003() throws Exception {
+    IncrementalTestHelper iteLib =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
+        + "public class A { \n" + "public void m() {} }");
+
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    List<File> jackFilesLib = iteLib.getJackFiles();
+    Assert.assertEquals(1, jackFilesLib.size());
+
+
+    IncrementalTestHelper iteProg =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
+        + "public class B { \n" + " public void m(){} }");
+
+    iteProg.incrementalBuildFromFolder(null /* classpath */,
+        Arrays.asList(iteLib.getCompilerStateFolder()), MultiDexKind.NATIVE);
     iteProg.snapshotJackFilesModificationDate();
     Assert.assertEquals(1, iteProg.getJackFiles().size());
 

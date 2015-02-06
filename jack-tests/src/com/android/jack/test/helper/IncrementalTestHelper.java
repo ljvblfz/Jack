@@ -23,6 +23,7 @@ import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
@@ -166,6 +167,11 @@ public class IncrementalTestHelper {
 
   public void incrementalBuildFromFolder(@CheckForNull File[] classpath,
       @Nonnull List<File> imports) throws Exception {
+    incrementalBuildFromFolder(classpath, imports, MultiDexKind.NONE);
+  }
+
+  public void incrementalBuildFromFolder(@CheckForNull File[] classpath,
+      @Nonnull List<File> imports, @Nonnull MultiDexKind multiDexKind) throws Exception {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(JillBasedToolchain.class);
@@ -174,6 +180,7 @@ public class IncrementalTestHelper {
         AbstractTestTools.getCandidateToolchain(JackApiToolchain.class, excludeList);
     jackToolchain.setIncrementalFolder(getCompilerStateFolder());
     jackToolchain.addStaticLibs(imports.toArray(new File[imports.size()]));
+    jackToolchain.setMultiDexKind(multiDexKind);
 
     jackToolchain.setOutputStream(out);
     jackToolchain.setErrorStream(err);
@@ -181,10 +188,10 @@ public class IncrementalTestHelper {
     File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
 
     jackToolchain.addToClasspath(bootclasspath);
-    if(classpath != null) {
+    if (classpath != null) {
       jackToolchain.addToClasspath(classpath);
     }
-    jackToolchain.srcToExe(dexOutDir,/* zipFile = */ false, sourceFolder);
+    jackToolchain.srcToExe(dexOutDir,/* zipFile = */false, sourceFolder);
 
     Thread.sleep(1000);
   }
