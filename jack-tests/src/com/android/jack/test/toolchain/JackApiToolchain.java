@@ -18,14 +18,23 @@ package com.android.jack.test.toolchain;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.Sourcelist;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.shrob.spec.Flags;
+import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.NoLocation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import javax.annotation.Nonnull;
 
@@ -94,7 +103,7 @@ public class JackApiToolchain extends JackBasedToolchain {
     }
   }
 
-  private void srcToCommon(@Nonnull File... sources) {
+  private void srcToCommon(@Nonnull File... sources) throws Exception {
     addProperties(properties, jackOptions);
 
     jackOptions.setSanityChecks(sanityChecks);
@@ -227,7 +236,7 @@ public class JackApiToolchain extends JackBasedToolchain {
     }
   }
 
-  private final void fillEcjArgs(@Nonnull File... sources) {
+  private final void fillEcjArgs(@Nonnull File... sources) throws Exception {
     List<String> ecjArgs = new ArrayList<String>();
 
     if (annotationProcessorClass != null) {
@@ -244,7 +253,17 @@ public class JackApiToolchain extends JackBasedToolchain {
       ecjArgs.add(ecjArg);
     }
 
-    AbstractTestTools.addFile(ecjArgs, /* mustExist = */ false, sources);
+    for (File srcFile : sources) {
+      if (srcFile instanceof Sourcelist) {
+        TokenIterator iterator =
+            new TokenIterator(new NoLocation(), '@' + srcFile.getAbsolutePath());
+        while (iterator.hasNext()) {
+          ecjArgs.add(iterator.next());
+        }
+      } else {
+        AbstractTestTools.addFile(ecjArgs, /* mustExist = */ false, srcFile);
+      }
+    }
 
     if (sources.length > 0) {
       jackOptions.setEcjArguments(ecjArgs);
