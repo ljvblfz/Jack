@@ -18,7 +18,6 @@ package com.android.jack.test.toolchain;
 
 import java.io.File;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**

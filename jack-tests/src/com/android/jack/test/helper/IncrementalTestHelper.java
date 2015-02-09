@@ -191,7 +191,8 @@ public class IncrementalTestHelper {
     if (classpath != null) {
       jackToolchain.addToClasspath(classpath);
     }
-    jackToolchain.srcToExe(dexOutDir,/* zipFile = */false, sourceFolder);
+
+    jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
     Thread.sleep(1000);
   }
