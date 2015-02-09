@@ -57,17 +57,17 @@ public class ConstantManager extends MergerTools {
   public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap();
 
-    HashSet<CstString> addedCstStrings = new HashSet<CstString>();
-    HashSet<CstFieldRef> addedCstFieldRefs = new HashSet<CstFieldRef>();
-    HashSet<CstMethodRef> addedCstMethodRefs = new HashSet<CstMethodRef>();
-    HashSet<CstType> addedCstTypes = new HashSet<CstType>();
+    List<CstString> cstStringsNewlyAdded = new ArrayList<CstString>();
+    List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
+    List<CstMethodRef> cstMethodRefsNewlyAdded = new ArrayList<CstMethodRef>();
+    List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
 
     int idx = 0;
 
     for (String string : dexBuffer.strings()) {
       CstString cstString = new CstString(string);
-      if (!cstStrings.contains(cstString)) {
-        addedCstStrings.add(cstString);
+      if (cstStrings.add(cstString)) {
+        cstStringsNewlyAdded.add(cstString);
       }
       cstIndexMap.addStringMapping(idx++, cstString);
     }
@@ -75,8 +75,8 @@ public class ConstantManager extends MergerTools {
     idx = 0;
     for (FieldId fieldId : dexBuffer.fieldIds()) {
       CstFieldRef cstFieldRef = getCstFieldRef(dexBuffer, fieldId);
-      if (!cstFieldRefs.contains(cstFieldRef)) {
-        addedCstFieldRefs.add(cstFieldRef);
+      if (cstFieldRefs.add(cstFieldRef)) {
+        cstFieldRefsNewlyAdded.add(cstFieldRef);
       }
       cstIndexMap.addFieldMapping(idx++, cstFieldRef);
     }
@@ -84,8 +84,8 @@ public class ConstantManager extends MergerTools {
     idx = 0;
     for (MethodId methodId : dexBuffer.methodIds()) {
       CstMethodRef cstMethodRef = getCstMethodRef(dexBuffer, methodId);
-      if (!cstMethodRefs.contains(cstMethodRef)) {
-        addedCstMethodRefs.add(cstMethodRef);
+      if (cstMethodRefs.add(cstMethodRef)) {
+        cstMethodRefsNewlyAdded.add(cstMethodRef);
       }
       cstIndexMap.addMethodMapping(idx++, cstMethodRef);
     }
@@ -103,32 +103,42 @@ public class ConstantManager extends MergerTools {
         cstType = getCstTypeFromTypeName(typeNameDesc);
       }
 
-      if (!cstTypes.contains(cstType)) {
-        addedCstTypes.add(cstType);
+      if (cstTypes.add(cstType)) {
+        cstTypesNewlyAdded.add(cstType);
       }
       cstIndexMap.addTypeMapping(idx++, cstType);
     }
 
-    if ((cstFieldRefs.size() + addedCstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+    if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
       throw new FieldIdOverflowException();
     }
 
-    if ((cstMethodRefs.size() + addedCstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+    if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
       throw new MethodIdOverflowException();
     }
 
-    if ((cstTypes.size() + addedCstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
+    if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
       throw new TypeIdOverflowException();
     }
-
-    cstStrings.addAll(addedCstStrings);
-    cstFieldRefs.addAll(addedCstFieldRefs);
-    cstMethodRefs.addAll(addedCstMethodRefs);
-    cstTypes.addAll(addedCstTypes);
 
     cstIndexMaps.add(cstIndexMap);
 
     return cstIndexMap;
+  }
+
+  private void removeItems(@Nonnull List<CstString> cstStringsToRemove,
+      @Nonnull List<CstFieldRef> cstFieldRefsToRemove,
+      @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove) {
+    cstStrings.removeAll(cstStringsToRemove);
+    cstFieldRefs.removeAll(cstFieldRefsToRemove);
+    cstMethodRefs.removeAll(cstMethodRefsToRemove);
+    cstTypes.removeAll(cstTypesToRemove);
   }
 
   @Nonnull
