@@ -305,8 +305,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throws IncrementalException {
     assert incrementalInputLibrary != null;
     try {
-      // Check that file exists
-      incrementalInputLibrary.getFile(fileType, vpath);
       incrementalInputLibrary.delete(fileType, vpath);
     } catch (FileTypeDoesNotExistException e) {
       // Nothing to do, file does no longer exists
