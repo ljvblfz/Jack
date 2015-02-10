@@ -21,21 +21,13 @@ import com.google.common.collect.Collections2;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.formatter.UserFriendlyFormatter;
-import com.android.jack.library.FileType;
-import com.android.jack.library.FileTypeDoesNotExistException;
-import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
-import com.android.sched.vfs.VPath;
 
 import java.util.Collection;
 
@@ -61,24 +53,7 @@ public class SingleDexWritingTool extends DexWritingTool {
         new Function<JDefinedClassOrInterface, InputVFile>() {
           @Override
           public InputVFile apply(@Nonnull JDefinedClassOrInterface type) {
-            try {
-              Location location = type.getLocation();
-
-              if (location instanceof TypeInInputLibraryLocation) {
-                InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location)
-                    .getInputLibraryLocation().getInputLibrary();
-                if (inputLibrary.containsFileType(FileType.DEX)) {
-                  return inputLibrary.getFile(FileType.DEX,
-                      new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-                }
-              }
-
-              return jackOutputLibrary.getFile(FileType.DEX,
-                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            } catch (FileTypeDoesNotExistException e) {
-              throw new AssertionError(
-                  UserFriendlyFormatter.getFormatter().getName(type) + " does not exist");
-            }
+            return getDexInputVFileOfType(jackOutputLibrary, type);
           }
         });
 

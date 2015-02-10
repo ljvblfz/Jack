@@ -146,7 +146,6 @@ public class DependenciesTest015 {
    * multi-dex native option is enabled.
    */
   @Test
-  @Ignore("Failure when using --incremental-folder --multidex native and --import")
   public void testDependency003() throws Exception {
     IncrementalTestHelper iteLib =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
