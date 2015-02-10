@@ -28,8 +28,10 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -39,7 +41,7 @@ import javax.annotation.Nonnull;
 public class ConstantManager extends MergerTools {
 
   @Nonnull
-  private final HashSet<CstString> cstStrings = new HashSet<CstString>();
+  private final Map<String, CstString> string2CstStrings = new HashMap<String, CstString>();
 
   @Nonnull
   private final HashSet<CstFieldRef> cstFieldRefs = new HashSet<CstFieldRef>();
@@ -57,7 +59,7 @@ public class ConstantManager extends MergerTools {
   public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap();
 
-    List<CstString> cstStringsNewlyAdded = new ArrayList<CstString>();
+    List<String> cstStringsNewlyAdded = new ArrayList<String>();
     List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
     List<CstMethodRef> cstMethodRefsNewlyAdded = new ArrayList<CstMethodRef>();
     List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
@@ -65,9 +67,11 @@ public class ConstantManager extends MergerTools {
     int idx = 0;
 
     for (String string : dexBuffer.strings()) {
-      CstString cstString = new CstString(string);
-      if (cstStrings.add(cstString)) {
-        cstStringsNewlyAdded.add(cstString);
+      CstString cstString = string2CstStrings.get(string);
+      if (cstString == null) {
+        cstString = new CstString(string);
+        string2CstStrings.put(string, cstString);
+        cstStringsNewlyAdded.add(string);
       }
       cstIndexMap.addStringMapping(idx++, cstString);
     }
@@ -106,6 +110,7 @@ public class ConstantManager extends MergerTools {
       if (cstTypes.add(cstType)) {
         cstTypesNewlyAdded.add(cstType);
       }
+
       cstIndexMap.addTypeMapping(idx++, cstType);
     }
 
@@ -132,10 +137,10 @@ public class ConstantManager extends MergerTools {
     return cstIndexMap;
   }
 
-  private void removeItems(@Nonnull List<CstString> cstStringsToRemove,
+  private void removeItems(@Nonnull List<String> cstStringsToRemove,
       @Nonnull List<CstFieldRef> cstFieldRefsToRemove,
       @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove) {
-    cstStrings.removeAll(cstStringsToRemove);
+    string2CstStrings.keySet().removeAll(cstStringsToRemove);
     cstFieldRefs.removeAll(cstFieldRefsToRemove);
     cstMethodRefs.removeAll(cstMethodRefsToRemove);
     cstTypes.removeAll(cstTypesToRemove);
@@ -147,7 +152,7 @@ public class ConstantManager extends MergerTools {
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {
-    return ((dexFile.getStringIds().items().size() == cstStrings.size())
+    return ((dexFile.getStringIds().items().size() == string2CstStrings.size())
         && (dexFile.getFieldIds().items().size() == cstFieldRefs.size())
         && (dexFile.getMethodIds().items().size() == cstMethodRefs.size())
         && (dexFile.getTypeIds().items().size() == cstTypes.size()));
