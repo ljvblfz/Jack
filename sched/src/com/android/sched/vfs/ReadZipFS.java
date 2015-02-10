@@ -193,7 +193,7 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     try {
       return zipFile.getInputStream(file.getZipEntry());
     } catch (IOException e) {
-      // TODO(jplesot): Auto-generated catch block
+      // Only IOException actually thrown is when compression method is unknown
       throw new AssertionError(e);
     }
   }
