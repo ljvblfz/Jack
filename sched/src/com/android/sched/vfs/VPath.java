@@ -50,9 +50,11 @@ public final class VPath implements Cloneable {
    */
   public VPath(@Nonnull CharSequence path, char separator) {
     pathFragments = new ArrayList<VPathFragment>(1);
-    VPathFragment pe = new VPathFragment(path, separator);
-    assert pe.isValidPath();
-    pathFragments.add(pe);
+    if (path.length() > 0) {
+      VPathFragment pe = new VPathFragment(path, separator);
+      assert pe.isValidPath();
+      pathFragments.add(pe);
+    }
   }
 
   private VPath(ArrayList<VPathFragment> pathFragments) {
@@ -66,7 +68,8 @@ public final class VPath implements Cloneable {
    * @return the current path
    */
   public VPath prependPath(@Nonnull VPath path) {
-    if (!this.equals(VPath.ROOT)) {
+    assert !path.isRoot();
+    if (!this.isRoot()) {
       pathFragments.add(0,
           new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
     }
@@ -82,7 +85,8 @@ public final class VPath implements Cloneable {
    * @return the current path
    */
   public VPath appendPath(@Nonnull VPath path) {
-    if (!this.equals(VPath.ROOT)) {
+    assert !path.isRoot();
+    if (!this.isRoot()) {
       pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
     }
     pathFragments.addAll(path.getPathFragments());
@@ -166,6 +170,10 @@ public final class VPath implements Cloneable {
   @Nonnull
   private String getInternalPath() {
     return getPathAsString(INTERNAL_SEPARATOR);
+  }
+
+  public boolean isRoot() {
+    return pathFragments.isEmpty();
   }
 
   /**
