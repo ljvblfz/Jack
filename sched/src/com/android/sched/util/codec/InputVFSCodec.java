@@ -25,9 +25,11 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.InputZipVFS;
+import com.android.sched.vfs.ReadZipFS;
+import com.android.sched.vfs.VFS;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,19 +76,19 @@ public class InputVFSCodec extends FileOrDirCodec
   @Nonnull
   public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
-    final InputVFS vfs;
+    final VFS vfs;
     try {
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
-        vfs = new DirectVFS(new Directory(string, context.getRunnableHooks(),
-            Existence.MUST_EXIST, Permission.READ, change));
+        vfs = new DirectFS(new Directory(string, context.getRunnableHooks(),
+            Existence.MUST_EXIST, Permission.READ, change), Permission.READ);
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;
-        vfs = new InputZipVFS(new InputZipFile(string, hooks, Existence.MUST_EXIST, change));
+        vfs = new ReadZipFS(new InputZipFile(string, hooks, Existence.MUST_EXIST, change));
       }
 
-      return vfs;
+      return new GenericInputVFS(vfs);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
