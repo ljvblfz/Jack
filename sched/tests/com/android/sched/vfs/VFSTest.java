@@ -36,10 +36,14 @@ import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.DirectoryLocation;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.ZipLocation;
 
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -71,33 +75,33 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
+      VFS vfs1 = new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
+          Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
 
-      directVFS =
-          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
-              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
+      ioVFS1 = new GenericInputOutputVFS(vfs1);
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      testInputVFS(ioVFS1);
+      ioVFS1.close();
 
-      directVFS2 =
-          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
-              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
-      testInputVFS(directVFS2);
+      VFS vfs2 = new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
+          Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
+      ioVFS2 = new GenericInputOutputVFS(vfs2);
+      testInputVFS(ioVFS2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -115,33 +119,38 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
-
-      directVFS = new GenericInputOutputVFS(new CachedDirectFS(new Directory(path, null,
+      VFS vfs1 = new CachedDirectFS(new Directory(path, null,
           Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
-          Permission.READ | Permission.WRITE));
+          Permission.READ | Permission.WRITE);
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
+      ioVFS1 = new GenericInputOutputVFS(vfs1);
 
-      directVFS2 =
-          new GenericInputOutputVFS(new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
-              Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
-      testInputVFS(directVFS2);
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      checkFileLocations(ioVFS1);
+      testInputVFS(ioVFS1);
+      checkUnicity(vfs1);
+      ioVFS1.close();
+
+      VFS vfs2 = new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
+          Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
+
+      ioVFS2 = new GenericInputOutputVFS(vfs2);
+      testInputVFS(ioVFS2);
+      checkFileLocations(ioVFS2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -159,35 +168,37 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
 
-      directVFS =
+      ioVFS1 =
           new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
               Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      checkFileLocations(ioVFS1);
+      testInputVFS(ioVFS1);
+      ioVFS1.close();
 
-      directVFS2 =
+      ioVFS2 =
           new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
-      testInputVFS(directVFS2);
+      testInputVFS(ioVFS2);
+      checkFileLocations(ioVFS2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -205,35 +216,35 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
 
-      directVFS =
+      ioVFS1 =
           new GenericInputOutputVFS(new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
               Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      testInputVFS(ioVFS1);
+      ioVFS1.close();
 
-      directVFS2 =
+      ioVFS2 =
           new GenericInputOutputVFS(new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
-      testInputVFS(directVFS2);
+      testInputVFS(ioVFS2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -251,8 +262,8 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
@@ -268,32 +279,182 @@ public class VFSTest {
       }
       Assert.assertNotNull(sha1);
 
-      directVFS = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
+      ioVFS1 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
           null, Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      checkFileLocations(ioVFS1);
+      testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
-          directVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      Assert.assertNotNull(((GenericInputVFile) fileAAB1).getDigest());
-      directVFS.close();
+          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      Assert.assertNotNull(fileAAB1digest);
+      String vfsDigest = ioVFS1.getDigest();
+      Assert.assertNotNull(vfsDigest);
+      ioVFS1.close();
 
-      directVFS2 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
+      ioVFS2 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
           null, Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
-      testInputVFS(directVFS2);
+      testInputVFS(ioVFS2);
+      checkFileLocations(ioVFS2);
+
       InputVFile fileAAB1b =
-          directVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      Assert.assertNotNull(((GenericInputVFile) fileAAB1b).getDigest());
+          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
+      String vfsDigest2 = ioVFS2.getDigest();
+      Assert.assertEquals(vfsDigest, vfsDigest2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
+  @Ignore //STOPSHIP: fix this
+  public void testMessageDigestFSWithCaseInsensitiveFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      Provider.Service sha1 = null;
+      for (Provider provider : Security.getProviders()) {
+        for (Provider.Service service : provider.getServices()) {
+          if (service.getType().equals("MessageDigest") && service.getAlgorithm().equals("SHA")) {
+            sha1 = service;
+          }
+        }
+      }
+      Assert.assertNotNull(sha1);
+
+      ioVFS1 = new GenericInputOutputVFS(new MessageDigestFS(new CaseInsensitiveFS(
+          new DirectFS(new Directory(path, null, Existence.NOT_EXIST, Permission.WRITE,
+              ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE)),
+              new MessageDigestFactory(sha1)));
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      testInputVFS(ioVFS1);
+      InputVFile fileAAB1 =
+          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      Assert.assertNotNull(fileAAB1digest);
+      String vfsDigest = ioVFS1.getDigest();
+      Assert.assertNotNull(vfsDigest);
+      ioVFS1.close();
+
+      ioVFS2 = new GenericInputOutputVFS(new MessageDigestFS(new CaseInsensitiveFS(
+          new DirectFS(new Directory(path, null, Existence.MUST_EXIST, Permission.WRITE,
+              ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE)),
+              new MessageDigestFactory(sha1)));
+      testInputVFS(ioVFS2);
+
+      InputVFile fileAAB1b =
+          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
+      String vfsDigest2 = ioVFS2.getDigest();
+      Assert.assertEquals(vfsDigest, vfsDigest2);
+
+    } finally {
+      if (ioVFS1 != null) {
+        ioVFS1.close();
+      }
+      if (ioVFS2 != null) {
+        ioVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
+  public void testMessageDigestFSWithCachedDirectFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      Provider.Service sha1 = null;
+      for (Provider provider : Security.getProviders()) {
+        for (Provider.Service service : provider.getServices()) {
+          if (service.getType().equals("MessageDigest") && service.getAlgorithm().equals("SHA")) {
+            sha1 = service;
+          }
+        }
+      }
+      Assert.assertNotNull(sha1);
+
+      VFS vfs1 = new MessageDigestFS(new CachedDirectFS(
+          new Directory(path, null, Existence.NOT_EXIST, Permission.WRITE,
+              ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE),
+              new MessageDigestFactory(sha1));
+
+      ioVFS1 = new GenericInputOutputVFS(vfs1);
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      checkFileLocations(ioVFS1);
+      testInputVFS(ioVFS1);
+      InputVFile fileAAB1 =
+          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      Assert.assertNotNull(fileAAB1digest);
+      String vfsDigest = ioVFS1.getDigest();
+      Assert.assertNotNull(vfsDigest);
+      ioVFS1.close();
+
+      ioVFS2 = new GenericInputOutputVFS(new MessageDigestFS(
+          new DirectFS(new Directory(path, null, Existence.MUST_EXIST, Permission.WRITE,
+              ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE),
+              new MessageDigestFactory(sha1)));
+      testInputVFS(ioVFS2);
+      checkFileLocations(ioVFS2);
+
+      InputVFile fileAAB1b =
+          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
+      String vfsDigest2 = ioVFS2.getDigest();
+      Assert.assertEquals(vfsDigest, vfsDigest2);
+
+    } finally {
+      if (ioVFS1 != null) {
+        ioVFS1.close();
+      }
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -311,35 +472,37 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS directVFS = null;
-    InputOutputVFS directVFS2 = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
     try {
       file = File.createTempFile("vfs", "dir");
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
 
-      directVFS =
+      ioVFS1 =
           new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
               Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE), new VPath("stuff", '/')));
 
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      checkFileLocations(ioVFS1);
+      testInputVFS(ioVFS1);
+      ioVFS1.close();
 
-      directVFS2 =
+      ioVFS2 =
           new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE), new VPath("stuff", '/')));
-      testInputVFS(directVFS2);
+      testInputVFS(ioVFS2);
+      checkFileLocations(ioVFS2);
 
     } finally {
-      if (directVFS != null) {
-        directVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (directVFS2 != null) {
-        directVFS2.close();
+      if (ioVFS2 != null) {
+        ioVFS2.close();
       }
       if (file != null) {
         FileUtils.deleteDir(file);
@@ -357,24 +520,25 @@ public class VFSTest {
       FileAlreadyExistsException,
       IOException {
     File file = null;
-    InputOutputVFS outputZipVFS = null;
-    InputVFS inputZipVFS = null;
+    InputOutputVFS ioVFS1 = null;
+    InputVFS iVFS2 = null;
     try {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
-      outputZipVFS = new GenericInputOutputVFS(new WriteZipFS(
+      ioVFS1 = new GenericInputOutputVFS(new WriteZipFS(
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
-      testOutputVFS(outputZipVFS);
-      outputZipVFS.close();
-      inputZipVFS = new GenericInputVFS(new ReadZipFS(
+      testOutputVFS(ioVFS1);
+      ioVFS1.close();
+      iVFS2 = new GenericInputVFS(new ReadZipFS(
           new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
-      testInputVFS(inputZipVFS);
+      testInputVFS(iVFS2);
+      checkZipLocations(iVFS2);
     } finally {
-      if (outputZipVFS != null) {
-        outputZipVFS.close();
+      if (ioVFS1 != null) {
+        ioVFS1.close();
       }
-      if (inputZipVFS != null) {
-        inputZipVFS.close();
+      if (iVFS2 != null) {
+        iVFS2.close();
       }
       if (file != null) {
         Assert.assertTrue(file.delete());
@@ -465,11 +629,14 @@ public class VFSTest {
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
       testOutputVFS(zipVFS);
       testDelete(zipVFS);
+      //STOPSHIP: should be a ZipLocation but is currently a FileOrDirLocation
+//      checkZipLocations(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
       inputZipVFS = new GenericInputVFS(new ReadZipFS(
           new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
       testInputVFS(inputZipVFS);
+      checkZipLocations(inputZipVFS);
     } finally {
       if (zipVFS != null) {
         zipVFS.close();
@@ -519,7 +686,7 @@ public class VFSTest {
 
     // let's delete "dirC/fileC1"
     {
-      InputOutputVFile fileC1 = (InputOutputVFile) ioVFS.getRootInputOutputVDir().getInputVFile(
+      InputOutputVFile fileC1 = ioVFS.getRootInputOutputVDir().getInputVFile(
           new VPath("dirC/fileC1", '/'));
       fileC1.delete();
       try {
@@ -540,6 +707,76 @@ public class VFSTest {
           ioVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
       writeToFile(fileC1, "dirC/fileC1");
     }
+  }
+
+
+  private void checkFileLocations(@Nonnull InputVFS inputVFS) throws NotFileOrDirectoryException,
+      NoSuchFileException {
+    VPath fileAAB1Path = new VPath("dirA/dirAA/dirAAB/fileAAB1", '/');
+    InputVFile fileAAB1 = inputVFS.getRootInputVDir().getInputVFile(fileAAB1Path);
+    FileLocation fileAAB1Location = (FileLocation) fileAAB1.getLocation();
+    Assert.assertTrue(fileAAB1Location.getDescription().contains("file"));
+    Assert.assertTrue(fileAAB1Location.getDescription().contains(
+        fileAAB1Path.getPathAsString(File.separatorChar)));
+
+    VPath dirBBPath = new VPath("dirB/dirBB", '/');
+    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(dirBBPath);
+    DirectoryLocation dirBBLocation = (DirectoryLocation) dirBB.getLocation();
+    Assert.assertTrue(dirBBLocation.getDescription().contains("directory"));
+    Assert.assertTrue(dirBBLocation.getDescription().contains(
+        dirBBPath.getPathAsString(File.separatorChar)));
+  }
+
+  private void checkZipLocations(@Nonnull InputVFS inputVFS) throws NotFileOrDirectoryException,
+      NoSuchFileException {
+    VPath fileAAB1Path = new VPath("dirA/dirAA/dirAAB/fileAAB1", '/');
+    InputVFile fileAAB1 = inputVFS.getRootInputVDir().getInputVFile(fileAAB1Path);
+    ZipLocation fileAAB1Location = (ZipLocation) fileAAB1.getLocation();
+    Assert.assertTrue(fileAAB1Location.getDescription().contains(".zip"));
+    Assert.assertTrue(fileAAB1Location.getDescription().contains("entry '" + ZipUtils.ZIP_SEPARATOR
+        + fileAAB1Path.getPathAsString(ZipUtils.ZIP_SEPARATOR) + '\''));
+
+    VPath dirBBPath = new VPath("dirB/dirBB", '/');
+    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(dirBBPath);
+    ZipLocation dirBBLocation = (ZipLocation) dirBB.getLocation();
+    Assert.assertTrue(dirBBLocation.getDescription().contains(".zip"));
+    Assert.assertTrue(dirBBLocation.getDescription().contains("entry '" + ZipUtils.ZIP_SEPARATOR
+        + dirBBPath.getPathAsString(ZipUtils.ZIP_SEPARATOR) + ZipUtils.ZIP_SEPARATOR + '\''));
+  }
+
+  private void checkUnicity(@Nonnull VFS vfs) throws NotDirectoryException, NoSuchFileException,
+      NotFileException {
+    // check file unicity
+    VDir dirA = vfs.getRootDir().getVDir("dirA");
+    VDir dirAAv1 = dirA.getVDir("dirAA");
+    VDir dirAAv2 = vfs.getRootDir().getVDir(new VPath("dirA/dirAA", '/'));
+    VDir dirAAv3 = null;
+    for (VElement subElement : dirA.list()) {
+      if (subElement.getName().equals("dirAA")) {
+        dirAAv3 = (VDir) subElement;
+        break;
+      }
+    }
+    Assert.assertNotNull(dirAAv3);
+    Assert.assertTrue(dirAAv1 == dirAAv2);
+    Assert.assertTrue(dirAAv2 == dirAAv3);
+
+    // check dir unicity
+    VDir dirAAB = dirAAv1.getVDir("dirAAB");
+    VFile fileAAB1v1 = dirAAB.getVFile("fileAAB1");
+    VFile fileAAB1v2 = dirAAv2.getVFile(new VPath("dirAAB/fileAAB1", '/'));
+    VFile fileAAB1v3 = vfs.getRootDir().getVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+    VFile fileAAB1v4 = null;
+    for (VElement subElement : dirAAB.list()) {
+      if (subElement.getName().equals("fileAAB1")) {
+        fileAAB1v4 = (VFile) subElement;
+        break;
+      }
+    }
+    Assert.assertNotNull(fileAAB1v4);
+    Assert.assertTrue(fileAAB1v1 == fileAAB1v2);
+    Assert.assertTrue(fileAAB1v2 == fileAAB1v3);
+    Assert.assertTrue(fileAAB1v3 == fileAAB1v4);
   }
 
   private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
