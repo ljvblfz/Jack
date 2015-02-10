@@ -1336,7 +1336,7 @@
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
         </classpath>
-        <test name="com.android.jack.AllTests"
+        <test name="com.android.jack.AllWithJackTests"
           todir="${jack.tests.output}/test-jack-all/"
           outfile="AllTestsResults" />
       </junit>
