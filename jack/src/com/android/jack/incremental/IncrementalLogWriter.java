@@ -50,6 +50,9 @@ class IncrementalLogWriter {
   @Nonnull
   private final OutputJackLibrary library;
 
+  @Nonnull
+  private static Joiner commaJoiner = Joiner.on(",").useForNull("");
+
   IncrementalLogWriter(@Nonnull OutputJackLibrary library, @Nonnull File incrementalFolder)
       throws LibraryIOException {
     this.library = library;
@@ -86,7 +89,7 @@ class IncrementalLogWriter {
   void writeStrings(@Nonnull String prefixStr, @Nonnull Collection<String> strings) {
     ps.print(prefixStr);
     ps.print(": ");
-    ps.print(Joiner.on(",").useForNull("").join(strings));
+    ps.print(commaJoiner.join(strings));
     ps.println();
   }
 

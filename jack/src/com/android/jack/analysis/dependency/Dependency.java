@@ -46,6 +46,12 @@ public abstract class Dependency {
 
   private static final char MAP_KEY_VALUE_SEPARATOR = ':';
 
+  @Nonnull
+  private static final Joiner mapValueJoiner = Joiner.on(MAP_VALUE_SEPARATOR);
+
+  @Nonnull
+  private static final Joiner listValueJoiner = Joiner.on(LIST_VALUE_SEPARATOR).useForNull("");
+
   /**
    * Line parser
    */
@@ -109,14 +115,14 @@ public abstract class Dependency {
       StringBuffer sb = new StringBuffer();
       sb.append(entry.getKey());
       sb.append(MAP_KEY_VALUE_SEPARATOR);
-      sb.append(Joiner.on(MAP_VALUE_SEPARATOR).join(entry.getValue().iterator()));
+      sb.append(mapValueJoiner.join(entry.getValue().iterator()));
       ps.print(sb.toString());
       ps.println();
     }
   }
 
   protected void writeList(@Nonnull PrintStream ps, @Nonnull List<String> list) {
-    ps.print(Joiner.on(LIST_VALUE_SEPARATOR).useForNull("").join(list.iterator()));
+    ps.print(listValueJoiner.join(list.iterator()));
   }
 
   @Nonnull
