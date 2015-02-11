@@ -32,11 +32,14 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,14 +117,16 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 
   @Nonnull
   @Override
-  public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
-      @Nonnull String simpleName) throws JPackageLookupException {
-    for (InputVElement sub : packageVDir.list()) {
-      if (sub.isVDir() && sub.getName().equals(simpleName)) {
-        return new JaycePackageLoader(inputJackLibrary, (InputVDir) sub, lookup, defaultLoadLevel);
-      }
+  public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading, @Nonnull String simpleName)
+      throws JPackageLookupException {
+    try {
+      return new JaycePackageLoader(inputJackLibrary,
+          packageVDir.getInputVDir(new VPath(simpleName, '/')), lookup, defaultLoadLevel);
+    } catch (NotDirectoryException e) {
+      throw new JPackageLookupException(simpleName, loading);
+    } catch (NoSuchFileException e) {
+      throw new JPackageLookupException(simpleName, loading);
     }
-    throw new JPackageLookupException(simpleName, loading);
   }
 
   @Nonnull
