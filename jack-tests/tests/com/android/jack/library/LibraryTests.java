@@ -20,8 +20,11 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ConfigurationException;
+import com.android.sched.util.config.GatherConfigBuilder;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
@@ -83,9 +86,10 @@ public class LibraryTests {
     File lib = createRscLibrary();
     File out = AbstractTestTools.createTempFile("library001", ".jack");
 
-    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(JackCliToolchain.class);
-    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     toolchain.addStaticLibs(lib);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(out, /* zipFile = */ true,

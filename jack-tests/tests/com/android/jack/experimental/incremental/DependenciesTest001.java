@@ -49,6 +49,8 @@ public class DependenciesTest001 {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
+    ite.setIsApiTest();
+
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A extends B {} \n");
@@ -77,6 +79,8 @@ public class DependenciesTest001 {
   public void testDependency002() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.setIsApiTest();
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
@@ -270,6 +274,8 @@ public class DependenciesTest001 {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
+    ite.setIsApiTest();
+
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A { public void test() {new B().m();}} \n");
@@ -363,6 +369,8 @@ public class DependenciesTest001 {
   public void testDependency011() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.setIsApiTest();
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+
@@ -505,6 +513,8 @@ public class DependenciesTest001 {
   public void testDependency015() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.setIsApiTest();
 
     ite.addJavaFile("jack.incremental", "A.java",
         "package jack.incremental; \n"+

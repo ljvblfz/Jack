@@ -64,6 +64,8 @@ public class DependenciesTest009 {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
+    ite.setIsApiTest();
+
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public class A extends B { }");
 

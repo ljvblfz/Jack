@@ -16,10 +16,7 @@
 
 package com.android.jack.fileconflict;
 
-
 import com.android.jack.JackAbortException;
-import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.FileType;
@@ -35,8 +32,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
-import com.android.sched.util.stream.ByteStreamSucker;
-
 
 import junit.framework.Assert;
 
@@ -49,7 +44,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

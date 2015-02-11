@@ -16,6 +16,9 @@
 
 package com.android.jack.shrob;
 
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
+
 import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.comparator.ComparatorMapping;
@@ -25,6 +28,9 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -60,5 +66,18 @@ public class RepackagingTest extends AbstractTest {
     env.setReferenceTestTools(new DummyToolchain());
 
     env.runTest(new ComparatorMapping(candidateOutputMapping, refOutputMapping));
+  }
+
+  @Nonnull
+  private static File replaceRepackageClassesValue(@Nonnull File inFlags,
+      @Nonnull String flagNumber) throws IOException {
+    File result = AbstractTestTools.createTempFile("proguard" + flagNumber, ".flags" + flagNumber);
+
+    List<String> lines = Files.readLines(inFlags, StandardCharsets.UTF_8);
+    String fileAsOneLine = Joiner.on(' ').join(lines);
+    String resultContent = fileAsOneLine.replaceAll("-repackageclasses\\s+'.+'", "-repackageclasses ''");
+    Files.write(resultContent, result, StandardCharsets.UTF_8);
+
+    return result;
   }
 }

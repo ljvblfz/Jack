@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -481,6 +482,27 @@ public abstract class AbstractTestTools {
     } else if (fileObject.getName().endsWith(".java") && (!mustExist || fileObject.isFile())) {
       filePaths.add(fileObject.getCanonicalFile());
     }
+  }
+
+  public static void appendMessageToFileContent(@Nonnull File file, @Nonnull File out,
+      @Nonnull String message) throws IOException {
+    PrintStream fos = new PrintStream(new FileOutputStream(out));
+    FileInputStream fis = new FileInputStream(file);
+
+    new ByteStreamSucker(fis, fos, /* toBeClose = */ false).suck();
+    fos.print(message);
+
+    fos.close();
+  }
+
+  public static void prependMessageToFileContent(@Nonnull File file, @Nonnull File out,
+      @Nonnull String message) throws IOException {
+    PrintStream fos = new PrintStream(new FileOutputStream(out));
+    FileInputStream fis = new FileInputStream(file);
+
+    fos.print(message);
+    new ByteStreamSucker(fis, fos, /* toBeClose = */ true).suck();
+
   }
 
   public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {

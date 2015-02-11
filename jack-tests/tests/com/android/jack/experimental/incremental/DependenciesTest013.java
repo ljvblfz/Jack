@@ -47,6 +47,8 @@ public class DependenciesTest013 {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
+    ite.setIsApiTest();
+
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public class A { \n"
         + "public int getLength() { "
@@ -84,6 +86,8 @@ public class DependenciesTest013 {
   public void testDependency002() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.setIsApiTest();
 
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public class A { \n"
@@ -127,6 +131,8 @@ public class DependenciesTest013 {
   public void testDependency003() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.setIsApiTest();
 
     ite.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public class A { \n"

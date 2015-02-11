@@ -53,6 +53,8 @@ public class DependenciesTest015 {
     IncrementalTestHelper iteLib =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
 
+    iteLib.setIsApiTest();
+
     File f = iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public abstract class A { \n" + "public abstract void m(); }");
 
@@ -64,6 +66,8 @@ public class DependenciesTest015 {
 
     IncrementalTestHelper iteProg =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    iteProg.setIsApiTest();
 
     iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
         + "public class B extends A { \n" + " @Override public void m(){} }");

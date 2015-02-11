@@ -449,6 +449,7 @@
   <!-- ******************* -->
   <!-- jackunittests       -->
   <!-- ******************* -->
+  <property name="jackunittests.exec.build.dir" value="${jack.dir}/build/jackunittests" />
   <property name="jackunittests.execname" value="jackunittests.jar"/>
 
   <target name="jackunittests-clean">
@@ -472,11 +473,20 @@
   </target>
 
   <target name="jackunittests" depends="jackunittests-lib,jackunittests-check" unless="jackunittests.uptodate">
+   <mkdir dir="${jackunittests.exec.build.dir}" />
+    <jar manifest="${jack.dir}/etc/manifest.txt"
+       destfile="${jackunittests.exec.build.dir}/${jackunittests.execname}">
+       <archives>
+         <zips>
+           <fileset file="${jackunittests.dist.dir}/${jackunittests.libname}"/>
+        </zips>
+       </archives>
+     </jar>
     <!-- add sched support -->
     <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
     <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
     <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
-      <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
+      <arg value="${jackunittests.exec.build.dir}/${jackunittests.execname}" />
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.execname}" />

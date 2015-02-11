@@ -24,7 +24,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
-import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import junit.framework.Assert;
 
@@ -69,6 +70,8 @@ public class IncrementalTestHelper {
   @Nonnull
   private OutputStream err = System.err;
 
+  private boolean isApiTest = false;
+
   public IncrementalTestHelper(@Nonnull File testingFolder) throws IOException {
     this.testingFolder = testingFolder;
     this.sourceFolder = new File(testingFolder, "src");
@@ -93,6 +96,10 @@ public class IncrementalTestHelper {
 
   public void setErr(OutputStream err) {
     this.err = err;
+  }
+
+  public void setIsApiTest() {
+    isApiTest = true;
   }
 
   @Nonnull
@@ -174,7 +181,10 @@ public class IncrementalTestHelper {
       @Nonnull List<File> imports, @Nonnull MultiDexKind multiDexKind) throws Exception {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(JillBasedToolchain.class);
+    excludeList.add(LegacyJillToolchain.class);
+    if (isApiTest) {
+      excludeList.add(JackCliToolchain.class);
+    }
 
     JackApiToolchainBase jackToolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
