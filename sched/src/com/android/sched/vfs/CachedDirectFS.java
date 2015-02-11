@@ -186,7 +186,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Override
   @Nonnull
   public Location getLocation() {
-    return root.getLocation();
+    return dir.getLocation();
   }
 
   @Override
