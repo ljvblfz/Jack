@@ -26,6 +26,8 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
@@ -95,6 +97,9 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final JSession session;
 
   @Nonnull
+  private static final Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
   private final List<PackageLoader> loaders =
       new LinkedList<PackageLoader>();
 
@@ -117,7 +122,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       this.enclosingPackage = enclosingPackage;
       this.enclosingPackage.addPackage(this);
     }
-    session.getTracer().getStatistic(PACKAGE_CREATION).incValue();
+    tracer.getStatistic(PACKAGE_CREATION).incValue();
   }
 
   public void addType(@Nonnull JDefinedClassOrInterface type) {
@@ -233,7 +238,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       }
       JPhantomClassOrInterface phantom = new JPhantomClassOrInterface(typeName, this);
       phantomTypes.add(phantom);
-      session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
+      tracer.getStatistic(PHANTOM_CREATION).incValue();
       return phantom;
     }
   }
@@ -255,7 +260,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomClass phantom = new JPhantomClass(typeName, this);
     phantomClasses.add(phantom);
-    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
+    tracer.getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -276,7 +281,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomEnum phantom = new JPhantomEnum(typeName, this);
     phantomEnums.add(phantom);
-    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
+    tracer.getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -297,7 +302,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomInterface phantom = new JPhantomInterface(typeName, this);
     phantomInterfaces.add(phantom);
-    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
+    tracer.getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 
@@ -318,7 +323,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
     JPhantomAnnotation phantom = new JPhantomAnnotation(typeName, this);
     phantomAnnotations.add(phantom);
-    session.getTracer().getStatistic(PHANTOM_CREATION).incValue();
+    tracer.getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
   }
 

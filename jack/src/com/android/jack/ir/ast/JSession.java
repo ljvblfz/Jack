@@ -39,8 +39,6 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,9 +72,6 @@ public class JSession extends JNode {
 
   @Nonnull
   private final JArrayType[] primitiveArrays = new JArrayType[JPrimitiveTypeEnum.values().length];
-
-  @Nonnull
-  private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory = new SourceInfoFactory();
@@ -140,11 +135,6 @@ public class JSession extends JNode {
   @Nonnull
   public JNodeLookup getLookup() {
     return lookup;
-  }
-
-  @Nonnull
-  public Tracer getTracer() {
-    return tracer;
   }
 
   @Nonnull
