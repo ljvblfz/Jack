@@ -118,6 +118,43 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
         return VPath.ROOT;
       }
     }
+
+    @Override
+    @Nonnull
+    public BaseVFile getVFile(@Nonnull String name) throws NoSuchFileException,
+        NotFileException {
+      return vfs.getVFile(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVDir getVDir(@Nonnull String name) throws NotDirectoryException,
+        NoSuchFileException {
+      return vfs.getVDir(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVFile createVFile(@Nonnull String name) throws CannotCreateFileException {
+      return vfs.createVFile(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVDir createVDir(@Nonnull String name) throws CannotCreateFileException {
+      return vfs.createVDir(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public Collection<? extends BaseVElement> list() {
+      return vfs.list(this);
+    }
+
+    @CheckForNull
+    public VDir getParent() {
+      return parent;
+    }
   }
 
   static class CaseInsensitiveVFile extends ParentVFile {
@@ -143,8 +180,10 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
     @Override
     public void delete() throws CannotDeleteFileException {
-      super.delete();
-      // we need to remove the VFile from the parent dir's map
+      vfs.delete(this);
+    }
+
+    public void deleteFromCache() {
       ((InMemoryVDir) parent).internalDelete(name);
     }
   }
@@ -340,35 +379,74 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   @Override
   @Nonnull
-  CaseInsensitiveVDir getVDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name) {
-    throw new UnsupportedOperationException();
+  CaseInsensitiveVDir getVDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
+      throws NotDirectoryException, NoSuchFileException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element != null) {
+      if (element.isVDir()) {
+        return (CaseInsensitiveVDir) element;
+      } else {
+        throw new NotDirectoryException(getVDirLocation(parent, name));
+      }
+    } else {
+      throw new NoSuchFileException(getVDirLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  CaseInsensitiveVFile getVFile(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name) {
-    throw new UnsupportedOperationException();
+  CaseInsensitiveVFile getVFile(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
+      throws NotFileException, NoSuchFileException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element != null) {
+      if (!element.isVDir()) {
+        return (CaseInsensitiveVFile) element;
+      } else {
+        throw new NotFileException(getVFileLocation(parent, name));
+      }
+    } else {
+      throw new NoSuchFileException(getVFileLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  CaseInsensitiveVDir createVDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name) {
+  synchronized CaseInsensitiveVDir createVDir(@Nonnull CaseInsensitiveVDir parent,
+      @Nonnull String name) throws CannotCreateFileException {
     assert !isClosed();
 
-    return new CaseInsensitiveVDir(this, parent, name);
+    try {
+      return getVDir(parent, name);
+
+    } catch (NoSuchFileException e) {
+      CaseInsensitiveVDir dir = new CaseInsensitiveVDir(this, parent, name);
+      parent.putInCache(name, dir);
+      return dir;
+    } catch (NotDirectoryException e) {
+      throw new CannotCreateFileException(getVDirLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  CaseInsensitiveVFile createVFile(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
-      throws CannotCreateFileException {
+  synchronized CaseInsensitiveVFile createVFile(@Nonnull CaseInsensitiveVDir parent,
+      @Nonnull String name) throws CannotCreateFileException {
     assert !isClosed();
 
-    CaseInsensitiveVFile original = new CaseInsensitiveVFile(this, parent, name);
-    BaseVFile encoded = vfs.getRootDir().createVFile(encode(original.getPath()));
-    original.setEncodedFile(encoded);
+    try {
+      return getVFile(parent, name);
 
-    return original;
+    } catch (NoSuchFileException e) {
+
+      CaseInsensitiveVFile original = new CaseInsensitiveVFile(this, parent, name);
+      BaseVFile encoded = vfs.getRootDir().createVFile(encode(original.getPath()));
+      original.setEncodedFile(encoded);
+      parent.putInCache(name, original);
+
+      return original;
+    } catch (NotFileException e) {
+      throw new CannotCreateFileException(getVFileLocation(parent, name));
+    }
   }
 
   @Override
@@ -379,6 +457,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     try {
       BaseVFile encoded = vfs.getRootDir().getVFile(encode(file.getPath()));
       vfs.delete(encoded);
+      file.deleteFromCache();
     } catch (NotDirectoryException e) {
       throw new CannotDeleteFileException(file);
     } catch (NotFileException e) {
@@ -391,12 +470,12 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   @Nonnull
   Collection<? extends BaseVElement> list(@Nonnull CaseInsensitiveVDir dir) {
-    throw new UnsupportedOperationException();
+    return dir.getAllFromCache();
   }
 
   @Override
   boolean isEmpty(@Nonnull CaseInsensitiveVDir dir) {
-    throw new UnsupportedOperationException();
+    return list(dir).isEmpty();
   }
 
   //
@@ -494,5 +573,30 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     }
 
     return array;
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull CaseInsensitiveVFile file) {
+    StringBuffer path = getPathFromDirInternal(parent, (CaseInsensitiveVDir) file.getParent())
+        .append(file.getName());
+    return new VPath(path.toString(), '/');
+  }
+
+  @Nonnull
+  private StringBuffer getPathFromDirInternal(@Nonnull CaseInsensitiveVDir baseDir,
+      @Nonnull CaseInsensitiveVDir currentDir) {
+    if (baseDir == currentDir) {
+      return new StringBuffer();
+    }
+    CaseInsensitiveVDir currentParent = (CaseInsensitiveVDir) currentDir.getParent();
+    assert currentParent != null;
+    return getPathFromDirInternal(baseDir, currentParent).append(currentDir.getName()).append('/');
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull CaseInsensitiveVFile file) {
+    return getPathFromDir(root, file);
   }
 }

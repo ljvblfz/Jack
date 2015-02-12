@@ -385,7 +385,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @Override
   boolean isEmpty(@Nonnull MessageDigestVDir dir) {
-    return vfs.isEmpty(dir);
+    return vfs.isEmpty(dir.getWrappedDir());
   }
 
   @Override
@@ -437,30 +437,42 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
-    return vfs.getVFileLocation(parent, name);
+    return vfs.getVFileLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
-    return vfs.getVFileLocation(parent, path);
+    return vfs.getVFileLocation(parent.getWrappedDir(), path);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir dir) {
-    return vfs.getVDirLocation(dir);
+    return vfs.getVDirLocation(dir.getWrappedDir());
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
-    return vfs.getVDirLocation(parent, name);
+    return vfs.getVDirLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
-    return vfs.getVDirLocation(parent, path);
+    return vfs.getVDirLocation(parent.getWrappedDir(), path);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull MessageDigestVDir parent, @Nonnull MessageDigestVFile file) {
+    return vfs.getPathFromDir(parent.getWrappedDir(), file.getWrappedFile());
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull MessageDigestVFile file) {
+    return vfs.getPathFromRoot(file.getWrappedFile());
   }
 }

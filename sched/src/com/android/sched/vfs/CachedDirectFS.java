@@ -111,6 +111,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     public Collection<? extends BaseVElement> list() {
       return vfs.list(this);
     }
+
+    @CheckForNull
+    public CachedParentVDir getParent() {
+      return parent;
+    }
   }
 
   static class CachedParentVFile extends ParentVFile {
@@ -404,5 +409,30 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Nonnull
   private File getNativeFile(@Nonnull VPath path, @Nonnull String name) {
     return new File(new File(dir.getFile(), path.getPathAsString(File.separatorChar)), name);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull CachedParentVDir parent, @Nonnull CachedParentVFile file) {
+    StringBuffer path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
+        .append(file.getName());
+    return new VPath(path.toString(), '/');
+  }
+
+  @Nonnull
+  private static StringBuffer getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
+      @Nonnull CachedParentVDir currentDir) {
+    if (baseDir == currentDir) {
+      return new StringBuffer();
+    }
+    CachedParentVDir currentParent = currentDir.getParent();
+    assert currentParent != null;
+    return getPathFromDirInternal(baseDir, currentParent).append(currentDir.getName()).append('/');
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot(@Nonnull CachedParentVFile file) {
+    return getPathFromDir(root, file);
   }
 }
