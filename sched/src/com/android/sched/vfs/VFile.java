@@ -32,4 +32,6 @@ public interface VFile extends VElement, InputStreamProvider, OutputStreamProvid
   String getDigest();
 
   void delete() throws CannotDeleteFileException;
+  @Nonnull
+  VPath getPathFromRoot();
 }

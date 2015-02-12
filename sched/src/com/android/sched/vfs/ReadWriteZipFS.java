@@ -206,4 +206,16 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   public void setWorkVFS(@Nonnull VFS workVFS) {
     vfs.setWorkVFS(workVFS);
   }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return getPathFromDir(getRootDir(), file);
+  }
 }

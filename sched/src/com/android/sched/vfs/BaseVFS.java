@@ -79,6 +79,12 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
 
   abstract boolean isEmpty(@Nonnull DIR dir);
 
+  @Nonnull
+  abstract VPath getPathFromDir(@Nonnull DIR parent, @Nonnull FILE file);
+
+  @Nonnull
+  abstract VPath getPathFromRoot(@Nonnull FILE file);
+
   //
   // Location related
   //
