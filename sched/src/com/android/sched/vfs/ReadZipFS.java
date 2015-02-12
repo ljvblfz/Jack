@@ -285,7 +285,6 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
         if (!entry.isDirectory()) {
           String entryName = entry.getName();
           ZipVDir currentDir = getRootDir();
-          StringBuilder inZipPath = new StringBuilder();
           Iterator<String> names = splitter.split(entryName).iterator();
 
           String simpleName = null;
@@ -294,7 +293,6 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
             assert !simpleName.isEmpty();
             if (names.hasNext()) {
               // simpleName is a dir name
-              inZipPath.append(simpleName).append(ZipUtils.ZIP_SEPARATOR);
               currentDir = (ZipVDir) currentDir.createVDir(simpleName);
             }
           }
