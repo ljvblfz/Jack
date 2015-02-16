@@ -30,11 +30,14 @@ import javax.annotation.Nonnull;
 public abstract class DexWriter {
 
   @Nonnull
+  private static final String JACK_DEX_TAG_HEADER = "emitter: " + Jack.getEmitterId();
+
+  @Nonnull
   private static final String JACK_DEX_TAG;
 
   static {
     String bid = Jack.getBuildId();
-    JACK_DEX_TAG = "emitter: " + Jack.getEmitterId() + (bid != null ? " " + bid : "");
+    JACK_DEX_TAG = JACK_DEX_TAG_HEADER + (bid != null ? " " + bid : "");
   }
 
   @Nonnull
@@ -46,5 +49,9 @@ public abstract class DexWriter {
   @Nonnull
   public static String getJackDexTag() {
     return JACK_DEX_TAG;
+  }
+
+  public static boolean isJackDexTag(String str) {
+    return str.startsWith(DexWriter.JACK_DEX_TAG_HEADER);
   }
 }

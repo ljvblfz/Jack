@@ -27,6 +27,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+
+import javax.annotation.Nonnull;
 
 public class DexTagTests {
 
@@ -46,8 +49,15 @@ public class DexTagTests {
     Assert.assertTrue(hasTag(classesDex));
   }
 
-  private boolean hasTag(File dexFile) throws IOException {
-    DexBuffer dex = new DexBuffer(dexFile);
-    return dex.strings().contains(DexWriter.getJackDexTag());
+  private boolean hasTag(@Nonnull File dexFile) throws IOException {
+    Iterator<String> stringsIt = new DexBuffer(dexFile).strings().iterator();
+
+    while (stringsIt.hasNext()) {
+      if (DexWriter.isJackDexTag(stringsIt.next())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
