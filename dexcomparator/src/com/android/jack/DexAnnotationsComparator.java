@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -420,8 +421,9 @@ public class DexAnnotationsComparator {
       }
     }
 
-    private boolean compareValues(EncodedValue encodedValue, EncodedValue candEncodedValue,
-        String elementString, String type, String name) throws DifferenceFoundException {
+    private boolean compareValues(@Nonnull EncodedValue encodedValue,
+        @Nonnull EncodedValue candEncodedValue, String elementString, String type, String name)
+        throws DifferenceFoundException {
       boolean isEqual = false;
       if (encodedValue.getValueType().value == candEncodedValue.getValueType().value) {
         if (encodedValue instanceof StringEncodedValue) {
@@ -512,25 +514,31 @@ public class DexAnnotationsComparator {
         throws DifferenceFoundException {
       boolean isEqual = true;
       boolean isMemberClass = type.equals(MEMBER_CLASSES_DESCRIPTOR);
-      Iterator<EncodedValue> refEncodedValuesIterator = refEncodedValues.iterator();
-      Iterator<EncodedValue> candEncodedValuesIterator = candEncodedValues.iterator();
+      ListIterator<EncodedValue> refEncodedValuesIterator = refEncodedValues.listIterator();
+      ListIterator<EncodedValue> candEncodedValuesIterator = candEncodedValues.listIterator();
 
       while (refEncodedValuesIterator.hasNext()) {
         if (!candEncodedValuesIterator.hasNext()) {
           isEqual = false;
           break;
         }
-        EncodedValue refValue = refEncodedValuesIterator.next();
 
-        // our reference may have additional synthetic anonymous classes that we should ignore
+        EncodedValue refValue;
+        EncodedValue candValue;
+
         if (isMemberClass) {
-          TypeEncodedValue typeRefValue = (TypeEncodedValue) refValue;
-          if (isAnonymousTypeName(typeRefValue.value.getTypeDescriptor())) {
-            continue;
+          // we may have additional anonymous classes that we should ignore
+          refValue = getNextEncodedValueOfMemberClassAnnotation(refEncodedValuesIterator);
+          candValue = getNextEncodedValueOfMemberClassAnnotation(candEncodedValuesIterator);
+          if (refValue == null || candValue == null) {
+            isEqual = (refValue == candValue);
+            break;
           }
+        } else {
+          refValue = refEncodedValuesIterator.next();
+          candValue = candEncodedValuesIterator.next();
         }
 
-        EncodedValue candValue = candEncodedValuesIterator.next();
         isEqual = compareValues(refValue, candValue, elementString, type, name);
         if (!isEqual) {
           break;
@@ -540,6 +548,19 @@ public class DexAnnotationsComparator {
         isEqual = false;
       }
       return isEqual;
+    }
+
+    @CheckForNull
+    private EncodedValue getNextEncodedValueOfMemberClassAnnotation(
+        @Nonnull Iterator<EncodedValue> encodedValuesIterator) {
+      TypeEncodedValue typeValue;
+      while (encodedValuesIterator.hasNext()) {
+          typeValue = (TypeEncodedValue) encodedValuesIterator.next();
+          if (!isAnonymousTypeName(typeValue.value.getTypeDescriptor())) {
+              return typeValue;
+          }
+      }
+      return null;
     }
 
     private boolean compareMethodIds(MethodIdItem value, MethodIdItem value2) {
