@@ -16,8 +16,6 @@
 
 package com.android.jack.fileconflict;
 
-import com.google.common.io.Files;
-
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
@@ -30,6 +28,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import junit.framework.Assert;
@@ -46,6 +46,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -123,7 +125,7 @@ public class FileConflictTests {
   public void test001a() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     try {
-      runTest001(jackOutput, null);
+      runTest001(jackOutput, null, /* isApiTest = */ true);
       Assert.fail();
     } catch (ImportConflictException e) {
     }
@@ -138,7 +140,7 @@ public class FileConflictTests {
   public void test001b() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     try {
-      runTest001(jackOutput, "fail");
+      runTest001(jackOutput, "fail", /* isApiTest = */ true);
       Assert.fail();
     } catch (ImportConflictException e) {
     }
@@ -152,7 +154,7 @@ public class FileConflictTests {
   @Test
   public void test001c() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
-    runTest001(jackOutput, "keep-first");
+    runTest001(jackOutput, "keep-first", /* isApiTest = */ false);
     File myClass1 = new File(jackOutput, JACK_FILE_PATH_1);
     File myClass2 = new File(jackOutput, JACK_FILE_PATH_2);
     File myClass3 = new File(jackOutput, JACK_FILE_PATH_3);
@@ -170,7 +172,7 @@ public class FileConflictTests {
   public void test002a() throws Exception {
     File jackOutput;
     try {
-      jackOutput = runTest002(false /* non-zipped */, null);
+      jackOutput = runTest002(false /* non-zipped */, null, /* isApiTest = */ true);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -185,7 +187,7 @@ public class FileConflictTests {
   public void test002b() throws Exception {
     File jackOutput;
     try {
-      jackOutput = runTest002(false /* non-zipped */, "fail");
+      jackOutput = runTest002(false /* non-zipped */, "fail", /* isApiTest = */ true);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -199,7 +201,7 @@ public class FileConflictTests {
   @Test
   public void test002c() throws Exception {
     File jackOutput;
-    jackOutput = runTest002(false /* non-zipped */, "keep-first");
+    jackOutput = runTest002(false /* non-zipped */, "keep-first", /* isApiTest = */ false);
     checkResourceContent(jackOutput, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(jackOutput, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(jackOutput, RESOURCE3_LONGPATH, "Res3");
@@ -214,7 +216,7 @@ public class FileConflictTests {
   public void test002d() throws Exception {
     File jackOutput;
     try {
-      jackOutput = runTest002(true /* zipped */, null);
+      jackOutput = runTest002(true /* zipped */, null, /* isApiTest = */ true);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -229,7 +231,7 @@ public class FileConflictTests {
   public void test002e() throws Exception {
     File jackOutput;
     try {
-      jackOutput = runTest002(true /* zipped */, "fail");
+      jackOutput = runTest002(true /* zipped */, "fail", /* isApiTest = */ true);
       Assert.fail();
     } catch (ResourceImportConflictException e) {
     }
@@ -243,7 +245,7 @@ public class FileConflictTests {
   @Test
   public void test002f() throws Exception {
     File jackOutput;
-    jackOutput = runTest002(true /* zipped */, "keep-first");
+    jackOutput = runTest002(true /* zipped */, "keep-first", /* isApiTest = */ false);
     ZipFile zipFile = new ZipFile(jackOutput);
     checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
@@ -262,7 +264,7 @@ public class FileConflictTests {
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003");
     File tempJackFolder = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
@@ -295,7 +297,7 @@ public class FileConflictTests {
     copyFileToDir(myClass1, jackFilePath, jackOutput);
     copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
 
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
     toolchain.libToLib(jackImport1, jackOutput, false);
   }
@@ -313,7 +315,7 @@ public class FileConflictTests {
     // compile source files to a Jack dir
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003.jack");
     File tempJackFolder = AbstractTestTools.createTempDir();
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
@@ -341,7 +343,7 @@ public class FileConflictTests {
     copyFileToDir(resource2, resourcePath, jackOutput);
 
     // run Jack on Jack dir
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.libToLib(jackImport1, jackOutput, /* zipFiles = */ false);
 
     checkResourceContent(jackOutput, resourcePath, "Res1");
@@ -399,12 +401,23 @@ public class FileConflictTests {
         "MyClass");
   }
 
-  private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy)
-      throws Exception {
+  @Nonnull
+  private JackBasedToolchain getToolchain(boolean isApiTest) {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(LegacyJillToolchain.class);
+    if (isApiTest) {
+      excludeList.add(JackCliToolchain.class);
+    }
+    return AbstractTestTools.getCandidateToolchain(JackApiToolchain.class, excludeList);
+  }
+
+  private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy,
+      boolean isApiTest) throws Exception {
     // compile source files to a Jack dir
     File tempJackFolder = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+
+    JackBasedToolchain toolchain = getToolchain(isApiTest);
+
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
@@ -442,7 +455,7 @@ public class FileConflictTests {
     copyFileToDir(myClass3Dex, DEX_FILE_PATH_3, jackImport2);
 
     // run Jack on Jack dirs
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain = getToolchain(isApiTest);
     toolchain.addProguardFlags(new File(TEST001_DIR, "proguard.flags"));
     toolchain.addStaticLibs(jackImport1, jackImport2);
     if (collisionPolicy != null) {
@@ -452,11 +465,13 @@ public class FileConflictTests {
   }
 
   @Nonnull
-  private File runTest002(boolean zip, @CheckForNull String collisionPolicy) throws Exception {
+  private File runTest002(boolean zip, @CheckForNull String collisionPolicy, boolean isApiTest)
+      throws Exception {
     // compile source files to a Jack dir
     File jackImport1 = AbstractTestTools.createTempDir();
     File lib1 = new File(TEST002_DIR, "lib1");
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+
+    JackBasedToolchain toolchain = getToolchain(isApiTest);
     toolchain.addResource(new File(lib1, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -466,7 +481,7 @@ public class FileConflictTests {
 
     File jackImport2 = AbstractTestTools.createTempDir();
     File lib2 = new File(TEST002_DIR, "lib2");
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = getToolchain(isApiTest);
     toolchain.addResource(new File(lib2, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -475,7 +490,7 @@ public class FileConflictTests {
         lib2);
 
     // run Jack on Jack dirs
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = getToolchain(isApiTest);
     toolchain.addProguardFlags(new File(TEST002_DIR, "proguard.flags"));
     if (collisionPolicy != null) {
       toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
