@@ -1220,7 +1220,7 @@
 
   <target name="test-jack" depends="jack-tests">
     <mkdir dir="${test-jack.output.dir}/PreSubmitTests/html"/>
-    <junit fork="yes" errorproperty="test-jack.failure">
+    <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="-ea"/>
@@ -1242,7 +1242,7 @@
 
    <target name="test-jack-long" depends="jack-tests">
       <mkdir dir="${test-jack.output.dir}/LongLastingTests/html"/>
-      <junit fork="yes" errorproperty="test-jack.failure">
+      <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="-ea"/>
@@ -1264,7 +1264,7 @@
 
   <target name="test-jack-all" depends="jack-tests">
       <mkdir dir="${test-jack.output.dir}/AllTests/html"/>
-      <junit fork="yes" errorproperty="test-jack.failure">
+      <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="-ea"/>
@@ -1287,7 +1287,7 @@
   <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib">
       <mkdir dir="${test-jack.output.dir}/Sched/html"/>
-      <junit fork="yes" errorproperty="test-jack.failure">
+      <junit fork="yes" failureproperty="test-jack.failure">
         <jvmarg value="-ea"/>
         <formatter type="xml"/>
         <classpath>
