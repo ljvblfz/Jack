@@ -20,8 +20,9 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.OutputVFS;
-import com.android.sched.vfs.OutputZipVFS;
+import com.android.sched.vfs.WriteZipFS;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -53,9 +54,9 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      final OutputZipVFS vfs =
-          new OutputZipVFS(new OutputZipFile(string, hooks, existence, change));
-      return vfs;
+      WriteZipFS vfs =
+          new WriteZipFS(new OutputZipFile(string, hooks, existence, change));
+      return new GenericOutputVFS(vfs);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }

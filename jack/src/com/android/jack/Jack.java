@@ -278,7 +278,8 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectVFS;
+import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
 
 import org.antlr.runtime.RecognitionException;
@@ -841,8 +842,8 @@ public abstract class Jack {
     for (File resourceDir : importedResources) {
       try {
         // Let's assume all of these are directories for now
-        InputVFS dir = new DirectVFS(new Directory(resourceDir.getPath(), hooks,
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+        InputVFS dir = new GenericInputVFS(new DirectFS(new Directory(resourceDir.getPath(), hooks,
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ));
         resourceVDirs.add(dir);
       } catch (IOException ioException) {
         throw new ResourceReadingException(ioException);
@@ -858,8 +859,8 @@ public abstract class Jack {
     for (File metaDir : importedMetas) {
       try {
         // Let's assume all of these are directories for now
-        InputVFS dir = new DirectVFS(new Directory(metaDir.getPath(), hooks,
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE));
+        InputVFS dir = new GenericInputVFS(new DirectFS(new Directory(metaDir.getPath(), hooks,
+            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ));
         metaVDirs.add(dir);
       } catch (IOException ioException) {
         throw new MetaReadingException(ioException);
