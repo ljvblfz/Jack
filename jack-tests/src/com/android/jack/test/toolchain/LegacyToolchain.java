@@ -56,9 +56,10 @@ public class LegacyToolchain extends AndroidToolchain {
 
     try {
 
-      File jarFile         = AbstractTestTools.createTempFile("legacyLib", ".jar");
-      File jarFileJarjar   = AbstractTestTools.createTempFile("legacyLibJarjar", ".jar");
-      File jarFileProguard = AbstractTestTools.createTempFile("legacyLibProguard", ".jar");
+      File tmpJarsDir = AbstractTestTools.createTempDir();
+      File jarFile = new File(tmpJarsDir, "legacyLib.jar");
+      File jarFileJarjar = new File(tmpJarsDir, "legacyLibJarjar.jar");
+      File jarFileProguard = new File(tmpJarsDir, "legacyLibProguard.jar");
 
       srcToLib(jarFile, true /* zipFiles = */, sources);
 
@@ -145,6 +146,12 @@ public class LegacyToolchain extends AndroidToolchain {
   @Nonnull
   public final String getLibraryExtension() {
     return ".jar";
+  }
+
+  @Override
+  @Nonnull
+  public String getLibraryElementsExtension() {
+    return ".class";
   }
 
   private void processWithJarJar(@Nonnull File jarjarRules,

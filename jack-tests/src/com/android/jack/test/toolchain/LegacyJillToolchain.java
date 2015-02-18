@@ -16,13 +16,22 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
+
+import com.android.jack.library.FileType;
+import com.android.jack.library.JackLibrary;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
@@ -32,13 +41,16 @@ import javax.annotation.Nonnull;
 public class LegacyJillToolchain extends JillBasedToolchain {
 
   @Nonnull
+  private File refCompilerPrebuilt;
+  @Nonnull
   private File jarjarPrebuilt;
   @Nonnull
   private File proguardPrebuilt;
 
-  public LegacyJillToolchain(@Nonnull File jillPrebuilt, @Nonnull File jackPrebuilt,
-      @Nonnull File jarjarPrebuilt, @Nonnull File proguardPrebuilt) {
+  public LegacyJillToolchain(@Nonnull File refCompilerPrebuilt, @Nonnull File jillPrebuilt,
+      @Nonnull File jackPrebuilt, @Nonnull File jarjarPrebuilt, @Nonnull File proguardPrebuilt) {
     super(jillPrebuilt, jackPrebuilt);
+    this.refCompilerPrebuilt = refCompilerPrebuilt;
     this.jarjarPrebuilt = jarjarPrebuilt;
     this.proguardPrebuilt = proguardPrebuilt;
   }
@@ -48,11 +60,74 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       throws Exception {
     try {
 
-      File jarFile         = AbstractTestTools.createTempFile("legacyLib", ".jar");
-      File jarFileJarjar   = AbstractTestTools.createTempFile("legacyLibJarjar", ".jar");
-      File jarFileProguard = AbstractTestTools.createTempFile("legacyLibProguard", ".jar");
+      File jarFile    = AbstractTestTools.createTempFile("legacyLib", ".jar");
+      File classesDir = AbstractTestTools.createTempDir();
+      List<String> staticLibsAsCp = new ArrayList<String>(staticLibs.size());
+      for (File staticLib : staticLibs) {
+        staticLibsAsCp.add(staticLib.getAbsolutePath());
+      }
+      String staticLibsAsCpAsString = Joiner.on(File.pathSeparatorChar).join(staticLibsAsCp);
 
-      srcToLib(jarFile, true /* zipFiles = */, sources);
+      if (sources.length > 0) {
+        compileWithExternalRefCompiler(sources,
+            getClasspathAsString() + File.pathSeparatorChar + staticLibsAsCpAsString, classesDir);
+      }
+      AbstractTestTools.createjar(jarFile, classesDir);
+
+      libToExe(jarFile, out, zipFile);
+
+    } catch (IOException e) {
+      throw new RuntimeException("Legacy toolchain exited with an error", e);
+    }
+  }
+
+  @Override
+  public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
+      throws Exception {
+
+    try {
+      File classesDir;
+      if (zipFiles) {
+        classesDir = AbstractTestTools.createTempDir();
+      } else {
+        classesDir = out;
+      }
+
+      if (staticLibs.size() > 0) {
+        for (File staticLib : staticLibs) {
+          if (staticLib.isDirectory()) {
+            AbstractTestTools.copyDirectory(staticLib, classesDir);
+          } else {
+            assert staticLib.isFile();
+            AbstractTestTools.unzip(staticLib, classesDir);
+          }
+        }
+      }
+
+      if (sources.length > 0) {
+        compileWithExternalRefCompiler(sources,
+            getClasspathAsString() + File.pathSeparatorChar
+            + classesDir.getPath(), classesDir);
+      }
+
+      File resDestDir;
+      if (resImport.size() > 0) {
+        resDestDir = new File(classesDir, FileType.RSC.getPrefix());
+        if (!resDestDir.exists() && !resDestDir.mkdir()) {
+          throw new AssertionError("Could not create rsc dir");
+        }
+
+        for (File res : resImport) {
+          AbstractTestTools.copyDirectory(res, resDestDir);
+        }
+      }
+
+      File tmpJarsDir = AbstractTestTools.createTempDir();
+      File jarFile = new File(tmpJarsDir, "legacyLib.jar");
+      File jarFileJarjar = new File(tmpJarsDir, "legacyLibJarjar.jar");
+      File jarFileProguard = new File(tmpJarsDir, "legacyLibProguard.jar");
+
+      AbstractTestTools.createjar(jarFile, classesDir);
 
       if (jarjarRules != null) {
         processWithJarJar(jarjarRules, jarFile, jarFileJarjar);
@@ -67,42 +142,12 @@ public class LegacyJillToolchain extends JillBasedToolchain {
         jarFileProguard = jarFileJarjar;
       }
 
-      File jillLib = AbstractTestTools.createTempFile("jillLib", ".jar");
-      executeJill(jarFileProguard, jillLib, true);
-
-      libToExe(jillLib, out, zipFile);
-
-    } catch (IOException e) {
-      throw new RuntimeException("Legacy toolchain exited with an error", e);
-    }
-  }
-
-  @Override
-  public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
-      throws Exception {
-
-    if (withDebugInfos) {
-      // TODO(jmhenaff): warning log?
-    }
-
-    try {
-      File classesDir;
       if (zipFiles) {
-        classesDir = AbstractTestTools.createTempDir();
+        Files.copy(jarFileProguard, out);
       } else {
-        classesDir = out;
+        AbstractTestTools.unzip(jarFileProguard, out);
       }
 
-      compileWithExternalRefCompiler(sources, getClasspathAsString(), classesDir);
-
-      if (staticLibs.size() > 0) {
-        for (File staticLib : staticLibs) {
-          AbstractTestTools.unzip(staticLib, classesDir);
-        }
-      }
-      if (zipFiles) {
-        AbstractTestTools.createjar(out, classesDir);
-      }
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
     }
@@ -110,13 +155,132 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
   @Override
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
-    throw new AssertionError("Not Yet Implemented");
+    List<String> args = new ArrayList<String>();
+    libToCommon(args, convertClasspahtWithJillAsString(), in);
+
+    if (zipFiles) {
+      args.add("--output-jack");
+    } else {
+      args.add("--output-jack-dir");
+    }
+    args.add(out.getAbsolutePath());
+
+    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    exec.setErr(outRedirectStream);
+    exec.setOut(errRedirectStream);
+    exec.setVerbose(isVerbose);
+
+    if (exec.run() != 0) {
+      throw new RuntimeException("Jack compiler exited with an error");
+    }
+
+  }
+
+  @Override
+  protected void libToImportStaticLibs(@Nonnull List<String> args, @Nonnull File[] in)
+      throws Exception {
+
+    for (int i = 0; i < in.length; i++) {
+      File tmpDir = AbstractTestTools.createTempDir();
+      File jilledLib = new File(tmpDir, "jilledLib_" + i + ".jack");
+      executeJillWithResources(in[i], jilledLib, /* zipFiles = */ true);
+      args.add("--import");
+      args.add(jilledLib.getAbsolutePath());
+    }
+
+    for (int i = 0; i < staticLibs.size(); i++) {
+      File jilledLib = AbstractTestTools.createTempFile("jilledLib", ".jack");
+      executeJillWithResources(staticLibs.get(i), jilledLib, /* zipFiles = */ true);
+      args.add("--import");
+      args.add(jilledLib.getAbsolutePath());
+    }
+  }
+
+  private void executeJillWithResources(@Nonnull File in, @Nonnull File out, boolean zipFiles)
+      throws IOException {
+
+    File tmpOut = AbstractTestTools.createTempFile("out", ".jack");
+    executeJill(in, tmpOut);
+
+    File rscDir;
+    if (in.isDirectory()) {
+      rscDir = new File(in, FileType.RSC.getPrefix());
+    } else {
+      // Assume it's a library archive
+      File tmpUnzippedLib = AbstractTestTools.createTempDir();
+      AbstractTestTools.unzip(in, tmpUnzippedLib);
+      rscDir = new File(tmpUnzippedLib, FileType.RSC.getPrefix());
+    }
+
+    if (rscDir.exists()) {
+
+      File tmpUnzippedOutLib = AbstractTestTools.createTempDir();
+      AbstractTestTools.unzip(tmpOut, tmpUnzippedOutLib);
+
+      File destRscDir = new File(tmpUnzippedOutLib, FileType.RSC.getPrefix());
+      if (!destRscDir.mkdir()) {
+        throw new AssertionError("Could not create directory: '" + destRscDir.getPath() + "'");
+      }
+
+      AbstractTestTools.copyDirectory(rscDir, destRscDir);
+
+      File jackProperties;
+      jackProperties = new File(tmpUnzippedOutLib, JackLibrary.LIBRARY_PROPERTIES);
+
+      Properties prop = new Properties();
+      FileReader fr = new FileReader(jackProperties);
+      prop.load(fr);
+      fr.close();
+      prop.setProperty("rsc", "true");
+      FileWriter fw = new FileWriter(jackProperties);
+      prop.store(fw, "Edited by legacy-jill toolchain");
+      fw.close();
+
+      AbstractTestTools.zip(tmpUnzippedOutLib, out);
+    } else {
+      Files.copy(tmpOut, out);
+    }
+  }
+
+  @Override
+  public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
+    List<String> args = new ArrayList<String>();
+    libToCommon(args, convertClasspahtWithJillAsString(), in);
+
+    if (zipFile) {
+      args.add("--output-dex-zip");
+    } else {
+      args.add("--output-dex");
+    }
+    args.add(out.getAbsolutePath());
+
+    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    exec.setErr(outRedirectStream);
+    exec.setOut(errRedirectStream);
+    exec.setVerbose(isVerbose);
+
+    if (exec.run() != 0) {
+      throw new RuntimeException("Jack compiler exited with an error");
+    }
+  }
+
+  @Nonnull
+  private String convertClasspahtWithJillAsString() throws IOException {
+    File[] result = new File[classpath.size()];
+    for (int i = 0; i < classpath.size(); i++) {
+      result[i] = AbstractTestTools.createTempFile(classpath.get(i).getName(), ".jack");
+      executeJill(classpath.get(i), result[i]);
+    }
+    return AbstractTestTools.getClasspathAsString(result);
   }
 
   @Override
   @Nonnull
-  public JackBasedToolchain addResource(@Nonnull File resource) {
-    throw new AssertionError("Not applicable");
+  public File[] getDefaultBootClasspath() {
+    return new File[] {
+        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jar"),
+        new File(TestsProperties.getJackRootDir(), "jack-tests/libs/junit4.jar")
+    };
   }
 
   @Override
@@ -125,20 +289,21 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     return ".jar";
   }
 
+  @Override
+  @Nonnull
+  public String getLibraryElementsExtension() {
+    return ".class";
+  }
+
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
       @Nonnull String classpath, @Nonnull File out) {
 
     List<String> arguments = new ArrayList<String>();
-    String refCompilerPath = System.getenv("REF_JAVA_COMPILER");
+    arguments.add(refCompilerPrebuilt.getPath());
 
-    if (refCompilerPath == null) {
-      throw new RuntimeException("REF_JAVA_COMPILER environment variable not set");
+    if (isVerbose) {
+      arguments.add("-verbose");
     }
-
-    arguments.add(refCompilerPath.trim());
-
-    arguments.add("-verbose");
-    arguments.add(String.valueOf(isVerbose));
 
     addSourceLevel(sourceLevel, arguments);
 
@@ -156,6 +321,10 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     }
 
     AbstractTestTools.addFile(arguments, false, sources);
+
+    if (withDebugInfos) {
+      arguments.add("-g");
+    }
 
     arguments.add("-d");
     arguments.add(out.getAbsolutePath());

@@ -171,4 +171,10 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     return ".jack";
   }
 
+  @Override
+  @Nonnull
+  public String getLibraryElementsExtension() {
+    return ".jayce";
+  }
+
 }

@@ -63,6 +63,9 @@ public interface IToolchain {
   IToolchain addToClasspath(@Nonnull File... classpath);
 
   @Nonnull
+  String getLibraryElementsExtension();
+
+  @Nonnull
   IToolchain setWithDebugInfos(boolean withDebugInfos);
 
   @Nonnull

@@ -25,7 +25,9 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
@@ -36,7 +38,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class PreProcessorTests {
 
@@ -62,7 +66,9 @@ public class PreProcessorTests {
   public void test001_001() throws Exception {
     File testDir = AbstractTestTools.getTestRootDir("com.android.jack.preprocessor.test001.jack");
     File tempDir = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(tempDir,
         /* zipFiles = */ false,

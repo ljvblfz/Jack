@@ -135,8 +135,8 @@ public abstract class AbstractTestTools {
 
     @Override
     public IToolchain build() {
-      return new LegacyJillToolchain(getPrebuilt("jill"), getPrebuilt("jack"),
-          getPrebuilt("jarjar"), getPrebuilt("proguard"));
+      return new LegacyJillToolchain(getPrebuilt("legacy-java-compiler"), getPrebuilt("jill"),
+          getPrebuilt("jack"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
     }
   }
 
@@ -300,6 +300,37 @@ public abstract class AbstractTestTools {
     }
   }
 
+  public static void copyDirectory(@Nonnull File source, @Nonnull File dest) throws IOException {
+    if (!source.isDirectory() || !dest.isDirectory()) {
+      throw new AssertionError("Existing directories must be provided");
+    }
+    recursiveFileCopy(source, dest);
+  }
+
+  private static void recursiveFileCopy(@Nonnull File src, @Nonnull File dest)
+      throws IOException {
+
+    if (src.isDirectory()) {
+
+      if (!dest.exists() && !dest.mkdir()) {
+        throw new AssertionError("Unable to create directory '" + dest.getPath() + "'");
+      }
+
+      for (String file : src.list()) {
+        File srcFile = new File(src, file);
+        File destFile = new File(dest, file);
+        recursiveFileCopy(srcFile, destFile);
+      }
+
+    } else {
+
+      assert src.isFile();
+
+      Files.copy(src, dest);
+    }
+  }
+
+
   @Nonnull
   public static String getClasspathAsString(@Nonnull File[] files) {
     if (files.length == 0) {
@@ -457,6 +488,23 @@ public abstract class AbstractTestTools {
       }
     } catch (ExecFileException e) {
       throw new RuntimeException("An error occured while running unzip", e);
+    }
+  }
+
+  public static void zip(@Nonnull File directory, @Nonnull File outputFile) throws IOException {
+    String[] args = new String[] {"zip", "-r", outputFile.getAbsolutePath(), "."};
+
+    ExecuteFile execFile = new ExecuteFile(args);
+    execFile.setWorkingDir(directory, /* create = */ false);
+    execFile.setErr(System.err);
+    execFile.setOut(System.out);
+
+    try {
+      if (execFile.run() != 0) {
+        throw new RuntimeException("Zip exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occured while running zip", e);
     }
   }
 

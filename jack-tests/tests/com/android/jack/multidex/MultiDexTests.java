@@ -36,6 +36,7 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;
@@ -254,7 +255,10 @@ public class MultiDexTests {
   @Nonnull
   private static File prepareLib(@Nonnull File sources, @Nonnull File... classpath) throws Exception {
     File outDir = AbstractTestTools.createTempDir();
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(classpath)
     .srcToLib(
@@ -465,7 +469,10 @@ public class MultiDexTests {
     Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
 
     File out = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(autoLibrary);

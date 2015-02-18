@@ -23,6 +23,8 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -31,6 +33,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClasspathTests {
 
@@ -95,7 +99,10 @@ public class ClasspathTests {
   public void test003() throws Exception {
     File testDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test003");
 
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     File libOut = AbstractTestTools.createTempDir();
     File libSrc = new File(testDir, "lib");
     File[] defaultBootClasspath = toolchain.getDefaultBootClasspath();
@@ -104,7 +111,7 @@ public class ClasspathTests {
 
     {
       // reference compilation
-      toolchain = AbstractTestTools.getCandidateToolchain();
+      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
       toolchain.addToClasspath(defaultBootClasspath)
@@ -114,10 +121,9 @@ public class ClasspathTests {
 
     {
       // delete unused inner in classpath and check we can still compile with it
-      boolean deleted =
-          new File(libOut, FileType.JAYCE.getPrefix()
-              + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete.jayce")
-      .delete();
+      boolean deleted = new File(libOut, FileType.JAYCE.getPrefix()
+          + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete"
+          + toolchain.getLibraryElementsExtension()).delete();
       Assert.assertTrue(deleted);
       toolchain = AbstractTestTools.getCandidateToolchain();
       File testOut = AbstractTestTools.createTempDir();

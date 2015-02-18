@@ -16,6 +16,7 @@
 
 package com.android.jack.fileconflict;
 
+
 import com.android.jack.backend.jayce.ImportConflictException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
@@ -264,7 +265,10 @@ public class FileConflictTests {
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003");
     File tempJackFolder = AbstractTestTools.createTempDir();
 
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
@@ -297,7 +301,7 @@ public class FileConflictTests {
     copyFileToDir(myClass1, jackFilePath, jackOutput);
     copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
     toolchain.libToLib(jackImport1, jackOutput, false);
   }
@@ -315,7 +319,8 @@ public class FileConflictTests {
     // compile source files to a Jack dir
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003.jack");
     File tempJackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
