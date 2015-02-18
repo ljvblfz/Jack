@@ -31,10 +31,10 @@ import com.android.sched.util.config.category.DefaultCategory;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.CharacterStreamSucker;
+
+import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -151,22 +151,11 @@ public abstract class CommandLine {
   }
 
   protected static void printUsage(@Nonnull PrintStream printStream) {
-    InputStream is = Main.class.getResourceAsStream("/help.txt");
-    if (is == null) {
-      throw new AssertionError();
-    }
-    CharacterStreamSucker css = new CharacterStreamSucker(is, printStream);
-    try {
-      css.suck();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    } finally {
-      try {
-        is.close();
-      } catch (IOException e) {
-        // Ignore
-      }
-    }
+    CmdLineParser parser = new CmdLineParser(new Options());
+    printStream.println("Usage: <options> <source files>");
+    printStream.println();
+    printStream.println("Options:");
+    parser.printUsage(printStream);
   }
 
   public static void printHelpProperties (@Nonnull Options options) throws IOException {

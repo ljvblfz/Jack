@@ -215,62 +215,80 @@ public class Options {
   }
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
-      metaVar = "[error | warning | info | debug | trace]")
+      metaVar = "[error | warning | info | debug]")
   protected VerbosityLevel verbose = VerbosityLevel.WARNING;
 
   @Option(name = "--disable-automatic-full-rebuild")
   protected boolean disableAutomaticFullRebuild = false;
 
-  @Option(name = "--incremental-folder", usage = "Folder used for incremental data",
-      metaVar = "FILE")
+  /**
+   * Folder used for incremental data.
+   */
+  @Option(name = "--incremental-folder", usage = "directory used for incremental data",
+      metaVar = "<DIRECTORY>")
   protected File incrementalFolder = null;
 
-  @Option(name = "--output-dex", usage = "output dex file(s) to this folder",
-      metaVar = "DIRECTORY")
+  @Option(name = "--output-dex", usage = "output dex files and resources to the directory",
+      metaVar = "<DIRECTORY>")
   protected File out = null;
 
-  @Option(name = "--output-dex-zip", usage = "output to this zip file", metaVar = "FILE")
+  /**
+   * Output to this zip file.
+   */
+  @Option(name = "--output-dex-zip", metaVar = "<FILE>")
   protected File outZip = null;
 
-  @Option(name = "--output-jack-dir", usage = "output jack library to this folder",
-      metaVar = "DIRECTORY")
+  /**
+   * Output jack library to this folder.
+   */
+  @Option(name = "--output-jack-dir",
+      metaVar = "<DIRECTORY>")
   protected File libraryOutDir = null;
 
-  @Option(name = "--output-jack", usage = "output jack library file", metaVar = "FILE")
+  @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")
   protected File libraryOutZip = null;
 
-  @Option(name = "--config-jarjar", usage = "use this jarjar rules file (default: none)",
-      metaVar = "FILE")
+  @Option(name = "--config-jarjar", usage = "use a jarjar rules file (default: none)",
+      metaVar = "<FILE>")
   protected File jarjarRulesFile = null;
 
   @Option(name = "--import", usage = "import the given file into the output (repeatable)",
-      metaVar = "FILE")
+      metaVar = "<FILE>")
   protected List<File> importedLibraries = new ArrayList<File>();
 
   @Option(name = "--import-resource",
       usage = "import the given directory into the output as resource files (repeatable)",
-      metaVar = "DIRECTORY")
+      metaVar = "<DIRECTORY>")
   protected List<File> resImport = new ArrayList<File>();
 
   @Option(name = "--import-meta",
       usage = "import the given directory into the output as meta-files (repeatable)",
-      metaVar = "DIRECTORY")
+      metaVar = "<DIRECTORY>")
   protected List<File> metaImport = new ArrayList<File>();
 
-  @Option(name = "--dx-legacy", usage = "keep generation close to dx (default: on)",
+  /**
+   * Keep generation close to dx.
+   */
+  @Option(name = "--dx-legacy",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
   protected boolean dxLegacy = true;
 
+  /**
+   * Keep generation compatible with older runtime.
+   */
   @Option(name = "--runtime-legacy",
-      usage = "keep generation compatible with older runtime (default: on)",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
   protected boolean runtimeLegacy = true;
 
-  @Option(name = "--config-proguard", usage = "use these proguard flags file (default: none)",
-      metaVar = "FILE")
+  @Option(name = "--config-proguard",
+      usage = "use a proguard flags file (default: none) (repeatable)",
+      metaVar = "<FILE>")
   protected List<File> proguardFlagsFiles = null;
 
-  @Option(name = "--sanity-checks", usage = "enable/disable compiler sanity checks (default: on)",
+  /**
+   * Enable/disable compiler sanity checks.
+   */
+  @Option(name = "--sanity-checks",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
   protected boolean sanityChecks = true;
   @Nonnull
@@ -278,17 +296,21 @@ public class Options {
       "jack.sanitychecks", "enable/disable compiler sanity checks")
       .addDefaultValue(Boolean.TRUE);
 
-  @Option(name = "--tracer-dir", usage = "enable tracer and output into this dir (.html)",
-      metaVar = "DIRECTORY")
+  /**
+   * Enable tracer and output into this dir (.html).
+   */
+  @Option(name = "--tracer-dir",
+      metaVar = "<DIRECTORY>")
   protected File tracerDir;
 
   @Option(name = "--graph-file")
   protected File graphFile;
 
-  @Option(name = "-cp", aliases = "--classpath", usage = "classpath", metaVar = "PATH")
+  @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
   protected String classpath = null;
 
-  @Argument
+  // This is a trick to document @<FILE>, but it has no real link to ecjArguments
+  @Argument(usage = "read command line from file", metaVar = "@<FILE>")
   protected List<String> ecjArguments;
 
   @Nonnull
@@ -307,7 +329,7 @@ public class Options {
   }
 
   @Option(name = "--multi-dex",
-      usage = "whether to split code into multiple dex (default: none)",
+      usage = "whether to split code into multiple dex files (default: none)",
       metaVar = "[none | native | legacy]")
   protected MultiDexKind multiDexKind = MultiDexKind.NONE;
 
