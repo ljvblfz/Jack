@@ -1,0 +1,3 @@
+This test reproduces an issue when using obfuscation with the "-repackageclasses" flag and a
+specific package name. Its goal is to trigger a potential name conflict between renamed types that
+end up in the same package.

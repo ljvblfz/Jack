@@ -1,0 +1,4 @@
+com.android.jack.shrob.test043.jack.packb.ClassA1 -> com.android.jack.shrob.test043.jack.PynggN1:
+    void <init>() -> <init>
+com.android.jack.shrob.test043.jack.packa.ClassA1 -> com.android.jack.shrob.test043.jack.PynggN1:
+    void <init>() -> <init>
