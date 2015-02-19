@@ -33,12 +33,10 @@ import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
-import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -71,33 +69,31 @@ public class JackMerger extends MergerTools {
     CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge);
 
     for (ClassDef classDefToMerge : dexToMerge.classDefs()) {
-      List<String> typeNames = dexToMerge.typeNames();
-      String typeNameDesc = classDefToMerge.getTypeName();
       CstType superType = null;
       int supertypeIndex = classDefToMerge.getSupertypeIndex();
       if (supertypeIndex != ClassDef.NO_INDEX) {
-        superType = CstType.intern(Type.intern(typeNames.get(supertypeIndex)));
+        superType = cstIndexMap.getCstType(supertypeIndex);
       }
       CstString sourceFilename = null;
       int sourceFileIndex = classDefToMerge.getSourceFileIndex();
       if (sourceFileIndex != ClassDef.NO_INDEX) {
-        sourceFilename = new CstString(dexToMerge.strings().get(sourceFileIndex));
+        sourceFilename = cstIndexMap.getCstString(sourceFileIndex);
       }
 
-      ClassDefItem newClassDef =
-          new ClassDefItem(CstType.intern(Type.intern(typeNameDesc)),
-              classDefToMerge.getAccessFlags(), superType, getInterfacesList(dexToMerge,
-                  classDefToMerge), sourceFilename);
+      ClassDefItem newClassDef = new ClassDefItem(
+          cstIndexMap.getCstType(classDefToMerge.getTypeIndex()), classDefToMerge.getAccessFlags(),
+          superType, getInterfacesList(classDefToMerge, cstIndexMap), sourceFilename);
 
       dexResult.add(newClassDef);
 
-      mergeAnnotations(dexToMerge, classDefToMerge, newClassDef);
+      mergeAnnotations(dexToMerge, classDefToMerge, newClassDef, cstIndexMap);
 
       if (classDefToMerge.getClassDataOffset() != 0) {
         ClassData classDataToMerge = dexToMerge.readClassData(classDefToMerge);
 
         for (Field fieldToMerge : classDataToMerge.getInstanceFields()) {
-          newClassDef.addInstanceField(new EncodedField(getCstFieldRef(dexToMerge, fieldToMerge),
+          newClassDef.addInstanceField(new EncodedField(
+              cstIndexMap.getCstFieldRef(fieldToMerge.getFieldIndex()),
               fieldToMerge.getAccessFlags()));
         }
 
@@ -110,9 +106,9 @@ public class JackMerger extends MergerTools {
 
         int cstIdx = 0;
         for (Field fieldToMerge : classDataToMerge.getStaticFields()) {
-          EncodedField encodedField =
-              new EncodedField(getCstFieldRef(dexToMerge, fieldToMerge),
-                  fieldToMerge.getAccessFlags());
+          EncodedField encodedField = new EncodedField(
+              cstIndexMap.getCstFieldRef(fieldToMerge.getFieldIndex()),
+              fieldToMerge.getAccessFlags());
           newClassDef
               .addStaticField(encodedField,
                   (cvab != null && cstIdx < cvab.getCstSize()) ? cvab.getCstValueAtIdx(cstIdx++)
@@ -120,7 +116,7 @@ public class JackMerger extends MergerTools {
         }
 
         for (Method method : classDataToMerge.allMethods()) {
-          CstMethodRef cstMethodRef = getCstMethodRef(dexToMerge, method);
+          CstMethodRef cstMethodRef = cstIndexMap.getCstMethodRef(method.getMethodIndex());
           ImportedCodeItem importCode = null;
 
           if (method.getCodeOffset() != 0) {
@@ -157,15 +153,16 @@ public class JackMerger extends MergerTools {
   }
 
   private void mergeAnnotations(@Nonnull DexBuffer dexToMerge, @Nonnull ClassDef classDefToMerge,
-      @Nonnull ClassDefItem newClassDef) {
+      @Nonnull ClassDefItem newClassDef,  @Nonnull CstIndexMap cstIndexMap) {
     if (classDefToMerge.getAnnotationsOffset() != 0) {
-      am.mergeAnnotationDirectory(dexToMerge, classDefToMerge.getAnnotationsOffset(), newClassDef);
+      am.mergeAnnotationDirectory(dexToMerge, classDefToMerge.getAnnotationsOffset(), newClassDef,
+          cstIndexMap);
     }
   }
 
   @Nonnull
-  private TypeList getInterfacesList(@Nonnull DexBuffer dexToMerge,
-      @Nonnull ClassDef classDefToMerge) {
+  private TypeList getInterfacesList(@Nonnull ClassDef classDefToMerge,
+      @Nonnull CstIndexMap cstIndexMap) {
     int interfaceCount = classDefToMerge.getInterfaces().length;
     if (interfaceCount == 0) {
       return StdTypeList.EMPTY;
@@ -174,7 +171,7 @@ public class JackMerger extends MergerTools {
     StdTypeList interfaceList = new StdTypeList(interfaceCount);
     int idx = 0;
     for (int interfaceIdx : classDefToMerge.getInterfaces()) {
-      interfaceList.set(idx++, getTypeFromTypeIndex(dexToMerge, interfaceIdx));
+      interfaceList.set(idx++, cstIndexMap.getCstType(interfaceIdx).getClassType());
     }
 
     return (interfaceList);

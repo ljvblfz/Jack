@@ -20,9 +20,11 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.io.MethodId;
+import com.android.jack.dx.io.ProtoId;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
@@ -53,11 +55,14 @@ public class ConstantManager extends MergerTools {
   private final HashSet<CstType> cstTypes = new HashSet<CstType>();
 
   @Nonnull
+  private final Map<String, CstString> protoStr2CstString = new HashMap<String, CstString>();
+
+  @Nonnull
   private final List<CstIndexMap> cstIndexMaps = new ArrayList<CstIndexMap>();
 
   @Nonnull
   public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
-    CstIndexMap cstIndexMap = new CstIndexMap();
+    CstIndexMap cstIndexMap = new CstIndexMap(dexBuffer);
 
     List<String> cstStringsNewlyAdded = new ArrayList<String>();
     List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
@@ -65,7 +70,6 @@ public class ConstantManager extends MergerTools {
     List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
 
     int idx = 0;
-
     for (String string : dexBuffer.strings()) {
       CstString cstString = string2CstStrings.get(string);
       if (cstString == null) {
@@ -77,25 +81,8 @@ public class ConstantManager extends MergerTools {
     }
 
     idx = 0;
-    for (FieldId fieldId : dexBuffer.fieldIds()) {
-      CstFieldRef cstFieldRef = getCstFieldRef(dexBuffer, fieldId);
-      if (cstFieldRefs.add(cstFieldRef)) {
-        cstFieldRefsNewlyAdded.add(cstFieldRef);
-      }
-      cstIndexMap.addFieldMapping(idx++, cstFieldRef);
-    }
-
-    idx = 0;
-    for (MethodId methodId : dexBuffer.methodIds()) {
-      CstMethodRef cstMethodRef = getCstMethodRef(dexBuffer, methodId);
-      if (cstMethodRefs.add(cstMethodRef)) {
-        cstMethodRefsNewlyAdded.add(cstMethodRef);
-      }
-      cstIndexMap.addMethodMapping(idx++, cstMethodRef);
-    }
-
-    idx = 0;
-    for (String typeNameDesc : dexBuffer.typeNames()) {
+    List<String> typeNames = dexBuffer.typeNames();
+    for (String typeNameDesc : typeNames) {
       /*
        * Note: VOID isn't put in the intern table of type, since it's special and shouldn't be found
        * by a normal call to intern() from Type.
@@ -104,7 +91,7 @@ public class ConstantManager extends MergerTools {
       if (typeNameDesc.equals(Type.VOID.getDescriptor())) {
         cstType = CstType.intern(Type.VOID);
       } else {
-        cstType = getCstTypeFromTypeName(typeNameDesc);
+        cstType = CstType.intern(Type.intern(typeNameDesc));
       }
 
       if (cstTypes.add(cstType)) {
@@ -112,6 +99,51 @@ public class ConstantManager extends MergerTools {
       }
 
       cstIndexMap.addTypeMapping(idx++, cstType);
+    }
+
+
+    idx = 0;
+    for (FieldId fieldId : dexBuffer.fieldIds()) {
+      CstNat fieldNat = new CstNat(cstIndexMap.getCstString(fieldId.getNameIndex()),
+          cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
+      CstFieldRef cstFieldRef =
+          new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()), fieldNat);
+      if (cstFieldRefs.add(cstFieldRef)) {
+        cstFieldRefsNewlyAdded.add(cstFieldRef);
+      }
+      cstIndexMap.addFieldMapping(idx++, cstFieldRef);
+    }
+
+    idx = 0;
+    List<ProtoId> protoIds = dexBuffer.protoIds();
+    String[] protoIdx2String = new String[protoIds.size()];
+
+    for (MethodId methodId : dexBuffer.methodIds()) {
+      int protoIdx = methodId.getProtoIndex();
+      String protoStr = protoIdx2String[protoIdx];
+      ProtoId protoId = protoIds.get(protoIdx);
+
+      if (protoStr == null) {
+        protoStr = dexBuffer.readTypeList(protoId.getParametersOffset()).toString();
+        protoIdx2String[protoIdx] = protoStr;
+      }
+
+      protoStr += typeNames.get(protoId.getReturnTypeIndex());
+
+      CstString protoCstString = protoStr2CstString.get(protoStr);
+      if (protoCstString == null) {
+        protoCstString = new CstString(protoStr);
+        protoStr2CstString.put(protoStr, protoCstString);
+      }
+
+      CstNat methNat =
+          new CstNat(cstIndexMap.getCstString(methodId.getNameIndex()), protoCstString);
+      CstMethodRef cstMethodRef =
+          new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()), methNat);
+      if (cstMethodRefs.add(cstMethodRef)) {
+        cstMethodRefsNewlyAdded.add(cstMethodRef);
+      }
+      cstIndexMap.addMethodMapping(idx++, cstMethodRef);
     }
 
     if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {

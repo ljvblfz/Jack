@@ -17,10 +17,10 @@ package com.android.jack.dx.rop.cst;
 
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.dex.file.IndexedItem;
+import com.android.jack.dx.io.DexBuffer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 /**
  * Maps {@link TypedConstant} index offsets from a dex file to those into another.
@@ -28,30 +28,33 @@ import java.util.Map;
 public class CstIndexMap {
 
   /** Mapping between index and {@link CstString} value of a dex file.*/
-  private final Map<Integer, CstString> stringsIndexMap = new HashMap<Integer, CstString>();
+  private final CstString[] strings;
 
   /** Mapping between index and {@link CstType} value of a dex file.*/
-  private final Map<Integer, CstType> typesIndexMap = new HashMap<Integer, CstType>();
+  private final CstType[] types;
 
-  /** Mapping between index and {@link CstBaseMethodRef} value of a dex file.*/
-  private final Map<Integer, CstBaseMethodRef> methodsIndexMap =
-      new HashMap<Integer, CstBaseMethodRef>();
+  /** Mapping between index and {@link CstMethodRef} value of a dex file.*/
+  private final CstMethodRef[] methods;
 
   /** Mapping between index and {@link CstFieldRef} value of a dex file.*/
-  private final Map<Integer, CstFieldRef> fieldsIndexMap = new HashMap<Integer, CstFieldRef>();
+  private final CstFieldRef[] fields;
 
+  public CstIndexMap(DexBuffer dexBuffer) {
+    strings = new CstString[dexBuffer.strings().size()];
+    types = new CstType[dexBuffer.typeNames().size()];
+    methods = new CstMethodRef[dexBuffer.methodIds().size()];
+    fields = new CstFieldRef[dexBuffer.fieldIds().size()];
+  }
   /**
    * Keeps string mapping of a dex file.
    * @param index String index.
    * @param cstString The string.
    */
-  public void addStringMapping(int index, CstString cstString) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert stringsIndexMap.get(key) == null || stringsIndexMap.get(key).compareTo(cstString) == 0;
+  public void addStringMapping(@Nonnegative int index, CstString cstString) {
+    assert strings[index] == null || strings[index].compareTo(cstString) == 0;
 
-    if (!stringsIndexMap.containsKey(key)) {
-      stringsIndexMap.put(key, cstString);
+    if (strings[index] == null) {
+      strings[index] = cstString;
     }
   }
 
@@ -60,13 +63,11 @@ public class CstIndexMap {
    * @param index Type index.
    * @param cstType The type.
    */
-  public void addTypeMapping(int index, CstType cstType) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert typesIndexMap.get(key) == null || typesIndexMap.get(key).compareTo(cstType) == 0;
+  public void addTypeMapping(@Nonnegative int index, CstType cstType) {
+    assert types[index] == null || types[index].compareTo(cstType) == 0;
 
-    if (!typesIndexMap.containsKey(key)) {
-      typesIndexMap.put(key, cstType);
+    if (types[index] == null) {
+      types[index] = cstType;
     }
   }
 
@@ -75,13 +76,11 @@ public class CstIndexMap {
    * @param index Method index.
    * @param methodRef The method.
    */
-  public void addMethodMapping(int index, CstBaseMethodRef methodRef) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert methodsIndexMap.get(key) == null || methodsIndexMap.get(key).compareTo(methodRef) == 0;
+  public void addMethodMapping(@Nonnegative int index, CstMethodRef methodRef) {
+    assert methods[index] == null || methods[index].compareTo(methodRef) == 0;
 
-    if (!methodsIndexMap.containsKey(key)) {
-      methodsIndexMap.put(key, methodRef);
+    if (methods[index] == null) {
+      methods[index] = methodRef;
     }
   }
 
@@ -90,13 +89,11 @@ public class CstIndexMap {
    * @param index Field index.
    * @param fieldRef The Field.
    */
-  public void addFieldMapping(int index, CstFieldRef fieldRef) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert fieldsIndexMap.get(key) == null || fieldsIndexMap.get(key).compareTo(fieldRef) == 0;
+  public void addFieldMapping(@Nonnegative int index, CstFieldRef fieldRef) {
+    assert fields[index] == null || fields[index].compareTo(fieldRef) == 0;
 
-    if (!fieldsIndexMap.containsKey(key)) {
-      fieldsIndexMap.put(key, fieldRef);
+    if (fields[index] == null) {
+      fields[index] = fieldRef;
     }
   }
 
@@ -105,19 +102,19 @@ public class CstIndexMap {
    * @param dex The dex file where values are merged.
    */
   public void mergeConstantsIntoDexFile(DexFile dex) {
-    for (CstString cst : stringsIndexMap.values()) {
+    for (CstString cst : strings) {
       dex.getStringIds().intern(cst);
     }
 
-    for (CstBaseMethodRef cst : methodsIndexMap.values()) {
+    for (CstBaseMethodRef cst : methods) {
       dex.getMethodIds().intern(cst);
     }
 
-    for (CstFieldRef cst : fieldsIndexMap.values()) {
+    for (CstFieldRef cst : fields) {
       dex.getFieldIds().intern(cst);
     }
 
-    for (CstType cst : typesIndexMap.values()) {
+    for (CstType cst : types) {
       dex.getTypeIds().intern(cst);
     }
   }
@@ -129,11 +126,8 @@ public class CstIndexMap {
    * @param index The old index to remap into {@code file}.
    * @return The new index remapped into {@code file}.
    */
-  public int getRemappedCstStringIndex(DexFile file, int index) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert stringsIndexMap.containsKey(key);
-    IndexedItem indexedItem = file.findItemOrNull(stringsIndexMap.get(key));
+  public int getRemappedCstStringIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(strings[index]);
     assert indexedItem != null;
     return indexedItem.getIndex();
   }
@@ -144,11 +138,8 @@ public class CstIndexMap {
    * @param index The old index to remap into {@code file}.
    * @return The new index remapped into {@code file}.
    */
-  public int getRemappedCstTypeIndex(DexFile file, int index) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert typesIndexMap.containsKey(key);
-    IndexedItem indexedItem = file.findItemOrNull(typesIndexMap.get(key));
+  public int getRemappedCstTypeIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(types[index]);
     assert indexedItem != null;
     return indexedItem.getIndex();
   }
@@ -159,11 +150,8 @@ public class CstIndexMap {
    * @param index The old index to remap into {@code file}.
    * @return The new index remapped into {@code file}.
    */
-  public int getRemappedCstBaseMethodRefIndex(DexFile file, int index) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert methodsIndexMap.containsKey(key);
-    IndexedItem indexedItem = file.findItemOrNull(methodsIndexMap.get(key));
+  public int getRemappedCstBaseMethodRefIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(methods[index]);
     assert indexedItem != null;
     return indexedItem.getIndex();
   }
@@ -174,20 +162,37 @@ public class CstIndexMap {
    * @param index The old index to remap into {@code file}.
    * @return The new index remapped into {@code file}.
    */
-  public int getRemappedCstFieldRefIndex(DexFile file, int index) {
-    Integer key = new Integer(index);
-    assert index >= 0;
-    assert fieldsIndexMap.containsKey(key);
-    IndexedItem indexedItem = file.findItemOrNull(fieldsIndexMap.get(key));
+  public int getRemappedCstFieldRefIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(fields[index]);
     assert indexedItem != null;
     return indexedItem.getIndex();
   }
 
-  /**
-   * Returns all strings that must be remapped.
-   * @return All string to remap.
-   */
-  public Collection<CstString> getStrings() {
-    return (stringsIndexMap.values());
+  @Nonnull
+  public CstMethodRef getCstMethodRef(@Nonnegative int index) {
+    CstMethodRef cstMethodRef = methods[index];
+    assert cstMethodRef != null;
+    return cstMethodRef;
+  }
+
+  @Nonnull
+  public CstFieldRef getCstFieldRef(@Nonnegative int index) {
+    CstFieldRef cstFieldRef = fields[index];
+    assert cstFieldRef != null;
+    return cstFieldRef;
+  }
+
+  @Nonnull
+  public CstString getCstString(@Nonnegative int index) {
+    CstString cstString = strings[index];
+    assert cstString != null;
+    return cstString;
+  }
+
+  @Nonnull
+  public CstType getCstType(@Nonnegative int index) {
+    CstType cstType = types[index];
+    assert cstType != null;
+    return cstType;
   }
 }

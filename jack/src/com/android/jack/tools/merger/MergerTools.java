@@ -15,31 +15,20 @@
  */
 package com.android.jack.tools.merger;
 
-import com.android.jack.dx.io.ClassData.Field;
-import com.android.jack.dx.io.ClassData.Method;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.EncodedValueCodec;
 import com.android.jack.dx.io.EncodedValueReader;
-import com.android.jack.dx.io.FieldId;
-import com.android.jack.dx.io.MethodId;
-import com.android.jack.dx.io.ProtoId;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBoolean;
 import com.android.jack.dx.rop.cst.CstByte;
 import com.android.jack.dx.rop.cst.CstChar;
 import com.android.jack.dx.rop.cst.CstDouble;
-import com.android.jack.dx.rop.cst.CstEnumRef;
-import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
-import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstShort;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
-import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteInput;
 
 import javax.annotation.CheckForNull;
@@ -50,95 +39,6 @@ import javax.annotation.Nonnull;
  * Tools to merge dex structures.
  */
 public class MergerTools {
-
-  @Nonnull
-  protected CstMethodRef getCstMethodRef(@Nonnull DexBuffer dex, @Nonnegative int methodIdx) {
-    MethodId methodId = dex.methodIds().get(methodIdx);
-    return getCstMethodRef(dex, methodId);
-  }
-
-  @Nonnull
-  protected CstMethodRef getCstMethodRef(@Nonnull DexBuffer dex, @Nonnull Method method) {
-    MethodId methodId = dex.methodIds().get(method.getMethodIndex());
-    return getCstMethodRef(dex, methodId);
-  }
-
-  @Nonnull
-  protected CstMethodRef getCstMethodRef(@Nonnull DexBuffer dex, @Nonnull MethodId methodId) {
-    return new CstMethodRef(getCstTypeFromTypeIndex(dex, methodId.getDeclaringClassIndex()),
-        getCstNatFromMethodId(dex, methodId));
-  }
-
-  protected CstEnumRef getCstEnumRef(DexBuffer dex, int fieldIdx) {
-    return new CstEnumRef(getCstNatFromFieldId(dex, dex.fieldIds().get(fieldIdx)));
-  }
-
-  @Nonnull
-  protected CstFieldRef getCstFieldRef(@Nonnull DexBuffer dex, @Nonnegative int fieldIdx) {
-    FieldId fieldId = dex.fieldIds().get(fieldIdx);
-    return getCstFieldRef(dex, fieldId);
-  }
-
-  @Nonnull
-  protected CstFieldRef getCstFieldRef(@Nonnull DexBuffer dex, @Nonnull Field field) {
-    FieldId fieldId = dex.fieldIds().get(field.getFieldIndex());
-    return getCstFieldRef(dex, fieldId);
-  }
-
-  @Nonnull
-  protected CstFieldRef getCstFieldRef(@Nonnull DexBuffer dex, @Nonnull FieldId fieldId) {
-    return new CstFieldRef(getCstTypeFromTypeIndex(dex, fieldId.getDeclaringClassIndex()),
-        getCstNatFromFieldId(dex, fieldId));
-  }
-
-  @Nonnull
-  protected CstNat getCstNatFromMethodId(@Nonnull DexBuffer dex, @Nonnull MethodId methodId) {
-    ProtoId protoId = dex.protoIds().get(methodId.getProtoIndex());
-    return new CstNat(getCstStringFromIndex(dex, methodId.getNameIndex()),
-        new CstString(getProtoString(protoId, dex)));
-  }
-
-  @Nonnull
-  protected String getProtoString(@Nonnull ProtoId protoId, @Nonnull DexBuffer dex) {
-    return dex.readTypeList(protoId.getParametersOffset()) + dex.typeNames().get(
-        protoId.getReturnTypeIndex());
-  }
-
-  @Nonnull
-  protected CstNat getCstNatFromFieldId(@Nonnull DexBuffer dex, @Nonnull FieldId fieldId) {
-    return new CstNat(getCstStringFromIndex(dex, fieldId.getNameIndex()),
-        getCstStringFromTypeIndex(dex, fieldId.getTypeIndex()));
-  }
-
-  @Nonnull
-  protected CstString getCstStringFromIndex(@Nonnull DexBuffer dex, @Nonnegative int stringIdx) {
-    String str = dex.strings().get(stringIdx);
-    return new CstString(str);
-  }
-
-  @Nonnull
-  protected CstString getCstStringFromTypeIndex(@Nonnull DexBuffer dex, @Nonnegative int typeIdx) {
-    String typeNameDesc = dex.typeNames().get(typeIdx);
-    return new CstString(typeNameDesc);
-  }
-
-  @Nonnull
-  protected Type getTypeFromTypeIndex(@Nonnull DexBuffer dex, @Nonnegative int typeIdx) {
-    String typeNameDesc = dex.typeNames().get(typeIdx);
-    return Type.intern(typeNameDesc);
-  }
-
-  @Nonnull
-  protected CstType getCstTypeFromTypeIndex(@Nonnull DexBuffer dex, @Nonnegative int typeIdx) {
-    String typeNameDesc = dex.typeNames().get(typeIdx);
-    return CstType.intern(Type.intern(typeNameDesc));
-  }
-
-  @Nonnull
-  protected CstType getCstTypeFromTypeName(@Nonnull String typeNameDesc) {
-    return CstType.intern(Type.intern(typeNameDesc));
-  }
-
 
   /**
    * A tool to build {@link Constant} arrays.

@@ -23,6 +23,7 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.DexBuffer.Section;
 import com.android.jack.dx.io.EncodedValueCodec;
 import com.android.jack.dx.io.EncodedValueReader;
+import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.rop.annotation.AnnotationVisibility;
 import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.dx.rop.annotation.AnnotationsList;
@@ -34,16 +35,18 @@ import com.android.jack.dx.rop.cst.CstBoolean;
 import com.android.jack.dx.rop.cst.CstByte;
 import com.android.jack.dx.rop.cst.CstChar;
 import com.android.jack.dx.rop.cst.CstDouble;
+import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
+import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstShort;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
-import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.Leb128Utils;
 
@@ -56,8 +59,13 @@ import javax.annotation.Nonnull;
  */
 public class AnnotationMerger extends MergerTools {
 
+  @CheckForNull
+  private CstIndexMap cstIndexMap;
+
   public void mergeAnnotationDirectory(@Nonnull DexBuffer dex,
-      @Nonnegative int annotationDirectoryOffset, @Nonnull ClassDefItem newClassDef) {
+      @Nonnegative int annotationDirectoryOffset, @Nonnull ClassDefItem newClassDef,
+      @Nonnull CstIndexMap cstIndexMap) {
+    this.cstIndexMap = cstIndexMap;
     Section directoryIn = dex.open(annotationDirectoryOffset);
 
     int classAnnotationSetOffset = directoryIn.readInt();
@@ -72,17 +80,17 @@ public class AnnotationMerger extends MergerTools {
     int parameterListSize = directoryIn.readInt();
 
     for (int i = 0; i < fieldsSize; i++) {
-      CstFieldRef cstFieldRef = getCstFieldRef(dex, dex.fieldIds().get(directoryIn.readInt()));
+      CstFieldRef cstFieldRef = cstIndexMap.getCstFieldRef(directoryIn.readInt());
       newClassDef.addFieldAnnotations(cstFieldRef, readAnnotationSet(dex, directoryIn.readInt()));
     }
 
     for (int i = 0; i < methodsSize; i++) {
-      CstMethodRef cstMethodRef = getCstMethodRef(dex, dex.methodIds().get(directoryIn.readInt()));
+      CstMethodRef cstMethodRef = cstIndexMap.getCstMethodRef(directoryIn.readInt());
       newClassDef.addMethodAnnotations(cstMethodRef, readAnnotationSet(dex, directoryIn.readInt()));
     }
 
     for (int i = 0; i < parameterListSize; i++) {
-      CstMethodRef cstMethodRef = getCstMethodRef(dex, dex.methodIds().get(directoryIn.readInt()));
+      CstMethodRef cstMethodRef = cstIndexMap.getCstMethodRef(directoryIn.readInt());
       newClassDef.addParameterAnnotations(cstMethodRef,
           readAnnotationSetRefList(dex, directoryIn.readInt()));
     }
@@ -123,7 +131,8 @@ public class AnnotationMerger extends MergerTools {
       @Nonnegative int annotationItemOffset) {
     Section annotationItemIn = dex.open(annotationItemOffset);
     Annotation ioAnnotation = annotationItemIn.readAnnotation();
-    CstType annotationType = getCstTypeFromTypeIndex(dex, ioAnnotation.getTypeIndex());
+    assert cstIndexMap != null;
+    CstType annotationType = cstIndexMap.getCstType(ioAnnotation.getTypeIndex());
     com.android.jack.dx.rop.annotation.Annotation a =
         new com.android.jack.dx.rop.annotation.Annotation(annotationType,
             AnnotationItem.getAnnotationVisibility(ioAnnotation.getVisibility()));
@@ -132,7 +141,8 @@ public class AnnotationMerger extends MergerTools {
       AnnotationValueReader avr =
           new AnnotationValueReader(dex, ioAnnotation.getValues()[i].asByteInput());
       avr.readValue();
-      a.add(new NameValuePair(getCstStringFromIndex(dex, ioAnnotation.getNames()[i]),
+      assert cstIndexMap != null;
+      a.add(new NameValuePair(cstIndexMap.getCstString(ioAnnotation.getNames()[i]),
           avr.getCstValue()));
     }
 
@@ -172,7 +182,8 @@ public class AnnotationMerger extends MergerTools {
 
     @Override
     protected void visitString(int type, int index) {
-      constantValue = new CstString(dex.strings().get(index));
+      assert cstIndexMap != null;
+      constantValue = cstIndexMap.getCstString(index);
     }
 
     @Override
@@ -184,14 +195,15 @@ public class AnnotationMerger extends MergerTools {
     public final void readAnnotation() {
       int typeIndex = Leb128Utils.readUnsignedLeb128(in);
       int size = Leb128Utils.readUnsignedLeb128(in);
-
+      assert cstIndexMap != null;
       com.android.jack.dx.rop.annotation.Annotation embeddedAnnotation =
           new com.android.jack.dx.rop.annotation.Annotation(
-              getCstTypeFromTypeIndex(dex, typeIndex), AnnotationVisibility.EMBEDDED);
+              cstIndexMap.getCstType(typeIndex), AnnotationVisibility.EMBEDDED);
 
 
       for (int i = 0; i < size; i++) {
-        CstString pairName = getCstStringFromIndex(dex, (Leb128Utils.readUnsignedLeb128(in)));
+        assert cstIndexMap != null;
+        CstString pairName = cstIndexMap.getCstString((Leb128Utils.readUnsignedLeb128(in)));
         readValue();
         embeddedAnnotation.add(new NameValuePair(pairName, constantValue));
         constantValue = null;
@@ -236,27 +248,29 @@ public class AnnotationMerger extends MergerTools {
 
     @Override
     protected void visitField(int type, int index) {
+      assert cstIndexMap != null;
       if (type == ENCODED_FIELD) {
-        constantValue = getCstFieldRef(dex, index);
+        constantValue = cstIndexMap.getCstFieldRef(index);
       } else {
         assert type == ENCODED_ENUM;
-        constantValue = getCstEnumRef(dex, index);
+        FieldId fieldId = dex.fieldIds().get(index);
+        CstNat fieldNat = new CstNat(cstIndexMap.getCstString(fieldId.getNameIndex()),
+            new CstString(dex.typeNames().get(fieldId.getTypeIndex())));
+        constantValue = new CstEnumRef(fieldNat);
       }
     }
 
 
     @Override
     protected void visitMethod(int type, int index) {
-      constantValue = getCstMethodRef(dex, index);
+      assert cstIndexMap != null;
+      constantValue = cstIndexMap.getCstMethodRef(index);
     }
 
     @Override
     protected void visitType(int type, int index) {
-      if (dex.typeNames().get(index).equals(Type.VOID.getDescriptor())) {
-        constantValue = CstType.intern(Type.VOID);
-      } else {
-        constantValue = getCstTypeFromTypeIndex(dex, index);
-      }
+      assert cstIndexMap != null;
+      constantValue = cstIndexMap.getCstType(index);
     }
 
     @Override
