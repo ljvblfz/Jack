@@ -137,6 +137,12 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     super.test35_001();
   }
 
+  @Test
+  @Category(KnownBugs.class)
+  public void test43_001() throws Exception {
+    runTest("043", "001", "");
+  }
+
 //  private void appendStringToFileCopy(File source, File dest, String appended) throws IOException {
 //    BufferedReader reader = null;
 //    BufferedWriter writer = null;
