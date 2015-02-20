@@ -30,7 +30,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.TypeInInputLibraryLocation;
-import com.android.jack.load.AbtractClassOrInterfaceLoader;
+import com.android.jack.load.AbstractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
@@ -61,7 +61,7 @@ import javax.annotation.Nonnull;
 /**
  * {@link ClassOrInterfaceLoader} for jayce files.
  */
-public class JayceClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader implements
+public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader implements
     HasInputLibrary {
 
   @Nonnull

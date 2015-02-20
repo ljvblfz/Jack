@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link ClassOrInterfaceLoader} doing nothing.
  */
-public class NopClassOrInterfaceLoader extends AbtractClassOrInterfaceLoader {
+public class NopClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader {
 
   @Nonnull
   private static final NoLocation NO_LOCATION = new NoLocation();

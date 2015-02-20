@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 /**
  * Base class for implementing ClassOrInterfaceLoader
  */
-public abstract class AbtractClassOrInterfaceLoader implements ClassOrInterfaceLoader {
+public abstract class AbstractClassOrInterfaceLoader implements ClassOrInterfaceLoader {
 
   @Override
   public void ensureHierarchy(@Nonnull JDefinedClassOrInterface loaded) {
