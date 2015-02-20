@@ -14,26 +14,35 @@
  * limitations under the License.
  */
 
-package com.android.jack.reporting;
+package com.android.jack.library;
+
+import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.reporting.Reportable;
 
 import javax.annotation.Nonnull;
 
 /**
- * An object that can be reported by a {@link Reporter}.
+ * A {@link Reportable} message during the library import phase.
  */
-public interface Reportable {
+public class IgnoringImportMessage implements Reportable {
 
-  /**
-   * The level of a problem.
-   */
-  public static enum ProblemLevel {
-    ERROR, WARNING, INFO
+  @Nonnull
+  private final ImportConflictException exception;
+
+  public IgnoringImportMessage(@Nonnull ImportConflictException exception) {
+    this.exception = exception;
   }
 
+  @Override
   @Nonnull
-  public String getMessage();
+  public String getMessage() {
+    return "Ignoring import: " + exception.getMessage();
+  }
 
+  @Override
   @Nonnull
-  public ProblemLevel getDefaultProblemLevel();
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.INFO;
+  }
 
 }

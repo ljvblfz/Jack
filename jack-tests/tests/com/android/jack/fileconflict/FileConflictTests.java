@@ -17,10 +17,12 @@
 package com.android.jack.fileconflict;
 
 
-import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.JackAbortException;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -41,6 +43,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,6 +52,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -125,10 +129,17 @@ public class FileConflictTests {
   @Test
   public void test001a() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      runTest001(jackOutput, null, /* isApiTest = */ true);
+      runTest001(jackOutput, null, errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof TypeImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(
+          errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -140,10 +151,17 @@ public class FileConflictTests {
   @Test
   public void test001b() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      runTest001(jackOutput, "fail", /* isApiTest = */ true);
+      runTest001(jackOutput, "fail", errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof TypeImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(
+          errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -155,13 +173,22 @@ public class FileConflictTests {
   @Test
   public void test001c() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
-    runTest001(jackOutput, "keep-first", /* isApiTest = */ false);
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    runTest001(jackOutput, "keep-first", errOut /* errorStream */, /* isApiTest = */ false);
     File myClass1 = new File(jackOutput, JACK_FILE_PATH_1);
     File myClass2 = new File(jackOutput, JACK_FILE_PATH_2);
     File myClass3 = new File(jackOutput, JACK_FILE_PATH_3);
     Assert.assertTrue(myClass1.exists());
     Assert.assertTrue(myClass2.exists());
     Assert.assertTrue(myClass3.exists());
+    String errString = errOut.toString();
+    Assert.assertTrue(
+        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass"));
+    Assert.assertTrue(
+        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass2"));
+    Assert.assertTrue(
+        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass3"));
+    Assert.assertTrue(errString.contains("has already been imported"));
   }
 
   /**
@@ -172,10 +199,17 @@ public class FileConflictTests {
   @Test
   public void test002a() throws Exception {
     File jackOutput;
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      jackOutput = runTest002(false /* non-zipped */, null, /* isApiTest = */ true);
+      jackOutput = runTest002(false /* non-zipped */, null /* collisionPolicy */, errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ResourceImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Resource in"));
+      Assert.assertTrue(errString.contains("rsc/Resource1"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -187,10 +221,17 @@ public class FileConflictTests {
   @Test
   public void test002b() throws Exception {
     File jackOutput;
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      jackOutput = runTest002(false /* non-zipped */, "fail", /* isApiTest = */ true);
+      jackOutput = runTest002(false /* non-zipped */, "fail", errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ResourceImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Resource in"));
+      Assert.assertTrue(errString.contains("rsc/Resource1"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -202,10 +243,15 @@ public class FileConflictTests {
   @Test
   public void test002c() throws Exception {
     File jackOutput;
-    jackOutput = runTest002(false /* non-zipped */, "keep-first", /* isApiTest = */ false);
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    jackOutput = runTest002(false /* non-zipped */, "keep-first", errOut, /* isApiTest = */ false);
     checkResourceContent(jackOutput, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(jackOutput, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(jackOutput, RESOURCE3_LONGPATH, "Res3");
+    String errString = errOut.toString();
+    Assert.assertTrue(errString.contains("Resource in"));
+    Assert.assertTrue(errString.contains("rsc/Resource1"));
+    Assert.assertTrue(errString.contains("has already been imported"));
   }
 
   /**
@@ -216,10 +262,17 @@ public class FileConflictTests {
   @Test
   public void test002d() throws Exception {
     File jackOutput;
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      jackOutput = runTest002(true /* zipped */, null, /* isApiTest = */ true);
+      jackOutput = runTest002(true /* zipped */, null, errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ResourceImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Resource in"));
+      Assert.assertTrue(errString.contains("rsc/Resource1"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -231,10 +284,17 @@ public class FileConflictTests {
   @Test
   public void test002e() throws Exception {
     File jackOutput;
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      jackOutput = runTest002(true /* zipped */, "fail", /* isApiTest = */ true);
+      jackOutput = runTest002(true /* zipped */, "fail", errOut, /* isApiTest = */ true);
       Assert.fail();
-    } catch (ResourceImportConflictException e) {
+    } catch (JackAbortException e) {
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Resource in"));
+      Assert.assertTrue(errString.contains("rsc/Resource1"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -246,11 +306,16 @@ public class FileConflictTests {
   @Test
   public void test002f() throws Exception {
     File jackOutput;
-    jackOutput = runTest002(true /* zipped */, "keep-first", /* isApiTest = */ false);
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    jackOutput = runTest002(true /* zipped */, "keep-first", errOut, /* isApiTest = */ false);
     ZipFile zipFile = new ZipFile(jackOutput);
     checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
     checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
     checkResourceContent(zipFile, RESOURCE3_LONGPATH, "Res3");
+    String errString = errOut.toString();
+    Assert.assertTrue(errString.contains("Resource in"));
+    Assert.assertTrue(errString.contains("rsc/Resource1"));
+    Assert.assertTrue(errString.contains("has already been imported"));
   }
 
   /**
@@ -390,7 +455,6 @@ public class FileConflictTests {
     copyFileToDir(libProperties, libPropName, jackImport1);
     copyFileToDir(myClass1, jackFilePath, jackImport1);
     copyFileToDir(resource, "com/android/jack/fileconflict/test004/jack/MyClass.txt", jackImport1);
-    System.out.println(jackImport1.getAbsolutePath());
 
     // copy a different resource to output dir with the same name
     File resource2 = new File(testSrcDir, "a.txt");
@@ -417,14 +481,16 @@ public class FileConflictTests {
   }
 
   private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy,
-      boolean isApiTest) throws Exception {
+      @CheckForNull OutputStream errorStream, boolean isApiTest) throws Exception {
     // compile source files to a Jack dir
     File tempJackFolder = AbstractTestTools.createTempDir();
 
     JackBasedToolchain toolchain = getToolchain(isApiTest);
 
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToLib(
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
+    }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
         tempJackFolder,
         /* zipFile = */ false,
         TEST001_DIR);
@@ -466,11 +532,14 @@ public class FileConflictTests {
     if (collisionPolicy != null) {
       toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), collisionPolicy);
     }
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
+    }
     toolchain.libToLib(new File [] {jackImport1, jackImport2}, jackOutput, /* zipFiles = */ false);
   }
 
   @Nonnull
-  private File runTest002(boolean zip, @CheckForNull String collisionPolicy, boolean isApiTest)
+  private File runTest002(boolean zip, @CheckForNull String collisionPolicy, @CheckForNull OutputStream errorStream, boolean isApiTest)
       throws Exception {
     // compile source files to a Jack dir
     File jackImport1 = AbstractTestTools.createTempDir();
@@ -478,8 +547,10 @@ public class FileConflictTests {
 
     JackBasedToolchain toolchain = getToolchain(isApiTest);
     toolchain.addResource(new File(lib1, "rsc"));
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToLib(
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
+    }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
         jackImport1,
         /* zipFiles = */ false,
         lib1);
@@ -488,8 +559,10 @@ public class FileConflictTests {
     File lib2 = new File(TEST002_DIR, "lib2");
     toolchain = getToolchain(isApiTest);
     toolchain.addResource(new File(lib2, "rsc"));
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToLib(
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
+    }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
         jackImport2,
         /* zipFiles = */ false,
         lib2);
@@ -505,6 +578,9 @@ public class FileConflictTests {
       jackOutput = AbstractTestTools.createTempFile("jackOutput", toolchain.getLibraryExtension());
     } else {
       jackOutput = AbstractTestTools.createTempDir();
+    }
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
     }
     toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
 

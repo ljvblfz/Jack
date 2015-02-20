@@ -16,9 +16,10 @@
 
 package com.android.jack.imports;
 
-import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.JackAbortException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.TypeImportConflictException;
+import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchain;
@@ -29,6 +30,7 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 public class ImportTests {
@@ -69,6 +71,9 @@ public class ImportTests {
 
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addStaticLibs(jackOut);
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToExe(
@@ -76,8 +81,13 @@ public class ImportTests {
           /* zipFile = */ false,
           AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
       Assert.fail();
-    } catch (ImportConflictException e) {
+    } catch (JackAbortException e) {
       // expected
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof TypeImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Type com.android.jack.fibonacci.test001.jack.Fibo"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -120,6 +130,9 @@ public class ImportTests {
     // import twice the same lib
     toolchain.addStaticLibs(lib, lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToExe(
@@ -127,8 +140,13 @@ public class ImportTests {
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir(testName + ".jack"));
       Assert.fail();
-    } catch (TypeImportConflictException e) {
+    } catch (JackAbortException e) {
       // Exception is ok
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof TypeImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Type com.android.jack.inner.test015.lib.A"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 
@@ -158,6 +176,8 @@ public class ImportTests {
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
 
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToExe(
@@ -165,8 +185,13 @@ public class ImportTests {
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir(testName + ".jack"));
       Assert.fail();
-    } catch (TypeImportConflictException e) {
+    } catch (JackAbortException e) {
       // Exception is ok
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof TypeImportConflictException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Type com.android.jack.inner.test015.lib.A"));
+      Assert.assertTrue(errString.contains("has already been imported"));
     }
   }
 }

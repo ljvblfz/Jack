@@ -16,12 +16,11 @@
 
 package com.android.jack.backend.jayce;
 
-import com.android.jack.JackUserException;
 
 /**
  * Thrown when a conflict prevents the import of a Jack container entry.
  */
-public abstract class ImportConflictException extends JackUserException {
+public abstract class ImportConflictException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
