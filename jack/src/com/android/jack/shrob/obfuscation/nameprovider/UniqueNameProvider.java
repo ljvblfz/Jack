@@ -42,7 +42,9 @@ public class UniqueNameProvider implements NameProvider {
   public String getNewName(@Nonnull String oldName) {
     String newName = nameProvider.getNewName(oldName);
     while (names.contains(newName)) {
-      newName = nameProvider.getNewName(oldName);
+      String candidate = nameProvider.getNewName(oldName);
+      assert !candidate.equals(newName);
+      newName = candidate;
     }
     names.add(newName);
     return newName;
