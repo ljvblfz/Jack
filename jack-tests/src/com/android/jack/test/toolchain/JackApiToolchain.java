@@ -118,7 +118,9 @@ public class JackApiToolchain extends JackBasedToolchain {
 
     jackOptions.setImportedLibraries(staticLibs);
 
-    jackOptions.setJarjarRulesFile(jarjarRules);
+    if (jarjarRules != null) {
+      jackOptions.setJarjarRulesFile(jarjarRules);
+    }
 
     if (proguardFlags.size() > 0) {
       jackOptions.setProguardFlagsFile(proguardFlags);
@@ -183,7 +185,9 @@ public class JackApiToolchain extends JackBasedToolchain {
 
     jackOptions.setSanityChecks(sanityChecks);
 
-    jackOptions.setJarjarRulesFile(jarjarRules);
+    if (jarjarRules != null) {
+      jackOptions.setJarjarRulesFile(jarjarRules);
+    }
 
     if (classpath.size() > 0) {
       jackOptions.setClasspath(getClasspathAsString());
