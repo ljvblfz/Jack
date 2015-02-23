@@ -178,23 +178,23 @@ public class Options {
       Boolean.FALSE);
 
   @Option(name = "--version", usage = "display version")
-  protected boolean version;
+  private boolean version;
 
   @Option(name = "--help", usage = "display help")
-  protected boolean help;
+  private boolean help;
 
   @Option(name = "--help-properties", usage = "display properties list")
-  protected boolean helpProperties;
+  private boolean helpProperties;
 
-  protected boolean dumpProperties;
+  private boolean dumpProperties;
 
   @Option(name = "-D", metaVar = "<property>=<value>",
       usage = "set value for the given property (repeatable)",
       handler = MapOptionHandler.class)
   @Nonnull
-  protected final Map<String, String> properties = new HashMap<String, String>();
+  private final Map<String, String> properties = new HashMap<String, String>();
 
-  protected final File propertiesFile = null;
+  private final File propertiesFile = null;
 
   /**
    * Jack verbosity level
@@ -216,17 +216,17 @@ public class Options {
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
       metaVar = "[error | warning | info | debug]")
-  protected VerbosityLevel verbose = VerbosityLevel.WARNING;
+  private VerbosityLevel verbose = VerbosityLevel.WARNING;
 
   @Option(name = "--disable-automatic-full-rebuild")
-  protected boolean disableAutomaticFullRebuild = false;
+  private final boolean disableAutomaticFullRebuild = false;
 
   /**
    * Folder used for incremental data.
    */
   @Option(name = "--incremental-folder", usage = "directory used for incremental data",
       metaVar = "<DIRECTORY>")
-  protected File incrementalFolder = null;
+  private File incrementalFolder = null;
 
   @Option(name = "--output-dex", usage = "output dex files and resources to the directory",
       metaVar = "<DIRECTORY>")
@@ -243,10 +243,10 @@ public class Options {
    */
   @Option(name = "--output-jack-dir",
       metaVar = "<DIRECTORY>")
-  protected File libraryOutDir = null;
+  private File libraryOutDir = null;
 
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")
-  protected File libraryOutZip = null;
+  private File libraryOutZip = null;
 
   @Option(name = "--config-jarjar", usage = "use a jarjar rules file (default: none)",
       metaVar = "<FILE>")
@@ -278,7 +278,7 @@ public class Options {
    */
   @Option(name = "--runtime-legacy",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  protected boolean runtimeLegacy = true;
+  private final boolean runtimeLegacy = true;
 
   @Option(name = "--config-proguard",
       usage = "use a proguard flags file (default: none) (repeatable)",
@@ -290,7 +290,7 @@ public class Options {
    */
   @Option(name = "--sanity-checks",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  protected boolean sanityChecks = true;
+  private boolean sanityChecks = true;
   @Nonnull
   public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
       "jack.sanitychecks", "enable/disable compiler sanity checks")
@@ -301,10 +301,10 @@ public class Options {
    */
   @Option(name = "--tracer-dir",
       metaVar = "<DIRECTORY>")
-  protected File tracerDir;
+  private File tracerDir;
 
   @Option(name = "--graph-file")
-  protected File graphFile;
+  private File graphFile;
 
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
   protected String classpath = null;
@@ -374,7 +374,7 @@ public class Options {
       "Use mixed case class name when obfuscating").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  protected Filter<JMethod> filter = new AllMethods();
+  private final Filter<JMethod> filter = new AllMethods();
 
   @SuppressWarnings("unchecked")
   @Nonnull
@@ -382,10 +382,6 @@ public class Options {
       (ImplementationPropertyId<Filter<JMethod>>) (Object) ImplementationPropertyId.create(
           "jack.internal.filter.method", "Define which filter will be used for methods",
           Filter.class).addDefaultValue("all-methods");
-
-  public VerbosityLevel getVerbosityLevel() {
-    return verbose;
-  }
 
   public void setVerbosityLevel(@Nonnull VerbosityLevel verbose) {
     this.verbose = verbose;
@@ -407,11 +403,6 @@ public class Options {
     return ecjArguments != null && ecjArguments.contains(ECJ_HELP_ARG);
   }
 
-  @Nonnull
-  public File getOutputDir() {
-    return out;
-  }
-
   public void setOutputDir(File out) {
     this.out = out;
   }
@@ -422,11 +413,6 @@ public class Options {
 
   boolean hasSanityChecks() {
     return sanityChecks;
-  }
-
-  @CheckForNull
-  public String getClasspathAsString() {
-    return classpath;
   }
 
   @Nonnull
@@ -730,11 +716,11 @@ public class Options {
     config = getConfigBuilder(hooks).build();
 
     LoggerFactory.loadLoggerConfiguration(
-        this.getClass(), "/" + getVerbosityLevel().getId() + ".jack.logging.properties");
+        this.getClass(), "/" + verbose.getId() + ".jack.logging.properties");
 
     // Check ecj arguments
     if (ecjArguments != null) {
-      if (getVerbosityLevel() == VerbosityLevel.ERROR) {
+      if (verbose == VerbosityLevel.ERROR) {
         ecjArguments.add(0, "-nowarn");
       }
       ecjArguments.add(0, "-source");
@@ -808,10 +794,6 @@ public class Options {
     this.importedLibraries = importedLibraries;
   }
 
-  public boolean outputToZip() {
-    return outZip != null || libraryOutZip != null;
-  }
-
   @CheckForNull
   public Flags getFlags() {
     return flags;
@@ -858,10 +840,6 @@ public class Options {
     proguardFlagsFiles.add(flags);
   }
 
-  public void addImportedLibrary(@Nonnull File importedLibrary) {
-    importedLibraries.add(importedLibrary);
-  }
-
   public void addProperty(@Nonnull String propertyName, @Nonnull String propertyValue) {
     properties.put(propertyName, propertyValue);
   }
@@ -883,21 +861,8 @@ public class Options {
     this.proguardFlagsFiles = proguardFlagsFiles;
   }
 
-  @CheckForNull
-  public File getJarjarRulesFile() {
-    return jarjarRulesFile;
-  }
-
   public void setJarjarRulesFile(@Nonnull File jarjarRulesFile) {
     this.jarjarRulesFile = jarjarRulesFile;
-  }
-
-  public void setNameProvider(@Nonnull String nameProvider) {
-    properties.put(NameProviderFactory.NAMEPROVIDER.getName(), nameProvider);
-  }
-
-  public void enableDxOptimizations() {
-    properties.put(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true");
   }
 
   public void disableDxOptimizations() {
