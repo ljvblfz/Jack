@@ -257,14 +257,16 @@ public class Renamer implements RunnableSchedulable<JSession> {
     private final JPackage packageForRenamedClasses
       = Jack.getSession().getLookup().getOrCreatePackage(packageNameForRenamedClasses);
 
+    @Nonnull
+    private final NameProvider classNameProvider =
+          nameProviderFactory.getClassNameProvider(packageForRenamedClasses.getTypes());
+
     private RepackagerVisitor(@Nonnull TransformationRequest request) {
       this.request = request;
     }
 
     @Override
     public boolean visit(@Nonnull JPackage pack) {
-      NameProvider classNameProvider =
-          nameProviderFactory.getClassNameProvider(packageForRenamedClasses.getTypes());
 
       for (JClassOrInterface type : pack.getTypes()) {
         if (mustBeRenamed((MarkerManager) type)) {
