@@ -42,12 +42,14 @@ public class MissingClassTest {
         /* zipFiles= */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.frontend.test001.jack.missing"));
 
+    toolchain =  AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(outJackTmpMissing)
     .srcToLib(outJackTmpSuper,
         /* zipFiles= */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.frontend.test001.jack.sub2"));
 
+    toolchain =  AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(outJackTmpSuper)
     .srcToLib(outJackTmpTest,
