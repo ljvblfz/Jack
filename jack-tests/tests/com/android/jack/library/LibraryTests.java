@@ -21,13 +21,10 @@ import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
-import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.InputZipVFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 

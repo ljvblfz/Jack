@@ -62,45 +62,6 @@ public class VFSTest {
   }
 
   @Test
-  public void testDirectVFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotSetPermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
-    File file = null;
-    DirectVFS directVFS = null;
-    DirectVFS directVFS2 = null;
-    try {
-      file = File.createTempFile("vfs", "dir");
-      String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
-      directVFS = new DirectVFS(new Directory(path, null, Existence.NOT_EXIST,
-          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE));
-      testOutputVFS(directVFS);
-      testDelete(directVFS);
-      testInputVFS(directVFS);
-      directVFS.close();
-
-      directVFS2 = new DirectVFS(new Directory(path, null, Existence.MUST_EXIST,
-          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE));
-      testInputVFS(directVFS2);
-    } finally {
-      if (directVFS != null) {
-        directVFS.close();
-      }
-      if (directVFS2 != null) {
-        directVFS2.close();
-      }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
-    }
-  }
-
-  @Test
   public void testDirectFS()
       throws NotDirectoryException,
       CannotCreateFileException,
@@ -397,84 +358,12 @@ public class VFSTest {
       IOException {
     File file = null;
     InputOutputVFS outputZipVFS = null;
-    InputZipVFS inputZipVFS = null;
+    InputVFS inputZipVFS = null;
     try {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
       outputZipVFS = new GenericInputOutputVFS(new WriteZipFS(
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
-      testOutputVFS(outputZipVFS);
-      outputZipVFS.close();
-      inputZipVFS = new InputZipVFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
-      testInputVFS(inputZipVFS);
-    } finally {
-      if (outputZipVFS != null) {
-        outputZipVFS.close();
-      }
-      if (inputZipVFS != null) {
-        inputZipVFS.close();
-      }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
-      }
-    }
-  }
-
-  @Test
-  public void testInputOutputZipVFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotSetPermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
-    File file = null;
-    InputOutputZipVFS zipVFS = null;
-    InputZipVFS inputZipVFS = null;
-    try {
-      file = File.createTempFile("vfs", ".zip");
-      String path = file.getAbsolutePath();
-      zipVFS = new InputOutputZipVFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
-      testOutputVFS(zipVFS);
-      testDelete(zipVFS);
-      testInputVFS(zipVFS);
-      zipVFS.close();
-      inputZipVFS = new InputZipVFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
-      testInputVFS(inputZipVFS);
-    } finally {
-      if (zipVFS != null) {
-        zipVFS.close();
-      }
-      if (inputZipVFS != null) {
-        inputZipVFS.close();
-      }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
-      }
-    }
-  }
-
-  @Test
-  public void testReadZipVFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotSetPermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
-    File file = null;
-    InputOutputVFS outputZipVFS = null;
-    InputVFS inputZipVFS = null;
-    try {
-      file = File.createTempFile("vfs", ".zip");
-      String path = file.getAbsolutePath();
-      outputZipVFS = new InputOutputZipVFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
       testOutputVFS(outputZipVFS);
       outputZipVFS.close();
       inputZipVFS = new GenericInputVFS(new ReadZipFS(
@@ -558,7 +447,7 @@ public class VFSTest {
   }
 
   @Test
-  public void testReadWriteZipFS()
+  public void testReadWriteZipFSAndReadZipFS()
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
@@ -568,7 +457,7 @@ public class VFSTest {
       IOException {
     File file = null;
     InputOutputVFS zipVFS = null;
-    InputZipVFS inputZipVFS = null;
+    InputVFS inputZipVFS = null;
     try {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
@@ -578,8 +467,8 @@ public class VFSTest {
       testDelete(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
-      inputZipVFS = new InputZipVFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      inputZipVFS = new GenericInputVFS(new ReadZipFS(
+          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
       testInputVFS(inputZipVFS);
     } finally {
       if (zipVFS != null) {
