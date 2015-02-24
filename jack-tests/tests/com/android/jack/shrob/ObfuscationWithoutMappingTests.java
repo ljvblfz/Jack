@@ -44,15 +44,6 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
       @Nonnull String flagNumber,
       @Nonnull String mappingNumber)
       throws Exception {
-    runTest(testNumber, flagNumber, mappingNumber, "rot13");
-  }
-
-  protected void runTest(
-      @Nonnull String testNumber,
-      @Nonnull String flagNumber,
-      @Nonnull String mappingNumber,
-      @Nonnull String nameProvider)
-          throws Exception {
 
     String testPackageName = "com.android.jack.shrob.test" + testNumber;
     File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
@@ -63,7 +54,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);
     File refFolder = new File(testFolder, "refsObfuscationWithoutMapping");
 
-    toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), nameProvider);
+    toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
@@ -99,13 +90,5 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   @Category(KnownBugs.class)
   public void test35_001() throws Exception {
     super.test35_001();
-  }
-
-  @Test
-  public void test43_001() throws Exception {
-    /* Use "lower-case" name provider because a rot13 has invalid behavior on sources that would
-     * allow to reproduce the problem. Using "lower-case" makes it a very fragile test anyway
-     */
-    runTest("043", "001", "", "lower-case");
   }
 }
