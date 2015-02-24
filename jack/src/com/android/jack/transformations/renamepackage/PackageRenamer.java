@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.renamepackage;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -26,6 +25,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.JLookup;
@@ -42,6 +42,7 @@ import com.android.sched.util.codec.PathCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.vfs.VPath;
 import com.tonicsystems.jarjar.PackageRemapper;
 import com.tonicsystems.jarjar.PatternElement;
 import com.tonicsystems.jarjar.RulesFileParser;
@@ -79,12 +80,13 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     private final Stack<JNode> transformationRequestRoot = new Stack<JNode>();
 
     @Nonnull
-    private final JLookup lookup = Jack.getSession().getLookup();
+    private final JLookup lookup;
     @Nonnull
     private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
-    public Visitor(@Nonnull List<Wildcard> wildcards) {
-      remapper = new PackageRemapper(wildcards);
+    public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper) {
+      this.lookup = lookup;
+      this.remapper = remapper;
     }
 
     @Override
@@ -142,7 +144,16 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   public void run(@Nonnull JSession session) throws Exception {
     List<PatternElement> result = RulesFileParser.parse(jarjarRulesFile);
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
-    new Visitor(wildcards).accept(session.getTypesToEmit());
+    PackageRemapper remapper = new PackageRemapper(wildcards);
+
+    new Visitor(session.getLookup(), remapper).accept(session.getTypesToEmit());
+
+    for (Resource res : session.getResources()) {
+      String pathToTransform = res.getPath().getPathAsString('/');
+      String transformedPath = remapper.mapValue(pathToTransform);
+      res.setPath(new VPath(transformedPath, '/'));
+    }
+
     session.getLookup().clear();
     session.getPhantomLookup().clear();
   }
