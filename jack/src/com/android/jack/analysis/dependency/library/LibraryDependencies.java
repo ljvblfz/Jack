@@ -47,13 +47,13 @@ public class LibraryDependencies extends Dependency {
   @Nonnull
   private List<String> librariesOnClasspathDexDigest = new ArrayList<String>();
 
-  public void addImportedLibraries(@Nonnull List<InputLibrary> importedLibraries) {
+  public void addImportedLibraries(@Nonnull List<? extends InputLibrary> importedLibraries) {
     for (InputLibrary inputLibrary : importedLibraries) {
       importedLibrariesDexDigest.add(inputLibrary.getDigest());
     }
   }
 
-  public void addLibrariesOnClasspath(@Nonnull List<InputLibrary> librariesOnClasspath) {
+  public void addLibrariesOnClasspath(@Nonnull List<? extends InputLibrary> librariesOnClasspath) {
     for (InputLibrary inputLibrary : librariesOnClasspath) {
       librariesOnClasspathDexDigest.add(inputLibrary.getDigest());
     }

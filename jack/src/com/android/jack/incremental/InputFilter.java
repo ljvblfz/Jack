@@ -33,11 +33,11 @@ public interface InputFilter {
   public Set<String> getFileNamesToCompile();
 
   @Nonnull
-  public List<InputLibrary> getClasspath();
+  public List<? extends InputLibrary> getClasspath();
 
   @Nonnull
   public OutputJackLibrary getOutputJackLibrary();
 
   @Nonnull
-  public List<InputLibrary> getImportedLibrary();
+  public List<? extends InputLibrary> getImportedLibrary();
 }

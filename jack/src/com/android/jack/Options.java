@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import com.android.jack.backend.dex.DexFileWriter;
@@ -27,6 +28,8 @@ import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.Private;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.shrob.obfuscation.Renamer;
@@ -51,6 +54,7 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
+import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -171,6 +175,10 @@ public class Options {
       "jack.dex.output.zip", "Output zip archive for dex",
       new ZipOutputVFSCodec(Existence.MAY_EXIST)).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
+
+  @Nonnull
+  public static final ListPropertyId<InputJackLibrary> IMPORTED_LIBRARIES = ListPropertyId.create(
+      "jack.library.import", "Libraries to import", "jacklib", new InputJackLibraryCodec());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
@@ -619,6 +627,10 @@ public class Options {
     configBuilder.set(
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
+    if (importedLibraries != null) {
+      configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
+    }
+
     if (libraryOutZip != null) {
       configBuilder.setString(LIBRARY_OUTPUT_ZIP, libraryOutZip.getPath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.ZIP);
@@ -871,11 +883,6 @@ public class Options {
 
   public void setSanityChecks(boolean sanityChecks) {
     this.sanityChecks = sanityChecks;
-  }
-
-  @Nonnull
-  public List<File> getImportedLibraries() {
-    return importedLibraries;
   }
 
   @CheckForNull

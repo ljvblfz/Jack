@@ -20,13 +20,13 @@ import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.backend.jayce.JayceFileImporter;
-import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
-import com.android.jack.load.JackLoadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.sched.util.codec.ListParsingException;
+import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
 
@@ -114,12 +114,13 @@ public class FileAccessErrorTest {
       .srcToExe(
           helper.getOutputDexFolder(), /* zipFile = */ false, helper.getSourceFolder());
       Assert.fail();
-    } catch (JackAbortException e) {
+    } catch (PropertyIdException e) {
       // Failure is ok since Jack file could not be imported since folder is not readable
-      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
-      Assert.assertTrue(e.getCause().getCause() instanceof WrongPermissionException);
+      Assert.assertTrue(e.getCause() instanceof ListParsingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof ParsingException);
+      Assert.assertTrue(e.getCause().getCause().getCause() instanceof WrongPermissionException);
     } finally {
-      Assert.assertTrue("", errOut.toString().contains("is not readable"));
+      Assert.assertTrue(errOut.toString().isEmpty());
       if (!helper.getJackFolder().setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
       }
