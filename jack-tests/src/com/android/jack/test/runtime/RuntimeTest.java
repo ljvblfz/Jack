@@ -37,6 +37,7 @@ public abstract class RuntimeTest {
       rtTestInfos = new ArrayList<RuntimeTestInfo>();
       fillRtTestInfos();
     }
+    assert rtTestInfos != null;
     return rtTestInfos;
   }
 
