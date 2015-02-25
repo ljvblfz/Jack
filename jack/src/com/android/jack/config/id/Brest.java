@@ -16,14 +16,12 @@
 
 package com.android.jack.config.id;
 
-import com.android.sched.util.config.category.Category;
-
 import javax.annotation.Nonnull;
 
 /**
  * Define a category for version Brest.
  */
-public class Brest implements Category {
+public class Brest extends Arzon {
   @Nonnull
   private static final Brest INSTANCE = new Brest();
 

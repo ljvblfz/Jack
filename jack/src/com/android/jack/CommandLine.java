@@ -16,7 +16,7 @@
 
 package com.android.jack;
 
-import com.android.jack.config.id.Arzon;
+import com.android.jack.config.id.Brest;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.scheduler.ProcessException;
@@ -161,7 +161,7 @@ public abstract class CommandLine {
   public static void printHelpProperties (@Nonnull Options options) throws IOException {
     GatherConfigBuilder builder = options.getDefaultConfigBuilder();
 
-    printProperties(builder, Arzon.class);
+    printProperties(builder, Brest.class);
 
     System.out.println();
     System.out.println("Provisional properties (subject to change):");
