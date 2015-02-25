@@ -1204,16 +1204,15 @@
   <!-- tests               -->
   <!-- ******************* -->
 
-  <property name="tests.output" value="${jack-project.dir}/tests-results"/>
-  <property name="test-jack.script" location="${jack-tests.dir}/run-jack-tests" />
+  <property name="jack.tests.output" value="${jack-project.dir}/tests-results"/>
 
-  <filelist id="junit.tests.classpath" dir="/">
+  <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
   </filelist>
 
   <target name="test-jack-clean" >
-    <delete dir="${tests.output}"/>
+    <delete dir="${jack.tests.output}"/>
   </target>
 
   <target name="tests-check-config">
@@ -1221,74 +1220,74 @@
   </target>
 
   <target name="test-jack" depends="tests-check-config, jack-tests">
-    <mkdir dir="${tests.output}/test-jack/html"/>
+    <mkdir dir="${jack.tests.output}/test-jack/html"/>
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="-ea"/>
        <classpath>
-        <filelist refid="junit.tests.classpath" />
+        <filelist refid="jack.junit.tests.classpath" />
        </classpath>
       <test name="com.android.jack.PreSubmitTests"
-        todir="${tests.output}/test-jack/"
+        todir="${jack.tests.output}/test-jack/"
         outfile="test-jack" />
     </junit>
-    <junitreport todir="${tests.output}/test-jack">
-      <fileset dir="${tests.output}/test-jack">
+    <junitreport todir="${jack.tests.output}/test-jack">
+      <fileset dir="${jack.tests.output}/test-jack">
         <include name="test-jack.xml"/>
       </fileset>
-      <report format="frames" todir="${tests.output}/test-jack/html"/>
+      <report format="frames" todir="${jack.tests.output}/test-jack/html"/>
     </junitreport>
     <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
    <target name="test-jack-long" depends="tests-check-config, jack-tests">
-      <mkdir dir="${tests.output}/test-jack-long/html"/>
+      <mkdir dir="${jack.tests.output}/test-jack-long/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="-ea"/>
         <classpath>
-          <filelist refid="junit.tests.classpath" />
+          <filelist refid="jack.junit.tests.classpath" />
         </classpath>
         <test name="com.android.jack.LongLastingTests"
-          todir="${tests.output}/test-jack-long/"
+          todir="${jack.tests.output}/test-jack-long/"
           outfile="test-jack-long" />
       </junit>
-      <junitreport todir="${tests.output}/test-jack-long">
-        <fileset dir="${tests.output}/test-jack-long">
+      <junitreport todir="${jack.tests.output}/test-jack-long">
+        <fileset dir="${jack.tests.output}/test-jack-long">
           <include name="test-jack-long.xml"/>
         </fileset>
-        <report format="frames" todir="${tests.output}/test-jack-long/html"/>
+        <report format="frames" todir="${jack.tests.output}/test-jack-long/html"/>
       </junitreport>
        <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
 
   <target name="test-jack-all" depends="tests-check-config, jack-tests">
-      <mkdir dir="${tests.output}/test-jack-all/html"/>
+      <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="-ea"/>
         <classpath>
-          <filelist refid="junit.tests.classpath" />
+          <filelist refid="jack.junit.tests.classpath" />
         </classpath>
         <test name="com.android.jack.AllTests"
-          todir="${tests.output}/test-jack-all/"
+          todir="${jack.tests.output}/test-jack-all/"
           outfile="AllTestsResults" />
       </junit>
-      <junitreport todir="${tests.output}/test-jack-all">
-        <fileset dir="${tests.output}/test-jack-all">
+      <junitreport todir="${jack.tests.output}/test-jack-all">
+        <fileset dir="${jack.tests.output}/test-jack-all">
           <include name="test-jack-all.xml"/>
         </fileset>
-        <report format="frames" todir="${tests.output}/test-jack-all/html"/>
+        <report format="frames" todir="${jack.tests.output}/test-jack-all/html"/>
       </junitreport>
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
 
   <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib">
-      <mkdir dir="${tests.output}/test-sched/html"/>
+      <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <jvmarg value="-ea"/>
         <formatter type="xml"/>
@@ -1304,14 +1303,14 @@
           </filelist>
         </classpath>
         <test name="com.android.sched.AllTests"
-          todir="${tests.output}/test-sched/"
+          todir="${jack.tests.output}/test-sched/"
           outfile="test-sched" />
       </junit>
-      <junitreport todir="${tests.output}/test-sched">
-        <fileset dir="${tests.output}/test-sched">
+      <junitreport todir="${jack.tests.output}/test-sched">
+        <fileset dir="${jack.tests.output}/test-sched">
           <include name="test-sched.xml"/>
         </fileset>
-        <report format="frames" todir="${tests.output}/test-sched/html"/>
+        <report format="frames" todir="${jack.tests.output}/test-sched/html"/>
       </junitreport>
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>

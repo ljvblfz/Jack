@@ -16,7 +16,6 @@
 
 package com.android.jack;
 
-import com.android.dx.command.dexer.Main.Arguments;
 import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -27,12 +26,9 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.shrob.ListingComparator;
 import com.android.jack.shrob.proguard.GrammarActions;
-import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestsProperties;
-import com.android.jack.util.ExecuteFile;
 import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
@@ -78,14 +74,6 @@ public class TestTools {
   @Nonnull
   private static final String JACK_PACKAGE = "com/android/jack/";
 
-  private static class ExternalTools {
-    @Nonnull
-    private static final File JARJAR = getFromAndroidTree("out/host/linux-x86/framework/jarjar.jar");
-
-    @Nonnull
-    private static final File PROGUARD = getFromAndroidTree("prebuilts/tools/common/proguard/proguard4.7/lib/proguard.jar");
-  }
-
   public static class ReferenceCompilerFiles {
     @Nonnull
     public File jarFile;
@@ -127,25 +115,9 @@ public class TestTools {
   }
 
   @Nonnull
-  public static File getJackTestLibFolder(@Nonnull String testName) {
-    return new File(getJackTestFolder(testName), "lib");
-  }
-
-  @Nonnull
-  public static File getJackUnitTestSrc(@Nonnull String path) {
-    return new File(TestsProperties.getJackRootDir(),
-        JACK_UNIT_TESTS_PATH + path);
-  }
-
-  @Nonnull
   public static File getJackUnitTestFromBinaryName(@Nonnull String signature) {
     return new File(TestsProperties.getJackRootDir(),
         JACK_UNIT_TESTS_PATH + signature + ".java");
-  }
-
-  @Nonnull
-  public static File getOpcodeTestFolder(@Nonnull String testName) {
-    return getFromAndroidTree(JACK_TESTS_PATH + JACK_PACKAGE + "opcodes/" + testName + "/jm");
   }
 
   @Nonnull
@@ -195,12 +167,6 @@ public class TestTools {
   }
 
   @Nonnull
-  public static Sourcelist getTargetAppSourcelist(@Nonnull String moduleName) {
-    return getSourcelistWithAbsPath("out/target/common/obj/APPS/" + moduleName
-        + "_intermediates/jack.java-source-list");
-  }
-
-  @Nonnull
   public static File getFromAndroidTree(@Nonnull String filePath) {
     File sourceFile = new File(TestsProperties.getAndroidRootDir(), filePath);
     if (!sourceFile.exists()) {
@@ -218,57 +184,6 @@ public class TestTools {
     } else if (fileObject.isFile() && fileObject.getName().endsWith(".java")) {
       filePaths.add(fileObject.getCanonicalFile());
     }
-  }
-
-  public static void compileJackToDex(
-      Options options, File in, File out, boolean zip) throws Exception {
-    options.importedLibraries = new ArrayList<File>(1);
-    options.importedLibraries.add(in);
-    if (zip) {
-      options.outZip = out;
-    } else {
-      options.out = out;
-    }
-    Jack.run(options);
-  }
-
-  public static void compileSourceToDex(@Nonnull Options options,
-      @Nonnull File sourceFolderOrSourceList,
-      @CheckForNull String classpath,
-      @Nonnull File out,
-      boolean zip,
-      @CheckForNull JarJarRules jarjarRules,
-      @CheckForNull ProguardFlags[] flagFiles,
-      boolean withDebugInfo) throws Exception {
-    options.ecjArguments = buildEcjArgs();
-    addFile(sourceFolderOrSourceList, options.ecjArguments);
-    options.classpath = classpath;
-    if (zip) {
-      options.outZip = out;
-    } else {
-      options.out = out;
-    }
-    options.jarjarRulesFile = jarjarRules;
-    if (flagFiles != null) {
-      options.proguardFlagsFiles = new ArrayList<File>();
-      for (ProguardFlags flagFile : flagFiles) {
-        options.proguardFlagsFiles.add(flagFile);
-      }
-    }
-    options.emitLocalDebugInfo = withDebugInfo;
-    Jack.run(options);
-  }
-
-  @Nonnull
-  public static File getDefaultDexBootclasspath() {
-    return getFromAndroidTree(
-        "out/host/common/obj/JAVA_LIBRARIES/core-hostdex_intermediates/classes.dex");
-  }
-
-  @Nonnull
-  public static File[] getDefaultClasspath() {
-    return new File[] {
-        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jack")};
   }
 
   @Nonnull
@@ -473,32 +388,6 @@ public class TestTools {
     return (session);
   }
 
-  public static void checkListing(@CheckForNull File[] jackBootclasspath,
-      @CheckForNull File[] jackClasspath,
-      @Nonnull File fileOrSourceList,
-      @CheckForNull ProguardFlags[] proguardFlags,
-      @Nonnull File refNodeListing) throws Exception {
-    Options options = new Options();
-    File candidateNodeListing = TestTools.createTempFile("nodeListing", ".txt");
-    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
-    options.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
-        candidateNodeListing.getPath());
-    options.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
-    options.disableDxOptimizations();
-
-    File outFolder = TestTools.createTempDir("checklisting", "dex");
-    TestTools.compileSourceToDex(options,
-        fileOrSourceList,
-        TestTools.getClasspathsAsString(jackBootclasspath, jackClasspath),
-        outFolder,
-        false /* zip */,
-        null /* jarjarRules */,
-        proguardFlags,
-        true /* emitDebugInfo */);
-
-    ListingComparator.compare(refNodeListing, candidateNodeListing);
-  }
-
   @Nonnull
   public static JMethod getJMethodWithRejectAllFilter(@Nonnull File fileName,
       @Nonnull String className, @Nonnull String methodSignature) throws Exception {
@@ -541,203 +430,6 @@ public class TestTools {
     Assert.assertNotNull(foundMethod);
 
     return foundMethod;
-  }
-
-  public static void compileWithRefCompiler(
-      Options compilerArgs, boolean useEcjAsRefCompiler, File refCompilerOut) {
-    if (useEcjAsRefCompiler) {
-      compileWithEcj(compilerArgs, refCompilerOut);
-    } else {
-      compileWithExternalRefCompiler(compilerArgs, refCompilerOut);
-    }
-  }
-
-  /**
-   * Creates the reference compiler files.
-   *
-   * @param compilerArgs the arguments given to a reference compiler
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  public static ReferenceCompilerFiles createReferenceCompilerFiles(@Nonnull File testDir,
-      @Nonnull Options compilerArgs,
-      @CheckForNull ProguardFlags[] proguardFlags,
-      @CheckForNull File[] bootclasspath,
-      @CheckForNull File[] classpath,
-      boolean withDebugInfo,
-      boolean useEcjAsRefCompiler,
-      @CheckForNull JarJarRules jarjarRules) throws IOException, InterruptedException {
-
-    if (withDebugInfo) {
-      compilerArgs.ecjArguments.add(0, "-g");
-    }
-
-    File refCompilerOut = new File(testDir, "refcompilerout");
-    File refDex = new File(testDir, "testref.dex");
-    if (!refCompilerOut.exists() && !refCompilerOut.mkdir()) {
-      throw new IOException("Could not create directory \"" + refCompilerOut.getName() + "\"");
-    }
-
-    // Create reference Dex file
-    if (classpath != null) {
-      for (File f : classpath) {
-        unzip(f, refCompilerOut);
-      }
-    }
-    compileWithRefCompiler(compilerArgs, useEcjAsRefCompiler, refCompilerOut);
-    File refJar = new File(testDir, "ref.jar");
-    File refJarJar = new File(testDir, "refJarJar.jar");
-    File refProguard = new File(testDir, "refProguard.jar");
-    createjar(refJar, refCompilerOut);
-    if (jarjarRules != null) {
-      processWithJarJar(jarjarRules, refJar, refJarJar);
-    } else {
-      refJarJar = refJar;
-    }
-    if (proguardFlags != null) {
-      processWithProguard(proguardFlags, refJarJar, refProguard, bootclasspath);
-    } else {
-      refProguard = refJarJar;
-    }
-
-    compileWithDx(refProguard, refDex, withDebugInfo);
-    return new ReferenceCompilerFiles(refProguard, refDex);
-  }
-
-  private static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
-    String[] args = new String[]{"unzip", "-qo", jarfile.getAbsolutePath(),
-        "-d", outputFolder.getAbsolutePath(),};
-
-    ExecuteFile execFile = new ExecuteFile(args);
-    if (!execFile.run()) {
-      throw new RuntimeException("Unzip exited with an error");
-    }
-  }
-
-  private static void createjar(@Nonnull File jarfile, @Nonnull File inputFiles) {
-    String[] args = new String[]{"jar", "cf", jarfile.getAbsolutePath(),
-        "-C", inputFiles.getAbsolutePath(), "."};
-
-    ExecuteFile execFile = new ExecuteFile(args);
-    if (!execFile.run()) {
-      throw new RuntimeException("Reference compiler exited with an error");
-    }
-  }
-
-  private static void processWithJarJar(@Nonnull File jarjarRules,
-      @Nonnull File inJar, @Nonnull File outJar) {
-    String[] args = new String[]{"java", "-jar", ExternalTools.JARJAR.getAbsolutePath(),
-        "process", jarjarRules.getAbsolutePath(),
-        inJar.getAbsolutePath(), outJar.getAbsolutePath()};
-
-    ExecuteFile execFile = new ExecuteFile(args);
-    if (!execFile.run()) {
-      throw new RuntimeException("JarJar exited with an error");
-    }
-  }
-
-  private static void processWithProguard(@Nonnull ProguardFlags[] proguardFlagsFiles,
-      @Nonnull File inJar, @Nonnull File outJar, @CheckForNull File[] bootclasspath) {
-    String bootclasspathStr = null;
-    if (bootclasspath == null) {
-      bootclasspathStr = getDefaultClasspathString();
-    } else {
-      bootclasspathStr = getClasspathAsString(bootclasspath);
-    }
-    String[] args = new String[12 + proguardFlagsFiles.length * 2];
-    int i = 0;
-    args[i++] = "java";
-    args[i++] = "-jar";
-    args[i++] = ExternalTools.PROGUARD.getAbsolutePath();
-    args[i++] = "-injars";
-    args[i++] = inJar.getAbsolutePath();
-    args[i++] = "-outjars";
-    args[i++] = outJar.getAbsolutePath();
-    args[i++] = "-libraryjars";
-    args[i++] = bootclasspathStr;
-    args[i++] = "-verbose";
-    args[i++] = "-forceprocessing";
-    args[i++] = "-dontoptimize";
-    for (ProguardFlags proguardFlags : proguardFlagsFiles) {
-      args[i++] = "-include";
-      args[i++] = proguardFlags.getAbsolutePath();
-    }
-
-    ExecuteFile execFile = new ExecuteFile(args);
-    execFile.setOut(System.out);
-    execFile.setErr(System.err);
-    execFile.setVerbose(true);
-    if (!execFile.run()) {
-      throw new RuntimeException("Proguard exited with an error");
-    }
-  }
-
-  private static void compileWithExternalRefCompiler(@Nonnull Options compilerArgs, @Nonnull File out) {
-
-    List<String> arguments = getRefCompilerArguments(compilerArgs);
-
-    String[] args = new String[arguments.size() + 3];
-    String refCompilerPath = System.getenv("REF_JAVA_COMPILER");
-    if (refCompilerPath == null) {
-      throw new RuntimeException("REF_JAVA_COMPILER environment variable not set");
-    }
-    int i = 0;
-    args[i++] = refCompilerPath.trim();
-
-    for (String compilerArg : arguments) {
-      args[i++] = compilerArg;
-    }
-    args[i++] = "-d";
-    args[i++] = out.getAbsolutePath();
-
-    ExecuteFile execFile = new ExecuteFile(args);
-    if (!execFile.run()) {
-      throw new RuntimeException("Reference compiler exited with an error");
-    }
-  }
-
-  private static List<String> getRefCompilerArguments(Options compilerArgs) {
-    List<String> arguments = new ArrayList<String>(compilerArgs.ecjArguments);
-    if (compilerArgs.classpath != null) {
-      arguments.add("-classpath");
-      // TODO(jmhenaff): This hack will be removed as soon as TestTools will be removed
-      arguments.add(compilerArgs.classpath.replace("core-stubs-mini.jack", "core-stubs-mini.jar"));
-    }
-    return arguments;
-  }
-
-  private static void compileWithEcj(Options compilerArgs, File out) {
-    List<String> jackEcjArgs = getRefCompilerArguments(compilerArgs);
-    String[] args = new String[jackEcjArgs.size() + 5];
-    int i = 0;
-    args[i++] = "-noExit";
-    args[i++] = "-1.6";
-    args[i++] = "-preserveAllLocals";
-    for (String compilerArg : jackEcjArgs) {
-      args[i++] = compilerArg;
-    }
-    args[i++] = "-d";
-    args[i++] = out.getAbsolutePath();
-
-    org.eclipse.jdt.internal.compiler.batch.Main.main(args);
-  }
-
-  private static void compileWithDx(@Nonnull File src, @Nonnull File refDex, boolean withDebugInfo)
-      throws IOException {
-
-    Arguments arguments = new Arguments();
-
-    arguments.jarOutput = false;
-    arguments.outName = refDex.getAbsolutePath();
-    arguments.optimize = !withDebugInfo;
-    // this only means we deactivate the check that no core classes are included
-    arguments.coreLibrary = true;
-    arguments.parse(new String[] {src.getAbsolutePath()});
-
-    int retValue = com.android.dx.command.dexer.Main.run(arguments);
-    if (retValue != 0) {
-      throw new RuntimeException("Dx failed and returned " + retValue);
-    }
   }
 
   public static File createTempDir(String prefix, String suffix) throws IOException {
