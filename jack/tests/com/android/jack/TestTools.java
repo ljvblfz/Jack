@@ -56,6 +56,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -236,14 +237,6 @@ public class TestTools {
     }
   }
 
-  @Nonnull
-  protected static List<String> buildEcjArgs() {
-    List<String> ecjArgs = new ArrayList<String>();
-    ecjArgs.add("-nowarn");
-
-    return ecjArgs;
-  }
-
   protected static void addFile(@Nonnull File fileOrSourceList, @Nonnull List<String> args) {
     if (fileOrSourceList instanceof Sourcelist) {
       args.add("@" + fileOrSourceList.getAbsolutePath());
@@ -287,7 +280,7 @@ public class TestTools {
 
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] classpath,
-      @Nonnull File[] filesOrSourcelists) throws IOException {
+      @Nonnull File[] filesOrSourceDirs) throws IOException {
     Options options = new Options();
 
     String classpathStr = getDefaultClasspathString();
@@ -299,11 +292,7 @@ public class TestTools {
 
     options.classpath = classpathStr;
 
-    List<String> ecjArgs = buildEcjArgs();
-    for (File file : filesOrSourcelists) {
-      addFile(file, ecjArgs);
-    }
-    options.ecjArguments = ecjArgs;
+    options.setInputSources(Arrays.asList(filesOrSourceDirs));
     options.setOutputDir(TestTools.createTempDir("test", "dex"));
 
     return options;

@@ -83,7 +83,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -317,10 +316,11 @@ public class Options {
 
   // This is a trick to document @<FILE>, but it has no real link to ecjArguments
   @Argument(usage = "read command line from file", metaVar = "@<FILE>")
-  protected List<String> ecjArguments;
+  @CheckForNull
+  protected List<File> inputSources;
 
   @Nonnull
-  private static final String ECJ_HELP_ARG = "-help";
+  protected List<String> ecjExtraArguments = new ArrayList<String>();
 
   @Option(name = "-g", usage = "emit debug infos")
   protected boolean emitLocalDebugInfo = false;
@@ -405,8 +405,17 @@ public class Options {
     return helpProperties;
   }
 
-  public boolean askForEcjHelp() {
-    return ecjArguments != null && ecjArguments.contains(ECJ_HELP_ARG);
+  public void setEmitLocalDebugInfo(boolean emitLocalDebugInfo) {
+    this.emitLocalDebugInfo = emitLocalDebugInfo;
+  }
+
+  @Nonnull
+  public List<File> getInputSources() {
+    return inputSources == null ? Collections.<File>emptyList() : inputSources;
+  }
+
+  public void setInputSources(@Nonnull List<File> inputSources) {
+    this.inputSources = inputSources;
   }
 
   public void setOutputDir(File out) {
@@ -720,38 +729,23 @@ public class Options {
   }
 
   public void checkValidity(@Nonnull RunnableHooks hooks)
-      throws IllegalOptionsException, NothingToDoException, ConfigurationException {
+      throws IllegalOptionsException, ConfigurationException {
     config = getConfigBuilder(hooks).build();
+
+    // FINDBUGS
+    Config config = this.config;
+    assert config != null;
 
     LoggerFactory.loadLoggerConfiguration(
         this.getClass(), "/" + config.get(VERBOSITY_LEVEL).getId() + ".jack.logging.properties");
 
     // Check ecj arguments
-    if (ecjArguments != null) {
+    if (inputSources != null) {
       if (config.get(VERBOSITY_LEVEL) == VerbosityLevel.ERROR) {
-        ecjArguments.add(0, "-nowarn");
+        ecjExtraArguments.add(0, "-nowarn");
       }
-      ecjArguments.add(0, "-source");
-      assert config != null;
-      ecjArguments.add(1, config.get(Options.JAVA_SOURCE_VERSION).toString());
-
-      // TODO(jplesot) Rework to avoid re-instantiate compiler. Use our own command line parser.
-      org.eclipse.jdt.internal.compiler.batch.Main compiler =
-          new org.eclipse.jdt.internal.compiler.batch.Main(
-              new PrintWriter(System.out), new PrintWriter(System.err),
-              false /* exit */, null /* options */
-              , null /* compilationProgress */
-          );
-
-      try {
-        compiler.configure(ecjArguments.toArray(new String[ecjArguments.size()]));
-        if (!compiler.proceed && incrementalFolder == null) {
-          throw new NothingToDoException();
-        }
-        compiler.getLibraryAccess().cleanup();
-      } catch (IllegalArgumentException e) {
-        throw new IllegalOptionsException(e.getMessage(), e);
-      }
+      ecjExtraArguments.add("-source");
+      ecjExtraArguments.add(config.get(Options.JAVA_SOURCE_VERSION).toString());
     }
 
     // Check Jack arguments
@@ -844,17 +838,22 @@ public class Options {
     properties.put(propertyName, propertyValue);
   }
 
-  @Nonnull
-  public List<String> getEcjArguments() {
-    if (ecjArguments == null) {
-      return Collections.emptyList();
-    }
-
-    return ecjArguments;
+  // TODO(yroussel) remove when annotation processor is implemented
+  public void setEcjExtraArguments(@Nonnull List<String> ecjArguments) {
+    this.ecjExtraArguments = ecjArguments;
   }
 
-  public void setEcjArguments(@Nonnull List<String> ecjArguments) {
-    this.ecjArguments = ecjArguments;
+  @Nonnull
+  public List<String> getEcjArguments() {
+    if (inputSources == null) {
+      return ecjExtraArguments;
+    }
+
+    ArrayList<String> list = new ArrayList<String>(ecjExtraArguments);
+    for (File input : inputSources) {
+      list.add(input.getPath());
+    }
+    return list;
   }
 
   public void setProguardFlagsFile(@Nonnull List<File> proguardFlagsFiles) {

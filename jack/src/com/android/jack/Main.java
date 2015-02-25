@@ -63,11 +63,6 @@ public abstract class Main extends CommandLine {
         System.exit(ExitStatus.SUCCESS);
       }
 
-      if (options.askForEcjHelp()) {
-        // ECJ help was already printed by Options.checkValidity()
-        System.exit(ExitStatus.SUCCESS);
-      }
-
       if (options.askForVersion()) {
         printVersion();
         System.exit(ExitStatus.SUCCESS);

@@ -251,20 +251,22 @@ public class JackApiToolchain extends JackBasedToolchain {
       ecjArgs.add(ecjArg);
     }
 
+    ArrayList<File> toCompile = new ArrayList<File>();
     for (File srcFile : sources) {
       if (srcFile instanceof Sourcelist) {
         TokenIterator iterator =
             new TokenIterator(new NoLocation(), '@' + srcFile.getAbsolutePath());
         while (iterator.hasNext()) {
-          ecjArgs.add(iterator.next());
+          toCompile.add(new File(iterator.next()));
         }
       } else {
-        AbstractTestTools.addFile(ecjArgs, /* mustExist = */ false, srcFile);
+        toCompile.add(srcFile);
       }
     }
 
     if (sources.length > 0) {
-      jackOptions.setEcjArguments(ecjArgs);
+      jackOptions.setEcjExtraArguments(ecjArgs);
+      jackOptions.setInputSources(toCompile);
     }
   }
 

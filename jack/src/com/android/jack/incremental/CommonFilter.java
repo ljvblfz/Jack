@@ -16,10 +16,6 @@
 
 package com.android.jack.incremental;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
-
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.LibraryException;
@@ -93,23 +89,15 @@ public abstract class CommonFilter {
 
   @Nonnull
   protected Set<String> getJavaFileNamesSpecifiedOnCommandLine(@Nonnull Options options) {
-    final Set<File> folders = new HashSet<File>();
     final String extension = ".java";
 
-    Set<String> javaFileNames =
-        Sets.newHashSet(Collections2.filter(options.getEcjArguments(), new Predicate<String>() {
-          @Override
-          public boolean apply(String arg) {
-            File argFile = new File(arg);
-            if (argFile.isDirectory()) {
-              folders.add(argFile);
-            }
-            return arg.endsWith(extension);
-          }
-        }));
-
-    for (File folder : folders) {
-      fillFiles(folder, extension, javaFileNames);
+    Set<String> javaFileNames = new HashSet<String>();
+    for (File file : options.getInputSources()) {
+      if (file.isDirectory()) {
+        fillFiles(file, extension, javaFileNames);
+      } else if (file.getName().endsWith(extension)) {
+        javaFileNames.add(file.getPath());
+      }
     }
 
     return (javaFileNames);

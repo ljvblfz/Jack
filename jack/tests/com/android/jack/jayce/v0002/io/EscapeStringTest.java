@@ -17,7 +17,6 @@
 package com.android.jack.jayce.v0002.io;
 
 import com.android.jack.IllegalOptionsException;
-import com.android.jack.NothingToDoException;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.sched.util.RunnableHooks;
@@ -110,7 +109,8 @@ public class EscapeStringTest {
   }
 
   @Nonnull
-  private String writeStringAndReadItAfter(@Nonnull String stringToWrite) throws IOException, IllegalOptionsException, NothingToDoException {
+  private String writeStringAndReadItAfter(@Nonnull String stringToWrite)
+      throws IOException, IllegalOptionsException {
     File tmp = TestTools.createTempFile("tmp", "");
     try {
       Options options = new Options();

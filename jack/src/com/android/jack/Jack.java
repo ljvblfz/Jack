@@ -635,8 +635,6 @@ public abstract class Jack {
       } finally {
         event.end();
       }
-    } catch (NothingToDoException e1) {
-      // End normally since there is nothing to do
     } finally {
 
       hooks.runHooks();
@@ -740,8 +738,6 @@ public abstract class Jack {
       throws JackUserException {
     Tracer tracer = TracerFactory.getTracer();
 
-    List<String> ecjArguments = options.ecjArguments;
-
     JSession session =  getSession();
     try {
       session.setInputFilter(ThreadConfig.get(Options.INPUT_FILTER).create(options, hooks));
@@ -780,11 +776,14 @@ public abstract class Jack {
       }
     }
 
-    if (ecjArguments != null) {
+
+    if (options.inputSources != null) {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
 
       Event event = tracer.start(JackEventType.ECJ_COMPILATION);
+
+      List<String> ecjArguments = options.getEcjArguments();
 
       try {
         if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {

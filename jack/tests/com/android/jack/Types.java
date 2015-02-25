@@ -55,7 +55,7 @@ import org.junit.Test;
  */
 public class Types {
 
-  public Types() throws ConfigurationException, IllegalOptionsException, NothingToDoException {
+  public Types() throws ConfigurationException, IllegalOptionsException {
     Options options = new Options();
     RunnableHooks hooks = new RunnableHooks();
     options.checkValidity(hooks);

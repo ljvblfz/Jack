@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class ConditionalTest {
   @BeforeClass
-  public static void setUpClass() throws ConfigurationException, IllegalOptionsException, NothingToDoException {
+  public static void setUpClass() throws ConfigurationException, IllegalOptionsException {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
     Options options = new Options();
     RunnableHooks hooks = new RunnableHooks();
