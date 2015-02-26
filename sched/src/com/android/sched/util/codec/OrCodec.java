@@ -16,10 +16,14 @@
 
 package com.android.sched.util.codec;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+
 import com.android.sched.util.config.ConfigurationError;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -35,8 +39,13 @@ public class OrCodec<T> implements StringCodec<T> {
   private final List<StringCodec<? extends T>> codecList;
 
   public OrCodec(@Nonnull List<StringCodec<? extends T>> codecList) {
-    assert codecList.size() >= 1;
+    assert codecList.size() >= 2;
     this.codecList = codecList;
+  }
+
+  public OrCodec(@Nonnull StringCodec<? extends T>... codecList) {
+    assert codecList.length >= 2;
+    this.codecList = Arrays.asList(codecList);
   }
 
   @Override
@@ -65,20 +74,19 @@ public class OrCodec<T> implements StringCodec<T> {
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull T data) {
+    //STOPSHIP: TBI
   }
 
   @Override
   @Nonnull
   public String getUsage() {
-    StringBuffer usage = new StringBuffer();
-    Iterator<StringCodec<? extends T>> codecListIterator = codecList.iterator();
-    while (codecListIterator.hasNext()) {
-      usage.append(codecListIterator.next().getUsage());
-      if (codecListIterator.hasNext()) {
-        usage.append(" or ");
-      }
-    }
-    return usage.toString();
+    return Joiner.on(" or ").join(
+        Collections2.transform(codecList, new Function<StringCodec<? extends T>, String>() {
+          @Override
+          public String apply(StringCodec<? extends T> codec) {
+            return codec.getUsage();
+          }
+        }));
   }
 
   @Override
