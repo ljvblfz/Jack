@@ -19,7 +19,7 @@
 
   <target name="dist" depends="dexcomparator-lib,
     jack,
-    jack-api-lib,
+    jack-api,
     jackunittests,
     jack-tests,
     dx-lib,
@@ -102,7 +102,7 @@
   </target>
 
   <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
-    junit4,dex-lib,dx-ref-lib">
+    junit4,dex-lib,dx-ref-lib,jack-api-lib">
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
@@ -114,6 +114,7 @@
         <file name="${junit4.dist.dir}/${junit4.execname}"/>
         <file name="${dexlib.dist.dir}/${dexlib.libname}"/>
         <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
+        <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
       </filelist>
     </copy>
   </target>
@@ -132,6 +133,7 @@
     <filelist id="jack.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
       <file name="${allocation.dist.dir}/${allocation.libname}" />
+      <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
     </filelist>
     <filelist id="jack.static.libs.fileset" dir="/">
       <file name="${ecj.dist.dir}/${ecj.libname}" />
@@ -222,19 +224,19 @@
   <!-- ******************* -->
   <!-- jack-api-lib        -->
   <!-- ******************* -->
-  <property name="jack-api.build.dir" value="${jack-api.dir}/build" />
+  <property name="jack-api.lib.build.dir" value="${jack-api.dir}/build/lib" />
+  <property name="jack-api.lib.build.outdir" value="${jack-api.lib.build.dir}/classes" />
   <property name="jack-api.libs.dir" value="${jack-api.dir}/libs" />
-  <property name="jack-api.build.outdir" value="${jack-api.build.dir}/classes" />
   <property name="jack-api.dist.dir" value="${jack-api.dir}/dist" />
-  <property name="jack-api.libname" value="jack-api-lib.jar" />
+  <property name="jack-api.lib.name" value="jack-api-lib.jar" />
 
   <target name="jack-api-lib-clean">
-    <delete dir="${jack-api.build.dir}"/>
+    <delete dir="${jack-api.lib.build.dir}"/>
     <delete dir="${jack-api.dist.dir}"/>
     <delete dir="${jack-api.libs.dir}"/>
   </target>
 
-  <target name="jack-api-copy-libs" depends="jsr305-lib">
+  <target name="jack-api-lib-copy-libs" depends="jsr305-lib">
     <copy todir="${jack-api.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
@@ -242,8 +244,35 @@
     </copy>
   </target>
 
-  <target name="jack-api-lib" depends="jack-api-copy-libs">
+  <target name="jack-api-lib" depends="jack-api-lib-copy-libs">
+    <mkdir dir="${jack-api.lib.build.outdir}"/>
+     <javac srcdir="${jack-api.dir}/src" destdir="${jack-api.lib.build.outdir}"
+          source="1.6" target="1.6" debug="true"
+          includeantruntime="false"  includeDestClasses="false" nowarn="true">
+          <classpath>
+            <filelist dir="/" >
+              <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+            </filelist>
+          </classpath>
+        </javac>
+    <jar destfile="${jack-api.dist.dir}/${jack-api.lib.name}">
+      <fileset dir="${jack-api.lib.build.outdir}"/>
+    </jar>
+  </target>
 
+
+  <!-- ******************* -->
+  <!-- jack-api            -->
+  <!-- ******************* -->
+  <property name="jack-api.build.dir" value="${jack-api.dir}/build/exec" />
+  <property name="jack-api.build.outdir" value="${jack-api.build.dir}/classes" />
+  <property name="jack-api.name" value="jack-api.jar" />
+
+  <target name="jack-api" depends="jack-api-lib">
+    <jar destfile="${jack-api.dist.dir}/${jack-api.name}">
+      <fileset dir="${jsr305.build.outdir}"/>
+      <fileset dir="${jack-api.lib.build.outdir}"/>
+    </jar>
   </target>
 
   <!-- ******************* -->
