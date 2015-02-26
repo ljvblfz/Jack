@@ -16,7 +16,6 @@
 
 package com.android.sched.util.codec;
 
-import com.android.sched.util.codec.Parser.ValueDescription;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -29,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Abstract class for a File or Directory {@link StringCodec}.
  */
-public abstract class FileOrDirCodec {
+public abstract class FileOrDirCodec<T> implements StringCodec<T> {
   @Nonnull
   protected ChangePermission change = ChangePermission.NOCHANGE;
   protected final int        permissions;
@@ -102,6 +101,7 @@ public abstract class FileOrDirCodec {
     return sb.toString();
   }
 
+  @Override
   @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();

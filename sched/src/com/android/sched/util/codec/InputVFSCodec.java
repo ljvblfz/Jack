@@ -40,8 +40,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link InputVFS}.
  */
-public class InputVFSCodec extends FileOrDirCodec
-    implements StringCodec<InputVFS> {
+public class InputVFSCodec extends FileOrDirCodec<InputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

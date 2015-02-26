@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to help the creation of an instance inherited from
  * {@link StreamFile}.
  */
-public abstract class StreamCodec extends FileOrDirCodec {
+public abstract class StreamCodec<T> extends FileOrDirCodec<T> {
   @Nonnull
   protected static final String STANDARD_IO_NAME = "-";
   @Nonnull
@@ -42,6 +42,7 @@ public abstract class StreamCodec extends FileOrDirCodec {
            ((permissions & Permission.WRITE) != 0);
   }
 
+  @Override
   @Nonnull
   public String getUsage() {
     StringBuilder sb = new StringBuilder();

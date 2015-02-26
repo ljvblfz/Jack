@@ -28,8 +28,10 @@ import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -89,13 +91,14 @@ public abstract class CommonFilter {
 
   @Nonnull
   protected Set<String> getJavaFileNamesSpecifiedOnCommandLine(@Nonnull Options options) {
+    Config config = options.getConfig();
     final String extension = ".java";
 
     Set<String> javaFileNames = new HashSet<String>();
-    for (File file : options.getInputSources()) {
-      if (file.isDirectory()) {
-        fillFiles(file, extension, javaFileNames);
-      } else if (file.getName().endsWith(extension)) {
+    for (FileOrDirectory file : config.get(Options.SOURCES)) {
+      if (file instanceof Directory) {
+        fillFiles(new File(file.getPath()), extension, javaFileNames);
+      } else if (file.getPath().endsWith(extension)) {
         javaFileNames.add(file.getPath());
       }
     }

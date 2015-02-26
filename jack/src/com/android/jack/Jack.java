@@ -275,6 +275,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -712,14 +713,18 @@ public abstract class Jack {
       }
     }
 
-
-    if (options.inputSources != null) {
+    Set<String> fileNamesToCompile = session.getInputFilter().getFileNamesToCompile();
+    if (!fileNamesToCompile.isEmpty()) {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
 
       Event event = tracer.start(JackEventType.ECJ_COMPILATION);
 
-      List<String> ecjArguments = options.getEcjArguments();
+      List<String> ecjExtraArguments = options.getEcjExtraArguments();
+      List<String> ecjArguments = new ArrayList<String>(
+          ecjExtraArguments.size() + fileNamesToCompile.size());
+      ecjArguments.addAll(ecjExtraArguments);
+      ecjArguments.addAll(fileNamesToCompile);
 
       try {
         if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {

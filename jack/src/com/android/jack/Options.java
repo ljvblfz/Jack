@@ -44,6 +44,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectFSCodec;
+import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
 import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.codec.ZipOutputVFSCodec;
 import com.android.sched.util.config.Config;
@@ -60,6 +61,7 @@ import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -309,6 +311,12 @@ public class Options {
   protected List<File> inputSources;
 
   @Nonnull
+  public static final ListPropertyId<FileOrDirectory> SOURCES = ListPropertyId.create(
+      "jack.source", "Sources to compile", "file-or-dir", new InputStreamOrDirectoryCodec())
+          .on(File.pathSeparator)
+          .addDefaultValue(Collections.<FileOrDirectory>emptyList());
+
+  @Nonnull
   private List<String> ecjExtraArguments = new ArrayList<String>();
 
   @Option(name = "-g", usage = "emit debug infos")
@@ -521,6 +529,10 @@ public class Options {
     if (!metaImport.isEmpty()) {
       configBuilder.setString(MetaImporter.IMPORTED_META,
           Joiner.on(File.pathSeparator).join(metaImport));
+    }
+
+    if (inputSources != null && !inputSources.isEmpty()) {
+      configBuilder.setString(SOURCES, Joiner.on(File.pathSeparator).join(inputSources));
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
@@ -835,16 +847,8 @@ public class Options {
   }
 
   @Nonnull
-  public List<String> getEcjArguments() {
-    if (inputSources == null) {
-      return ecjExtraArguments;
-    }
-
-    ArrayList<String> list = new ArrayList<String>(ecjExtraArguments);
-    for (File input : inputSources) {
-      list.add(input.getPath());
-    }
-    return list;
+  List<String> getEcjExtraArguments() {
+    return ecjExtraArguments;
   }
 
   public void setProguardFlagsFile(@Nonnull List<File> proguardFlagsFiles) {

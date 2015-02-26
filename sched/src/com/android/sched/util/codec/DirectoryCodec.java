@@ -30,8 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link Directory}.
  */
-public class DirectoryCodec extends FileOrDirCodec
-    implements StringCodec<Directory> {
+public class DirectoryCodec extends FileOrDirCodec<Directory> {
 
   public DirectoryCodec(@Nonnull Existence existence, int permissions) {
     super(existence, permissions);

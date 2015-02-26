@@ -28,8 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link InputOutputVFS}.
  */
-abstract class InputOutputVFSCodec extends FileOrDirCodec
-    implements StringCodec<InputOutputVFS> {
+abstract class InputOutputVFSCodec extends FileOrDirCodec<InputOutputVFS> {
 
   public InputOutputVFSCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);

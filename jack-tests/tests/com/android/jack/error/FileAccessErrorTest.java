@@ -226,7 +226,7 @@ public class FileAccessErrorTest {
           new File(te.getSourceFolder(), "A.java"));
 
       Assert.fail();
-    } catch (JackUserException e) {
+    } catch (PropertyIdException e) {
       // Failure is ok since source file is not readable
       Assert.assertTrue(e.getMessage().contains("A.java"));
       Assert.assertTrue(e.getMessage().contains("does not exist"));
