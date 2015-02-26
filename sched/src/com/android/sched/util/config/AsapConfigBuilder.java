@@ -405,7 +405,7 @@ public class AsapConfigBuilder {
       if (keyId.isPublic() && keyId instanceof PropertyId<?>) {
         PropertyId<?> propertyId = (PropertyId<?>) keyId;
 
-        if (category.isInstance(propertyId.getCategory())) {
+        if (propertyId.getCategory().getClass().isAssignableFrom(category)) {
           result.add(propertyId);
         }
       }
