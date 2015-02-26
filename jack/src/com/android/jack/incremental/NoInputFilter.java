@@ -46,10 +46,10 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   private final Options options;
 
   @Nonnull
-  private final List<InputLibrary> importedLibrariesFromCommandLine;
+  private final List<? extends InputLibrary> importedLibrariesFromCommandLine;
 
   @Nonnull
-  private final List<InputLibrary> librariesOnClasspathFromCommandLine;
+  private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
   public NoInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
     super(hooks);
@@ -58,8 +58,7 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
     JSession session = Jack.getSession();
     session.setFileDependencies(new FileDependencies());
     session.setTypeDependencies(new TypeDependencies());
-    importedLibrariesFromCommandLine =
-        getInputLibrariesFromFiles(options.getImportedLibraries(), true);
+    importedLibrariesFromCommandLine = ThreadConfig.get(Options.IMPORTED_LIBRARIES);
     librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
         ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
     LibraryDependencies libraryDependencies = session.getLibraryDependencies();
@@ -75,13 +74,13 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
 
   @Override
   @Nonnull
-  public List<InputLibrary> getClasspath() {
+  public List<? extends InputLibrary> getClasspath() {
     return librariesOnClasspathFromCommandLine;
   }
 
   @Override
   @Nonnull
-  public List<InputLibrary> getImportedLibrary() {
+  public List<? extends InputLibrary> getImportedLibrary() {
     return importedLibrariesFromCommandLine;
   }
 

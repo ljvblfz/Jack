@@ -17,15 +17,30 @@
 package com.android.jack.library;
 
 import com.android.jack.LibraryException;
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
-import com.android.sched.util.codec.DirectFSCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.InputZipFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -34,12 +49,6 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link InputJackLibrary}.
  */
 public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
-  @Nonnull
-  private final DirectFSCodec codec;
-
-  public InputJackLibraryCodec() {
-    codec = new DirectFSCodec();
-  }
 
   @Override
   @Nonnull
@@ -55,11 +64,40 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
   @CheckForNull
   public InputJackLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    VFS vfs = codec.checkString(context, string);
-
     try {
+      VFS vfs;
+      File dirOrZip = new File(string);
+      if (dirOrZip.isDirectory()) {
+        vfs = new DirectFS(new Directory(string, context.getRunnableHooks(), Existence.MUST_EXIST,
+            Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
+            Permission.READ | Permission.WRITE);
+      } else {
+        RunnableHooks hooks = context.getRunnableHooks();
+        assert hooks != null;
+        vfs = new ReadZipFS(
+            new InputZipFile(string, hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      }
+
       return JackLibraryFactory.getInputLibrary(vfs);
     } catch (LibraryException e) {
+      throw new ParsingException(e.getMessage(), e);
+    } catch (NotFileOrDirectoryException e) {
+      // we already checked it this was a dir or a file
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      // the file or dir already exists
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      // the file or dir already exists
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      // we're not changing the permissions
+      throw new AssertionError(e);
+    } catch (WrongPermissionException e) {
+      throw new ParsingException(e.getMessage(), e);
+    } catch (NoSuchFileException e) {
+      throw new ParsingException(e.getMessage(), e);
+    } catch (ZipException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }
@@ -67,7 +105,7 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a jack library (" + codec.getUsageDetails() + ")";
+    return "a path to a jack library";
   }
 
   @Override

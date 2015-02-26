@@ -143,10 +143,10 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private final Set<String> filesToRecompile;
 
   @Nonnull
-  private final List<InputLibrary> importedLibrariesFromCommandLine;
+  private final List<? extends InputLibrary> importedLibrariesFromCommandLine;
 
   @Nonnull
-  private final List<InputLibrary> librariesOnClasspathFromCommandLine;
+  private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
   public IncrementalInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
     super(hooks);
@@ -180,8 +180,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillDeletedFileNames(deletedFileNames);
     }
 
-    importedLibrariesFromCommandLine =
-        getInputLibrariesFromFiles(options.getImportedLibraries(), true);
+    importedLibrariesFromCommandLine = ThreadConfig.get(Options.IMPORTED_LIBRARIES);
     librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
         ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
@@ -200,7 +199,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
             session.getLibraryDependencies()) ? "identical"
             : "modified") + ")",
             session.getLibraryDependencies().getDigestOfLibrariesOnClasspath());
-        incLog.writeFiles("import", options.getImportedLibraries());
+        incLog.writeLibraryDescriptions("import", importedLibrariesFromCommandLine);
         incLog.writeStrings("import digests (" + (libraryDependencies.hasSameImportedLibrary(
             session.getLibraryDependencies()) ? "identical"
             : "modified") + ")",
@@ -220,7 +219,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Override
   @Nonnull
-  public List<InputLibrary> getClasspath() {
+  public List<? extends InputLibrary> getClasspath() {
     return librariesOnClasspathFromCommandLine;
   }
 

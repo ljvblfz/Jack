@@ -22,6 +22,7 @@ import com.google.common.collect.Collections2;
 
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -100,5 +101,15 @@ class IncrementalLogWriter {
   void writeString(@Nonnull String str) {
     ps.print(str);
     ps.println();
+  }
+
+  void writeLibraryDescriptions(@Nonnull String prefixStr,
+      @Nonnull Collection<? extends InputLibrary> libraries) {
+    writeStrings(prefixStr, Collections2.transform(libraries, new Function<InputLibrary, String>() {
+      @Override
+      public String apply(InputLibrary library) {
+        return library.getLocation().getDescription();
+      }
+    }));
   }
 }
