@@ -160,7 +160,7 @@ public class Options {
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.library.output.dir", "Output folder for library",
-      new DirectFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
+      new DirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
 
@@ -762,18 +762,6 @@ public class Options {
     if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {
       throw new IllegalOptionsException(
           "Impossible to emit synthetic debug info when not emitting debug info");
-    }
-
-    if (libraryOutDir != null) {
-      if (!libraryOutDir.exists()) {
-        throw new IllegalOptionsException("The specified output folder '"
-            + libraryOutDir.getPath() + "' for jayce files does not exist.");
-      }
-
-      if (!libraryOutDir.canWrite()) {
-        throw new IllegalOptionsException("The specified output folder '"
-            + libraryOutDir.getPath() + "' for jayce files cannot be written to.");
-      }
     }
 
     if (jarjarRulesFile != null) {
