@@ -18,11 +18,13 @@ package com.android.jack.incremental;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
-import com.android.jack.LibraryException;
 import com.android.jack.Options;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.InvalidLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
@@ -30,12 +32,16 @@ import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.Container;
@@ -134,33 +140,41 @@ public abstract class CommonFilter {
     return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersionString()));
   }
 
-  protected List<InputLibrary> getInputLibrariesFromFiles(@Nonnull List<File> files,
+  protected List<InputLibrary> getInputLibrariesFromFiles(@Nonnull List<InputLibrary> files,
       boolean strictMode) {
     List<InputLibrary> libraries = new ArrayList<InputLibrary>();
 
-    for (final File jackFile : files) {
-      try {
-        VFS vDir = wrapAsVDir(jackFile);
-        libraries.add(JackLibraryFactory.getInputLibrary(vDir));
-      } catch (IOException ioException) {
-        if (strictMode) {
-          ReportableException reportable = new LibraryReadingException(ioException);
-          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
-          throw new JackAbortException(reportable);
-        } else {
-          // Ignore bad entry
-          Jack.getSession().getReporter()
-              .report(Severity.NON_FATAL, new ClasspathEntryIgnoredReportable(ioException));
+    for (InputLibrary library : files) {
+      if (library instanceof InputJackLibrary) {
+        libraries.add(library);
+      } else if (library instanceof InvalidLibrary) {
+        // STOPSHIP: rework reporting of InvalidLibrary, the following code is pretty bad...
+        // let's find why this library is invalid
+        Exception exception = null;
+        try {
+          File file = new File(library.getPath());
+          FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
+          AbstractStreamFile.check(file, library.getLocation());
+          // permissions are OK, the file exists, so let's consider this is not a Jack library
+          throw new NotJackLibraryException(library.getLocation());
+        } catch (WrongPermissionException e) {
+          exception = e;
+        } catch (NoSuchFileException e) {
+          exception = e;
+        } catch (NotFileException e) {
+          exception = e;
+        } catch (NotJackLibraryException e) {
+          exception = e;
         }
-      } catch (LibraryException e) {
+
         if (strictMode) {
-          ReportableException reportable = new LibraryReadingException(e);
+          ReportableException reportable = new LibraryReadingException(exception);
           Jack.getSession().getReporter().report(Severity.FATAL, reportable);
           throw new JackAbortException(reportable);
         } else {
           // Ignore bad entry
-          Jack.getSession().getReporter()
-              .report(Severity.NON_FATAL, new ClasspathEntryIgnoredReportable(e));
+          Jack.getSession().getReporter().report(Severity.NON_FATAL,
+              new ClasspathEntryIgnoredReportable(exception));
         }
       }
     }

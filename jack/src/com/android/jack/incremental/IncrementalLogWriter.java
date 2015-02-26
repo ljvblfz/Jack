@@ -79,15 +79,6 @@ class IncrementalLogWriter {
     }
   }
 
-  void writeFiles(@Nonnull String prefixStr, @Nonnull Collection<File> files) {
-    writeStrings(prefixStr, Collections2.transform(files, new Function<File, String>() {
-      @Override
-      public String apply(File file) {
-        return file.getPath();
-      }
-    }));
-  }
-
   void writeStrings(@Nonnull String prefixStr, @Nonnull Collection<String> strings) {
     ps.print(prefixStr);
     ps.print(": ");

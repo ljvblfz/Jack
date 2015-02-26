@@ -77,7 +77,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        AbstractStreamFile.check(file, (FileLocation) location);
+        AbstractStreamFile.check(file, location);
         FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case NOT_EXIST:
@@ -123,7 +123,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
     }
   }
 
-  public static void check(@Nonnull File file, @Nonnull FileLocation location)
+  public static void check(@Nonnull File file, @Nonnull Location location)
       throws NoSuchFileException, NotFileException {
     assert file != null;
 

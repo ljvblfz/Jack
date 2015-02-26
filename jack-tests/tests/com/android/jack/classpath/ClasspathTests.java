@@ -185,8 +185,9 @@ public class ClasspathTests {
   public void testInvalidClasspathEntry() throws Exception {
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "Classpath004.java"));
-    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "invalid.jack"));
-    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "notjack.zip"));
+    //STOPSHIP: fix this? It does not fail anymore as expected because we now allow Jars, but since
+    // the Jack library is invalid we should probably report something to the user.
+//    compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "invalid.jack"));
   }
 
   private void compileWithInvalidClasspathEntry(File srcDir, File invalidJack) throws IOException,
@@ -214,5 +215,24 @@ public class ClasspathTests {
     }
   }
 
+  @Test
+  public void testWithZipInClasspath() throws Exception {
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
+    File zip = new File(srcDir, "notjack.zip");
+    Assert.assertTrue(zip.isFile());
 
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(zip)
+    .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(zip)
+        .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+  }
 }

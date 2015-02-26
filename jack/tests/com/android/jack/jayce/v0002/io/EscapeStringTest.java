@@ -129,7 +129,7 @@ public class EscapeStringTest {
       assert result != null;
       return result;
     } catch (ConfigurationException e) {
-      throw new AssertionError();
+      throw new AssertionError(e);
     } finally {
       ThreadConfig.unsetConfig();
     }

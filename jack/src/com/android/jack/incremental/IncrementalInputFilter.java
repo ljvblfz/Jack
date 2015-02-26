@@ -189,7 +189,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
 
     importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
-    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
+    List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
+    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(classpathContent,
         config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
@@ -202,7 +203,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         assert incrementalFolder != null;
         incLog = new IncrementalLogWriter(getOutputJackLibrary(), incrementalFolder);
         incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
-        incLog.writeFiles("classpath", options.getClasspath());
+        incLog.writeLibraryDescriptions("classpath", classpathContent);
         incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(
             session.getLibraryDependencies()) ? "identical"
             : "modified") + ")",

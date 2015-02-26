@@ -27,8 +27,10 @@ import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.Private;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.library.ClasspathEntryCodec;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
@@ -196,7 +198,13 @@ public class Options {
 
   @Nonnull
   public static final ListPropertyId<InputJackLibrary> IMPORTED_LIBRARIES = ListPropertyId.create(
-      "jack.library.import", "Libraries to import", "jacklib", new InputJackLibraryCodec());
+      "jack.library.import", "Libraries to import", "jacklib", new InputJackLibraryCodec())
+      .addDefaultValue(Collections.<InputJackLibrary>emptyList());
+
+  @Nonnull
+  public static final PropertyId<List<InputLibrary>> CLASSPATH = PropertyId.create("jack.classpath",
+      "Classpath", new ListCodec<InputLibrary>("file", new ClasspathEntryCodec()).setSeparator(
+          File.pathSeparator)).addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
@@ -401,12 +409,6 @@ public class Options {
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
   protected String classpath = "";
 
-  @Nonnull
-  public static final PropertyId<String> CLASSPATH =
-    PropertyId.create(
-      "jack.classpath",
-      "Compilation classpath", new StringValueCodec(""));
-
   // This is a trick to document @<FILE>, but it has no real link to ecjArguments
   @Argument(usage = "read command line from file", metaVar = "@<FILE>")
   @CheckForNull
@@ -529,23 +531,6 @@ public class Options {
 
   public void setOutputZip(File out) {
     this.outZip = out;
-  }
-
-  @Nonnull
-  public List<File> getClasspath() {
-    return getFilesFromPathString(classpath);
-  }
-
-  @Nonnull
-  private List<File> getFilesFromPathString(@CheckForNull String pathString) {
-    List<File> classpath = new ArrayList<File>();
-    if (pathString != null && !pathString.isEmpty()) {
-      String[] paths = pathString.split(File.pathSeparator);
-      for (String path : paths) {
-        classpath.add(new File(path));
-      }
-    }
-    return classpath;
   }
 
   @CheckForNull
@@ -793,6 +778,10 @@ public class Options {
     }
     if (importedLibraries != null) {
       configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
+    }
+
+    if (classpath != null) {
+      configBuilder.setString(CLASSPATH, classpath);
     }
 
     if (libraryOutZip != null) {

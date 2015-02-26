@@ -22,6 +22,8 @@ import com.android.jack.JackUserException;
 import com.android.jack.Options;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.InputLibrary;
+import com.android.jack.library.JarLibrary;
 import com.android.jack.reporting.Reporter;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
@@ -302,9 +304,17 @@ public class JackBatchCompiler extends Main {
     processorArgs.add(config.get(Options.ANNOTATION_PROCESSOR_SOURCE_OUTPUT_DIR).getPath());
     processorArgs.add("-d");
     processorArgs.add(config.get(Options.ANNOTATION_PROCESSOR_CLASS_OUTPUT_DIR).getPath());
-    {
+
+    List<InputLibrary> classpath = config.get(Options.CLASSPATH);
+    List<String> jarOnlyClasspath = new ArrayList<String>();
+    for (InputLibrary classpathEntry : classpath) {
+      if (classpathEntry instanceof JarLibrary) {
+        jarOnlyClasspath.add(classpathEntry.getPath());
+      }
+    }
+    if (!jarOnlyClasspath.isEmpty()) {
       processorArgs.add("-classpath");
-      processorArgs.add(config.get(Options.CLASSPATH));
+      processorArgs.add(Joiner.on(File.pathSeparatorChar).join(jarOnlyClasspath));
     }
     String[] args = processorArgs.toArray(new String[processorArgs.size()]);
 
