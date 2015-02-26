@@ -95,7 +95,6 @@ import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.MetaImporter;
-import com.android.jack.meta.MetaReadingException;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
@@ -260,18 +259,11 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.DirectFS;
-import com.android.sched.vfs.GenericInputVFS;
-import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VFSToVFSWrapper;
 
@@ -671,8 +663,11 @@ public abstract class Jack {
     Tracer tracer = TracerFactory.getTracer();
 
     JSession session =  getSession();
+
+    Config config = ThreadConfig.getConfig();
+
     try {
-      session.setInputFilter(ThreadConfig.get(Options.INPUT_FILTER).create(options, hooks));
+      session.setInputFilter(config.get(Options.INPUT_FILTER).create(options, hooks));
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
       if (cause instanceof JackAbortException) {
@@ -682,17 +677,12 @@ public abstract class Jack {
       }
     }
 
-    try {
-      getMetaImporter(options.metaImport, hooks).doImport(session);
-    } catch (MetaReadingException e) {
-      session.getReporter().report(Severity.FATAL, e);
-      throw new JackAbortException(e);
-    }
+    new MetaImporter(config.get(MetaImporter.IMPORTED_META)).doImport(session);
 
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
     for (InputLibrary library : session.getInputFilter().getImportedLibrary()) {
       if (library instanceof InputJackLibrary) {
-        addPackageLoaderForLibrary(session, ThreadConfig.get(IMPORT_POLICY),
+        addPackageLoaderForLibrary(session, config.get(IMPORT_POLICY),
             (InputJackLibrary) library);
         inputJackLibraries.add((InputJackLibrary) library);
         session.addImportedLibrary(library);
@@ -702,7 +692,7 @@ public abstract class Jack {
 
     for (InputLibrary library : session.getInputFilter().getClasspath()) {
       if (library instanceof InputJackLibrary) {
-        addPackageLoaderForLibrary(session, ThreadConfig.get(CLASSPATH_POLICY),
+        addPackageLoaderForLibrary(session, config.get(CLASSPATH_POLICY),
             (InputJackLibrary) library);
         session.addLibraryOnClasspath(library);
       }
@@ -731,7 +721,7 @@ public abstract class Jack {
     }
 
     try {
-      getResourceImporter(options.resImport, hooks).doImport(session);
+      new ResourceImporter(config.get(ResourceImporter.IMPORTED_RESOURCES)).doImport(session);
     } catch (ResourceReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
@@ -766,40 +756,6 @@ public abstract class Jack {
     }
 
     return session;
-  }
-
-  @Nonnull
-  private static ResourceImporter getResourceImporter(@Nonnull List<File> importedResources,
-      @Nonnull RunnableHooks hooks) throws ResourceReadingException {
-    List<InputVFS> resourceVDirs = new ArrayList<InputVFS>();
-    for (File resourceDir : importedResources) {
-      try {
-        // Let's assume all of these are directories for now
-        InputVFS dir = new GenericInputVFS(new DirectFS(new Directory(resourceDir.getPath(), hooks,
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ));
-        resourceVDirs.add(dir);
-      } catch (IOException ioException) {
-        throw new ResourceReadingException(ioException);
-      }
-    }
-    return new ResourceImporter(resourceVDirs);
-  }
-
-  @Nonnull
-  private static MetaImporter getMetaImporter(@Nonnull List<File> importedMetas,
-      @Nonnull RunnableHooks hooks) throws MetaReadingException {
-    List<InputVFS> metaVDirs = new ArrayList<InputVFS>();
-    for (File metaDir : importedMetas) {
-      try {
-        // Let's assume all of these are directories for now
-        InputVFS dir = new GenericInputVFS(new DirectFS(new Directory(metaDir.getPath(), hooks,
-            Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ));
-        metaVDirs.add(dir);
-      } catch (IOException ioException) {
-        throw new MetaReadingException(ioException);
-      }
-    }
-    return new MetaImporter(metaVDirs);
   }
 
   private static void addPackageLoaderForLibrary(JSession session,

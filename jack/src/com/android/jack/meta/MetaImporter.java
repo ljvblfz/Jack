@@ -19,10 +19,14 @@ package com.android.jack.meta;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.resource.ResourceOrMetaImporter;
 import com.android.jack.resource.ResourceReadingException;
+import com.android.sched.util.codec.DirectoryInputVFSCodec;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -30,7 +34,13 @@ import javax.annotation.Nonnull;
 /**
  * Imports metas.
  */
+@HasKeyId
 public class MetaImporter extends ResourceOrMetaImporter {
+
+  @Nonnull
+  public static final ListPropertyId<InputVFS> IMPORTED_META = ListPropertyId.create(
+      "jack.import.meta", "Meta to import", "dir",
+      new DirectoryInputVFSCodec()).addDefaultValue(Collections.<InputVFS>emptyList());
 
   public MetaImporter(@Nonnull List<InputVFS> metaDirs) {
     super(metaDirs);

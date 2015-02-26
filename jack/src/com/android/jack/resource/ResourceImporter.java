@@ -20,14 +20,17 @@ import com.android.jack.backend.jayce.JayceFileImporter.CollisionPolicy;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
+import com.android.sched.util.codec.DirectoryInputVFSCodec;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -45,6 +48,11 @@ public class ResourceImporter extends ResourceOrMetaImporter {
       "Defines the policy to follow concerning resource collision",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
+
+  @Nonnull
+  public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = ListPropertyId.create(
+      "jack.import.resource", "Resources to import", "dir",
+      new DirectoryInputVFSCodec()).addDefaultValue(Collections.<InputVFS>emptyList());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =
