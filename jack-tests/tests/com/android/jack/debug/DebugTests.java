@@ -22,10 +22,8 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.IToolchain;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -127,7 +125,6 @@ public class DebugTests extends RuntimeTest {
   }
 
   @Test
-  @Ignore("Debug comparison fails because of local variable default initialization")
   public void test019() throws Exception {
     checkStructure("019");
   }
