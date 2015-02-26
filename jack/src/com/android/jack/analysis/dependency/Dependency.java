@@ -79,14 +79,16 @@ public abstract class Dependency {
         throw new NoSuchElementException();
       }
 
-      char c;
-      StringBuffer token = new StringBuffer();
-      while (lineCharIdx < line.length() && (c = line.charAt(lineCharIdx)) != separator) {
-        token.append(c);
-        lineCharIdx++;
+      int nextSeparatorIndex = line.indexOf(separator, lineCharIdx);
+      if (nextSeparatorIndex == -1) {
+        String result = line.substring(lineCharIdx, line.length());
+        lineCharIdx = line.length() + 1;
+        return result;
+      } else {
+        String result = line.substring(lineCharIdx, nextSeparatorIndex);
+        lineCharIdx = nextSeparatorIndex + 1;
+        return result;
       }
-      lineCharIdx++;
-      return token.toString();
     }
   }
 
