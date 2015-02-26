@@ -38,17 +38,18 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.codec.PathCodec;
+import com.android.sched.util.codec.InputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.vfs.VPath;
 import com.tonicsystems.jarjar.PackageRemapper;
 import com.tonicsystems.jarjar.PatternElement;
 import com.tonicsystems.jarjar.RulesFileParser;
 import com.tonicsystems.jarjar.Wildcard;
 
-import java.io.File;
 import java.util.List;
 import java.util.Stack;
 
@@ -65,12 +66,17 @@ import javax.annotation.Nonnull;
 public class PackageRenamer implements RunnableSchedulable<JSession>{
 
   @Nonnull
-  public static final PropertyId<File> JARJAR_FILE = PropertyId.create(
-      "jack.jarjar.file", "The jarjar rules file", new PathCodec())
-      .addDefaultValue("jarjar.txt");
+  public static final BooleanPropertyId JARJAR_ENABLED = BooleanPropertyId.create(
+      "jack.repackaging", "Enable repackaging")
+      .addDefaultValue(false);
 
   @Nonnull
-  private final File jarjarRulesFile = ThreadConfig.get(JARJAR_FILE);
+  public static final PropertyId<InputStreamFile> JARJAR_FILE = PropertyId.create(
+      "jack.repackaging.file", "Jarjar rules file", new InputStreamCodec())
+      .requiredIf(JARJAR_ENABLED.getValue().isTrue());
+
+  @Nonnull
+  private final InputStreamFile jarjarRulesFile = ThreadConfig.get(JARJAR_FILE);
 
   private static class Visitor extends JVisitor {
 

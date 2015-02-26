@@ -258,7 +258,7 @@ public class Options {
 
   @Option(name = "--config-jarjar", usage = "use a jarjar rules file (default: none)",
       metaVar = "<FILE>")
-  protected File jarjarRulesFile = null;
+  private File jarjarRulesFile = null;
 
   @Option(name = "--import", usage = "import the given file into the output (repeatable)",
       metaVar = "<FILE>")
@@ -524,7 +524,8 @@ public class Options {
     configBuilder.set(VERBOSITY_LEVEL, verbose);
 
     if (jarjarRulesFile != null) {
-      configBuilder.set(PackageRenamer.JARJAR_FILE, jarjarRulesFile);
+      configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
+      configBuilder.setString(PackageRenamer.JARJAR_FILE, jarjarRulesFile.getPath());
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
@@ -752,18 +753,6 @@ public class Options {
     if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {
       throw new IllegalOptionsException(
           "Impossible to emit synthetic debug info when not emitting debug info");
-    }
-
-    if (jarjarRulesFile != null) {
-      if (!jarjarRulesFile.exists()) {
-        throw new IllegalOptionsException("The specified rules file '"
-            + jarjarRulesFile.getPath() + "' for package renaming does not exist.");
-      }
-
-      if (!jarjarRulesFile.canRead()) {
-        throw new IllegalOptionsException("The specified rules file '"
-            + jarjarRulesFile.getPath() + "' for package renaming cannot be read.");
-      }
     }
   }
 

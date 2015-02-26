@@ -457,7 +457,7 @@ public abstract class Jack {
         if (sanityChecks) {
           request.addFeature(SanityChecks.class);
         }
-        if (options.jarjarRulesFile != null) {
+        if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
           request.addFeature(Jarjar.class);
         }
         if (options.dxLegacy) {

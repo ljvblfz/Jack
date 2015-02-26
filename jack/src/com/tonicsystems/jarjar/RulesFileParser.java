@@ -16,10 +16,11 @@
 
 package com.tonicsystems.jarjar;
 
+import com.android.sched.util.file.InputStreamFile;
+
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,8 +32,8 @@ import java.util.List;
 public class RulesFileParser {
   private RulesFileParser() {}
 
-  public static List<PatternElement> parse(File file) throws IOException {
-    return parse(new FileReader(file));
+  public static List<PatternElement> parse(InputStreamFile file) throws IOException {
+    return parse(new InputStreamReader(file.getInputStream()));
   }
 
   public static List<PatternElement> parse(String value) throws IOException {
