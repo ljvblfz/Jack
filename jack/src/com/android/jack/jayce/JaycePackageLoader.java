@@ -34,11 +34,11 @@ import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
+import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.util.ArrayList;
@@ -80,24 +80,25 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 
   @Override
   @Nonnull
-  public JDefinedClassOrInterface loadClassOrInterface(@Nonnull JPackage loading,
-      @Nonnull String simpleName) throws MissingJTypeLookupException {
-    try {
-      return new JayceClassOrInterfaceLoader(inputJackLibrary,
-          loading,
-          simpleName,
-          packageVDir.getInputVFile(new VPath(simpleName + FileType.JAYCE.getFileExtension(), '/')),
-          lookup,
-          defaultLoadLevel).load();
-    } catch (LibraryException e) {
-      LibraryReadingException reportable = new LibraryReadingException(e);
-      Jack.getSession().getReporter().report(Severity.FATAL, reportable);
-      throw new JackAbortException(reportable);
-    } catch (NotFileOrDirectoryException e1) {
-      throw new MissingJTypeLookupException(loading, simpleName);
-    } catch (NoSuchFileException e1) {
-      throw new MissingJTypeLookupException(loading, simpleName);
+  public JDefinedClassOrInterface loadClassOrInterface(
+      @Nonnull JPackage loading, @Nonnull String simpleName) throws MissingJTypeLookupException {
+    for (InputVElement sub : packageVDir.list()) {
+      if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
+        try {
+          return new JayceClassOrInterfaceLoader(inputJackLibrary,
+              loading,
+              simpleName,
+              (InputVFile) sub,
+              lookup,
+              defaultLoadLevel).load();
+        } catch (LibraryException e) {
+          LibraryReadingException reportable = new LibraryReadingException(e);
+          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+          throw new JackAbortException(reportable);
+        }
+      }
     }
+    throw new MissingJTypeLookupException(loading, simpleName);
   }
 
   @Override
@@ -144,6 +145,13 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
   @Nonnull
   public Location getLocation(@Nonnull JPackage loaded) {
       return packageVDir.getLocation();
+  }
+
+  private boolean isJackFileNameOf(@Nonnull String fileName, @Nonnull String typeName) {
+    return (fileName.length() > JayceFileImporter.JACK_EXTENSION_LENGTH) && (fileName.substring(0,
+        fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equals(typeName)) && (fileName
+        .substring(fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equalsIgnoreCase(
+        JayceFileImporter.JAYCE_FILE_EXTENSION));
   }
 
   @Override
