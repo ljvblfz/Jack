@@ -91,12 +91,12 @@ public class TrycatchTests extends RuntimeTest {
   @Test
   @Ignore("Generated dex contains useless 'mov' instructions")
   public void uselessMovInstructions() throws Exception {
-    File out =  AbstractTestTools.createTempFile("uselessMovInstructions", ".dex");
+    File out = new File(AbstractTestTools.createTempDir(), "classes.dex");
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
-        out,
+        out.getParentFile(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.trycatch.test004"));
 
