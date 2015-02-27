@@ -417,10 +417,6 @@ public class Options {
     this.outZip = out;
   }
 
-  boolean hasSanityChecks() {
-    return sanityChecks;
-  }
-
   @Nonnull
   public List<File> getClasspath() {
     return getFilesFromPathString(classpath);

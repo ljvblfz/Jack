@@ -420,15 +420,16 @@ public abstract class Jack {
       ConfigPrinterFactory.getConfigPrinter().printConfig(config);
       Event event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
       try {
-        if (options.hasSanityChecks() != assertEnable) {
+        boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
+        if (sanityChecks != assertEnable) {
           logger.log(Level.INFO, "Jack assertion status overriden by sanity checks option");
         }
 
         ClassLoader classLoader = Jack.class.getClassLoader();
         classLoader.clearAssertionStatus();
-        classLoader.setDefaultAssertionStatus(options.hasSanityChecks());
+        classLoader.setDefaultAssertionStatus(sanityChecks);
         logger.log(Level.INFO, "Jack sanity checks {0}",
-            (options.hasSanityChecks() ? "enabled" : "disabled"));
+            (sanityChecks ? "enabled" : "disabled"));
 
         JSession session = getSession();
 
@@ -457,7 +458,7 @@ public abstract class Jack {
           request.addFeature(CodeStats.class);
         }
 
-        if (options.hasSanityChecks()) {
+        if (sanityChecks) {
           request.addFeature(SanityChecks.class);
         }
         if (options.jarjarRulesFile != null) {
