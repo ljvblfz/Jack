@@ -69,8 +69,6 @@ public abstract class CommandLine {
         pe = e;
         throw e.getCause();
       }
-    } catch (NothingToDoException e1) {
-      // End normally since there is nothing to do
     } catch (ConfigurationException exceptions) {
       System.err.println(exceptions.getNextExceptionCount() + " error"
           + (exceptions.getNextExceptionCount() > 1 ? "s" : "")
