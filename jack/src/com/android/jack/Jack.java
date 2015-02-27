@@ -116,9 +116,9 @@ import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
-import com.android.jack.scheduling.feature.DxLegacy;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
+import com.android.jack.scheduling.feature.VisibilityBridge;
 import com.android.jack.shrob.obfuscation.Mapping;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameFinalizer;
@@ -471,8 +471,8 @@ public abstract class Jack {
       if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
         request.addFeature(Jarjar.class);
       }
-      if (options.dxLegacy) {
-        request.addFeature(DxLegacy.class);
+      if (config.get(VisibilityBridgeAdder.VISIBILITY_BRIDGE).booleanValue()) {
+        request.addFeature(VisibilityBridge.class);
       }
       if (options.flags != null) {
         if (options.flags.shrink()) {
@@ -944,7 +944,7 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       {
-        if (features.contains(DxLegacy.class)) {
+        if (features.contains(VisibilityBridge.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
         }
         SubPlanBuilder<JMethod> methodPlan =

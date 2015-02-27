@@ -88,13 +88,13 @@ public class StaticValuesTest {
     final String classBinaryName = "com/android/jack/field/static004/jack/Data6";
     Options options = TestTools
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
-    options.dxLegacy = false;
+    options.addProperty(FieldInitializerRemover.CLASS_AS_INITIALVALUE.getName(), "true");
     Assert.assertTrue(
         containsOnlyReturn(compileAndGetClinit(classBinaryName, options)));
 
     options = TestTools
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
-    options.dxLegacy = true;
+    options.addProperty(FieldInitializerRemover.CLASS_AS_INITIALVALUE.getName(), "false");
     Assert.assertFalse(
         containsOnlyReturn(compileAndGetClinit(classBinaryName, options)));
   }

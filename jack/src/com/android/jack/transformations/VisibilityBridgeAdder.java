@@ -35,7 +35,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JMethodLookupException;
-import com.android.jack.scheduling.feature.DxLegacy;
+import com.android.jack.scheduling.feature.VisibilityBridge;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -44,6 +44,8 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.id.BooleanPropertyId;
 
 import javax.annotation.Nonnull;
 
@@ -55,8 +57,14 @@ import javax.annotation.Nonnull;
 @Transform(add = {JMethod.class, JParameter.class, JMethodBody.class,
     JMethodCall.class, JThisRef.class, JReturnStatement.class, JExpressionStatement.class,
     JParameterRef.class, JBlock.class}, remove = ThreeAddressCodeForm.class)
-@Support(DxLegacy.class)
+@Support(VisibilityBridge.class)
+@HasKeyId
 public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
+
+  @Nonnull
+  public static final BooleanPropertyId VISIBILITY_BRIDGE = BooleanPropertyId.create(
+      "jack.legacy.runtime.visibilitybridges", "Generate visibility bridges").addDefaultValue(
+      Boolean.TRUE);
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {

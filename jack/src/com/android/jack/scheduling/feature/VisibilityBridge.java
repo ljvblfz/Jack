@@ -21,9 +21,9 @@ import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
 
 /**
- * Compatibility with DX legacy
+ * Generate visibility bridges.
  */
-@Description("Compatibility with DX legacy")
-@Name("DxLegacy")
-public class DxLegacy implements Feature {
+@Description("Generate visibility bridges")
+@Name("VisibilityBridge")
+public class VisibilityBridge implements Feature {
 }

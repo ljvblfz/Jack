@@ -20,7 +20,6 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
@@ -277,20 +276,6 @@ public class Options {
       usage = "import the given directory into the output as meta-files (repeatable)",
       metaVar = "<DIRECTORY>")
   private final List<File> metaImport = new ArrayList<File>();
-
-  /**
-   * Keep generation close to dx.
-   */
-  @Option(name = "--dx-legacy",
-      handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  protected boolean dxLegacy = true;
-
-  /**
-   * Keep generation compatible with older runtime.
-   */
-  @Option(name = "--runtime-legacy",
-      handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  private final boolean runtimeLegacy = true;
 
   @Option(name = "--config-proguard",
       usage = "use a proguard flags file (default: none) (repeatable)",
@@ -693,9 +678,6 @@ public class Options {
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
     }
-    configBuilder.set(FieldInitializerRemover.CLASS_AS_INITIALVALUE, !dxLegacy);
-    configBuilder.set(
-        FieldInitializerRemover.STRING_AS_INITIALVALUE_OF_OBJECT, !runtimeLegacy);
 
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
