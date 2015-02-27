@@ -230,9 +230,6 @@ public class Options {
       metaVar = "[error | warning | info | debug]")
   private VerbosityLevel verbose = VerbosityLevel.WARNING;
 
-  @Option(name = "--disable-automatic-full-rebuild")
-  private final boolean disableAutomaticFullRebuild = false;
-
   /**
    * Folder used for incremental data.
    */
@@ -883,10 +880,6 @@ public class Options {
 
   public void setIncrementalFolder(@Nonnull File incrementalFolder) {
     this.incrementalFolder = incrementalFolder;
-  }
-
-  public boolean isAutomaticFullRebuildEnabled() {
-    return !disableAutomaticFullRebuild;
   }
 
   public void addResource(@Nonnull File resource) {
