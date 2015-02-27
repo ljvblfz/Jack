@@ -72,7 +72,14 @@ public class Main {
 
     // Configure the compiler
     try {
+      // Set standard options
+      brestConfig.setOutputDex(new File("out/"));
+      brestConfig.setConfigJarjar(new File("rules.jarjar"));
+      // Set official properties
       brestConfig.setProperty(BrestConfig.PROPERTY_REPORTER, "sdk");
+      // Set provisioned properties
+      brestConfig.setProperty("jack.internal.test", "true");
+      // Check and build compiler
       brestCompiler = brestConfig.build();
     } catch (ConfigurationException e) {
       System.err.println(e.getMessage());

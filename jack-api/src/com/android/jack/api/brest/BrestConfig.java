@@ -18,6 +18,8 @@ package com.android.jack.api.brest;
 
 import com.android.jack.api.JackConfig;
 
+import java.io.File;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -26,6 +28,15 @@ import javax.annotation.Nonnull;
 public interface BrestConfig extends JackConfig {
   @Nonnull
   static final String PROPERTY_REPORTER = "jack.reporter";
+
+  @Nonnull
+  BrestConfig setOutputDex(@Nonnull File file) throws ConfigurationException;
+
+  @Nonnull
+  BrestConfig setOutputJack(@Nonnull File file) throws ConfigurationException;
+
+  @Nonnull
+  BrestConfig setConfigJarjar(@Nonnull File file) throws ConfigurationException;
 
   @Nonnull
   BrestConfig setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
