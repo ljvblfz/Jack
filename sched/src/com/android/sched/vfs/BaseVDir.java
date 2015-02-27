@@ -140,12 +140,6 @@ abstract class BaseVDir extends BaseVElement implements VDir {
 
   @Override
   @Nonnull
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  @Nonnull
   public BaseVDir createVDir(@Nonnull String name) throws CannotCreateFileException {
     return vfs.createVDir(this, name);
   }
