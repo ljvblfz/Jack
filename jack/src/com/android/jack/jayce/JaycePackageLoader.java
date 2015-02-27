@@ -32,15 +32,16 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -65,6 +66,15 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
   @Nonnull
   private final InputJackLibrary inputJackLibrary;
 
+  @Nonnull
+  private final Map<String, InputVDir> vdirCache = new HashMap<String, InputVDir>();
+
+  @Nonnull
+  private final Map<String, InputVFile> jayceFileCache = new HashMap<String, InputVFile>();
+
+  @Nonnull
+  private final UnmodifiableCollections collections = Jack.getUnmodifiableCollections();
+
   JaycePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull InputVDir packageVDir, @Nonnull JPhantomLookup lookup,
       @Nonnull NodeLevel defaultLoadLevel) {
@@ -73,80 +83,71 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
     this.packageVDir = packageVDir;
     this.lookup = lookup;
     this.defaultLoadLevel = defaultLoadLevel;
+    for (InputVElement sub : packageVDir.list()) {
+      String name = sub.getName();
+      if (sub.isVDir()) {
+        vdirCache.put(name, (InputVDir) sub);
+      } else if (JayceFileImporter.isJackFileName(name)) {
+        jayceFileCache.put(
+            name.substring(0, name.length() - JayceFileImporter.JACK_EXTENSION_LENGTH),
+            (InputVFile) sub);
+      }
+    }
   }
 
   @Override
   @Nonnull
   public JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull JPackage loading, @Nonnull String simpleName) throws MissingJTypeLookupException {
-    for (InputVElement sub : packageVDir.list()) {
-      if (!sub.isVDir() && isJackFileNameOf(sub.getName(), simpleName)) {
-        try {
-          return new JayceClassOrInterfaceLoader(inputJackLibrary,
-              loading,
-              simpleName,
-              (InputVFile) sub,
-              lookup,
-              defaultLoadLevel).load();
-        } catch (LibraryException e) {
-          LibraryReadingException reportable = new LibraryReadingException(e);
-          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
-          throw new JackAbortException(reportable);
-        }
-      }
+    InputVFile inputVFile = jayceFileCache.get(simpleName);
+
+    if (inputVFile == null) {
+      throw new MissingJTypeLookupException(loading, simpleName);
     }
-    throw new MissingJTypeLookupException(loading, simpleName);
+
+    try {
+      return new JayceClassOrInterfaceLoader(inputJackLibrary,
+          loading,
+          simpleName,
+          inputVFile,
+          lookup,
+          defaultLoadLevel).load();
+    } catch (LibraryException e) {
+      LibraryReadingException reportable = new LibraryReadingException(e);
+      Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+      throw new JackAbortException(reportable);
+    }
   }
 
   @Override
   @Nonnull
   public Collection<String> getSubClassNames(@Nonnull JPackage loading) {
-    List<String> subs = new ArrayList<String>();
-    for (InputVElement sub : packageVDir.list()) {
-      String fileName = sub.getName();
-      if (!sub.isVDir() && JayceFileImporter.isJackFileName(fileName)) {
-        subs.add(
-            fileName.substring(0, fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH));
-      }
-    }
-    return subs;
+    return collections.getUnmodifiableCollection(jayceFileCache.keySet());
   }
 
   @Nonnull
   @Override
   public PackageLoader getLoaderForSubPackage(@Nonnull JPackage loading,
       @Nonnull String simpleName) throws JPackageLookupException {
-    for (InputVElement sub : packageVDir.list()) {
-      if (sub.isVDir() && sub.getName().equals(simpleName)) {
-        return new JaycePackageLoader(inputJackLibrary, (InputVDir) sub, lookup, defaultLoadLevel);
-      }
+    InputVDir input = vdirCache.get(simpleName);
+
+    if (input == null) {
+      throw new JPackageLookupException(simpleName, loading);
     }
-    throw new JPackageLookupException(simpleName, loading);
+
+    return new JaycePackageLoader(inputJackLibrary, input, lookup, defaultLoadLevel);
   }
 
   @Nonnull
   @Override
   public Collection<String> getSubPackageNames(@Nonnull JPackage loading) {
-    List<String> subs = new ArrayList<String>();
-    for (InputVElement sub : packageVDir.list()) {
-      if (sub.isVDir()) {
-        subs.add(sub.getName());
-      }
-    }
-    return subs;
+    return collections.getUnmodifiableCollection(vdirCache.keySet());
   }
 
   @Override
   @Nonnull
   public Location getLocation(@Nonnull JPackage loaded) {
       return packageVDir.getLocation();
-  }
-
-  private boolean isJackFileNameOf(@Nonnull String fileName, @Nonnull String typeName) {
-    return (fileName.length() > JayceFileImporter.JACK_EXTENSION_LENGTH) && (fileName.substring(0,
-        fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equals(typeName)) && (fileName
-        .substring(fileName.length() - JayceFileImporter.JACK_EXTENSION_LENGTH).equalsIgnoreCase(
-        JayceFileImporter.JAYCE_FILE_EXTENSION));
   }
 
   @Override
