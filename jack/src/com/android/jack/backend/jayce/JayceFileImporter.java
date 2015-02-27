@@ -188,10 +188,7 @@ public class JayceFileImporter {
       String signature = convertJackFilePathToSignature(path);
       JDefinedClassOrInterface declaredType =
           (JDefinedClassOrInterface) session.getLookup().getType(signature);
-      Location existingSource = declaredType.getLocation();
-      if (!(existingSource instanceof TypeInInputLibraryLocation) ||
-          ((TypeInInputLibraryLocation) existingSource).getInputLibraryLocation().getInputLibrary()
-          != intendedInputLibrary) {
+      if (!isTypeFromLibrary(declaredType, intendedInputLibrary)) {
         throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
       } else {
         session.addTypeToEmit(declaredType);
@@ -199,6 +196,17 @@ public class JayceFileImporter {
     } finally {
       readEvent.end();
     }
+  }
+
+  private static boolean isTypeFromLibrary(@Nonnull JDefinedClassOrInterface declaredType,
+      @Nonnull InputLibrary intendedInputLibrary) {
+      Location existingSource = declaredType.getLocation();
+      if (!(existingSource instanceof TypeInInputLibraryLocation)) {
+          return false;
+      }
+      TypeInInputLibraryLocation existingLocation = (TypeInInputLibraryLocation) existingSource;
+      return intendedInputLibrary.equals(
+              existingLocation.getInputLibraryLocation().getInputLibrary());
   }
 
   @Nonnull
