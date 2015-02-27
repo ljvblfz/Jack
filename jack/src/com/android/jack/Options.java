@@ -337,7 +337,7 @@ public class Options {
   @Option(name = "--multi-dex",
       usage = "whether to split code into multiple dex files (default: none)",
       metaVar = "[none | native | legacy]")
-  protected MultiDexKind multiDexKind = MultiDexKind.NONE;
+  private MultiDexKind multiDexKind = MultiDexKind.NONE;
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
@@ -827,6 +827,10 @@ public class Options {
 
   public void setClasspath(String classpath) {
     this.classpath = classpath;
+  }
+
+  public void setMultiDexKind(@Nonnull MultiDexKind multiDexKind) {
+    this.multiDexKind = multiDexKind;
   }
 
   public void addProguardFlagsFile(@Nonnull File flags) {
