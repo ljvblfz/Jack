@@ -221,6 +221,11 @@ public class Options {
     }
   }
 
+  @Nonnull
+  public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
+      "jack.verbose.level", "Verbosity level", VerbosityLevel.values()).addDefaultValue(
+      VerbosityLevel.WARNING);
+
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
       metaVar = "[error | warning | info | debug]")
   private VerbosityLevel verbose = VerbosityLevel.WARNING;
@@ -514,6 +519,8 @@ public class Options {
 
     configBuilder.pushDefaultLocation(new StringLocation("Options"));
 
+    configBuilder.set(VERBOSITY_LEVEL, verbose);
+
     if (jarjarRulesFile != null) {
       configBuilder.set(PackageRenamer.JARJAR_FILE, jarjarRulesFile);
     }
@@ -724,11 +731,11 @@ public class Options {
     config = getConfigBuilder(hooks).build();
 
     LoggerFactory.loadLoggerConfiguration(
-        this.getClass(), "/" + verbose.getId() + ".jack.logging.properties");
+        this.getClass(), "/" + config.get(VERBOSITY_LEVEL).getId() + ".jack.logging.properties");
 
     // Check ecj arguments
     if (ecjArguments != null) {
-      if (verbose == VerbosityLevel.ERROR) {
+      if (config.get(VERBOSITY_LEVEL) == VerbosityLevel.ERROR) {
         ecjArguments.add(0, "-nowarn");
       }
       ecjArguments.add(0, "-source");
