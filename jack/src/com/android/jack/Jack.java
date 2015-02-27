@@ -530,7 +530,7 @@ public abstract class Jack {
           request.addProduction(DexInLibraryProduct.class);
         }
 
-        if (options.out != null || options.outZip != null) {
+        if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
         }

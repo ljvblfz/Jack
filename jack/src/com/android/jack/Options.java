@@ -239,13 +239,13 @@ public class Options {
 
   @Option(name = "--output-dex", usage = "output dex files and resources to the directory",
       metaVar = "<DIRECTORY>")
-  protected File out = null;
+  private File out = null;
 
   /**
    * Output to this zip file.
    */
   @Option(name = "--output-dex-zip", metaVar = "<FILE>")
-  protected File outZip = null;
+  private File outZip = null;
 
   /**
    * Output jack library to this folder.
