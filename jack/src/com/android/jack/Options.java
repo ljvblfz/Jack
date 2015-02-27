@@ -315,9 +315,6 @@ public class Options {
       metaVar = "<DIRECTORY>")
   private File tracerDir;
 
-  @Option(name = "--graph-file")
-  private File graphFile;
-
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
   protected String classpath = null;
 
