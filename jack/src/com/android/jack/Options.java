@@ -696,12 +696,12 @@ public class Options {
             "Incremental mode is disable due to usage of jarjar");
       } else {
         configBuilder.set(Options.INCREMENTAL_MODE, true);
-        configBuilder.setString(Options.INPUT_FILTER.getName(), "incremental");
+        configBuilder.setString(Options.INPUT_FILTER, "incremental");
         configBuilder.set(Options.GENERATE_JACK_LIBRARY, true);
         configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
         configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
-        configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
-        configBuilder.setString(Options.LIBRARY_OUTPUT_DIR.getName(), incrementalFolder.getPath());
+        configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE, "dir");
+        configBuilder.setString(Options.LIBRARY_OUTPUT_DIR, incrementalFolder.getPath());
       }
     }
 
@@ -870,11 +870,6 @@ public class Options {
 
   public void setSanityChecks(boolean sanityChecks) {
     this.sanityChecks = sanityChecks;
-  }
-
-  @CheckForNull
-  public File getIncrementalFolder() {
-    return incrementalFolder;
   }
 
   public void setIncrementalFolder(@Nonnull File incrementalFolder) {
