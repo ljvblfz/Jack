@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.meta.MetaImporter;
+import com.android.jack.reporting.Reporter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -66,6 +67,7 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
+import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
@@ -88,6 +90,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -386,6 +390,9 @@ public class Options {
           "jack.internal.filter.method", "Define which filter will be used for methods",
           Filter.class).addDefaultValue("all-methods");
 
+  @CheckForNull
+  private OutputStream reporterStream = null;
+
   public void setVerbosityLevel(@Nonnull VerbosityLevel verbose) {
     this.verbose = verbose;
   }
@@ -515,6 +522,11 @@ public class Options {
     configBuilder.pushDefaultLocation(new StringLocation("Options"));
 
     configBuilder.set(VERBOSITY_LEVEL, verbose);
+
+    if (reporterStream != null) {
+      configBuilder.set(Reporter.REPORTER_OUTPUT_STREAM,
+          new OutputStreamFile(new PrintStream(reporterStream), new NoLocation()));
+    }
 
     if (jarjarRulesFile != null) {
       configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
@@ -873,6 +885,10 @@ public class Options {
 
   public void addResource(@Nonnull File resource) {
     resImport.add(resource);
+  }
+
+  public void setReporterStream(@Nonnull OutputStream reporterStream) {
+    this.reporterStream = reporterStream;
   }
 
   @Nonnull

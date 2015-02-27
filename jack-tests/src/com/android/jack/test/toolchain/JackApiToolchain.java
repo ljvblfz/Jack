@@ -25,6 +25,7 @@ import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -224,6 +225,14 @@ public class JackApiToolchain extends JackBasedToolchain {
   @Nonnull
   public JackApiToolchain setIncrementalFolder(@Nonnull File incrementalFolder) {
     jackOptions.setIncrementalFolder(incrementalFolder);
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public final JackApiToolchain setErrorStream(@Nonnull OutputStream errorStream) {
+    super.setErrorStream(errorStream);
+    jackOptions.setReporterStream(errorStream);
     return this;
   }
 

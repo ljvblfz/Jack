@@ -17,8 +17,13 @@
 package com.android.jack.reporting;
 
 import com.android.jack.config.id.Arzon;
+import com.android.jack.config.id.Brest;
+import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
+import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.OutputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -39,6 +44,13 @@ public interface Reporter {
   public static final ImplementationPropertyId<Reporter> REPORTER = ImplementationPropertyId.create(
       "jack.reporter", "Define which reporter will be used", Reporter.class).addDefaultValue(
       "default").withCategory(Arzon.get());
+
+  @Nonnull
+  public static final PropertyId<OutputStreamFile> REPORTER_OUTPUT_STREAM = PropertyId.create(
+      "jack.reporter.file", "File where the reporter will write",
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+      .addDefaultValue("--").requiredIf(REPORTER.getClazz().isImplementedBy(DefaultReporter.class)
+          .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class))).withCategory(Brest.get());
 
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable);
 

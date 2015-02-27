@@ -62,6 +62,6 @@ public class SdkReporter extends CommonReporter {
     }
     messageBuffer.append(MESSAGE_SEPARATOR);
     messageBuffer.append(message);
-    System.err.println(messageBuffer.toString());
+    reporterStream.println(messageBuffer.toString());
   }
 }

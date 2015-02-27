@@ -174,7 +174,7 @@ public abstract class Toolchain implements IToolchain {
 
   @Override
   @Nonnull
-  public final Toolchain setErrorStream(@Nonnull OutputStream errorStream) {
+  public Toolchain setErrorStream(@Nonnull OutputStream errorStream) {
     errRedirectStream = new PrintStream(errorStream);
     return this;
   }

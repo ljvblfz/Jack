@@ -48,6 +48,6 @@ public class DefaultReporter extends CommonReporter {
     }
     messageBuffer.append(": ");
     messageBuffer.append(message);
-    System.err.println(messageBuffer.toString());
+    reporterStream.println(messageBuffer.toString());
   }
 }

@@ -24,6 +24,8 @@ import com.android.sched.util.config.ThreadConfig;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
+import java.io.PrintStream;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -33,7 +35,12 @@ import javax.annotation.Nonnull;
  */
 abstract class CommonReporter implements Reporter {
 
+  @Nonnull
   private final VerbosityLevel verbosityLevel = ThreadConfig.get(Options.VERBOSITY_LEVEL);
+
+  @Nonnull
+  protected final PrintStream reporterStream =
+      ThreadConfig.get(REPORTER_OUTPUT_STREAM).getPrintStream();
 
   @Override
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable) {
