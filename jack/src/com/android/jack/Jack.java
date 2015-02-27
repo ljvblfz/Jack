@@ -384,12 +384,10 @@ public abstract class Jack {
    * @param options options for the compiler.
    * @throws ConfigurationException thrown from the configuration framework.
    * @throws IllegalOptionsException thrown when an {@code Options} is not valid.
-   * @throws NothingToDoException thrown when there is nothing to compile.
    * @throws ProcessException thrown during schedulable execution
    */
   public static void run(@Nonnull Options options)
       throws IllegalOptionsException,
-      NothingToDoException,
       ConfigurationException,
       JackUserException, ProcessException {
     boolean assertEnable = false;
@@ -641,6 +639,8 @@ public abstract class Jack {
       } finally {
         event.end();
       }
+    } catch (NothingToDoException e1) {
+      // End normally since there is nothing to do
     } finally {
 
       hooks.runHooks();

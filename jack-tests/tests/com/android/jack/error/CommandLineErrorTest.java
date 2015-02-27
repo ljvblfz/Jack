@@ -67,7 +67,7 @@ public class CommandLineErrorTest {
   }
 
   /**
-   * Checks that compilation fails correctly when no source files are passed to ecj.
+   * Checks that compilation end correctly when no source files are passed to ecj.
    */
   @Test
   public void testCommandLineError002() throws Exception {
@@ -84,9 +84,6 @@ public class CommandLineErrorTest {
       .addToClasspath(ite.getJackFolder())
       .srcToExe(ite.getOutputDexFolder(),
           /* zipFile = */ false, ite.getSourceFolder());
-      Assert.fail();
-    } catch (NothingToDoException e) {
-      // Failure is ok since there is no source files.
     } finally {
       Assert.assertEquals("", errOut.toString());
       Assert.assertTrue(out.toString().contains("Usage:"));
