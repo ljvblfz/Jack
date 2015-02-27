@@ -39,7 +39,6 @@ import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
-import com.android.jack.util.filter.AllMethods;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
@@ -380,9 +379,6 @@ public class Options {
   public static final BooleanPropertyId USE_MIXED_CASE_CLASSNAME = BooleanPropertyId.create(
       "jack.obfuscation.mixedcaseclassname",
       "Use mixed case class name when obfuscating").addDefaultValue(Boolean.FALSE);
-
-  @Nonnull
-  private final Filter<JMethod> filter = new AllMethods();
 
   @SuppressWarnings("unchecked")
   @Nonnull
