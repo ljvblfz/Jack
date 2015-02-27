@@ -19,8 +19,7 @@ package com.android.jack.api.brest;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link RuntimeException} that should be fatal and cause Jack to abort. It should not be caught,
- * should have a cause {@link ReportableException} and no message.
+ * STOSHIP
  */
 public class AbortException extends Exception {
   private static final long serialVersionUID = 1L;
