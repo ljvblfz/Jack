@@ -43,7 +43,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Nonnull
   protected final Properties libraryProperties;
 
-  // TODO(jack-team): Change it to private
+  // TODO(jack-team): Change it to protected
   @Nonnull
   public final Set<FileType> fileTypes = EnumSet.noneOf(FileType.class);
 
