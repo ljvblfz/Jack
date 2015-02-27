@@ -63,7 +63,7 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
           Integer.valueOf(majorVersion), Integer.valueOf(supportedMinor)});
     }
 
-    for (FileType ft : getFileTypes()) {
+    for (FileType ft : fileTypes) {
       ft.check();
     }
   }
