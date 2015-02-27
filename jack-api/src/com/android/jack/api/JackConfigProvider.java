@@ -28,7 +28,7 @@ public interface JackConfigProvider {
   static final String CLASS_NAME = "com.android.jack.api.impl.JackConfigProviderImpl";
 
   @Nonnull
-  <T extends JackConfig> T getConfig(@Nonnull Class<T> cls);
+  <T extends JackConfig> T getConfig(@Nonnull Class<T> cls) throws ConfigNotSupportedException;
 
   @Nonnull
   Collection<Class<? extends JackConfig>> getSupportedConfigs();

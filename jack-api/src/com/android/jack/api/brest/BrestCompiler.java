@@ -16,8 +16,6 @@
 
 package com.android.jack.api.brest;
 
-import com.android.jack.api.AbortException;
-import com.android.jack.api.UnrecoverableException;
 
 /**
  * STOPSHIP

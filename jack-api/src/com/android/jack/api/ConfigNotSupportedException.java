@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,24 @@ package com.android.jack.api;
 import javax.annotation.Nonnull;
 
 /**
- * Thrown when a major problem occurred because of an event out of control. Handling this error
- * should only be reporting to the user and maybe just retry exactly the same thing as the one that
- * has thrown.
+ * STOPSHIP
  */
-public class UnrecoverableException extends Exception {
+public class ConfigNotSupportedException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  public UnrecoverableException() {
+  public ConfigNotSupportedException() {
     super();
   }
 
-  public UnrecoverableException(@Nonnull String message) {
+  public ConfigNotSupportedException(@Nonnull String message) {
     super(message);
   }
 
-  public UnrecoverableException(@Nonnull String message, @Nonnull Throwable cause) {
+  public ConfigNotSupportedException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
-  public UnrecoverableException(@Nonnull Throwable cause) {
+  public ConfigNotSupportedException(@Nonnull Throwable cause) {
     super(cause);
   }
 }
