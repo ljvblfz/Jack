@@ -52,6 +52,7 @@ import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
@@ -65,6 +66,7 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
@@ -325,7 +327,7 @@ public class Options {
   private List<String> ecjExtraArguments = new ArrayList<String>();
 
   @Option(name = "-g", usage = "emit debug infos")
-  protected boolean emitLocalDebugInfo = false;
+  private Boolean emitLocalDebugInfo;
 
   /**
    * Available mode for the multidex feature
@@ -351,7 +353,7 @@ public class Options {
       "jack.internal.jackflag", "Emit jack flag into generated dex")
       .addDefaultValue(Boolean.FALSE);
 
-  protected boolean emitSyntheticDebugInfo = false;
+  private boolean emitSyntheticDebugInfo = false;
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
@@ -405,10 +407,6 @@ public class Options {
 
   public boolean askForPropertiesHelp() {
     return helpProperties;
-  }
-
-  public void setEmitLocalDebugInfo(boolean emitLocalDebugInfo) {
-    this.emitLocalDebugInfo = emitLocalDebugInfo;
   }
 
   @Nonnull
@@ -641,7 +639,9 @@ public class Options {
 
     configBuilder.popDefaultLocation();
 
-    configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
+    if (emitLocalDebugInfo != null) {
+      configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
+    }
     configBuilder.set(
         CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
 
@@ -752,6 +752,9 @@ public class Options {
     LoggerFactory.loadLoggerConfiguration(
         this.getClass(), "/" + config.get(VERBOSITY_LEVEL).getId() + ".jack.logging.properties");
 
+    // FINDBUGS
+    assert config != null;
+
     // Check ecj arguments
     if (inputSources != null) {
       if (config.get(VERBOSITY_LEVEL) == VerbosityLevel.ERROR) {
@@ -762,8 +765,10 @@ public class Options {
     }
 
     // Check Jack arguments
-    if (emitSyntheticDebugInfo && !emitLocalDebugInfo) {
-      throw new IllegalOptionsException(
+    if (config.get(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue()
+        && !config.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue()) {
+      throw new PropertyIdException(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO,
+          new NoLocation(),
           "Impossible to emit synthetic debug info when not emitting debug info");
     }
   }
@@ -778,6 +783,14 @@ public class Options {
 
   public void setImportedLibraries(@Nonnull List<File> importedLibraries) {
     this.importedLibraries = importedLibraries;
+  }
+
+  public void setEmitLocalDebugInfo(boolean emitLocalDebugInfo) {
+    this.emitLocalDebugInfo = Boolean.valueOf(emitLocalDebugInfo);
+  }
+
+  public void setEmitSyntheticDebugInfo(boolean emitSyntheticDebugInfo) {
+    this.emitSyntheticDebugInfo = emitSyntheticDebugInfo;
   }
 
   @CheckForNull
