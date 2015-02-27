@@ -25,8 +25,11 @@ import javax.annotation.Nonnull;
  */
 public interface BrestConfig extends JackConfig {
   @Nonnull
-  BrestConfig setProperty(@Nonnull String key, @Nonnull String value);
+  static final String PROPERTY_REPORTER = "jack.reporter";
 
   @Nonnull
-  BrestCompiler build();
+  BrestConfig setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
+
+  @Nonnull
+  BrestCompiler build() throws ConfigurationException;
 }
