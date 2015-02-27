@@ -54,12 +54,6 @@ abstract class BaseVFile extends BaseVElement implements VFile {
 
   @Override
   @Nonnull
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  @Nonnull
   public Location getLocation() {
     return vfs.getVFileLocation(this);
   }

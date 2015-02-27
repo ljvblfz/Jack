@@ -39,4 +39,10 @@ public abstract class BaseVElement implements VElement {
   void changeVFS(@Nonnull BaseVFS<? extends BaseVDir, ? extends BaseVFile> vfs) {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
   }
+
+  @Override
+  @Nonnull
+  public String getName() {
+    return name;
+  }
 }
