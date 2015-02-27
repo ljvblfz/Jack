@@ -776,11 +776,6 @@ public class Options {
     libraryOutZip = outputZip;
   }
 
-  @CheckForNull
-  public File getJackLibraryOutputZip() {
-    return libraryOutZip;
-  }
-
   public void setImportedLibraries(@Nonnull List<File> importedLibraries) {
     this.importedLibraries = importedLibraries;
   }
