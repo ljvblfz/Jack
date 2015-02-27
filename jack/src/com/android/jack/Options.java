@@ -364,7 +364,10 @@ public class Options {
       "jack.dex.debug.source", "Emit source file debug info into generated dex")
       .addDefaultValue(Boolean.TRUE);
 
-  protected boolean keepMethodBody = false;
+  @Nonnull
+  public static final BooleanPropertyId DROP_METHOD_BODY = BooleanPropertyId.create(
+      "jack.internal.dropmethodbody", "Drop method bodies when they are no longer useful")
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId SHROB_ENABLED =

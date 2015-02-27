@@ -25,6 +25,7 @@ import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
+import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
@@ -365,6 +366,10 @@ public class TestTools {
       request.addProduction(JayceInLibraryProduct.class);
     }
 
+    if (options.getConfig().get(Options.DROP_METHOD_BODY).booleanValue()) {
+      request.addFeature(DropMethodBody.class);
+    }
+
     OutputJackLibrary outputLibrary = null;
     try {
       outputLibrary = JackLibraryFactory.getOutputLibrary(new CachedDirectFS(new Directory(
@@ -393,7 +398,7 @@ public class TestTools {
       @Nonnull String className, @Nonnull String methodSignature) throws Exception {
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
     commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
-    commandLineArgs.keepMethodBody = true;
+    commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
     JSession session = TestTools.buildSession(commandLineArgs);
     Assert.assertNotNull(session);
 
@@ -416,7 +421,7 @@ public class TestTools {
     commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
     commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
         methodSignature);
-    commandLineArgs.keepMethodBody = true;
+    commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
     JSession session = TestTools.buildSession(commandLineArgs);
     Assert.assertNotNull(session);
 

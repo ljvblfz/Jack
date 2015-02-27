@@ -61,6 +61,8 @@ public class TracingTest {
   public void doTest(File fileOrSourceList) throws Exception {
     Options options =
         TestTools.buildCommandLineArgs(fileOrSourceList);
+    options.addProperty(Options.DROP_METHOD_BODY.getName(), "true");
+
     RunnableHooks hooks = new RunnableHooks();
     try {
       JSession session = TestTools.buildSession(options, hooks);

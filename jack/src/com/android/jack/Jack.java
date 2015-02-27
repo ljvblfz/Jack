@@ -116,6 +116,7 @@ import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
+import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.feature.DxLegacy;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
@@ -445,6 +446,10 @@ public abstract class Jack {
         JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
         if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
           request.addFeature(SourceVersion7.class);
+        }
+
+        if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
+          request.addFeature(DropMethodBody.class);
         }
 
         if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
@@ -1256,7 +1261,7 @@ public abstract class Jack {
         methodPlan4.append(CfgMarkerRemover.class);
         methodPlan4.append(EncodedMethodBuilder.class);
         methodPlan4.append(MethodAnnotationBuilder.class);
-        if (!options.keepMethodBody) {
+        if (features.contains(DropMethodBody.class)) {
           methodPlan4.append(MethodBodyRemover.class);
         }
         {

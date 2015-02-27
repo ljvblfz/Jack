@@ -20,19 +20,22 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
 
 /**
- * Remove method body.
+ * Drop method body.
  */
-@Description("Remove method body")
+@Description("Drop method body")
 @Transform(remove = {JMethodBody.class})
+@Support(DropMethodBody.class)
 public class MethodBodyRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
