@@ -51,8 +51,6 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @CheckForNull
   protected File annotationProcessorOutDir;
   @Nonnull
-  protected List<String> extraEcjArgs = new ArrayList<String>();
-  @Nonnull
   protected List<File> resImport = new ArrayList<File>();
 
   protected boolean sanityChecks = true;
@@ -78,12 +76,6 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
       default:
         throw new AssertionError("Unsupported multi dex kind: '" + kind.name() + "'");
     }
-    return this;
-  }
-
-  @Nonnull
-  public final JackBasedToolchain addEcjArgs(@Nonnull String arg) {
-    extraEcjArgs.add(arg);
     return this;
   }
 

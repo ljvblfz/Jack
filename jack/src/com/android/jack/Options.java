@@ -322,7 +322,7 @@ public class Options {
   protected List<File> inputSources;
 
   @Nonnull
-  protected List<String> ecjExtraArguments = new ArrayList<String>();
+  private List<String> ecjExtraArguments = new ArrayList<String>();
 
   @Option(name = "-g", usage = "emit debug infos")
   protected boolean emitLocalDebugInfo = false;

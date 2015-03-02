@@ -16,9 +16,7 @@
 
 package com.android.jack.error;
 
-import com.android.jack.IllegalOptionsException;
 import com.android.jack.Main;
-import com.android.jack.NothingToDoException;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -40,30 +38,6 @@ public class CommandLineErrorTest {
   @BeforeClass
   public static void setUpClass() {
     Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
-  /**
-   * Checks that compilation fails correctly when an unsupported options is passed to ecj.
-   */
-  @Test
-  public void testCommandLineError001() throws Exception {
-    ErrorTestHelper ite = new ErrorTestHelper();
-
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
-    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    jackApiToolchain.setErrorStream(errOut);
-    jackApiToolchain.addEcjArgs("-unsupported");
-    try {
-      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
-      .addToClasspath(ite.getJackFolder())
-      .srcToExe(ite.getOutputDexFolder(),
-          /* zipFile = */ false, ite.getSourceFolder());
-      Assert.fail();
-    } catch (IllegalOptionsException e) {
-      // Failure is ok since a bad options is passed to ecj.
-    } finally {
-      Assert.assertEquals("", errOut.toString());
-    }
   }
 
   /**

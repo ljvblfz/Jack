@@ -84,9 +84,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("-d");
       args.add(annotationProcessorOutDir.getAbsolutePath());
     }
-    for (String ecjArg : extraEcjArgs) {
-      args.add(ecjArg);
-    }
 
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 
@@ -115,10 +112,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("--output-jack-dir");
     }
     args.add(out.getAbsolutePath());
-
-    for (String ecjArg : extraEcjArgs) {
-      args.add(ecjArg);
-    }
 
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 

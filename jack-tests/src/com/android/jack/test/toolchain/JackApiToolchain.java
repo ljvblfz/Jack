@@ -247,10 +247,6 @@ public class JackApiToolchain extends JackBasedToolchain {
       ecjArgs.add(annotationProcessorOutDir.getAbsolutePath());
     }
 
-    for (String ecjArg : extraEcjArgs) {
-      ecjArgs.add(ecjArg);
-    }
-
     ArrayList<File> toCompile = new ArrayList<File>();
     for (File srcFile : sources) {
       if (srcFile instanceof Sourcelist) {
