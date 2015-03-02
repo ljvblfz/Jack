@@ -88,7 +88,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Override
   @Nonnull
   public Location getLocation() {
-    return root.getLocation();
+    return dir.getLocation();
   }
 
   @Override
