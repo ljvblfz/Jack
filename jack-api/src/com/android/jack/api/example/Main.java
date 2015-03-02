@@ -73,10 +73,8 @@ public class Main {
     // Configure the compiler
     try {
       // Set standard options
-      api01Config.setOutputDexFolder(new File("out/"));
-      api01Config.setConfigJarjarFile(new File("rules.jarjar"));
-      // Set official properties
-      api01Config.setProperty(Api01Config.PROPERTY_REPORTER, "sdk");
+      api01Config.setOutputDexDir(new File("out/"));
+      api01Config.setJarJarConfigFile(new File("rules.jarjar"));
       // Set provisional properties
       api01Config.setProperty("jack.internal.test", "true");
       // Check and build compiler

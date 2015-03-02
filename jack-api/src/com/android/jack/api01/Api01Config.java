@@ -19,6 +19,9 @@ package com.android.jack.api01;
 import com.android.jack.api.JackConfig;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -26,20 +29,80 @@ import javax.annotation.Nonnull;
  * STOPSHIP
  */
 public interface Api01Config extends JackConfig {
-  @Nonnull
-  static final String PROPERTY_REPORTER = "jack.reporter";
 
   @Nonnull
-  Api01Config setOutputDexFolder(@Nonnull File folder) throws ConfigurationException;
+  void setReporter(@Nonnull ReporterKind reporterKind, @Nonnull OutputStream reporterStream)
+      throws ConfigurationException;
 
   @Nonnull
-  Api01Config setOutputJackFile(@Nonnull File file) throws ConfigurationException;
+  void setTypeImportCollisionPolicy(@Nonnull TypeCollisionPolicy typeImportCollisionPolicy)
+      throws ConfigurationException;
 
   @Nonnull
-  Api01Config setConfigJarjarFile(@Nonnull File file) throws ConfigurationException;
+  void setResourceImportCollisionPolicy(
+      @Nonnull ResourceCollisionPolicy resourceImportCollisionPolicy) throws ConfigurationException;
 
   @Nonnull
-  Api01Config setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
+  void setJavaSourceVersion(@Nonnull JavaSourceVersion javaSourceVersion)
+      throws ConfigurationException;
+
+  @Nonnull
+  void setObfuscationMappingOutputFile(@Nonnull File obfuscationMappingOuputFile)
+      throws ConfigurationException;
+
+  @Nonnull
+  void setClasspath(@Nonnull List<File> classpath) throws ConfigurationException;
+
+  @Nonnull
+  void setImportedJackLibraryFiles(@Nonnull List<File> importedJackLibraryFiles)
+      throws ConfigurationException;
+
+  @Nonnull
+  void setMetaDirs(@Nonnull List<File> metaDirs) throws ConfigurationException;
+
+  @Nonnull
+  void setResourceDirs(@Nonnull List<File> resourceDirs) throws ConfigurationException;
+
+  @Nonnull
+  void setIncrementalDir(@Nonnull File incrementalDir) throws ConfigurationException;
+
+  @Nonnull
+  void setOutputDexDir(@Nonnull File outputDexDir) throws ConfigurationException;
+
+  @Nonnull
+  void setOutputJackFile(@Nonnull File outputJackFile) throws ConfigurationException;
+
+  @Nonnull
+  void setJarJarConfigFile(@Nonnull File jarjarConfigFile) throws ConfigurationException;
+
+  @Nonnull
+  void setProguardConfigFiles(@Nonnull List<File> proguardConfigFiles)
+      throws ConfigurationException;
+
+  @Nonnull
+  void setEmitDebug(boolean emitDebug) throws ConfigurationException;
+
+  @Nonnull
+  void setMultiDexKind(@Nonnull MultiDexKind multiDexKind) throws ConfigurationException;
+
+  @Nonnull
+  void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel) throws ConfigurationException;
+
+  @Nonnull
+  void setProcessorNames(@Nonnull List<String> processorNames) throws ConfigurationException;
+
+  @Nonnull
+  void setProcessorPath(@Nonnull List<File> processorPath) throws ConfigurationException;
+
+  @Nonnull
+  void setProcessorOptions(@Nonnull Map<String, String> processorOptions)
+      throws ConfigurationException;
+
+  @Nonnull
+  void setSourceEntries(@Nonnull List<File> sourceEntries) throws ConfigurationException;
+
+  @Nonnull
+  void setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
 
   @Nonnull
   Api01Compiler build() throws ConfigurationException;
