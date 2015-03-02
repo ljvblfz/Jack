@@ -108,7 +108,21 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned string
    */
   public StringIdItem intern(CstString string) {
-    return intern(new StringIdItem(string));
+    if (string == null) {
+      throw new NullPointerException("string == null");
+    }
+
+    throwIfPrepared();
+
+    StringIdItem already = strings.get(string);
+
+    if (already != null) {
+      return already;
+    }
+
+    StringIdItem result = new StringIdItem(string);
+    strings.put(string, result);
+    return result;
   }
 
   /**
