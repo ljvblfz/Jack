@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.api.brest;
+package com.android.jack.api01;
 
 import javax.annotation.Nonnull;
 
 /**
- * Thrown when a major problem occurred because of an event out of control (e.g. an external process
- * remove a temporary file used by Jack). Handling this error should only be reporting to the user
- * and maybe just retry exactly the same thing as the one that has thrown.
+ * All exceptions thrown from the configuration framework.
  */
-public class UnrecoverableException extends Exception {
+public abstract class ConfigurationException extends ChainedException {
   private static final long serialVersionUID = 1L;
 
-  public UnrecoverableException() {
-    super();
-  }
-
-  public UnrecoverableException(@Nonnull String message) {
+  public ConfigurationException(@Nonnull String message) {
     super(message);
   }
 
-  public UnrecoverableException(@Nonnull String message, @Nonnull Throwable cause) {
+  public ConfigurationException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
-  public UnrecoverableException(@Nonnull Throwable cause) {
+  public ConfigurationException(@Nonnull Throwable cause) {
     super(cause);
   }
 }

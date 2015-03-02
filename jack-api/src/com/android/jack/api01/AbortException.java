@@ -14,12 +14,29 @@
  * limitations under the License.
  */
 
-package com.android.jack.api.brest;
+package com.android.jack.api01;
 
+import javax.annotation.Nonnull;
 
 /**
- * STOPSHIP
+ * STOSHIP
  */
-public interface BrestCompiler {
-  void run() throws AbortException, UnrecoverableException;
+public class AbortException extends Exception {
+  private static final long serialVersionUID = 1L;
+
+  public AbortException() {
+    super();
+  }
+
+  public AbortException(@Nonnull String message) {
+    super(message);
+  }
+
+  public AbortException(@Nonnull String message, @Nonnull Throwable cause) {
+    super(message, cause);
+  }
+
+  public AbortException(@Nonnull Throwable cause) {
+    super(cause);
+  }
 }
