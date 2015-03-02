@@ -365,10 +365,11 @@
     <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
   </target>
 
-  <target name="jack-tests-copy-libs" depends="junit4,dx-ref-lib,ddm-lib,ecj,
+  <target name="jack-tests-copy-libs" depends="jack-api-lib,junit4,dx-ref-lib,ddm-lib,ecj,
     antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib">
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
+        <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         <file name="${junit4.dist.dir}/${junit4.execname}"/>
         <file name="${dx-ref.dist.dir}/${dx-ref.libname}"/>
         <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
@@ -410,6 +411,7 @@
         <filelist dir="/">
           <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+          <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         </filelist>
       </classpath>
     </javac>

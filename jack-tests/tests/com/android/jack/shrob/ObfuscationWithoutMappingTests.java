@@ -25,7 +25,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -48,7 +48,8 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     String testPackageName = "com.android.jack.shrob.test" + testNumber;
     File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     Flags flags = new Flags();
     toolchain.setShrobFlags(flags);
     GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);

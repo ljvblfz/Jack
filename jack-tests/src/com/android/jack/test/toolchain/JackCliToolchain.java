@@ -22,6 +22,7 @@ import com.android.jack.util.ExecuteFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,10 @@ public class JackCliToolchain extends JackBasedToolchain {
   protected File incrementalFolder;
   @Nonnull
   protected Options.VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
+  @Nonnull
+  protected final Map<String, String> properties = new HashMap<String, String>();
+
+  protected boolean sanityChecks = true;
 
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
@@ -50,8 +55,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   @Override
   @Nonnull
-  protected JackCliToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level) {
-    verbosityLevel = level;
+  public JackCliToolchain setVerbose(boolean isVerbose) {
+    super.setVerbose(isVerbose);
+    verbosityLevel = isVerbose ? VerbosityLevel.DEBUG : VerbosityLevel.WARNING;
     return this;
   }
 
@@ -306,12 +312,27 @@ public class JackCliToolchain extends JackBasedToolchain {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public JackBasedToolchain addProperty(@Nonnull String propertyName,
+      @Nonnull String propertyValue) {
+    properties.put(propertyName, propertyValue);
+    return this;
+  }
+
   protected static void addProperties(@Nonnull Map<String, String> properties,
       @Nonnull List<String> args) {
     for (Entry<String, String> entry : properties.entrySet()) {
       args.add("-D");
       args.add(entry.getKey() + "=" + entry.getValue());
     }
+  }
+
+  @Override
+  @Nonnull
+  public JackBasedToolchain setSanityChecks(boolean sanityChecks){
+    this.sanityChecks = sanityChecks;
+    return this;
   }
 
 }

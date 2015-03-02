@@ -23,7 +23,7 @@ import com.android.jack.backend.dex.MainDexOverflowException;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MethodIdOverflowException;
 import com.android.sched.scheduler.ProcessException;
@@ -68,8 +68,8 @@ public class MultiDexOverflowTests {
     }
     generateJavaFileWithMethods(srcFolder, fileCount, 36);
 
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
@@ -105,8 +105,8 @@ public class MultiDexOverflowTests {
     }
     generateJavaFileWithFields(srcFolder, fileCount, 37);
 
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");

@@ -34,7 +34,7 @@ import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.TextUtils;
@@ -94,7 +94,8 @@ public class MultiDexTests {
   public void versionedTest001a() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
@@ -120,7 +121,8 @@ public class MultiDexTests {
   public void versionedTest001b() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
@@ -145,7 +147,8 @@ public class MultiDexTests {
   public void versionedTest001c() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-003.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
 
@@ -170,7 +173,8 @@ public class MultiDexTests {
   public void versionedTest001a_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
@@ -188,7 +192,7 @@ public class MultiDexTests {
   public void versionedTest001b_minimal_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
@@ -209,7 +213,8 @@ public class MultiDexTests {
 
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-003.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
@@ -318,7 +323,8 @@ public class MultiDexTests {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File out = AbstractTestTools.createTempDir();
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
 
@@ -348,7 +354,8 @@ public class MultiDexTests {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File out = AbstractTestTools.createTempDir();
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(library);
@@ -384,7 +391,8 @@ public class MultiDexTests {
     Assert.assertTrue(jackInf.mkdir());
     Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(autoLibrary);

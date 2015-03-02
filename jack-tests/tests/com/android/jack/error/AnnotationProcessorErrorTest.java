@@ -29,7 +29,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
@@ -69,7 +69,8 @@ public class AnnotationProcessorErrorTest {
         "package jack.incremental; \n"+
         "public class A {} \n");
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
 
     try {
@@ -100,7 +101,8 @@ public class AnnotationProcessorErrorTest {
 
     runAnnotProcBuildingResource(te);
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
     jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -137,7 +139,8 @@ public class AnnotationProcessorErrorTest {
         + "public class A {}\n");
 
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.setAnnotationProcessorClass(SourceAnnotationProcessor.class);
     jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -170,7 +173,8 @@ public class AnnotationProcessorErrorTest {
         + "@" + SourceAnnotationTest.class.getSimpleName() + "\n"
         + "public class A {}\n");
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.setAnnotationProcessorClass(SourceAnnotationProcessor.class);
     jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
 
@@ -198,7 +202,8 @@ public class AnnotationProcessorErrorTest {
         + "@" + ResourceAnnotationTest.class.getSimpleName() + "\n"
         + "public class A {}\n");
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.setAnnotationProcessorClass(ResourceAnnotationProcessor.class);
     jackApiToolchain.setAnnotationProcessorOutDir(te.getTestingFolder());
 
@@ -231,7 +236,8 @@ public class AnnotationProcessorErrorTest {
     }
 
     // Compile annotation to a jack file
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
     .srcToLib(te.getJackFolder(), false /* zipFiles = */, te.getSourceFolder());
 

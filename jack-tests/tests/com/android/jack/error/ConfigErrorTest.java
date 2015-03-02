@@ -18,7 +18,7 @@ package com.android.jack.error;
 
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.sched.util.config.UnknownPropertyNameException;
 
 import org.junit.Assert;
@@ -33,7 +33,8 @@ public class ConfigErrorTest {
   public void testUnknownProperty001() throws Exception {
     ErrorTestHelper ite = new ErrorTestHelper();
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
 

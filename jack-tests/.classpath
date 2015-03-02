@@ -15,5 +15,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
 	<classpathentry kind="lib" path="libs/ddmlib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
+	<classpathentry kind="lib" path="libs/jack-api-lib.jar" sourcepath="/jack-api/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

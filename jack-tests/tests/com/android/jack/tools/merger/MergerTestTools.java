@@ -19,7 +19,7 @@ package com.android.jack.tools.merger;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.sched.scheduler.ScheduleInstance;
 
 import java.io.File;
@@ -34,8 +34,8 @@ public class MergerTestTools {
   @Nonnull
   protected File buildOneDexPerType(@Nonnull File sourceFolder,
       boolean withDebug, @CheckForNull OutputStream out, @CheckForNull OutputStream err) throws Exception {
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     try {
       File multiDexFolder = AbstractTestTools.createTempDir();
       File multiDex = new File(multiDexFolder, DexFileWriter.DEX_FILENAME);

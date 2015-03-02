@@ -16,14 +16,14 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.test.category.SlowTests;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorSeeds;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,7 +53,8 @@ public class SeedTests extends AbstractTest {
     flags.setSeedsFile(candidateOutputSeeds);
     flags.setPrintSeeds(true);
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.setShrobFlags(flags);
 
     SourceToDexComparisonTestHelper env =

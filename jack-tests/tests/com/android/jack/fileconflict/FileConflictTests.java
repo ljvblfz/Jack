@@ -30,7 +30,7 @@ import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
@@ -51,9 +51,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -485,7 +485,8 @@ public class FileConflictTests {
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test004.jack");
     File tempJackFolder = AbstractTestTools.createTempDir();
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
@@ -512,7 +513,7 @@ public class FileConflictTests {
     copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
 
     // run Jack on Jack dir
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     toolchain.libToLib(jackImport1, jackOutput, /* zipFiles = */ false);
@@ -528,7 +529,7 @@ public class FileConflictTests {
     if (isApiTest) {
       excludeList.add(JackCliToolchain.class);
     }
-    return AbstractTestTools.getCandidateToolchain(JackApiToolchain.class, excludeList);
+    return AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
   }
 
   private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy,

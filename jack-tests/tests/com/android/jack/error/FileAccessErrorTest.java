@@ -24,7 +24,7 @@ import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.sched.util.codec.ListParsingException;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.PropertyIdException;
@@ -63,7 +63,8 @@ public class FileAccessErrorTest {
     if (!jackOutputFile.setReadable(false)) {
       Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
     }
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     try {
       jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
@@ -88,8 +89,8 @@ public class FileAccessErrorTest {
     File srcFile = AbstractTestTools.createFile(helper.getSourceFolder(), "jack.incremental",
         "A.java", "package jack.incremental; \n" + "public class A {} \n");
 
-    JackApiToolchain jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
     .srcToLib(helper.getJackFolder(), /* zipFiles = */ false, helper.getSourceFolder());
@@ -104,7 +105,7 @@ public class FileAccessErrorTest {
       Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
     }
 
-    jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
@@ -141,7 +142,8 @@ public class FileAccessErrorTest {
       Assert.fail("Fails to change file permissions of " + a.getAbsolutePath());
     }
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
 
@@ -170,7 +172,8 @@ public class FileAccessErrorTest {
         "package jack.incremental; \n"+
         "public class A {} \n");
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
     .srcToLib(te.getJackFolder(), false, te.getSourceFolder());
@@ -216,7 +219,8 @@ public class FileAccessErrorTest {
   public void testFileAccessError005() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 
-    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase jackApiToolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     try {
 
