@@ -19,11 +19,11 @@ package com.android.jack.api.example;
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackConfigProvider;
-import com.android.jack.api.brest.AbortException;
-import com.android.jack.api.brest.BrestCompiler;
-import com.android.jack.api.brest.BrestConfig;
-import com.android.jack.api.brest.ConfigurationException;
-import com.android.jack.api.brest.UnrecoverableException;
+import com.android.jack.api01.AbortException;
+import com.android.jack.api01.Api01Compiler;
+import com.android.jack.api01.Api01Config;
+import com.android.jack.api01.ConfigurationException;
+import com.android.jack.api01.UnrecoverableException;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -59,12 +59,12 @@ public class Main {
     }
     System.out.println();
 
-    BrestCompiler brestCompiler;
-    BrestConfig brestConfig;
+    Api01Compiler api01Compiler;
+    Api01Config api01Config;
 
     // Get configuration object
     try {
-      brestConfig = confProvider.getConfig(BrestConfig.class);
+      api01Config = confProvider.getConfig(Api01Config.class);
     } catch (ConfigNotSupportedException e1) {
       System.err.println("Brest config not supported)");
       return;
@@ -73,14 +73,14 @@ public class Main {
     // Configure the compiler
     try {
       // Set standard options
-      brestConfig.setOutputDex(new File("out/"));
-      brestConfig.setConfigJarjar(new File("rules.jarjar"));
+      api01Config.setOutputDexFolder(new File("out/"));
+      api01Config.setConfigJarjarFile(new File("rules.jarjar"));
       // Set official properties
-      brestConfig.setProperty(BrestConfig.PROPERTY_REPORTER, "sdk");
-      // Set provisioned properties
-      brestConfig.setProperty("jack.internal.test", "true");
+      api01Config.setProperty(Api01Config.PROPERTY_REPORTER, "sdk");
+      // Set provisional properties
+      api01Config.setProperty("jack.internal.test", "true");
       // Check and build compiler
-      brestCompiler = brestConfig.build();
+      api01Compiler = api01Config.build();
     } catch (ConfigurationException e) {
       System.err.println(e.getMessage());
       return;
@@ -89,9 +89,9 @@ public class Main {
     // Run the compilation
     try {
       // First
-      brestCompiler.run();
+      api01Compiler.run();
       // Same compilation
-      brestCompiler.run();
+      api01Compiler.run();
     } catch (AbortException e) {
       System.out.println("User error, see reporter");
       return;

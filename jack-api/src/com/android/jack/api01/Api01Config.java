@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.api.brest;
+package com.android.jack.api01;
 
 import com.android.jack.api.JackConfig;
 
@@ -25,22 +25,22 @@ import javax.annotation.Nonnull;
 /**
  * STOPSHIP
  */
-public interface BrestConfig extends JackConfig {
+public interface Api01Config extends JackConfig {
   @Nonnull
   static final String PROPERTY_REPORTER = "jack.reporter";
 
   @Nonnull
-  BrestConfig setOutputDex(@Nonnull File file) throws ConfigurationException;
+  Api01Config setOutputDexFolder(@Nonnull File folder) throws ConfigurationException;
 
   @Nonnull
-  BrestConfig setOutputJack(@Nonnull File file) throws ConfigurationException;
+  Api01Config setOutputJackFile(@Nonnull File file) throws ConfigurationException;
 
   @Nonnull
-  BrestConfig setConfigJarjar(@Nonnull File file) throws ConfigurationException;
+  Api01Config setConfigJarjarFile(@Nonnull File file) throws ConfigurationException;
 
   @Nonnull
-  BrestConfig setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
+  Api01Config setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
 
   @Nonnull
-  BrestCompiler build() throws ConfigurationException;
+  Api01Compiler build() throws ConfigurationException;
 }
