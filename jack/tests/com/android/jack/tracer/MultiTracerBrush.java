@@ -37,8 +37,6 @@ public class MultiTracerBrush implements TracerBrush {
 
   private final boolean traceEnclosingMethod;
 
-  private final boolean traceExternal = true;
-
   private final int id;
 
   private final int seed;
@@ -51,9 +49,6 @@ public class MultiTracerBrush implements TracerBrush {
 
   @Override
   public boolean startTrace(@Nonnull JDefinedClassOrInterface type) {
-    if (type.isExternal()) {
-      return false;
-    }
     return markIfNecessary(type);
   }
 
@@ -63,9 +58,6 @@ public class MultiTracerBrush implements TracerBrush {
 
   @Override
   public boolean startTrace(@Nonnull JMethod method) {
-    if (method.isExternal()) {
-      return false;
-    }
     return markIfNecessary(method);
   }
 
@@ -75,9 +67,6 @@ public class MultiTracerBrush implements TracerBrush {
 
   @Override
   public boolean startTrace(@Nonnull JField field) {
-    if (field.isExternal()) {
-      return false;
-    }
     return markIfNecessary(field);
   }
 
@@ -125,13 +114,13 @@ public class MultiTracerBrush implements TracerBrush {
   public boolean traceMarked(@Nonnull JNode node) {
     if (node instanceof JDefinedClassOrInterface
         && ((JDefinedClassOrInterface) node).isExternal()) {
-      return traceExternal;
+      return true;
     } else if (node instanceof JMethod
         && ((JMethod) node).getEnclosingType().isExternal()) {
-      return traceExternal;
+      return true;
     } else if (node instanceof JField
         && ((JField) node).getEnclosingType().isExternal()) {
-      return traceExternal;
+      return true;
     }
     return isMarked(node);
   }
@@ -196,7 +185,7 @@ public class MultiTracerBrush implements TracerBrush {
 
   @Override
   public void setMustTraceOverridingMethods(@Nonnull JMethod method) {
-    if (!isForcedMark(method)) {
+    if ((!method.getEnclosingType().isExternal()) && !isForcedMark(method)) {
       synchronized (method) {
         MultiTracerMarker marker = method.getMarker(MultiTracerMarker.class);
         assert marker != null && marker.isSet(id);
