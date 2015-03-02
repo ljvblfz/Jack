@@ -66,7 +66,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      Jack.run(jackOptions);
+      Jack.checkAndRun(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -90,7 +90,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      Jack.run(jackOptions);
+      Jack.checkAndRun(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -150,7 +150,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      Jack.run(jackOptions);
+      Jack.checkAndRun(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);
@@ -173,7 +173,7 @@ public class JackApiToolchain extends JackBasedToolchain {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
 
-      Jack.run(jackOptions);
+      Jack.checkAndRun(jackOptions);
     } finally {
       System.setOut(stdOut);
       System.setErr(stdErr);

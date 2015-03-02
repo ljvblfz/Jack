@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * All exceptions thrown from the configuration framework.
  */
-public abstract class ConfigurationException extends ChainedException {
+public class ConfigurationException extends ChainedException {
   private static final long serialVersionUID = 1L;
 
   public ConfigurationException(@Nonnull String message) {

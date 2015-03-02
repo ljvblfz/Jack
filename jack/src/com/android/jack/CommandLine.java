@@ -62,7 +62,7 @@ public abstract class CommandLine {
 
     try {
       try {
-        Jack.run(options);
+        Jack.checkAndRun(options);
       } catch (ProcessException e) {
         // Handle the cause, but keep the ProcessException in case of
         // Internal Compiler Error only
