@@ -26,6 +26,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -54,7 +55,7 @@ class IncrementalLogWriter {
   @Nonnull
   private static Joiner commaJoiner = Joiner.on(",").useForNull("");
 
-  IncrementalLogWriter(@Nonnull OutputJackLibrary library, @Nonnull File incrementalFolder)
+  IncrementalLogWriter(@Nonnull OutputJackLibrary library, @Nonnull VFS incrementalFolder)
       throws LibraryIOException {
     this.library = library;
     try {
@@ -67,7 +68,7 @@ class IncrementalLogWriter {
       }
     }
 
-    File logFile = new File(incrementalFolder,
+    File logFile = new File(incrementalFolder.getPath(),
         FileType.LOG.buildFileVPath(vpath).getPathAsString(File.separatorChar));
     try {
       ps = new PrintStream(new FileOutputStream(logFile, true));

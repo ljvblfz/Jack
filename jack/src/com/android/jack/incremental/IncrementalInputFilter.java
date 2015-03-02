@@ -42,6 +42,7 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
@@ -53,6 +54,7 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -148,8 +150,14 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
+  @Nonnull
+  private final File incrementalFolder;
+
   public IncrementalInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
     super(hooks);
+    Config config = ThreadConfig.getConfig();
+    incrementalFolder = new File(config.get(Options.LIBRARY_OUTPUT_DIR).getPath());
+
     this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
     fileNamesOnCmdLine = getJavaFileNamesSpecifiedOnCommandLine(options);
@@ -180,17 +188,17 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillDeletedFileNames(deletedFileNames);
     }
 
-    importedLibrariesFromCommandLine = ThreadConfig.get(Options.IMPORTED_LIBRARIES);
+    importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
     librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(options.getClasspath(),
-        ThreadConfig.get(Jack.STRICT_CLASSPATH).booleanValue());
+        config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
     filesToRecompile = getInternalFileNamesToCompile();
 
-    if (ThreadConfig.get(INCREMENTAL_LOG).booleanValue()) {
+    if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
       try {
-        File incrementalFolder = options.getIncrementalFolder();
+        VFS incrementalFolder = config.get(Options.LIBRARY_OUTPUT_DIR);
         assert incrementalFolder != null;
         incLog = new IncrementalLogWriter(getOutputJackLibrary(), incrementalFolder);
         incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
@@ -405,7 +413,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Nonnull
   private File getDexFile(@Nonnull String typeName) {
-    return new File(options.getIncrementalFolder(), FileType.DEX.buildFileVPath(
+    return new File(incrementalFolder, FileType.DEX.buildFileVPath(
         new VPath(typeName, '/')).getPathAsString(File.separatorChar));
   }
 
