@@ -91,6 +91,10 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   }
 
   @Nonnull
+  private static final Set<Capabilities> CAPABILITIES = Collections.unmodifiableSet(
+      EnumSet.of(Capabilities.WRITE, Capabilities.CASE_SENSITIVE));
+
+  @Nonnull
   private final ZipVDir root = new ZipVDir(this, new ZipEntry(""), "");
   @Nonnull
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
@@ -98,17 +102,10 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   private final OutputZipFile zipFile;
   @Nonnull
   private final ZipOutputStream outputStream;
-  @Nonnull
-  private final Set<Capabilities> capabilities;
 
   public WriteZipFS(@Nonnull OutputZipFile zipFile) {
     this.zipFile = zipFile;
     outputStream = zipFile.getOutputStream();
-
-    Set<Capabilities> capabilities = EnumSet.noneOf(Capabilities.class);
-    capabilities.add(Capabilities.WRITE);
-    capabilities.add(Capabilities.CASE_SENSITIVE);
-    this.capabilities = Collections.unmodifiableSet(capabilities);
   }
 
   void notifyVFileClosed() {
@@ -279,7 +276,7 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Override
   @Nonnull
   public Set<Capabilities> getCapabilities() {
-    return capabilities;
+    return CAPABILITIES;
   }
 
   private static class ZipEntryOutputStream extends FilterOutputStream {

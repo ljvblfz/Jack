@@ -95,24 +95,19 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Nonnull
   private static final Splitter splitter = Splitter.on(ZipUtils.ZIP_SEPARATOR);
   @Nonnull
+  private static final Set<Capabilities> CAPABILITIES = Collections.unmodifiableSet(
+      EnumSet.of(Capabilities.READ, Capabilities.PARALLEL_READ, Capabilities.CASE_SENSITIVE));
+  @Nonnull
   private final ZipVDir root = new ZipVDir(this, new ZipEntry(""), "");
   @Nonnull
   private final InputZipFile inputZipFile;
   @Nonnull
   private final ZipFile zipFile;
-  @Nonnull
-  private final Set<Capabilities> capabilities;
 
   public ReadZipFS(@Nonnull InputZipFile zipFile) {
     this.inputZipFile = zipFile;
     this.zipFile = zipFile.getZipFile();
     fillSubElements();
-
-    Set<Capabilities> capabilities = EnumSet.noneOf(Capabilities.class);
-    capabilities.add(Capabilities.READ);
-    capabilities.add(Capabilities.PARALLEL_READ);
-    capabilities.add(Capabilities.CASE_SENSITIVE);
-    this.capabilities = Collections.unmodifiableSet(capabilities);
   }
 
   @Override
@@ -273,7 +268,7 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Override
   @Nonnull
   public Set<Capabilities> getCapabilities() {
-    return capabilities;
+    return CAPABILITIES;
   }
 
   private void fillSubElements() {
