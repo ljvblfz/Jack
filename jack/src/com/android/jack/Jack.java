@@ -367,7 +367,6 @@ public abstract class Jack {
       run(options, hooks);
     } finally {
       hooks.runHooks();
-      ThreadConfig.unsetConfig();
     }
   }
 
@@ -408,9 +407,8 @@ public abstract class Jack {
     options.checkValidity(hooks);
 
     Config config = options.getConfig();
-    ThreadConfig.setConfig(config);
 
-    ConfigPrinterFactory.getConfigPrinter().printConfig(config);
+    ThreadConfig.setConfig(config);
 
     boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
     if (sanityChecks != assertEnable) {
@@ -438,6 +436,9 @@ public abstract class Jack {
 
     try {
       Config config = options.getConfig();
+      ThreadConfig.setConfig(config);
+
+      ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
       JSession session = buildSession(options, hooks);
 
@@ -636,6 +637,7 @@ public abstract class Jack {
         }
       }
     } finally {
+      ThreadConfig.unsetConfig();
       event.end();
     }
   }
