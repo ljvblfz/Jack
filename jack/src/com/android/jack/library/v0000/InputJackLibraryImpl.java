@@ -23,6 +23,7 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryLocation;
+import com.android.jack.library.JackLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
@@ -34,6 +35,7 @@ import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
+import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VFS;
@@ -60,6 +62,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Nonnegative
   private final int minorVersion;
+
+  @Nonnull
+  private final List<InputVFile> resources = new ArrayList<InputVFile>();
 
   @Nonnull
   protected final InputVFS inputVFS;
@@ -100,6 +105,14 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
     check();
     fillFileTypes();
+
+    // V0 libraries can have resources added by Jill but without the boolean resource property set
+    // to true, thus we add the resource file type if resources exist (files others than
+    // jack.properties and jayce files)
+    fillResources(inputVFS.getRootInputVDir(), resources);
+    if (!resources.isEmpty()) {
+      fileTypes.add(FileType.RSC);
+    }
   }
 
   @Override
@@ -150,6 +163,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     if (!containsFileType(fileType)) {
       return Iterators.emptyIterator();
+    }
+
+    // Reuse resources found when we have detected that they existed.
+    if (fileType == FileType.RSC) {
+      return resources.iterator();
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
@@ -204,5 +222,20 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @CheckForNull
   public String getDigest() {
     return null;
+  }
+
+  private void fillResources(@Nonnull InputVDir vDir, @Nonnull List<InputVFile> files) {
+    for (InputVElement subFile : vDir.list()) {
+      if (subFile.isVDir()) {
+        fillResources((InputVDir) subFile, files);
+      } else {
+        InputVFile vFile = (InputVFile) subFile;
+        if (!FileType.JAYCE.isOfType(vFile)
+            && !FileType.JPP.isOfType(vFile)
+            && !vFile.getName().equals(JackLibrary.LIBRARY_PROPERTIES_VPATH.getLastElement())) {
+          files.add(vFile);
+        }
+      }
+    }
   }
 }
