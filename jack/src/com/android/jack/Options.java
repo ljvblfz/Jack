@@ -30,6 +30,8 @@ import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
+import com.android.jack.meta.MetaImporter;
+import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.shrob.obfuscation.Renamer;
@@ -267,12 +269,12 @@ public class Options {
   @Option(name = "--import-resource",
       usage = "import the given directory into the output as resource files (repeatable)",
       metaVar = "<DIRECTORY>")
-  protected List<File> resImport = new ArrayList<File>();
+  private final List<File> resImport = new ArrayList<File>();
 
   @Option(name = "--import-meta",
       usage = "import the given directory into the output as meta-files (repeatable)",
       metaVar = "<DIRECTORY>")
-  protected List<File> metaImport = new ArrayList<File>();
+  private final List<File> metaImport = new ArrayList<File>();
 
   /**
    * Keep generation close to dx.
@@ -526,6 +528,16 @@ public class Options {
     if (jarjarRulesFile != null) {
       configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
       configBuilder.setString(PackageRenamer.JARJAR_FILE, jarjarRulesFile.getPath());
+    }
+
+    if (!resImport.isEmpty()) {
+      configBuilder.setString(ResourceImporter.IMPORTED_RESOURCES,
+          Joiner.on(File.pathSeparator).join(resImport));
+    }
+
+    if (!metaImport.isEmpty()) {
+      configBuilder.setString(MetaImporter.IMPORTED_META,
+          Joiner.on(File.pathSeparator).join(metaImport));
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
