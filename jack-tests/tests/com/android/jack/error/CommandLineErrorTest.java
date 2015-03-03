@@ -67,7 +67,7 @@ public class CommandLineErrorTest {
   }
 
   /**
-   * Checks that compilation end correctly when no source files are passed to ecj.
+   * Checks that compilation end correctly when arguments define no source and no import.
    */
   @Test
   public void testCommandLineError002() throws Exception {
@@ -81,7 +81,6 @@ public class CommandLineErrorTest {
 
     try {
       jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
-      .addToClasspath(ite.getJackFolder())
       .srcToExe(ite.getOutputDexFolder(),
           /* zipFile = */ false, ite.getSourceFolder());
     } finally {
