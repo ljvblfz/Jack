@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
 
 /**
- * Supported Java source version.
+ * Available reporters.
  */
-public enum JavaSourceVersion {
-  JAVA_3, JAVA_4, JAVA_5, JAVA_6, JAVA_7
+public enum ReporterKind {
+  DEFAULT, SDK
 }

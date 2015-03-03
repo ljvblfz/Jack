@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
+
 
 /**
- * How to handle resource collisions.
+ * STOPSHIP
  */
-public enum ResourceCollisionPolicy {
-  KEEP_FIRST, FAIL
+public interface Api01Compiler {
+  void run() throws AbortException, UnrecoverableException;
 }

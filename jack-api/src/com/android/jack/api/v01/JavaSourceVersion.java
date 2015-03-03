@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
-
+package com.android.jack.api.v01;
 
 /**
- * STOPSHIP
+ * Supported Java source version.
  */
-public interface Api01Compiler {
-  void run() throws AbortException, UnrecoverableException;
+public enum JavaSourceVersion {
+  JAVA_3, JAVA_4, JAVA_5, JAVA_6, JAVA_7
 }

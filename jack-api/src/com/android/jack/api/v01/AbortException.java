@@ -14,11 +14,29 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
+
+import javax.annotation.Nonnull;
 
 /**
- * How to handle type collisions.
+ * STOSHIP
  */
-public enum TypeCollisionPolicy {
-  KEEP_FIRST, FAIL
+public class AbortException extends Exception {
+  private static final long serialVersionUID = 1L;
+
+  public AbortException() {
+    super();
+  }
+
+  public AbortException(@Nonnull String message) {
+    super(message);
+  }
+
+  public AbortException(@Nonnull String message, @Nonnull Throwable cause) {
+    super(message, cause);
+  }
+
+  public AbortException(@Nonnull Throwable cause) {
+    super(cause);
+  }
 }

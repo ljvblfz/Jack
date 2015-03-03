@@ -19,11 +19,11 @@ package com.android.jack.api.example;
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackConfigProvider;
-import com.android.jack.api01.AbortException;
-import com.android.jack.api01.Api01Compiler;
-import com.android.jack.api01.Api01Config;
-import com.android.jack.api01.ConfigurationException;
-import com.android.jack.api01.UnrecoverableException;
+import com.android.jack.api.v01.AbortException;
+import com.android.jack.api.v01.Api01Compiler;
+import com.android.jack.api.v01.Api01Config;
+import com.android.jack.api.v01.ConfigurationException;
+import com.android.jack.api.v01.UnrecoverableException;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

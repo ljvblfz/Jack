@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
 
 /**
- * Available reporters.
+ * Available mode for the multidex feature
  */
-public enum ReporterKind {
-  DEFAULT, SDK
+public enum MultiDexKind {
+  NONE, NATIVE, LEGACY
 }

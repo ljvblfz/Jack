@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
 
 import javax.annotation.Nonnull;
 
 /**
- * STOSHIP
+ * All exceptions thrown from the configuration framework.
  */
-public class AbortException extends Exception {
+public abstract class ConfigurationException extends ChainedException {
   private static final long serialVersionUID = 1L;
 
-  public AbortException() {
-    super();
-  }
-
-  public AbortException(@Nonnull String message) {
+  public ConfigurationException(@Nonnull String message) {
     super(message);
   }
 
-  public AbortException(@Nonnull String message, @Nonnull Throwable cause) {
+  public ConfigurationException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
-  public AbortException(@Nonnull Throwable cause) {
+  public ConfigurationException(@Nonnull Throwable cause) {
     super(cause);
   }
 }

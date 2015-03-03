@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.api01;
+package com.android.jack.api.v01;
 
 /**
- * Available mode for the multidex feature
+ * How to handle resource collisions.
  */
-public enum MultiDexKind {
-  NONE, NATIVE, LEGACY
+public enum ResourceCollisionPolicy {
+  KEEP_FIRST, FAIL
 }
