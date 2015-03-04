@@ -34,6 +34,8 @@ public final class VPath implements Cloneable {
   public static final VPath ROOT = new VPath("", '/');
 
   private static final char INTERNAL_SEPARATOR = '/';
+  private static final VPathFragment INTERNAL_SEPARATOR_FRAGMENT =
+      new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR);
 
   @Nonnull
   private static final Splitter splitter = Splitter.on(INTERNAL_SEPARATOR).omitEmptyStrings();
@@ -70,8 +72,7 @@ public final class VPath implements Cloneable {
   public VPath prependPath(@Nonnull VPath path) {
     assert !path.isRoot();
     if (!this.isRoot()) {
-      pathFragments.add(0,
-          new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+      pathFragments.add(0, INTERNAL_SEPARATOR_FRAGMENT);
     }
     pathFragments.addAll(0, path.getPathFragments());
 
@@ -87,7 +88,7 @@ public final class VPath implements Cloneable {
   public VPath appendPath(@Nonnull VPath path) {
     assert !path.isRoot();
     if (!this.isRoot()) {
-      pathFragments.add(new VPathFragment(String.valueOf(INTERNAL_SEPARATOR), INTERNAL_SEPARATOR));
+      pathFragments.add(INTERNAL_SEPARATOR_FRAGMENT);
     }
     pathFragments.addAll(path.getPathFragments());
 
@@ -179,7 +180,7 @@ public final class VPath implements Cloneable {
   /**
    * A portion of path that should be immutable.
    */
-  static class VPathFragment {
+  private static class VPathFragment {
     @Nonnull
     private final CharSequence path;
 
@@ -213,7 +214,7 @@ public final class VPath implements Cloneable {
     }
 
     private boolean isValidSuffix() {
-      return !path.toString().contains(String.valueOf(separator));
+      return path.toString().indexOf(separator) == -1;
     }
   }
 
