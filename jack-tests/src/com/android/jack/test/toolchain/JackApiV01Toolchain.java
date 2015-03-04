@@ -19,14 +19,18 @@ package com.android.jack.test.toolchain;
 import com.google.common.collect.Lists;
 
 import com.android.jack.Options;
+import com.android.jack.api.v01.AbortException;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.ConfigurationException;
+import com.android.jack.api.v01.DebugInfoLevel;
+import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestConfigurationException;
 import com.android.sched.vfs.Container;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +55,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
       throws Exception {
     srcToCommon(sources);
     setOutputDex(out);
-    apiV01Config.getTask().run();
+    run();
   }
 
   @Override
@@ -59,21 +63,21 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
       throws Exception {
     srcToCommon(sources);
     setOutputJack(out);
-    apiV01Config.getTask().run();
+    run();
   }
 
   @Override
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
     libToCommon(in);
     setOutputDex(out);
-    apiV01Config.getTask().run();
+    run();
   }
 
   @Override
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     libToCommon(in);
     setOutputJack(out);
-    apiV01Config.getTask().run();
+    run();
   }
 
   @Override
@@ -119,7 +123,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
   @Nonnull
   public JackApiV01Toolchain setWithDebugInfos(boolean withDebugInfos) {
     try {
-      apiV01Config.setEmitDebug(withDebugInfos);
+      apiV01Config.setDebugInfoLevel(DebugInfoLevel.FULL);
       return this;
     } catch (ConfigurationException e) {
       throw new TestConfigurationException(e);
@@ -141,6 +145,43 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
       return this;
     } catch (ConfigurationException e) {
       throw new TestConfigurationException(e);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public final Toolchain setErrorStream(@Nonnull OutputStream errorStream) {
+    super.setErrorStream(errorStream);
+    try {
+      apiV01Config.setReporter(ReporterKind.DEFAULT, errorStream);
+    } catch (ConfigurationException e) {
+      throw new TestConfigurationException(e);
+    }
+    return this;
+  }
+
+  private void run() throws Exception {
+    try {
+      System.setOut(outRedirectStream);
+      System.setErr(errRedirectStream);
+      apiV01Config.getTask().run();
+    } catch (ConfigurationException e) {
+      Throwable t1 = e.getCause();
+      if (t1 instanceof Exception) {
+        throw (Exception) t1;
+      } else {
+        throw new AssertionError();
+      }
+    } catch (AbortException e1) {
+      Throwable t1 = e1.getCause();
+      if (t1 instanceof Exception) {
+        throw (Exception) t1;
+      } else {
+        throw new AssertionError();
+      }
+    } finally {
+      System.setOut(stdOut);
+      System.setOut(stdErr);
     }
   }
 

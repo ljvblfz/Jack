@@ -75,9 +75,8 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(srcFolder, /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
-    } catch (ProcessException e) {
-      Assert.assertTrue(e.getCause() instanceof JackAbortException);
-      Throwable contextException = e.getCause().getCause();
+    } catch (JackAbortException e) {
+      Throwable contextException = e.getCause();
       Assert.assertTrue(contextException instanceof DexWritingException);
       Assert.assertTrue(contextException.getCause() instanceof SingleDexOverflowException);
       Assert.assertTrue(contextException.getCause().getCause() instanceof MethodIdOverflowException);
@@ -99,9 +98,8 @@ public class MergerTest011 extends MergerTestTools {
     try {
       buildOneDexPerType(srcFolder, /* withDebug = */false, /* out = */ null, err);
       Assert.fail();
-    } catch (ProcessException e) {
-      Assert.assertTrue(e.getCause() instanceof JackAbortException);
-      Throwable contextException = e.getCause().getCause();
+    } catch (JackAbortException e) {
+      Throwable contextException = e.getCause();
       Assert.assertTrue(contextException instanceof DexWritingException);
       Assert.assertTrue(contextException.getCause() instanceof SingleDexOverflowException);
       Assert.assertTrue(contextException.getCause().getCause() instanceof FieldIdOverflowException);

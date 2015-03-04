@@ -16,6 +16,8 @@
 
 package com.android.jack.api.v01.impl;
 
+import com.google.common.base.Joiner;
+
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
@@ -25,6 +27,7 @@ import com.android.jack.api.v01.AbortException;
 import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.ConfigurationException;
+import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.JavaSourceVersion;
 import com.android.jack.api.v01.MultiDexKind;
 import com.android.jack.api.v01.ReporterKind;
@@ -32,6 +35,10 @@ import com.android.jack.api.v01.ResourceCollisionPolicy;
 import com.android.jack.api.v01.TypeCollisionPolicy;
 import com.android.jack.api.v01.UnrecoverableException;
 import com.android.jack.api.v01.VerbosityLevel;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.reporting.Reporter;
+import com.android.jack.resource.ResourceImporter;
+import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.sched.scheduler.ProcessException;
 import com.android.sched.util.RunnableHooks;
 
@@ -118,209 +125,250 @@ public class Api01ConfigImpl implements Api01Config {
 
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setClasspath(java.util.List)
-   */
   @Override
-  @Nonnull
-  public void setClasspath(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setEmitDebug(boolean)
-   */
-  @Override
-  @Nonnull
-  public void setEmitDebug(boolean arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setImportedJackLibraryFiles(java.util.List)
-   */
-  @Override
-  @Nonnull
-  public void setImportedJackLibraryFiles(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setIncrementalDir(java.io.File)
-   */
-  @Override
-  @Nonnull
-  public void setIncrementalDir(@Nonnull File arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setJarJarConfigFile(java.io.File)
-   */
-  @Override
-  @Nonnull
-  public void setJarJarConfigFile(@Nonnull File arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setClasspath(@Nonnull List<File> classpath) {
+    options.setClasspath(Joiner.on(File.pathSeparator).join(classpath));
   }
 
   @Override
-  @Nonnull
-  public void setJavaSourceVersion(@Nonnull JavaSourceVersion arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setDebugInfoLevel(@Nonnull DebugInfoLevel debugLevel) throws ConfigurationException {
+    switch (debugLevel) {
+      case FULL: {
+        options.setEmitLocalDebugInfo(true);
+        break;
+      }
+      case LINES: {
+        options.setEmitLocalDebugInfo(false);
+        break;
+      }
+      case NONE: {
+        options.setEmitLocalDebugInfo(false);
+        options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), "false");
+        options.addProperty(Options.EMIT_SOURCE_FILE_DEBUG_INFO.getName(), "false");
+        break;
+      }
+      default: {
+        throw new ConfigurationException("Debug info level '" + debugLevel + "' is unsupported");
+      }
+    }
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setMetaDirs(java.util.List)
-   */
   @Override
-  @Nonnull
-  public void setMetaDirs(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setImportedJackLibraryFiles(@Nonnull List<File> importedJackLibraryFiles) {
+    options.setImportedLibraries(importedJackLibraryFiles);
   }
 
   @Override
-  @Nonnull
-  public void setMultiDexKind(@Nonnull MultiDexKind arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setIncrementalDir(@Nonnull File incrementalDir) {
+    options.setIncrementalFolder(incrementalDir);
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setObfuscationMappingOutputFile(java.io.File)
-   */
   @Override
-  @Nonnull
-  public void setObfuscationMappingOutputFile(@Nonnull File arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setJarJarConfigFile(@Nonnull File jarJarConfigFile) {
+    options.setJarjarRulesFile(jarJarConfigFile);
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setOutputDexDir(java.io.File)
-   */
   @Override
-  @Nonnull
-  public void setOutputDexDir(@Nonnull File arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setOutputJackFile(java.io.File)
-   */
-  @Override
-  @Nonnull
-  public void setOutputJackFile(@Nonnull File arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setProcessorNames(java.util.List)
-   */
-  @Override
-  @Nonnull
-  public void setProcessorNames(@Nonnull List<String> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setProcessorOptions(java.util.Map)
-   */
-  @Override
-  @Nonnull
-  public void setProcessorOptions(@Nonnull Map<String, String> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setProcessorPath(java.util.List)
-   */
-  @Override
-  @Nonnull
-  public void setProcessorPath(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setProguardConfigFiles(java.util.List)
-   */
-  @Override
-  @Nonnull
-  public void setProguardConfigFiles(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setProperty(java.lang.String, java.lang.String)
-   */
-  @Override
-  @Nonnull
-  public void setProperty(@Nonnull String arg0, @Nonnull String arg1)
+  public void setJavaSourceVersion(@Nonnull JavaSourceVersion javaSourceVersion)
       throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
+    JavaVersion javaSourceVersionWrapped = null;
 
+    switch (javaSourceVersion) {
+      case JAVA_3: {
+        javaSourceVersionWrapped = JavaVersion.JAVA_3;
+        break;
+      }
+      case JAVA_4: {
+        javaSourceVersionWrapped = JavaVersion.JAVA_4;
+        break;
+      }
+      case JAVA_5: {
+        javaSourceVersionWrapped = JavaVersion.JAVA_5;
+        break;
+      }
+      case JAVA_6: {
+        javaSourceVersionWrapped = JavaVersion.JAVA_6;
+        break;
+      }
+      case JAVA_7: {
+        javaSourceVersionWrapped = JavaVersion.JAVA_7;
+        break;
+      }
+      default: {
+        throw new ConfigurationException(
+            "Java source version '" + javaSourceVersion + "' is unsupported");
+      }
+    }
+    options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), javaSourceVersionWrapped.toString());
   }
 
   @Override
-  @Nonnull
-  public void setReporter(@Nonnull ReporterKind arg0, @Nonnull OutputStream arg1)
+  public void setMetaDirs(@Nonnull List<File> metaDirs) {
+    options.setMetaDirs(metaDirs);
+  }
+
+  @Override
+  public void setMultiDexKind(@Nonnull MultiDexKind multiDexKind) throws ConfigurationException {
+    switch (multiDexKind) {
+      case LEGACY: {
+        options.setMultiDexKind(com.android.jack.Options.MultiDexKind.LEGACY);
+        break;
+      }
+      case NATIVE: {
+        options.setMultiDexKind(com.android.jack.Options.MultiDexKind.NATIVE);
+        break;
+      }
+      case NONE: {
+        options.setMultiDexKind(com.android.jack.Options.MultiDexKind.NONE);
+        break;
+      }
+      default: {
+        throw new ConfigurationException("Multi dex kind '" + multiDexKind + "' is unsupported");
+      }
+    }
+  }
+
+  @Override
+  public void setObfuscationMappingOutputFile(@Nonnull File obfuscationMappingOutputFile) {
+    options.addProperty(MappingPrinter.MAPPING_OUTPUT_ENABLED.getName(), "true");
+    options.addProperty(MappingPrinter.MAPPING_OUTPUT_FILE.getName(),
+        obfuscationMappingOutputFile.getPath());
+  }
+
+  @Override
+  public void setOutputDexDir(@Nonnull File outputDexDir) {
+    options.setOutputDir(outputDexDir);
+  }
+
+  @Override
+  public void setOutputJackFile(@Nonnull File outputJackFile) {
+    options.setJayceOutputZip(outputJackFile);
+  }
+
+  @Override
+  public void setProcessorNames(@Nonnull List<String> processorNames) {
+    throw new AssertionError();
+  }
+
+  @Override
+  public void setProcessorOptions(@Nonnull Map<String, String> processorOptions) {
+    throw new AssertionError();
+  }
+
+  @Override
+  public void setProcessorPath(@Nonnull List<File> processorPath) {
+    throw new AssertionError();
+  }
+
+  @Override
+  public void setProguardConfigFiles(@Nonnull List<File> proguardConfigFiles) {
+    options.setProguardFlagsFile(proguardConfigFiles);
+  }
+
+  @Override
+  public void setProperty(@Nonnull String key, @Nonnull String value) {
+    options.addProperty(key, value);
+  }
+
+  @Override
+  public void setReporter(@Nonnull ReporterKind reporterKind, @Nonnull OutputStream reporterStream)
       throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+    String reporterKindAsString = null;
+    switch (reporterKind) {
+      case DEFAULT: {
+        reporterKindAsString = "default";
+        break;
+      }
+      case SDK: {
+        reporterKindAsString = "sdk";
+        break;
+      }
+      default: {
+        throw new ConfigurationException("Reporter kind '" + reporterKind + "' is unsupported");
+      }
+    }
+    options.addProperty(Reporter.REPORTER.getName(), reporterKindAsString);
+    options.setReporterStream(reporterStream);
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setResourceDirs(java.util.List)
-   */
   @Override
-  @Nonnull
-  public void setResourceDirs(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setResourceDirs(@Nonnull List<File> resourceDirs) {
+    options.setResourceDirs(resourceDirs);
   }
 
   @Override
-  @Nonnull
-  public void setResourceImportCollisionPolicy(@Nonnull ResourceCollisionPolicy arg0)
+  public void setResourceImportCollisionPolicy(
+      @Nonnull ResourceCollisionPolicy resourceImportCollisionPolicy)
       throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+    String collissionPolicy = null;
+    switch (resourceImportCollisionPolicy) {
+      case FAIL: {
+        collissionPolicy = "fail";
+        break;
+      }
+      case KEEP_FIRST: {
+        collissionPolicy = "keep-first";
+        break;
+      }
+      default: {
+        throw new ConfigurationException(
+            "Resource collision policy '" + resourceImportCollisionPolicy + "' is unsupported");
+      }
+    }
+    options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collissionPolicy);
   }
 
-  /* (non-Javadoc)
-   * @see com.android.jack.api.v01.Api01Config#setSourceEntries(java.util.List)
-   */
   @Override
-  @Nonnull
-  public void setSourceEntries(@Nonnull List<File> arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setSourceEntries(@Nonnull List<File> sourceEntries) {
+    options.setInputSources(sourceEntries);
   }
 
   @Override
-  @Nonnull
-  public void setTypeImportCollisionPolicy(@Nonnull TypeCollisionPolicy arg0)
+  public void setTypeImportCollisionPolicy(@Nonnull TypeCollisionPolicy typeImportCollisionPolicy)
       throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+    String collissionPolicy = null;
+    switch (typeImportCollisionPolicy) {
+      case FAIL: {
+        collissionPolicy = "fail";
+        break;
+      }
+      case KEEP_FIRST: {
+        collissionPolicy = "keep-first";
+        break;
+      }
+      default: {
+        throw new ConfigurationException(
+            "Type collision policy '" + typeImportCollisionPolicy + "' is unsupported");
+      }
+    }
+    options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collissionPolicy);
   }
 
   @Override
-  @Nonnull
-  public void setVerbosityLevel(@Nonnull VerbosityLevel arg0) throws ConfigurationException {
-    // TODO(benoitlamarche): Auto-generated method stub
-
+  public void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel)
+      throws ConfigurationException {
+    com.android.jack.Options.VerbosityLevel jackVerbosityLevel;
+    switch (verbosityLevel) {
+      case DEBUG: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.DEBUG;
+        break;
+      }
+      case ERROR: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.ERROR;
+        break;
+      }
+      case INFO: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.INFO;
+        break;
+      }
+      case WARNING: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.WARNING;
+        break;
+      }
+      default: {
+        throw new ConfigurationException("Verbosity level '" + verbosityLevel + "' is unsupported");
+      }
+    }
+    options.setVerbosityLevel(jackVerbosityLevel);
   }
 }

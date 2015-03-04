@@ -276,12 +276,12 @@ public class Options {
   @Option(name = "--import-resource",
       usage = "import the given directory into the output as resource files (repeatable)",
       metaVar = "<DIRECTORY>")
-  private final List<File> resImport = new ArrayList<File>();
+  private List<File> resImport = new ArrayList<File>();
 
   @Option(name = "--import-meta",
       usage = "import the given directory into the output as meta-files (repeatable)",
       metaVar = "<DIRECTORY>")
-  private final List<File> metaImport = new ArrayList<File>();
+  private List<File> metaImport = new ArrayList<File>();
 
   @Option(name = "--config-proguard",
       usage = "use a proguard flags file (default: none) (repeatable)",
@@ -749,6 +749,7 @@ public class Options {
 
   public void checkValidity(@Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, ConfigurationException {
+    ecjExtraArguments.clear();
     config = getConfigBuilder(hooks).build();
 
     // FINDBUGS
@@ -885,6 +886,14 @@ public class Options {
 
   public void addResource(@Nonnull File resource) {
     resImport.add(resource);
+  }
+
+  public void setResourceDirs(@Nonnull List<File> resourceDirs) {
+    resImport = resourceDirs;
+  }
+
+  public void setMetaDirs(@Nonnull List<File> metaDirs) {
+    metaImport = metaDirs;
   }
 
   public void setReporterStream(@Nonnull OutputStream reporterStream) {
