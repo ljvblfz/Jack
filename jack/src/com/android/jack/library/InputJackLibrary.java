@@ -17,9 +17,14 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
+import com.android.jack.jayce.JayceProperties;
+import com.android.sched.util.log.LoggerFactory;
 
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -30,8 +35,91 @@ import javax.annotation.Nonnull;
  */
 public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
-  public InputJackLibrary(@Nonnull Properties libraryProperties) {
+  @Nonnull
+  protected static Logger logger = LoggerFactory.getLogger();
+
+  @Nonnegative
+  private final int minorVersion;
+
+  @Nonnull
+  private final Constructor<?> jayceReaderConstructor;
+
+  @Nonnegative
+  private final int jayceMajorVersion;
+  @Nonnegative
+  private final int jayceMinorVersion;
+
+  public InputJackLibrary(@Nonnull Properties libraryProperties) throws LibraryFormatException {
     super(libraryProperties);
+
+    try {
+      minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
+    } catch (NumberFormatException e) {
+      logger.log(Level.SEVERE, "Fails to parse the property " + KEY_LIB_MINOR_VERSION
+          + " from " + getLocation().getDescription(), e);
+      throw new LibraryFormatException(getLocation());
+    }
+
+    String jayceMajorVersionStr = getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
+    try {
+      jayceMajorVersion = Integer.parseInt(jayceMajorVersionStr);
+    } catch (NumberFormatException e) {
+      logger.log(Level.SEVERE, "Failed to parse the property "
+          + JayceProperties.KEY_JAYCE_MAJOR_VERSION + " from "
+          + getLocation().getDescription(), e);
+      throw new LibraryFormatException(getLocation());
+    }
+
+    try {
+      jayceMinorVersion = Integer.parseInt(getProperty(JayceProperties.KEY_JAYCE_MINOR_VERSION));
+    } catch (NumberFormatException e) {
+      logger.log(Level.SEVERE, "Failed to parse the property "
+          + JayceProperties.KEY_JAYCE_MINOR_VERSION + " from "
+          + getLocation().getDescription(), e);
+      throw new LibraryFormatException(getLocation());
+    }
+
+    String className = "com.android.jack.jayce.v"
+        + JackLibraryFactory.getVersionString(jayceMajorVersion) + ".io.JayceInternalReaderImpl";
+
+    Class<?> jayceReaderClass;
+    try {
+      jayceReaderClass = Class.forName(className);
+    } catch (ClassNotFoundException e) {
+      logger.log(Level.SEVERE, "Library " + getLocation().getDescription()
+          + " is invalid: Jayce version " + jayceMajorVersionStr + " not supported", e);
+      throw new LibraryFormatException(getLocation());
+    }
+    try {
+      jayceReaderConstructor = jayceReaderClass.getConstructor(new Class[] {InputStream.class});
+    } catch (SecurityException e) {
+      throw new AssertionError("Security issue with Jayce stream");
+    } catch (NoSuchMethodException e) {
+      throw new AssertionError("Jayce processing method not found for version " +
+          jayceMajorVersionStr);
+    }
+
+  }
+
+  @Nonnull
+  public final Constructor<?> getJayceReaderConstructor() {
+    return jayceReaderConstructor;
+  }
+
+  @Nonnegative
+  public final int getJayceMajorVersion() {
+    return jayceMajorVersion;
+  }
+
+  @Nonnegative
+  public final int getJayceMinorVersion() {
+    return jayceMinorVersion;
+  }
+
+  @Override
+  @Nonnegative
+  public final int getMinorVersion() {
+    return minorVersion;
   }
 
   protected void check() throws LibraryVersionException, LibraryFormatException {
