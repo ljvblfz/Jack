@@ -80,7 +80,8 @@ JACK_STATIC_JAVA_LIBRARIES := \
   watchmaker-jack \
   maths-jack \
   args4j-jack \
-  antlr-runtime-jack
+  antlr-runtime-jack \
+  jack-api
 
 LOCAL_JAVA_LIBRARIES := \
   sched-build \
