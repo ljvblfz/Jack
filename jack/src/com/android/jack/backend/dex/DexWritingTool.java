@@ -93,7 +93,7 @@ public abstract class DexWritingTool {
     try {
       merger.addDexFile(new DexBuffer(inputDex.openRead()));
     } catch (IOException e) {
-      throw new DexWritingException(new CannotReadException(inputDex.getLocation(), e));
+      throw new DexWritingException(new CannotReadException(inputDex, e));
     }
   }
 

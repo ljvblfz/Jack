@@ -16,6 +16,7 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.CheckForNull;
@@ -27,11 +28,24 @@ import javax.annotation.Nonnull;
 public class NotDirectoryException extends NotFileOrDirectoryException {
   private static final long serialVersionUID = 1L;
 
-  public NotDirectoryException(@Nonnull Location expected) {
-    this(expected, null);
+  public NotDirectoryException(@Nonnull Location location) {
+    super(location, null);
   }
 
-  public NotDirectoryException(@Nonnull Location expected, @CheckForNull Throwable cause) {
-    super(expected.getDescription() + " is not actually a directory", cause);
+  public NotDirectoryException(@Nonnull Location location, @CheckForNull Throwable cause) {
+    super(location, cause);
+  }
+
+  public NotDirectoryException(@Nonnull HasLocation locationProvider) {
+    super(locationProvider, null);
+  }
+
+  public NotDirectoryException(@Nonnull HasLocation location, @CheckForNull Throwable cause) {
+    super(location, cause);
+  }
+
+  @Override
+  protected String createMessage(@Nonnull String description) {
+    return description + " is not actually a directory";
   }
 }

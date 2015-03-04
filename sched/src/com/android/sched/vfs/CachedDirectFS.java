@@ -288,7 +288,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
     File path = getNativeFile(file.getPath());
     if (!path.delete() || path.exists()) {
-      throw new CannotDeleteFileException(file.getLocation());
+      throw new CannotDeleteFileException(file);
     }
 
     file.deleteFromCache();
@@ -297,8 +297,8 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
   @Override
   @Nonnull
-  synchronized CachedParentVFile createVFile(@Nonnull CachedParentVDir parent, @Nonnull String name)
-      throws CannotCreateFileException {
+  synchronized CachedParentVFile createVFile(@Nonnull CachedParentVDir parent,
+      @Nonnull String name) throws CannotCreateFileException {
     assert !isClosed();
 
     try {
@@ -324,7 +324,8 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
   @Override
   @Nonnull
-  synchronized CachedParentVDir createVDir(@Nonnull CachedParentVDir parent, @Nonnull String name)
+  synchronized CachedParentVDir createVDir(@Nonnull CachedParentVDir parent,
+      @Nonnull String name)
       throws CannotCreateFileException {
     assert !isClosed();
 

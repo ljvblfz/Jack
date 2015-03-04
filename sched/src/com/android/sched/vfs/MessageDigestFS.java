@@ -197,7 +197,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
         }
       } catch (IOException e) {
         throw new WrongVFSFormatException(this, vfs.getLocation(), new CannotReadException(
-            digestFile.getLocation()));
+            digestFile));
       }
     } finally {
       if (in != null) {

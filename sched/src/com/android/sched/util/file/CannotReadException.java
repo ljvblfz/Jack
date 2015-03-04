@@ -16,9 +16,8 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
-
-import java.io.IOException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -26,15 +25,29 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file can not be read.
  */
-public class CannotReadException extends IOException {
+public class CannotReadException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
   public CannotReadException(@Nonnull Location location) {
-    this(location, null);
+    super(location, null);
   }
 
   public CannotReadException(@Nonnull Location location,
       @CheckForNull Throwable cause) {
-    super(location.getDescription() + " can not be read", cause);
+    super(location, cause);
+  }
+
+  public CannotReadException(@Nonnull HasLocation locationProvider) {
+    super(locationProvider, null);
+  }
+
+  public CannotReadException(@Nonnull HasLocation locationProvider,
+      @CheckForNull Throwable cause) {
+    super(locationProvider, cause);
+  }
+
+  @Override
+  protected String createMessage(@Nonnull String description) {
+    return description + " can not be read";
   }
 }

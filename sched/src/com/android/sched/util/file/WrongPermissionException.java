@@ -17,9 +17,8 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
-
-import java.io.IOException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -27,18 +26,38 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory have not the expected permission.
  */
-public class WrongPermissionException extends IOException {
+public class WrongPermissionException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
+  private final int permission;
+
   public WrongPermissionException(@Nonnull Location location, int permission) {
-    this(location, permission, null);
+    super(location, null);
+    this.permission = permission;
   }
 
   public WrongPermissionException(@Nonnull Location location, int permission,
       @CheckForNull Throwable cause) {
-    super(location.getDescription() + " is not " +
-      ((permission == Permission.READ)    ? "readable" :
-      ((permission == Permission.WRITE)   ? "writable" :
-      ((permission == Permission.EXECUTE) ? "executable" : "???"))), cause);
+    super(location, cause);
+    this.permission = permission;
+  }
+
+  public WrongPermissionException(@Nonnull HasLocation locationProvider, int permission) {
+    super(locationProvider, null);
+    this.permission = permission;
+  }
+
+  public WrongPermissionException(@Nonnull HasLocation location, int permission,
+      @CheckForNull Throwable cause) {
+    super(location, cause);
+    this.permission = permission;
+  }
+
+  @Override
+  protected String createMessage(@Nonnull String description) {
+    return description + " is not " +
+        ((permission == Permission.READ)    ? "readable" :
+        ((permission == Permission.WRITE)   ? "writable" :
+        ((permission == Permission.EXECUTE) ? "executable" : "???")));
   }
 }

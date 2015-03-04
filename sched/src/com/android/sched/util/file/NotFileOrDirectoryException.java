@@ -16,7 +16,8 @@
 
 package com.android.sched.util.file;
 
-import java.io.IOException;
+import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -24,14 +25,15 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a path is not from the expected file or directory kind.
  */
-public abstract class NotFileOrDirectoryException extends IOException {
+public abstract class NotFileOrDirectoryException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
-  public NotFileOrDirectoryException(@Nonnull String string) {
-    super(string);
+  public NotFileOrDirectoryException(@Nonnull Location location, @CheckForNull Throwable cause) {
+    super(location, cause);
   }
 
-  public NotFileOrDirectoryException(@Nonnull String string, @CheckForNull Throwable cause) {
-    super(string, cause);
+  public NotFileOrDirectoryException(@Nonnull HasLocation locationProvider,
+      @CheckForNull Throwable cause) {
+    super(locationProvider, cause);
   }
 }

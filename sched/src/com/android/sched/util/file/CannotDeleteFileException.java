@@ -16,9 +16,8 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
-
-import java.io.IOException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -26,15 +25,29 @@ import javax.annotation.Nonnull;
 /**
  * Exception thrown when deletion of a file or a directory fails.
  */
-public class CannotDeleteFileException extends IOException {
+public class CannotDeleteFileException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
   public CannotDeleteFileException(@Nonnull Location location) {
-    this(location, null);
+    super(location, null);
   }
 
-  public CannotDeleteFileException(
-      @Nonnull Location location, @CheckForNull Throwable cause) {
-    super(location.getDescription() + " can not be deleted", cause);
+  public CannotDeleteFileException(@Nonnull Location location,
+      @CheckForNull Throwable cause) {
+    super(location, cause);
+  }
+
+  public CannotDeleteFileException(@Nonnull HasLocation locationProvider) {
+    super(locationProvider, null);
+  }
+
+  public CannotDeleteFileException(@Nonnull HasLocation locationProvider,
+      @CheckForNull Throwable cause) {
+    super(locationProvider, cause);
+  }
+
+  @Override
+  protected String createMessage(@Nonnull String description) {
+    return description + " can not be deleted";
   }
 }

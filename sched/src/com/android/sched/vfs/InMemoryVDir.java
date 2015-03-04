@@ -83,7 +83,8 @@ abstract class InMemoryVDir extends BaseVDir {
 
   @Override
   @Nonnull
-  public synchronized BaseVDir createVDir(@Nonnull String name) throws CannotCreateFileException {
+  public synchronized BaseVDir createVDir(@Nonnull String name)
+      throws CannotCreateFileException {
     try {
       return getVDir(name);
     } catch (NoSuchFileException e) {
@@ -98,7 +99,8 @@ abstract class InMemoryVDir extends BaseVDir {
 
   @Override
   @Nonnull
-  public synchronized BaseVFile createVFile(@Nonnull String name) throws CannotCreateFileException {
+  public synchronized BaseVFile createVFile(@Nonnull String name)
+      throws CannotCreateFileException {
     try {
       return getVFile(name);
     } catch (NoSuchFileException e) {

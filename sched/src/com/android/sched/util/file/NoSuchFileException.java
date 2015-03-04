@@ -16,9 +16,8 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
-
-import java.io.IOException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -26,14 +25,27 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory does not exist.
  */
-public class NoSuchFileException extends IOException {
+public class NoSuchFileException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
   public NoSuchFileException(@Nonnull Location location) {
-    this(location, null);
+    super(location, null);
   }
 
   public NoSuchFileException(@Nonnull Location location, @CheckForNull Throwable cause) {
-    super(location.getDescription() + " does not exist", cause);
+    super(location, cause);
+  }
+
+  public NoSuchFileException(@Nonnull HasLocation locationProvider) {
+    super(locationProvider, null);
+  }
+
+  public NoSuchFileException(@Nonnull HasLocation location, @CheckForNull Throwable cause) {
+    super(location, cause);
+  }
+
+  @Override
+  protected String createMessage(@Nonnull String description) {
+    return description + " does not exist";
   }
 }

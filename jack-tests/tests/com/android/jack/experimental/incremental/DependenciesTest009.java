@@ -115,9 +115,9 @@ public class DependenciesTest009 {
       reader = new InputStreamReader(typeDependenciesVFile.openRead());
       typeDependencies.read(reader);
     } catch (NoSuchElementException e) {
-      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+      throw new CannotReadException(typeDependenciesVFile, e);
     } catch (IOException e) {
-      throw new CannotReadException(typeDependenciesVFile.getLocation(), e);
+      throw new CannotReadException(typeDependenciesVFile, e);
     } finally {
       if (reader != null) {
         try {

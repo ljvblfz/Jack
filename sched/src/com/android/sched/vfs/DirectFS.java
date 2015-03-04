@@ -223,7 +223,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
 
     File path = getNativeFile(file.getPath());
     if (!path.delete() || path.exists()) {
-      throw new CannotDeleteFileException(file.getLocation());
+      throw new CannotDeleteFileException(file);
     }
   }
 

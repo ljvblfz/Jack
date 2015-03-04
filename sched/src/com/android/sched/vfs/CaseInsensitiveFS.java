@@ -379,11 +379,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       BaseVFile encoded = vfs.getRootDir().getVFile(encode(file.getPath()));
       vfs.delete(encoded);
     } catch (NotDirectoryException e) {
-      throw new CannotDeleteFileException(file.getLocation());
+      throw new CannotDeleteFileException(file);
     } catch (NotFileException e) {
-      throw new CannotDeleteFileException(file.getLocation());
+      throw new CannotDeleteFileException(file);
     } catch (NoSuchFileException e) {
-      throw new CannotDeleteFileException(file.getLocation());
+      throw new CannotDeleteFileException(file);
     }
   }
 
