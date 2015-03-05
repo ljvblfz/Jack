@@ -18,10 +18,7 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.FileOrDirLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.StandardInputLocation;
-import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -49,18 +46,10 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
     this.location = new FileLocation(file);
   }
 
-  protected AbstractStreamFile(int permissions) {
+  protected AbstractStreamFile(@Nonnull Location location) {
     super(null);
-
-    assert permissions == Permission.READ || permissions == Permission.WRITE;
-
     this.file = null;
-
-    if (permissions == Permission.READ) {
-      this.location = new StandardInputLocation();
-    } else {
-      this.location = new StandardOutputLocation();
-    }
+    this.location = location;
   }
 
   protected void performChecks(@Nonnull Existence existence, int permissions,
@@ -83,7 +72,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        AbstractStreamFile.check(file, (FileOrDirLocation) location);
+        AbstractStreamFile.check(file, (FileLocation) location);
         FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case NOT_EXIST:
@@ -129,7 +118,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
     }
   }
 
-  public static void check(@Nonnull File file, @Nonnull FileOrDirLocation location)
+  public static void check(@Nonnull File file, @Nonnull FileLocation location)
       throws NoSuchFileException, NotFileException {
     assert file != null;
 
@@ -140,7 +129,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
     // Check it is a file
     if (!file.isFile()) {
-      throw new NotFileException((FileLocation) location);
+      throw new NotFileException(location);
     }
   }
 

@@ -48,6 +48,7 @@ public class InputZipFile extends StreamFile {
     zipFile = processZip(file);
   }
 
+  @Nonnull
   private ZipFile processZip(File file) throws ZipException {
     try {
       return new ZipFile(file);

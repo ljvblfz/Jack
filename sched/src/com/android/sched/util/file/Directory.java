@@ -18,7 +18,6 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.DirectoryLocation;
-import com.android.sched.util.location.FileOrDirLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -61,7 +60,7 @@ public class Directory extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        Directory.check(file, (FileOrDirLocation) location);
+        Directory.check(file, (DirectoryLocation) location);
         FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case NOT_EXIST:
@@ -88,7 +87,7 @@ public class Directory extends FileOrDirectory {
     return location.getDescription();
   }
 
-  public static void check(@Nonnull File file, @Nonnull FileOrDirLocation location)
+  public static void check(@Nonnull File file, @Nonnull DirectoryLocation location)
       throws NoSuchFileException, NotDirectoryException {
     assert file != null;
 
@@ -99,7 +98,7 @@ public class Directory extends FileOrDirectory {
 
     // Check directory
     if (!file.isDirectory()) {
-      throw new NotDirectoryException((DirectoryLocation) location);
+      throw new NotDirectoryException(location);
     }
   }
 

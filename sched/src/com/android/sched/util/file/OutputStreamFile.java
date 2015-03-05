@@ -18,6 +18,9 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.StandardErrorLocation;
+import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.util.stream.UncloseablePrintStream;
 
@@ -34,6 +37,9 @@ import javax.annotation.Nonnull;
  */
 public class OutputStreamFile extends AbstractStreamFile {
   private final boolean append;
+
+  @CheckForNull
+  private PrintStream printer;
 
   public OutputStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -77,16 +83,67 @@ public class OutputStreamFile extends AbstractStreamFile {
     this.append = false;
   }
 
-  public OutputStreamFile() {
-    super(Permission.WRITE);
+  @Nonnull
+  private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
+  @Nonnull
+  private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
 
+  /**
+   * Standard output stream kinds
+   */
+  public enum StandardOutputKind {
+
+    STANDARD_OUTPUT {
+      @Override
+      @Nonnull
+      public PrintStream getPrintStream() {
+        return System.out;
+      }
+
+      @Override
+      @Nonnull
+      public Location getLocation() {
+        return STANDARD_OUTPUT_LOCATION;
+      }
+    },
+
+    STANDARD_ERROR {
+      @Override
+      @Nonnull
+      public PrintStream getPrintStream() {
+        return System.err;
+      }
+
+      @Override
+      @Nonnull
+      public Location getLocation() {
+        return STANDARD_ERROR_LOCATION;
+      }
+    };
+
+    @Nonnull
+    public abstract PrintStream getPrintStream();
+
+    @Nonnull
+    public abstract Location getLocation();
+  }
+
+  public OutputStreamFile(@Nonnull StandardOutputKind standardOutputKind) {
+    super(standardOutputKind.getLocation());
+    this.printer = standardOutputKind.getPrintStream();
+    this.append = true;
+  }
+
+  public OutputStreamFile(@Nonnull PrintStream printer, @Nonnull Location location) {
+    super(location);
+    this.printer = printer;
     this.append = true;
   }
 
   @Nonnull
   public OutputStream getOutputStream() {
-    if (file == null) {
-      return new UncloseableOutputStream(System.out);
+    if (printer != null) {
+      return new UncloseableOutputStream(printer);
     } else {
       clearRemover();
       try {
@@ -99,8 +156,8 @@ public class OutputStreamFile extends AbstractStreamFile {
 
   @Nonnull
   public PrintStream getPrintStream() {
-    if (file == null) {
-      return new UncloseablePrintStream(System.out);
+    if (printer != null) {
+      return new UncloseablePrintStream(printer);
     } else {
       clearRemover();
       try {

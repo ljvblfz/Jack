@@ -17,11 +17,12 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.OutputStreamFile.StandardOutputKind;
+import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -53,8 +54,23 @@ public class OutputStreamCodec extends StreamCodec
   }
 
   @Nonnull
-  public OutputStreamCodec allowStandard() {
-    this.allowStandard = true;
+  public OutputStreamCodec allowStandardOutputOrError() {
+    this.allowStandardIO = true;
+    this.allowStandardError = true;
+
+    return this;
+  }
+
+  @Nonnull
+  public OutputStreamCodec allowStandardOutput() {
+    this.allowStandardIO = true;
+
+    return this;
+  }
+
+  @Nonnull
+  public OutputStreamCodec allowStandardError() {
+    this.allowStandardError = true;
 
     return this;
   }
@@ -66,17 +82,33 @@ public class OutputStreamCodec extends StreamCodec
     return this;
   }
 
-
   @Override
   @Nonnull
   public String formatValue(@Nonnull OutputStreamFile stream) {
-    return formatValue((AbstractStreamFile) stream);
+    if (stream.isStandard()) {
+      if (stream.getLocation().equals(StandardOutputKind.STANDARD_OUTPUT.getLocation())) {
+        return STANDARD_IO_NAME;
+      } else {
+        assert stream.getLocation().equals(StandardOutputKind.STANDARD_ERROR.getLocation());
+
+        return STANDARD_ERROR_NAME;
+      }
+    } else {
+      return stream.getPath();
+    }
   }
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull OutputStreamFile stream)
       throws CheckingException {
-    checkValue(context, (AbstractStreamFile) stream);
+    Location location = stream.getLocation();
+
+    if (location.equals(StandardOutputKind.STANDARD_OUTPUT.getLocation()) && !allowStandardIO) {
+      throw new CheckingException("Standard output is not allowed");
+    } else if (location.equals(StandardOutputKind.STANDARD_ERROR.getLocation())
+        && !allowStandardError) {
+      throw new CheckingException("Standard error is not allowed");
+    }
   }
 
   @Override
@@ -93,10 +125,20 @@ public class OutputStreamCodec extends StreamCodec
   @Nonnull
   public OutputStreamFile checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    super.checkString(context, string);
-
     if (string.equals(STANDARD_IO_NAME)) {
-      return new OutputStreamFile();
+      if (!allowStandardIO) {
+        throw new ParsingException("Standard output can not be used");
+      }
+
+      return new OutputStreamFile(context.getStandardOutput(),
+          StandardOutputKind.STANDARD_OUTPUT.getLocation());
+    } else if (string.equals(STANDARD_ERROR_NAME)) {
+      if (!allowStandardError) {
+        throw new ParsingException("Standard error can not be used");
+      }
+
+      return new OutputStreamFile(context.getStandardError(),
+          StandardOutputKind.STANDARD_ERROR.getLocation());
     } else {
       try {
         return new OutputStreamFile(string, context.getRunnableHooks(), existence, change, append);

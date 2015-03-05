@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.jack.reporting;
+package com.android.sched.util.location;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * An object that can be reported by a {@link Reporter}.
+ * Class describing a standard error.
  */
-public interface Reportable {
-
-  /**
-   * The level of a problem.
-   */
-  public static enum ProblemLevel {
-    ERROR, WARNING, INFO;
+public class StandardErrorLocation extends Location {
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return "standard error";
   }
 
-  @Nonnull
-  public String getMessage();
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj instanceof StandardErrorLocation;
+  }
 
-  @Nonnull
-  public ProblemLevel getDefaultProblemLevel();
-
+  @Override
+  public final int hashCode() {
+    return StandardErrorLocation.class.hashCode();
+  }
 }

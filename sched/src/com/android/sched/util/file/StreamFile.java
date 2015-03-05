@@ -42,10 +42,4 @@ public class StreamFile extends AbstractStreamFile {
 
     performChecks(existence, permissions, change);
   }
-
-  public StreamFile(int permissions) {
-    super(permissions);
-  }
-
-
 }

@@ -42,7 +42,7 @@ public class PlanPrinterFactory {
   @Nonnull
   public static final PropertyId<OutputStreamFile> PLAN_PRINTER_FILE = PropertyId.create(
       "sched.plan.printer.file", "The file where to print the plan",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-");
 
   public static PlanPrinter getPlanPrinter() {

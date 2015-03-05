@@ -70,7 +70,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final PropertyId<OutputStreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
       "jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-").withCategory(Arzon.get());
 
   @Nonnull

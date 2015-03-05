@@ -36,6 +36,6 @@ public class NoLocation extends Location {
 
   @Override
   public final int hashCode() {
-    return 0x12345678;
+    return NoLocation.class.hashCode();
   }
 }

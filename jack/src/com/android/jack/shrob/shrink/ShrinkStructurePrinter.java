@@ -51,7 +51,7 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final PropertyId<OutputStreamFile> STRUCTURE_PRINTING_FILE = PropertyId.create(
       "jack.internal.structure.print.file", "File containing the list of all types and members",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
 
   static class WriteException extends RuntimeException {

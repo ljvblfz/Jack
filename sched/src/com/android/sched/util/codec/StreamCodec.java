@@ -16,12 +16,10 @@
 
 package com.android.sched.util.codec;
 
-import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StreamFile;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -31,8 +29,11 @@ import javax.annotation.Nonnull;
 public abstract class StreamCodec extends FileOrDirCodec {
   @Nonnull
   protected static final String STANDARD_IO_NAME = "-";
+  @Nonnull
+  protected static final String STANDARD_ERROR_NAME = "--";
 
-  protected boolean allowStandard;
+  protected boolean allowStandardIO = false;
+  protected boolean allowStandardError = false;
 
   protected StreamCodec(@Nonnull Existence existence, int permissions) {
     super(existence, permissions);
@@ -43,65 +44,30 @@ public abstract class StreamCodec extends FileOrDirCodec {
 
   @Nonnull
   public String getUsage() {
-    StringBuilderAppender sb = new StringBuilderAppender(", ");
+    StringBuilder sb = new StringBuilder();
 
     sb.append("a path to a file (");
-
     sb.append(getUsageDetails());
-    if (allowStandard) {
-      StringBuilderAppender ssb = new StringBuilderAppender("/");
-
-      ssb.append("can be '");
-      ssb.append(STANDARD_IO_NAME);
-      ssb.append("' for standard ");
-      ssb.append((permissions & Permission.READ)  != 0, "input");
-      ssb.append((permissions & Permission.WRITE) != 0, "output");
-
-      sb.append(true, ssb.toString());
-    }
-
     sb.append(")");
 
-    return sb.toString();
-  }
+    if (allowStandardIO) {
+      StringBuilderAppender sbSlash = new StringBuilderAppender("/");
 
-  @CheckForNull
-  protected AbstractStreamFile checkString(@Nonnull CodecContext context, @Nonnull String value)
-      throws ParsingException {
-    if (value.equals(STANDARD_IO_NAME)) {
-      if (!allowStandard) {
-        throw new ParsingException(getStandardStreamDescription() + " can not be used");
-      }
+      sbSlash.append(", can be '");
+      sbSlash.append(STANDARD_IO_NAME);
+      sbSlash.append("' for standard ");
+      sbSlash.append((permissions & Permission.READ)  != 0, "input");
+      sbSlash.append((permissions & Permission.WRITE) != 0, "output");
+
+      sb.append(sbSlash.toString());
     }
 
-    return null;
-  }
-
-  protected void checkValue(@Nonnull CodecContext context, @Nonnull AbstractStreamFile stream)
-      throws CheckingException {
-    if (stream.isStandard() && !allowStandard) {
-      throw new CheckingException(getStandardStreamDescription() + " is not allowed");
+    if (allowStandardError) {
+      sb.append(", can be '");
+      sb.append(STANDARD_ERROR_NAME);
+      sb.append("' for standard error");
     }
-  }
-
-  @Nonnull
-  private String getStandardStreamDescription() {
-    StringBuilderAppender sb = new StringBuilderAppender("/");
-
-    sb.append("Standard ");
-    sb.append((permissions & Permission.READ)  != 0, "input");
-    sb.append((permissions & Permission.WRITE) != 0, "output");
-
 
     return sb.toString();
-  }
-
-  @Nonnull
-  protected String formatValue(@Nonnull AbstractStreamFile stream) {
-    if (stream.isStandard()) {
-      return STANDARD_IO_NAME;
-    } else {
-      return stream.getPath();
-    }
   }
 }
