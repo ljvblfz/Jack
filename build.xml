@@ -1338,7 +1338,7 @@
         </classpath>
         <test name="com.android.jack.AllWithJackTests"
           todir="${jack.tests.output}/test-jack-all/"
-          outfile="AllTestsResults" />
+          outfile="test-jack-all" />
       </junit>
       <junitreport todir="${jack.tests.output}/test-jack-all">
         <fileset dir="${jack.tests.output}/test-jack-all">
