@@ -104,6 +104,7 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
+import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.resource.ResourceImporter;
@@ -682,6 +683,8 @@ public abstract class Jack {
     JSession session =  getSession();
 
     session.setHooks(hooks);
+
+    session.setReporter(ThreadConfig.get(Reporter.REPORTER));
 
     Config config = ThreadConfig.getConfig();
 

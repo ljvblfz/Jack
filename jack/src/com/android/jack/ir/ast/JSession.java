@@ -39,7 +39,6 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.config.ThreadConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -86,8 +85,8 @@ public class JSession extends JNode {
   @Nonnull
   private final Logger userLogger = Logger.getLogger("Jack");
 
-  @Nonnull
-  private final Reporter reporter = ThreadConfig.get(Reporter.REPORTER);
+  @CheckForNull
+  private Reporter reporter;
 
   @Nonnull
   private final List<FileType> generatedBinaryKinds = new ArrayList<FileType>(2);
@@ -152,6 +151,7 @@ public class JSession extends JNode {
 
   @Nonnull
   public Reporter getReporter() {
+    assert reporter != null;
     return reporter;
   }
 
@@ -312,5 +312,9 @@ public class JSession extends JNode {
   public RunnableHooks getHooks() {
     assert hooks != null;
     return hooks;
+  }
+
+  public void setReporter(@Nonnull Reporter reporter) {
+    this.reporter = reporter;
   }
 }
