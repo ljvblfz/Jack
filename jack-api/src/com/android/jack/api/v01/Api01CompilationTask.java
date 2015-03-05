@@ -20,6 +20,7 @@ package com.android.jack.api.v01;
 /**
  * STOPSHIP
  */
-public interface Api01Compiler {
-  void run() throws AbortException, UnrecoverableException;
+public interface Api01CompilationTask {
+  void run() throws AbortException, UnrecoverableException, ConfigurationException,
+      IllegalStateException;
 }
