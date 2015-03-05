@@ -54,45 +54,11 @@ public final class DexBuffer {
   private final TableOfContents tableOfContents = new TableOfContents();
   private int length = 0;
 
-  private final List<String> strings = new AbstractList<String>() {
-    @Override
-    public String get(int index) {
-      checkBounds(index, tableOfContents.stringIds.size);
-      return open(tableOfContents.stringIds.off + (index * SizeOf.STRING_ID_ITEM)).readString();
-    }
+  private final List<String> strings;
 
-    @Override
-    public int size() {
-      return tableOfContents.stringIds.size;
-    }
-  };
+  private final List<Integer> typeIds;
 
-  private final List<Integer> typeIds = new AbstractList<Integer>() {
-    @Override
-    public Integer get(int index) {
-      checkBounds(index, tableOfContents.typeIds.size);
-      return Integer.valueOf(
-          open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt());
-    }
-
-    @Override
-    public int size() {
-      return tableOfContents.typeIds.size;
-    }
-  };
-
-  private final List<String> typeNames = new AbstractList<String>() {
-    @Override
-    public String get(int index) {
-      checkBounds(index, tableOfContents.typeIds.size);
-      return strings.get(typeIds.get(index).intValue());
-    }
-
-    @Override
-    public int size() {
-      return tableOfContents.typeIds.size;
-    }
-  };
+  private final List<String> typeNames;
 
   private final List<ProtoId> protoIds = new AbstractList<ProtoId>() {
     @Override
@@ -107,37 +73,20 @@ public final class DexBuffer {
     }
   };
 
-  private final List<FieldId> fieldIds = new AbstractList<FieldId>() {
-    @Override
-    public FieldId get(int index) {
-      checkBounds(index, tableOfContents.fieldIds.size);
-      return open(tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * index)).readFieldId();
-    }
+  private final List<FieldId> fieldIds;
 
-    @Override
-    public int size() {
-      return tableOfContents.fieldIds.size;
-    }
-  };
-
-  private final List<MethodId> methodIds = new AbstractList<MethodId>() {
-    @Override
-    public MethodId get(int index) {
-      checkBounds(index, tableOfContents.methodIds.size);
-      return open(tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * index)).readMethodId();
-    }
-
-    @Override
-    public int size() {
-      return tableOfContents.methodIds.size;
-    }
-  };
+  private final List<MethodId> methodIds;
 
   /**
    * Creates a new dex buffer defining no classes.
    */
   public DexBuffer() {
     this.data = new byte[0];
+    this.strings = Collections.emptyList();
+    this.typeIds = Collections.emptyList();
+    this.typeNames = Collections.emptyList();
+    this.fieldIds = Collections.emptyList();
+    this.methodIds = Collections.emptyList();
   }
 
   /**
@@ -148,6 +97,11 @@ public final class DexBuffer {
     this.data = data;
     this.length = data.length;
     this.tableOfContents.readFrom(this);
+    this.strings = readStrings();
+    this.typeIds = readTypeIds();
+    this.typeNames = readTypeNames(this.strings, this.typeIds);
+    this.fieldIds = readFieldIds();
+    this.methodIds = readMethodIds();
   }
 
   /**
@@ -155,6 +109,11 @@ public final class DexBuffer {
    */
   public DexBuffer(InputStream in) throws IOException {
     loadFrom(in);
+    this.strings = readStrings();
+    this.typeIds = readTypeIds();
+    this.typeNames = readTypeNames(this.strings, this.typeIds);
+    this.fieldIds = readFieldIds();
+    this.methodIds = readMethodIds();
   }
 
   /**
@@ -176,6 +135,55 @@ public final class DexBuffer {
     } else {
       throw new DexException("unknown output extension: " + file);
     }
+    this.strings = readStrings();
+    this.typeIds = readTypeIds();
+    this.typeNames = readTypeNames(this.strings, this.typeIds);
+    this.fieldIds = readFieldIds();
+    this.methodIds = readMethodIds();
+  }
+
+  private List<String> readStrings() {
+    Section strings = open(tableOfContents.stringIds.off);
+    String[] result = new String[tableOfContents.stringIds.size];
+    for (int i = 0; i < tableOfContents.stringIds.size; ++i) {
+      result[i] = strings.readString();
+    }
+    return Arrays.asList(result);
+  }
+
+  private List<Integer> readTypeIds() {
+    Section typeIds = open(tableOfContents.typeIds.off);
+    Integer[] result = new Integer[tableOfContents.typeIds.size];
+    for (int i = 0; i < tableOfContents.typeIds.size; ++i) {
+      result[i] = Integer.valueOf(typeIds.readInt());
+    }
+    return Arrays.asList(result);
+  }
+
+  private List<String> readTypeNames(List<String> strings, List<Integer> typeIds) {
+    String[] result = new String[tableOfContents.typeIds.size];
+    for (int i = 0; i < tableOfContents.typeIds.size; ++i) {
+      result[i] = strings.get(typeIds.get(i).intValue());
+    }
+    return Arrays.asList(result);
+  }
+
+  private List<FieldId> readFieldIds() {
+    Section fieldIds = open(tableOfContents.fieldIds.off);
+    FieldId[] result = new FieldId[tableOfContents.fieldIds.size];
+    for (int i = 0; i < tableOfContents.fieldIds.size; ++i) {
+      result[i] = fieldIds.readFieldId();
+    }
+    return Arrays.asList(result);
+  }
+
+  private List<MethodId> readMethodIds() {
+    Section methodIds = open(tableOfContents.methodIds.off);
+    MethodId[] result = new MethodId[tableOfContents.methodIds.size];
+    for (int i = 0; i < tableOfContents.methodIds.size; ++i) {
+      result[i] = methodIds.readMethodId();
+    }
+    return Arrays.asList(result);
   }
 
   private void loadFrom(InputStream in) throws IOException {
