@@ -16,8 +16,11 @@
 
 package com.android.jack.reporting;
 
+import com.android.jack.Options;
+import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.frontend.java.EcjProblem;
 import com.android.jack.reporting.Reportable.ProblemLevel;
+import com.android.sched.util.config.ThreadConfig;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
@@ -29,6 +32,8 @@ import javax.annotation.Nonnull;
  * A common implementation of {@link Reporter}.
  */
 abstract class CommonReporter implements Reporter {
+
+  private final VerbosityLevel verbosityLevel = ThreadConfig.get(Options.VERBOSITY_LEVEL);
 
   @Override
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable) {
@@ -56,7 +61,53 @@ abstract class CommonReporter implements Reporter {
     printProblem(problemLevel, message, null /* fileName */, -1, -1, -1, -1);
   }
 
-  protected abstract void printProblem(@Nonnull ProblemLevel problemLevel,
+  protected void printProblem(@Nonnull ProblemLevel problemLevel,
+      @Nonnull String message,
+      @CheckForNull String fileName,
+      int startLine,
+      int endLine,
+      int startColumn,
+      int endColumn) {
+    switch (problemLevel) {
+      case ERROR:
+        printFilteredProblem(problemLevel,
+            message,
+            fileName,
+            startLine,
+            endLine,
+            startColumn,
+            endColumn);
+        break;
+      case WARNING:
+        if (verbosityLevel == VerbosityLevel.TRACE || verbosityLevel == VerbosityLevel.DEBUG
+            || verbosityLevel == VerbosityLevel.INFO || verbosityLevel == VerbosityLevel.WARNING) {
+          printFilteredProblem(problemLevel,
+              message,
+              fileName,
+              startLine,
+              endLine,
+              startColumn,
+              endColumn);
+        }
+        break;
+      case INFO:
+        if (verbosityLevel == VerbosityLevel.TRACE || verbosityLevel == VerbosityLevel.DEBUG
+            || verbosityLevel == VerbosityLevel.INFO) {
+          printFilteredProblem(problemLevel,
+              message,
+              fileName,
+              startLine,
+              endLine,
+              startColumn,
+              endColumn);
+        }
+        break;
+      default:
+        throw new AssertionError();
+    }
+  }
+
+  protected abstract void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
       @Nonnull String message,
       @CheckForNull String fileName,
       int startLine,
