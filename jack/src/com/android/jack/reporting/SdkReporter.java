@@ -32,7 +32,7 @@ public class SdkReporter extends CommonReporter {
   private static final char MESSAGE_SEPARATOR = ':';
 
   @Override
-  protected void printProblem(@Nonnull ProblemLevel problemLevel,
+  protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
       @Nonnull String message,
       @CheckForNull String fileName,
       int startLine,

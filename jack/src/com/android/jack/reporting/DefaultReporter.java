@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public class DefaultReporter extends CommonReporter {
 
   @Override
-  protected void printProblem(@Nonnull ProblemLevel problemLevel,
+  protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
       @Nonnull String message,
       @CheckForNull String fileName,
       int startLine,
