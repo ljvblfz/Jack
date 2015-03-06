@@ -18,7 +18,7 @@ package com.android.jack.analysis.dfa.reachingdefs;
 
 import com.android.jack.Options;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.util.filter.SignatureMethodFilter;
 
 import org.junit.Test;
@@ -30,8 +30,7 @@ public class ReachingDefsTests {
   @Test
   public void testDfa001() throws Exception {
 
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
     toolchain.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),

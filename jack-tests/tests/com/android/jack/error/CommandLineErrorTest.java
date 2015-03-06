@@ -20,7 +20,7 @@ import com.android.jack.Main;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 
 import junit.framework.Assert;
 
@@ -47,8 +47,7 @@ public class CommandLineErrorTest {
   public void testCommandLineError002() throws Exception {
     ErrorTestHelper ite = new ErrorTestHelper();
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
@@ -74,8 +73,7 @@ public class CommandLineErrorTest {
     File sourceFile = AbstractTestTools.createFile(ite.getSourceFolder(), "jack.incremental",
         "A.java", "package jack.incremental; \n" + "public class A {} \n");
 
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);

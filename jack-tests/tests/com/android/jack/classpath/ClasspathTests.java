@@ -22,7 +22,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
@@ -160,15 +160,14 @@ public class ClasspathTests {
 
   @Test
   public void testMissingClasspathEntry() throws Exception {
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(new File(srcDir, "missing.jack"))
     .srcToLib(testOut, /* zipFiles = */ true, srcDir);
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -192,15 +191,14 @@ public class ClasspathTests {
       Exception {
     Assert.assertTrue(invalidJack.isFile());
 
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(invalidJack)
     .srcToLib(testOut, /* zipFiles = */ true, srcDir);
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
 
     try {

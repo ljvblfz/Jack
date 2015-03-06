@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.android.jack.Options;
+import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
@@ -23,7 +25,9 @@ import com.android.jack.test.TestsProperties;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -42,15 +46,21 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     LEGACY
   }
 
-
+  @Nonnull
+  protected final Map<String, String> properties = new HashMap<String, String>();
   @CheckForNull
   protected File annotationProcessorOutDir;
   @Nonnull
   protected List<File> resImport = new ArrayList<File>();
 
+  protected boolean sanityChecks = true;
+
   @Nonnull
-  public abstract JackBasedToolchain addProperty(@Nonnull String propertyName,
-      @Nonnull String propertyValue);
+  public final JackBasedToolchain addProperty(@Nonnull String propertyName,
+      @Nonnull String propertyValue) {
+    properties.put(propertyName, propertyValue);
+    return this;
+  }
 
   public final JackBasedToolchain setMultiDexKind(@Nonnull MultiDexKind kind) {
     switch (kind) {
@@ -109,8 +119,26 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     return this;
   }
 
+  @Override
   @Nonnull
-  public abstract JackBasedToolchain setSanityChecks(boolean sanityChecks);
+  public JackBasedToolchain setVerbose(boolean isVerbose) {
+    super.setVerbose(isVerbose);
+    if (isVerbose) {
+      setVerbosityLevel(VerbosityLevel.DEBUG);
+    } else {
+      setVerbosityLevel(VerbosityLevel.WARNING);
+    }
+    return this;
+  }
+
+  @Nonnull
+  protected abstract JackBasedToolchain setVerbosityLevel(@Nonnull Options.VerbosityLevel level);
+
+  @Nonnull
+  public JackBasedToolchain setSanityChecks(boolean sanityChecks){
+    this.sanityChecks = sanityChecks;
+    return this;
+  }
 
   @Override
   @Nonnull
