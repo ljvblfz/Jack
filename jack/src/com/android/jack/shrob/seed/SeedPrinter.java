@@ -53,7 +53,7 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final PropertyId<OutputStreamFile> SEEDS_OUTPUT_FILE = PropertyId.create(
       "jack.seed.dump.file", "File where the seeds will be printed",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-");
 
   @Nonnull

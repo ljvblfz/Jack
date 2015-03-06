@@ -17,18 +17,24 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.StandardInputLocation;
 import com.android.sched.util.stream.UncloseableInputStream;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * Class representing a input stream from a file path or a standard input.
  */
 public class InputStreamFile extends AbstractStreamFile {
+  @CheckForNull
+  private InputStream in;
+
   public InputStreamFile(@Nonnull String name)
       throws WrongPermissionException, NotFileException, NoSuchFileException {
     super(name, null /* hooks */);
@@ -45,13 +51,19 @@ public class InputStreamFile extends AbstractStreamFile {
   }
 
   public InputStreamFile() {
-    super(Permission.READ);
+    super(new StandardInputLocation());
+    in = System.in;
+  }
+
+  public InputStreamFile(@Nonnull InputStream in, @Nonnull Location location) {
+    super(location);
+    this.in = in;
   }
 
   @Nonnull
   public InputStream getInputStream() {
-    if (file == null) {
-      return new UncloseableInputStream(System.in);
+    if (in != null) {
+      return new UncloseableInputStream(in);
     } else {
       clearRemover();
       try {

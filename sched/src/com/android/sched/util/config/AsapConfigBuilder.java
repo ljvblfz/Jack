@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -291,6 +292,27 @@ public class AsapConfigBuilder {
   @Nonnull
   public AsapConfigBuilder setDebug() {
     context.setDebug();
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setStandardInput(@Nonnull InputStream in) {
+    context.setStandardInput(in);
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setStandardOutput(@Nonnull PrintStream printer) {
+    context.setStandardOutput(printer);
+
+    return this;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setStandardError(@Nonnull PrintStream printer) {
+    context.setStandardError(printer);
 
     return this;
   }

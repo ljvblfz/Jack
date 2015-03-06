@@ -17,10 +17,11 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.StandardInputLocation;
 
 import java.io.IOException;
 
@@ -36,8 +37,8 @@ public class InputStreamCodec extends StreamCodec
   }
 
   @Nonnull
-  public InputStreamCodec allowStandard() {
-    this.allowStandard = true;
+  public InputStreamCodec allowStandardInput() {
+    this.allowStandardIO = true;
 
     return this;
   }
@@ -45,13 +46,19 @@ public class InputStreamCodec extends StreamCodec
   @Override
   @Nonnull
   public String formatValue(@Nonnull InputStreamFile stream) {
-    return formatValue((AbstractStreamFile) stream);
+    if (stream.isStandard()) {
+      return STANDARD_IO_NAME;
+    } else {
+      return stream.getPath();
+    }
   }
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull InputStreamFile stream)
       throws CheckingException {
-    checkValue(context, (AbstractStreamFile) stream);
+    if (stream.isStandard() && !allowStandardIO) {
+      throw new CheckingException("Standard input is not allowed");
+    }
   }
 
   @Override
@@ -64,14 +71,19 @@ public class InputStreamCodec extends StreamCodec
     }
   }
 
+  @Nonnull
+  private static final Location STANDARD_INPUT_LOCATION = new StandardInputLocation();
+
   @Override
   @Nonnull
   public InputStreamFile checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    super.checkString(context, string);
-
     if (string.equals(STANDARD_IO_NAME)) {
-      return new InputStreamFile();
+      if (!allowStandardIO) {
+        throw new ParsingException("Standard input can not be used");
+      }
+
+      return new InputStreamFile(context.getStandardInput(), STANDARD_INPUT_LOCATION);
     } else {
       try {
         return new InputStreamFile(string);

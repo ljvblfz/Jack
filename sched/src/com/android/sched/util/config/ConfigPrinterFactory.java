@@ -38,7 +38,7 @@ public class ConfigPrinterFactory {
   @Nonnull
   public static final PropertyId<OutputStreamFile> CONFIG_PRINTER_FILE = PropertyId.create(
       "config.printer.file", "The file where to print the config",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-");
 
   @Nonnull

@@ -25,6 +25,7 @@ import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 
 import javax.annotation.CheckForNull;
@@ -183,6 +184,27 @@ public class GatherConfigBuilder {
   @Nonnull
   public GatherConfigBuilder setDebug() {
     builder.setDebug();
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder setStandardInput(@Nonnull InputStream in) {
+    builder.setStandardInput(in);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder setStandardOutput(@Nonnull PrintStream printer) {
+    builder.setStandardOutput(printer);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder setStandardError(@Nonnull PrintStream printer) {
+    builder.setStandardError(printer);
 
     return this;
   }

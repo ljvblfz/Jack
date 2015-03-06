@@ -18,6 +18,9 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
 
+import java.io.InputStream;
+import java.io.PrintStream;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -29,6 +32,15 @@ public class CodecContext {
 
   @CheckForNull
   private RunnableHooks hooks;
+
+  @Nonnull
+  private InputStream standardInput = System.in;
+
+  @Nonnull
+  private PrintStream standardOutput = System.out;
+
+  @Nonnull
+  private PrintStream standardError = System.err;
 
   @Nonnull
   public CodecContext setDebug() {
@@ -51,5 +63,32 @@ public class CodecContext {
   @CheckForNull
   public RunnableHooks getRunnableHooks() {
     return hooks;
+  }
+
+  @Nonnull
+  public InputStream getStandardInput() {
+    return standardInput;
+  }
+
+  public void setStandardInput(@Nonnull InputStream standardInput) {
+    this.standardInput = standardInput;
+  }
+
+  @Nonnull
+  public PrintStream getStandardOutput() {
+    return standardOutput;
+  }
+
+  public void setStandardOutput(@Nonnull PrintStream standardOutput) {
+    this.standardOutput = standardOutput;
+  }
+
+  @Nonnull
+  public PrintStream getStandardError() {
+    return standardError;
+  }
+
+  public void setStandardError(@Nonnull PrintStream standardError) {
+    this.standardError = standardError;
   }
 }

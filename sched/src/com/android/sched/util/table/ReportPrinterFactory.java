@@ -41,7 +41,7 @@ public class ReportPrinterFactory{
   @Nonnull
   public static final PropertyId<OutputStreamFile> REPORT_PRINTER_FILE = PropertyId.create(
       "sched.report.printer.file", "The file where to print the report",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandard())
+      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-");
 
   public static ReportPrinter getReportPrinter() {
