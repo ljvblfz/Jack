@@ -450,17 +450,25 @@ public class ReferenceMapper {
   }
 
   private String signature(FieldBinding binding) {
-    StringBuilder sb = new StringBuilder();
+    int charsCount = binding.declaringClass.constantPoolName().length + binding.name.length +
+        binding.type.signature().length + 2;
+    StringBuilder sb = new StringBuilder(charsCount);
     sb.append(binding.declaringClass.constantPoolName());
     sb.append('.');
     sb.append(binding.name);
     sb.append(':');
     sb.append(binding.type.signature());
+    assert sb.length() == charsCount;
     return sb.toString();
   }
 
   private String signature(MethodBinding binding) {
-    StringBuilder sb = new StringBuilder();
+    int charsCount = binding.declaringClass.constantPoolName().length + binding.selector.length +
+        binding.returnType.signature().length + 3;
+    for (TypeBinding paramType : binding.parameters) {
+      charsCount += paramType.signature().length;
+    }
+    StringBuilder sb = new StringBuilder(charsCount);
     sb.append(binding.declaringClass.constantPoolName());
     sb.append('.');
     sb.append(binding.selector);
@@ -470,6 +478,7 @@ public class ReferenceMapper {
     }
     sb.append(')');
     sb.append(binding.returnType.signature());
+    assert sb.length() == charsCount;
     return sb.toString();
   }
 
