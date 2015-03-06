@@ -22,7 +22,7 @@ import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Options;
 import com.android.jack.api.v01.AbortException;
-import com.android.jack.api.v01.Api01Compiler;
+import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.JavaSourceVersion;
@@ -56,24 +56,26 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   @Nonnull
-  public Api01Compiler build() throws ConfigurationException {
+  public Api01CompilationTask getTask() throws ConfigurationException {
     RunnableHooks configHooks = new RunnableHooks(); //STOPSHIP: run configHooks
     try {
       Jack.check(options, configHooks);
     } catch (com.android.sched.util.config.ConfigurationException e) {
       throw new ConfigurationException(e.getMessage(), e);
     } catch (IllegalOptionsException e) {
+
       throw new ConfigurationException(e.getMessage(), e);
     }
-    return new Api01CompilerImpl(options);
+
+    return new Api01CompilationTaskImpl(options);
   }
 
-  private static class Api01CompilerImpl implements Api01Compiler {
+  private static class Api01CompilationTaskImpl implements Api01CompilationTask {
 
     @Nonnull
     private final Options options;
 
-    public Api01CompilerImpl(@Nonnull Options options) {
+    public Api01CompilationTaskImpl(@Nonnull Options options) {
       this.options = options;
     }
 
