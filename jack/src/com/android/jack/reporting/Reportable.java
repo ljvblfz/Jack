@@ -16,6 +16,8 @@
 
 package com.android.jack.reporting;
 
+import com.android.jack.Options.VerbosityLevel;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -25,9 +27,22 @@ public interface Reportable {
 
   /**
    * The level of a problem.
+   * The implementation assumes that the ordinal values of {@link VerbosityLevel} are ordered from
+   * the highest severity to the lowest.
    */
   public static enum ProblemLevel {
-    ERROR, WARNING, INFO;
+    ERROR(VerbosityLevel.ERROR), WARNING(VerbosityLevel.WARNING), INFO(VerbosityLevel.INFO);
+
+    @Nonnull
+    private final VerbosityLevel verbosityLevelThreshold;
+
+    ProblemLevel(@Nonnull VerbosityLevel verbosityLevelThreshold) {
+      this.verbosityLevelThreshold = verbosityLevelThreshold;
+    }
+
+    public boolean isVisibleWith(@Nonnull VerbosityLevel verbosityLevel) {
+      return verbosityLevel.ordinal() >= verbosityLevelThreshold.ordinal();
+    }
   }
 
   @Nonnull

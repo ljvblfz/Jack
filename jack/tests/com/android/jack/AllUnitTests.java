@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.preprocessor.PreProcessorTest;
+import com.android.jack.reporting.ProblemLevelTest;
 import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
@@ -51,6 +52,7 @@ import org.junit.runners.Suite.SuiteClasses;
     /* MultiDexOverflowTests.class, */
     /* MultiDexTests.class, */
     PreProcessorTest.class,
+    ProblemLevelTest.class,
 //    ReachingDefsTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,

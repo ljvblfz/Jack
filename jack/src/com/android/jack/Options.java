@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.meta.MetaImporter;
+import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -212,7 +213,9 @@ public class Options {
   private final File propertiesFile = null;
 
   /**
-   * Jack verbosity level
+   * Jack verbosity level.
+   * Note: The implementation of {@link ProblemLevel} assumes that the ordinal values of
+   * {@link VerbosityLevel} are ordered from the highest severity to the lowest.
    */
   public enum VerbosityLevel {
     ERROR("error"), WARNING("warning"), INFO("info"), DEBUG("debug"), TRACE("trace");

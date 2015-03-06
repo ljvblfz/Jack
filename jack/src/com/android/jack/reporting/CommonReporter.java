@@ -75,42 +75,14 @@ abstract class CommonReporter implements Reporter {
       int endLine,
       int startColumn,
       int endColumn) {
-    switch (problemLevel) {
-      case ERROR:
-        printFilteredProblem(problemLevel,
-            message,
-            fileName,
-            startLine,
-            endLine,
-            startColumn,
-            endColumn);
-        break;
-      case WARNING:
-        if (verbosityLevel == VerbosityLevel.TRACE || verbosityLevel == VerbosityLevel.DEBUG
-            || verbosityLevel == VerbosityLevel.INFO || verbosityLevel == VerbosityLevel.WARNING) {
-          printFilteredProblem(problemLevel,
-              message,
-              fileName,
-              startLine,
-              endLine,
-              startColumn,
-              endColumn);
-        }
-        break;
-      case INFO:
-        if (verbosityLevel == VerbosityLevel.TRACE || verbosityLevel == VerbosityLevel.DEBUG
-            || verbosityLevel == VerbosityLevel.INFO) {
-          printFilteredProblem(problemLevel,
-              message,
-              fileName,
-              startLine,
-              endLine,
-              startColumn,
-              endColumn);
-        }
-        break;
-      default:
-        throw new AssertionError();
+    if (problemLevel.isVisibleWith(verbosityLevel)) {
+      printFilteredProblem(problemLevel,
+          message,
+          fileName,
+          startLine,
+          endLine,
+          startColumn,
+          endColumn);
     }
   }
 

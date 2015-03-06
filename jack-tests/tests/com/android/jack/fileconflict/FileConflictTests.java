@@ -194,7 +194,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Ignore //STOPSHIP: find out why this doesn't work when run in a suite
+  @Category(KnownBugs.class)
   public void test001d() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -352,7 +352,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Ignore //STOPSHIP: find out why this doesn't work when run in a suite
+  @Category(KnownBugs.class)
   public void test002g() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -476,7 +476,6 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Ignore
   @Category(KnownBugs.class)
   public void test004() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
