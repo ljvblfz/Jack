@@ -32,7 +32,8 @@ class Tokenizer {
 
   private boolean prefetched;
 
-  @Nonnull Token [] tokenMap = Token.values();
+  @Nonnull
+  private static final Token [] tokenMap = Token.values();
 
   public Tokenizer(@Nonnull InputStream in) {
     this.in = new JayceInputStream(in);
