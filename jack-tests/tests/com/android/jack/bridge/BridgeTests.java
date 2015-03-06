@@ -22,6 +22,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.unary.UnaryTests;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -147,6 +148,18 @@ public class BridgeTests extends RuntimeTest {
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"));
   }
+
+  /**
+   * This test will check that there is a cast on the type returned by the bridge generated into B.
+   * If the cast does not exist, art will fail to verify the class B.
+   */
+  @Test
+  public void test010() throws Exception {
+    new RuntimeTestHelper(new RuntimeTestInfo(
+        AbstractTestTools.getTestRootDir("com.android.jack.bridge.test010"),
+        "com.android.jack.bridge.test010.dx.Tests")).compileAndRunTest();
+  }
+
 
   @Override
   protected void fillRtTestInfos() {

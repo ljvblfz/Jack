@@ -2326,7 +2326,8 @@ public class JackIrBuilder {
         body.getBlock().addStmt(call.makeStatement());
         body.getBlock().addStmt(new JReturnStatement(info, null));
       } else {
-        body.getBlock().addStmt(new JReturnStatement(info, call));
+        body.getBlock().addStmt(
+            new JReturnStatement(info, maybeCast(bridgeMethod.getType(), call)));
       }
       popMethodInfo();
     }
