@@ -20,7 +20,7 @@ import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackConfigProvider;
 import com.android.jack.api.v01.AbortException;
-import com.android.jack.api.v01.Api01Compiler;
+import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.UnrecoverableException;
@@ -40,7 +40,7 @@ public class Main {
       IllegalAccessException, InvocationTargetException {
     ClassLoader loader =
         URLClassLoader.newInstance(new URL[] {new File(
-            "/Users/jplesot/Android/ub-jack/toolchain/jack/jack/dist/jack.jar").toURI().toURL()},
+            "<replace_with_a_path_to_jack.jar>").toURI().toURL()},
             Main.class.getClassLoader());
 
     Class<? extends JackConfigProvider> confProviderClass =
@@ -59,12 +59,12 @@ public class Main {
     }
     System.out.println();
 
-    Api01Compiler api01Compiler;
-    Api01Config api01Config;
+    Api01CompilationTask compilationTask;
+    Api01Config config;
 
     // Get configuration object
     try {
-      api01Config = confProvider.getConfig(Api01Config.class);
+      config = confProvider.getConfig(Api01Config.class);
     } catch (ConfigNotSupportedException e1) {
       System.err.println("Brest config not supported)");
       return;
@@ -73,12 +73,12 @@ public class Main {
     // Configure the compiler
     try {
       // Set standard options
-      api01Config.setOutputDexDir(new File("out/"));
-      api01Config.setJarJarConfigFile(new File("rules.jarjar"));
+      config.setOutputDexDir(new File("out/"));
+      config.setJarJarConfigFile(new File("rules.jarjar"));
       // Set provisional properties
-      api01Config.setProperty("jack.internal.test", "true");
+      config.setProperty("jack.internal.test", "true");
       // Check and build compiler
-      api01Compiler = api01Config.build();
+      compilationTask = config.getTask();
     } catch (ConfigurationException e) {
       System.err.println(e.getMessage());
       return;
@@ -86,15 +86,15 @@ public class Main {
 
     // Run the compilation
     try {
-      // First
-      api01Compiler.run();
-      // Same compilation
-      api01Compiler.run();
+      compilationTask.run();
     } catch (AbortException e) {
       System.out.println("User error, see reporter");
       return;
     } catch (UnrecoverableException e) {
       System.out.println("Something out of Jack control has happen: " + e.getMessage());
+      return;
+    } catch (ConfigurationException e) {
+      System.err.println(e.getMessage());
       return;
     }
   }

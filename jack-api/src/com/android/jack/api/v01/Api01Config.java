@@ -105,5 +105,5 @@ public interface Api01Config extends JackConfig {
   void setProperty(@Nonnull String key, @Nonnull String value) throws ConfigurationException;
 
   @Nonnull
-  Api01Compiler build() throws ConfigurationException;
+  Api01CompilationTask getTask() throws ConfigurationException;
 }
