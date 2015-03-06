@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
 import com.android.jack.ir.ast.MarkerCollectorTest;
+import com.android.jack.ir.impl.ReferenceMapperTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.preprocessor.PreProcessorTest;
@@ -55,6 +56,7 @@ import org.junit.runners.Suite.SuiteClasses;
     PreProcessorTest.class,
     ProblemLevelTest.class,
 //    ReachingDefsTest.class,
+    ReferenceMapperTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,
     StringSplittingTest.class,

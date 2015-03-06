@@ -16,6 +16,8 @@
 package com.android.jack.ir.impl;
 
 
+import com.google.common.annotations.VisibleForTesting;
+
 import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotationMethod;
@@ -38,6 +40,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
@@ -73,6 +76,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -88,6 +92,9 @@ public class ReferenceMapper {
   private final Map<String, JMethod> methods = new HashMap<String, JMethod>();
   @Nonnull
   private static final StringInterner stringInterner = StringInterner.get();
+
+  @Nonnull
+  private final TypePackageAndMethodFormatter lookupFormater;
 
   @CheckForNull
   private JDefinedClass javaLangString;
@@ -105,6 +112,7 @@ public class ReferenceMapper {
     this.lookup = lookup;
     this.lookupEnvironment = lookupEnvironment;
     this.sourceInfoFactory = sourceInfoFactory;
+    this.lookupFormater = Jack.getLookupFormatter();
   }
 
   @Nonnull
@@ -556,14 +564,57 @@ public class ReferenceMapper {
   private JMethod findMethod(
       @Nonnull MethodBinding binding, @Nonnull JDefinedClassOrInterface enclosingType) {
     JMethod method = null;
-    String searchedSignature = new String(binding.selector) + new String(binding.signature());
+    String paramsSignature = new String(binding.signature());
+    String searchedSignature = new String(binding.selector) + paramsSignature;
+    int paramsCount = countParams(paramsSignature);
     for (JMethod existing : enclosingType.getMethods()) {
-      if (searchedSignature.equals(Jack.getLookupFormatter().getName(existing))) {
+      if (equals(paramsCount, searchedSignature, existing)) {
         method = existing;
         break;
       }
     }
     return method;
+  }
+
+  @Nonnegative
+  @VisibleForTesting
+  static int countParams(@Nonnull String signature) {
+    int result = 0;
+    int pos = 1; // skip '('
+    while (pos < signature.length() && signature.charAt(pos) != ')') {
+      char currentChar = signature.charAt(pos);
+      if (currentChar == 'L') {
+        result++;
+        do {
+          pos++;
+        } while (pos < signature.length() && signature.charAt(pos) != ';');
+        assert pos < signature.length() && signature.charAt(pos) == ';' : signature + " at " + pos;
+      } else {
+        switch (currentChar) {
+          case 'Z':
+          case 'B':
+          case 'C':
+          case 'S':
+          case 'I':
+          case 'J':
+          case 'F':
+          case 'D':
+            result++;
+            break;
+        }
+      }
+      pos++;
+    }
+    return result;
+  }
+
+  private boolean equals(@Nonnegative int paramsCount,
+      @Nonnull String bindingSignature, @Nonnull JMethod method) {
+    if (paramsCount != method.getParams().size() ||
+        !bindingSignature.startsWith(method.getName())) {
+      return false;
+    }
+    return bindingSignature.equals(lookupFormater.getName(method));
   }
 
   static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x,
