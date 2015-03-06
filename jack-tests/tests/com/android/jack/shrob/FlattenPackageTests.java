@@ -17,15 +17,15 @@
 package com.android.jack.shrob;
 
 import com.android.jack.Options;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
-import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 
 import org.junit.experimental.categories.Category;
 
@@ -43,8 +43,7 @@ public class FlattenPackageTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     Flags flags = new Flags();
     toolchain.setShrobFlags(flags);
     GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);

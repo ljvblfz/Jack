@@ -22,7 +22,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 
 import org.junit.Test;
 
@@ -40,8 +40,7 @@ public class ObfuscationWithMappingTests extends AbstractTest {
       throws Exception {
 
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
     Flags flags = new Flags();
     toolchain.setShrobFlags(flags);
     GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);

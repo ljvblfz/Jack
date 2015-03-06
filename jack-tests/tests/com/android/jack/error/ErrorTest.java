@@ -18,7 +18,7 @@ package com.android.jack.error;
 
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiToolchain;
 
 import junit.framework.Assert;
 
@@ -52,8 +52,7 @@ public class ErrorTest {
 
   private void checkInternalCompilerException(@Nonnull String testName)
       throws Exception, IOException {
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setErrorStream(err);
