@@ -41,7 +41,7 @@ public class CommandLineErrorTest {
   }
 
   /**
-   * Checks that compilation end correctly when arguments define no source and no import.
+   * Checks that compilation ends correctly when arguments define no source and no import.
    */
   @Test
   public void testCommandLineError002() throws Exception {
@@ -60,7 +60,7 @@ public class CommandLineErrorTest {
           /* zipFile = */ false, ite.getSourceFolder());
     } finally {
       Assert.assertEquals("", errOut.toString());
-      Assert.assertTrue(out.toString().contains("Usage:"));
+      Assert.assertEquals("", out.toString());
     }
   }
 
