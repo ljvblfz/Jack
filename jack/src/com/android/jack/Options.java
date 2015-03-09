@@ -350,8 +350,6 @@ public class Options {
       "jack.internal.jackflag", "Emit jack flag into generated dex")
       .addDefaultValue(Boolean.FALSE);
 
-  private boolean emitSyntheticDebugInfo = false;
-
   @Nonnull
   public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.lines", "Emit line number debug info into generated dex")
@@ -651,9 +649,6 @@ public class Options {
     if (emitLocalDebugInfo != null) {
       configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
     }
-    configBuilder.set(
-        CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO, emitSyntheticDebugInfo);
-
     if (importedLibraries != null) {
       configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
     }
@@ -790,14 +785,6 @@ public class Options {
 
   public void setImportedLibraries(@Nonnull List<File> importedLibraries) {
     this.importedLibraries = importedLibraries;
-  }
-
-  public void setEmitLocalDebugInfo(boolean emitLocalDebugInfo) {
-    this.emitLocalDebugInfo = Boolean.valueOf(emitLocalDebugInfo);
-  }
-
-  public void setEmitSyntheticDebugInfo(boolean emitSyntheticDebugInfo) {
-    this.emitSyntheticDebugInfo = emitSyntheticDebugInfo;
   }
 
   @CheckForNull
