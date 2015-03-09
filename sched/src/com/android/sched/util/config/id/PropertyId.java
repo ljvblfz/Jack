@@ -173,6 +173,15 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
       this.value = new IValueObject<T>(value);
     }
 
+    private Value (@Nonnull IValue<T> value) {
+      this.value = value.duplicate();
+    }
+
+    @Nonnull
+    public synchronized Value duplicate() {
+      return new Value(value);
+    }
+
     public Value (@Nonnull CodecContext context, @Nonnull T value) {
       this.value = new IValueObject<T>(context, value);
     }
@@ -221,6 +230,9 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
 
     @Nonnull
     public String getString();
+
+    @Nonnull
+    public IValue<T> duplicate();
   }
 
   private class IValueString implements IValue<T> {
@@ -253,6 +265,12 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     public PropertyId<T>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
       throw new AssertionError();
     }
+
+    @Override
+    @Nonnull
+    public IValue<T> duplicate() {
+      return this;
+    }
   }
 
   private class IValueCheckedString implements IValue<T> {
@@ -278,6 +296,12 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     @Nonnull
     public PropertyId<?>.IValueObject<T> getValueObject(@Nonnull CodecContext context) {
       return new IValueObject<T>(context, PropertyId.this.codec.parseString(context, value));
+    }
+
+    @Override
+    @Nonnull
+    public IValue<T> duplicate() {
+      return this;
     }
   }
 
@@ -330,6 +354,13 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     @Nonnull
     public T getObject() {
       return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Nonnull
+    public IValue<T> duplicate() {
+      return ((PropertyId<T>) (PropertyId.this)).new IValueCheckedString(getString());
     }
   }
 }

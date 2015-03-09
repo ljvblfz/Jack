@@ -26,6 +26,7 @@ import com.android.sched.util.location.Location;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -56,7 +57,11 @@ public class ConfigChecker {
       @Nonnull Map<ObjectId<?>, Object> instanceValues,
       @Nonnull Map<KeyId<?, ?>, Location> locationsById) {
     this.context = context;
-    this.values.putAll(stringValues);
+    for (Entry<PropertyId<?>, PropertyId<?>.Value> entry : stringValues.entrySet()) {
+      this.values.put(entry.getKey(), (entry.getValue() != null) ? entry.getValue().duplicate()
+          : null);
+    }
+
     this.instances.putAll(instanceValues);
     this.locations.putAll(locationsById);
   }
