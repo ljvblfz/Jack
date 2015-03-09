@@ -457,7 +457,8 @@ public class AsapConfigBuilder {
         PropertyId<?> propertyId = (PropertyId<?>) keyId;
 
         if (!values.containsKey(keyId)) {
-          values.put(propertyId, propertyId.getDefaultValue(context));
+          PropertyId<?>.Value defaultValue = propertyId.getDefaultValue(context);
+          values.put(propertyId, defaultValue != null ? defaultValue.duplicate() : null);
           locationsByKeyId.put(keyId, defaultLocationsByKeyId.get(keyId));
         }
       }
