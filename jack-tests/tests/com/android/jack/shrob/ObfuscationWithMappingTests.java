@@ -16,13 +16,11 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.shrob.proguard.GrammarActions;
-import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.Test;
 
@@ -40,21 +38,25 @@ public class ObfuscationWithMappingTests extends AbstractTest {
       throws Exception {
 
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    Flags flags = new Flags();
-    toolchain.setShrobFlags(flags);
-    GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
     File refFolder = new File(testFolder, "refsObfuscationWithMapping");
     File refOutputMapping = new File(refFolder, "expected-" + flagNumber + ".txt");
-    flags.setOutputMapping(candidateOutputMapping);
-    flags.setPrintMapping(true);
     File inputMapping =
         new File(testFolder, "proguard.flags" + flagNumber + ".mapping" + mappingNumber);
+
+    String extraOptions = " -printmapping " + candidateOutputMapping.getAbsolutePath();
     if (inputMapping.exists()) {
-      flags.setObfuscationMapping(inputMapping);
+      extraOptions += " -applymapping " + inputMapping.getAbsolutePath();
     }
+
+    File proguardFlagsFile = addOptionsToFlagsFile(
+        new File(testFolder, "proguard.flags" + flagNumber),
+        testFolder,
+        extraOptions);
+
+    toolchain.addProguardFlags(proguardFlagsFile);
 
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));

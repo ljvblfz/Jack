@@ -18,14 +18,12 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
-import com.android.jack.shrob.proguard.GrammarActions;
-import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.experimental.categories.Category;
 
@@ -43,21 +41,24 @@ public class FlattenPackageTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    Flags flags = new Flags();
-    toolchain.setShrobFlags(flags);
-    GrammarActions.parse("proguard.flags" + flagNumber, testFolder.getAbsolutePath(), flags);
-    GrammarActions.parse("keepPackageName.flags",
-        AbstractTestTools.getTestRootDir("com.android.jack.shrob").getAbsolutePath(), flags);
-    flags.setPackageForFlatHierarchy("flatpackage");
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
     File refFolder = new File(testFolder, "refsFlattenPackage");
     File refOutputMapping = new File(refFolder, "expected-" + flagNumber + ".txt");
-    flags.setOutputMapping(candidateOutputMapping);
-    flags.setPrintMapping(true);
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+
+    File proguardFlagsFile1 = new File(testFolder, "proguard.flags" + flagNumber);
+    File proguardFlagsFile2 = addOptionsToFlagsFile(
+        new File(
+            AbstractTestTools.getTestRootDir("com.android.jack.shrob"), "keepPackageName.flags"),
+        testFolder,
+        " -printmapping " + candidateOutputMapping.getAbsolutePath()
+            + " -flattenpackagehierarchy 'flatpackage'");
+
+    toolchain.addProguardFlags(proguardFlagsFile1);
+    toolchain.addProguardFlags(proguardFlagsFile2);
 
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
