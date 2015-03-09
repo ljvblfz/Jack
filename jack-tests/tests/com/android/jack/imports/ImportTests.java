@@ -22,7 +22,7 @@ import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import junit.framework.Assert;
@@ -62,7 +62,8 @@ public class ImportTests {
   @Test
   public void testCompileConflictingSourceAndImport() throws Exception {
     File jackOut = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackOut,
@@ -118,15 +119,15 @@ public class ImportTests {
   public void testConflictingImportWithFailPolicy1() throws Exception {
     String testName = "com.android.jack.inner.test015";
     File lib = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         lib,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     // import twice the same lib
     toolchain.addStaticLibs(lib, lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
@@ -154,8 +155,8 @@ public class ImportTests {
   public void testConflictingImportWithFailPolicy2() throws Exception {
     String testName = "com.android.jack.inner.test015";
     File lib1 = AbstractTestTools.createTempDir();
-    JackApiToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         lib1,
@@ -164,14 +165,14 @@ public class ImportTests {
 
     File lib2 = AbstractTestTools.createTempDir();
     toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         lib2,
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir(testName + ".lib"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     // import twice the same lib
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");

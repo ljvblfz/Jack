@@ -20,7 +20,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,7 +44,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
         + "public clas A {}\n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -70,7 +71,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
         + "publi class A {}\n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -96,7 +98,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
         + "public class B {}\n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -123,7 +126,8 @@ public class SourceErrorTest {
         + "import jack.invalidsource.B;\n"
         + "public class A {}\n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
@@ -158,7 +162,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.overflow", "A.java",
         "package jack.overflow; \n" + content.toString());
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -189,7 +194,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
         + "public class B { private void m(in a) {}; \n private void n(int a) {re}; } \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -225,7 +231,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
         + "public class B { private void m(in a) {}; \n private void n(int a) {}; } \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -259,7 +266,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "B.java", "package jack.invalidsource;\n"
         + "public class B { private void m(int a) {}; \n private void n(int a) {}; } \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -290,7 +298,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
         + "public class A { private void m(in a) {}; } \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -319,7 +328,8 @@ public class SourceErrorTest {
     AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java", "package jack.invalidsource;\n"
         + "public class A { private void n(int a) {re;} } \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();

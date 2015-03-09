@@ -20,6 +20,6 @@
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry kind="lib" path="libs/junit4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="libs/jack-api-lib.jar"/>
+	<classpathentry kind="lib" path="libs/jack-api-lib.jar" sourcepath="/jack-api/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

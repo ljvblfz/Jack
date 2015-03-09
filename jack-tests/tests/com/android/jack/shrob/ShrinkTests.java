@@ -24,7 +24,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.util.TextUtils;
 
@@ -93,15 +93,15 @@ public class ShrinkTests extends AbstractTest {
     File shrinkOut = null;
 
     try {
-      JackApiToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(
           libOut,
           /* zipFiles = */ false,
           new File(shrobTestsDir, "test020/lib"));
 
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       testOut = AbstractTestTools.createTempDir();
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .addToClasspath(libOut)
@@ -110,7 +110,7 @@ public class ShrinkTests extends AbstractTest {
           new File(shrobTestsDir, "test020/jack"));
 
       shrinkOut = AbstractTestTools.createTempDir();
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       toolchain.addProguardFlags(
           dontObfuscateFlagFile,
           new ProguardFlags(new File(shrobTestsDir, "test020"),"proguard.flags"));
@@ -141,15 +141,15 @@ public class ShrinkTests extends AbstractTest {
     File dexOut = null;
 
     try {
-      JackApiToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(
           jackOut,
           /* zipFiles = */ false,
           new File(shrobTestsDir, "test021/jack"));
 
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       toolchain.addProguardFlags(
           dontObfuscateFlagFile,
           new ProguardFlags(new File( shrobTestsDir, "test021"),"proguard.flags001"));
@@ -157,7 +157,7 @@ public class ShrinkTests extends AbstractTest {
       toolchain.libToLib(jackOut, shrinkOut, /* zipFiles = */ false);
 
       dexOut = AbstractTestTools.createTempDir();
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
       toolchain.libToExe(shrinkOut, dexOut, /* zipFile = */ false);
 
     } catch (Exception e) {

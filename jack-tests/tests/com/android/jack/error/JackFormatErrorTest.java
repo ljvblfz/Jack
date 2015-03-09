@@ -27,7 +27,7 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.v0001.Version;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackApiToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
@@ -70,7 +70,8 @@ public class JackFormatErrorTest {
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     toolchain.setVerbose(true);
 
@@ -116,7 +117,8 @@ public class JackFormatErrorTest {
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     toolchain.setVerbose(true);
 
@@ -161,7 +163,8 @@ public class JackFormatErrorTest {
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
-    JackApiToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
     toolchain.setVerbose(true);
 
