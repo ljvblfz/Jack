@@ -74,8 +74,8 @@ prog [Flags flags, String baseDirectory]
     | '-packageobfuscationdictionary' packageObfuscationDictionary=NAME {GrammarActions.packageObfuscationDictionary($flags, baseDirectory, $packageObfuscationDictionary.text);}
     | '-printmapping' outputMapping=NAME? {GrammarActions.outputMapping($flags, baseDirectory, $outputMapping.text);}
     | ('-keeppackagenames' {FilterSpecification package_filter = new FilterSpecification();} filter[package_filter] {GrammarActions.packageFilter($flags, package_filter);})
-    | ('-repackageclasses' ('\'' newPackage=NAME? '\'')? {GrammarActions.repackageClasses($flags, $newPackage.text);})
-    | ('-flattenpackagehierarchy' ('\'' newPackage=NAME? '\'')? {GrammarActions.flattenPackageHierarchy($flags, $newPackage.text);})
+    | ('-repackageclasses' ('\'' newPackage=NAME? '\'')? {GrammarActions.repackageClasses($flags, $newPackage.text); newPackage = null;})
+    | ('-flattenpackagehierarchy' ('\'' newPackage=NAME? '\'')? {GrammarActions.flattenPackageHierarchy($flags, $newPackage.text); newPackage = null;})
     | '-dontusemixedcaseclassnames' {GrammarActions.dontUseMixedCaseClassnames($flags);}
     | '-useuniqueclassmembernames' {GrammarActions.useUniqueClassMemberNames($flags);}
     | ('-adaptclassstrings' {FilterSpecification filter = new FilterSpecification();} filter[filter] {GrammarActions.adaptClassStrings($flags, filter);})
