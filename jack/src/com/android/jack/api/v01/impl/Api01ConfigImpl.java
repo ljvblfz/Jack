@@ -134,15 +134,19 @@ public class Api01ConfigImpl implements Api01Config {
   public void setDebugInfoLevel(@Nonnull DebugInfoLevel debugLevel) throws ConfigurationException {
     switch (debugLevel) {
       case FULL: {
-        options.setEmitLocalDebugInfo(true);
+        options.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(), "true");
+        options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), "true");
+        options.addProperty(Options.EMIT_SOURCE_FILE_DEBUG_INFO.getName(), "true");
         break;
       }
       case LINES: {
-        options.setEmitLocalDebugInfo(false);
+        options.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(), "false");
+        options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), "true");
+        options.addProperty(Options.EMIT_SOURCE_FILE_DEBUG_INFO.getName(), "true");
         break;
       }
       case NONE: {
-        options.setEmitLocalDebugInfo(false);
+        options.addProperty(Options.EMIT_LOCAL_DEBUG_INFO.getName(), "false");
         options.addProperty(Options.EMIT_LINE_NUMBER_DEBUG_INFO.getName(), "false");
         options.addProperty(Options.EMIT_SOURCE_FILE_DEBUG_INFO.getName(), "false");
         break;
