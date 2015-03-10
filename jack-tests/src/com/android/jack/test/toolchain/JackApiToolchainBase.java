@@ -54,6 +54,9 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
   @Nonnull
   protected VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
 
+  @CheckForNull
+  private static JackConfigProvider configProvider;
+
   public String getCompilerCodeName() {
     return compilerCodeName;
   }
@@ -73,22 +76,23 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
   protected <T extends JackConfig> JackApiToolchainBase(@Nonnull File jackPrebuilt,
       @Nonnull Class<T> jackConfig) {
     try {
-      ClassLoader loader;
-      JackConfigProvider confProvider;
-      loader = URLClassLoader.newInstance(new URL[] {jackPrebuilt.toURI().toURL()},
-          JackApiToolchainBase.class.getClassLoader());
 
-      Class<? extends JackConfigProvider> confProviderClass = Class.forName(
-          JackConfigProvider.CLASS_NAME, true, loader).asSubclass(JackConfigProvider.class);
+      if (configProvider == null) {
+        ClassLoader classLoader = URLClassLoader.newInstance(
+            new URL[] {jackPrebuilt.toURI().toURL()}, JackApiToolchainBase.class.getClassLoader());
+        Class<? extends JackConfigProvider> confProviderClass = Class.forName(
+            JackConfigProvider.CLASS_NAME, true, classLoader).asSubclass(JackConfigProvider.class);
+        configProvider = confProviderClass.getConstructor().newInstance();
+      }
 
-      JackConfigProvider configProvider = confProviderClass.getConstructor().newInstance();
+      assert configProvider != null;
 
       compilerCodeName = configProvider.getCompilerCodeName();
       compilerVersion = configProvider.getCompilerVersion();
       compilerBuildId = configProvider.getCompilerBuildId();
       compilerCodeBase = configProvider.getCompilerCodeBase();
 
-      config = confProviderClass.getConstructor().newInstance().getConfig(jackConfig);
+      config = configProvider.getConfig(jackConfig);
 
     } catch (ConfigNotSupportedException e) {
       throw new TestConfigurationException("Jack API v01 not supported", e);
