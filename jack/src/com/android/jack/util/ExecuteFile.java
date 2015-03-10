@@ -152,93 +152,89 @@ public class ExecuteFile {
     this.cmdLine = tokens.toArray(new String[0]);
   }
 
-  public boolean run() {
+  public int run() throws Exception {
     int ret;
     Process proc = null;
     Thread suckOut = null;
     Thread suckErr = null;
     Thread suckIn = null;
 
-    try {
-      StringBuilder cmdLineBuilder = new StringBuilder();
-      for (String arg : cmdLine) {
-        cmdLineBuilder.append(arg).append(' ');
-      }
-      if (verbose) {
-        PrintStream printStream;
-        if (outStream instanceof PrintStream) {
-          printStream = (PrintStream) outStream;
-        } else {
-          printStream = System.out;
-        }
-
-        if (printStream != null) {
-          printStream.println(cmdLineBuilder);
-        }
-      } else {
-        logger.log(Level.INFO, "Execute: {0}", cmdLineBuilder);
-      }
-
-      proc = Runtime.getRuntime().exec(cmdLine, null, workDir);
-
-      InputStream localInStream = inStream;
-      if (localInStream != null) {
-        suckIn = new Thread(
-            new ThreadByteStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
-      } else {
-        proc.getOutputStream().close();
-      }
-
-      OutputStream localOutStream = outStream;
-      if (localOutStream != null) {
-        if (localOutStream instanceof PrintStream) {
-          suckOut = new Thread(new ThreadCharacterStreamSucker(proc.getInputStream(),
-              (PrintStream) localOutStream, outToBeClose));
-        } else {
-          suckOut = new Thread(
-              new ThreadByteStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
-        }
-      }
-
-      OutputStream localErrStream = errStream;
-      if (localErrStream != null) {
-        if (localErrStream instanceof PrintStream) {
-          suckErr = new Thread(new ThreadCharacterStreamSucker(proc.getErrorStream(),
-              (PrintStream) localErrStream, errToBeClose));
-        } else {
-          suckErr = new Thread(
-              new ThreadByteStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
-        }
-      }
-
-      if (suckIn != null) {
-        suckIn.start();
-      }
-      if (suckOut != null) {
-        suckOut.start();
-      }
-      if (suckErr != null) {
-        suckErr.start();
-      }
-
-      proc.waitFor();
-      if (suckIn != null) {
-        suckIn.join();
-      }
-      if (suckOut != null) {
-        suckOut.join();
-      }
-      if (suckErr != null) {
-        suckErr.join();
-      }
-
-      ret = proc.exitValue();
-      proc.destroy();
-
-      return ret == 0;
-    } catch (Throwable e) {
-      return false;
+    StringBuilder cmdLineBuilder = new StringBuilder();
+    for (String arg : cmdLine) {
+      cmdLineBuilder.append(arg).append(' ');
     }
+    if (verbose) {
+      PrintStream printStream;
+      if (outStream instanceof PrintStream) {
+        printStream = (PrintStream) outStream;
+      } else {
+        printStream = System.out;
+      }
+
+      if (printStream != null) {
+        printStream.println(cmdLineBuilder);
+      }
+    } else {
+      logger.log(Level.INFO, "Execute: {0}", cmdLineBuilder);
+    }
+
+    proc = Runtime.getRuntime().exec(cmdLine, null, workDir);
+
+    InputStream localInStream = inStream;
+    if (localInStream != null) {
+      suckIn = new Thread(
+          new ThreadByteStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
+    } else {
+      proc.getOutputStream().close();
+    }
+
+    OutputStream localOutStream = outStream;
+    if (localOutStream != null) {
+      if (localOutStream instanceof PrintStream) {
+        suckOut = new Thread(new ThreadCharacterStreamSucker(proc.getInputStream(),
+            (PrintStream) localOutStream, outToBeClose));
+      } else {
+        suckOut = new Thread(
+            new ThreadByteStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
+      }
+    }
+
+    OutputStream localErrStream = errStream;
+    if (localErrStream != null) {
+      if (localErrStream instanceof PrintStream) {
+        suckErr = new Thread(new ThreadCharacterStreamSucker(proc.getErrorStream(),
+            (PrintStream) localErrStream, errToBeClose));
+      } else {
+        suckErr = new Thread(
+            new ThreadByteStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
+      }
+    }
+
+    if (suckIn != null) {
+      suckIn.start();
+    }
+    if (suckOut != null) {
+      suckOut.start();
+    }
+    if (suckErr != null) {
+      suckErr.start();
+    }
+
+    proc.waitFor();
+    if (suckIn != null) {
+      suckIn.join();
+    }
+    if (suckOut != null) {
+      suckOut.join();
+    }
+    if (suckErr != null) {
+      suckErr.join();
+    }
+
+    ret = proc.exitValue();
+    proc.destroy();
+
+    return ret;
   }
 
   private static class ThreadByteStreamSucker extends ByteStreamSucker implements Runnable {

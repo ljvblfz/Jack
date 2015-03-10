@@ -53,7 +53,7 @@ import javax.annotation.Nonnull;
  */
 public class Server {
   @Nonnull
-  private static ServerTask service = new ServerTask() {
+  private static ServerTask serviceTest = new ServerTask() {
     @Nonnull
     private final Random rnd = new Random();
 
@@ -85,6 +85,9 @@ public class Server {
   };
 
   @Nonnull
+  private static ServerTask service = new ServerTaskSpawningVM();
+
+  @Nonnull
   private static Logger logger = Logger.getLogger(Server.class.getSimpleName());
 
   private static final int CMD_IDX_CMD  = 0;
@@ -109,7 +112,7 @@ public class Server {
   @Nonnull
   private static AtomicInteger nbMax = new AtomicInteger(0);
   @Nonnull
-  private static AtomicLong nbCurrent = new AtomicLong(0);;
+  private static AtomicLong nbCurrent = new AtomicLong(0);
 
   public static void main(String[] args) throws InterruptedException {
     if (args.length != CLI_IDX_END) {
