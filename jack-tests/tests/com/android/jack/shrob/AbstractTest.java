@@ -16,6 +16,8 @@
 
 package com.android.jack.shrob;
 
+import com.google.common.io.Files;
+
 import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.test.category.KnownBugs;
@@ -30,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
@@ -37,6 +40,9 @@ import javax.annotation.Nonnull;
  * Abstract class for running shrob tests
  */
 public abstract class AbstractTest {
+
+  @Nonnull
+  private static final Charset charSet = Charset.forName("UTF-8");
 
   @BeforeClass
   public static void setUpClass() {
@@ -65,6 +71,19 @@ public abstract class AbstractTest {
     writer.append(injar.getAbsolutePath());
     writer.close();
     return new ProguardFlags(injarFlags);
+  }
+
+  @Nonnull
+  protected File addOptionsToFlagsFile(@Nonnull File flagsFile, @Nonnull File baseDirectory,
+      @Nonnull String options) throws IOException {
+
+    File result = AbstractTestTools.createTempFile("proguard", ".flags");
+
+    Files.write("-basedirectory " + baseDirectory.getAbsolutePath() + " ", result, charSet);
+    Files.append(Files.toString(flagsFile, charSet), result, charSet);
+    Files.append(options, result, charSet);
+
+    return result;
   }
 
   @Test
