@@ -52,6 +52,7 @@ public class ClasspathTests {
     .srcToLib(libOut, false,
         new File(AbstractTestTools.getTestRootDir("com.android.jack.classpath.test001"), "lib"));
 
+    toolchain = AbstractTestTools.getCandidateToolchain();
     File testOut = AbstractTestTools.createTempDir();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(libOut)

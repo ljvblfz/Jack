@@ -194,10 +194,10 @@ public class TestTools {
         "jack-tests/prebuilts/core-stubs-mini.jack").getAbsolutePath();
   }
 
-  @CheckForNull
+  @Nonnull
   public static String getClasspathAsString(@CheckForNull File[] files) {
     if (files == null || files.length == 0) {
-      return null;
+      return "";
     }
     StringBuilder classpathStr = new StringBuilder();
     for (int i = 0; i < files.length; i++) {
@@ -209,7 +209,7 @@ public class TestTools {
     return classpathStr.toString();
   }
 
-  @CheckForNull
+  @Nonnull
   public static String getClasspathsAsString(
       @CheckForNull File[] bootClasspath, @CheckForNull File[] classpath) {
     if (bootClasspath == null) {
@@ -222,12 +222,12 @@ public class TestTools {
     }
   }
 
-  @CheckForNull
+  @Nonnull
   private static String concatClasspathStrings(
-      @CheckForNull String bootclasspath, @CheckForNull String classpath) {
+      @Nonnull String bootclasspath, @Nonnull String classpath) {
     if (bootclasspath == null || bootclasspath.isEmpty()) {
       return classpath;
-    } else if (classpath == null || classpath.isEmpty()) {
+    } else if (classpath.isEmpty()) {
       return bootclasspath;
     } else {
       StringBuilder classpathStr = new StringBuilder(bootclasspath);

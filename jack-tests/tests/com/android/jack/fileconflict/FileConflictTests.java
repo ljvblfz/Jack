@@ -36,6 +36,7 @@ import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
 
+
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
@@ -407,14 +408,14 @@ public class FileConflictTests {
 
     // create Jack dirs to import
     File jackImport1 = AbstractTestTools.createTempDir();
-    copyFileToDir(libProperties, libPropName, jackImport1);
-    copyFileToDir(myClass1, jackFilePath, jackImport1);
-    copyFileToDir(myClass1Dex, dexFilePath, jackImport1);
-    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
+    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1Dex, dexFilePath, jackImport1);
+    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
 
     // copy Jack file to output dir
-    copyFileToDir(myClass1, jackFilePath, jackOutput);
-    copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
+    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackOutput);
+    AbstractTestTools.copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
@@ -454,13 +455,13 @@ public class FileConflictTests {
     File jackImport1 = AbstractTestTools.createTempDir();
     String resourcePath = "com/android/jack/fileconflict/test003/jack/Resource";
     File resource = new File(testSrcDir, "Resource");
-    copyFileToDir(libProperties, libPropName, jackImport1);
-    copyFileToDir(myClass1, jackFilePath, jackImport1);
-    copyFileToDir(resource, resourcePath, jackImport1);
+    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
+    AbstractTestTools.copyFileToDir(resource, resourcePath, jackImport1);
 
     // copy a different resource to output dir with the same name
     File resource2 = new File(testSrcDir, "Resource2");
-    copyFileToDir(resource2, resourcePath, jackOutput);
+    AbstractTestTools.copyFileToDir(resource2, resourcePath, jackOutput);
 
     // run Jack on Jack dir
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
@@ -503,13 +504,13 @@ public class FileConflictTests {
     // create Jack dirs to import
     File jackImport1 = AbstractTestTools.createTempDir();
     File resource = new File(testSrcDir, "MyClass.txt");
-    copyFileToDir(libProperties, libPropName, jackImport1);
-    copyFileToDir(myClass1, jackFilePath, jackImport1);
-    copyFileToDir(resource, "com/android/jack/fileconflict/test004/jack/MyClass.txt", jackImport1);
+    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
+    AbstractTestTools.copyFileToDir(resource, "com/android/jack/fileconflict/test004/jack/MyClass.txt", jackImport1);
 
     // copy a different resource to output dir with the same name
     File resource2 = new File(testSrcDir, "a.txt");
-    copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
+    AbstractTestTools.copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
 
     // run Jack on Jack dir
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -564,18 +565,18 @@ public class FileConflictTests {
     // create Jack dirs to import
     File jackImport1 = AbstractTestTools.createTempDir();
     File jackImport2 = AbstractTestTools.createTempDir();
-    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
-    copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport2);
-    copyFileToDir(libProperties, libPropName, jackImport1);
-    copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
-    copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport1);
-    copyFileToDir(myClass2, JACK_FILE_PATH_2, jackImport1);
-    copyFileToDir(myClass2Dex, DEX_FILE_PATH_2, jackImport1);
-    copyFileToDir(libProperties, libPropName, jackImport2);
-    copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport2);
-    copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport2);
-    copyFileToDir(myClass3, JACK_FILE_PATH_3, jackImport2);
-    copyFileToDir(myClass3Dex, DEX_FILE_PATH_3, jackImport2);
+    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
+    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport2);
+    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass2, JACK_FILE_PATH_2, jackImport1);
+    AbstractTestTools.copyFileToDir(myClass2Dex, DEX_FILE_PATH_2, jackImport1);
+    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport2);
+    AbstractTestTools.copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport2);
+    AbstractTestTools.copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport2);
+    AbstractTestTools.copyFileToDir(myClass3, JACK_FILE_PATH_3, jackImport2);
+    AbstractTestTools.copyFileToDir(myClass3Dex, DEX_FILE_PATH_3, jackImport2);
 
     // run Jack on Jack dirs
     toolchain = getToolchain(isApiTest);
@@ -608,6 +609,7 @@ public class FileConflictTests {
         /* zipFiles = */ false,
         lib1);
 
+    toolchain = getToolchain(isApiTest);
     File jackImport2 = AbstractTestTools.createTempDir();
     File lib2 = new File(TEST002_DIR, "lib2");
     toolchain = getToolchain(isApiTest);
@@ -638,36 +640,6 @@ public class FileConflictTests {
     toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
 
     return jackOutput;
-  }
-
-  private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
-      @Nonnull File dir) throws IOException {
-    FileOutputStream fos = null;
-    FileInputStream fis = null;
-    try {
-      fis = new FileInputStream(fileToCopy);
-      File copiedFile = new File(dir, relativePath);
-      File parentDir = copiedFile.getParentFile();
-      if (!parentDir.exists()) {
-        boolean res = parentDir.mkdirs();
-        if (!res) {
-          throw new AssertionError();
-        }
-      }
-      try {
-        fos = new FileOutputStream(copiedFile);
-        ByteStreamSucker sucker = new ByteStreamSucker(fis, fos);
-        sucker.suck();
-      } finally {
-        if (fos != null) {
-          fos.close();
-        }
-      }
-    } finally {
-      if (fis != null) {
-        fis.close();
-      }
-    }
   }
 
   private void checkResourceContent(@Nonnull File dir, @Nonnull String path,

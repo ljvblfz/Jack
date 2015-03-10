@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.base.Joiner;
+
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.util.ExecuteFile;
@@ -80,15 +82,6 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     if (withDebugInfos) {
       args.add("-g");
-    }
-
-    if (annotationProcessorClass != null) {
-      args.add("-processor");
-      args.add(annotationProcessorClass.getName());
-    }
-    if (annotationProcessorOutDir != null) {
-      args.add("-d");
-      args.add(annotationProcessorOutDir.getAbsolutePath());
     }
 
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
@@ -178,14 +171,7 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add("-g");
     }
 
-    if (annotationProcessorClass != null) {
-      args.add("-processor");
-      args.add(annotationProcessorClass.getName());
-    }
-    if (annotationProcessorOutDir != null) {
-      args.add("-d");
-      args.add(annotationProcessorOutDir.getAbsolutePath());
-    }
+    addAnnotationProcessorArgs(args);
 
     for (File staticLib : staticLibs) {
       args.add("--import");
@@ -333,6 +319,23 @@ public class JackCliToolchain extends JackBasedToolchain {
   public JackBasedToolchain setSanityChecks(boolean sanityChecks){
     this.sanityChecks = sanityChecks;
     return this;
+  }
+
+  private void addAnnotationProcessorArgs(@Nonnull List<String> args) {
+    for (Entry<String, String> entry : annotationProcessorOptions.entrySet()) {
+        args.add("-A");
+        args.add(entry.getKey() + "=" + entry.getValue());
+      }
+
+    if (annotationProcessorClasses != null) {
+      args.add("--processor");
+      args.add(Joiner.on(',').join(annotationProcessorClasses));
+    }
+
+    if (processorPath != null) {
+        args.add("--processorpath");
+        args.add(processorPath);
+    }
   }
 
 }

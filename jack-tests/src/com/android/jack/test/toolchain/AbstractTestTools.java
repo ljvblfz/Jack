@@ -27,10 +27,12 @@ import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.junit.Assume;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -583,4 +585,33 @@ public abstract class AbstractTestTools {
     return rtLocation;
   }
 
+  public static void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
+      @Nonnull File dest) throws IOException {
+    FileOutputStream fos = null;
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(fileToCopy);
+      File copiedFile = new File(dest, relativePath);
+      File parentDir = copiedFile.getParentFile();
+      if (!parentDir.exists()) {
+        boolean res = parentDir.mkdirs();
+        if (!res) {
+          throw new AssertionError();
+        }
+      }
+      try {
+        fos = new FileOutputStream(copiedFile);
+        ByteStreamSucker sucker = new ByteStreamSucker(fis, fos);
+        sucker.suck();
+      } finally {
+        if (fos != null) {
+          fos.close();
+        }
+      }
+    } finally {
+      if (fis != null) {
+        fis.close();
+      }
+    }
+  }
 }

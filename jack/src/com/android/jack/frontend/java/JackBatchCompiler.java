@@ -16,17 +16,25 @@
 
 package com.android.jack.frontend.java;
 
+import com.google.common.base.Joiner;
+
 import com.android.jack.JackUserException;
+import com.android.jack.Options;
 import com.android.jack.ecj.loader.jast.JAstClasspath;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.reporting.Reporter;
+import com.android.sched.util.config.Config;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
@@ -39,9 +47,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -230,6 +241,12 @@ public class JackBatchCompiler extends Main {
     logger.printStats();
   }
 
+  @SuppressWarnings("unchecked")
+  @CheckForNull
+  public List<CategorizedProblem> getExtraProblems() {
+    return extraProblems;
+  }
+
   @Override
   public void configure(String[] argv) {
     super.configure(argv);
@@ -263,5 +280,50 @@ public class JackBatchCompiler extends Main {
       }
     }
     return cu;
+  }
+
+  @Override
+  protected void initializeAnnotationProcessorManager() {
+    List<String> processorArgs = new ArrayList<String>();
+    Config config = ThreadConfig.getConfig();
+    for (Map.Entry<String, String> entry :
+      config.get(Options.ANNOTATION_PROCESSOR_OPTIONS).entrySet()) {
+      processorArgs.add("-A" + entry.getKey() + "=" + entry.getValue());
+    }
+    if (config.get(Options.ANNOTATION_PROCESSOR_MANUAL).booleanValue()) {
+      processorArgs.add("-processor");
+      processorArgs.add(Joiner.on(',').join(config.get(Options.ANNOTATION_PROCESSOR_MANUAL_LIST)));
+    }
+    if (config.get(Options.ANNOTATION_PROCESSOR_PATH).booleanValue()) {
+      processorArgs.add("-processorpath");
+      processorArgs.add(getPathString(config.get(Options.ANNOTATION_PROCESSOR_PATH_LIST)));
+    }
+    processorArgs.add("-s");
+    processorArgs.add(config.get(Options.ANNOTATION_PROCESSOR_SOURCE_OUTPUT_DIR).getPath());
+    processorArgs.add("-d");
+    processorArgs.add(config.get(Options.ANNOTATION_PROCESSOR_CLASS_OUTPUT_DIR).getPath());
+    {
+      processorArgs.add("-classpath");
+      processorArgs.add(config.get(Options.CLASSPATH));
+    }
+    String[] args = processorArgs.toArray(new String[processorArgs.size()]);
+
+    BatchAnnotationProcessorManager manager = new BatchAnnotationProcessorManager();
+    manager.configure(this, args);
+    manager.setOut(out);
+    this.batchCompiler.annotationProcessorManager = manager;
+  }
+
+  @Nonnull
+  private static String getPathString(@Nonnull List<FileOrDirectory> pathList) {
+    StringBuilder path = new StringBuilder();
+    for (Iterator<FileOrDirectory> iter = pathList.iterator();
+        iter.hasNext();) {
+      path.append(iter.next().getPath());
+      if (iter.hasNext()) {
+        path.append(File.pathSeparatorChar);
+      }
+    }
+    return path.toString();
   }
 }

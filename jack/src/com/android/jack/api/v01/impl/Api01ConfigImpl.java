@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -251,17 +252,19 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   public void setProcessorNames(@Nonnull List<String> processorNames) {
-    throw new AssertionError();
+    options.processor = Joiner.on(',').join(processorNames);
   }
 
   @Override
   public void setProcessorOptions(@Nonnull Map<String, String> processorOptions) {
-    throw new AssertionError();
+    for (Entry<String, String> entry : processorOptions.entrySet()) {
+      options.addAnnotationProcessorOption(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
   public void setProcessorPath(@Nonnull List<File> processorPath) {
-    throw new AssertionError();
+    options.processorPath = Joiner.on(File.pathSeparatorChar).join(processorPath);
   }
 
   @Override

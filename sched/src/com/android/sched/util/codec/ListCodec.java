@@ -56,11 +56,16 @@ public class ListCodec<T> implements StringCodec<List<T>> {
     this.var = var;
   }
 
-  public ListCodec<T> setSeperator(@Nonnull String separator) {
+  public ListCodec<T> setSeparator(@Nonnull String separator) {
     this.separator = separator;
     this.regexp = Pattern.quote(separator);
 
     return this;
+  }
+
+  @Nonnull
+  public String getSeparator() {
+    return separator;
   }
 
   public ListCodec<T> setMin(@Nonnegative int min) {

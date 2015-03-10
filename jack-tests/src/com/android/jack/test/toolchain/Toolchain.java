@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.processing.Processor;
 
 /**
  * A toolchain the ouptut of which can be redirected to user defined streams.
@@ -40,7 +39,7 @@ public abstract class Toolchain implements IToolchain {
   protected List<File> classpath = new ArrayList<File>();
 
   @CheckForNull
-  protected Class<? extends Processor> annotationProcessorClass;
+  protected List<String> annotationProcessorClasses;
 
   /**
    * Java source level.
@@ -125,9 +124,9 @@ public abstract class Toolchain implements IToolchain {
 
   @Override
   @Nonnull
-  public final Toolchain setAnnotationProcessorClass(
-      @Nonnull Class<? extends Processor> annotationProcessorClass) {
-    this.annotationProcessorClass = annotationProcessorClass;
+  public final Toolchain setAnnotationProcessorClasses(
+      @Nonnull List<String> annotationProcessorClasses) {
+    this.annotationProcessorClasses = annotationProcessorClasses;
     return this;
   }
 

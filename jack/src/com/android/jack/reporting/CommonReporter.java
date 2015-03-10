@@ -49,7 +49,8 @@ abstract class CommonReporter implements Reporter {
       CategorizedProblem problem = ((EcjProblem) reportable).getProblem();
       printProblem(reportable.getDefaultProblemLevel(),
           reportable.getMessage(),
-          String.valueOf(problem.getOriginatingFileName()),
+          problem.getOriginatingFileName() != null ?
+              String.valueOf(problem.getOriginatingFileName()) : null,
           problem.getSourceLineNumber(),
           -1 /* endLine */,
           problem.getSourceEnd(),

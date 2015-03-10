@@ -43,15 +43,6 @@ public class RunnableHooks {
   @Nonnull
   private final List<Runnable> hooks = new ArrayList<Runnable>();
 
-  public RunnableHooks() {
-    Runtime.getRuntime().addShutdownHook(new Thread(){
-      @Override
-      public void run() {
-        runHooks();
-      }
-    });
-  }
-
   public synchronized void addHook(@Nonnull Runnable hook) {
     assert !hooks.contains(hook);
 
@@ -65,7 +56,6 @@ public class RunnableHooks {
   }
 
   public synchronized void runHooks() {
-
     for (Runnable hook : Lists.reverse(hooks)) {
       hook.run();
     }

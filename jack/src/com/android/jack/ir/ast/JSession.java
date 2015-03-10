@@ -131,7 +131,6 @@ public class JSession extends JNode {
     this.inputFilter = inputFilter;
   }
 
-
   @Nonnull
   public JNodeLookup getLookup() {
     return lookup;

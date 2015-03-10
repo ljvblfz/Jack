@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.annotation.processing.Processor;
 
 
 /**
@@ -69,8 +68,8 @@ public interface IToolchain {
   IToolchain setWithDebugInfos(boolean withDebugInfos);
 
   @Nonnull
-  IToolchain setAnnotationProcessorClass(
-      @Nonnull Class<? extends Processor> annotationProcessorClass);
+  IToolchain setAnnotationProcessorClasses(
+      @Nonnull List<String> annotationProcessorClasses);
 
   @Nonnull
   IToolchain setSourceLevel(@Nonnull SourceLevel sourceLevel);

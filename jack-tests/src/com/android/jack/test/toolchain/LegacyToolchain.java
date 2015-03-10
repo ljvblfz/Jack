@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.base.Joiner;
+
 import com.android.dx.command.dexer.Main.Arguments;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
@@ -228,6 +230,11 @@ public class LegacyToolchain extends AndroidToolchain {
     }
     addSourceLevel(sourceLevel, args);
 
+    if (annotationProcessorClasses != null) {
+      args.add("-processor");
+      args.add(Joiner.on(',').join(annotationProcessorClasses));
+    }
+
     args.add("-encoding");
     args.add("utf8");
 
@@ -283,9 +290,9 @@ public class LegacyToolchain extends AndroidToolchain {
     arguments.add("-encoding");
     arguments.add("utf8");
 
-    if (annotationProcessorClass != null) {
+    if (annotationProcessorClasses != null) {
       arguments.add("-processor");
-      arguments.add(annotationProcessorClass.getName());
+      arguments.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
     arguments.add("-bootclasspath");

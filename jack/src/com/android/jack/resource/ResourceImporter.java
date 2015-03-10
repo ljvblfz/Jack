@@ -30,6 +30,7 @@ import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,7 +53,9 @@ public class ResourceImporter extends ResourceOrMetaImporter {
   @Nonnull
   public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = ListPropertyId.create(
       "jack.import.resource", "Resources to import", "dir",
-      new DirectoryInputVFSCodec()).addDefaultValue(Collections.<InputVFS>emptyList());
+      new DirectoryInputVFSCodec())
+      .on(File.pathSeparator)
+      .addDefaultValue(Collections.<InputVFS>emptyList());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =

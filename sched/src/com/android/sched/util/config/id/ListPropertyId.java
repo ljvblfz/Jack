@@ -80,7 +80,7 @@ public class ListPropertyId<T> extends PropertyId<List<T>> {
 
   @Nonnull
   public ListPropertyId<T> on(@Nonnull String separator) {
-    getCodec().setSeperator(separator);
+    getCodec().setSeparator(separator);
 
     return this;
   }
