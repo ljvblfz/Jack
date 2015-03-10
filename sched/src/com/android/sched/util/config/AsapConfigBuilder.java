@@ -29,12 +29,16 @@ import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.EnvironmentLocation;
 import com.android.sched.util.location.FieldLocation;
 import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -318,6 +322,14 @@ public class AsapConfigBuilder {
   }
 
   @Nonnull
+  public AsapConfigBuilder setWorkingDirectory(@Nonnull File workingDirectory)
+      throws NotDirectoryException, WrongPermissionException, NoSuchFileException {
+    context.setWorkingDirectory(workingDirectory);
+
+    return this;
+  }
+
+  @Nonnull
   public AsapConfigBuilder setStrictMode() {
     this.strict = true;
 
@@ -333,7 +345,7 @@ public class AsapConfigBuilder {
   }
 
   /**
-   * Builds the {@Config} with all defined property values.
+   * Builds the {@link Config} with all defined property values.
    *
    * @return the {@code Config}.
    * @throws ConfigurationException
