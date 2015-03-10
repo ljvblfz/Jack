@@ -1285,7 +1285,10 @@
     <fail message="tests.config is undefined" unless="tests.config" />
   </target>
 
-  <target name="test-jack" depends="tests-check-config, jack-tests">
+  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep">
+  </target>
+
+  <target name="test-jack-nodep">
     <mkdir dir="${jack.tests.output}/test-jack/html"/>
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
@@ -1307,29 +1310,35 @@
     <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-   <target name="test-jack-long" depends="tests-check-config, jack-tests">
-      <mkdir dir="${jack.tests.output}/test-jack-long/html"/>
-      <junit fork="yes" failureproperty="test-jack.failure">
-        <formatter type="xml"/>
-        <jvmarg value="-Dtests.config=${tests.config}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-          <filelist refid="jack.junit.tests.classpath" />
-        </classpath>
-        <test name="com.android.jack.LongLastingTests"
-          todir="${jack.tests.output}/test-jack-long/"
-          outfile="test-jack-long" />
-      </junit>
-      <junitreport todir="${jack.tests.output}/test-jack-long">
-        <fileset dir="${jack.tests.output}/test-jack-long">
-          <include name="test-jack-long.xml"/>
-        </fileset>
-        <report format="frames" todir="${jack.tests.output}/test-jack-long/html"/>
-      </junitreport>
-       <fail message="TESTS FAILED" if="test-jack.failure" />
-    </target>
+   <target name="test-jack-long" depends="tests-check-config, jack-tests, test-jack-long-nodep">
+   </target>
 
-  <target name="test-jack-all" depends="tests-check-config, jack-tests">
+  <target name="test-jack-long-nodep">
+     <mkdir dir="${jack.tests.output}/test-jack-long/html"/>
+     <junit fork="yes" failureproperty="test-jack.failure">
+       <formatter type="xml"/>
+       <jvmarg value="-Dtests.config=${tests.config}"/>
+       <jvmarg value="-ea"/>
+       <classpath>
+         <filelist refid="jack.junit.tests.classpath" />
+       </classpath>
+       <test name="com.android.jack.LongLastingTests"
+         todir="${jack.tests.output}/test-jack-long/"
+         outfile="test-jack-long" />
+     </junit>
+     <junitreport todir="${jack.tests.output}/test-jack-long">
+       <fileset dir="${jack.tests.output}/test-jack-long">
+         <include name="test-jack-long.xml"/>
+       </fileset>
+       <report format="frames" todir="${jack.tests.output}/test-jack-long/html"/>
+     </junitreport>
+     <fail message="TESTS FAILED" if="test-jack.failure" />
+  </target>
+
+  <target name="test-jack-all" depends="tests-check-config, jack-tests, test-jack-all-nodep">
+  </target>
+
+  <target name="test-jack-all-nodep">
       <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
@@ -1352,6 +1361,10 @@
     </target>
 
   <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
+    freemarker-lib,maths-lib, test-sched-nodep">
+  </target>
+
+  <target name="test-sched-nodep" depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
