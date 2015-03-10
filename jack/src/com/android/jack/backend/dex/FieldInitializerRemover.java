@@ -67,7 +67,7 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
   @Nonnull
   public static final BooleanPropertyId STRING_AS_INITIALVALUE_OF_OBJECT = BooleanPropertyId.create(
       "jack.legacy.runtime.initialvalue.string",
-      "Emit string literal as initial value of field").addDefaultValue(Boolean.TRUE);
+      "Emit string literal as initial value of field").addDefaultValue(Boolean.FALSE);
 
   private final boolean allowClassInInitialValue =
       ThreadConfig.get(CLASS_AS_INITIALVALUE).booleanValue();
