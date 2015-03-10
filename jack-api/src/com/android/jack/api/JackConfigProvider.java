@@ -21,24 +21,54 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * STOPSHIP
+ * Provides instances of {@link JackConfig}.
  */
 public interface JackConfigProvider {
   @Nonnull
   static final String CLASS_NAME = "com.android.jack.api.impl.JackConfigProviderImpl";
 
+  /**
+   * Creates a {@link JackConfig} instance for an interface representing a {@link JackConfig} API
+   * version.
+   * @param cls the {@link JackConfig} API interface
+   * @return the {@link JackConfig} instance
+   * @throws ConfigNotSupportedException If no implementation is found for the given interface.
+   */
   @Nonnull
   <T extends JackConfig> T getConfig(@Nonnull Class<T> cls) throws ConfigNotSupportedException;
 
+  /**
+   * Gives a {@link Collection} containing supported {@link JackConfig} API versions.
+   * @return the supported {@link JackConfig} API versions
+   */
   @Nonnull
   Collection<Class<? extends JackConfig>> getSupportedConfigs();
 
+  /**
+   * The code name of this Jack compiler.
+   * @return the code name
+   */
   @Nonnull
   String getCompilerCodeName();
+
+  /**
+   * The version of this Jack compiler.
+   * @return the version
+   */
   @Nonnull
   String getCompilerVersion();
+
+  /**
+   * The build ID of this Jack compiler.
+   * @return the build ID
+   */
   @Nonnull
   String getCompilerBuildId();
+
+  /**
+   * The code base of this Jack compiler.
+   * @return the code base
+   */
   @Nonnull
   String getCompilerCodeBase();
 }

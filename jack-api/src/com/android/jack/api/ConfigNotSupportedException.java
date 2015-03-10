@@ -19,7 +19,7 @@ package com.android.jack.api;
 import javax.annotation.Nonnull;
 
 /**
- * STOPSHIP
+ * Thrown when the requested Jack configuration for a given API version is not supported.
  */
 public class ConfigNotSupportedException extends Exception {
   private static final long serialVersionUID = 1L;

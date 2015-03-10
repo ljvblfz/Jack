@@ -19,7 +19,7 @@ package com.android.jack.api.v01;
 import javax.annotation.Nonnull;
 
 /**
- * All exceptions thrown from the configuration framework.
+ * Thrown when something is wrong in Jack's configuration.
  */
 public class ConfigurationException extends ChainedException {
   private static final long serialVersionUID = 1L;
