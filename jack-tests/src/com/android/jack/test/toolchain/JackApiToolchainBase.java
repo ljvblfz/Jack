@@ -19,7 +19,6 @@ package com.android.jack.test.toolchain;
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackConfigProvider;
-import com.android.jack.api.example.Main;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestConfigurationException;
@@ -77,7 +76,7 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
       ClassLoader loader;
       JackConfigProvider confProvider;
       loader = URLClassLoader.newInstance(new URL[] {jackPrebuilt.toURI().toURL()},
-          Main.class.getClassLoader());
+          JackApiToolchainBase.class.getClassLoader());
 
       Class<? extends JackConfigProvider> confProviderClass = Class.forName(
           JackConfigProvider.CLASS_NAME, true, loader).asSubclass(JackConfigProvider.class);

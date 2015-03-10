@@ -20,6 +20,7 @@
   <target name="dist" depends="dexcomparator-lib,
     jack,
     jack-api,
+    jack-api-src,
     jackunittests,
     jack-tests,
     dx-lib,
@@ -28,6 +29,7 @@
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
+    jack-api-src-clean,
     jackunittests-lib-clean,
     jackunittests-clean,
     jack-tests-clean,
@@ -254,6 +256,7 @@
               <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
             </filelist>
           </classpath>
+          <exclude name="com/android/jack/api/example/**"/>
         </javac>
     <jar destfile="${jack-api.dist.dir}/${jack-api.lib.name}">
       <fileset dir="${jack-api.lib.build.outdir}"/>
@@ -274,6 +277,22 @@
       <fileset dir="${jack-api.lib.build.outdir}"/>
     </jar>
   </target>
+
+
+  <!-- ******************* -->
+  <!-- jack-api-src        -->
+  <!-- ******************* -->
+  <property name="jack-api-src.name" value="jack-api-src.zip" />
+
+  <target name="jack-api-src-clean">
+    <delete dir="${jack-api.dist.dir}/${jack-api-src.name}"/>
+  </target>
+
+  <target name="jack-api-src">
+   <zip destfile="${jack-api.dist.dir}/${jack-api-src.name}"
+        basedir="${jack-api.dir}/src" />
+  </target>
+
 
   <!-- ******************* -->
   <!-- jackunittests-lib   -->
