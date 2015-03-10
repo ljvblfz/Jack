@@ -17,7 +17,18 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -41,6 +52,9 @@ public class CodecContext {
 
   @Nonnull
   private PrintStream standardError = System.err;
+
+  @CheckForNull
+  private Directory workingDirectory;
 
   @Nonnull
   public CodecContext setDebug() {
@@ -90,5 +104,27 @@ public class CodecContext {
 
   public void setStandardError(@Nonnull PrintStream standardError) {
     this.standardError = standardError;
+  }
+
+  @CheckForNull
+  public Directory getWorkingDirectory() {
+    return workingDirectory;
+  }
+
+  public void setWorkingDirectory(@Nonnull File workingDirectory) throws NotDirectoryException,
+      WrongPermissionException, NoSuchFileException {
+    try {
+      this.workingDirectory = new Directory(workingDirectory.getPath(), null, Existence.MUST_EXIST,
+          Permission.EXECUTE, ChangePermission.NOCHANGE);
+    } catch (CannotSetPermissionException e) {
+      // we're not changing the permissions
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      // we're not creating the directory
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      // we're not creating the directory
+      throw new AssertionError(e);
+    }
   }
 }

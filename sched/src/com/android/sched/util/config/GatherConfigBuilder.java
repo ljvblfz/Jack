@@ -21,8 +21,12 @@ import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -205,6 +209,14 @@ public class GatherConfigBuilder {
   @Nonnull
   public GatherConfigBuilder setStandardError(@Nonnull PrintStream printer) {
     builder.setStandardError(printer);
+
+    return this;
+  }
+
+  @Nonnull
+  public GatherConfigBuilder setWorkingDirectory(@Nonnull File workingDirectory)
+      throws NotDirectoryException, WrongPermissionException, NoSuchFileException {
+    builder.setWorkingDirectory(workingDirectory);
 
     return this;
   }
