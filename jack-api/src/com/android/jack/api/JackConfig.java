@@ -17,7 +17,7 @@
 package com.android.jack.api;
 
 /**
- * STOPSHIP
+ * Allows to set a configuration for Jack.
  */
 public interface JackConfig {
 }
