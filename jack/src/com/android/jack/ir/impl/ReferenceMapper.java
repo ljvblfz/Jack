@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,9 +88,9 @@ public class ReferenceMapper {
   @Nonnull
   private final List<String> argNames = new ArrayList<String>();
   @Nonnull
-  private final Map<String, JField> fields = new HashMap<String, JField>();
+  private final Map<SignatureKey, JField> fields = new HashMap<SignatureKey, JField>();
   @Nonnull
-  private final Map<String, JMethod> methods = new HashMap<String, JMethod>();
+  private final Map<SignatureKey, JMethod> methods = new HashMap<SignatureKey, JMethod>();
   @Nonnull
   private static final StringInterner stringInterner = StringInterner.get();
 
@@ -133,7 +134,7 @@ public class ReferenceMapper {
   @Nonnull
   public JField get(@Nonnull FieldBinding binding) throws JTypeLookupException {
     binding = binding.original();
-    String key = signature(binding);
+    SignatureKey key = new SignatureKey(binding);
     JField field = fields.get(key);
     if (field == null) {
       // Call createField on FieldBinding having a declaring class that is not a SourceTypeBinding
@@ -158,7 +159,7 @@ public class ReferenceMapper {
   @Nonnull
   public JMethod get(@Nonnull MethodBinding binding) throws JTypeLookupException {
     binding = binding.original();
-    String key = signature(binding);
+    SignatureKey key = new SignatureKey(binding);
     JMethod method = methods.get(key);
     if (method == null) {
       if (binding.declaringClass instanceof SourceTypeBinding) {
@@ -201,7 +202,7 @@ public class ReferenceMapper {
   }
 
   void setField(@Nonnull FieldBinding binding, @Nonnull JField field) {
-    cacheField(signature(binding), field);
+    cacheField(new SignatureKey(binding), field);
   }
 
   @Nonnull
@@ -457,39 +458,6 @@ public class ReferenceMapper {
     return argPosition;
   }
 
-  private String signature(FieldBinding binding) {
-    int charsCount = binding.declaringClass.constantPoolName().length + binding.name.length +
-        binding.type.signature().length + 2;
-    StringBuilder sb = new StringBuilder(charsCount);
-    sb.append(binding.declaringClass.constantPoolName());
-    sb.append('.');
-    sb.append(binding.name);
-    sb.append(':');
-    sb.append(binding.type.signature());
-    assert sb.length() == charsCount;
-    return sb.toString();
-  }
-
-  private String signature(MethodBinding binding) {
-    int charsCount = binding.declaringClass.constantPoolName().length + binding.selector.length +
-        binding.returnType.signature().length + 3;
-    for (TypeBinding paramType : binding.parameters) {
-      charsCount += paramType.signature().length;
-    }
-    StringBuilder sb = new StringBuilder(charsCount);
-    sb.append(binding.declaringClass.constantPoolName());
-    sb.append('.');
-    sb.append(binding.selector);
-    sb.append('(');
-    for (TypeBinding paramType : binding.parameters) {
-      sb.append(paramType.signature());
-    }
-    sb.append(')');
-    sb.append(binding.returnType.signature());
-    assert sb.length() == charsCount;
-    return sb.toString();
-  }
-
   @Nonnull
   private static String getTypeConstantPoolName(@Nonnull String typeName) {
     assert typeName.charAt(0) == 'L' : typeName + " is not well formed.";
@@ -632,12 +600,12 @@ public class ReferenceMapper {
     return isCompileTimeConstant;
   }
 
-  private void cacheMethod(@Nonnull String key, @Nonnull JMethod method) {
+  private void cacheMethod(@Nonnull SignatureKey key, @Nonnull JMethod method) {
     assert !methods.containsKey(key);
     methods.put(key, method);
   }
 
-  private void cacheField(@Nonnull String key, @Nonnull JField field) {
+  private void cacheField(@Nonnull SignatureKey key, @Nonnull JField field) {
     assert !fields.containsKey(key);
     fields.put(key, field);
   }
@@ -651,4 +619,54 @@ public class ReferenceMapper {
     return javaLangString;
   }
 
+  private static class SignatureKey {
+    private static final int PRIME = 277;
+    @Nonnull
+    private final char[] declaringClass;
+    @Nonnull
+    private final char[] name;
+    @Nonnull
+    private final char[] signature;
+    @Nonnegative
+    private final int hashCode;
+
+    public SignatureKey(@Nonnull char[] declaringClass, @Nonnull char[] name,
+        @Nonnull char[] signature) {
+      this.declaringClass = declaringClass;
+      this.name = name;
+      this.signature = signature;
+      hashCode = hash(declaringClass) ^ hash(name) ^ hash(signature);
+    }
+
+    private static int hash(@Nonnull char[] data) {
+      int hash = 0;
+      for (int i = 0; i < data.length; ++i) {
+         hash = hash * PRIME + data[i];
+      }
+      return hash;
+    }
+
+    public SignatureKey(@Nonnull MethodBinding binding) {
+      this(binding.declaringClass.constantPoolName(), binding.selector, binding.signature());
+    }
+
+    public SignatureKey(@Nonnull FieldBinding binding) {
+      this(binding.declaringClass.constantPoolName(), binding.name, binding.type.signature());
+    }
+
+    @Override
+    public final boolean equals(@CheckForNull Object obj) {
+      if (!(obj instanceof SignatureKey)) {
+        return false;
+      }
+      SignatureKey key = (SignatureKey) obj;
+      return Arrays.equals(declaringClass, key.declaringClass) && Arrays.equals(name, key.name) &&
+          Arrays.equals(signature, key.signature);
+    }
+
+    @Override
+    public final int hashCode() {
+      return hashCode;
+    }
+  }
 }
