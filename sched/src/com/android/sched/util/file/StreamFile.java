@@ -17,6 +17,9 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.FileLocation;
+
+import java.io.File;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -27,7 +30,19 @@ import javax.annotation.Nonnull;
  */
 public class StreamFile extends AbstractStreamFile {
 
-  public StreamFile(@Nonnull String name,
+  public StreamFile(@Nonnull String name, @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence, int permissions, @Nonnull ChangePermission change)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    this(new File(name), new FileLocation(name), hooks, existence, permissions, change);
+  }
+
+  protected StreamFile(@Nonnull File file,
+      @Nonnull FileLocation location,
       @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence,
       int permissions,
@@ -38,7 +53,7 @@ public class StreamFile extends AbstractStreamFile {
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
-    super(name, hooks);
+    super(file, location, hooks);
 
     performChecks(existence, permissions, change);
   }

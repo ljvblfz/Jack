@@ -85,7 +85,7 @@ public class InputStreamCodec extends StreamCodec<InputStreamFile> {
       return new InputStreamFile(context.getStandardInput(), STANDARD_INPUT_LOCATION);
     } else {
       try {
-        return new InputStreamFile(string);
+        return new InputStreamFile(context.getWorkingDirectory(), string);
       } catch (IOException e) {
         throw new ParsingException(e.getMessage(), e);
       }

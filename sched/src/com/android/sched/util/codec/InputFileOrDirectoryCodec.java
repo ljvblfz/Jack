@@ -55,9 +55,14 @@ public class InputFileOrDirectoryCodec extends FileOrDirCodec<FileOrDirectory> {
     File file = new File(string);
     try {
       if (file.isFile()) {
-        return new InputStreamFile(string);
+        return new InputStreamFile(context.getWorkingDirectory(), string);
       } else {
-        return new Directory(string, context.getRunnableHooks(), existence, permissions, change);
+        return new Directory(context.getWorkingDirectory(),
+            string,
+            context.getRunnableHooks(),
+            existence,
+            permissions,
+            change);
       }
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

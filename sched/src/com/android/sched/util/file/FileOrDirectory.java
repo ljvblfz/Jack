@@ -216,4 +216,15 @@ public abstract class FileOrDirectory implements HasLocation {
       hooks   = null;
     }
   }
+
+  @Nonnull
+  public static File getFileFromWorkingDirectory(@CheckForNull Directory workingDirectory,
+      @Nonnull String path) {
+    File fileWithoutWorkingDir = new File(path);
+    if (workingDirectory != null && !fileWithoutWorkingDir.isAbsolute()) {
+      return new File(workingDirectory.getFile(), path);
+    } else {
+      return fileWithoutWorkingDir;
+    }
+  }
 }

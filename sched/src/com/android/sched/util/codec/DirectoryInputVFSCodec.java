@@ -52,8 +52,12 @@ public class DirectoryInputVFSCodec extends InputVFSCodec
   public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
     try {
-      VFS vfs = new DirectFS(new Directory(string, context.getRunnableHooks(),
-            Existence.MUST_EXIST, Permission.READ, change), Permission.READ);
+      VFS vfs = new DirectFS(new Directory(context.getWorkingDirectory(),
+          string,
+          context.getRunnableHooks(),
+          Existence.MUST_EXIST,
+          Permission.READ,
+          change), Permission.READ);
       return new GenericInputVFS(vfs);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

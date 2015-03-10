@@ -18,7 +18,9 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.FileLocation;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,7 +48,36 @@ public class OutputZipFile extends OutputStreamFile {
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
-    super(name, hooks, existence, change, false);
+    this(new File(name), new FileLocation(name), hooks, existence, change);
+  }
+
+  public OutputZipFile(@CheckForNull Directory workingDirectory,
+      @Nonnull String name,
+      @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence,
+      @Nonnull ChangePermission change)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    this(getFileFromWorkingDirectory(workingDirectory, name),
+        new FileLocation(name), hooks, existence, change);
+  }
+
+  private OutputZipFile(@Nonnull File file,
+      @Nonnull FileLocation location,
+      @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence,
+      @Nonnull ChangePermission change)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    super(file, location, hooks, existence, change, false);
   }
 
   @Override

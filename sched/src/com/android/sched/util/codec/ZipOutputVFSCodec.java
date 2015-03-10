@@ -54,8 +54,8 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      WriteZipFS vfs =
-          new WriteZipFS(new OutputZipFile(string, hooks, existence, change));
+      WriteZipFS vfs = new WriteZipFS(
+          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change));
       return new GenericOutputVFS(vfs);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

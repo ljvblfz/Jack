@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 /**
  * This {@link StringCodec} is used to create an instance of {@link FileOrDirectory}.
- * The file or directory must exists and be readable.
+ * The file or directory must exist and be readable.
  */
 public class InputStreamOrDirectoryCodec extends OrCodec<FileOrDirectory> {
   @SuppressWarnings("unchecked")

@@ -48,9 +48,15 @@ public class DirectDirInputOutputVFSCodec extends InputOutputVFSCodec
   @Nonnull
   public InputOutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
+
     try {
-      return new GenericInputOutputVFS(new CachedDirectFS(new Directory(string,
-          context.getRunnableHooks(), existence, permissions, change), permissions));
+      return new GenericInputOutputVFS(
+          new CachedDirectFS(new Directory(context.getWorkingDirectory(),
+              string,
+              context.getRunnableHooks(),
+              existence,
+              permissions,
+              change), permissions));
     } catch (IOException e) {
       throw new ParsingException(e);
     }

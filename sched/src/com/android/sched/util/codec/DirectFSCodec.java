@@ -90,7 +90,7 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> {
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new CachedDirectFS(new Directory(string,
+      return new CachedDirectFS(new Directory(context.getWorkingDirectory(), string,
           context.getRunnableHooks(), existence, permissions, change), permissions);
     } catch (IOException e) {
       throw new ParsingException(e);

@@ -17,6 +17,8 @@
 package com.android.sched.util.codec;
 
 
+import com.android.sched.util.file.FileOrDirectory;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +55,7 @@ public class PathCodec implements StringCodec<File> {
   @Override
   @Nonnull
   public File parseString(@Nonnull CodecContext context, @Nonnull String value) {
-    return new File(value);
+    return FileOrDirectory.getFileFromWorkingDirectory(context.getWorkingDirectory(), value);
   }
 
   @Override

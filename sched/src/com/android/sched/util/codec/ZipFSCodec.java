@@ -86,7 +86,8 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      return new ReadWriteZipFS(new OutputZipFile(string, hooks, existence, change));
+      return new ReadWriteZipFS(
+          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change));
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }

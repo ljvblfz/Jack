@@ -26,6 +26,7 @@ import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -66,16 +67,20 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
       throws ParsingException {
     try {
       VFS vfs;
-      File dirOrZip = new File(string);
+      Directory workingDirectory = context.getWorkingDirectory();
+      File dirOrZip = FileOrDirectory.getFileFromWorkingDirectory(workingDirectory, string);
       if (dirOrZip.isDirectory()) {
-        vfs = new DirectFS(new Directory(string, context.getRunnableHooks(), Existence.MUST_EXIST,
-            Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
-            Permission.READ | Permission.WRITE);
+        vfs = new DirectFS(new Directory(workingDirectory,
+            string,
+            context.getRunnableHooks(),
+            Existence.MUST_EXIST,
+            Permission.READ | Permission.WRITE,
+            ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;
-        vfs = new ReadZipFS(
-            new InputZipFile(string, hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+        vfs = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
+            Existence.MUST_EXIST, ChangePermission.NOCHANGE));
       }
 
       return JackLibraryFactory.getInputLibrary(vfs);

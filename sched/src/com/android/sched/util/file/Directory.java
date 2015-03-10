@@ -45,10 +45,46 @@ public class Directory extends FileOrDirectory {
       NotDirectoryException,
       FileAlreadyExistsException,
       CannotCreateFileException {
+
+    this(new File(name), new DirectoryLocation(name), hooks, existence, permissions, change);
+  }
+
+  public Directory(@CheckForNull Directory workingDirectory,
+      @Nonnull String string,
+      @CheckForNull RunnableHooks runnableHooks,
+      @Nonnull Existence existence,
+      int permissions,
+      @Nonnull ChangePermission change)
+      throws NotDirectoryException,
+      WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      CannotCreateFileException {
+    this(getFileFromWorkingDirectory(workingDirectory, string),
+        new DirectoryLocation(string),
+        runnableHooks,
+        existence,
+        permissions,
+        change);
+  }
+
+  private Directory(@Nonnull File file,
+      @Nonnull DirectoryLocation location,
+      @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence,
+      int permissions,
+      @Nonnull ChangePermission change)
+      throws WrongPermissionException,
+      CannotSetPermissionException,
+      NoSuchFileException,
+      NotDirectoryException,
+      FileAlreadyExistsException,
+      CannotCreateFileException {
     super(hooks);
 
-    this.file = new File(name);
-    this.location = new DirectoryLocation(name);
+    this.file = file;
+    this.location = location;
 
     if (existence == Existence.MAY_EXIST) {
       if (file.exists()) {
@@ -60,7 +96,7 @@ public class Directory extends FileOrDirectory {
 
     switch (existence) {
       case MUST_EXIST:
-        Directory.check(file, (DirectoryLocation) location);
+        Directory.check(file, location);
         FileOrDirectory.checkPermissions(file, location, permissions);
         break;
       case NOT_EXIST:

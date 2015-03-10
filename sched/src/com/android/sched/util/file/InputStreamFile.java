@@ -17,10 +17,12 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
 import com.android.sched.util.stream.UncloseableInputStream;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -37,17 +39,7 @@ public class InputStreamFile extends AbstractStreamFile {
 
   public InputStreamFile(@Nonnull String name)
       throws WrongPermissionException, NotFileException, NoSuchFileException {
-    super(name, null /* hooks */);
-
-    try {
-      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
-    } catch (FileAlreadyExistsException e) {
-      throw new AssertionError(e);
-    } catch (CannotCreateFileException e) {
-      throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
-      throw new AssertionError(e);
-    }
+    this(new File(name), new FileLocation(name));
   }
 
   public InputStreamFile() {
@@ -58,6 +50,26 @@ public class InputStreamFile extends AbstractStreamFile {
   public InputStreamFile(@Nonnull InputStream in, @Nonnull Location location) {
     super(location);
     this.in = in;
+  }
+
+  public InputStreamFile(@CheckForNull Directory workingDirectory, @Nonnull String string)
+      throws NotFileException, WrongPermissionException, NoSuchFileException {
+    this(getFileFromWorkingDirectory(workingDirectory, string), new FileLocation(string));
+  }
+
+  private InputStreamFile(@Nonnull File file, @Nonnull FileLocation location)
+      throws WrongPermissionException, NotFileException, NoSuchFileException {
+    super(file, location, null /* hooks */);
+
+    try {
+      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      throw new AssertionError(e);
+    }
   }
 
   @Nonnull

@@ -18,12 +18,14 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;
 import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.util.stream.UncloseablePrintStream;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -52,7 +54,42 @@ public class OutputStreamFile extends AbstractStreamFile {
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
-    super(name, hooks);
+    this(new File(name), new FileLocation(name), hooks, existence, change, append);
+  }
+
+  public OutputStreamFile(@CheckForNull Directory workingDirectory,
+      @Nonnull String name,
+      @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence,
+      @Nonnull ChangePermission change,
+      boolean append)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    this(getFileFromWorkingDirectory(workingDirectory, name),
+        new FileLocation(name),
+        hooks,
+        existence,
+        change,
+        append);
+  }
+
+  protected OutputStreamFile(@Nonnull File file,
+      @Nonnull FileLocation location,
+      @CheckForNull RunnableHooks hooks,
+      @Nonnull Existence existence,
+      @Nonnull ChangePermission change,
+      boolean append)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    super(file, location, hooks);
 
     performChecks(existence, Permission.WRITE, change);
 

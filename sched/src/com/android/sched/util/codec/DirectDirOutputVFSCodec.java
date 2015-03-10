@@ -46,9 +46,12 @@ public class DirectDirOutputVFSCodec extends OutputVFSCodec {
   public OutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new GenericOutputVFS(new DirectFS(
-          new Directory(string, context.getRunnableHooks(), existence, permissions, change),
-          permissions));
+      return new GenericOutputVFS(new DirectFS(new Directory(context.getWorkingDirectory(),
+          string,
+          context.getRunnableHooks(),
+          existence,
+          permissions,
+          change), permissions));
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }

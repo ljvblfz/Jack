@@ -140,7 +140,12 @@ public class OutputStreamCodec extends StreamCodec<OutputStreamFile> {
           StandardOutputKind.STANDARD_ERROR.getLocation());
     } else {
       try {
-        return new OutputStreamFile(string, context.getRunnableHooks(), existence, change, append);
+        return new OutputStreamFile(context.getWorkingDirectory(),
+            string,
+            context.getRunnableHooks(),
+            existence,
+            change,
+            append);
       } catch (IOException e) {
         throw new ParsingException(e.getMessage(), e);
       }

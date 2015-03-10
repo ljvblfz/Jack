@@ -79,12 +79,17 @@ public class InputVFSCodec extends FileOrDirCodec<InputVFS> {
     try {
       File dirOrZip = new File(string);
       if (dirOrZip.isDirectory()) {
-        vfs = new DirectFS(new Directory(string, context.getRunnableHooks(),
-            Existence.MUST_EXIST, Permission.READ, change), Permission.READ);
+        vfs = new DirectFS(new Directory(context.getWorkingDirectory(),
+            string,
+            context.getRunnableHooks(),
+            Existence.MUST_EXIST,
+            Permission.READ,
+            change), Permission.READ);
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
         assert hooks != null;
-        vfs = new ReadZipFS(new InputZipFile(string, hooks, Existence.MUST_EXIST, change));
+        vfs = new ReadZipFS(new InputZipFile(context.getWorkingDirectory(), string, hooks,
+            Existence.MUST_EXIST, change));
       }
 
       return new GenericInputVFS(vfs);

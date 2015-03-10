@@ -18,6 +18,7 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.FileLocation;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class InputZipFile extends StreamFile {
   @Nonnull
   ZipFile zipFile;
 
-  public InputZipFile(@Nonnull String name, @CheckForNull RunnableHooks hooks,
+  public InputZipFile(@Nonnull String path, @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence, @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
@@ -44,7 +45,34 @@ public class InputZipFile extends StreamFile {
       NoSuchFileException,
       NotFileException,
       ZipException {
-    super(name, hooks, existence, Permission.READ, change);
+    this(new File(path), new FileLocation(path), hooks, existence, change);
+  }
+
+  public InputZipFile(@CheckForNull Directory workingDirectory, String path,
+      @CheckForNull RunnableHooks hooks, @Nonnull Existence mustExist,
+      @Nonnull ChangePermission change)
+      throws NotFileException,
+      FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      ZipException {
+    this(getFileFromWorkingDirectory(workingDirectory, path),
+        new FileLocation(path), hooks, mustExist, change);
+  }
+
+  private InputZipFile(@Nonnull File file, @Nonnull FileLocation location,
+      @CheckForNull RunnableHooks hooks, @Nonnull Existence existence,
+      @Nonnull ChangePermission change)
+      throws FileAlreadyExistsException,
+      CannotCreateFileException,
+      CannotSetPermissionException,
+      WrongPermissionException,
+      NoSuchFileException,
+      NotFileException,
+      ZipException {
+    super(file, location, hooks, existence, Permission.READ, change);
     zipFile = processZip(file);
   }
 

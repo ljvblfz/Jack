@@ -40,10 +40,15 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
   protected AbstractStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks) {
+    this(new File(name), new FileLocation(name), hooks);
+  }
+
+  protected AbstractStreamFile(@Nonnull File file,  @Nonnull FileLocation location,
+      @CheckForNull RunnableHooks hooks) {
     super(hooks);
 
-    this.file = new File(name);
-    this.location = new FileLocation(file);
+    this.file = file;
+    this.location = location;
   }
 
   protected AbstractStreamFile(@Nonnull Location location) {

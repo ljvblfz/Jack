@@ -63,7 +63,12 @@ public class DirectoryCodec extends FileOrDirCodec<Directory> {
   public Directory checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     try {
-      return new Directory(string, context.getRunnableHooks(), existence, permissions, change);
+      return new Directory(context.getWorkingDirectory(),
+          string,
+          context.getRunnableHooks(),
+          existence,
+          permissions,
+          change);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
