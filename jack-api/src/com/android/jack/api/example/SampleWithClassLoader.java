@@ -34,14 +34,15 @@ import java.net.URLClassLoader;
 /**
  * STOPSHIP
  */
-public class Main {
+public class SampleWithClassLoader {
+
   public static void main(String[] args) throws MalformedURLException, ClassNotFoundException,
       SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException,
       IllegalAccessException, InvocationTargetException {
     ClassLoader loader =
         URLClassLoader.newInstance(new URL[] {new File(
             "<replace_with_a_path_to_jack.jar>").toURI().toURL()},
-            Main.class.getClassLoader());
+            SampleWithClassLoader.class.getClassLoader());
 
     Class<? extends JackConfigProvider> confProviderClass =
         Class.forName(JackConfigProvider.CLASS_NAME, true, loader).asSubclass(
