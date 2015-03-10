@@ -563,7 +563,7 @@ public abstract class Jack {
 
       planBuilder.append(PreProcessorApplier.class);
 
-      fillDexPlan(options, planBuilder);
+      fillDexPlan(planBuilder);
       if (targetProduction.contains(DexFileProduct.class)) {
         planBuilder.append(DexFileWriter.class);
       }
@@ -884,7 +884,7 @@ public abstract class Jack {
     }
   }
 
-  static void fillDexPlan(@Nonnull Options options, @Nonnull PlanBuilder<JSession> planBuilder) {
+  static void fillDexPlan(@Nonnull PlanBuilder<JSession> planBuilder) {
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
