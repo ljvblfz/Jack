@@ -50,7 +50,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private int modifier;
 
   @Nonnull
-  private final List<JParameter> params = new ArrayList<JParameter>();
+  private final ArrayList<JParameter> params = new ArrayList<JParameter>();
   @Nonnull
   private final JType returnType;
 

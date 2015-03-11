@@ -49,7 +49,7 @@ public class JMethodCall extends JExpression {
   @Nonnull
   private JClassOrInterface receiverType;
   @Nonnull
-  private final List<JExpression> args = new ArrayList<JExpression>();
+  private final ArrayList<JExpression> args = new ArrayList<JExpression>();
 
   @Nonnull
   private JMethodId methodId;

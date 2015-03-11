@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 public abstract class JStatementList extends JStatement {
 
   @Nonnull
-  protected List<JStatement> statements = new ArrayList<JStatement>();
+  protected ArrayList<JStatement> statements = new ArrayList<JStatement>();
 
   public JStatementList(@Nonnull SourceInfo info) {
     super(info);
