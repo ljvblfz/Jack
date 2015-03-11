@@ -22,7 +22,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackApiV01Toolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import java.io.File;
 
@@ -41,8 +41,8 @@ public class RepackagingTest extends AbstractTest {
     File refFolder = new File(testFolder, "refsRepackageClasses");
     File refOutputMapping = new File(refFolder, "expected-" + flagNumber + ".txt");
 
-    JackApiV01Toolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiV01Toolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
 

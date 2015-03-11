@@ -23,7 +23,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.experimental.categories.Category;
 
@@ -41,8 +41,8 @@ public class FlattenPackageTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
-    JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
     File refFolder = new File(testFolder, "refsFlattenPackage");
     File refOutputMapping = new File(refFolder, "expected-" + flagNumber + ".txt");
