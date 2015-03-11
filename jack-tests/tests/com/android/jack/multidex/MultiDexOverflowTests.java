@@ -84,9 +84,8 @@ public class MultiDexOverflowTests {
         /* zipFile = */ false,
         srcFolder);
       Assert.fail();
-    } catch (ProcessException e) {
-      Assert.assertTrue(e.getCause() instanceof JackAbortException);
-      Throwable contextException = e.getCause().getCause();
+    } catch (JackAbortException e) {
+      Throwable contextException = e.getCause();
       Assert.assertTrue(contextException instanceof DexWritingException);
       Assert.assertTrue(contextException.getCause() instanceof MainDexOverflowException);
       Assert.assertTrue(contextException.getCause().getCause() instanceof MethodIdOverflowException);
