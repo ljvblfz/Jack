@@ -73,7 +73,7 @@ public class JackProviderImpl implements JackProvider {
   @Override
   @Nonnegative
   public int getCompilerSubReleaseCode() {
-    return 6;
+    return 8;
   }
 
   @Override
