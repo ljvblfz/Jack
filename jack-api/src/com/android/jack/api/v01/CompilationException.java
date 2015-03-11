@@ -19,25 +19,25 @@ package com.android.jack.api.v01;
 import javax.annotation.Nonnull;
 
 /**
- * A fatal problem that caused Jack to abort. The problem should already have reported, so it is
- * safe to ignore its message.
+ * A fatal problem that caused Jack to abort the compilation. The problem should already have
+ * reported, so it is safe to ignore its message.
  */
-public class AbortException extends Exception {
+public class CompilationException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  public AbortException() {
+  public CompilationException() {
     super();
   }
 
-  public AbortException(@Nonnull String message) {
+  public CompilationException(@Nonnull String message) {
     super(message);
   }
 
-  public AbortException(@Nonnull String message, @Nonnull Throwable cause) {
+  public CompilationException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
 
-  public AbortException(@Nonnull Throwable cause) {
+  public CompilationException(@Nonnull Throwable cause) {
     super(cause);
   }
 }

@@ -20,8 +20,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 import com.android.jack.Options;
-import com.android.jack.api.v01.AbortException;
 import com.android.jack.api.v01.Api01Config;
+import com.android.jack.api.v01.CompilationException;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
@@ -173,7 +173,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
       } else {
         throw new AssertionError();
       }
-    } catch (AbortException e1) {
+    } catch (CompilationException e1) {
       Throwable t1 = e1.getCause();
       if (t1 instanceof Exception) {
         throw (Exception) t1;

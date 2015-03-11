@@ -23,9 +23,9 @@ import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Options;
-import com.android.jack.api.v01.AbortException;
 import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
+import com.android.jack.api.v01.CompilationException;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.JavaSourceVersion;
@@ -88,7 +88,7 @@ public class Api01ConfigImpl implements Api01Config {
     }
 
     @Override
-    public void run() throws AbortException, UnrecoverableException {
+    public void run() throws CompilationException, UnrecoverableException {
       ProcessException pe = null;
 
       RunnableHooks runSessionHooks = new RunnableHooks();
@@ -101,9 +101,9 @@ public class Api01ConfigImpl implements Api01Config {
           throw e.getCause();
         }
       } catch (JackUserException e) {
-        throw new AbortException(e.getMessage(), e);
+        throw new CompilationException(e.getMessage(), e);
       } catch (JackAbortException e) {
-        throw new AbortException(e.getMessage(), e);
+        throw new CompilationException(e.getMessage(), e);
       } catch (com.android.sched.util.UnrecoverableException e) {
         throw new UnrecoverableException(e.getMessage(), e);
       } catch (Throwable e) {
