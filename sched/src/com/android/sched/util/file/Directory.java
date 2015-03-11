@@ -96,7 +96,7 @@ public class Directory extends FileOrDirectory {
       throw new NoSuchFileException(location);
     }
 
-    // Check directory
+    // Check if it is a directory
     if (!file.isDirectory()) {
       throw new NotDirectoryException(location);
     }

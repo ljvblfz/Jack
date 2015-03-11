@@ -125,6 +125,44 @@ public abstract class FileOrDirectory implements HasLocation {
     }
   }
 
+
+  public static void unsetPermissions(@Nonnull File file, @Nonnull Location location,
+      int permissions, @Nonnull FileOrDirectory.ChangePermission change)
+      throws CannotSetPermissionException {
+    if (change != ChangePermission.NOCHANGE) {
+      // Set access
+      if ((permissions & Permission.READ) != 0) {
+        if (file.setReadable(false, change == ChangePermission.OWNER)) {
+          logger.log(Level.FINE, "Clear readable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
+        } else {
+          throw new CannotSetPermissionException(location, Permission.READ,
+              change);
+        }
+      }
+
+      if ((permissions & Permission.WRITE) != 0) {
+        if (file.setWritable(false, change == ChangePermission.OWNER)) {
+          logger.log(Level.FINE, "Clear writable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
+        } else {
+          throw new CannotSetPermissionException(location, Permission.WRITE,
+              change);
+        }
+      }
+
+      if ((permissions & Permission.EXECUTE) != 0) {
+        if (file.setExecutable(false, change == ChangePermission.OWNER)) {
+          logger.log(Level.FINE, "Clear executable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
+        } else {
+          throw new CannotSetPermissionException(location, Permission.EXECUTE,
+              change);
+        }
+      }
+    }
+  }
+
   public static void checkPermissions(@Nonnull File file, @Nonnull Location location,
       int permissions) throws WrongPermissionException {
     if ((permissions & Permission.READ) != 0) {

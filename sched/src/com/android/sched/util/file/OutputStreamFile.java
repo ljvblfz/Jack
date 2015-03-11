@@ -83,6 +83,29 @@ public class OutputStreamFile extends AbstractStreamFile {
     this.append = false;
   }
 
+  /**
+   * Creates a new instance of {@link OutputStreamFile} assuming the file must exist, without
+   * modifying its permissions. It will be overwritten.
+   */
+  public OutputStreamFile(@Nonnull String name)
+      throws WrongPermissionException, NotFileException {
+    super(name, null);
+
+    try {
+      performChecks(Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE);
+    } catch (NoSuchFileException e) {
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotSetPermissionException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    }
+
+    this.append = false;
+  }
+
   @Nonnull
   private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
   @Nonnull
