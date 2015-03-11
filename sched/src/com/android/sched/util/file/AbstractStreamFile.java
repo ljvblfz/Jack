@@ -127,8 +127,8 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
       throw new NoSuchFileException(location);
     }
 
-    // Check it is a file
-    if (!file.isFile()) {
+    // Check if it is not a Directory
+    if (file.isDirectory()) {
       throw new NotFileException(location);
     }
   }

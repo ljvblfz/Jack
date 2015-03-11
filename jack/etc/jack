@@ -1,0 +1,85 @@
+#! /bin/bash
+#
+# Copyright (C) 2015 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+set -o nounset
+
+JACK_NB_COMPILE=4
+JACK_TIMEOUT=15
+
+TMPDIR="/tmp"
+
+JACK_PRG="java -cp /usr/local/google/home/jplesot/Android/ub-jack/toolchain/jack/jack/dist/jack.jar com.android.jack.server.Server"
+JACK_FIFO="$TMPDIR/jack-$USER.cmd"
+JACK_LOCK="$TMPDIR/jack-$USER.lock"
+JACK_LOG="$TMPDIR/jack-$USER.log"
+
+JACK_DIR="$TMPDIR/jack-$USER-$$/"
+JACK_OUT="$JACK_DIR/out"
+JACK_ERR="$JACK_DIR/err"
+JACK_EXIT="$JACK_DIR/exit"
+JACK_CLI="$JACK_DIR/cli"
+JACK_PWD="$PWD"
+
+#
+# Always create the FIFO
+#
+
+mkfifo -m 0000 $JACK_FIFO 2>/dev/null
+
+#
+# Prepare
+#
+
+# Cleanup
+trap "rm -f $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI $JACK_LOCK 2>/dev/null; rmdir $JACK_DIR 2>/dev/null" exit
+
+# Create fifo for a task
+mkdir $JACK_DIR
+mkfifo $JACK_OUT
+mkfifo $JACK_ERR
+mkfifo $JACK_EXIT
+
+# Redirect output and error
+cat <$JACK_OUT >&1 &
+PID_OUT=$!
+cat <$JACK_ERR >&2 &
+PID_ERR=$!
+
+echo \"$PWD\" $* >$JACK_CLI
+
+#
+# Launch compilation
+#
+
+# Try sending a command
+CMD="+ $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI"
+( echo $CMD >>$JACK_FIFO ) 2>/dev/null
+while [ $? -ne 0 ]; do
+  # If not possible, launch the server one time only
+  mkfifo $JACK_LOCK 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "Launch background server" $JACK_PRG
+    nohup $JACK_PRG $JACK_NB_COMPILE $JACK_TIMEOUT $JACK_FIFO >$JACK_LOG 2>&1 &
+  fi
+  # Slow down, and retry sending the command
+  sleep 1
+  ( echo $CMD >>$JACK_FIFO ) 2>/dev/null
+done
+
+wait $PID_OUT
+wait $PID_ERR
+
+exit `cat $JACK_EXIT`
