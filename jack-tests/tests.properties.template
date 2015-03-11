@@ -1,6 +1,6 @@
 jack.home=
 
-# Toolchain names among legacy, jill-legacy, jack-api, jack-cli
+# Toolchain names among legacy, jill-legacy, jack-api-vXX, jack-cli
 reference.toolchain=
 candidate.toolchain=
 
