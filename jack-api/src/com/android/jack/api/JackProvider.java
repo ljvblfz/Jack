@@ -37,10 +37,10 @@ public interface JackProvider {
   <T extends JackConfig> T createConfig(@Nonnull Class<T> cls) throws ConfigNotSupportedException;
 
   /**
-   * Gives if an interface representing a {@link JackConfig} API version is supported.
+   * Returns whether an interface representing a {@link JackConfig} API version is supported.
    *
    * @param cls the {@link JackConfig} API interface
-   * @return if the config is supported
+   * @return <code>true</true> if the config is supported
    */
   @Nonnull
   <T extends JackConfig> boolean isConfigSupported(@Nonnull Class<T> cls);
@@ -70,7 +70,8 @@ public interface JackProvider {
   String getCompilerReleaseName();
 
   /**
-   * Gives an integer value that represents the release of Jack compiler, relative to other release.
+   * Gives an integer value that represents the release of this Jack compiler, relative to other
+   * releases.
    *
    * @return the release code
    */
@@ -78,8 +79,8 @@ public interface JackProvider {
   int getCompilerReleaseCode();
 
   /**
-   * Gives an integer value that represents the sub-release of Jack compiler, relative to other
-   * sub-release of the same release.
+   * Gives an integer value that represents the sub-release of this Jack compiler, relative to other
+   * sub-releases of the same release.
    *
    * @return the sub-release code
    */
@@ -87,7 +88,7 @@ public interface JackProvider {
   int getCompilerSubReleaseCode();
 
   /**
-   * Gives the kind of the sub-release of Jack compiler.
+   * Gives the kind of sub-release of this Jack compiler.
    *
    * @return the sub-release kind
    */
@@ -95,7 +96,7 @@ public interface JackProvider {
   SubReleaseKind getCompilerSubReleaseKind();
 
   /**
-   * The kind of a sub-release.
+   * The kind of sub-release.
    */
   public enum SubReleaseKind {
     /**
@@ -103,15 +104,15 @@ public interface JackProvider {
      */
     ENGINEERING,
     /**
-     * A sub-release not functionally completed, not tested.
+     * A sub-release that is not feature complete, not tested.
      */
     PRE_ALPHA,
     /**
-     * A sub-release not functionally completed, tested.
+     * A sub-release that is not feature complete, tested.
      */
     ALPHA,
     /**
-     * A sub-release functionally completed, tested, but likely contains known or unknown bugs.
+     * A sub-release that is feature complete, tested, but likely contains known or unknown bugs.
      */
     BETA,
     /**
