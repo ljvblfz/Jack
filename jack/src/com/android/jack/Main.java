@@ -69,7 +69,7 @@ public abstract class Main extends CommandLine {
       }
 
       // Compile
-      runJackAndExitOnError(options);
+      System.exit(runJack(System.err, options));
     } catch (CmdLineException e) {
       System.err.println(e.getMessage());
       CmdLineParser parser = e.getParser();
@@ -85,8 +85,6 @@ public abstract class Main extends CommandLine {
 
       System.exit(ExitStatus.FAILURE_USAGE);
     }
-
-    System.exit(ExitStatus.SUCCESS);
   }
 
   @Nonnull
