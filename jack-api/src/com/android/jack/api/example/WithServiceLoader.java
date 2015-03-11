@@ -17,10 +17,11 @@
 package com.android.jack.api.example;
 
 import com.android.jack.api.ConfigNotSupportedException;
-import com.android.jack.api.JackConfigProvider;
-import com.android.jack.api.v01.AbortException;
+import com.android.jack.api.JackConfig;
+import com.android.jack.api.JackProvider;
 import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
+import com.android.jack.api.v01.CompilationException;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.UnrecoverableException;
 
@@ -33,8 +34,7 @@ import java.util.ServiceLoader;
  * Sample of Jack api usage based on a service provider.
  * This sample requires jack.jar on classpath.
  */
-public class SampleWithServiceLoader {
-
+public class WithServiceLoader {
   public static void main(String[] args) throws SecurityException, IllegalArgumentException {
     if (args.length != 3) {
       System.out.println(
@@ -42,21 +42,39 @@ public class SampleWithServiceLoader {
       return;
     }
 
-    ServiceLoader<JackConfigProvider> serviceLoader = ServiceLoader.load(JackConfigProvider.class);
-    JackConfigProvider confProvider;
+    ServiceLoader<JackProvider> serviceLoader = ServiceLoader.load(JackProvider.class);
+    JackProvider provider;
     try {
-      confProvider = serviceLoader.iterator().next();
+      provider = serviceLoader.iterator().next();
     } catch (NoSuchElementException e) {
       System.out.println("Check that jack.jar is on classpath");
       return;
     }
+
+    System.out.println("Compiler version: " + provider.getCompilerVersion());
+    System.out.println("Compiler release name: " + provider.getCompilerReleaseName());
+    System.out.println("Compiler release code: " + provider.getCompilerReleaseCode());
+    System.out.println("Compiler sub-release kind: " + provider.getCompilerSubReleaseKind());
+    System.out.println("Compiler sub-release code: " + provider.getCompilerSubReleaseCode());
+    String str;
+    str = provider.getCompilerBuildId();
+    System.out.println("Compiler build id: " + ((str != null) ? str : "Unknown"));
+    str = provider.getCompilerSourceCodeBase();
+    System.out.println("Compiler souce code base: " + ((str != null) ? str : "Unknown"));
+    System.out.print("Supported configurations: ");
+
+    for (Class<? extends JackConfig> config : provider.getSupportedConfigs()) {
+      System.out.print(config.getSimpleName());
+      assert provider.isConfigSupported(config);
+    }
+    System.out.println();
 
     Api01CompilationTask compilationTask;
     Api01Config config;
 
     // Get configuration object
     try {
-      config = confProvider.getConfig(Api01Config.class);
+      config = provider.createConfig(Api01Config.class);
     } catch (ConfigNotSupportedException e1) {
       System.err.println("Brest config not supported)");
       return;
@@ -80,7 +98,7 @@ public class SampleWithServiceLoader {
     // Run the compilation
     try {
       compilationTask.run();
-    } catch (AbortException e) {
+    } catch (CompilationException e) {
       System.out.println("User error, see reporter");
       return;
     } catch (UnrecoverableException e) {

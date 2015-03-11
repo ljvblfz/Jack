@@ -18,18 +18,21 @@ package com.android.jack.test.toolchain;
 
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
-import com.android.jack.api.JackConfigProvider;
+import com.android.jack.api.JackProvider;
+import com.android.jack.api.JackProvider.SubReleaseKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestConfigurationException;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -40,78 +43,82 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
   @Nonnull
   protected JackConfig config;
 
-  @Nonnull
-  private String compilerCodeName;
-  @Nonnull
-  private String compilerVersion;
-  @Nonnull
-  private String compilerBuildId;
-  @Nonnull
-  private String compilerCodeBase;
-
   @CheckForNull
   protected File incrementalFolder;
   @Nonnull
   protected VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
 
   @CheckForNull
-  private static JackConfigProvider configProvider;
+  private static JackProvider configProvider;
 
-  public String getCompilerCodeName() {
-    return compilerCodeName;
+  @Nonnull
+  private static String releaseName;
+  @Nonnegative
+  private static int releaseCode;
+  @Nonnull
+  private static SubReleaseKind subReleaseKind;
+  @Nonnegative
+  private static int subSubReleaseCode;
+  @Nonnull
+  private static String compilerVersion;
+
+
+  @Nonnull
+  public static String getReleaseName() {
+    return releaseName;
   }
 
-  public String getCompilerVersion() {
+  @Nonnegative
+  public static int getReleaseCode() {
+    return releaseCode;
+  }
+
+  @Nonnull
+  public static SubReleaseKind getSubReleaseKind() {
+    return subReleaseKind;
+  }
+
+  @Nonnegative
+  public static int getSubSubReleaseCode() {
+    return subSubReleaseCode;
+  }
+
+  @Nonnull
+  public static String getCompilerVersion() {
     return compilerVersion;
-  }
-
-  public String getCompilerBuildId() {
-    return compilerBuildId;
-  }
-
-  public String getCompilerCodeBase() {
-    return compilerCodeBase;
   }
 
   protected <T extends JackConfig> JackApiToolchainBase(@Nonnull File jackPrebuilt,
       @Nonnull Class<T> jackConfig) {
-    try {
 
-      if (configProvider == null) {
+    if (configProvider == null) {
+      try {
         ClassLoader classLoader = URLClassLoader.newInstance(
             new URL[] {jackPrebuilt.toURI().toURL()}, JackApiToolchainBase.class.getClassLoader());
-        Class<? extends JackConfigProvider> confProviderClass = Class.forName(
-            JackConfigProvider.CLASS_NAME, true, classLoader).asSubclass(JackConfigProvider.class);
-        configProvider = confProviderClass.getConstructor().newInstance();
+        ServiceLoader<JackProvider> serviceLoader =
+            ServiceLoader.load(JackProvider.class, classLoader);
+        configProvider = serviceLoader.iterator().next();
+      } catch (MalformedURLException e1) {
+        throw new TestConfigurationException(e1);
+      } catch (NoSuchElementException e) {
+        throw new TestConfigurationException(e);
       }
+    }
 
-      assert configProvider != null;
+    assert configProvider != null;
 
-      compilerCodeName = configProvider.getCompilerCodeName();
-      compilerVersion = configProvider.getCompilerVersion();
-      compilerBuildId = configProvider.getCompilerBuildId();
-      compilerCodeBase = configProvider.getCompilerCodeBase();
+    releaseName = configProvider.getCompilerReleaseName();
+    releaseCode = configProvider.getCompilerReleaseCode();
+    subReleaseKind = configProvider.getCompilerSubReleaseKind();
+    subSubReleaseCode = configProvider.getCompilerSubReleaseCode();
+    compilerVersion = configProvider.getCompilerVersion();
 
-      config = configProvider.getConfig(jackConfig);
+    try {
+
+      config = configProvider.createConfig(jackConfig);
 
     } catch (ConfigNotSupportedException e) {
       throw new TestConfigurationException("Jack API v01 not supported", e);
-    } catch (MalformedURLException e) {
-      throw new TestConfigurationException(e);
-    } catch (ClassNotFoundException e) {
-      throw new TestConfigurationException(e);
-    } catch (InstantiationException e) {
-      throw new TestConfigurationException(e);
-    } catch (IllegalAccessException e) {
-      throw new TestConfigurationException(e);
-    } catch (IllegalArgumentException e) {
-      throw new TestConfigurationException(e);
-    } catch (InvocationTargetException e) {
-      throw new TestConfigurationException(e);
-    } catch (NoSuchMethodException e) {
-      throw new TestConfigurationException(e);
-    } catch (SecurityException e) {
-      throw new TestConfigurationException(e);
     }
   }
 

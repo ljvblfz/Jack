@@ -24,11 +24,11 @@ public interface Api01CompilationTask {
 
   /**
    * Runs the Jack compiler. May be called only once.
-   * @throws AbortException If a fatal error occurred during the compilation
+   * @throws CompilationException If a fatal error occurred during the compilation
    * @throws UnrecoverableException If an error out of Jack's control occurred
    * @throws ConfigurationException If there is an error in the configuration
    * @throws IllegalStateException If Jack is run more than once
    */
-  void run() throws AbortException, UnrecoverableException, ConfigurationException,
+  void run() throws CompilationException, UnrecoverableException, ConfigurationException,
       IllegalStateException;
 }
