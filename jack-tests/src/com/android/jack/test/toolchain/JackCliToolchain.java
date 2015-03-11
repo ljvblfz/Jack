@@ -20,7 +20,8 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.util.ExecuteFile;
+import com.android.jack.test.util.ExecFileException;
+import com.android.jack.test.util.ExecuteFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,10 +92,13 @@ public class JackCliToolchain extends JackBasedToolchain {
     exec.setOut(errRedirectStream);
     exec.setVerbose(isVerbose);
 
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Jack compiler exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Jack", e);
     }
-
   }
 
   @Override
@@ -119,10 +123,13 @@ public class JackCliToolchain extends JackBasedToolchain {
     exec.setOut(errRedirectStream);
     exec.setVerbose(isVerbose);
 
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Jack compiler exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Jack", e);
     }
-
   }
 
   private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
@@ -198,8 +205,12 @@ public class JackCliToolchain extends JackBasedToolchain {
     exec.setOut(errRedirectStream);
     exec.setVerbose(isVerbose);
 
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Jack compiler exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Jack", e);
     }
   }
 
@@ -221,10 +232,13 @@ public class JackCliToolchain extends JackBasedToolchain {
     exec.setOut(errRedirectStream);
     exec.setVerbose(isVerbose);
 
-    if (!exec.run()) {
-      throw new RuntimeException("Jack compiler exited with an error");
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Jack compiler exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Jack", e);
     }
-
   }
 
   protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,

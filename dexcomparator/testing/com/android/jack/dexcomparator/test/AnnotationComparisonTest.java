@@ -16,8 +16,8 @@
 
 package com.android.jack.dexcomparator.test;
 
-import com.android.jack.DexAnnotationsComparator;
-import com.android.jack.DifferenceFoundException;
+import com.android.jack.comparator.DexAnnotationsComparator;
+import com.android.jack.comparator.DifferenceFoundException;
 
 import org.junit.Assert;
 import org.junit.Test;

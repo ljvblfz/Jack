@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.util;
+package com.android.jack.comparator.util;
 
 import java.io.File;
 import java.io.FileInputStream;

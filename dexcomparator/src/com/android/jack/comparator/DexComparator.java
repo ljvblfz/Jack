@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack;
+package com.android.jack.comparator;
 
-import com.android.jack.comparator.DebugInfo;
 import com.android.jack.comparator.DebugInfo.LocalVar;
 import com.android.jack.dx.dex.file.DebugInfoDecoder;
 import com.android.jack.dx.io.ClassData;

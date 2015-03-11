@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack;
+package com.android.jack.comparator;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;

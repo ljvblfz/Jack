@@ -14,47 +14,50 @@
  * limitations under the License.
  */
 
-package com.android.jack.util;
+package com.android.jack.comparator.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
 
 /**
- * Class that continuously read an {@link InputStream} and optionally could print the input in a
- * {@link PrintStream}.
+ * Class that continuously read an {@link InputStream} and optionally could write the input in a
+ * {@link OutputStream}.
  */
-public class CharactersStreamSucker {
+public class BytesStreamSucker {
+
+  private static final int BUFFER_SIZE = 4096;
 
   @Nonnull
-  private final BufferedReader ir;
+  private final byte[] buffer = new byte[BUFFER_SIZE];
 
   @Nonnull
-  private final PrintStream os;
+  private final InputStream is;
+
+  @Nonnull
+  private final OutputStream os;
 
   private final boolean toBeClose;
 
-  public CharactersStreamSucker(
-      @Nonnull InputStream is, @Nonnull PrintStream os, boolean toBeClose) {
-    this.ir = new BufferedReader(new InputStreamReader(is));
+  public BytesStreamSucker(
+      @Nonnull InputStream is, @Nonnull OutputStream os, boolean toBeClose) {
+    this.is = is;
     this.os = os;
     this.toBeClose = toBeClose;
   }
 
-  public CharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream os) {
+  public BytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
     this(is, os, false);
   }
 
   public void suck() throws IOException {
-    String line;
-
     try {
-      while ((line = ir.readLine()) != null) {
-        os.println(line);
+      int bytesRead;
+      while ((bytesRead = is.read(buffer)) >= 0) {
+        os.write(buffer, 0, bytesRead);
+        os.flush();
       }
     } finally {
       if (toBeClose) {

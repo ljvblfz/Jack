@@ -62,7 +62,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
         throw new RuntimeException("Jill exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running Jill", e);
+      throw new RuntimeException("An error occurred while running Jill", e);
     }
   }
 

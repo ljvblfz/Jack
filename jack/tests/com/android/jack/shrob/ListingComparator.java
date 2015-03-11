@@ -16,7 +16,7 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.DifferenceFoundException;
+import com.android.jack.comparator.DifferenceFoundException;
 
 import java.io.BufferedReader;
 import java.io.File;

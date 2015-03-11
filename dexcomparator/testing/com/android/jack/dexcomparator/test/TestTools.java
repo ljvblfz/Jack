@@ -16,7 +16,7 @@
 
 package com.android.jack.dexcomparator.test;
 
-import com.android.jack.util.ExecuteFile;
+import com.android.jack.comparator.util.ExecuteFile;
 
 import java.io.File;
 import java.util.ArrayList;

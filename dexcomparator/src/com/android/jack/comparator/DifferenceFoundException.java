@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack;
+package com.android.jack.comparator;
 
 /**
  * Thrown while comparing two dex files when a difference is found.

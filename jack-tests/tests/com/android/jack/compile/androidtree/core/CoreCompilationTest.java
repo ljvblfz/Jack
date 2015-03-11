@@ -16,13 +16,13 @@
 
 package com.android.jack.compile.androidtree.core;
 
-import com.android.jack.DexAnnotationsComparator;
-import com.android.jack.DexComparator;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.category.RedundantTests;
 import com.android.jack.category.SlowTests;
+import com.android.jack.comparator.DexAnnotationsComparator;
+import com.android.jack.comparator.DexComparator;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;

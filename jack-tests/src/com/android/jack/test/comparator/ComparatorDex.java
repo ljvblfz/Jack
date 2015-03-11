@@ -16,8 +16,8 @@
 
 package com.android.jack.test.comparator;
 
-import com.android.jack.DexComparator;
-import com.android.jack.DifferenceFoundException;
+import com.android.jack.comparator.DexComparator;
+import com.android.jack.comparator.DifferenceFoundException;
 
 import java.io.File;
 import java.io.IOException;
