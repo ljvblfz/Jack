@@ -21,7 +21,7 @@ JACK_TIMEOUT=15
 
 TMPDIR="/tmp"
 
-JACK_PRG="java -cp /usr/local/google/home/jplesot/Android/ub-jack/toolchain/jack/jack/dist/jack.jar com.android.jack.server.Server"
+JACK_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.Server"
 JACK_FIFO="$TMPDIR/jack-$USER.cmd"
 JACK_LOCK="$TMPDIR/jack-$USER.lock"
 JACK_LOG="$TMPDIR/jack-$USER.log"

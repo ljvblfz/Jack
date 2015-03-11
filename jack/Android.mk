@@ -15,6 +15,24 @@
 LOCAL_PATH:= $(call my-dir)
 
 #
+# Build jack script
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := jack
+LOCAL_SRC_FILES := etc/jack
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_SUFFIX := $(HOST_EXECUTABLE_SUFFIX)
+LOCAL_BUILT_MODULE_STEM := jack$(HOST_EXECUTABLE_SUFFIX)
+LOCAL_IS_HOST_MODULE := true
+
+include $(BUILD_PREBUILT)
+jack_script := $(LOCAL_INSTALLED_MODULE)
+
+
+#
 # Build Jack
 #
 
@@ -89,6 +107,7 @@ LOCAL_JAVA_LIBRARIES := \
   $(JACK_STATIC_JAVA_LIBRARIES)
 
 include $(BUILD_HOST_JAVA_LIBRARY)
+$(LOCAL_INSTALLED_MODULE) : $(jack_script)
 
 # overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
 $(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
