@@ -369,7 +369,7 @@ public class TestTools {
       session.setJackOutputLibrary(outputLibrary);
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
-      Jack.fillDexPlan(options, planBuilder);
+      Jack.fillDexPlan(planBuilder);
       request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
 
       planBuilder.getPlan().getScheduleInstance().process(session);
