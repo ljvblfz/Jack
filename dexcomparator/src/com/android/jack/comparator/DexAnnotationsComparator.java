@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack;
+package com.android.jack.comparator;
 
 import com.android.jack.dx.rop.code.AccessFlags;
 

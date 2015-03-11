@@ -489,7 +489,7 @@ public abstract class AbstractTestTools {
         throw new RuntimeException("Unzip exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running unzip", e);
+      throw new RuntimeException("An error occurred while running unzip", e);
     }
   }
 
@@ -506,7 +506,7 @@ public abstract class AbstractTestTools {
         throw new RuntimeException("Zip exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running zip", e);
+      throw new RuntimeException("An error occurred while running zip", e);
     }
   }
 
@@ -525,7 +525,7 @@ public abstract class AbstractTestTools {
         throw new RuntimeException("Jar exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running jar command", e);
+      throw new RuntimeException("An error occurred while running jar command", e);
     }
   }
 

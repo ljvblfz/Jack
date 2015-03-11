@@ -16,7 +16,7 @@
 
 package com.android.jack.test.comparator;
 
-import com.android.jack.DifferenceFoundException;
+import com.android.jack.comparator.DifferenceFoundException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -18,9 +18,9 @@ package com.android.jack.multidex;
 
 import com.google.common.io.Files;
 
-import com.android.jack.DifferenceFoundException;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.comparator.DifferenceFoundException;
 import com.android.jack.dx.io.ClassDef;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.library.FileType;

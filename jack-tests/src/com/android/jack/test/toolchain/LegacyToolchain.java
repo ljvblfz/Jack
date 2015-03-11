@@ -172,7 +172,7 @@ public class LegacyToolchain extends AndroidToolchain {
         throw new RuntimeException("JarJar exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running Jarjar", e);
+      throw new RuntimeException("An error occurred while running Jarjar", e);
     }
   }
 
@@ -209,7 +209,7 @@ public class LegacyToolchain extends AndroidToolchain {
         throw new RuntimeException("Proguard exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running Proguard", e);
+      throw new RuntimeException("An error occurred while running Proguard", e);
     }
   }
 
@@ -317,7 +317,7 @@ public class LegacyToolchain extends AndroidToolchain {
         throw new RuntimeException("Reference compiler exited with an error");
       }
     } catch (ExecFileException e) {
-      throw new RuntimeException("An error occured while running reference compiler", e);
+      throw new RuntimeException("An error occurred while running reference compiler", e);
     }
   }
 

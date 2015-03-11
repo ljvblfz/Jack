@@ -16,7 +16,7 @@
 
 package com.android.jack.test.comparator;
 
-import com.android.jack.DifferenceFoundException;
+import com.android.jack.comparator.DifferenceFoundException;
 import com.android.jack.shrob.ListingComparator;
 
 import java.io.File;
