@@ -36,7 +36,7 @@ public abstract class DexWriter {
   private static final String JACK_DEX_TAG;
 
   static {
-    String bid = Jack.getBuildId();
+    String bid = Jack.getVersion().getBuildId();
     JACK_DEX_TAG = JACK_DEX_TAG_HEADER + (bid != null ? " " + bid : "");
   }
 

@@ -57,7 +57,8 @@ public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
   public OutputJackLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     VFS vfs = codec.checkString(context, string);
-    return JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersionString());
+    return JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersion()
+        .getVerboseVersion());
   }
 
   @Override

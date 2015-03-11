@@ -36,6 +36,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+    VersionTest.class,
     com.android.jack.cfg.AllTests.class,
     com.android.jack.frontend.AllTests.class,
     com.android.jack.gwt.AllTests.class,

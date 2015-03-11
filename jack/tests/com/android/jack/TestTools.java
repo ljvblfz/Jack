@@ -365,7 +365,7 @@ public class TestTools {
           TestTools.createTempDir("unused", "").getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE),
-          Jack.getEmitterId(), Jack.getVersionString());
+          Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
       session.setJackOutputLibrary(outputLibrary);
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);

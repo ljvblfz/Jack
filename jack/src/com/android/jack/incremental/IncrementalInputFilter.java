@@ -473,6 +473,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
 
     return (JackLibraryFactory.getOutputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR),
-        Jack.getEmitterId(), Jack.getVersionString()));
+        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion()));
   }
 }

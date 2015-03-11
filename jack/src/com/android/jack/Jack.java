@@ -274,7 +274,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -1268,56 +1267,19 @@ public abstract class Jack {
 
   @Nonnull
   private static final String PROPERTIES_FILE = "jack.properties";
+  @CheckForNull
+  private static Version version = null;
 
   @Nonnull
-  public static String getVersionString() {
-    String version = "Unknown (problem with " + PROPERTIES_FILE + " resource file)";
-
-    InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-    if (is != null) {
-      Properties prop = new Properties();
-      try {
-        prop.load(is);
-        String rawVersion = prop.getProperty("jack.version");
-        if (rawVersion != null) {
-          version = rawVersion;
-
-          String codeName = prop.getProperty("jack.version.codename");
-          if (codeName != null) {
-            version += " \'" + codeName + '\'';
-          }
-
-          String bid = prop.getProperty("jack.version.buildid", "engineering");
-          String sha = prop.getProperty("jack.version.sha");
-          if (sha != null) {
-            version += " (" + bid + ' ' + sha + ')';
-          } else {
-            version += " (" + bid + ')';
-          }
-        }
-      } catch (IOException e) {
-        // Return default version
+  public static Version getVersion() {
+    if (version == null) {
+      InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+      if (is != null) {
+        version = new Version(is);
+      } else {
+        logger.log(Level.SEVERE, "Failed to open Jack properties file " + PROPERTIES_FILE);
+        throw new AssertionError();
       }
-    }
-
-    return version;
-  }
-
-  @CheckForNull
-  public static String getBuildId() {
-    String version = null;
-
-    InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-    if (is != null) {
-      Properties prop = new Properties();
-      try {
-        prop.load(is);
-        version = prop.getProperty("jack.version.buildid");
-      } catch (IOException e) {
-        logger.log(Level.WARNING, "Failed to read Jack properties from " + PROPERTIES_FILE, e);
-      }
-    } else {
-      logger.log(Level.WARNING, "Failed to open Jack properties file " + PROPERTIES_FILE);
     }
 
     return version;

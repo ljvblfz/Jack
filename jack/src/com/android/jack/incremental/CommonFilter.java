@@ -137,7 +137,8 @@ public abstract class CommonFilter {
       vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
     }
 
-    return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersionString()));
+    return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersion()
+        .getVerboseVersion()));
   }
 
   protected List<InputLibrary> getInputLibrariesFromFiles(@Nonnull List<InputLibrary> files,

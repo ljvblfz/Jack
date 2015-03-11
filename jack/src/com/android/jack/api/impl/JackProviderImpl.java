@@ -61,41 +61,56 @@ public class JackProviderImpl implements JackProvider {
   @Override
   @Nonnull
   public String getCompilerReleaseName() {
-    return "Brest";
+    return Jack.getVersion().getReleaseName();
   }
 
   @Override
   @Nonnegative
   public int getCompilerReleaseCode() {
-    return 2;
+    return Jack.getVersion().getReleaseCode();
   }
 
   @Override
   @Nonnegative
   public int getCompilerSubReleaseCode() {
-    return 8;
+    return Jack.getVersion().getSubReleaseCode();
   }
 
   @Override
   @Nonnull
   public SubReleaseKind getCompilerSubReleaseKind() {
-    return SubReleaseKind.ALPHA;
+    switch (Jack.getVersion().getSubReleaseKind()) {
+      case ENGINEERING:
+        return SubReleaseKind.ENGINEERING;
+      case PRE_ALPHA:
+        return SubReleaseKind.PRE_ALPHA;
+      case ALPHA:
+        return SubReleaseKind.ALPHA;
+      case BETA:
+        return SubReleaseKind.BETA;
+      case CANDIDATE:
+        return SubReleaseKind.CANDIDATE;
+      case RELEASE:
+        return SubReleaseKind.RELEASE;
+      default:
+        throw new AssertionError(Jack.getVersion().getSubReleaseKind().name());
+    }
   }
 
   @Override
   @CheckForNull
   public String getCompilerSourceCodeBase() {
-    return null;
+    return Jack.getVersion().getCodeBase();
   }
 
   @Override
   public String getCompilerVersion() {
-    return Jack.getVersionString();
+    return Jack.getVersion().getVersion();
   }
 
   @Override
   @CheckForNull
   public String getCompilerBuildId() {
-    return Jack.getBuildId();
+    return Jack.getVersion().getBuildId();
   }
 }

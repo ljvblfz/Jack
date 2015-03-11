@@ -129,7 +129,7 @@ public abstract class CommandLine {
         e = pe;
       }
 
-      String info = "Internal compiler error (version " + Jack.getVersionString() + ")";
+      String info = "Internal compiler error (version " + Jack.getVersion().getVerboseVersion() + ")";
       logger.log(Level.SEVERE, info + ':', e);
       e.printStackTrace();
       err.println();
@@ -143,7 +143,7 @@ public abstract class CommandLine {
   }
 
   public static void printVersion() {
-    String version = Jack.getVersionString();
+    String version = Jack.getVersion().getVerboseVersion();
 
     System.out.println("Jack compiler.");
     System.out.println("Version: " + version + '.');
