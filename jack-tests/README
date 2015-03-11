@@ -21,7 +21,17 @@ It can be passed by setting the property "tests.config" (with -D) with the path 
 To be able to use jack-tests to run the tests, the configuration file
 must define following properties:
  * jack.home: absolute path to Jack directory
- * runtime.location.<runtime environment name>: location of host android runtime environments
+ * candidate.toolchain: the toolchain to pass the tests on
+ * reference.toolchain: the toolchain to compare the candidate toolchain against
+   the available values for these toolchains are:
+     - jack-api-vXX: Jack is used through version XX of its api (example: jack-api-v01)
+     - jack-cli: Jack is used through its command line interface
+     - jill-legacy: sources are first compiled with the legacy compiler, then the result is passed to Jill to create a .jack library to be imported into Jack to produce the binary output
+     - legacy: full legacy toolchain. Usually this toolchain is used as reference.toolchain
+
+ * runtime.list: comma-separated list of runtime environment names
+ * runtime.location.<runtime environment name>: location of host android runtime environments. you
+ must specify those which are listed in runtime.list.
 
 The following values are supported:
  * runtime.location.dalvik-fast-host
@@ -35,4 +45,13 @@ In Eclipse: define a run configuration with -Dtests.config as a VM argument.
 On the command line:
  * use run-jack-tests script with the config file path as first parameter, and the test suite to
 run as the second parameter
- * use Ant tasks (e.g. test-jack) to run common sets of tests.
+ * use Ant tasks to run common sets of tests.
+   test-jack      : tests that must pass in order to submit a CL
+   test-jack-long : tests too long to be passed in the previous case
+   test-jack-all  : all tests
+   test-sched     : schedlib tests
+   Example:
+     ant -Dtests.config=/path/to/config test-jack
+
+These Ant tasks generate an HTML report in test-results/ by default. This value can be overridden by setting the jack.tests.output property:
+     ant -Dtests.config=/path/to/config -Djack.tests.output=/path/to/report/dir test-jack
