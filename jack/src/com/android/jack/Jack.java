@@ -373,8 +373,6 @@ public abstract class Jack {
   public static void check(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, ConfigurationException {
 
-    //STOPSHIP: add tracer event?
-
     boolean assertEnable = false;
     // assertEnable = true if assertion is already enable
     assert true == (assertEnable = true);

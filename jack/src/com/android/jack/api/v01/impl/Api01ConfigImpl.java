@@ -51,7 +51,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
 /**
- * STOPSHIP
+ * A configuration implementation for API level 01 of the Jack compiler.
  */
 public class Api01ConfigImpl implements Api01Config {
 
