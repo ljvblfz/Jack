@@ -49,7 +49,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * XXX
+ * Server controlling the number of Jack compilations that are executed simultaneously.
  */
 public class Server {
   @Nonnull

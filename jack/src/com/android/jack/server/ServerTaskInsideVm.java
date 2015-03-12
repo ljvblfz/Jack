@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 
 /**
- * {@link ServerTask} implementation.
+ * {@link ServerTask} implementation that launches compilations with Jack into the running VM.
  */
 public class ServerTaskInsideVm extends CommandLine implements ServerTask {
 

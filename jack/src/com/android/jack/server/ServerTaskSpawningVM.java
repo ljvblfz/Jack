@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * {@link ServerTask} implementation.
+ * {@link ServerTask} implementation that launches compilations with Jack into a spawned VM.
  */
 public class ServerTaskSpawningVM implements ServerTask {
 

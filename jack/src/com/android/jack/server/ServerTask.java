@@ -24,7 +24,7 @@ import java.io.PrintStream;
 import javax.annotation.Nonnull;
 
 /**
- * STOPSHIP
+ * Interface of tasks that will be launched by the Jack server.
  */
 public interface ServerTask {
   int run(@Nonnull PrintStream out, @Nonnull PrintStream err, @Nonnull File workingDir,
