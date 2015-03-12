@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  */
 public class InputStreamFile extends AbstractStreamFile {
   @CheckForNull
-  private InputStream in;
+  private InputStream stream;
 
   public InputStreamFile(@Nonnull String name)
       throws WrongPermissionException, NotFileException, NoSuchFileException {
@@ -44,12 +44,12 @@ public class InputStreamFile extends AbstractStreamFile {
 
   public InputStreamFile() {
     super(new StandardInputLocation());
-    in = System.in;
+    stream = new UncloseableInputStream(System.in);
   }
 
   public InputStreamFile(@Nonnull InputStream in, @Nonnull Location location) {
     super(location);
-    this.in = in;
+    this.stream = new UncloseableInputStream(in);
   }
 
   public InputStreamFile(@CheckForNull Directory workingDirectory, @Nonnull String string)
@@ -74,15 +74,16 @@ public class InputStreamFile extends AbstractStreamFile {
 
   @Nonnull
   public InputStream getInputStream() {
-    if (in != null) {
-      return new UncloseableInputStream(in);
-    } else {
+    if (stream == null) {
       clearRemover();
+
       try {
-        return new FileInputStream(file);
+        stream = new FileInputStream(file);
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
     }
+
+    return stream;
   }
 }

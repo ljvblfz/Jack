@@ -21,10 +21,14 @@ import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.frontend.java.EcjProblem;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.OutputStreamFile;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import java.io.PrintStream;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -39,8 +43,18 @@ abstract class CommonReporter implements Reporter {
   private final VerbosityLevel verbosityLevel = ThreadConfig.get(Options.VERBOSITY_LEVEL);
 
   @Nonnull
-  protected final PrintStream reporterStream =
-      ThreadConfig.get(REPORTER_OUTPUT_STREAM).getPrintStream();
+  protected final PrintStream streamByDefault = ThreadConfig.get(REPORTER_OUTPUT_STREAM)
+      .getPrintStream();
+  @Nonnull
+  protected final Map<ProblemLevel, PrintStream> streamByLevel =
+      new EnumMap<ProblemLevel, PrintStream>(ProblemLevel.class);
+
+  protected CommonReporter() {
+    for (final Entry<ProblemLevel, OutputStreamFile> entry : ThreadConfig.get(
+        Reporter.REPORTER_OUTPUT_STREAM_BY_LEVEL).entrySet()) {
+      streamByLevel.put(entry.getKey(), entry.getValue().getPrintStream());
+    }
+  }
 
   @Override
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable) {

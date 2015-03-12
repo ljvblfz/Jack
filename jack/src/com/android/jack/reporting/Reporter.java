@@ -18,12 +18,22 @@ package com.android.jack.reporting;
 
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.Brest;
+import com.android.jack.reporting.Reportable.ProblemLevel;
+import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.PairCodec;
+import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.PropertyId.ShutdownRunnable;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.OutputStreamFile;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -52,6 +62,26 @@ public interface Reporter {
       .addDefaultValue("--").requiredIf(REPORTER.getClazz().isImplementedBy(DefaultReporter.class)
           .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class))).withCategory(Brest.get());
 
-  public void report(@Nonnull Severity severity, @Nonnull Reportable reportable);
+  @Nonnull
+  public static final PropertyId<Map<ProblemLevel, OutputStreamFile>>
+                                                                 REPORTER_OUTPUT_STREAM_BY_LEVEL =
+      PropertyId
+          .create(
+              "jack.reporter.level.file",
+              "File where the reporter will write by level",
+              new PairListToMapCodecConverter<ProblemLevel, OutputStreamFile>(
+                  new ListCodec<Entry<ProblemLevel, OutputStreamFile>>("pair",
+                      new PairCodec<ProblemLevel, OutputStreamFile>(new EnumCodec<ProblemLevel>(
+                          ProblemLevel.values()).ignoreCase(), new OutputStreamCodec(
+                          Existence.MAY_EXIST).allowStandardOutputOrError()).on("="))))
+          .addDefaultValue(Collections.<ProblemLevel, OutputStreamFile>emptyMap())
+          .setShutdownHook(new ShutdownRunnable<Map<ProblemLevel, OutputStreamFile>>() {
+            @Override
+            public void run(@Nonnull Map<ProblemLevel, OutputStreamFile> map) {
+               for (OutputStreamFile osf : map.values()) {
+                 osf.getPrintStream().close();
+               }
+            }});
 
+  public void report(@Nonnull Severity severity, @Nonnull Reportable reportable);
 }

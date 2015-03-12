@@ -22,7 +22,6 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;
 import com.android.sched.util.location.StandardOutputLocation;
-import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.util.stream.UncloseablePrintStream;
 
 import java.io.File;
@@ -42,6 +41,8 @@ public class OutputStreamFile extends AbstractStreamFile {
 
   @CheckForNull
   private PrintStream printer;
+  @CheckForNull
+  private OutputStream stream;
 
   public OutputStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -157,7 +158,7 @@ public class OutputStreamFile extends AbstractStreamFile {
       @Override
       @Nonnull
       public PrintStream getPrintStream() {
-        return System.out;
+        return new UncloseablePrintStream(System.out);
       }
 
       @Override
@@ -171,7 +172,7 @@ public class OutputStreamFile extends AbstractStreamFile {
       @Override
       @Nonnull
       public PrintStream getPrintStream() {
-        return System.err;
+        return new UncloseablePrintStream(System.err);
       }
 
       @Override
@@ -196,35 +197,31 @@ public class OutputStreamFile extends AbstractStreamFile {
 
   public OutputStreamFile(@Nonnull PrintStream printer, @Nonnull Location location) {
     super(location);
-    this.printer = printer;
+    this.printer = new UncloseablePrintStream(printer);
     this.append = true;
   }
 
   @Nonnull
   public OutputStream getOutputStream() {
-    if (printer != null) {
-      return new UncloseableOutputStream(printer);
-    } else {
+    if (stream == null) {
       clearRemover();
+
       try {
-        return new FileOutputStream(file, append);
+        stream = new FileOutputStream(file, append);
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
     }
+
+    return stream;
   }
 
   @Nonnull
   public PrintStream getPrintStream() {
-    if (printer != null) {
-      return new UncloseablePrintStream(printer);
-    } else {
-      clearRemover();
-      try {
-        return new PrintStream(file);
-      } catch (FileNotFoundException e) {
-        throw new ConcurrentIOException(e);
-      }
+    if (printer == null) {
+      printer = new PrintStream(getOutputStream());
     }
+
+    return printer;
   }
 }
