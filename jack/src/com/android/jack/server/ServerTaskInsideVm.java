@@ -22,6 +22,7 @@ import com.android.jack.Options;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 
@@ -45,6 +46,17 @@ public class ServerTaskInsideVm extends CommandLine implements ServerTask {
       @Nonnull TokenIterator args) {
     List<String> list = new ArrayList<String>();
     Options options;
+
+    try {
+      args.withFileRelativeTo(pwd);
+    } catch (NotDirectoryException e) {
+      return ServerExitStatus.FAILURE_USAGE;
+    } catch (WrongPermissionException e) {
+      return ServerExitStatus.FAILURE_USAGE;
+    } catch (NoSuchFileException e) {
+      return ServerExitStatus.FAILURE_USAGE;
+    }
+
     try {
       while (args.hasNext()) {
         list.add(args.next());

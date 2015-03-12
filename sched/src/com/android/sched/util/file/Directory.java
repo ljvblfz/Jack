@@ -35,7 +35,7 @@ public class Directory extends FileOrDirectory {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
   @Nonnull
-  private final File   file;
+  private final File file;
 
   public Directory(@Nonnull String name, @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence, int permissions, @Nonnull ChangePermission change)

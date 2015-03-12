@@ -184,6 +184,50 @@ public class TokenIteratorTest {
   }
 
   @Test
+  public void testTokenIteratorWithSimpleFileAndBaseDir() throws IOException {
+    Location loc = new StringLocation("Default location");
+
+    File file = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-1");
+    file.deleteOnExit();
+    Location floc = new FileLocation(file.getName());
+
+    String fileArg = "@" + file.getName();
+    PrintStream printer = new PrintStream(file);
+    printer.print("1-1\n1-2\r1-3\n\r1-4\r\n1-5 1-6");
+    printer.close();
+
+    try {
+      test(
+          new TokenIterator(loc, fileArg, "0-1", "0-2").disallowFileReferenceInArray()
+                                                       .withFileRelativeTo(new File(file.getParent())),
+          new String[]   {fileArg, "0-1", "0-2"},
+          new Location[] {loc,     loc,   loc});
+      test(
+          new TokenIterator(loc, fileArg, "0-1", "0-2").withFileRelativeTo(new File(file.getParent())),
+          new String[]   {"1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "0-1", "0-2"},
+          new Location[] {floc,  floc,  floc,  floc,  floc,  floc,  loc,   loc});
+      test(
+          new TokenIterator(loc, "0-1", fileArg, "0-2").withFileRelativeTo(new File(file.getParent())),
+          new String[]   {"0-1", "1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "0-2"},
+          new Location[] {loc,   floc,  floc,  floc,  floc,  floc,  floc,  loc});
+      test(
+          new TokenIterator(loc, "0-1", "0-2", fileArg).withFileRelativeTo(new File(file.getParent())),
+          new String[]   {"0-1", "0-2", "1-1", "1-2", "1-3", "1-4", "1-5", "1-6"},
+          new Location[] {loc,   loc,   floc,  floc,  floc,  floc,  floc,  floc});
+    } catch (NoSuchElementException e) {
+      fail(e.getMessage());
+    } catch (WrongPermissionException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFileException e) {
+      fail(e.getMessage());
+    } catch (NotFileOrDirectoryException e) {
+      fail(e.getMessage());
+    } catch (CannotReadException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  @Test
   public void testTokenIteratorWithSimpleFileWithPrefix() throws IOException {
     Location loc = new StringLocation("Default location");
 
@@ -341,7 +385,6 @@ public class TokenIteratorTest {
     }
   }
 
-
   @Test
   public void testTokenIteratorWithFiles() throws IOException {
     Location loc = new StringLocation("Default location");
@@ -390,6 +433,75 @@ public class TokenIteratorTest {
           new Location[] {floc1_2, floc2,  floc2, floc1_2});
       test(
           new TokenIterator(loc, "@" + file1_3.getAbsolutePath()).allowFileReferenceInFile(),
+          new String[]   {"1-1",   "1-2",   "2-1",  "2-2"},
+          new Location[] {floc1_3, floc1_3, floc2,  floc2});
+    } catch (NoSuchElementException e) {
+      fail(e.getMessage());
+    } catch (WrongPermissionException e) {
+      fail(e.getMessage());
+    } catch (NoSuchFileException e) {
+      fail(e.getMessage());
+    } catch (NotFileOrDirectoryException e) {
+      fail(e.getMessage());
+    } catch (CannotReadException e) {
+      fail(e.getMessage());
+    }
+  }
+
+
+  @Test
+  public void testTokenIteratorWithFilesAndBaseDir() throws IOException {
+    Location loc = new StringLocation("Default location");
+    PrintStream printer;
+
+    File file2 = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-3");
+    file2.deleteOnExit();
+    Location floc2 = new FileLocation(file2.getName());
+    printer = new PrintStream(file2);
+    printer.print("2-1 2-2");
+    printer.close();
+
+    File file1_1 = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-4");
+    file1_1.deleteOnExit();
+    Location floc1_1 = new FileLocation(file1_1.getName());
+    printer = new PrintStream(file1_1);
+    printer.print("@" + file2.getName() + " 1-1 1-2");
+    printer.close();
+
+    File file1_2 = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-5");
+    file1_2.deleteOnExit();
+    Location floc1_2 = new FileLocation(file1_2.getName());
+    printer = new PrintStream(file1_2);
+    printer.print("1-1 @" + file2.getName() + " 1-2");
+    printer.close();
+
+    File file1_3 = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-6");
+    file1_3.deleteOnExit();
+    Location floc1_3 = new FileLocation(file1_3.getName());
+    printer = new PrintStream(file1_3);
+    printer.print("1-1 1-2 @" + file2.getName());
+    printer.close();
+
+    File baseDir = file1_1.getParentFile();
+
+    try {
+      test(
+          new TokenIterator(loc, "@" + file1_1.getName()).withFileRelativeTo(baseDir),
+          new String[]   {"@" + file2.getName(),  "1-1",    "1-2"},
+          new Location[] {floc1_1,                floc1_1,  floc1_1});
+      test(
+          new TokenIterator(loc, "@" + file1_1.getName()).allowFileReferenceInFile()
+                                                         .withFileRelativeTo(baseDir),
+          new String[]   {"2-1",  "2-2",  "1-1",    "1-2"},
+          new Location[] {floc2,  floc2,  floc1_1,  floc1_1});
+      test(
+          new TokenIterator(loc, "@" + file1_2.getName()).allowFileReferenceInFile()
+                                                         .withFileRelativeTo(baseDir),
+          new String[]   {"1-1",   "2-1",  "2-2", "1-2"},
+          new Location[] {floc1_2, floc2,  floc2, floc1_2});
+      test(
+          new TokenIterator(loc, "@" + file1_3.getName()).allowFileReferenceInFile()
+                                                         .withFileRelativeTo(baseDir),
           new String[]   {"1-1",   "1-2",   "2-1",  "2-2"},
           new Location[] {floc1_3, floc1_3, floc2,  floc2});
     } catch (NoSuchElementException e) {
@@ -472,6 +584,7 @@ public class TokenIteratorTest {
       if (loc instanceof LineLocation) {
         loc = ((LineLocation) loc).getSubLocation();
       }
+
       assertNotNull(loc);
       assertEquals(
           "for <" + expectedArgs[idx] + ">, expected: <" + expectedLocs[idx].getDescription()

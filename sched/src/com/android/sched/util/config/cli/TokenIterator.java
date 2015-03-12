@@ -16,16 +16,24 @@
 
 package com.android.sched.util.config.cli;
 
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
-import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -50,6 +58,9 @@ public class TokenIterator {
   private char    filePrefix = DEFAULT_FILE_PREFIX;
   private boolean allowFileRefInArray = true;
   private boolean allowFileRefInFile  = false;
+
+  @CheckForNull
+  private Directory baseDirectory = null;
 
   @Nonnull
   private final String[] args;
@@ -83,6 +94,26 @@ public class TokenIterator {
   @Nonnull
   public TokenIterator allowFileReferenceInFile() {
     this.allowFileRefInFile = true;
+
+    return this;
+  }
+
+  @Nonnull
+  public TokenIterator withFileRelativeTo(@Nonnull File directory) throws NotDirectoryException,
+      WrongPermissionException, NoSuchFileException {
+    try {
+      this.baseDirectory = new Directory(directory.getPath(), null, Existence.MUST_EXIST,
+          Permission.EXECUTE, ChangePermission.NOCHANGE);
+    } catch (CannotSetPermissionException e) {
+      // we're not changing the permissions
+      throw new AssertionError(e);
+    } catch (FileAlreadyExistsException e) {
+      // we're not creating the directory
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      // we're not creating the directory
+      throw new AssertionError(e);
+    }
 
     return this;
   }
@@ -247,10 +278,10 @@ public class TokenIterator {
 
   private void pushFileTokenizer(@Nonnull String fileName) throws WrongPermissionException,
       NoSuchFileException, NotFileException {
-    InputStreamFile file = new InputStreamFile(fileName);
+    InputStreamFile file = new InputStreamFile(baseDirectory, fileName);
 
     tokenizers.push(getTokenizer(file));
-    locations.push(new FileLocation(file.getPath()));
+    locations.push(file.getLocation());
   }
 
   @Nonnull
