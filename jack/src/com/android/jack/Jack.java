@@ -374,15 +374,16 @@ public abstract class Jack {
       throws IllegalOptionsException, ConfigurationException {
 
     boolean assertEnable = false;
-    // assertEnable = true if assertion is already enable
+    // assertEnable = true if assertions are already enabled
     assert true == (assertEnable = true);
 
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();
       }
-      for (File proguardFlagsFile : options.proguardFlagsFiles) {
+      for (File proguardFlagsFile : options.getProguardFlagsFileFromWorkingDir()) {
         try {
+          assert options.flags != null;
           GrammarActions.parse(proguardFlagsFile.getPath(), ".", options.flags);
         } catch (RecognitionException e) {
           throw new IllegalOptionsException(
@@ -390,6 +391,7 @@ public abstract class Jack {
         }
       }
 
+      assert options.flags != null;
       if (options.flags.optimize()) {
         logger.log(Level.WARNING,
             "Flag '-dontoptimize' not found: Proguard optimizations are not supported");

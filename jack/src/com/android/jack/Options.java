@@ -1033,6 +1033,20 @@ public class Options {
     this.standardOutput = standardOutput;
   }
 
+  //STOPSHIP: Hack to handle working directory with proguard flags file
+  public List<File> getProguardFlagsFileFromWorkingDir() {
+    List<File> proguardFlagsFileFromWorkingDir = new ArrayList<File>(proguardFlagsFiles.size());
+    for (File proguardFlagsFile : proguardFlagsFiles) {
+      if (workingDirectory != null && !proguardFlagsFile.isAbsolute()) {
+        proguardFlagsFileFromWorkingDir.add(
+            new File(workingDirectory, proguardFlagsFile.getPath()));
+      } else {
+        proguardFlagsFileFromWorkingDir.add(proguardFlagsFile);
+      }
+    }
+    return proguardFlagsFileFromWorkingDir;
+  }
+
   @Nonnull
   private static Directory createTempDir(
       @Nonnull RunnableHooks hooks) {
