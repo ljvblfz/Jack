@@ -136,6 +136,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   @Override
   @Nonnull
   public String getPath() {
-    return ((FileLocation) location).getPath();
+    assert file != null;
+    return file.getPath();
   }
 }
