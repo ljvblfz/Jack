@@ -16,6 +16,7 @@
 
 package com.android.jack.test.toolchain;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 
 import com.android.jack.Sourcelist;
@@ -79,6 +80,10 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   private static final Map<String, File> runtimeEnvironmentLocations = new HashMap<String, File>();
+
+  @Nonnull
+  private static final Splitter listSplitter =
+      Splitter.on(PROPERTY_VALUE_SEPARATOR).trimResults().omitEmptyStrings();
 
 
   static {
@@ -555,8 +560,7 @@ public abstract class AbstractTestTools {
       throws SecurityException, IllegalArgumentException, RuntimeRunnerException {
     List<RuntimeRunner> result = new ArrayList<RuntimeRunner>(0);
     if (runtimeList != null) {
-      String[] rtList = runtimeList.split(PROPERTY_VALUE_SEPARATOR);
-      for (String rtName : rtList) {
+      for (String rtName : listSplitter.split(runtimeList)) {
         result.add(RuntimeRunnerFactory.create(rtName));
       }
     }
