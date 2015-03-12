@@ -513,11 +513,6 @@ public class Options {
     return helpProperties;
   }
 
-  @Nonnull
-  public List<File> getInputSources() {
-    return inputSources == null ? Collections.<File>emptyList() : inputSources;
-  }
-
   public void setInputSources(@Nonnull List<File> inputSources) {
     this.inputSources = inputSources;
   }
@@ -1034,7 +1029,7 @@ public class Options {
   }
 
   //STOPSHIP: Hack to handle working directory with proguard flags file
-  public List<File> getProguardFlagsFileFromWorkingDir() {
+  public List<File> getProguardFlagsFile() {
     List<File> proguardFlagsFileFromWorkingDir = new ArrayList<File>(proguardFlagsFiles.size());
     for (File proguardFlagsFile : proguardFlagsFiles) {
       if (workingDirectory != null && !proguardFlagsFile.isAbsolute()) {

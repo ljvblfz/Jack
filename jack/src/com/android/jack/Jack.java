@@ -381,7 +381,7 @@ public abstract class Jack {
       if (options.flags == null) {
         options.flags = new Flags();
       }
-      for (File proguardFlagsFile : options.getProguardFlagsFileFromWorkingDir()) {
+      for (File proguardFlagsFile : options.getProguardFlagsFile()) {
         try {
           assert options.flags != null;
           GrammarActions.parse(proguardFlagsFile.getPath(), ".", options.flags);
