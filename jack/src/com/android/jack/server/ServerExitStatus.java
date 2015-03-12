@@ -26,4 +26,5 @@ public class ServerExitStatus extends ExitStatus {
    * Jack jar not found.
    */
   public static final int FAILURE_JACK_JAR_NOT_FOUND = -1;
+
 }
