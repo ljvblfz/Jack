@@ -59,7 +59,6 @@ import com.android.sched.util.codec.StringValueCodec;
 import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.codec.ZipOutputVFSCodec;
 import com.android.sched.util.config.Config;
-import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.HasKeyId;
@@ -225,8 +224,6 @@ public class Options {
 
   @Option(name = "--help-properties", usage = "display properties list")
   private boolean helpProperties;
-
-  private boolean dumpProperties;
 
   @Option(name = "-D", metaVar = "<property>=<value>",
       usage = "set value for the given property (repeatable)",
@@ -856,10 +853,6 @@ public class Options {
     }
 
     configBuilder.set(SANITY_CHECKS, sanityChecks);
-
-    if (dumpProperties) {
-      configBuilder.setString(ConfigPrinterFactory.CONFIG_PRINTER, "properties-file");
-    }
 
     configBuilder.popDefaultLocation();
 

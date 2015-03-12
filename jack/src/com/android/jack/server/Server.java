@@ -102,7 +102,7 @@ public class Server {
   private static final int CLI_IDX_FIFO    = 2;
   private static final int CLI_IDX_END     = 3;
 
-  @Nonnull
+  @CheckForNull
   private static File fifo;
   @CheckForNull
   private static LineNumberReader in;
@@ -136,6 +136,7 @@ public class Server {
     }
 
     fifo = new File(args[CLI_IDX_FIFO]);
+    assert fifo != null;
     if (fifo.canWrite()) {
       logger.log(Level.WARNING, "Already running, aborting");
       abort();
@@ -163,6 +164,7 @@ public class Server {
       throw new AssertionError(e);
     }
 
+    assert fifo != null;
     logger.log(Level.INFO, "Starting server on '" + fifo.getPath() + "'");
     ExecutorService executor = Executors.newFixedThreadPool(nbInstance);
     for (int i = 0; i < nbInstance; i++) {
@@ -287,6 +289,7 @@ public class Server {
   @Nonnull
   public static String getLine() throws IOException {
     synchronized (lockRead) {
+      assert in != null;
       String str = in.readLine();
       while (str == null) {
         try {
@@ -296,6 +299,7 @@ public class Server {
         }
 
         in = new LineNumberReader(new FileReader(fifo));
+        assert in != null;
         str = in.readLine();
       }
 
@@ -307,6 +311,7 @@ public class Server {
     logger.log(Level.FINE, "Start FIFO");
 
     try {
+      assert fifo != null;
       FileOrDirectory.setPermissions(fifo, new FileLocation(fifo),
           Permission.READ | Permission.WRITE, ChangePermission.OWNER);
     } catch (CannotSetPermissionException e) {
@@ -327,6 +332,7 @@ public class Server {
     }
 
     try {
+      assert fifo != null;
       FileOrDirectory.unsetPermissions(fifo, new FileLocation(fifo), Permission.READ
           | Permission.WRITE, ChangePermission.OWNER);
     } catch (CannotSetPermissionException e) {
@@ -362,6 +368,7 @@ public class Server {
       logger.log(Level.INFO, "Start timer");
 
       timer = new Timer("jack-server-timeout");
+      assert timer != null;
       timer.schedule(new TimerTask() {
         @Override
         public void run() {
