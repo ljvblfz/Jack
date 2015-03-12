@@ -57,12 +57,13 @@ public abstract class CommandLine {
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
-  protected static void runJackAndExitOnError(@Nonnull Options options) {
+  protected static int runJack(@Nonnull PrintStream err, @Nonnull Options options) {
     ProcessException pe = null;
 
     try {
       try {
         Jack.checkAndRun(options);
+        return (ExitStatus.SUCCESS);
       } catch (ProcessException e) {
         // Handle the cause, but keep the ProcessException in case of
         // Internal Compiler Error only
@@ -70,56 +71,56 @@ public abstract class CommandLine {
         throw e.getCause();
       }
     } catch (ConfigurationException exceptions) {
-      System.err.println(exceptions.getNextExceptionCount() + " error"
+      err.println(exceptions.getNextExceptionCount() + " error"
           + (exceptions.getNextExceptionCount() > 1 ? "s" : "")
           + " during configuration. Try --help-properties for help.");
       for (ChainedException exception : exceptions) {
-        System.err.println("  " + exception.getMessage());
+        err.println("  " + exception.getMessage());
       }
 
-      System.exit(ExitStatus.FAILURE_USAGE);
+     return (ExitStatus.FAILURE_USAGE);
     } catch (IllegalOptionsException e) {
-      System.err.println(e.getMessage());
-      System.err.println("Try --help for help.");
+      err.println(e.getMessage());
+      err.println("Try --help for help.");
 
-      System.exit(ExitStatus.FAILURE_USAGE);
+      return (ExitStatus.FAILURE_USAGE);
     } catch (FrontendCompilationException e) {
       // Cause exception has already been logged
-      System.exit(ExitStatus.FAILURE_COMPILATION);
+      return (ExitStatus.FAILURE_COMPILATION);
     } catch (JackUserException e) {
-      System.err.println(e.getMessage());
+      err.println(e.getMessage());
       logger.log(Level.FINE, "Jack user exception:", e);
-      System.exit(ExitStatus.FAILURE_COMPILATION);
+      return (ExitStatus.FAILURE_COMPILATION);
     } catch (JackLoadingException e) {
-      System.err.println(e.getMessage());
+      err.println(e.getMessage());
       logger.log(Level.FINE, "Jack loading exception:", e);
-      System.exit(ExitStatus.FAILURE_COMPILATION);
+      return (ExitStatus.FAILURE_COMPILATION);
     } catch (OutOfMemoryError e) {
-      printExceptionMessage(e, "Out of memory error.");
-      System.err.println("Try increasing heap size with java option '-Xmx<size>'");
-      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      printExceptionMessage(err, e, "Out of memory error.");
+      err.println("Try increasing heap size with java option '-Xmx<size>'");
+      err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Out of memory error:", e);
-      System.exit(ExitStatus.FAILURE_VM);
+      return (ExitStatus.FAILURE_VM);
     } catch (StackOverflowError e) {
-      printExceptionMessage(e, "Stack overflow error.");
-      System.err.println("Try increasing stack size with java option '-Xss<size>'");
-      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      printExceptionMessage(err, e, "Stack overflow error.");
+      err.println("Try increasing stack size with java option '-Xss<size>'");
+      err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Stack overflow error:", e);
-      System.exit(ExitStatus.FAILURE_VM);
+      return (ExitStatus.FAILURE_VM);
     } catch (VirtualMachineError e) {
-      printExceptionMessage(e, "Virtual machine error: " + e.getClass() + ".");
-      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      printExceptionMessage(err, e, "Virtual machine error: " + e.getClass() + ".");
+      err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Virtual machine error:", e);
-      System.exit(ExitStatus.FAILURE_VM);
+      return (ExitStatus.FAILURE_VM);
     } catch (UnrecoverableException e) {
-      System.err.println("Unrecoverable error: " + e.getMessage());
-      System.err.println(INTERRUPTED_COMPILATION_WARNING);
+      err.println("Unrecoverable error: " + e.getMessage());
+      err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.FINE, "Unrecoverable exception:", e);
-      System.exit(ExitStatus.FAILURE_UNRECOVERABLE);
+      return (ExitStatus.FAILURE_UNRECOVERABLE);
     } catch (JackAbortException e) {
       // Exception should already have been reported, do not print message.
       logger.log(Level.FINE, "Jack fatal exception:", e);
-      System.exit(ExitStatus.FAILURE_COMPILATION);
+      return (ExitStatus.FAILURE_COMPILATION);
     } catch (Throwable e) {
       // Internal Compiler Error here
       // If the exception come from a ProcessException, we want
@@ -131,13 +132,13 @@ public abstract class CommandLine {
       String info = "Internal compiler error (version " + Jack.getVersionString() + ")";
       logger.log(Level.SEVERE, info + ':', e);
       e.printStackTrace();
-      System.err.println();
-      System.err.println(info + '.');
+      err.println();
+      err.println(info + '.');
       if (e.getMessage() != null) {
-        System.err.println(e.getMessage() + '.');
+        err.println(e.getMessage() + '.');
       }
-      System.err.println(INTERRUPTED_COMPILATION_WARNING);
-      System.exit(ExitStatus.FAILURE_INTERNAL);
+      err.println(INTERRUPTED_COMPILATION_WARNING);
+      return (ExitStatus.FAILURE_INTERNAL);
     }
   }
 
@@ -226,12 +227,12 @@ public abstract class CommandLine {
     }
   }
 
-  protected static void printExceptionMessage(@Nonnull Throwable t,
+  protected static void printExceptionMessage(@Nonnull PrintStream err, @Nonnull Throwable t,
       @Nonnull String defaultMessage) {
     String exceptionMessage = t.getMessage();
     if (exceptionMessage == null) {
       exceptionMessage = defaultMessage;
     }
-    System.err.println(exceptionMessage);
+    err.println(exceptionMessage);
   }
 }

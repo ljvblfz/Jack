@@ -75,7 +75,10 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
@@ -486,6 +489,15 @@ public class Options {
   @CheckForNull
   private OutputStream reporterStream = null;
 
+  @CheckForNull
+  private File workingDirectory = null;
+
+  @CheckForNull
+  private PrintStream standardError = null;
+
+  @CheckForNull
+  private PrintStream standardOutput = null;
+
   public void setVerbosityLevel(@Nonnull VerbosityLevel verbose) {
     this.verbose = verbose;
   }
@@ -610,6 +622,26 @@ public class Options {
       } catch (IOException e) {
         throw new IllegalOptionsException(e.getMessage(), e);
       }
+    }
+
+    if (workingDirectory != null) {
+      try {
+        configBuilder.setWorkingDirectory(workingDirectory);
+      } catch (NotDirectoryException e) {
+        throw new IllegalOptionsException(e.getMessage(), e);
+      } catch (WrongPermissionException e) {
+        throw new IllegalOptionsException(e.getMessage(), e);
+      } catch (NoSuchFileException e) {
+        throw new IllegalOptionsException(e.getMessage(), e);
+      }
+    }
+
+    if (standardError != null) {
+      configBuilder.setStandardError(standardError);
+    }
+
+    if (standardOutput != null) {
+      configBuilder.setStandardOutput(standardOutput);
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("Options"));
@@ -1005,6 +1037,18 @@ public class Options {
 
   public void setReporterStream(@Nonnull OutputStream reporterStream) {
     this.reporterStream = reporterStream;
+  }
+
+  public void setWorkingDirectory(@Nonnull File workingDirectory) {
+    this.workingDirectory = workingDirectory;
+  }
+
+  public void setStandardError(@Nonnull PrintStream standardError) {
+    this.standardError = standardError;
+  }
+
+  public void setStandardOutput(@Nonnull PrintStream standardOutput) {
+    this.standardOutput = standardOutput;
   }
 
   @Nonnull
