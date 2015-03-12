@@ -97,7 +97,7 @@ public abstract class CommonFilter {
     Set<String> javaFileNames = new HashSet<String>();
     for (FileOrDirectory file : config.get(Options.SOURCES)) {
       if (file instanceof Directory) {
-        fillFiles(new File(file.getPath()), extension, javaFileNames);
+        fillFiles(((Directory) file).getFile(), extension, javaFileNames);
       } else if (file.getPath().endsWith(extension)) {
         javaFileNames.add(file.getPath());
       }
