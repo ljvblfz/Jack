@@ -18,7 +18,6 @@ package com.android.jack.cfg;
 
 import com.android.jack.ir.ast.JStatement;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnegative;
@@ -32,12 +31,10 @@ import javax.annotation.Nonnull;
 public class PeiBasicBlock extends NormalBasicBlock {
 
   @Nonnegative
-  private static final int NO_CATCH_EXCEPTION_INDEX = 1;
-  @Nonnegative
-  private static final int EXCEPTION_BLOCKS_START_INDEX = 2;
+  private static final int EXCEPTION_BLOCKS_START_INDEX = 1;
 
-  public PeiBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
-    super(cfg, statements, cfg.getNextBasicBlockId(), NORMAL_BLOCK_FIXED_BLOCK_COUNT + 1);
+  public PeiBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
+    super(id, statements, NORMAL_BLOCK_FIXED_BLOCK_COUNT);
   }
 
   public void addExceptionBlock(@Nonnull CatchBasicBlock exceptionBb) {
@@ -47,14 +44,7 @@ public class PeiBasicBlock extends NormalBasicBlock {
   @SuppressWarnings("unchecked")
   @Nonnull
   public List<CatchBasicBlock> getExceptionBlocks() {
-    if (getInternalSuccessors().get(NO_CATCH_EXCEPTION_INDEX) != null) {
-      return Collections.<CatchBasicBlock>emptyList();
-    }
     return ((List<CatchBasicBlock>) (List<? extends BasicBlock>) getInternalSuccessors().subList(
         EXCEPTION_BLOCKS_START_INDEX, getInternalSuccessors().size()));
-  }
-
-  public void setNoExceptionCatchBlock() {
-    addSuccessor(NO_CATCH_EXCEPTION_INDEX, cfg.getExitNode());
   }
 }

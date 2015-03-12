@@ -35,10 +35,8 @@ public class ConditionalBasicBlock extends BasicBlock {
   @Nonnegative
   private static final int FIXED_BLOCK_COUNT = 2;
 
-  public ConditionalBasicBlock(@Nonnull ControlFlowGraph cfg,
-      @Nonnull List<JStatement> statements) {
-    super(cfg, statements, cfg.getNextBasicBlockId(), FIXED_BLOCK_COUNT);
-    cfg.addNode(this);
+  public ConditionalBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
+    super(id, statements, FIXED_BLOCK_COUNT);
   }
 
   public void setThenBlock(@Nonnull BasicBlock thenBb) {

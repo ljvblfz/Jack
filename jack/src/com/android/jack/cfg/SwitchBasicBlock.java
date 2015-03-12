@@ -36,9 +36,8 @@ public class SwitchBasicBlock extends BasicBlock {
   @Nonnegative
   private static final int FIXED_BLOCK_COUNT = 1;
 
-  public SwitchBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
-    super(cfg, statements, cfg.getNextBasicBlockId(), FIXED_BLOCK_COUNT);
-    cfg.addNode(this);
+  public SwitchBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
+    super(id, statements, FIXED_BLOCK_COUNT);
   }
 
   public void setDefault(@Nonnull BasicBlock defaultBb) {

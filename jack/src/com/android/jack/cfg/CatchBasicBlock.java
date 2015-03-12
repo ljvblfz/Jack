@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JStatement;
 
 import java.util.List;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,9 +37,9 @@ public class CatchBasicBlock extends NormalBasicBlock {
   @Nonnull
   private final JLocal catchVar;
 
-  public CatchBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements,
+  public CatchBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements,
       @Nonnull List<JClass> catchTypes, @Nonnull JLocal catchVar) {
-    super(cfg, statements);
+    super(id, statements);
     this.catchTypes = catchTypes;
     this.catchVar = catchVar;
   }

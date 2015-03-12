@@ -34,9 +34,9 @@ public class ReturnBasicBlock extends BasicBlock {
   @Nonnegative
   private static final int FIXED_BLOCK_COUNT = 1;
 
-  public ReturnBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
-    super(cfg, statements, cfg.getNextBasicBlockId(), FIXED_BLOCK_COUNT);
-    cfg.addNode(this);
-    setSuccessor(EXIT_BLOCK_INDEX, cfg.getExitNode());
+  public ReturnBasicBlock(@Nonnegative int id, @Nonnull ExitBlock exitBlock,
+      @Nonnull List<JStatement> statements) {
+    super(id, statements, FIXED_BLOCK_COUNT);
+    setSuccessor(EXIT_BLOCK_INDEX, exitBlock);
   }
 }

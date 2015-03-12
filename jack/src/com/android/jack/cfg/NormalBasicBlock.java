@@ -35,15 +35,13 @@ public class NormalBasicBlock extends BasicBlock {
   @Nonnegative
   protected static final int NORMAL_BLOCK_FIXED_BLOCK_COUNT = 1;
 
-  public NormalBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
-    super(cfg, statements, cfg.getNextBasicBlockId(), NORMAL_BLOCK_FIXED_BLOCK_COUNT);
-    cfg.addNode(this);
+  public NormalBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
+    super(id, statements, NORMAL_BLOCK_FIXED_BLOCK_COUNT);
   }
 
-  protected NormalBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements,
-      @Nonnegative int id, @Nonnegative int fixedSuccessorCount) {
-    super(cfg, statements, id, fixedSuccessorCount);
-    cfg.addNode(this);
+  protected NormalBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements,
+      @Nonnegative int fixedSuccessorCount) {
+    super(id, statements, fixedSuccessorCount);
   }
 
   public void setTarget(@Nonnull BasicBlock target) {

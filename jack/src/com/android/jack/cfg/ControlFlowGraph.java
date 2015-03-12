@@ -23,6 +23,8 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -37,20 +39,24 @@ public class ControlFlowGraph extends Graph<BasicBlock> implements Marker {
   private final JMethod method;
 
   @Nonnegative
-  private int basicBlockId = 0;
+  private final int basicBlockMaxId;
 
   /**
    * Create the control flow graph associated with method argument.
-   * Entry and exit blocks are automatically created.
    * @param method method associated to this control flow graph
+   * @param basicBlockMaxId the biggest id of a BasicBlock in the graph
+   * @param entryBlock entry BasicBlock
+   * @param exitBlock exit BasicBlock
+   * @param blocks all BasicBlocks in the graph
    */
-  public ControlFlowGraph(@Nonnull JMethod method) {
+  public ControlFlowGraph(@Nonnull JMethod method, @Nonnegative int basicBlockMaxId,
+      @Nonnull EntryBlock entryBlock, @Nonnull ExitBlock exitBlock,
+      @Nonnull ArrayList<BasicBlock> blocks) {
+    super(entryBlock, exitBlock, blocks);
     assert method != null;
 
     this.method = method;
-
-    entry = new EntryBlock(this);
-    exit = new ExitBlock(this);
+    this.basicBlockMaxId = basicBlockMaxId;
   }
 
 
@@ -68,14 +74,6 @@ public class ControlFlowGraph extends Graph<BasicBlock> implements Marker {
     return method;
   }
 
-  /**
-   * @return the basicBlockId
-   */
-  @Nonnegative
-  int getNextBasicBlockId() {
-    return basicBlockId++;
-  }
-
   @Override
   @Nonnull
   public String toString() {
@@ -91,6 +89,6 @@ public class ControlFlowGraph extends Graph<BasicBlock> implements Marker {
 
   @Nonnegative
   public int getBasicBlockMaxId() {
-    return basicBlockId;
+    return basicBlockMaxId;
   }
 }

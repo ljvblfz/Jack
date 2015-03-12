@@ -24,6 +24,8 @@ import com.android.jack.util.graph.GraphException;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 public class BuildCfgErrorTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
@@ -38,9 +40,14 @@ public class BuildCfgErrorTest {
         TestTools.getJMethodWithRejectAllFilter(
             TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME), "L" + CLASS_BINARY_NAME + ";",
             "fibonacci(I)I");
-    ControlFlowGraph cfg = new ControlFlowGraph(method);
-    NormalBasicBlock b0 = new NormalBasicBlock(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
-    NormalBasicBlock b1 = new NormalBasicBlock(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
+    ArrayList<BasicBlock> blocks = new ArrayList<BasicBlock>();
+    EntryBlock entryBlock = new EntryBlock(0);
+    blocks.add(entryBlock);
+    NormalBasicBlock b0 = new NormalBasicBlock(1, BasicBlock.EMPTY_STATEMENT_LIST);
+    blocks.add(b0);
+    NormalBasicBlock b1 = new NormalBasicBlock(2, BasicBlock.EMPTY_STATEMENT_LIST);
+    blocks.add(b1);
+    ControlFlowGraph cfg = new ControlFlowGraph(method, 3, entryBlock, new ExitBlock(), blocks);
     b0.setTarget(b1);
     try {
       b0.setTarget(b1);

@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.JStatement;
 
 import java.util.List;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -27,8 +28,8 @@ import javax.annotation.Nonnull;
  */
 public class ThrowBasicBlock extends PeiBasicBlock {
 
-  protected ThrowBasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements) {
-    super(cfg, statements);
+  protected ThrowBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
+    super(id, statements);
   }
 
   @Override

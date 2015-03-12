@@ -35,9 +35,6 @@ import javax.annotation.Nonnull;
 public abstract class BasicBlock extends GraphNode<BasicBlock> {
 
   @Nonnull
-  protected final ControlFlowGraph cfg;
-
-  @Nonnull
   private final List<JStatement> statements;
 
   @Nonnegative
@@ -46,10 +43,9 @@ public abstract class BasicBlock extends GraphNode<BasicBlock> {
   @Nonnull
   static final List<JStatement> EMPTY_STATEMENT_LIST = new LinkedList<JStatement>();
 
-  protected BasicBlock(@Nonnull ControlFlowGraph cfg, @Nonnull List<JStatement> statements,
-      @Nonnegative int id, @Nonnegative int fixedSuccessorCount) {
+  protected BasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements,
+      @Nonnegative int fixedSuccessorCount) {
     super(fixedSuccessorCount);
-    this.cfg = cfg;
     this.statements = Jack.getUnmodifiableCollections().getUnmodifiableList(statements);
     this.id = id;
   }
