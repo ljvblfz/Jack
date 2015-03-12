@@ -125,6 +125,6 @@ public class Directory extends FileOrDirectory {
   @Override
   @Nonnull
   public String getPath() {
-    return ((DirectoryLocation) location).getPath();
+    return file.getPath();
   }
 }
