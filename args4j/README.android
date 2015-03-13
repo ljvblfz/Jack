@@ -5,3 +5,16 @@ Description: "Command line option parser"
 
 Direct link: https://github.com/kohsuke/args4j/releases/tag/args4j-site-2.0.30
 
+Modifications in order to build with javac 6
+Removed files:
+args4j/args4j/src/org/kohsuke/args4j/spi/MultiPathOptionHandler.java
+args4j/args4j/src/org/kohsuke/args4j/spi/PathOptionHandler.java
+Modified file:
+args4j/args4j/src/org/kohsuke/args4j/OptionHandlerRegistry.java
+-        try {
+-            Class p = Class.forName("java.nio.file.Path");
+-            registerHandler(p, PathOptionHandler.class);
+-        } catch (ClassNotFoundException e) {
+-            // running in Java6 or earlier
+-        }
+
