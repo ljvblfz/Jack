@@ -22,7 +22,6 @@ import org.kohsuke.args4j.spi.IntOptionHandler;
 import org.kohsuke.args4j.spi.LongOptionHandler;
 import org.kohsuke.args4j.spi.MapOptionHandler;
 import org.kohsuke.args4j.spi.OptionHandler;
-import org.kohsuke.args4j.spi.PathOptionHandler;
 import org.kohsuke.args4j.spi.PatternOptionHandler;
 import org.kohsuke.args4j.spi.Setter;
 import org.kohsuke.args4j.spi.ShortOptionHandler;
@@ -91,16 +90,9 @@ public class OptionHandlerRegistry {
         registerHandler(Pattern.class, PatternOptionHandler.class);
         // enum is a special case
         registerHandler(Map.class,MapOptionHandler.class);
-
-        try {
-            Class p = Class.forName("java.nio.file.Path");
-            registerHandler(p, PathOptionHandler.class);
-        } catch (ClassNotFoundException e) {
-            // running in Java6 or earlier
-        }
     }
-    
-    /** Finds the constructor for an option handler. 
+
+    /** Finds the constructor for an option handler.
      */
     private static Constructor<? extends OptionHandler> getConstructor(Class<? extends OptionHandler> handlerClass) {
         try {
@@ -109,7 +101,7 @@ public class OptionHandlerRegistry {
             throw new IllegalArgumentException(Messages.NO_CONSTRUCTOR_ON_HANDLER.format(handlerClass));
         }
     }
-    
+
     /**
      * Registers a user-defined {@link OptionHandler} class with args4j.
      *
