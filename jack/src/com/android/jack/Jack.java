@@ -423,10 +423,10 @@ public abstract class Jack {
   }
 
   /**
-   * Runs the jack compiler on source files and generates a dex file.
-   * STOPSHIP: update
+   * Runs the jack compiler.
    * @param options options for the compiler.
-   * @param hooks
+   * @param hooks hooks that allow to attach actions that should be run after calling this method
+   * @throws JackUserException thrown to report information to the user
    * @throws ProcessException thrown during schedulable execution
    */
   public static void run(@Nonnull Options options, @Nonnull RunnableHooks hooks)
