@@ -549,9 +549,7 @@ public class GrammarActions {
     flags.setAdaptClassStrings(filter);
   }
 
-  static void printUnsupportedFlag(/*@Nonnull*/ String flag) {
-    assert flag != null;
-    logger.log(Level.WARNING, "Proguard flag is not supported: {0}", flag);
+  static void printUnsupportedFlag(/*@Nonnull*/ @SuppressWarnings("unused") String flag) {
   }
 
   static void printseeds(@Nonnull Flags flags, /* @Nonnull */
