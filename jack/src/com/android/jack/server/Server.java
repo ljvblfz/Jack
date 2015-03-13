@@ -85,7 +85,7 @@ public class Server {
   };
 
   @Nonnull
-  private static ServerTask service = new ServerTaskSpawningVM();
+  private static ServerTask service = new ServerTaskInsideVm();
 
   @Nonnull
   private static Logger logger = Logger.getLogger(Server.class.getSimpleName());
