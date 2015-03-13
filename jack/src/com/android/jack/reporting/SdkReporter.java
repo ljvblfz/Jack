@@ -19,6 +19,8 @@ package com.android.jack.reporting;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 
+import java.io.PrintStream;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -62,6 +64,12 @@ public class SdkReporter extends CommonReporter {
     }
     messageBuffer.append(MESSAGE_SEPARATOR);
     messageBuffer.append(message);
-    reporterStream.println(messageBuffer.toString());
+
+    PrintStream printer = streamByLevel.get(problemLevel);
+    if (printer == null) {
+      printer = streamByDefault;
+    }
+
+    printer.println(messageBuffer.toString());
   }
 }
