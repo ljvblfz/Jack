@@ -1,11 +1,13 @@
 package org.kohsuke.args4j.spi;
 
-import java.util.ResourceBundle;
-
-import org.kohsuke.args4j.OptionDef;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.NamedOptionDef;
+import org.kohsuke.args4j.OptionDef;
+import org.kohsuke.args4j.ParserProperties;
+import org.kohsuke.args4j.OptionHandlerRegistry;
+
+import java.util.Collection;
+import java.util.ResourceBundle;
 
 
 /**
@@ -16,10 +18,18 @@ import org.kohsuke.args4j.NamedOptionDef;
  *
  * <p>
  * Implementation of this class needs to be registered to args4j by using
- * {@link CmdLineParser#registerHandler(Class,Class)} 
+ * {@link OptionHandlerRegistry#registerHandler(Class,Class)}.
+ * For registration to work, subclasses will need to implement the constructor
+ * with the signature
+ * {@link OptionHandler#OptionHandler(CmdLineParser, OptionDef, Setter)}.
  *
  * @param <T>
- *      The type of the field that this {@link OptionHandler} works with.
+ *      The {@code component} type of the field that this {@link OptionHandler} works with.
+ *      When I say "component", I mean a field that can hold multiple values
+ *      (such as {@link Collection} or array). This should refer to its component time.
+ *      
+ *      {@link Setter} implementations abstract away multi-value-ness by allowing {@link OptionHandler}
+ *      to invoke its {@link Setter#addValue(Object)} multiple times.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -53,19 +63,23 @@ public abstract class OptionHandler<T> {
      *      The object is valid only during the method call.
      *
      * @return
-     *      The number of arguments consumed. For example, return 0
-     *      if this option doesn't take any parameter.
+     *      The number of arguments consumed. (For example, returns {@code 0}
+     *      if this option doesn't take any parameters.)
      */
     public abstract int parseArguments( Parameters params ) throws CmdLineException;
 
     /**
      * Gets the default meta variable name used to print the usage screen.
+     * 
+     * The value returned by this method can be a reference in the
+     * {@code ResourceBundle}, if one was passed to
+     * {@link CmdLineParser}.
      *
-     * @return null to hide a meta variable.
+     * @return {@code null} to hide a meta variable.
      */
     public abstract String getDefaultMetaVariable();
 
-    public final String getMetaVariable(ResourceBundle rb) {
+    public String getMetaVariable(ResourceBundle rb) {
         String token = option.metaVar();
         if(token.length()==0)
             token = getDefaultMetaVariable();
@@ -80,12 +94,28 @@ public abstract class OptionHandler<T> {
         return token;
     }
     
+    /**
+     * Get string representing usage for this option, of the form "name metaval",
+     * e.g. "-foo VALUE" or "--foo VALUE"
+     * @param rb ResourceBundle to get localized version of meta string
+     */
     public final String getNameAndMeta(ResourceBundle rb) {
-    	String str = option.isArgument() ? "" : option.toString(); 
+        return getNameAndMeta(rb, ParserProperties.defaults());
+    }
+
+    /**
+     * Get string representing usage for this option, of the form "name metaval" or "name=metaval,
+     * e.g. "--foo VALUE" or "--foo=VALUE"
+     * @param rb ResourceBundle to get localized version of meta string
+     * @param properties
+     *      Affects the formatting behaviours.
+     */
+    public final String getNameAndMeta(ResourceBundle rb, ParserProperties properties) {
+    	String str = option.isArgument() ? "" : option.toString();
     	String meta = getMetaVariable(rb);
     	if (meta != null) {
     		if (str.length() > 0) {
-    			str += " ";
+    			str += properties.getOptionValueDelimiter();
     		}
     		str += meta;
     	}

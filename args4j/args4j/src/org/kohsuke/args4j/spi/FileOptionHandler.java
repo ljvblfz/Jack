@@ -11,19 +11,18 @@ import org.kohsuke.args4j.CmdLineParser;
  *
  * @author Kohsuke Kawaguchi
  */
-public class FileOptionHandler extends OptionHandler<File> {
+public class FileOptionHandler extends OneArgumentOptionHandler<File> {
     public FileOptionHandler(CmdLineParser parser, OptionDef option, Setter<? super File> setter) {
         super(parser, option, setter);
     }
 
     @Override
-    public int parseArguments(Parameters params) throws CmdLineException {
-        setter.addValue(new File(params.getParameter(0)));
-        return 1;
+    protected File parse(String argument) throws CmdLineException {
+        return new File(argument);
     }
 
     @Override
     public String getDefaultMetaVariable() {
-        return "FILE";
+        return Messages.DEFAULT_META_FILE_OPTION_HANDLER.format();
     }
 }

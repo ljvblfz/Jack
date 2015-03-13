@@ -1,8 +1,8 @@
 package org.kohsuke.args4j.spi;
 
-import org.kohsuke.args4j.spi.Setter;
 import org.kohsuke.args4j.*;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-final class MultiValueFieldSetter  implements Setter {
+final class MultiValueFieldSetter implements Setter {
     private final Object bean;
     private final Field f;
 
@@ -28,6 +28,14 @@ final class MultiValueFieldSetter  implements Setter {
 
     public boolean isMultiValued() {
     	return true;
+    }
+
+    public FieldSetter asFieldSetter() {
+        return new FieldSetter(bean,f);
+    }
+
+    public AnnotatedElement asAnnotatedElement() {
+        return f;
     }
 
     public Class getType() {
@@ -45,7 +53,7 @@ final class MultiValueFieldSetter  implements Setter {
     public void addValue(Object value) {
         try {
             doAddValue(bean, value);
-        } catch (IllegalAccessException _) {
+        } catch (IllegalAccessException ex) {
             // try again
             f.setAccessible(true);
             try {

@@ -1,7 +1,6 @@
 package org.kohsuke.args4j.spi;
 
-import org.kohsuke.args4j.spi.Setter;
-
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.reflect.Field;
  *
  * @author Kohsuke Kawaguchi
  */
-final class FieldSetter implements Setter {
+public final class FieldSetter implements Setter {
     private final Field f;
     private final Object bean;
 
@@ -23,17 +22,40 @@ final class FieldSetter implements Setter {
     }
     
     public boolean isMultiValued() {
+        // a field can only store one value. a collection field is handled via MultiValueFieldSetter
     	return false;
+    }
+
+    public FieldSetter asFieldSetter() {
+        return new FieldSetter(bean,f);
+    }
+
+    public AnnotatedElement asAnnotatedElement() {
+        return f;
     }
 
     public void addValue(Object value) {
         try {
             f.set(bean,value);
-        } catch (IllegalAccessException _) {
+        } catch (IllegalAccessException ex) {
             // try again
             f.setAccessible(true);
             try {
                 f.set(bean,value);
+            } catch (IllegalAccessException e) {
+                throw new IllegalAccessError(e.getMessage());
+            }
+        }
+    }
+
+    public Object getValue() {
+        try {
+            return f.get(bean);
+        } catch (IllegalAccessException ex) {
+            // try again
+            f.setAccessible(true);
+            try {
+                return f.get(bean);
             } catch (IllegalAccessException e) {
                 throw new IllegalAccessError(e.getMessage());
             }

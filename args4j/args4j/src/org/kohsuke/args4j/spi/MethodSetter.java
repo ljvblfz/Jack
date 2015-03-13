@@ -1,8 +1,8 @@
 package org.kohsuke.args4j.spi;
 
-import org.kohsuke.args4j.spi.Setter;
 import org.kohsuke.args4j.*;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -29,14 +29,23 @@ public final class MethodSetter implements Setter {
     }
 
     public boolean isMultiValued() {
-    	return false;
+        // multiple values can be handled by calling methods repeatedly
+    	return true;
+    }
+
+    public FieldSetter asFieldSetter() {
+        return null;
+    }
+
+    public AnnotatedElement asAnnotatedElement() {
+        return m;
     }
 
     public void addValue(Object value) throws CmdLineException {
         try {
             try {
                 m.invoke(bean,value);
-            } catch (IllegalAccessException _) {
+            } catch (IllegalAccessException ex) {
                 // try again
                 m.setAccessible(true);
                 try {

@@ -1,7 +1,7 @@
 package org.kohsuke.args4j.spi;
 
 /**
- * The ConfigElement is an <tt>&lt;option></tt> or <tt>&lt;argument></tt> tag
+ * The ConfigElement is an <tt>&lt;option&gt;</tt> or <tt>&lt;argument&gt;</tt> tag
  * in the xml configuration file.
  * @author Jan Materne
  */
@@ -15,6 +15,7 @@ public class ConfigElement {
 	public String[] aliases = {};
 	public boolean multiValued = false;
 	public boolean required = false;
+	public boolean hidden = false;
 	/**
 	 * Ensures that only a field XOR a method is set.
 	 * @return

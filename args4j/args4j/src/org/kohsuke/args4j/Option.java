@@ -1,11 +1,11 @@
 package org.kohsuke.args4j;
 
 import org.kohsuke.args4j.spi.OptionHandler;
+import org.kohsuke.args4j.spi.Setter;
 
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 import java.lang.reflect.AccessibleObject;
 import java.util.ResourceBundle;
 
@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <p>
  * This annotation can be placed on a field of type T or the method
- * of the form <tt>void <i>methodName</i>(T value)</tt>. Its access
+ * of the form <code>void <i><code>methodName</code></i>(T value)</code>. Its access
  * modified can be anything, but if it's not public, your application
  * needs to run in a security context that allows args4j to access
  * the field/method (see {@link AccessibleObject#setAccessible(boolean)}.
@@ -30,25 +30,25 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <h2>Boolean Switch</h2>
  * <p>
- * When T is boolean , it represents
- * a boolean option that takes the form of "-OPT". When this option is set,
- * the property will be set to true.
+ * When <var>T</var> is {@code boolean} , it represents
+ * a {@code boolean} option that takes the form of <code>-OPT</code>. When this option is set,
+ * the property will be set to {@code true}.
  *
  * <h2>String Switch</h2>
  * <p>
- * When T is {@link String}, it represents
+ * When <var>T</var> is {@link String}, it represents
  * an option that takes one operand. The value of the operand is set
  * to the property.
  *
  * <h2>Enum Switch</h2>
  * <p>
- * When T is derived from {@link Enum}, it represents an option that takes
+ * When <var>T</var> is derived from {@link Enum}, it represents an option that takes
  * an operand, which must be one of the enum constant. The comparion between
  * the operand and the enum constant name is done in a case insensitive fashion.
  * <p>
  * For example, the following definition will represent command line options
- * like "-coin penny" or "-coin DIME" but things like "-coin" or "-coin abc" are
- * errors.
+ * like <code>-coin penny</code> or <code>-coin DIME</code>,
+ * but things like <code>-coin</code> or <code>-coin abc</code> are errors.
  *
  * <pre>
  * enum Coin { PENNY,NICKEL,DIME,QUARTER }
@@ -61,7 +61,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <h2>File Switch</h2>
  * <p>
- * When T is a {@link File}, it represents an option that takes a file/directory
+ * When <var>T</var> is a {@link File}, it represents an option that takes a file/directory
  * name as an operand.
  *
  * @author Kohsuke Kawaguchi
@@ -70,12 +70,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD,METHOD,PARAMETER})
 public @interface Option {
     /**
-     * Name of the option, such as "-foo" or "-bar".
+     * Name of the option, such as <code>-foo</code> or <code>-bar</code>.
      */
     String name();
     
     /**
-     * Aliases for the options, such as "--long-option-name".
+     * Aliases for the options, such as <code>--long-option-name</code>.
      */
     String[] aliases() default { };
 
@@ -102,14 +102,16 @@ public @interface Option {
     String usage() default "";
 
     /**
-     * When the option takes an operand, the usage screen will show something like this:
+     * When the option takes an operand, the usage screen will show something like this
+     *
      * <pre>
      * -x FOO  : blah blah blah
      * </pre>
-     * You can replace the 'FOO' token by using this parameter.
+     *
+     * You can replace the <code>FOO</code> token by using this parameter.
      *
      * <p>
-     * If left unspecifiied, this value is infered from the type of the option.
+     * If left unspecified, this value is infered from the type of the option.
      *
      * <p>
      * Just like {@link #usage()}, normally, this value is printed as is.
@@ -132,6 +134,33 @@ public @interface Option {
      * flag.
      */
     boolean required() default false;
+    
+    /**
+     * Specify that the option is a help option.
+     *
+     * <p>
+     * When flagging an option being the help option, required
+     * arguments or options that are missing in an actual command
+     * line don't cause an exception to be thrown.
+     * @see #required() 
+     */
+    boolean help() default false;
+
+    /**
+     * Specify that the option is hidden from the usage, by default.
+     *
+     * <p>
+     * You can still have {@link CmdLineParser} show hidden options
+     * by using {@link OptionHandlerFilter#ALL}, which allows you to
+     * create an option that shows hidden options.
+     *
+     * <p>
+     * If you need more complicated filtering logic, define your own
+     * annotations and check them in {@link Setter#asAnnotatedElement()}.
+     *
+     * @see OptionHandlerFilter#PUBLIC
+     */
+    boolean hidden() default false;
 
     /**
      * Specify the {@link OptionHandler} that processes the command line arguments.
@@ -148,6 +177,7 @@ public @interface Option {
      * defining a non-standard option parsing semantics.
      *
      * <h3>Example</h3>
+     *
      * <pre>
      * // this is a normal "-r" option
      * &#64;Option(name="-r")
@@ -160,10 +190,46 @@ public @interface Option {
      * </pre>
      */
     Class<? extends OptionHandler> handler() default OptionHandler.class;
+
+    /**
+     * List of other options that this option depends on.
+     *
+     * <h3>Example</h3>
+     *
+     * <pre>
+     *  &#64;Option(name="-a")
+     *  int a;
+     *  //-b is not required but if it's provided, then a becomes required
+     *  &#64;Option(name="-b", depends={"-a"}
+     *  int b;
+     * </pre>
+     *
+     * <p>
+     * At the end of {@link CmdLineParser#parseArgument(String...)},
+     * a {@link CmdLineException} will be thrown if options required by another one
+     * are not present.
+     * </p>
+     */
+    String[] depends() default { };
     
     /**
-     * Whether the option is multi-valued.
-     * For mappings to List<...>, this defaults to true, otherwise false 
+     * List of other options that this option is incompatible with..
+     *
+     * <h3>Example</h3>
+     *
+     * <pre>
+     *  &#64;Option(name="-a")
+     *  int a;
+     *  // -h and -a cannot be specified together
+     *  &#64;Option(name="-h", forbids={"-a"}
+     *  boolean h;
+     * </pre>
+     *
+     * <p>
+     * At the end of {@link CmdLineParser#parseArgument(String...)},
+     * a {@link CmdLineException} will be thrown if forbidden option
+     * combinations are present.
+     * </p>
      */
-    boolean multiValued() default false;
+    String[] forbids() default { };    
 }
