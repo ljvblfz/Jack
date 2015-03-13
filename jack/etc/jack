@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #
 # Copyright (C) 2015 The Android Open Source Project
 #
@@ -19,7 +19,9 @@ set -o nounset
 JACK_NB_COMPILE=10
 JACK_TIMEOUT=15
 
-TMPDIR="/tmp"
+if [ -z $TMPDIR ]; then
+  TMPDIR="/tmp"
+fi
 
 JACK_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.Server"
 JACK_FIFO="$TMPDIR/jack-$USER.cmd"

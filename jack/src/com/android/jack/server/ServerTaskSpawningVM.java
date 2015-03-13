@@ -110,7 +110,7 @@ public class ServerTaskSpawningVM implements ServerTask {
     if (jackJarPath == null) {
       throw new MissingEnvException("JACK_JAR");
     }
-      new InputStreamFile(jackJarPath);
+    new InputStreamFile(jackJarPath);
 
     StreamTokenizer iter = getCommandLineTokenizer(vmCommand);
     try {
