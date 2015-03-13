@@ -35,19 +35,6 @@ public class PairListToMapCodecConverter<T, U> extends
 
   @Override
   @Nonnull
-  public Map<T, U> parseString(@Nonnull CodecContext context,
-      @Nonnull String string) {
-    List<Entry<T, U>> list = codec.parseString(context, string);
-    Map<T, U> map = new HashMap<T, U>(Math.round(list.size() / 0.75f),
-        0.75f);
-    for (Entry<T, U> entry : list) {
-      map.put(entry.getKey(), entry.getValue());
-    }
-    return map;
-  }
-
-  @Override
-  @Nonnull
   public String formatValue(@Nonnull Map<T, U> data) {
     return codec.formatValue(new ArrayList<Map.Entry<T, U>>(data.entrySet()));
   }
@@ -56,5 +43,17 @@ public class PairListToMapCodecConverter<T, U> extends
   public void checkValue(@Nonnull CodecContext context, @Nonnull Map<T, U> data)
       throws CheckingException {
     codec.checkValue(context, new ArrayList<Map.Entry<T, U>>(data.entrySet()));
+  }
+
+  @Override
+  @Nonnull
+  protected Map<T, U> convert(@Nonnull List<Entry<T, U>> list) {
+    Map<T, U> map = new HashMap<T, U>(Math.round(list.size() / 0.75f), 0.75f);
+
+    for (Entry<T, U> entry : list) {
+      map.put(entry.getKey(), entry.getValue());
+    }
+
+    return map;
   }
 }

@@ -59,17 +59,15 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
 
   @Override
   @Nonnull
-  public Entry<T, U> parseString(@Nonnull CodecContext context,
-      @Nonnull String string) {
-      int endKey = string.indexOf(separator);
-      if (endKey == -1) {
-        throw new ConfigurationError("Missing '"
-            + separator + "' in '" + string + "'");
-      }
-      String key = string.substring(0, endKey);
-      String valueString = string.substring(endKey + separator.length());
-      return new AbstractMap.SimpleEntry<T, U>(keyParser.parseString(context, key),
-          valueParser.parseString(context, valueString));
+  public Entry<T, U> parseString(@Nonnull CodecContext context, @Nonnull String string) {
+    int endKey = string.indexOf(separator);
+    if (endKey == -1) {
+      throw new ConfigurationError("Missing '" + separator + "' in '" + string + "'");
+    }
+    String key = string.substring(0, endKey);
+    String valueString = string.substring(endKey + separator.length());
+    return new AbstractMap.SimpleEntry<T, U>(keyParser.parseString(context, key),
+        valueParser.parseString(context, valueString));
   }
 
   @Override
@@ -77,19 +75,20 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
   public Entry<T, U> checkString(@Nonnull CodecContext context,
       @Nonnull String string)
       throws ParsingException {
-
     ChainedExceptionBuilder<ParsingException> exceptions =
         new ChainedExceptionBuilder<ParsingException>();
 
     T keyElement = null;
     U valueElement = null;
+    String key = null;
+    String valueString = null;
     int endKey = string.indexOf(separator);
     if (endKey == -1) {
       exceptions.appendException(new ParsingException("Missing '"
           + separator + "' in '" + string + "'"));
     } else {
-      String key = string.substring(0, endKey);
-      String valueString = string.substring(endKey + separator.length());
+      key = string.substring(0, endKey);
+      valueString = string.substring(endKey + separator.length());
       try {
         keyElement = keyParser.checkString(context, key);
       } catch (ParsingException e) {
@@ -103,10 +102,21 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
     }
 
     exceptions.throwIfNecessary();
-    // If one element is null, do not compute the pair
-    if (keyElement == null || valueElement == null) {
+    // If the two elements are null, do not compute the pair
+    if (keyElement == null && valueElement == null) {
       return null;
     } else {
+      // Else, complete the pair, and return it
+      if (keyElement == null) {
+        assert key != null;
+        keyElement = keyParser.parseString(context, key);
+      }
+
+      if (valueElement == null) {
+        assert valueString != null;
+        valueElement = valueParser.parseString(context, valueString);
+      }
+
       return new AbstractMap.SimpleEntry<T, U>(keyElement, valueElement);
     }
   }

@@ -33,13 +33,27 @@ public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
     this.codec = codec;
   }
 
+  @Nonnull
+  protected abstract DST convert(@Nonnull SRC src);
+
+
+  @Override
+  @Nonnull
+  public DST parseString(@Nonnull CodecContext context, @Nonnull String string) {
+    return convert(codec.parseString(context, string));
+  }
+
   @Override
   @CheckForNull
   public DST checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    codec.checkString(context, string);
+    SRC src = codec.checkString(context, string);
 
-    return null;
+    if (src == null) {
+      return null;
+    } else {
+      return convert(src);
+    }
   }
 
   @Override

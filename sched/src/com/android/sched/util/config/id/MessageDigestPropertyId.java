@@ -48,13 +48,6 @@ public class MessageDigestPropertyId extends PropertyId<MessageDigestFactory> {
         new MessageDigestCodec()) {
       @Override
       @Nonnull
-      public MessageDigestFactory parseString(@Nonnull CodecContext context,
-          @Nonnull String string) {
-        return new MessageDigestFactory(codec.parseString(context, string));
-      }
-
-      @Override
-      @Nonnull
       public String formatValue(@Nonnull MessageDigestFactory data) {
         return codec.formatValue(data.getService());
       }
@@ -63,6 +56,12 @@ public class MessageDigestPropertyId extends PropertyId<MessageDigestFactory> {
       public void checkValue(@Nonnull CodecContext context, @Nonnull MessageDigestFactory data)
           throws CheckingException {
         codec.checkValue(context, data.getService());
+      }
+
+      @Override
+      @Nonnull
+      protected MessageDigestFactory convert(@Nonnull Service service) {
+        return new MessageDigestFactory(service);
       }
     });
   }
