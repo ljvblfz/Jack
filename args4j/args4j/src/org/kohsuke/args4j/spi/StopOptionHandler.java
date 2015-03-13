@@ -5,29 +5,30 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
 
 /**
- * {@link OptionHandler} for the option terminator "--".
+ * {@link OptionHandler} for the option terminator <tt>--</tt>.
  *
  * <p>
  * This {@link OptionHandler} can be used to implement the special token
- * "--" that indicates that the rest of tokens are not options, but arguments.
+ * <tt>--</tt> that indicates that the rest of tokens are not options, but arguments.
  *
  * <p>
  * For example, if you have the following class:
  *
  * <pre>
+ * <code> 
  * class Foo {
- *   &#64;Argument
- *   &#64;Option(name="--",handler={@link StopOptionHandler}.class)
- *   List&lt;String> args;
+ *  {@literal @}Argument
+ *  {@literal @}Option(name="--",handler={@link StopOptionHandler}.class)
+ *   List&lt;String&gt; args;
  *
- *   &#64;Option(name="-n")
+ *  {@literal @}Option(name="-n")
  *   int n;
  * }
- * </pre>
+ * </code></pre>
  *
  * <p>
- * The command line {@code -n 5 abc def} would parse into n=5, args={"abc",def"},
- * but {@code -- -n 5 abc def} would parse into n=0, args={"-n","5","abc","def"}.
+ * The command line <code>-n 5 abc def</code> would parse into {@code n=5, args={"abc",def"}},
+ * but <code> -- -n 5 abc def</code> would parse into {@code n=0, args={"-n","5","abc","def"}}.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -44,6 +45,6 @@ public class StopOptionHandler extends OptionHandler<String> {
 
     @Override
     public String getDefaultMetaVariable() {
-        return "ARGUMENTS";
+        return Messages.DEFAULT_META_REST_OF_ARGUMENTS_HANDLER.format();
     }
 }

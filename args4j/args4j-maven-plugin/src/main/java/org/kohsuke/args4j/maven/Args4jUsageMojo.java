@@ -6,6 +6,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.kohsuke.args4j.apt.Main;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class Args4jUsageMojo extends AbstractMojo {
 
     /**
      * Mode. 'TXT' 'XML' or 'HTML'
-     * @parameter expression="TXT"
+     * @parameter default-value="TXT"
      * @required
      */
     private String mode;
@@ -52,7 +53,10 @@ public class Args4jUsageMojo extends AbstractMojo {
             throw new MojoExecutionException("Couldn't create the directory " + args4jBuildDir.getAbsolutePath());
         }
         try {
-            jar = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String enc = System.getProperty("file.encoding");
+            path = URLDecoder.decode(path, enc);
+            jar = new File(path);
         } catch (Exception e) {
             throw new MojoExecutionException("Couldn't find the jar of the arg4s tools");
         }

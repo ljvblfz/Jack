@@ -39,6 +39,11 @@ public @interface Argument {
     boolean required() default false;
 
     /**
+     * See {@link Option#hidden()}.
+     */
+    boolean hidden() default false;
+
+    /**
      * See {@link Option#handler()}.
      */
     Class<? extends OptionHandler> handler() default OptionHandler.class;
@@ -48,7 +53,7 @@ public @interface Argument {
      *
      * <p>
      * If you define multiple single value properties to bind to arguments,
-     * they should have index=0, index=1, index=2, ... and so on.
+     * they should have {@code index=0, index=1, index=2}, ... and so on.
      *
      * <p>
      * Multi value properties bound to arguments must be always the last entry.
@@ -56,7 +61,7 @@ public @interface Argument {
     int index() default 0;
 
     /**
-     * See {@link Option#multiValued()}.
+     *
      */
     boolean multiValued() default false;
 }

@@ -1,33 +1,33 @@
 package org.kohsuke.args4j;
 
+import org.kohsuke.args4j.spi.OptionHandler;
+
 /**
  * Used with {@link CmdLineParser#printExample(ExampleMode)}.
  *
  * @author Kohsuke Kawaguchi
+ *
+ * @deprecated use {@link OptionHandlerFilter}
  */
-public enum ExampleMode {
+public enum ExampleMode implements OptionHandlerFilter {
     /**
      * Print all defined options in the example.
      *
      * <p>
-     * This would be useful only when you have small number of options.
+     * This would only be useful with small numbers of options.
      */
     ALL() {
-    	@Override
-        /*package*/ boolean print(OptionDef o) {
+        public boolean select(OptionHandler o) {
             return true;
         }
     },
 
     /**
-     * Print all {@link Option#required() required} option.
+     * Print all {@linkplain Option#required() required} option.
      */
     REQUIRED() {
-    	@Override
-        /*package*/ boolean print(OptionDef o) {
-            return o.required();
+        public boolean select(OptionHandler o) {
+            return o.option.required();
         }
-    };
-
-    /*package*/ abstract boolean print(OptionDef o);
+    }
 }
