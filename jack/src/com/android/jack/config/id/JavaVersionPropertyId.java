@@ -82,7 +82,7 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
         new Entry<JavaVersion>("7",    JavaVersion.JAVA_7)
     };
 
-    parser = new KeyValueCodec<JavaVersion>(elements).ignoreCase();
+    parser = new KeyValueCodec<JavaVersion>("version", elements).ignoreCase();
   }
 
   @Nonnull

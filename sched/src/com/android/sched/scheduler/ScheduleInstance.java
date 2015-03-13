@@ -23,6 +23,7 @@ import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.SchedulerVisitable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.transform.TransformRequest;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -48,6 +49,7 @@ import javax.annotation.Nonnull;
  * @param <T> the root <i>data</i> type
  */
 @HasKeyId
+@VariableName("runner")
 public abstract class ScheduleInstance<T extends Component> {
   @SuppressWarnings({"rawtypes"})
   @Nonnull

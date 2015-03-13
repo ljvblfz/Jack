@@ -69,6 +69,12 @@ public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "jack";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

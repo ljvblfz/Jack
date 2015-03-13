@@ -46,6 +46,12 @@ public class DirectDirInputOutputVFSCodec extends InputOutputVFSCodec
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "dir";
+  }
+
+  @Override
+  @Nonnull
   public InputOutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
 

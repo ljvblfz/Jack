@@ -61,6 +61,12 @@ public interface Parser<T> {
   public List<ValueDescription> getValueDescriptions();
 
   /**
+   * @return a variable name suitable to represent this value.
+   */
+  @Nonnull
+  public String getVariableName();
+
+  /**
    * Description of a value.
    */
   public static class ValueDescription implements HasDescription {

@@ -73,6 +73,12 @@ public class InputVFSCodec extends FileOrDirCodec<InputVFS> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "zip-or-dir";
+  }
+
+  @Override
+  @Nonnull
   public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
     final VFS vfs;

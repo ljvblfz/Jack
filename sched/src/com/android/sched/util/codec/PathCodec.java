@@ -38,6 +38,12 @@ public class PathCodec implements StringCodec<File> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "path";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }
@@ -63,4 +69,5 @@ public class PathCodec implements StringCodec<File> {
   public String formatValue(@Nonnull File file) {
     return file.getPath();
   }
+
 }

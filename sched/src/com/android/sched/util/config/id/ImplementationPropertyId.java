@@ -34,8 +34,8 @@ import javax.annotation.Nonnull;
  */
 public class ImplementationPropertyId<T> extends PropertyId<T> {
   @Nonnull
-  public static <T> ImplementationPropertyId<T> create(
-      @Nonnull String name, @Nonnull String description, @Nonnull Class<T> type) {
+  public static <T> ImplementationPropertyId<T> create(@Nonnull String name,
+      @Nonnull String description, @Nonnull Class<T> type) {
     return new ImplementationPropertyId<T>(name, description, new ImplementationSelector<T>(type));
   }
 

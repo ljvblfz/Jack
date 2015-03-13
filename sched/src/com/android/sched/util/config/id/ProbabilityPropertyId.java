@@ -103,5 +103,11 @@ public class ProbabilityPropertyId extends DoublePropertyId {
     public String getUsage() {
       return "a probability belonging to [0 (never) .. 1 (always)]";
     }
+
+    @Override
+    @Nonnull
+    public String getVariableName() {
+      return "probability";
+    }
   }
 }

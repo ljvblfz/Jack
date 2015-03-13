@@ -17,6 +17,7 @@
 package com.android.sched.item;
 
 
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -36,6 +37,7 @@ import javax.annotation.Nonnull;
  * Provides utilities needed by an {@link ItemSet}.
  */
 @HasKeyId
+@VariableName("algo")
 public abstract class ItemManager {
   @Nonnull
   private static final ReflectFactoryPropertyId<ItemManager> ITEM_MANAGER =

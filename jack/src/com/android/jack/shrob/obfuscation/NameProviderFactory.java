@@ -51,7 +51,8 @@ public class NameProviderFactory {
   @Nonnull
   public static final PropertyId<DefaultFactory<NameProvider>> NAMEPROVIDER = PropertyId.create(
       "jack.obfuscation.nameprovider", "Define which nameprovider to use",
-      new DefaultFactorySelector<NameProvider>(NameProvider.class)).addDefaultValue("lower-case");
+      new DefaultFactorySelector<NameProvider>(NameProvider.class)).addDefaultValue(
+      "lower-case");
 
   @CheckForNull
   private final File obfuscationDictionary;

@@ -34,8 +34,8 @@ import javax.annotation.Nonnull;
  */
 public class DefaultFactoryPropertyId<T> extends PropertyId<DefaultFactory<T>> {
   @Nonnull
-  public static <T> DefaultFactoryPropertyId<T> create(
-      @Nonnull String name, @Nonnull String description, @Nonnull Class<T> type) {
+  public static <T> DefaultFactoryPropertyId<T> create(@Nonnull String name,
+      @Nonnull String description, @Nonnull Class<T> type) {
     return new DefaultFactoryPropertyId<T>(name, description, new DefaultFactorySelector<T>(type));
   }
 

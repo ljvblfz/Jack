@@ -40,7 +40,14 @@ public class ClasspathEntryCodec extends OrCodec<InputLibrary> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "jack-or-jar";
+  }
+
+  @Override
+  @Nonnull
   public String formatValue(@Nonnull InputLibrary data) {
     return data.getPath();
   }
+
 }

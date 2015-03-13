@@ -36,6 +36,7 @@ import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
@@ -81,6 +82,7 @@ public class JayceFileImporter {
   /**
    * How to handle file collisions.
    */
+  @VariableName("policy")
   public enum CollisionPolicy implements HasDescription {
     KEEP_FIRST("keep the first element encountered"),
     FAIL("fail when a collision occurs");
@@ -103,7 +105,7 @@ public class JayceFileImporter {
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
       "jack.import.type.policy",
       "Defines the policy to follow concerning type collision",
-      new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
+      new EnumCodec<CollisionPolicy>(CollisionPolicy.class, CollisionPolicy.values()).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL).withCategory(Brest.get());
 
   @Nonnull

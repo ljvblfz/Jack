@@ -35,8 +35,6 @@ import javax.annotation.Nonnull;
 public class ListCodec<T> implements StringCodec<List<T>> {
   @Nonnull
   private final StringCodec<T> parser;
-  @Nonnull
-  private final String var;
 
   @Nonnegative
   private int min;
@@ -47,13 +45,12 @@ public class ListCodec<T> implements StringCodec<List<T>> {
   @Nonnull
   private String separator;
 
-  public ListCodec(@Nonnull String var, @Nonnull StringCodec<T> parser) {
+  public ListCodec(@Nonnull StringCodec<T> parser) {
     this.separator = ",";
     this.regexp = Pattern.quote(separator);
     this.parser = parser;
     this.min = 1;
     this.max = Integer.MAX_VALUE;
-    this.var = var;
   }
 
   public ListCodec<T> setSeparator(@Nonnull String separator) {
@@ -188,6 +185,7 @@ public class ListCodec<T> implements StringCodec<List<T>> {
   @Nonnull
   public String getUsage() {
     StringBuilder sb = new StringBuilder();
+    String var = parser.getVariableName();
 
     if (min > 0) {
       sb.append('<').append(var).append("-1").append('>');
@@ -238,6 +236,12 @@ public class ListCodec<T> implements StringCodec<List<T>> {
     sb.append(parser.getUsage());
 
     return sb.toString();
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return "list";
   }
 
   @Override

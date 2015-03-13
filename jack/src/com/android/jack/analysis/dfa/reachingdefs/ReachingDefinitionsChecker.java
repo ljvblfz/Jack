@@ -17,12 +17,14 @@
 package com.android.jack.analysis.dfa.reachingdefs;
 
 import com.android.jack.ir.ast.JMethod;
+import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
 
 /**
  * Reaching definitions checker.
  */
+@VariableName("checker")
 public interface ReachingDefinitionsChecker {
   public void check(@Nonnull JMethod method);
 }

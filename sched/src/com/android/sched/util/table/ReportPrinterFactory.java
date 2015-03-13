@@ -31,12 +31,11 @@ import javax.annotation.Nonnull;
  * Factory class to manage {@link ReportPrinter}
  */
 @HasKeyId
-public class ReportPrinterFactory{
+public class ReportPrinterFactory {
   @Nonnull
-  private static final
-      ImplementationPropertyId<ReportPrinter> REPORT_PRINTER = ImplementationPropertyId.create(
-          "sched.report.printer", "Define which report printer to use", ReportPrinter.class)
-          .addDefaultValue("none");
+  private static final ImplementationPropertyId<ReportPrinter> REPORT_PRINTER =
+      ImplementationPropertyId.create("sched.report.printer", "Define which report printer to use",
+          ReportPrinter.class).addDefaultValue("none");
 
   @Nonnull
   public static final PropertyId<OutputStreamFile> REPORT_PRINTER_FILE = PropertyId.create(

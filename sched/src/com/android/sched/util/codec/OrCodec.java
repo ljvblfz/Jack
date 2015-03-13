@@ -83,8 +83,20 @@ public class OrCodec<T> implements StringCodec<T> {
     return Joiner.on(" or ").join(
         Collections2.transform(codecList, new Function<StringCodec<? extends T>, String>() {
           @Override
-          public String apply(StringCodec<? extends T> codec) {
+          public String apply(@Nonnull StringCodec<? extends T> codec) {
             return codec.getUsage();
+          }
+        }));
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return Joiner.on("-or-").join(
+        Collections2.transform(codecList, new Function<StringCodec<? extends T>, String>() {
+          @Override
+          public String apply(@Nonnull StringCodec<? extends T> codec) {
+            return codec.getVariableName();
           }
         }));
   }

@@ -125,13 +125,28 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
   @Nonnull
   public String getUsage() {
     StringBuilder sb = new StringBuilder();
-    sb.append("<key>" + separator + "<value>");
-    sb.append(" where <key> is ");
+    sb.append('<');
+    sb.append(keyParser.getVariableName());
+    sb.append('>');
+    sb.append(separator);
+    sb.append('<');
+    sb.append(valueParser.getVariableName());
+    sb.append("> where <");
+    sb.append(keyParser.getVariableName());
+    sb.append("> is ");
     sb.append(keyParser.getUsage());
-    sb.append(" and where <value> is ");
+    sb.append(" and where <");
+    sb.append(valueParser.getVariableName());
+    sb.append("> is ");
     sb.append(valueParser.getUsage());
 
     return sb.toString();
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return "pair";
   }
 
   @Override
@@ -173,5 +188,4 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
 
     exceptions.throwIfNecessary();
   }
-
 }

@@ -51,6 +51,12 @@ public class DoubleCodec implements StringCodec<Double> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "number";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

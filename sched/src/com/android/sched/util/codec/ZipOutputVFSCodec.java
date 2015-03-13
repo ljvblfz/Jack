@@ -50,6 +50,12 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "zip";
+  }
+
+  @Override
+  @Nonnull
   public OutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();

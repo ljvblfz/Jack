@@ -33,7 +33,7 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
   KeyValueCodec<T> parser;
 
-  public EnumCodec(@Nonnull T[] values) {
+  public EnumCodec(@Nonnull Class<T> type, @Nonnull T[] values) {
     assert values.length > 0;
 
     @SuppressWarnings("unchecked")
@@ -53,7 +53,13 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
       }
     }
 
-    parser = new KeyValueCodec<T>(entries);
+    VariableName variableName = type.getAnnotation(VariableName.class);
+    if (variableName == null || variableName.value() == null) {
+      throw new AssertionError(type.getCanonicalName() + " has no or a wrong @"
+          + VariableName.class.getSimpleName());
+    }
+
+    parser = new KeyValueCodec<T>(variableName.value(), entries);
   }
 
   @Nonnull
@@ -105,5 +111,11 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
   public String formatValue(@Nonnull T value) {
     return parser.formatValue(value);
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return parser.getVariableName();
   }
 }

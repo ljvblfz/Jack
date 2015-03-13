@@ -41,6 +41,12 @@ public class ClassNameCodec implements StringCodec<String>{
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "class";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

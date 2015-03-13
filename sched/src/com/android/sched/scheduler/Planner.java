@@ -17,6 +17,7 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.item.Component;
+import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +26,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T> the root <i>data</i> the {@code Plan} can be run on
  */
+@VariableName("planner")
 public interface Planner<T extends Component> {
   @Nonnull
   public Plan<T> buildPlan(@Nonnull Request request, @Nonnull Class<T> on)

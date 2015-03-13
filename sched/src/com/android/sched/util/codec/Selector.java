@@ -72,6 +72,17 @@ public abstract class Selector<T> {
   }
 
   @Nonnull
+  public String getVariableName() {
+    VariableName variableName = type.getAnnotation(VariableName.class);
+    if (variableName == null || variableName.value() == null) {
+      throw new AssertionError(type.getCanonicalName() + " has no or a wrong @"
+          + VariableName.class.getSimpleName());
+    }
+
+    return variableName.value();
+  }
+
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     if (descriptions == null) {
       ensureScan();

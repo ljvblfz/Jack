@@ -49,6 +49,12 @@ public class DirectoryInputVFSCodec extends InputVFSCodec
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "dir";
+  }
+
+  @Override
+  @Nonnull
   public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
     try {

@@ -33,6 +33,7 @@ import com.android.jack.load.PackageLoader;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.util.collect.UnmodifiableCollections;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
@@ -49,6 +50,7 @@ import javax.annotation.Nonnull;
 /**
  * {@link PackageLoader} for package containing classes defined in Jayce files.
  */
+@VariableName("loader")
 public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
 
   @Nonnull

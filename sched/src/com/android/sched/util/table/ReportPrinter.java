@@ -16,12 +16,15 @@
 
 package com.android.sched.util.table;
 
+import com.android.sched.util.codec.VariableName;
+
 import javax.annotation.Nonnull;
 
 
 /**
  * Interface to a {@link Report} printer
  */
+@VariableName("printer")
 public interface ReportPrinter {
   public void printReport(@Nonnull Report report);
 }

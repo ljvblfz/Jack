@@ -21,6 +21,7 @@ import com.android.sched.schedulable.AdapterSchedulable;
 import com.android.sched.schedulable.ProcessorSchedulable;
 import com.android.sched.schedulable.Schedulable;
 import com.android.sched.util.codec.ImplementationSelector;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
@@ -34,6 +35,7 @@ import javax.annotation.Nonnull;
  * Provides utility methods to access {@link Schedulable}s.
  */
 @HasKeyId
+@VariableName("algo")
 public abstract class SchedulableManager {
   @Nonnull
   private static final PropertyId<SchedulableManager> SCHEDULABLE_MANAGER = PropertyId.create(

@@ -59,9 +59,11 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   public static final PropertyId<ReachingDefinitionsChecker> REACHING_DEFS_CHECKER =
-      ImplementationPropertyId.create("jack.tests.reachingdefs.checker",
-          "Define a checker that must be called at the end of reaching definitions analysis",
-          ReachingDefinitionsChecker.class).addDefaultValue("none").withCategory(Private.get());
+      ImplementationPropertyId
+          .create("jack.tests.reachingdefs.checker",
+              "Define a checker that must be called at the end of reaching definitions analysis",
+              ReachingDefinitionsChecker.class).addDefaultValue("none")
+          .withCategory(Private.get());
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);

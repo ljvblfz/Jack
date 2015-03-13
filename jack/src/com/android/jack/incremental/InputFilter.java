@@ -18,6 +18,7 @@ package com.android.jack.incremental;
 
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.sched.util.codec.VariableName;
 
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Interface that filter some inputs of Jack.
  */
+@VariableName("filter")
 public interface InputFilter {
 
   @Nonnull

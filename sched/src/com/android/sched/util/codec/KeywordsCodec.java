@@ -30,11 +30,12 @@ public class KeywordsCodec implements StringCodec<String> {
   @Nonnull
   KeyValueCodec<String> parser;
 
-  public KeywordsCodec(@Nonnull String[] keywords) {
-    this(keywords, new String[keywords.length]);
+  public KeywordsCodec(@Nonnull String varName, @Nonnull String[] keywords) {
+    this(varName, keywords, new String[keywords.length]);
   }
 
-  public KeywordsCodec(@Nonnull String[] keywords, @Nonnull String[] descriptions) {
+  public KeywordsCodec(@Nonnull String varName, @Nonnull String[] keywords,
+      @Nonnull String[] descriptions) {
     @SuppressWarnings("unchecked")
     Entry<String>[] entries = new Entry[keywords.length];
 
@@ -44,7 +45,7 @@ public class KeywordsCodec implements StringCodec<String> {
       idx++;
     }
 
-    parser = new KeyValueCodec<String>(entries);
+    parser = new KeyValueCodec<String>(varName, entries);
   }
 
   @Nonnull
@@ -84,6 +85,12 @@ public class KeywordsCodec implements StringCodec<String> {
   @Nonnull
   public String getUsage() {
     return parser.getUsage();
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return parser.getVariableName();
   }
 
   @Override

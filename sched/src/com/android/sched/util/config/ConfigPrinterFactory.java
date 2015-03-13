@@ -30,10 +30,9 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public class ConfigPrinterFactory {
   @Nonnull
-  public static final
-      ImplementationPropertyId<ConfigPrinter> CONFIG_PRINTER = ImplementationPropertyId.create(
-          "config.printer", "Define which config printer to use", ConfigPrinter.class)
-          .addDefaultValue("none");
+  public static final ImplementationPropertyId<ConfigPrinter> CONFIG_PRINTER =
+      ImplementationPropertyId.create("config.printer", "Define which config printer to use",
+          ConfigPrinter.class).addDefaultValue("none");
 
   @Nonnull
   public static final PropertyId<OutputStreamFile> CONFIG_PRINTER_FILE = PropertyId.create(

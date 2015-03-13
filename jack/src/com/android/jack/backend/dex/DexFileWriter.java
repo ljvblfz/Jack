@@ -54,10 +54,10 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   public static final String DEX_FILENAME = DEX_PREFIX + FileType.DEX.getFileExtension();
 
   @Nonnull
-  public static final
-      ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY = ImplementationPropertyId.create(
-          "jack.dex.output.policy", "Define which policy will be used to emit dex files",
-          DexWritingTool.class).addDefaultValue("single-dex");
+  public static final ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY =
+      ImplementationPropertyId.create("jack.dex.output.policy",
+          "Define which policy will be used to emit dex files", DexWritingTool.class)
+          .addDefaultValue("single-dex");
 
   @Nonnull
   private final OutputVFS outputVDir;

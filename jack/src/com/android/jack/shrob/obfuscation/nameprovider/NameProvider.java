@@ -16,11 +16,14 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.sched.util.codec.VariableName;
+
 import javax.annotation.Nonnull;
 
 /**
  * A class that provide names
  */
+@VariableName("provider")
 public interface NameProvider {
   @Nonnull
   public String getNewName(@Nonnull String oldName);

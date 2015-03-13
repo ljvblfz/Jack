@@ -17,6 +17,7 @@
 package com.android.jack.util.filter;
 
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +26,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T> The type of object to filter.
  */
+@VariableName("filter")
 public interface Filter<T> {
 
   /**

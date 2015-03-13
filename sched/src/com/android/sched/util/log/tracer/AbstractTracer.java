@@ -60,10 +60,10 @@ import javax.annotation.Nonnull;
 public abstract class AbstractTracer implements Tracer {
   @Nonnull
   public static final PropertyId<List<WatcherInstaller>> WATCHER_INSTALL = PropertyId.create(
-      "sched.tracer.watchers", "Define which watchers use for tracing",
-      new ListCodec<WatcherInstaller>("watcher",
-          new ImplementationSelector<WatcherInstaller>(WatcherInstaller.class)).setMin(0))
-      .addDefaultValue("");
+      "sched.tracer.watchers",
+      "Define which watchers use for tracing",
+      new ListCodec<WatcherInstaller>(new ImplementationSelector<WatcherInstaller>(
+          WatcherInstaller.class)).setMin(0)).addDefaultValue("");
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();

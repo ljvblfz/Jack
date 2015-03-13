@@ -34,8 +34,8 @@ import javax.annotation.Nonnull;
  */
 public class ReflectFactoryPropertyId<T> extends PropertyId<ReflectFactory<T>> {
   @Nonnull
-  public static <T> ReflectFactoryPropertyId<T> create(
-      @Nonnull String name, @Nonnull String description, @Nonnull Class<T> type) {
+  public static <T> ReflectFactoryPropertyId<T> create(@Nonnull String name,
+      @Nonnull String description, @Nonnull Class<T> type) {
     return new ReflectFactoryPropertyId<T>(name, description, new ReflectFactorySelector<T>(type));
   }
 

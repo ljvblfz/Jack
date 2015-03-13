@@ -24,6 +24,7 @@ import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.util.codec.ImplementationFilter;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
@@ -492,6 +493,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
   //
 
   @HasKeyId
+  @VariableName("detector")
   private abstract static class Detector {
     @Nonnull
     public static final

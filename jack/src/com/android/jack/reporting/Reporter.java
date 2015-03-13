@@ -24,6 +24,7 @@ import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
@@ -41,6 +42,7 @@ import javax.annotation.Nonnull;
  * A tool that allows to report {@link Reportable} objects.
  */
 @HasKeyId
+@VariableName("reporter")
 public interface Reporter {
 
   /**
@@ -51,9 +53,9 @@ public interface Reporter {
   }
 
   @Nonnull
-  public static final ImplementationPropertyId<Reporter> REPORTER = ImplementationPropertyId.create(
-      "jack.reporter", "Define which reporter will be used", Reporter.class).addDefaultValue(
-      "default").withCategory(Arzon.get());
+  public static final ImplementationPropertyId<Reporter> REPORTER = ImplementationPropertyId
+      .create("jack.reporter", "Define which reporter will be used", Reporter.class)
+      .addDefaultValue("default").withCategory(Arzon.get());
 
   @Nonnull
   public static final PropertyId<OutputStreamFile> REPORTER_OUTPUT_STREAM = PropertyId.create(
@@ -64,24 +66,26 @@ public interface Reporter {
 
   @Nonnull
   public static final PropertyId<Map<ProblemLevel, OutputStreamFile>>
-                                                                 REPORTER_OUTPUT_STREAM_BY_LEVEL =
+                                                                  REPORTER_OUTPUT_STREAM_BY_LEVEL =
       PropertyId
           .create(
               "jack.reporter.level.file",
               "File where the reporter will write by level",
               new PairListToMapCodecConverter<ProblemLevel, OutputStreamFile>(
-                  new ListCodec<Entry<ProblemLevel, OutputStreamFile>>("pair",
+                  new ListCodec<Entry<ProblemLevel, OutputStreamFile>>(
                       new PairCodec<ProblemLevel, OutputStreamFile>(new EnumCodec<ProblemLevel>(
-                          ProblemLevel.values()).ignoreCase(), new OutputStreamCodec(
-                          Existence.MAY_EXIST).allowStandardOutputOrError()).on("="))))
+                          ProblemLevel.class, ProblemLevel.values()).ignoreCase(),
+                          new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+                          .on("=")).setMin(0)))
           .addDefaultValue(Collections.<ProblemLevel, OutputStreamFile>emptyMap())
           .setShutdownHook(new ShutdownRunnable<Map<ProblemLevel, OutputStreamFile>>() {
             @Override
             public void run(@Nonnull Map<ProblemLevel, OutputStreamFile> map) {
-               for (OutputStreamFile osf : map.values()) {
-                 osf.getPrintStream().close();
-               }
-            }});
+              for (OutputStreamFile osf : map.values()) {
+                osf.getPrintStream().close();
+              }
+            }
+          });
 
   public void report(@Nonnull Severity severity, @Nonnull Reportable reportable);
 }

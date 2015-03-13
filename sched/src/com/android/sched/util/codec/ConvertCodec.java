@@ -64,6 +64,12 @@ public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return codec.getVariableName();
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return codec.getValueDescriptions();
   }

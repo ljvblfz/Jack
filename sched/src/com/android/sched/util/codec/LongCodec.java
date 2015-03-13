@@ -55,6 +55,12 @@ public class LongCodec implements StringCodec<Long>{
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "number";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

@@ -16,12 +16,15 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.util.codec.VariableName;
+
 import javax.annotation.Nonnull;
 
 
 /**
  * Interface to a plan printer
  */
+@VariableName("printer")
 public interface PlanPrinter {
   public void printPlan(@Nonnull Plan<?> plan);
 }

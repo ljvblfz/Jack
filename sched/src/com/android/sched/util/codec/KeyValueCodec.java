@@ -39,13 +39,17 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   private Entry<T>[] entries;
   @CheckForNull
   private List<ValueDescription> descriptions;
+  @Nonnull
+  private final String varName;
 
-  public KeyValueCodec(@Nonnull Entry<T>[] entries) {
+  public KeyValueCodec(@Nonnull String varName, @Nonnull Entry<T>[] entries) {
     this.entries = Arrays.copyOf(entries, entries.length);
+    this.varName = varName;
   }
 
   protected void setElements(@Nonnull Entry<T>[] entries) {
     this.entries = Arrays.copyOf(entries, entries.length);
+
     if (ignoreCase) {
       ignoreCase();
     }
@@ -99,6 +103,12 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     sb.append(')');
 
     return sb.toString();
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return varName;
   }
 
   @Override

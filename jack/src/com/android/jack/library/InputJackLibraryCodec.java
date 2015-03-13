@@ -115,6 +115,12 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "jack";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

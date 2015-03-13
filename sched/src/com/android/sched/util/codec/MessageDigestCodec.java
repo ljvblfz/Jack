@@ -60,7 +60,7 @@ public class MessageDigestCodec extends KeyValueCodec<Service> {
   }
 
   public MessageDigestCodec () {
-    super(elementsWithoutProvider);
+    super("algo", elementsWithoutProvider);
     sorted();
   }
 

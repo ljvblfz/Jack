@@ -36,7 +36,7 @@ public class ProbeManagerCodec implements StringCodec<ProbeManager> {
   private final ListCodec<Probe> parser;
 
   public ProbeManagerCodec() {
-    parser = new ListCodec<Probe>("probe", new ImplementationSelector<Probe>(Probe.class))
+    parser = new ListCodec<Probe>(new ImplementationSelector<Probe>(Probe.class))
         .setMin(1);
   }
 
@@ -79,6 +79,12 @@ public class ProbeManagerCodec implements StringCodec<ProbeManager> {
   @Nonnull
   public String getUsage() {
     return parser.getUsage();
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return parser.getVariableName();
   }
 
   @Override

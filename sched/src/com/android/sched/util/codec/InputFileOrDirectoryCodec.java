@@ -78,6 +78,12 @@ public class InputFileOrDirectoryCodec extends FileOrDirCodec<FileOrDirectory> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "file-or-dir";
+  }
+
+  @Override
+  @Nonnull
   public String formatValue(@Nonnull FileOrDirectory data) {
     return data.getPath();
   }
@@ -85,5 +91,4 @@ public class InputFileOrDirectoryCodec extends FileOrDirCodec<FileOrDirectory> {
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull FileOrDirectory data) {
   }
-
 }

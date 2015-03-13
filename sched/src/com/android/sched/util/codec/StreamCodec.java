@@ -71,4 +71,10 @@ public abstract class StreamCodec<T> extends FileOrDirCodec<T> {
 
     return sb.toString();
   }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return "file";
+  }
 }

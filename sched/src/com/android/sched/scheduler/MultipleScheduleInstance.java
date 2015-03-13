@@ -17,6 +17,7 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.item.Component;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.EnumPropertyId;
@@ -39,16 +40,20 @@ public abstract class MultipleScheduleInstance<T extends Component> extends Sche
   /**
    * Number of threads policy
    */
+  @VariableName("policy")
   private enum NumThreadsPolicy {
     NUM_CORES,
     FIXED;
   }
 
   @Nonnull
-  private static final EnumPropertyId<NumThreadsPolicy> NUM_THREADS_POLICY = EnumPropertyId.create(
-      "sched.runner.thread.kind", "Number of threads policy used by the scheduler",
-      NumThreadsPolicy.values()).addDefaultValue("num-cores").ignoreCase().requiredIf(
-      ScheduleInstance.DEFAULT_RUNNER.getClazz().isSubClassOf(MultipleScheduleInstance.class));
+  private static final EnumPropertyId<NumThreadsPolicy> NUM_THREADS_POLICY = EnumPropertyId
+      .create("sched.runner.thread.kind", "Number of threads policy used by the scheduler",
+          NumThreadsPolicy.class, NumThreadsPolicy.values())
+      .addDefaultValue("num-cores")
+      .ignoreCase()
+      .requiredIf(
+          ScheduleInstance.DEFAULT_RUNNER.getClazz().isSubClassOf(MultipleScheduleInstance.class));
 
   @Nonnull
   private static final IntegerPropertyId NUM_FIXED_THREADS = IntegerPropertyId.create(

@@ -41,6 +41,12 @@ public class PackageCodec implements StringCodec<String>{
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "package";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }

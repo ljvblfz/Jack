@@ -87,6 +87,12 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "dir";
+  }
+
+  @Override
+  @Nonnull
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {

@@ -28,9 +28,12 @@ import javax.annotation.Nonnull;
 public class StringValueCodec implements StringCodec<String> {
   @Nonnull
   private final String usage;
+  @Nonnull
+  private final String varName;
 
-  public StringValueCodec(@Nonnull String usage) {
+  public StringValueCodec(@Nonnull String usage, @Nonnull String varName) {
     this.usage = usage;
+    this.varName = varName;
   }
 
   @Override
@@ -49,6 +52,12 @@ public class StringValueCodec implements StringCodec<String> {
   @Nonnull
   public String getUsage() {
     return usage;
+  }
+
+  @Override
+  @Nonnull
+  public String getVariableName() {
+    return varName;
   }
 
   @Override

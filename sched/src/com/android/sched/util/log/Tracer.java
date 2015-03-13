@@ -16,6 +16,7 @@
 
 package com.android.sched.util.log;
 
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.util.log.tracer.watcher.ObjectWatcher;
@@ -26,6 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Trace performance metrics for internal development purposes.
  */
+@VariableName("tracer")
 public interface Tracer {
   /**
    * Signals that a new event has started. You must end each event for each

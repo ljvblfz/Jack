@@ -82,6 +82,12 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "zip";
+  }
+
+  @Override
+  @Nonnull
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();

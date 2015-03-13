@@ -32,9 +32,9 @@ import javax.annotation.Nonnull;
  */
 public class EnumPropertyId<T extends Enum<T>> extends PropertyId<T> {
   @Nonnull
-  public static <T extends Enum<T>> EnumPropertyId<T> create(
-      @Nonnull String name, @Nonnull String description, @Nonnull T[] values) {
-    return new EnumPropertyId<T>(name, description, new EnumCodec<T>(values));
+  public static <T extends Enum<T>> EnumPropertyId<T> create(@Nonnull String name,
+      @Nonnull String description, @Nonnull Class<T> type, @Nonnull T[] values) {
+    return new EnumPropertyId<T>(name, description, new EnumCodec<T>(type, values));
   }
 
   protected EnumPropertyId(@Nonnull String name, @Nonnull String description,

@@ -99,6 +99,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     PRODUCTION("com.android.sched.item.Production"),
     TOMOC("com.android.sched.item.TagOrMarkerOrComponent"),
     SCHEDULABLE("com.android.sched.schedulable.Schedulable"),
+    VARIABLE_NAME("com.android.sched.util.codec.VariableName"),
     IMPLEMENTATION_NAME("com.android.sched.util.codec.ImplementationName");
 
     @Nonnull

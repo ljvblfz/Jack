@@ -56,6 +56,7 @@ import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.codec.StringValueCodec;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.codec.ZipOutputVFSCodec;
 import com.android.sched.util.config.Config;
@@ -161,14 +162,14 @@ public class Options {
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId.create(
-      "jack.dex.output.container", "Output container type", Container.values())
-      .ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
+  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId
+      .create("jack.dex.output.container", "Output container type", Container.class,
+          Container.values()).ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
 
   @Nonnull
   public static final EnumPropertyId<Container> LIBRARY_OUTPUT_CONTAINER_TYPE = EnumPropertyId
-      .create("jack.library.output.container", "Library output container type", Container.values())
-      .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
+      .create("jack.library.output.container", "Library output container type", Container.class,
+          Container.values()).ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
@@ -196,14 +197,17 @@ public class Options {
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
-  public static final ListPropertyId<InputJackLibrary> IMPORTED_LIBRARIES = ListPropertyId.create(
-      "jack.library.import", "Libraries to import", "jacklib", new InputJackLibraryCodec())
-      .addDefaultValue(Collections.<InputJackLibrary>emptyList());
+  public static final ListPropertyId<InputJackLibrary> IMPORTED_LIBRARIES =
+      new ListPropertyId<InputJackLibrary>("jack.library.import", "Libraries to import",
+          new InputJackLibraryCodec()).minElements(0).addDefaultValue(
+          Collections.<InputJackLibrary>emptyList());
 
   @Nonnull
-  public static final PropertyId<List<InputLibrary>> CLASSPATH = PropertyId.create("jack.classpath",
-      "Classpath", new ListCodec<InputLibrary>("file", new ClasspathEntryCodec()).setSeparator(
-          File.pathSeparator)).addDefaultValue(Collections.<InputLibrary>emptyList());
+  public static final PropertyId<List<InputLibrary>> CLASSPATH = PropertyId.create(
+      "jack.classpath",
+      "Classpath",
+      new ListCodec<InputLibrary>(new ClasspathEntryCodec()).setSeparator(File.pathSeparator)
+          .setMin(0)).addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
@@ -238,16 +242,16 @@ public class Options {
   public final Map<String, String> annotationProcessorOption = new HashMap<String, String>();
 
   @Nonnull
-  public static final PropertyId<Map<String, String>> ANNOTATION_PROCESSOR_OPTIONS =
-    PropertyId.create(
-      "jack.annotation-processor.properties", "Options for annotation processors",
-      new PairListToMapCodecConverter<String, String>(new ListCodec<Entry<String, String>>("pair",
-          new PairCodec<String, String>(
-              new StringValueCodec("annotation processor option name"),
-      new StringValueCodec("annotation processor option value")))))
-      .addDefaultValue("");
+  public static final PropertyId<Map<String, String>> ANNOTATION_PROCESSOR_OPTIONS = PropertyId
+      .create(
+          "jack.annotation-processor.options",
+          "Options for annotation processors",
+          new PairListToMapCodecConverter<String, String>(new ListCodec<Entry<String, String>>(
+              new PairCodec<String, String>(new StringValueCodec(
+                  "an annotation processor option name", "option"), new StringValueCodec(
+                  "an annotation processor option value", "value"))).setMin(0))).addDefaultValue(
+          Collections.<String, String>emptyMap());
 
-  @CheckForNull
   private final File propertiesFile = null;
 
   /**
@@ -255,6 +259,7 @@ public class Options {
    * Note: The implementation of {@link ProblemLevel} assumes that the ordinal values of
    * {@link VerbosityLevel} are ordered from the highest severity to the lowest.
    */
+  @VariableName("level")
   public enum VerbosityLevel {
     ERROR("error"), WARNING("warning"), INFO("info"), DEBUG("debug"), TRACE("trace");
 
@@ -272,8 +277,8 @@ public class Options {
 
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
-      "jack.verbose.level", "Verbosity level", VerbosityLevel.values()).addDefaultValue(
-      VerbosityLevel.WARNING);
+      "jack.verbose.level", "Verbosity level", VerbosityLevel.class, VerbosityLevel.values())
+      .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
       metaVar = "[error | warning | info | debug]")
@@ -360,12 +365,9 @@ public class Options {
 
   @Nonnull
   public static final ListPropertyId<String> ANNOTATION_PROCESSOR_MANUAL_LIST =
-    ListPropertyId.create(
-      "jack.annotation-processor.manual.list",
-      "Annotation processor class names",
-      "class",
-      new ClassNameCodec()).requiredIf(ANNOTATION_PROCESSOR_MANUAL
-      .getValue().isTrue());
+      new ListPropertyId<String>("jack.annotation-processor.manual.list",
+          "Annotation processor class names", new ClassNameCodec())
+          .requiredIf(ANNOTATION_PROCESSOR_MANUAL.getValue().isTrue());
 
   @Nonnull
   public static final PropertyId<Directory> ANNOTATION_PROCESSOR_SOURCE_OUTPUT_DIR =
@@ -394,13 +396,9 @@ public class Options {
 
   @Nonnull
   public static final ListPropertyId<FileOrDirectory> ANNOTATION_PROCESSOR_PATH_LIST =
-    ListPropertyId.create(
-      "jack.annotation-processor.path.list",
-      "Annotation processor classpath",
-      "entry",
-      new InputFileOrDirectoryCodec())
-      .on(File.pathSeparator)
-      .requiredIf(ANNOTATION_PROCESSOR_PATH.getValue().isTrue());
+      new ListPropertyId<FileOrDirectory>("jack.annotation-processor.path.list",
+          "Annotation processor classpath", new InputFileOrDirectoryCodec()).on(File.pathSeparator)
+          .requiredIf(ANNOTATION_PROCESSOR_PATH.getValue().isTrue());
 
   @Nonnull
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
@@ -412,9 +410,9 @@ public class Options {
   protected List<File> inputSources;
 
   @Nonnull
-  public static final ListPropertyId<FileOrDirectory> SOURCES = ListPropertyId.create(
-      "jack.source", "Sources to compile", "file-or-dir", new InputStreamOrDirectoryCodec())
-          .on(File.pathSeparator)
+  public static final ListPropertyId<FileOrDirectory> SOURCES =
+      new ListPropertyId<FileOrDirectory>("jack.source", "Sources to compile",
+          new InputStreamOrDirectoryCodec()).on(File.pathSeparator).minElements(0)
           .addDefaultValue(Collections.<FileOrDirectory>emptyList());
 
   @Nonnull

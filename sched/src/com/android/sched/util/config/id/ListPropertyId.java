@@ -36,15 +36,9 @@ import javax.annotation.Nonnull;
  * @param <T> the type of elements in this list
  */
 public class ListPropertyId<T> extends PropertyId<List<T>> {
-  @Nonnull
-  public static <T> ListPropertyId<T> create(@Nonnull String name, @Nonnull String description,
-      @Nonnull String var, @Nonnull StringCodec<T> parser) {
-    return new ListPropertyId<T>(name, description, new ListCodec<T>(var, parser));
-  }
-
-  protected ListPropertyId(
-      @Nonnull String name, @Nonnull String description, @Nonnull ListCodec<T> parser) {
-    super(name, description, parser);
+  public ListPropertyId(
+      @Nonnull String name, @Nonnull String description, @Nonnull StringCodec<T> parser) {
+    super(name, description, new ListCodec<T>(parser));
   }
 
   @Override

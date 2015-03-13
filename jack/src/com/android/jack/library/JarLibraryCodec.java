@@ -93,6 +93,12 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "jar";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }
@@ -106,5 +112,4 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull JarLibrary data) {
   }
-
 }

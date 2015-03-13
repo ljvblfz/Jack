@@ -122,6 +122,6 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
         new Entry<Boolean>("0",     Boolean.FALSE)
     };
 
-    parser = new KeyValueCodec<Boolean>(elements).ignoreCase();
+    parser = new KeyValueCodec<Boolean>("bool", elements).ignoreCase();
   }
 }

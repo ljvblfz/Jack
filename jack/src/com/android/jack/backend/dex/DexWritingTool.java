@@ -31,6 +31,7 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
@@ -52,6 +53,7 @@ import javax.annotation.Nonnull;
 /**
  * A helper to write dex files.
  */
+@VariableName("writer")
 public abstract class DexWritingTool {
 
   @Nonnull

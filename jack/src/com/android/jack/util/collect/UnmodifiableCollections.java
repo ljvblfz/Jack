@@ -18,6 +18,7 @@ package com.android.jack.util.collect;
 
 import com.android.sched.util.codec.DefaultFactorySelector;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.PropertyId;
@@ -38,6 +39,7 @@ import javax.annotation.Nonnull;
  * A wrapper around java.utils.Collections with a behavior controlled by the configuration.
  */
 @HasKeyId
+@VariableName("policy")
 public interface UnmodifiableCollections {
 
   /**
@@ -112,12 +114,11 @@ public interface UnmodifiableCollections {
   }
 
   @Nonnull
-  public static final
-      PropertyId<DefaultFactory<UnmodifiableCollections>> UNMODIFIABLE_COLLECTION =
-          PropertyId.create("jack.collections.unmodifiable",
-              "Define which checks are activated when using an unmodifiable collection",
-              new DefaultFactorySelector<UnmodifiableCollections>(UnmodifiableCollections.class))
-              .addDefaultValue("checks-enabled");
+  public static final PropertyId<DefaultFactory<UnmodifiableCollections>> UNMODIFIABLE_COLLECTION =
+      PropertyId.create("jack.collections.unmodifiable",
+          "Define which checks are activated when using an unmodifiable collection",
+          new DefaultFactorySelector<UnmodifiableCollections>(UnmodifiableCollections.class))
+          .addDefaultValue("checks-enabled");
 
   @Nonnull
   static final StatisticId<Counter> COUNT = new StatisticId<Counter>(

@@ -44,18 +44,17 @@ import javax.annotation.Nonnull;
 public class ResourceImporter extends ResourceOrMetaImporter {
 
   @Nonnull
-  public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId.create(
-      "jack.import.resource.policy",
-      "Defines the policy to follow concerning resource collision",
-      new EnumCodec<CollisionPolicy>(CollisionPolicy.values()).ignoreCase())
-      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
+  public static final PropertyId<CollisionPolicy> RESOURCE_COLLISION_POLICY = PropertyId
+      .create(
+          "jack.import.resource.policy",
+          "Defines the policy to follow concerning resource collision",
+          new EnumCodec<CollisionPolicy>(CollisionPolicy.class, CollisionPolicy.values())
+              .ignoreCase()).addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
 
   @Nonnull
-  public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = ListPropertyId.create(
-      "jack.import.resource", "Resources to import", "dir",
-      new DirectoryInputVFSCodec())
-      .on(File.pathSeparator)
-      .addDefaultValue(Collections.<InputVFS>emptyList());
+  public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = new ListPropertyId<InputVFS>(
+      "jack.import.resource", "Resources to import", new DirectoryInputVFSCodec())
+      .on(File.pathSeparator).minElements(0).addDefaultValue(Collections.<InputVFS>emptyList());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =

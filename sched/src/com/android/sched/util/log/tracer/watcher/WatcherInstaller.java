@@ -16,6 +16,7 @@
 
 package com.android.sched.util.log.tracer.watcher;
 
+import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.log.Tracer;
 
 import javax.annotation.Nonnull;
@@ -23,6 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * A watcher installer interface.
  */
+@VariableName("watcher")
 public interface WatcherInstaller {
   public void install(@Nonnull Tracer tracer);
 }

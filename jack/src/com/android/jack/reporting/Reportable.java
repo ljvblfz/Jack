@@ -17,6 +17,7 @@
 package com.android.jack.reporting;
 
 import com.android.jack.Options.VerbosityLevel;
+import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
 
@@ -30,6 +31,7 @@ public interface Reportable {
    * The implementation assumes that the ordinal values of {@link VerbosityLevel} are ordered from
    * the highest severity to the lowest.
    */
+  @VariableName("level")
   public static enum ProblemLevel {
     ERROR(VerbosityLevel.ERROR), WARNING(VerbosityLevel.WARNING), INFO(VerbosityLevel.INFO);
 

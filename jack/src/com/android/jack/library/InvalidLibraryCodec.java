@@ -51,6 +51,12 @@ public class InvalidLibraryCodec implements StringCodec<InvalidLibrary> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "lib";
+  }
+
+  @Override
+  @Nonnull
   public List<ValueDescription> getValueDescriptions() {
     return Collections.<ValueDescription> emptyList();
   }
@@ -64,5 +70,4 @@ public class InvalidLibraryCodec implements StringCodec<InvalidLibrary> {
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull InvalidLibrary data) {
   }
-
 }

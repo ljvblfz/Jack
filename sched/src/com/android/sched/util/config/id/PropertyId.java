@@ -18,6 +18,7 @@ package com.android.sched.util.config.id;
 
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.CheckingException;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
@@ -113,7 +114,7 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
       }
 
       if (defaultValue == null && lastException != null) {
-        throw new ConfigurationError(lastException);
+        throw new ConfigurationError("Property '" + getName() + "': " + lastException.getMessage());
       }
 
       defaultValueAvailable = true;
@@ -339,9 +340,16 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
       return ((PropertyId<T>) (PropertyId.this)).codec.formatValue(value);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @Nonnull
-    public IValue<T> check(@Nonnull CodecContext context) {
+    public IValue<T> check(@Nonnull CodecContext context) throws ParsingException {
+      try {
+        ((PropertyId<T>) (PropertyId.this)).codec.checkValue(context, value);
+      } catch (CheckingException e) {
+        throw new ParsingException(e.getMessage());
+      }
+
       return this;
     }
 

@@ -60,6 +60,12 @@ public class DirectoryCodec extends FileOrDirCodec<Directory> {
 
   @Override
   @Nonnull
+  public String getVariableName() {
+    return "dir";
+  }
+
+  @Override
+  @Nonnull
   public Directory checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     try {

@@ -16,11 +16,14 @@
 
 package com.android.sched.util.config;
 
+import com.android.sched.util.codec.VariableName;
+
 import javax.annotation.Nonnull;
 
 /**
  * Interface to a config printer
  */
+@VariableName("printer")
 public interface ConfigPrinter {
   public void printConfig(@Nonnull Config config);
 }
