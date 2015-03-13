@@ -180,7 +180,8 @@ public class Server {
   }
 
   /**
-   * STOPSHIP
+   * {@link Runnable} task launched by the server that will be in charge to call {@link ServerTask}
+   * implementation that will launch a Jack compilation either in the same VM, either in a spawn VM.
    */
   public static class Task implements Runnable {
     @Override
