@@ -34,7 +34,6 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -52,8 +51,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -63,15 +60,10 @@ import javax.annotation.Nonnull;
  * Jack library used as input.
  */
 public class InputJackLibraryImpl extends InputJackLibrary {
-  @Nonnull
-  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Map<FileType, InputVFS> sectionVFS =
       new EnumMap<FileType, InputVFS>(FileType.class);
-
-  @Nonnegative
-  private final int minorVersion;
 
   @Nonnull
   private final VFS vfs;
@@ -101,14 +93,6 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       LibraryFormatException {
     super(libraryProperties);
     this.vfs = vfs;
-
-    try {
-      minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
-    } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Fails to parse the property " + KEY_LIB_MINOR_VERSION
-          + " from " + getLocation().getDescription(), e);
-      throw new LibraryFormatException(getLocation());
-    }
 
     check();
     fillFileTypes();
@@ -204,12 +188,6 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     } catch (IOException e) {
       throw new LibraryIOException(getLocation(), e);
     }
-  }
-
-  @Override
-  @Nonnegative
-  public int getMinorVersion() {
-    return minorVersion;
   }
 
   @Override

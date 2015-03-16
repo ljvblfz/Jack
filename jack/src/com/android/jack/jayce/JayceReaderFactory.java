@@ -19,7 +19,6 @@ package com.android.jack.jayce;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.reporting.ReportableException;
@@ -47,35 +46,12 @@ public abstract class JayceReaderFactory {
   public static JayceInternalReader get(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull InputStream in) throws LibraryFormatException {
     String majorVersionStr = inputJackLibrary.getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
-    String minorVersionStr = inputJackLibrary.getProperty(JayceProperties.KEY_JAYCE_MINOR_VERSION);
 
-    int majorVersion;
-    int minorVersion;
-
-    try {
-      majorVersion = Integer.parseInt(majorVersionStr);
-    } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Failed to parse the property "
-          + JayceProperties.KEY_JAYCE_MAJOR_VERSION + " from "
-          + inputJackLibrary.getLocation().getDescription(), e);
-      throw new LibraryFormatException(inputJackLibrary.getLocation());
-    }
-
-    try {
-      minorVersion = Integer.parseInt(minorVersionStr);
-    } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Failed to parse the property "
-          + JayceProperties.KEY_JAYCE_MINOR_VERSION + " from "
-          + inputJackLibrary.getLocation().getDescription(), e);
-      throw new LibraryFormatException(inputJackLibrary.getLocation());
-    }
-
-    String className = "com.android.jack.jayce.v"
-        + JackLibraryFactory.getVersionString(majorVersion) + ".io.JayceInternalReaderImpl";
+    int majorVersion = inputJackLibrary.getJayceMajorVersion();
+    int minorVersion = inputJackLibrary.getJayceMinorVersion();
 
     JayceInternalReader jayceReader = (JayceInternalReader) instantiateConstructorWithParameters(
-        inputJackLibrary, className, new Class[] {InputStream.class}, new Object[] {in},
-        majorVersionStr);
+        inputJackLibrary.getJayceReaderConstructor(), new Object[] {in}, majorVersionStr);
 
 
     int minorMin = jayceReader.getMinorMin();
@@ -101,7 +77,7 @@ public abstract class JayceReaderFactory {
           Integer.valueOf(majorVersionStr), Integer.valueOf(currentMinor)});
     }
 
-    if (Integer.parseInt(majorVersionStr) == 2 && minorVersion == 14) {
+    if (majorVersion == 2 && minorVersion == 14) {
       // Read jayce file header, after jayce version 2.14, header does no longer exists it was moved
       // to jack library properties
       try {
@@ -120,26 +96,15 @@ public abstract class JayceReaderFactory {
   }
 
   @Nonnull
-  private static Object instantiateConstructorWithParameters(
-      @Nonnull InputJackLibrary inputJackLibrary, @Nonnull String className,
-      @Nonnull Class<?>[] parameterTypes, @Nonnull Object[] parameterInstances,
-      @Nonnull String version)
-      throws LibraryFormatException {
+  private static Object instantiateConstructorWithParameters(@Nonnull Constructor<?> constructor,
+      @Nonnull Object[] parameterInstances, @Nonnull String version) {
     Object constructorInstance = null;
     try {
-      Class<?> jayceReaderClass = Class.forName(className);
-      Constructor<?> constructor = jayceReaderClass.getConstructor(parameterTypes);
       constructorInstance = constructor.newInstance(parameterInstances);
     } catch (SecurityException e) {
       throw new AssertionError("Security issue with Jayce stream");
     } catch (IllegalArgumentException e) {
       throw new AssertionError("Illegal argument for Jayce processor for version " + version);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
-          + " is invalid: Jayce version " + version + " not supported", e);
-      throw new LibraryFormatException(inputJackLibrary.getLocation());
-    } catch (NoSuchMethodException e) {
-      throw new AssertionError("Jayce processing method not found for version " + version);
     } catch (InstantiationException e) {
       throw new AssertionError("Problem instantiating Jayce processor for version " + version);
     } catch (IllegalAccessException e) {
