@@ -50,7 +50,7 @@ public abstract class BasicBlock extends GraphNode<BasicBlock> {
       @Nonnegative int id, @Nonnegative int fixedSuccessorCount) {
     super(fixedSuccessorCount);
     this.cfg = cfg;
-    this.statements = statements;
+    this.statements = Jack.getUnmodifiableCollections().getUnmodifiableList(statements);
     this.id = id;
   }
 
@@ -59,7 +59,7 @@ public abstract class BasicBlock extends GraphNode<BasicBlock> {
    */
   @Nonnull
   public List<JStatement> getStatements() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(statements);
+    return statements;
   }
 
   /**
