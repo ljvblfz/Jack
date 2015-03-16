@@ -68,10 +68,10 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private JPackage enclosingPackage;
 
   @Nonnull
-  private final List<JPackage> subPackages = new ArrayList<JPackage>();
+  private final ArrayList<JPackage> subPackages = new ArrayList<JPackage>();
 
   @Nonnull
-  private final List<JDefinedClassOrInterface> declaredTypes =
+  private final ArrayList<JDefinedClassOrInterface> declaredTypes =
     new ArrayList<JDefinedClassOrInterface>();
 
   @Nonnull

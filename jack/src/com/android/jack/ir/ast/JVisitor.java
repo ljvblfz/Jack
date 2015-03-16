@@ -20,6 +20,7 @@ import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -50,6 +51,18 @@ public class JVisitor {
       throw wrapException(node, e);
     } catch (Error e) {
       throw wrapException(node, e);
+    }
+  }
+
+  public <T extends JNode> void accept(@Nonnull ArrayList<T> array) {
+    for (int i = 0, len = array.size(); i < len; ++i) {
+      try {
+        array.get(i).traverse(this);
+      } catch (RuntimeException e) {
+        throw wrapException(array.get(i), e);
+      } catch (Error e) {
+        throw wrapException(array.get(i), e);
+      }
     }
   }
 

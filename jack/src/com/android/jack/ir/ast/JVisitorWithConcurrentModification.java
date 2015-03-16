@@ -27,12 +27,17 @@ import javax.annotation.Nonnull;
 public class JVisitorWithConcurrentModification extends JVisitor {
 
   @Override
+  public <T extends JNode> void accept(@Nonnull ArrayList<T> array) {
+    accept((Collection<T>)array);
+  }
+
+  @Override
   public <T extends JNode> void accept(@Nonnull Collection<T> collection) {
     // Duplicate the visited collection since commit of transformation request can add items into
     // the input collection.
-    Collection<T> copiedCollection = new ArrayList<T>(collection);
-    for (T element : copiedCollection) {
-      element.traverse(this);
+    ArrayList<T> copiedCollection = new ArrayList<T>(collection);
+    for (int i = 0, len = copiedCollection.size(); i < len; ++i) {
+      copiedCollection.get(i).traverse(this);
     }
   }
 

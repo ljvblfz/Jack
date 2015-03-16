@@ -34,15 +34,15 @@ import javax.annotation.Nonnull;
 class AnnotationSet {
 
   @Nonnull
-  private final Map<JAnnotation, List<JAnnotationLiteral>> annotations =
-    new HashMap<JAnnotation, List<JAnnotationLiteral>>();
+  private final Map<JAnnotation, ArrayList<JAnnotationLiteral>> annotations =
+    new HashMap<JAnnotation, ArrayList<JAnnotationLiteral>>();
 
   AnnotationSet() {
   }
 
   void addAnnotation(@Nonnull JAnnotationLiteral annotation) throws UnsupportedOperationException {
     JAnnotation type = annotation.getType();
-    List<JAnnotationLiteral> annotationLiterals = annotations.get(type);
+    ArrayList<JAnnotationLiteral> annotationLiterals = annotations.get(type);
     if (annotationLiterals == null) {
       annotationLiterals = new ArrayList<JAnnotationLiteral>(1);
       annotations.put(type, annotationLiterals);
@@ -116,7 +116,7 @@ class AnnotationSet {
   }
 
   void traverse(@Nonnull JVisitor visitor) {
-    for (List<JAnnotationLiteral> annotation : annotations.values()) {
+    for (ArrayList<JAnnotationLiteral> annotation : annotations.values()) {
       visitor.accept(annotation);
     }
   }
