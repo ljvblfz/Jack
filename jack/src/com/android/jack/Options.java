@@ -367,7 +367,7 @@ public class Options {
   public static final ListPropertyId<String> ANNOTATION_PROCESSOR_MANUAL_LIST =
       new ListPropertyId<String>("jack.annotation-processor.manual.list",
           "Annotation processor class names", new ClassNameCodec())
-          .requiredIf(ANNOTATION_PROCESSOR_MANUAL.getValue().isTrue());
+          .minElements(0).requiredIf(ANNOTATION_PROCESSOR_MANUAL.getValue().isTrue());
 
   @Nonnull
   public static final PropertyId<Directory> ANNOTATION_PROCESSOR_SOURCE_OUTPUT_DIR =
@@ -398,7 +398,7 @@ public class Options {
   public static final ListPropertyId<FileOrDirectory> ANNOTATION_PROCESSOR_PATH_LIST =
       new ListPropertyId<FileOrDirectory>("jack.annotation-processor.path.list",
           "Annotation processor classpath", new InputFileOrDirectoryCodec()).on(File.pathSeparator)
-          .requiredIf(ANNOTATION_PROCESSOR_PATH.getValue().isTrue());
+          .minElements(0).requiredIf(ANNOTATION_PROCESSOR_PATH.getValue().isTrue());
 
   @Nonnull
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
