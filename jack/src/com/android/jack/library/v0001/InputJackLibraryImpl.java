@@ -21,8 +21,6 @@ import com.google.common.collect.Iterators;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.InputLibrary;
-import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
@@ -33,7 +31,6 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.location.Location;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -68,40 +65,14 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   private final VFS vfs;
 
-  @Nonnull
-  private final InputLibraryLocation location = new InputLibraryLocation() {
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return getVFSLocation().getDescription();
-    }
-
-    @Override
-    @Nonnull
-    public InputLibrary getInputLibrary() {
-      return InputJackLibraryImpl.this;
-    }
-
-    @Override
-    protected Location getVFSLocation() {
-      return vfs.getLocation();
-    }
-  };
-
   public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
-    super(libraryProperties);
+    super(libraryProperties, vfs.getLocation());
     this.vfs = vfs;
 
     check();
     fillFileTypes();
-  }
-
-  @Override
-  @Nonnull
-  public InputLibraryLocation getLocation() {
-    return location;
   }
 
   @Override
