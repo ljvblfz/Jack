@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.config.id.EnumPropertyId;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * XXX
+ * Specify variable name on {@code enum} for {@link EnumCodec} or {@link EnumPropertyId} and on
+ * {@code interface} implemented by {@link ImplementationName}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
