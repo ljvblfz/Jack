@@ -329,11 +329,3 @@ JAVA_COMPILER := $(COMMON_JAVAC)
 include $(JACK_RUN_TEST)
 test-jack: test-jack-$(JACKTEST_MODULE)
 	$(hide) echo test-jack: PASSED
-
-include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(call all-java-files-under, tests/com/android/jack/annotations)
-
-LOCAL_MODULE := jack.annotations
-
-include $(BUILD_HOST_DALVIK_STATIC_JAVA_LIBRARY)
