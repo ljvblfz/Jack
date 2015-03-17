@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -42,13 +43,13 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
   @Nonnegative
   private final int minorVersion;
 
-  @Nonnull
-  private final Constructor<?> jayceReaderConstructor;
+  @CheckForNull
+  private Constructor<?> jayceReaderConstructor;
 
   @Nonnegative
-  private final int jayceMajorVersion;
+  private int jayceMajorVersion;
   @Nonnegative
-  private final int jayceMinorVersion;
+  private int jayceMinorVersion;
 
   @Nonnull
   private final InputLibraryLocation location;
@@ -81,14 +82,34 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
           + " from " + location.getDescription(), e);
       throw new LibraryFormatException(location);
     }
+  }
 
-    String jaycePropertyName = FileType.JAYCE.buildPropertyName(null /*suffix*/);
-    if (!containsProperty(jaycePropertyName) ||
-        !Boolean.parseBoolean(getProperty(jaycePropertyName))) {
-      jayceMajorVersion = -1;
-      jayceMinorVersion = -1;
-      jayceReaderConstructor = null;
-    } else {
+  @Override
+  @Nonnull
+  public final InputLibraryLocation getLocation() {
+    return location;
+  }
+
+  @Nonnull
+  public final Constructor<?> getJayceReaderConstructor() throws LibraryFormatException {
+    ensureJayceLoaded();
+    return jayceReaderConstructor;
+  }
+
+  @Nonnegative
+  public final int getJayceMajorVersion() throws LibraryFormatException {
+    ensureJayceLoaded();
+    return jayceMajorVersion;
+  }
+
+  @Nonnegative
+  public final int getJayceMinorVersion() throws LibraryFormatException {
+    ensureJayceLoaded();
+    return jayceMinorVersion;
+  }
+
+  private synchronized final void ensureJayceLoaded() throws LibraryFormatException {
+    if (jayceReaderConstructor == null) {
       String jayceMajorVersionStr = getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
       try {
         jayceMajorVersion = Integer.parseInt(jayceMajorVersionStr);
@@ -128,27 +149,6 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
             jayceMajorVersionStr);
       }
     }
-  }
-
-  @Override
-  @Nonnull
-  public final InputLibraryLocation getLocation() {
-    return location;
-  }
-
-  @Nonnull
-  public final Constructor<?> getJayceReaderConstructor() {
-    return jayceReaderConstructor;
-  }
-
-  @Nonnegative
-  public final int getJayceMajorVersion() {
-    return jayceMajorVersion;
-  }
-
-  @Nonnegative
-  public final int getJayceMinorVersion() {
-    return jayceMinorVersion;
   }
 
   @Override
