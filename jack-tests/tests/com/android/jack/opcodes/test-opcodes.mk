@@ -469,7 +469,7 @@ include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := opcode-sget
 JACKTEST_WITHDX_SRC := tests/com/android/jack/opcodes/sget/TestStubs.java tests/com/android/jack/opcodes/sget/Test_sget.java src/com/android/jack/DxTestCase.java
-JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/sget/jm/TestStubs.java tests/com/android/jack/opcodes/sget/jm/T_sget_11.java tests/com/android/jack/opcodes/sget/jm/T_sget_1.java tests/com/android/jack/opcodes/sget/jm/T_sget_2.java tests/com/android/jack/opcodes/sget/jm/T_sget_4.java tests/com/android/jack/opcodes/sget/jm/T_sget_5.java tests/com/android/jack/opcodes/sget/jm/T_sget_9.java
+JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/sget/jm/StubInitError.java tests/com/android/jack/opcodes/sget/jm/T_sget_11.java tests/com/android/jack/opcodes/sget/jm/T_sget_1.java tests/com/android/jack/opcodes/sget/jm/T_sget_2.java tests/com/android/jack/opcodes/sget/jm/T_sget_4.java tests/com/android/jack/opcodes/sget/jm/T_sget_5.java tests/com/android/jack/opcodes/sget/jm/T_sget_9.java
 JACKTEST_JUNIT := com.android.jack.opcodes.sget.Test_sget
 
 include $(JACK_RUN_TEST)
@@ -513,7 +513,7 @@ include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := opcode-iput
 JACKTEST_WITHDX_SRC := tests/com/android/jack/opcodes/iput/Test_iput.java tests/com/android/jack/opcodes/iput/TIput.java src/com/android/jack/DxTestCase.java
-JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/iput/jm/TestStubs.java tests/com/android/jack/opcodes/iput/jm/T_iput_12.java tests/com/android/jack/opcodes/iput/jm/T_iput_14.java tests/com/android/jack/opcodes/iput/jm/T_iput_16.java tests/com/android/jack/opcodes/iput/jm/T_iput_18.java tests/com/android/jack/opcodes/iput/jm/T_iput_1.java tests/com/android/jack/opcodes/iput/jm/T_iput_2.java
+JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/iput/jm/TSuper.java tests/com/android/jack/opcodes/iput/jm/T_iput_12.java tests/com/android/jack/opcodes/iput/jm/T_iput_14.java tests/com/android/jack/opcodes/iput/jm/T_iput_16.java tests/com/android/jack/opcodes/iput/jm/T_iput_18.java tests/com/android/jack/opcodes/iput/jm/T_iput_1.java tests/com/android/jack/opcodes/iput/jm/T_iput_2.java
 JACKTEST_JUNIT := com.android.jack.opcodes.iput.Test_iput
 
 include $(JACK_RUN_TEST)
@@ -524,7 +524,7 @@ include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := opcode-sput
 JACKTEST_WITHDX_SRC := tests/com/android/jack/opcodes/sput/TestStubs.java tests/com/android/jack/opcodes/sput/Test_sput.java src/com/android/jack/DxTestCase.java
-JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/sput/jm/TestStubs.java tests/com/android/jack/opcodes/sput/jm/T_sput_13.java tests/com/android/jack/opcodes/sput/jm/T_sput_14.java tests/com/android/jack/opcodes/sput/jm/T_sput_16.java tests/com/android/jack/opcodes/sput/jm/T_sput_18.java tests/com/android/jack/opcodes/sput/jm/T_sput_1.java tests/com/android/jack/opcodes/sput/jm/T_sput_2.java tests/com/android/jack/opcodes/sput/jm/T_sput_6.java
+JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/sput/jm/StubInitError.java tests/com/android/jack/opcodes/sput/jm/T_sput_13.java tests/com/android/jack/opcodes/sput/jm/T_sput_14.java tests/com/android/jack/opcodes/sput/jm/T_sput_16.java tests/com/android/jack/opcodes/sput/jm/T_sput_18.java tests/com/android/jack/opcodes/sput/jm/T_sput_1.java tests/com/android/jack/opcodes/sput/jm/T_sput_2.java tests/com/android/jack/opcodes/sput/jm/T_sput_6.java
 JACKTEST_JUNIT := com.android.jack.opcodes.sput.Test_sput
 
 include $(JACK_RUN_TEST)
@@ -535,7 +535,7 @@ include $(JACK_CLEAR_VARS)
 
 JACKTEST_MODULE := opcode-return_object
 JACKTEST_WITHDX_SRC := tests/com/android/jack/opcodes/return_object/Test_return_object.java tests/com/android/jack/opcodes/return_object/Runner.java tests/com/android/jack/opcodes/return_object/RunnerGenerator.java src/com/android/jack/DxTestCase.java
-JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/return_object/jm/T_return_object_12.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_13.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_15.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_1.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_2.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_3.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_6.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_7.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_9.java tests/com/android/jack/opcodes/return_object/jm/TetsStubs.java
+JACKTEST_WITHJACK_SRC := tests/com/android/jack/opcodes/return_object/jm/T_return_object_12.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_13.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_15.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_1.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_2.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_3.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_6.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_7.java tests/com/android/jack/opcodes/return_object/jm/T_return_object_9.java tests/com/android/jack/opcodes/return_object/jm/TInterface.java
 JACKTEST_JUNIT := com.android.jack.opcodes.return_object.Test_return_object
 
 include $(JACK_RUN_TEST)
