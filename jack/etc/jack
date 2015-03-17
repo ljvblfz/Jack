@@ -16,7 +16,7 @@
 #
 set -o nounset
 
-JACK_NB_COMPILE=10
+JACK_NB_COMPILE=6
 JACK_TIMEOUT=15
 
 if [ -z $TMPDIR ]; then
