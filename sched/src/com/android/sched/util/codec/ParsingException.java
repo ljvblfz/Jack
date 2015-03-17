@@ -18,6 +18,8 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.config.ChainedException;
 
+import java.util.Iterator;
+
 import javax.annotation.Nonnull;
 
 
@@ -39,4 +41,15 @@ public class ParsingException extends ChainedException {
   public ParsingException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
   }
+
+  public ParsingException(@Nonnull ChainedException causes) {
+    this((Throwable) causes);
+
+    Iterator<ChainedException> iter = causes.iterator();
+    iter.next();
+    while (iter.hasNext()) {
+      new ParsingException(iter.next()).putAsLastExceptionOf(this);
+    }
+  }
+
 }

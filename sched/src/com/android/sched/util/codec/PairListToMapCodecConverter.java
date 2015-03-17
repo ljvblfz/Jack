@@ -16,6 +16,8 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,12 +49,22 @@ public class PairListToMapCodecConverter<T, U> extends
 
   @Override
   @Nonnull
-  protected Map<T, U> convert(@Nonnull List<Entry<T, U>> list) {
+  protected Map<T, U> convert(@Nonnull List<Entry<T, U>> list) throws ParsingException {
+    ChainedExceptionBuilder<ParsingException> exceptions =
+        new ChainedExceptionBuilder<ParsingException>();
     Map<T, U> map = new HashMap<T, U>(Math.round(list.size() / 0.75f), 0.75f);
 
+    int index = 1;
     for (Entry<T, U> entry : list) {
-      map.put(entry.getKey(), entry.getValue());
+      if (!map.containsKey(entry.getKey())) {
+        map.put(entry.getKey(), entry.getValue());
+      } else {
+        exceptions.appendException(new ListParsingException(index, "Value for '"
+            + entry.getKey() + "' is already defined"));
+      }
+      index++;
     }
+    exceptions.throwIfNecessary();
 
     return map;
   }

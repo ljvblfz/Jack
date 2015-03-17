@@ -16,14 +16,16 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.config.ConfigurationError;
+
 import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to convert a {@link StringCodec<SRC>} to a {@link StringCodec
- * <DST>}.
+ * This {@link StringCodec} is used to convert a {@code StringCodec<SRC>} to a
+ * {@code StringCodec<DST>}.
  */
 public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
   @Nonnull
@@ -34,13 +36,17 @@ public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
   }
 
   @Nonnull
-  protected abstract DST convert(@Nonnull SRC src);
+  protected abstract DST convert(@Nonnull SRC src) throws ParsingException;
 
 
   @Override
   @Nonnull
   public DST parseString(@Nonnull CodecContext context, @Nonnull String string) {
-    return convert(codec.parseString(context, string));
+    try {
+      return convert(codec.parseString(context, string));
+    } catch (ParsingException e) {
+      throw new ConfigurationError(e);
+    }
   }
 
   @Override
