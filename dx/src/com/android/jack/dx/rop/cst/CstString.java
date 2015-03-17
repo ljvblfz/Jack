@@ -33,8 +33,11 @@ public final class CstString extends TypedConstant {
   /** {@code non-null;} the UTF-8 value as a string */
   private final String string;
 
-  /** {@code non-null;} the UTF-8 value as bytes */
-  private final ByteArray bytes;
+  /** {@code null-ok;} the UTF-8 value as bytes */
+  private ByteArray bytes;
+
+  /** the number of bytes in UTF-8 value */
+  private int bytesCount = -1;
 
   /**
    * Converts a string into its MUTF-8 form. MUTF-8 differs from normal UTF-8
@@ -43,30 +46,40 @@ public final class CstString extends TypedConstant {
    * @param string {@code non-null;} the string to convert
    * @return {@code non-null;} the UTF-8 bytes for it
    */
-  public static byte[] stringToUtf8Bytes(String string) {
+  private static byte[] stringToUtf8Bytes(String string, int utf8Len) {
     int len = string.length();
-    byte[] bytes = new byte[len * 3]; // Avoid having to reallocate.
+    byte[] bytes = new byte[utf8Len];
     int outAt = 0;
 
     for (int i = 0; i < len; i++) {
       char c = string.charAt(i);
       if ((c != 0) && (c < 0x80)) {
-        bytes[outAt] = (byte) c;
-        outAt++;
+        bytes[outAt++] = (byte) c;
       } else if (c < 0x800) {
-        bytes[outAt] = (byte) (((c >> 6) & 0x1f) | 0xc0);
-        bytes[outAt + 1] = (byte) ((c & 0x3f) | 0x80);
-        outAt += 2;
+        bytes[outAt++] = (byte) (((c >> 6) & 0x1f) | 0xc0);
+        bytes[outAt++] = (byte) ((c & 0x3f) | 0x80);
       } else {
-        bytes[outAt] = (byte) (((c >> 12) & 0x0f) | 0xe0);
-        bytes[outAt + 1] = (byte) (((c >> 6) & 0x3f) | 0x80);
-        bytes[outAt + 2] = (byte) ((c & 0x3f) | 0x80);
-        outAt += 3;
+        bytes[outAt++] = (byte) (((c >> 12) & 0x0f) | 0xe0);
+        bytes[outAt++] = (byte) (((c >> 6) & 0x3f) | 0x80);
+        bytes[outAt++] = (byte) ((c & 0x3f) | 0x80);
       }
     }
 
-    byte[] result = new byte[outAt];
-    System.arraycopy(bytes, 0, result, 0, outAt);
+    return bytes;
+  }
+
+  private static int stringToUtf8BytesCount(String string) {
+    int result = 0;
+    for (int i = 0, len = string.length(); i < len; ++i) {
+      char c = string.charAt(i);
+      if ((c != 0) && (c < 0x80)) {
+        result++;
+      } else if (c < 0x800) {
+        result += 2;
+      } else {
+        result += 3;
+      }
+    }
     return result;
   }
 
@@ -189,7 +202,6 @@ public final class CstString extends TypedConstant {
     }
 
     this.string = string.intern();
-    this.bytes = new ByteArray(stringToUtf8Bytes(string));
   }
 
   /**
@@ -203,6 +215,7 @@ public final class CstString extends TypedConstant {
     }
 
     this.bytes = bytes;
+    this.bytesCount = bytes.size();
     this.string = utf8BytesToString(bytes).intern();
   }
 
@@ -355,6 +368,9 @@ public final class CstString extends TypedConstant {
    * @return {@code non-null;} an array of the UTF-8 bytes
    */
   public ByteArray getBytes() {
+    if (bytes == null) {
+      bytes = new ByteArray(stringToUtf8Bytes(string, getUtf8Size()));
+    }
     return bytes;
   }
 
@@ -365,7 +381,10 @@ public final class CstString extends TypedConstant {
    * @return {@code >= 0;} the UTF-8 size
    */
   public int getUtf8Size() {
-    return bytes.size();
+    if (bytesCount == -1) {
+      bytesCount = stringToUtf8BytesCount(string);
+    }
+    return bytesCount;
   }
 
   /**
