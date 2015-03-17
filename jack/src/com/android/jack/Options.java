@@ -246,8 +246,8 @@ public class Options {
   @Option(name = "-A", metaVar = "<option>=<value>",
       usage = "set option for annotation processors (repeatable)",
       handler = MapOptionHandler.class)
-  @Nonnull
-  public final Map<String, String> annotationProcessorOption = new HashMap<String, String>();
+  @CheckForNull
+  private Map<String, String> annotationProcessorOption;
 
   @Nonnull
   public static final PropertyId<Map<String, String>> ANNOTATION_PROCESSOR_OPTIONS = PropertyId
@@ -363,7 +363,7 @@ public class Options {
   @Option(name = "--processor", usage = "annotation processor class names",
       metaVar = "<NAME>[,<NAME>...]")
   @CheckForNull
-  public String processor;
+  private String processor;
 
   @Nonnull
   public static final BooleanPropertyId ANNOTATION_PROCESSOR_MANUAL =
@@ -393,7 +393,7 @@ public class Options {
 
   @Option(name = "--processorpath", usage = "annotation processor classpath", metaVar = "<PATH>")
   @CheckForNull
-  public String processorPath;
+  private String processorPath;
 
   @Nonnull
   public static final BooleanPropertyId ANNOTATION_PROCESSOR_PATH =
@@ -660,7 +660,9 @@ public class Options {
       configBuilder.setString(ANNOTATION_PROCESSOR_PATH_LIST, processorPath);
     }
 
-    configBuilder.set(ANNOTATION_PROCESSOR_OPTIONS, annotationProcessorOption);
+    if (annotationProcessorOption != null) {
+      configBuilder.set(ANNOTATION_PROCESSOR_OPTIONS, annotationProcessorOption);
+    }
 
     if (!resImport.isEmpty()) {
       configBuilder.setString(ResourceImporter.IMPORTED_RESOURCES,
@@ -983,11 +985,6 @@ public class Options {
 
   public void addProperty(@Nonnull String propertyName, @Nonnull String propertyValue) {
     properties.put(propertyName, propertyValue);
-  }
-
-  public void addAnnotationProcessorOption(@Nonnull String propertyName,
-      @Nonnull String propertyValue) {
-    annotationProcessorOption.put(propertyName, propertyValue);
   }
 
   @Nonnull

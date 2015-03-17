@@ -46,7 +46,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -252,19 +251,22 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   public void setProcessorNames(@Nonnull List<String> processorNames) {
-    options.processor = Joiner.on(',').join(processorNames);
+    options.addProperty(Options.ANNOTATION_PROCESSOR_MANUAL.getName(), "true");
+    options.addProperty(Options.ANNOTATION_PROCESSOR_MANUAL_LIST.getName(),
+        Options.ANNOTATION_PROCESSOR_MANUAL_LIST.getCodec().formatValue(processorNames));
   }
 
   @Override
   public void setProcessorOptions(@Nonnull Map<String, String> processorOptions) {
-    for (Entry<String, String> entry : processorOptions.entrySet()) {
-      options.addAnnotationProcessorOption(entry.getKey(), entry.getValue());
-    }
+    options.addProperty(Options.ANNOTATION_PROCESSOR_OPTIONS.getName(),
+        Options.ANNOTATION_PROCESSOR_OPTIONS.getCodec().formatValue(processorOptions));
   }
 
   @Override
   public void setProcessorPath(@Nonnull List<File> processorPath) {
-    options.processorPath = Joiner.on(File.pathSeparatorChar).join(processorPath);
+    options.addProperty(Options.ANNOTATION_PROCESSOR_PATH.getName(), "true");
+    options.addProperty(Options.ANNOTATION_PROCESSOR_PATH_LIST.getName(),
+        Joiner.on(File.pathSeparatorChar).join(processorPath));
   }
 
   @Override
