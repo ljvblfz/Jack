@@ -155,6 +155,18 @@ $(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)
 $(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):jack.jar)
 
 #
+# Build jack-annotations.jar
+#
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/jack/annotations)
+
+LOCAL_MODULE := jack-annotations
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_HOST_JAVA_LIBRARY)
+
+#
 # Build Jack tests
 #
 
