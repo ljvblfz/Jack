@@ -308,7 +308,7 @@ public abstract class Jack {
    * List of folders inside Jack jar file that can be used as embedded default jack libraries.
    */
   @Nonnull
-  public static final String[] JACK_DEFAULT_LIB_PATH = new String[]{"jack-default-lib/"};
+  public static final String[] JACK_DEFAULT_LIB_PATH = new String[]{"jack-default-lib"};
 
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
   @CheckForNull
