@@ -21,6 +21,7 @@
     jack,
     jack-api,
     jack-api-src,
+    jack-annotations-lib,
     jackunittests,
     jack-tests,
     dx-lib,
@@ -30,6 +31,7 @@
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
     jack-api-src-clean,
+    jack-annotations-lib-clean,
     jackunittests-lib-clean,
     jackunittests-clean,
     jack-tests-clean,
@@ -383,6 +385,40 @@
   <target name="jack-api-src">
    <zip destfile="${jack-api.dist.dir}/${jack-api-src.name}"
         basedir="${jack-api.dir}/src" />
+  </target>
+
+
+  <!-- **********************  -->
+  <!-- jack-annotations-lib    -->
+  <!-- **********************  -->
+  <property name="jack-annotations.build.dir" value="${jack.dir}/build/annotations" />
+  <property name="jack-annotations.build.outdir" value="${jack-annotations.build.dir}/classes" />
+  <property name="jack-annotations.libname" value="jack-annotations.jar" />
+
+  <target name="jack-annotations-lib-clean">
+    <delete file="${jack.dist.dir}/${jack-annotations.libname}" />
+    <delete dir="${jack-annotations.build.outdir}" />
+  </target>
+
+  <target name="jack-annotations-lib">
+    <mkdir dir="${jack-annotations.build.outdir}"/>
+    <dependset>
+      <sources>
+          <fileset dir="${jack.dir}/src/com/android/jack/annotations" includes="**/*.java" />
+      </sources>
+      <targets>
+        <fileset dir="${jack-annotations.build.outdir}"/>
+      </targets>
+    </dependset>
+     <javac srcdir="${jack.dir}/src"
+          includes="com/android/jack/annotations/**/*.java"
+          destdir="${jack-annotations.build.outdir}"
+          source="1.6" target="1.6" debug="true"
+          includeantruntime="false"  includeDestClasses="false" nowarn="true">
+    </javac>
+    <jar destfile="${jack.dist.dir}/${jack-annotations.libname}">
+      <fileset dir="${jack-annotations.build.outdir}"/>
+    </jar>
   </target>
 
 
