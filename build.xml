@@ -1353,7 +1353,7 @@
     <delete file="${junit4-jack.dist.dir}/${junit4-jack.libname}" />
   </target>
 
-  <target name="junit4-jack-lib" depends="hamcrest-core-jack-lib,core-stubs-mini">
+  <target name="junit4-jack-lib" depends="hamcrest-core-jack-lib">
     <!-- project layout -->
     <mkdir dir="${junit4-jack.build.outdir}"/>
     <mkdir dir="${junit4-jack.dist.dir}"/>
@@ -1362,7 +1362,7 @@
       <arg value="--verbose"/>
       <arg value="error"/>
       <arg value="--classpath"/>
-      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}:${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
+      <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}:${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
       <arg value="--output-jack"/>
       <arg value="${junit4-jack.dist.dir}/${junit4-jack.libname}"/>
       <arg value="${junit4.dir}/src/main/java"/>
@@ -1420,7 +1420,7 @@
     <delete dir="${hamcrest-core-jack.dist.dir}" />
   </target>
 
-  <target name="hamcrest-core-jack-lib" depends="core-stubs-mini">
+  <target name="hamcrest-core-jack-lib">
     <!-- project layout -->
     <mkdir dir="${hamcrest-core-jack.build.outdir}"/>
     <mkdir dir="${hamcrest-core-jack.dist.dir}"/>
@@ -1429,7 +1429,7 @@
       <arg value="--verbose"/>
       <arg value="error"/>
       <arg value="--classpath"/>
-      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
+      <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
       <arg value="--output-jack"/>
       <arg value="${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
       <arg value="${hamcrest-core.dir}/src"/>
@@ -1580,7 +1580,7 @@
   </target>
 
 
-  <target name="jack-default-lib" depends="jack-intermediate,core-stubs-mini,jack-default-lib.check" unless="jack-default-lib.uptodate">
+  <target name="jack-default-lib" depends="jack-intermediate,jack-default-lib.check" unless="jack-default-lib.uptodate">
     <delete dir="${jack-default-lib.build.outdir}" quiet="true"/>
     <mkdir dir="${jack-default-lib.build.outdir}"/>
     <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
@@ -1592,7 +1592,7 @@
       <arg value="-D"/>
       <arg value="jack.classpath.default-libraries=false"/>
       <arg value="--classpath"/>
-      <arg value="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}"/>
+      <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
       <arg value="--output-jack-dir"/>
       <arg value="${jack-default-lib.build.outdir}"/>
       <arg line="${jack-default-lib.src.list}"/>
