@@ -108,7 +108,7 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
     return jayceMinorVersion;
   }
 
-  private synchronized final void ensureJayceLoaded() throws LibraryFormatException {
+  private final synchronized void ensureJayceLoaded() throws LibraryFormatException {
     if (jayceReaderConstructor == null) {
       String jayceMajorVersionStr = getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
       try {
