@@ -137,9 +137,9 @@
     <filelist id="jack.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
       <file name="${allocation.dist.dir}/${allocation.libname}" />
-      <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
     </filelist>
     <filelist id="jack.static.libs.fileset" dir="/">
+      <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
       <file name="${ecj.dist.dir}/${ecj.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
