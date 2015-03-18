@@ -16,19 +16,15 @@
 
 package com.android.jack.cfg;
 
+import com.android.jack.ir.ast.JCaseStatement;
+import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.sched.item.Component;
-import com.android.sched.item.Description;
-import com.android.sched.scheduler.ScheduleInstance;
-import com.android.sched.transform.TransformRequest;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.ListIterator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,119 +32,160 @@ import javax.annotation.Nonnull;
  */
 class ForwardBranchResolver {
 
-  enum ForwardBranchKind {
-    IF_THEN,
-    IF_ELSE,
-    BRANCH,
-    SWITCH_CASE,
-    SWITCH_DEFAULT,
-    EXCEPTION
-  }
-
-  @Description("Statement to represent dead code.")
-  static class JDeadCodeStatement extends JStatement {
-
-      public JDeadCodeStatement() {
-      super(SourceInfo.UNKNOWN);
-    }
-
-    @Override
-    public void traverse(@Nonnull JVisitor visitor) {
-      throw new AssertionError("JDeadCodeStatement is not usable by JVisitor");
-    }
-
-    @Override
-    public void traverse(@Nonnull ScheduleInstance<? super Component> instance) throws Exception {
-      throw new AssertionError("JDeadCodeStatement is not usable by JVisitor");
-    }
-
-    @Override
-    public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
-        throws Exception {
-      visitor.visit(this, transformRequest);
-    }
+  private static interface BlockToResolve {
+    void resolve();
   }
 
   @Nonnull
-  final JDeadCodeStatement deadCodeStatement = new JDeadCodeStatement();
+  private final ArrayList<BlockToResolve> blocksToResolve = new ArrayList<BlockToResolve>();
 
-  @Nonnull
-  private final Map<BasicBlock, Map<ForwardBranchKind, List<JStatement>>> bbSuccessorsToResolve =
-      new LinkedHashMap<BasicBlock, Map<ForwardBranchKind, List<JStatement>>>();
+  void addNormalBasicBlock(@Nonnull NormalBasicBlock block, @Nonnull JStatement targetStatement) {
+    assert block != null;
+    assert targetStatement != null;
+    blocksToResolve.add(new NormalBasicBlockToResolve(block, targetStatement));
+  }
 
-  /**
-   * Add forward branch to resolve.
-   *
-   * @param bb A basic block targeting {@code targetStatement}.
-   * @param targetStatement Target statement of a the fordward branch.
-   */
-  void addForwardBranch(@Nonnull ForwardBranchKind brKind, @Nonnull BasicBlock bb,
-      @Nonnull JStatement targetStatement) {
-    Map<ForwardBranchKind, List<JStatement>> brKindTotargetStatements =
-        bbSuccessorsToResolve.get(bb);
+  void addConditionalBasicBlock(@Nonnull ConditionalBasicBlock block,
+    @Nonnull JStatement thenStatement, @CheckForNull JStatement elseStatement) {
+    assert block != null;
+    assert thenStatement != null;
+    blocksToResolve.add(new ConditionalBasicBlockToResolve(block, thenStatement, elseStatement));
+  }
 
-    if (brKindTotargetStatements == null) {
-      brKindTotargetStatements = new LinkedHashMap<ForwardBranchKind, List<JStatement>>();
-      bbSuccessorsToResolve.put(bb, brKindTotargetStatements);
-    }
+  void addSwitchBasicBlock(@Nonnull SwitchBasicBlock block, @Nonnull List<JCaseStatement> cases,
+      @CheckForNull JStatement defaultCase) {
+    assert block != null;
+    assert cases != null;
+    blocksToResolve.add(new SwitchBasicBlockToResolve(block, cases, defaultCase));
+  }
 
-    List<JStatement> targetStatements = brKindTotargetStatements.get(brKind);
-
-    if (targetStatements == null) {
-      targetStatements = new LinkedList<JStatement>();
-      brKindTotargetStatements.put(brKind, targetStatements);
-    }
-
-    assert !targetStatements.contains(targetStatement);
-
-    if (brKind == ForwardBranchKind.EXCEPTION) {
-      // Target branch must be save in reverse order for try statement, the nearest a the end of
-      // list. By construction, the list will be scanned during resolve and resolved branches will
-      // be reversed. Consequently after resolution, the nearest target for try statement will
-      // be at index 0 of the successor list.
-      targetStatements.add(0, targetStatement);
-    } else {
-      targetStatements.add(targetStatement);
-    }
+  void addPeiBasicBlock(@Nonnull PeiBasicBlock block, @CheckForNull JStatement targetStatement,
+      @Nonnull List<JCatchBlock> catchBlocks) {
+    assert block != null;
+    assert catchBlocks != null;
+    blocksToResolve.add(new PeiBasicBlockToResolve(block, targetStatement, catchBlocks));
   }
 
   /**
    * Resolve forward branches by updating basic bloc successors.
    */
   void resolve() {
-    for (BasicBlock bbToResolve : bbSuccessorsToResolve.keySet()) {
-      for (ForwardBranchKind brKind : bbSuccessorsToResolve.get(bbToResolve).keySet()) {
-        for (JStatement targetStatement : bbSuccessorsToResolve.get(bbToResolve).get(brKind)) {
-          if (targetStatement == deadCodeStatement){
-            continue;
-          }
+    for (int i = 0, len = blocksToResolve.size(); i < len; ++i) {
+      blocksToResolve.get(i).resolve();
+    }
+  }
 
-          BasicBlockMarker bbm = targetStatement.getMarker(BasicBlockMarker.class);
-          assert bbm != null;
-          BasicBlock targetBb = bbm.getBasicBlock();
-          assert targetBb != null;
+  @Nonnull
+  private static BasicBlock getTargetBlock(@Nonnull JStatement statement) {
+    assert statement != null;
+    BasicBlockMarker bbm = statement.getMarker(BasicBlockMarker.class);
+    assert bbm != null;
+    BasicBlock targetBb = bbm.getBasicBlock();
+    assert targetBb != null;
+    return targetBb;
+  }
 
-          switch (brKind) {
-            case IF_THEN:
-              ((ConditionalBasicBlock) bbToResolve).setThenBlock(targetBb);
-              break;
-            case IF_ELSE:
-              ((ConditionalBasicBlock) bbToResolve).setElseBlock(targetBb);
-              break;
-            case BRANCH:
-              ((NormalBasicBlock) bbToResolve).setTarget(targetBb);
-              break;
-            case SWITCH_CASE:
-              ((SwitchBasicBlock) bbToResolve).addCaseBlock(targetBb);
-              break;
-            case SWITCH_DEFAULT:
-              ((SwitchBasicBlock) bbToResolve).setDefault(targetBb);
-              break;
-            case EXCEPTION:
-              ((PeiBasicBlock) bbToResolve).addExceptionBlock((CatchBasicBlock) targetBb);
-              break;
-          }
-        }
+  private static class NormalBasicBlockToResolve implements BlockToResolve {
+    @Nonnull
+    private final NormalBasicBlock block;
+    @Nonnull
+    private final JStatement statement;
+
+    public NormalBasicBlockToResolve(@Nonnull NormalBasicBlock block,
+        @Nonnull JStatement statement) {
+      assert block != null;
+      assert statement != null;
+      this.block = block;
+      this.statement = statement;
+    }
+
+    @Override
+    public void resolve() {
+      block.setTarget(getTargetBlock(statement));
+    }
+  }
+
+  private static class ConditionalBasicBlockToResolve implements BlockToResolve {
+    @Nonnull
+    private final ConditionalBasicBlock block;
+    @Nonnull
+    private final JStatement ifStatement;
+    @CheckForNull
+    private final JStatement elseStatement;
+
+    public ConditionalBasicBlockToResolve(@Nonnull ConditionalBasicBlock block,
+        @Nonnull JStatement ifStatement, @CheckForNull JStatement elseStatement) {
+      assert block != null;
+      assert ifStatement != null;
+      this.block = block;
+      this.ifStatement = ifStatement;
+      this.elseStatement = elseStatement;
+    }
+
+    @Override
+    public void resolve() {
+      block.setThenBlock(getTargetBlock(ifStatement));
+      if (elseStatement != null) {
+        block.setElseBlock(getTargetBlock(elseStatement));
+      }
+    }
+  }
+
+  private static class SwitchBasicBlockToResolve implements BlockToResolve {
+    @Nonnull
+    private final SwitchBasicBlock block;
+    @Nonnull
+    private final List<JCaseStatement> cases;
+    @CheckForNull
+    private final JStatement defaultCase;
+
+    public SwitchBasicBlockToResolve(@Nonnull SwitchBasicBlock block,
+        @Nonnull List<JCaseStatement> cases, @CheckForNull JStatement defaultCase) {
+      assert block != null;
+      assert cases != null;
+      this.block = block;
+      this.cases = cases;
+      this.defaultCase = defaultCase;
+    }
+
+    @Override
+    public void resolve() {
+      for (JCaseStatement caseStatement : cases) {
+        block.addCaseBlock(getTargetBlock(caseStatement));
+      }
+      if (defaultCase != null) {
+        block.setDefault(getTargetBlock(defaultCase));
+      }
+    }
+  }
+
+  private static class PeiBasicBlockToResolve implements BlockToResolve {
+    @Nonnull
+    private final PeiBasicBlock block;
+    @CheckForNull
+    private final JStatement statement;
+    @Nonnull
+    private final List<JCatchBlock> catchBlocks;
+
+    public PeiBasicBlockToResolve(@Nonnull PeiBasicBlock block, @CheckForNull JStatement statement,
+        @Nonnull List<JCatchBlock> catchBlocks) {
+      assert block != null;
+      assert catchBlocks != null;
+      this.block = block;
+      this.statement = statement;
+      this.catchBlocks = catchBlocks;
+    }
+
+    @Override
+    public void resolve() {
+      if (statement != null) {
+        block.setTarget(getTargetBlock(statement));
+      }
+      // addExceptionBlock has to be called in reverse order because it adds an exception block
+      // before all exception blocks which have been already added.
+      ListIterator<JCatchBlock> catchBlocksIter = catchBlocks.listIterator(catchBlocks.size());
+      while (catchBlocksIter.hasPrevious()) {
+        block.addExceptionBlock((CatchBasicBlock) getTargetBlock(catchBlocksIter.previous()));
       }
     }
   }

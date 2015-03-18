@@ -19,7 +19,6 @@ package com.android.jack.cfg;
 import com.android.jack.Jack;
 import com.android.jack.JackEventType;
 import com.android.jack.Options;
-import com.android.jack.cfg.ForwardBranchResolver.ForwardBranchKind;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JBreakStatement;
@@ -187,8 +186,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       JStatement nextStatement =
           ControlFlowHelper.getNextStatement(getConcreteStatement(catchBlock));
       if (nextStatement != null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, catchBasicBlock,
-            nextStatement);
+        forwardBranchResolver.addNormalBasicBlock(catchBasicBlock, nextStatement);
       }
 
       accept(catchStmts.subList(1, catchStmts.size()));
@@ -203,7 +201,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
       JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
       if (nextStatement != null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, endOfBlock, nextStatement);
+        forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
       }
     }
 
@@ -216,13 +214,12 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         // target of a branch (explicitly through label or implicitly through if statement) or
         // if the block must reach a specific program point as for a try block which must branch
         // after catches.
-        BasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
         setBlockOfStatement(endOfBlock);
 
         JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
         if (nextStatement != null) {
-          forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, endOfBlock,
-              nextStatement);
+          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
         }
       }
     }
@@ -231,10 +228,10 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JStatement statement) {
       if (!currentStmts.isEmpty() && !statement.getJCatchBlocks().equals(previousCatchBlock)) {
         previousCatchBlock = statement.getJCatchBlocks();
-        BasicBlock tryBasicBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        NormalBasicBlock tryBasicBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
         setBlockOfStatement(tryBasicBlock);
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, tryBasicBlock,
-           statement instanceof JBlock ? getConcreteStatement((JBlock) statement) : statement);
+        forwardBranchResolver.addNormalBasicBlock(tryBasicBlock,
+            statement instanceof JBlock ? getConcreteStatement((JBlock) statement) : statement);
       }
 
 
@@ -252,26 +249,21 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JIfStatement ifStmt) {
       super.visit(ifStmt);
 
-      BasicBlock condBlock = new ConditionalBasicBlock(basicBlockId++, currentStmts);
+      ConditionalBasicBlock condBlock = new ConditionalBasicBlock(basicBlockId++, currentStmts);
       setBlockOfStatement(condBlock);
 
       assert ifStmt.getThenStmt() != null;
 
-      forwardBranchResolver.addForwardBranch(ForwardBranchKind.IF_THEN, condBlock,
-          ifStmt.getThenStmt());
       accept(ifStmt.getThenStmt());
 
-      if (ifStmt.getElseStmt() != null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.IF_ELSE, condBlock,
-            ifStmt.getElseStmt());
-        accept(ifStmt.getElseStmt());
+      JStatement elseStmt = ifStmt.getElseStmt();
+      if (elseStmt != null) {
+        accept(elseStmt);
       } else {
-        JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
-        if (nextStatement != null) {
-          forwardBranchResolver.addForwardBranch(ForwardBranchKind.IF_ELSE, condBlock,
-              nextStatement);
-        }
+        elseStmt = ControlFlowHelper.getNextStatement(ifStmt);
       }
+      forwardBranchResolver.addConditionalBasicBlock(condBlock, ifStmt.getThenStmt(),
+          elseStmt);
 
       return false;
     }
@@ -297,8 +289,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       BasicBlockMarker bbm = labeledStatement.getMarker(BasicBlockMarker.class);
 
       if (bbm == null || bbm.getBasicBlock() == null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, branchBlock,
-            labeledStatement.getBody());
+        forwardBranchResolver.addNormalBasicBlock(branchBlock, labeledStatement.getBody());
       } else {
         branchBlock.setTarget(bbm.getBasicBlock());
       }
@@ -310,10 +301,10 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JLabeledStatement labeledStatement) {
 
       if (!currentStmts.isEmpty()) {
-        BasicBlock normalBasicBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        NormalBasicBlock normalBasicBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
         setBlockOfStatement(normalBasicBlock);
 
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, normalBasicBlock,
+        forwardBranchResolver.addNormalBasicBlock(normalBasicBlock,
             getConcreteStatement((JBlock) labeledStatement.getBody()));
       }
 
@@ -326,26 +317,17 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JSwitchStatement switchStatement) {
       super.visit(switchStatement);
 
-      BasicBlock switchBlock = new SwitchBasicBlock(basicBlockId++, currentStmts);
+      SwitchBasicBlock switchBlock = new SwitchBasicBlock(basicBlockId++, currentStmts);
       setBlockOfStatement(switchBlock);
 
       List<JCaseStatement> cases = switchStatement.getCases();
       Collections.sort(cases, new JCaseStatementComparator());
-      for (JStatement stmt : cases) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_CASE, switchBlock, stmt);
-      }
 
-      JCaseStatement defaultCase = switchStatement.getDefaultCase();
-      if (defaultCase != null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_DEFAULT, switchBlock,
-            defaultCase);
-      } else {
-        JStatement nextStatement = ControlFlowHelper.getNextStatement(switchStatement);
-        if (nextStatement != null) {
-          forwardBranchResolver.addForwardBranch(ForwardBranchKind.SWITCH_DEFAULT, switchBlock,
-              nextStatement);
-        }
+      JStatement defaultCase = switchStatement.getDefaultCase();
+      if (defaultCase == null) {
+        defaultCase = ControlFlowHelper.getNextStatement(switchStatement);
       }
+      forwardBranchResolver.addSwitchBasicBlock(switchBlock, cases, defaultCase);
 
       return true;
     }
@@ -353,11 +335,10 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JCaseStatement caseStatement) {
       if (!currentStmts.isEmpty()) {
-        BasicBlock caseBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        NormalBasicBlock caseBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
         setBlockOfStatement(caseBlock);
 
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, caseBlock,
-            caseStatement);
+        forwardBranchResolver.addNormalBasicBlock(caseBlock, caseStatement);
       }
 
       super.visit(caseStatement);
@@ -386,7 +367,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       ThrowBasicBlock throwBlock = new ThrowBasicBlock(basicBlockId++, currentStmts);
       setBlockOfStatement(throwBlock);
 
-      setExceptionEdges(throwBlock, throwStmt);
+      forwardBranchResolver.addPeiBasicBlock(throwBlock, null /* targetStatement */,
+          throwStmt.getJCatchBlocks());
 
       return false;
     }
@@ -475,20 +457,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       setBlockOfStatement(peiBlock);
 
       JStatement nextStatement = ControlFlowHelper.getNextStatement(peiInst);
-      if (nextStatement != null) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.BRANCH, peiBlock, nextStatement);
-      }
-
-      setExceptionEdges(peiBlock, peiInst);
-    }
-
-
-    private void setExceptionEdges(@Nonnull PeiBasicBlock peiBlock, @Nonnull JStatement peiInst) {
-
-      for (JCatchBlock catchBlock : peiInst.getJCatchBlocks()) {
-        forwardBranchResolver.addForwardBranch(ForwardBranchKind.EXCEPTION, peiBlock,
-            catchBlock);
-      }
+      forwardBranchResolver.addPeiBasicBlock(peiBlock, nextStatement, peiInst.getJCatchBlocks());
     }
   }
 
@@ -533,8 +502,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         ++accessibleNodesCount;
       }
 
-      assert !hasDeadCode(currentBb) : "JDeadCodeStatement must be removed.";
-
       for (BasicBlock succ : currentBb.getSuccessors()) {
         if (succ != exitNode && state[succ.getId()] == 0) {
           state[succ.getId()] = 1;
@@ -557,16 +524,5 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     nodes.clear();
     nodes.addAll(accessibleBlocks);
     nodes.trimToSize();
-  }
-
-  private static boolean hasDeadCode(BasicBlock currentBb) {
-
-    for (JStatement stmt : currentBb.getStatements()) {
-      if (stmt instanceof ForwardBranchResolver.JDeadCodeStatement) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }
