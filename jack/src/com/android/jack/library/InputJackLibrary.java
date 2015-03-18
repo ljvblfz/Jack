@@ -18,6 +18,7 @@ package com.android.jack.library;
 
 import com.android.jack.Jack;
 import com.android.jack.jayce.JayceProperties;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -38,7 +39,7 @@ import javax.annotation.Nonnull;
 public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
 
   @Nonnull
-  protected static Logger logger = LoggerFactory.getLogger();
+  protected static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnegative
   private final int minorVersion;
@@ -90,9 +91,15 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
     return location;
   }
 
+  /*
+   * Ignore: "Inconsistent synchronization". All synchronization is handled by ensureJayceLoaded and
+   * once loaded jayceReaderConstructor never change again.
+   */
+  @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
   @Nonnull
   public final Constructor<?> getJayceReaderConstructor() throws LibraryFormatException {
     ensureJayceLoaded();
+    assert jayceReaderConstructor != null;
     return jayceReaderConstructor;
   }
 
