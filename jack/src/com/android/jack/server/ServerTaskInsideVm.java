@@ -50,10 +50,13 @@ public class ServerTaskInsideVm extends CommandLine implements ServerTask {
     try {
       args.withFileRelativeTo(pwd);
     } catch (NotDirectoryException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (WrongPermissionException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (NoSuchFileException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     }
 
@@ -71,14 +74,19 @@ public class ServerTaskInsideVm extends CommandLine implements ServerTask {
       }
       return ServerExitStatus.FAILURE_USAGE;
     } catch (NoSuchElementException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (WrongPermissionException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (NoSuchFileException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (NotFileOrDirectoryException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     } catch (CannotReadException e) {
+      err.println(e.getMessage());
       return ServerExitStatus.FAILURE_USAGE;
     }
 
