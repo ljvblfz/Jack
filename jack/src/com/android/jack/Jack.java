@@ -622,9 +622,7 @@ public abstract class Jack {
             config.get(Options.DEX_OUTPUT_ZIP).close();
           }
 
-          if (config.get(Options.INCREMENTAL_MODE).booleanValue()
-              && config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()
-              && config.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
+          if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
             VFS incrementalFolder = config.get(Options.LIBRARY_OUTPUT_DIR);
             Event timeToZip =
                 TracerFactory.getTracer().start(JackEventType.ZIP_JACK_LIBRARY_IN_INCREMENTAL);

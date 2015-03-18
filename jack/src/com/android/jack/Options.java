@@ -162,6 +162,13 @@ public class Options {
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
+  public static final
+      BooleanPropertyId GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER = BooleanPropertyId.create(
+          "jack.library.from-incremental-folder",
+          "Generate a jack library from the incremental folder").addDefaultValue(Boolean.FALSE)
+          .withCategory(Private.get());
+
+  @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId
       .create("jack.dex.output.container", "Output container type", Container.class,
           Container.values()).ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
@@ -174,8 +181,9 @@ public class Options {
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
       "jack.library.output.zip", "Output zip archive for library",
-      new ZipFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue()
-      .isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP)));
+      new ZipFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
+      .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
+      .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));
 
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
@@ -843,6 +851,9 @@ public class Options {
         configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
         configBuilder.setString(Options.LIBRARY_OUTPUT_CONTAINER_TYPE, "dir");
         configBuilder.setString(Options.LIBRARY_OUTPUT_DIR, incrementalFolder.getPath());
+        if (libraryOutZip != null) {
+          configBuilder.set(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER, true);
+        }
       }
     }
 
