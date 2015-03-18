@@ -29,12 +29,14 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 public class RepackagingTest extends AbstractTest {
+
+  private static final Charset UTF8 = Charset.forName("UTF-8");
 
   @Override
   protected void runTest(
@@ -73,10 +75,10 @@ public class RepackagingTest extends AbstractTest {
       @Nonnull String flagNumber) throws IOException {
     File result = AbstractTestTools.createTempFile("proguard" + flagNumber, ".flags" + flagNumber);
 
-    List<String> lines = Files.readLines(inFlags, StandardCharsets.UTF_8);
+    List<String> lines = Files.readLines(inFlags, UTF8);
     String fileAsOneLine = Joiner.on(' ').join(lines);
     String resultContent = fileAsOneLine.replaceAll("-repackageclasses\\s+'.+'", "-repackageclasses ''");
-    Files.write(resultContent, result, StandardCharsets.UTF_8);
+    Files.write(resultContent, result, UTF8);
 
     return result;
   }
