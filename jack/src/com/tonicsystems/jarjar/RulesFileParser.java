@@ -70,9 +70,9 @@ public class RulesFileParser {
           rule.setResult(parts[2]);
           element = rule;
         } else if (type.equals("zap")) {
-          element = new Zap();
+          continue;
         } else if (type.equals("keep")) {
-          element = new Keep();
+          continue;
         } else {
           error(c, parts);
         }
