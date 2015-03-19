@@ -550,26 +550,28 @@ public class ReferenceMapper {
     int result = 0;
     int pos = 1; // skip '('
     while (pos < signature.length() && signature.charAt(pos) != ')') {
-      char currentChar = signature.charAt(pos);
-      if (currentChar == 'L') {
-        result++;
-        do {
-          pos++;
-        } while (pos < signature.length() && signature.charAt(pos) != ';');
-        assert pos < signature.length() && signature.charAt(pos) == ';' : signature + " at " + pos;
-      } else {
-        switch (currentChar) {
-          case 'Z':
-          case 'B':
-          case 'C':
-          case 'S':
-          case 'I':
-          case 'J':
-          case 'F':
-          case 'D':
-            result++;
-            break;
-        }
+      switch (signature.charAt(pos)) {
+        case 'L':
+          do {
+            pos++;
+          } while (pos < signature.length() && signature.charAt(pos) != ';');
+          assert pos < signature.length() && signature.charAt(pos) == ';';
+          // Fall-through.
+        case 'Z':
+        case 'B':
+        case 'C':
+        case 'S':
+        case 'I':
+        case 'J':
+        case 'F':
+        case 'D':
+          result++;
+          break;
+        case '[':
+          // ignore
+          break;
+        default:
+          throw new AssertionError();
       }
       pos++;
     }
