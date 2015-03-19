@@ -681,6 +681,8 @@ public abstract class Jack {
 
     JSession session =  getSession();
 
+    session.setHooks(hooks);
+
     Config config = ThreadConfig.getConfig();
 
     try {

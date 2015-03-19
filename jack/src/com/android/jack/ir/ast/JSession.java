@@ -38,6 +38,7 @@ import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
 
 import java.util.ArrayList;
@@ -111,6 +112,9 @@ public class JSession extends JNode {
 
   @CheckForNull
   private InputFilter inputFilter;
+
+  @CheckForNull
+  private RunnableHooks hooks;
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -298,5 +302,15 @@ public class JSession extends JNode {
 
   public void setFileDependencies(@Nonnull FileDependencies fileDependencies) {
     this.fileDependencies = fileDependencies;
+  }
+
+  public void setHooks(@Nonnull RunnableHooks hooks) {
+    this.hooks = hooks;
+  }
+
+  @Nonnull
+  public RunnableHooks getHooks() {
+    assert hooks != null;
+    return hooks;
   }
 }
