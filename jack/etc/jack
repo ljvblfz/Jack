@@ -14,21 +14,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -o nounset
 
-JACK_NB_COMPILE=6
-JACK_TIMEOUT=15
+#
+# Default setting
+#
 
-if [ -z $TMPDIR ]; then
+if [ -z "$TMPDIR" ]; then
   TMPDIR="/tmp"
 fi
 
-JACK_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.Server"
-JACK_FIFO="$TMPDIR/jack-$USER.cmd"
-JACK_LOCK="$TMPDIR/jack-$USER.lock"
-JACK_LOG="$TMPDIR/jack-$USER.log"
+if [ -z "$SERVER_NB_COMPILE" ]; then
+  SERVER_NB_COMPILE=6
+fi
 
-JACK_DIR="$TMPDIR/jack-$USER-$$/"
+if [ -z "$SERVER_TIMEOUT" ]; then
+  SERVER_TIMEOUT=60
+fi
+
+#
+# Static setting
+#
+
+set -o nounset
+
+# Release code (3 digits) followed by the sub-release code (3 digits)
+JACK_ID=002009
+
+SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.Server"
+SERVER_DIR="$TMPDIR/jack-$USER"
+SERVER_FIFO="$SERVER_DIR/jack-$JACK_ID.cmd"
+SERVER_LOCK="$SERVER_DIR/jack-$JACK_ID.lock"
+SERVER_LOG="$SERVER_DIR/jack-$JACK_ID.log"
+
+JACK_DIR="$SERVER_DIR/jack-task-$$/"
 JACK_OUT="$JACK_DIR/out"
 JACK_ERR="$JACK_DIR/err"
 JACK_EXIT="$JACK_DIR/exit"
@@ -36,52 +54,89 @@ JACK_CLI="$JACK_DIR/cli"
 JACK_PWD="$PWD"
 
 #
-# Always create the FIFO
+# Prepare server
 #
 
-mkfifo -m 0000 $JACK_FIFO 2>/dev/null
+mkdir  -m 700 "$SERVER_DIR"  2>/dev/null
+mkfifo -m 600 "$SERVER_FIFO" 2>/dev/null
 
 #
-# Prepare
+# Launch the server if needed
+#
+
+SERVER_TMP_LOCK=$SERVER_LOCK.$$
+trap 'rm -f $SERVER_TMP_LOCK 2>/dev/null;' EXIT
+
+while true; do
+  echo $$ > "$SERVER_TMP_LOCK" 2>/dev/null
+  if ln "$SERVER_TMP_LOCK" "$SERVER_LOCK" 2>/dev/null; then
+    rm "$SERVER_TMP_LOCK"
+    echo "Launching background server" $SERVER_PRG
+    $SERVER_PRG $SERVER_NB_COMPILE $SERVER_TIMEOUT "$SERVER_FIFO" "$SERVER_LOCK" >$SERVER_LOG 2>&1 &
+    echo $! > "$SERVER_LOCK"
+    break
+  else
+    CANDIDATE_PID=`cat $SERVER_LOCK`
+    if [ $? -eq 0 ]; then
+      if kill -0 $CANDIDATE_PID 2>/dev/null; then
+        # Server seems to be alive, go ahead
+        rm "$SERVER_TMP_LOCK" 2>/dev/null
+        break
+      else
+        # Stale lock, clean and retry again
+        # Unfortunately, there is a race condition here leading to launching several
+        # servers. We are living with that.
+        echo "Stale lock detected, cleaning"
+        rm "$SERVER_LOCK" "$SERVER_TMP_LOCK" 2>/dev/null
+      fi
+    else
+      # Someone is removing or echoing inside the lock, try again
+      rm "$SERVER_TMP_LOCK" 2>/dev/null
+    fi
+    # Calm down the retry
+    sleep 1
+  fi
+done
+
+#
+# Prepare compilation
 #
 
 # Cleanup
-trap "rm -f $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI $JACK_LOCK 2>/dev/null; rmdir $JACK_DIR 2>/dev/null" exit
+trap 'rm -f $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI 2>/dev/null; rmdir $JACK_DIR 2>/dev/null' EXIT
 
 # Create fifo for a task
-mkdir $JACK_DIR
-mkfifo $JACK_OUT
-mkfifo $JACK_ERR
-mkfifo $JACK_EXIT
+mkdir  -m 700 "$JACK_DIR"
+mkfifo -m 600 "$JACK_OUT"
+mkfifo -m 600 "$JACK_ERR"
+mkfifo -m 600 "$JACK_EXIT"
+
+# Try to cleanup if interrupted
+trap 'rm $JACK_EXIT; kill -9 $PID_OUT $PID_ERR; wait $PID_OUT; wait $PID_ERR; exit -1' SIGHUP SIGINT SIGQUIT SIGTERM
 
 # Redirect output and error
-cat <$JACK_OUT >&1 &
+cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
-cat <$JACK_ERR >&2 &
+cat <"$JACK_ERR" >&2 &
 PID_ERR=$!
 
-echo \"$PWD\" $* >$JACK_CLI
-
-#
-# Launch compilation
-#
-
-# Try sending a command
-CMD="+ $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI"
-( echo $CMD >>$JACK_FIFO ) 2>/dev/null
-while [ $? -ne 0 ]; do
-  # If not possible, launch the server one time only
-  mkfifo $JACK_LOCK 2>/dev/null
-  if [ $? -eq 0 ]; then
-    echo "Launch background server" $JACK_PRG
-    nohup $JACK_PRG $JACK_NB_COMPILE $JACK_TIMEOUT $JACK_FIFO >$JACK_LOG 2>&1 &
-  fi
-  # Slow down, and retry sending the command
-  sleep 1
-  ( echo $CMD >>$JACK_FIFO ) 2>/dev/null
+# Prepare the working directory and command line
+echo -n \"$PWD\" "" >"$JACK_CLI"
+for i in "$@"; do
+  echo -n \"$i\" "" >>"$JACK_CLI"
 done
+echo >>"$JACK_CLI"
 
+#
+# Launch the compilation
+#
+
+# Launch compilation
+echo "+ $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI" >>"$SERVER_FIFO"
+
+# Wait for termination
 wait $PID_OUT
 wait $PID_ERR
 
-exit `cat $JACK_EXIT`
+# Exit
+exit `cat "$JACK_EXIT"`

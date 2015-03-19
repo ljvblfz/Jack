@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,33 +25,33 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file or directory can not be set to the expected permission.
+ * Exception when a file or directory can not be cleared of the expected permission.
  */
-public class CannotSetPermissionException extends WithLocationException {
+public class CannotUnsetPermissionException extends WithLocationException {
   private static final long serialVersionUID = 1L;
 
   private final int permission;
   @Nonnull
   private final ChangePermission change;
 
-  public CannotSetPermissionException(@Nonnull Location location, int permission,
+  public CannotUnsetPermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change) {
     this(location, permission, change, null);
   }
 
-  public CannotSetPermissionException(@Nonnull Location location, int permission,
+  public CannotUnsetPermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @CheckForNull Throwable cause) {
     super(location, cause);
     this.permission = permission;
     this.change = change;
   }
 
-  public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
+  public CannotUnsetPermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change) {
     this(locationProvider, permission, change, null);
   }
 
-  public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
+  public CannotUnsetPermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change, @CheckForNull Throwable cause) {
     super(locationProvider, cause);
     this.permission = permission;
@@ -59,11 +59,12 @@ public class CannotSetPermissionException extends WithLocationException {
   }
 
   @Override
+  @Nonnull
   protected String createMessage(@Nonnull String description) {
     return description + " cannot have its " +
-      ((permission == Permission.READ)    ? "readable " :
-      ((permission == Permission.WRITE)   ? "writable " :
-      ((permission == Permission.EXECUTE) ? "executable " : "???"))) + "permission set" +
-      ((change == ChangePermission.EVERYBODY) ? "for everybody" : "");
+        ((permission == Permission.READ)    ? "readable " :
+        ((permission == Permission.WRITE)   ? "writable " :
+        ((permission == Permission.EXECUTE) ? "executable " : "???"))) + "permission removed" +
+        ((change == ChangePermission.EVERYBODY) ? " for everybody" : "");
   }
 }

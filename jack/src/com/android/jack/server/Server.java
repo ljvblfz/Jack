@@ -18,21 +18,15 @@ package com.android.jack.server;
 
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.AbstractStreamFile;
-import com.android.sched.util.file.CannotSetPermissionException;
-import com.android.sched.util.file.FileOrDirectory;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.NoLocation;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.Timer;
@@ -100,12 +94,15 @@ public class Server {
   private static final int CLI_IDX_MAX     = 0;
   private static final int CLI_IDX_TIEMOUT = 1;
   private static final int CLI_IDX_FIFO    = 2;
-  private static final int CLI_IDX_END     = 3;
+  private static final int CLI_IDX_LOCK    = 3;
+  private static final int CLI_IDX_END     = 4;
 
   @CheckForNull
   private static File fifo;
   @CheckForNull
-  private static LineNumberReader in;
+  private static File lock;
+  @CheckForNull
+  private static BufferedReader in;
 
   private static int timeout;
 
@@ -116,7 +113,7 @@ public class Server {
 
   public static void main(String[] args) throws InterruptedException {
     if (args.length != CLI_IDX_END) {
-      logger.log(Level.SEVERE, "Usage: <max-compile> <timeout-s> <path-fifo>");
+      logger.log(Level.SEVERE, "Usage: <max-compile> <timeout-s> <path-fifo> <path-lock>");
       abort();
     }
 
@@ -136,19 +133,8 @@ public class Server {
     }
 
     fifo = new File(args[CLI_IDX_FIFO]);
-    assert fifo != null;
-    if (fifo.canWrite()) {
-      logger.log(Level.WARNING, "Already running, aborting");
-      abort();
-    }
+    lock = new File(args[CLI_IDX_LOCK]);
 
-    Runtime.getRuntime().addShutdownHook(new Thread(){
-      @Override
-      public void run() {
-        cancelTimer();
-        shutdownFifo();
-      }
-    });
 
     try {
       AbstractStreamFile.check(fifo, new FileLocation(fifo));
@@ -157,18 +143,32 @@ public class Server {
       abort();
     }
 
+    Runtime.getRuntime().addShutdownHook(new Thread(){
+      @Override
+      public void run() {
+        cancelTimer();
+        shutdownFifo();
+
+        if (!lock.delete()) {
+          logger.log(Level.SEVERE, "Can not remove lock file '" + lock.getPath() + "'");
+        }
+      }
+    });
+
     startFifo();
+    startTimer();
     try {
-      in = new LineNumberReader(new FileReader(fifo));
+      in = new BufferedReader(new FileReader(fifo));
     } catch (FileNotFoundException e) {
-      throw new AssertionError(e);
+      logger.log(Level.SEVERE, e.getMessage(), e);
+      abort();
     }
 
     assert fifo != null;
     logger.log(Level.INFO, "Starting server on '" + fifo.getPath() + "'");
     ExecutorService executor = Executors.newFixedThreadPool(nbInstance);
     for (int i = 0; i < nbInstance; i++) {
-      logger.log(Level.INFO, "Launching task #" + i);
+      logger.log(Level.FINE, "Launching task #" + i);
       executor.execute(new Task());
     }
 
@@ -191,13 +191,17 @@ public class Server {
 
         try {
           line = getLine();
-          logger.log(Level.INFO, "Read command '" + line + "'");
+          logger.log(Level.FINE, "Read command '" + line + "'");
         } catch (IOException e) {
-          logger.log(Level.INFO, "Shutdown task");
+          logger.log(Level.FINE, "Shutdown task");
           return;
         }
 
         String[] command = line.split(" ");
+
+        if (command[CMD_IDX_CMD].equals("=")) {
+          continue;
+        }
 
         if (command[CMD_IDX_CMD].equals("-")) {
           cancelTimer();
@@ -215,7 +219,7 @@ public class Server {
           continue;
         }
 
-        logger.log(Level.INFO, "Open standard output '" + command[CMD_IDX_OUT] + "'");
+        logger.log(Level.FINE, "Open standard output '" + command[CMD_IDX_OUT] + "'");
         PrintStream out = null;
         try {
           out = new OutputStreamFile(command[CMD_IDX_OUT]).getPrintStream();
@@ -224,7 +228,7 @@ public class Server {
           continue;
         }
 
-        logger.log(Level.INFO, "Open standard error '" + command[CMD_IDX_ERR] + "'");
+        logger.log(Level.FINE, "Open standard error '" + command[CMD_IDX_ERR] + "'");
         PrintStream err = null;
         try {
           err = new OutputStreamFile(command[CMD_IDX_ERR]).getPrintStream();
@@ -233,19 +237,19 @@ public class Server {
           continue;
         }
 
-        logger.log(Level.INFO, "Parse command line");
+        logger.log(Level.FINE, "Parse command line");
         TokenIterator args = new TokenIterator(new NoLocation(), "@" + command[CMD_IDX_CLI]);
         args.allowFileReferenceInFile();
 
         if (!args.hasNext()) {
-          logger.log(Level.WARNING, "Cli format error");
+          logger.log(Level.SEVERE, "Cli format error");
           continue;
         }
         String workingDir;
         try {
           workingDir = args.next();
         } catch (IOException e) {
-          logger.log(Level.WARNING, "Cli format error");
+          logger.log(Level.SEVERE, "Cli format error");
           continue;
         }
 
@@ -255,7 +259,7 @@ public class Server {
 
         int code;
         try {
-          logger.log(Level.INFO, "Run service");
+          logger.log(Level.FINE, "Run service");
           nbCurrent.incrementAndGet();
           code = service.run(out, err, new File(workingDir), args);
         } finally {
@@ -270,16 +274,15 @@ public class Server {
         err.close();
 
         try {
-          logger.log(Level.INFO, "Open exit fifo  '" + command[CMD_IDX_EXIT] + "'");
+          logger.log(Level.FINE, "Open exit fifo  '" + command[CMD_IDX_EXIT] + "'");
           PrintStream exit = new OutputStreamFile(command[CMD_IDX_EXIT]).getPrintStream();
-          logger.log(Level.INFO, "Write exit code '" + code + "'");
+          logger.log(Level.FINE, "Write exit code '" + code + "'");
           exit.println(code);
           exit.close();
         } catch (IOException e) {
           logger.log(Level.SEVERE, e.getMessage(), e);
           continue;
         }
-
       }
     }
   }
@@ -287,9 +290,15 @@ public class Server {
   @Nonnull
   private static Object lockRead = new Object();
 
+  private static volatile boolean stop = false;
+
   @Nonnull
   public static String getLine() throws IOException {
     synchronized (lockRead) {
+      if  (in == null) {
+        throw new IOException();
+      }
+
       assert in != null;
       String str = in.readLine();
       while (str == null) {
@@ -298,8 +307,13 @@ public class Server {
         } catch (IOException e1) {
           // Best effort
         }
+        in = null;
 
-        in = new LineNumberReader(new FileReader(fifo));
+        if (stop) {
+          throw new IOException();
+        }
+
+        in = new BufferedReader(new FileReader(fifo));
         assert in != null;
         str = in.readLine();
       }
@@ -310,42 +324,40 @@ public class Server {
 
   private static void startFifo() {
     logger.log(Level.FINE, "Start FIFO");
-
-    try {
-      assert fifo != null;
-      FileOrDirectory.setPermissions(fifo, new FileLocation(fifo),
-          Permission.READ | Permission.WRITE, ChangePermission.OWNER);
-    } catch (CannotSetPermissionException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      abort();
-    }
   }
 
   private static void shutdownFifo() {
-    OutputStream out = null;
-
     logger.log(Level.FINE, "Shutdown FIFO");
 
-    try {
-      out = new FileOutputStream(fifo);
-    } catch (FileNotFoundException e) {
-      // Best effort
-    }
+    stop = true;
 
-    try {
-      assert fifo != null;
-      FileOrDirectory.unsetPermissions(fifo, new FileLocation(fifo), Permission.READ
-          | Permission.WRITE, ChangePermission.OWNER);
-    } catch (CannotSetPermissionException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      abort();
-    }
+    Unblocker unblocker = new Unblocker();
+    unblocker.setName("Unblocker");
+    unblocker.setDaemon(true);
+    unblocker.start();
+  }
 
-    if (out != null) {
-      try {
-        out.close();
-      } catch (IOException e) {
-        // Best effort
+  private static class Unblocker extends Thread {
+    @Override
+    public void run() {
+      PrintStream out = null;
+
+      while (true) {
+        try {
+          out = new PrintStream(fifo);
+        } catch (FileNotFoundException e) {
+          // Best effort
+        }
+
+        if (out != null) {
+          out.close();
+        }
+
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          // Best effort here
+        }
       }
     }
   }
@@ -366,7 +378,7 @@ public class Server {
         cancelTimer();
       }
 
-      logger.log(Level.INFO, "Start timer");
+      logger.log(Level.FINE, "Start timer");
 
       timer = new Timer("jack-server-timeout");
       assert timer != null;
@@ -383,7 +395,7 @@ public class Server {
   private static void cancelTimer() {
     synchronized (lockTimer) {
       if (timer != null) {
-        logger.log(Level.INFO, "Cancel timer");
+        logger.log(Level.FINE, "Cancel timer");
 
         timer.cancel();
         timer.purge();
