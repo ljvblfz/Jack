@@ -106,6 +106,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     private ControlFlowGraph cfg = null;
     @Nonnull
     private List<JStatement> currentStmts = new LinkedList<JStatement>();
+    private boolean firstStmtCreated = false;
 
     /**
      * Represents statements which are not added into the control flow graph. This list will be used
@@ -446,19 +447,21 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     }
 
     private void setBlockOfStatement(@Nonnull BasicBlock bb) {
+      BasicBlockMarker marker = new BasicBlockMarker(bb);
       for (JStatement statement : currentStmts) {
-        statement.addMarker(new BasicBlockMarker(bb));
+        statement.addMarker(marker);
       }
 
       for (JStatement statement : virtualStmts) {
-        statement.addMarker(new BasicBlockMarker(bb));
+        statement.addMarker(marker);
       }
 
       // First created block is the successor of the entry block.
       assert cfg != null;
-      NormalBasicBlock entryNode = cfg.getEntryNode();
-      if (entryNode.getSuccessors().isEmpty()) {
+      if (!firstStmtCreated) {
+        NormalBasicBlock entryNode = cfg.getEntryNode();
         entryNode.setTarget(bb);
+        firstStmtCreated = true;
       }
 
       currentStmts = new LinkedList<JStatement>();
