@@ -38,6 +38,8 @@ public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
   @Nonnull
   protected abstract DST convert(@Nonnull SRC src) throws ParsingException;
 
+  @Nonnull
+  protected abstract SRC revert(@Nonnull DST dst);
 
   @Override
   @Nonnull
@@ -60,6 +62,18 @@ public abstract class ConvertCodec<SRC, DST> implements StringCodec<DST> {
     } else {
       return convert(src);
     }
+  }
+
+  @Override
+  @Nonnull
+  public String formatValue(@Nonnull DST data) {
+    return codec.formatValue(revert(data));
+  }
+
+  @Override
+  public void checkValue(@Nonnull CodecContext context, @Nonnull DST data)
+      throws CheckingException {
+    codec.checkValue(context, revert(data));
   }
 
   @Override

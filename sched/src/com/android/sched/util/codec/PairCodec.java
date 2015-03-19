@@ -16,10 +16,10 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.ConfigurationError;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,8 +30,46 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link Entry}
  */
-// STOPSHIP see https://android-review.googlesource.com/#/c/120553/17
-public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
+public class PairCodec<T, U> implements StringCodec<Pair<T, U>>{
+
+  /**
+   * A pair.
+   */
+  public static class Pair<T, U> {
+    @Nonnull
+    private final T first;
+    @Nonnull
+    private final U second;
+
+    public Pair(@Nonnull T first, @Nonnull U second) {
+      this.first = first;
+      this.second = second;
+    }
+
+    @Nonnull
+    public T getFirst() {
+      return first;
+    }
+
+    @Nonnull
+    public U getSecond() {
+      return second;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+      if (obj instanceof Pair) {
+        return first.equals(((Pair<?, ?>) obj).first) && second.equals(((Pair<?, ?>) obj).second);
+      }
+      return super.equals(obj);
+    }
+
+    @Override
+    public final int hashCode() {
+      return first.hashCode() ^ second.hashCode();
+    }
+  }
+
   @Nonnull
   private final StringCodec<T> keyParser;
   @Nonnull
@@ -59,20 +97,20 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
 
   @Override
   @Nonnull
-  public Entry<T, U> parseString(@Nonnull CodecContext context, @Nonnull String string) {
+  public Pair<T, U> parseString(@Nonnull CodecContext context, @Nonnull String string) {
     int endKey = string.indexOf(separator);
     if (endKey == -1) {
       throw new ConfigurationError("Missing '" + separator + "' in '" + string + "'");
     }
     String key = string.substring(0, endKey);
     String valueString = string.substring(endKey + separator.length());
-    return new AbstractMap.SimpleEntry<T, U>(keyParser.parseString(context, key),
+    return new Pair<T, U>(keyParser.parseString(context, key),
         valueParser.parseString(context, valueString));
   }
 
   @Override
   @CheckForNull
-  public Entry<T, U> checkString(@Nonnull CodecContext context,
+  public Pair<T, U> checkString(@Nonnull CodecContext context,
       @Nonnull String string)
       throws ParsingException {
     ChainedExceptionBuilder<ParsingException> exceptions =
@@ -117,7 +155,7 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
         valueElement = valueParser.parseString(context, valueString);
       }
 
-      return new AbstractMap.SimpleEntry<T, U>(keyElement, valueElement);
+      return new Pair<T, U>(keyElement, valueElement);
     }
   }
 
@@ -161,27 +199,27 @@ public class PairCodec<T, U> implements StringCodec<Entry<T, U>>{
 
   @Override
   @Nonnull
-  public String formatValue(@Nonnull Entry<T, U> data) {
+  public String formatValue(@Nonnull Pair<T, U> data) {
     StringBuilder sb = new StringBuilder();
 
-    sb.append(keyParser.formatValue(data.getKey()));
+    sb.append(keyParser.formatValue(data.getFirst()));
     sb.append(separator);
-    sb.append(valueParser.formatValue(data.getValue()));
+    sb.append(valueParser.formatValue(data.getSecond()));
     return sb.toString();
   }
 
   @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull Entry<T, U> data)
+  public void checkValue(@Nonnull CodecContext context, @Nonnull Pair<T, U> data)
       throws CheckingException {
     ChainedExceptionBuilder<CheckingException> exceptions =
         new ChainedExceptionBuilder<CheckingException>();
     try {
-      keyParser.checkValue(context, data.getKey());
+      keyParser.checkValue(context, data.getFirst());
     } catch (CheckingException e) {
       exceptions.appendException(e);
     }
     try {
-      valueParser.checkValue(context, data.getValue());
+      valueParser.checkValue(context, data.getSecond());
     } catch (CheckingException e) {
       exceptions.appendException(e);
     }

@@ -17,8 +17,6 @@
 package com.android.sched.util.config.id;
 
 
-import com.android.sched.util.codec.CheckingException;
-import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ConvertCodec;
 import com.android.sched.util.codec.KeyValueCodec;
 import com.android.sched.util.codec.MessageDigestCodec;
@@ -48,14 +46,8 @@ public class MessageDigestPropertyId extends PropertyId<MessageDigestFactory> {
         new MessageDigestCodec()) {
       @Override
       @Nonnull
-      public String formatValue(@Nonnull MessageDigestFactory data) {
-        return codec.formatValue(data.getService());
-      }
-
-      @Override
-      public void checkValue(@Nonnull CodecContext context, @Nonnull MessageDigestFactory data)
-          throws CheckingException {
-        codec.checkValue(context, data.getService());
+      protected Service revert(@Nonnull MessageDigestFactory dst) {
+        return dst.getService();
       }
 
       @Override

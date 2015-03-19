@@ -23,6 +23,7 @@ import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.PairCodec;
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
@@ -34,7 +35,6 @@ import com.android.sched.util.file.OutputStreamFile;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -72,7 +72,7 @@ public interface Reporter {
               "jack.reporter.level.file",
               "File where the reporter will write by level",
               new PairListToMapCodecConverter<ProblemLevel, OutputStreamFile>(
-                  new ListCodec<Entry<ProblemLevel, OutputStreamFile>>(
+                  new ListCodec<Pair<ProblemLevel, OutputStreamFile>>(
                       new PairCodec<ProblemLevel, OutputStreamFile>(new EnumCodec<ProblemLevel>(
                           ProblemLevel.class, ProblemLevel.values()).ignoreCase(),
                           new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())

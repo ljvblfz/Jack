@@ -16,6 +16,7 @@
 
 package com.android.sched.util.codec;
 
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 
 import java.util.ArrayList;
@@ -30,37 +31,35 @@ import javax.annotation.Nonnull;
  * A {@link ConvertCodec} allowing to convert list of {@link Entry} into a map.
  */
 public class PairListToMapCodecConverter<T, U> extends
-    ConvertCodec<List<Entry<T, U>>, Map<T, U>> {
-  public PairListToMapCodecConverter(StringCodec<List<Entry<T, U>>> codec) {
+    ConvertCodec<List<Pair<T, U>>, Map<T, U>> {
+  public PairListToMapCodecConverter(StringCodec<List<Pair<T, U>>> codec) {
     super(codec);
   }
 
   @Override
   @Nonnull
-  public String formatValue(@Nonnull Map<T, U> data) {
-    return codec.formatValue(new ArrayList<Map.Entry<T, U>>(data.entrySet()));
-  }
-
-  @Override
-  public void checkValue(@Nonnull CodecContext context, @Nonnull Map<T, U> data)
-      throws CheckingException {
-    codec.checkValue(context, new ArrayList<Map.Entry<T, U>>(data.entrySet()));
+  protected List<Pair<T, U>> revert(@Nonnull Map<T, U> data) {
+    List<Pair<T, U>> list = new ArrayList<PairCodec.Pair<T, U>>(data.size());
+    for (Map.Entry<T, U> entry : data.entrySet()) {
+      list.add(new Pair<T, U>(entry.getKey(), entry.getValue()));
+    }
+    return list;
   }
 
   @Override
   @Nonnull
-  protected Map<T, U> convert(@Nonnull List<Entry<T, U>> list) throws ParsingException {
+  protected Map<T, U> convert(@Nonnull List<Pair<T, U>> list) throws ParsingException {
     ChainedExceptionBuilder<ParsingException> exceptions =
         new ChainedExceptionBuilder<ParsingException>();
     Map<T, U> map = new HashMap<T, U>(Math.round(list.size() / 0.75f), 0.75f);
 
     int index = 1;
-    for (Entry<T, U> entry : list) {
-      if (!map.containsKey(entry.getKey())) {
-        map.put(entry.getKey(), entry.getValue());
+    for (Pair<T, U> pair : list) {
+      if (!map.containsKey(pair.getFirst())) {
+        map.put(pair.getFirst(), pair.getSecond());
       } else {
         exceptions.appendException(new ListParsingException(index, "Value for '"
-            + entry.getKey() + "' is already defined"));
+            + pair.getFirst() + "' is already defined"));
       }
       index++;
     }

@@ -54,6 +54,7 @@ import com.android.sched.util.codec.InputFileOrDirectoryCodec;
 import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.codec.StringValueCodec;
 import com.android.sched.util.codec.VariableName;
@@ -254,7 +255,7 @@ public class Options {
       .create(
           "jack.annotation-processor.options",
           "Options for annotation processors",
-          new PairListToMapCodecConverter<String, String>(new ListCodec<Entry<String, String>>(
+          new PairListToMapCodecConverter<String, String>(new ListCodec<Pair<String, String>>(
               new PairCodec<String, String>(new StringValueCodec(
                   "an annotation processor option name", "option"), new StringValueCodec(
                   "an annotation processor option value", "value"))).setMin(0))).addDefaultValue(
