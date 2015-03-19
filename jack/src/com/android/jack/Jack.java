@@ -686,7 +686,7 @@ public abstract class Jack {
     Config config = ThreadConfig.getConfig();
 
     try {
-      session.setInputFilter(config.get(Options.INPUT_FILTER).create(options, hooks));
+      session.setInputFilter(config.get(Options.INPUT_FILTER).create(options));
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
       if (cause instanceof JackAbortException) {

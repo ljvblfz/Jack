@@ -31,7 +31,6 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.AbstractStreamFile;
@@ -49,7 +48,6 @@ import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.ReadZipFS;
@@ -58,14 +56,12 @@ import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.ZipUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
 
@@ -132,11 +128,7 @@ public abstract class CommonFilter {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
-  @Nonnull
-  private final RunnableHooks hooks;
-
-  public CommonFilter(@Nonnull RunnableHooks hooks) {
-    this.hooks = hooks;
+  public CommonFilter() {
   }
 
   @Nonnull
@@ -234,34 +226,6 @@ public abstract class CommonFilter {
     return libraries;
   }
 
-  @Nonnull
-  protected VFS wrapAsVDir(@Nonnull final File dirOrZip)
-      throws IOException {
-    final VFS vfs;
-    if (dirOrZip.isDirectory()) {
-      vfs = new CachedDirectFS(new Directory(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-          Permission.READ, ChangePermission.NOCHANGE), Permission.READ);
-    } else { // zip
-      vfs = new ReadZipFS(new InputZipFile(dirOrZip.getPath(), hooks, Existence.MUST_EXIST,
-          ChangePermission.NOCHANGE));
-    }
-
-    if (hooks != null) {
-      hooks.addHook(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            vfs.close();
-          } catch (IOException e) {
-            logger.log(Level.FINE, "Failed to close vfs for '" + dirOrZip + "'.", e);
-          }
-        }
-      });
-    }
-
-    return vfs;
-  }
-
   private List<InputLibrary> getDefaultLibraries() {
     URL location = Jack.class.getProtectionDomain().getCodeSource().getLocation();
     JSession session = Jack.getSession();
@@ -270,7 +234,8 @@ public abstract class CommonFilter {
       try {
         File jackJar = new File(location.toURI().getPath());
         for (String prefix: Jack.JACK_DEFAULT_LIB_PATH) {
-          VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath(), hooks,
+          VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath(),
+              session.getHooks(),
               Existence.MUST_EXIST,
               ChangePermission.NOCHANGE)), new VPath(prefix, ZipUtils.ZIP_SEPARATOR));
           libraries.add(JackLibraryFactory.getInputLibrary(jackVfs));

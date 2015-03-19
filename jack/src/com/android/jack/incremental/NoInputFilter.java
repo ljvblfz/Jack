@@ -24,7 +24,6 @@ import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -51,8 +50,7 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
-  public NoInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
-    super(hooks);
+  public NoInputFilter(@Nonnull Options options) {
     this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
     JSession session = Jack.getSession();
