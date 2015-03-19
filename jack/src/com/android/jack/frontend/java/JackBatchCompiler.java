@@ -28,10 +28,9 @@ import com.android.jack.reporting.Reporter;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory;
-import com.android.sched.util.file.InputStreamFile;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -269,17 +268,9 @@ public class JackBatchCompiler extends Main {
     CompilationUnit[] cu = new CompilationUnit[filenames.length];
     int idx = 0;
     for (String fileName : filenames) {
-      try {
-        new InputStreamFile(fileName);
-        cu[idx] = new CompilationUnit(null, fileName, encodings[idx]);
-        idx++;
-      } catch (WrongPermissionException e) {
-        throw new JackUserException(e);
-      } catch (NoSuchFileException e) {
-        throw new JackUserException(e);
-      } catch (NotFileException e) {
-        throw new JackUserException(e);
-      }
+      assert checkFileAccess(fileName);
+      cu[idx] = new CompilationUnit(null, fileName, encodings[idx]);
+      idx++;
     }
     return cu;
   }
@@ -335,5 +326,15 @@ public class JackBatchCompiler extends Main {
       }
     }
     return path.toString();
+  }
+
+  private static boolean checkFileAccess(@Nonnull String fileName) {
+    try {
+      File file = new File(fileName);
+      FileOrDirectory.checkPermissions(file, new FileLocation(file), Permission.READ);
+    } catch (WrongPermissionException e) {
+      return false;
+    }
+    return true;
   }
 }

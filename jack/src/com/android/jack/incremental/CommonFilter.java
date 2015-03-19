@@ -18,6 +18,7 @@ package com.android.jack.incremental;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
+import com.android.jack.JackUserException;
 import com.android.jack.LibraryException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
@@ -47,6 +48,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.PrefixedFS;
@@ -141,6 +143,7 @@ public abstract class CommonFilter {
       if (file instanceof Directory) {
         fillFiles(((Directory) file).getFile(), extension, javaFileNames);
       } else if (file.getPath().endsWith(extension)) {
+        // File already checked by codec
         javaFileNames.add(file.getPath());
       }
     }
@@ -156,7 +159,13 @@ public abstract class CommonFilter {
       } else {
         String path = subFile.getPath();
         if (subFile.getName().endsWith(fileExt)) {
-          fileNames.add(path);
+          try {
+            // File contained into folder are not checked by codec
+            FileOrDirectory.checkPermissions(subFile, new FileLocation(subFile), Permission.READ);
+            fileNames.add(path);
+          } catch (WrongPermissionException e) {
+            throw new JackUserException(e);
+          }
         }
       }
     }

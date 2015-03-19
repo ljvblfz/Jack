@@ -691,6 +691,8 @@ public abstract class Jack {
       Throwable cause = e.getCause();
       if (cause instanceof JackAbortException) {
         throw (JackAbortException) cause;
+      } else if (cause instanceof JackUserException) {
+        throw (JackUserException) cause;
       } else {
         throw e;
       }
