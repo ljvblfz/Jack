@@ -45,6 +45,9 @@ import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * The bytes of a dex file in memory for reading and writing. All int offsets
  * are unsigned.
@@ -64,7 +67,8 @@ public final class DexBuffer {
     @Override
     public ProtoId get(int index) {
       checkBounds(index, tableOfContents.protoIds.size);
-      return open(tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * index)).readProtoId();
+      return openInternal(tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * index))
+          .readProtoId();
     }
 
     @Override
@@ -77,11 +81,15 @@ public final class DexBuffer {
 
   private final List<MethodId> methodIds;
 
+  @Nonnull
+  private final Section internalSection;
+
   /**
    * Creates a new dex buffer defining no classes.
    */
   public DexBuffer() {
     this.data = new byte[0];
+    this.internalSection = new Section(0);
     this.strings = Collections.emptyList();
     this.typeIds = Collections.emptyList();
     this.typeNames = Collections.emptyList();
@@ -95,6 +103,7 @@ public final class DexBuffer {
    */
   public DexBuffer(byte[] data) {
     this.data = data;
+    this.internalSection = new Section(0);
     this.length = data.length;
     this.tableOfContents.readFrom(this);
     this.strings = readStrings();
@@ -109,6 +118,7 @@ public final class DexBuffer {
    */
   public DexBuffer(InputStream in) throws IOException {
     loadFrom(in);
+    this.internalSection = new Section(0);
     this.strings = readStrings();
     this.typeIds = readTypeIds();
     this.typeNames = readTypeNames(this.strings, this.typeIds);
@@ -135,6 +145,7 @@ public final class DexBuffer {
     } else {
       throw new DexException("unknown output extension: " + file);
     }
+    this.internalSection = new Section(0);
     this.strings = readStrings();
     this.typeIds = readTypeIds();
     this.typeNames = readTypeNames(this.strings, this.typeIds);
@@ -143,7 +154,7 @@ public final class DexBuffer {
   }
 
   private List<String> readStrings() {
-    Section strings = open(tableOfContents.stringIds.off);
+    Section strings = openInternal(tableOfContents.stringIds.off);
     String[] result = new String[tableOfContents.stringIds.size];
     for (int i = 0; i < tableOfContents.stringIds.size; ++i) {
       result[i] = strings.readString();
@@ -152,7 +163,7 @@ public final class DexBuffer {
   }
 
   private List<Integer> readTypeIds() {
-    Section typeIds = open(tableOfContents.typeIds.off);
+    Section typeIds = openInternal(tableOfContents.typeIds.off);
     Integer[] result = new Integer[tableOfContents.typeIds.size];
     for (int i = 0; i < tableOfContents.typeIds.size; ++i) {
       result[i] = Integer.valueOf(typeIds.readInt());
@@ -169,7 +180,7 @@ public final class DexBuffer {
   }
 
   private List<FieldId> readFieldIds() {
-    Section fieldIds = open(tableOfContents.fieldIds.off);
+    Section fieldIds = openInternal(tableOfContents.fieldIds.off);
     FieldId[] result = new FieldId[tableOfContents.fieldIds.size];
     for (int i = 0; i < tableOfContents.fieldIds.size; ++i) {
       result[i] = fieldIds.readFieldId();
@@ -178,7 +189,7 @@ public final class DexBuffer {
   }
 
   private List<MethodId> readMethodIds() {
-    Section methodIds = open(tableOfContents.methodIds.off);
+    Section methodIds = openInternal(tableOfContents.methodIds.off);
     MethodId[] result = new MethodId[tableOfContents.methodIds.size];
     for (int i = 0; i < tableOfContents.methodIds.size; ++i) {
       result[i] = methodIds.readMethodId();
@@ -219,6 +230,12 @@ public final class DexBuffer {
 
   public TableOfContents getTableOfContents() {
     return tableOfContents;
+  }
+
+  @Nonnull
+  private Section openInternal(@Nonnegative int position) {
+    internalSection.initialPosition = internalSection.position = position;
+    return internalSection;
   }
 
   public Section open(int position) {
@@ -313,7 +330,7 @@ public final class DexBuffer {
     if (offset == 0) {
       return TypeList.EMPTY;
     }
-    return open(offset).readTypeList();
+    return openInternal(offset).readTypeList();
   }
 
   public ClassData readClassData(ClassDef classDef) {
@@ -321,7 +338,7 @@ public final class DexBuffer {
     if (offset == 0) {
       throw new IllegalArgumentException("offset == 0");
     }
-    return open(offset).readClassData();
+    return openInternal(offset).readClassData();
   }
 
   public Code readCode(ClassData.Method method) {
@@ -329,7 +346,7 @@ public final class DexBuffer {
     if (offset == 0) {
       throw new IllegalArgumentException("offset == 0");
     }
-    return open(offset).readCode();
+    return openInternal(offset).readCode();
   }
 
   /**
@@ -339,7 +356,7 @@ public final class DexBuffer {
     private final String name;
     private int position;
     private final int limit;
-    private final int initialPosition;
+    private int initialPosition;
 
     private Section(String name, int position, int limit) {
       this.name = name;
@@ -496,10 +513,11 @@ public final class DexBuffer {
          * Unfortunately they're in the opposite order in the dex file
          * so we need to read them out-of-order.
          */
-        Section triesSection = open(position);
+        int savedPosition = position;
         skip(triesSize * SizeOf.TRY_ITEM);
         catchHandlers = readCatchHandlers();
-        tries = triesSection.readTries(triesSize, catchHandlers);
+        position = savedPosition;
+        tries = readTries(triesSize, catchHandlers);
       } else {
         tries = new Try[0];
         catchHandlers = new CatchHandler[0];
