@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory of that name already exists.
  */
-public class FileAlreadyExistsException extends WithLocationException {
+public class FileAlreadyExistsException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   public FileAlreadyExistsException(@Nonnull Location location) {

@@ -25,9 +25,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Common superclass for exceptions which are related to a specific location.
+ * Common superclass for IOExceptions which are related to a specific location.
  */
-public abstract class WithLocationException extends IOException {
+public abstract class WithLocationIOException extends IOException {
   private static final long serialVersionUID = 1L;
 
   @CheckForNull
@@ -38,14 +38,14 @@ public abstract class WithLocationException extends IOException {
   @Nonnull
   protected abstract String createMessage(@Nonnull String description);
 
-  protected WithLocationException(@Nonnull Location location, @CheckForNull Throwable cause) {
+  protected WithLocationIOException(@Nonnull Location location, @CheckForNull Throwable cause) {
     super("", cause);
     assert location != null;
     this.location = location;
     this.locationProvider = null;
   }
 
-  protected WithLocationException(@Nonnull HasLocation locationProvider,
+  protected WithLocationIOException(@Nonnull HasLocation locationProvider,
       @CheckForNull Throwable cause) {
     super("", cause);
     assert locationProvider != null;

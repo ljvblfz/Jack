@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory can not be set to the expected permission.
  */
-public class CannotSetPermissionException extends WithLocationException {
+public class CannotSetPermissionException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   private final int permission;

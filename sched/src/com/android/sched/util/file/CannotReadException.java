@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file can not be read.
  */
-public class CannotReadException extends WithLocationException {
+public class CannotReadException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   public CannotReadException(@Nonnull Location location) {

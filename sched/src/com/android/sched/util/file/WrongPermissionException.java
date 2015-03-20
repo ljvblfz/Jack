@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory have not the expected permission.
  */
-public class WrongPermissionException extends WithLocationException {
+public class WrongPermissionException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   private final int permission;
