@@ -133,10 +133,14 @@ echo >>"$JACK_CLI"
 
 # Launch compilation
 echo "+ $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI" >>"$SERVER_FIFO"
+EXIT_CODE=$(cat "$JACK_EXIT")
+if [ -z "$EXIT_CODE" ]; then
+  EXIT_CODE=-1;
+fi
 
 # Wait for termination
 wait $PID_OUT
 wait $PID_ERR
 
 # Exit
-exit `cat "$JACK_EXIT"`
+exit $EXIT_CODE

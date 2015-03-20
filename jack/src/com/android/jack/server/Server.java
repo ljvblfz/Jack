@@ -66,7 +66,7 @@ public class Server {
       err.println("Pre-test stderr for '" + cmd + "'");
 
       try {
-        Thread.sleep(rnd.nextInt(30000));
+        Thread.sleep(rnd.nextInt(3000));
       } catch (InterruptedException e) {
         // Doesn't matter
       }
@@ -214,74 +214,92 @@ public class Server {
           continue;
         }
 
-        if (command.length != CMD_IDX_END) {
-          logger.log(Level.SEVERE, "Command format error '" + line + "'");
-          continue;
-        }
-
-        logger.log(Level.FINE, "Open standard output '" + command[CMD_IDX_OUT] + "'");
         PrintStream out = null;
-        try {
-          out = new OutputStreamFile(command[CMD_IDX_OUT]).getPrintStream();
-        } catch (IOException e) {
-          logger.log(Level.SEVERE, e.getMessage(), e);
-          continue;
-        }
-
-        logger.log(Level.FINE, "Open standard error '" + command[CMD_IDX_ERR] + "'");
         PrintStream err = null;
+        PrintStream exit = null;
+
         try {
-          err = new OutputStreamFile(command[CMD_IDX_ERR]).getPrintStream();
-        } catch (IOException e) {
-          logger.log(Level.SEVERE, e.getMessage(), e);
-          continue;
-        }
-
-        logger.log(Level.FINE, "Parse command line");
-        TokenIterator args = new TokenIterator(new NoLocation(), "@" + command[CMD_IDX_CLI]);
-        args.allowFileReferenceInFile();
-
-        if (!args.hasNext()) {
-          logger.log(Level.SEVERE, "Cli format error");
-          continue;
-        }
-        String workingDir;
-        try {
-          workingDir = args.next();
-        } catch (IOException e) {
-          logger.log(Level.SEVERE, "Cli format error");
-          continue;
-        }
-
-        if (nbMax.getAndIncrement() == 0) {
-          cancelTimer();
-        }
-
-        int code;
-        try {
-          logger.log(Level.FINE, "Run service");
-          nbCurrent.incrementAndGet();
-          code = service.run(out, err, new File(workingDir), args);
-        } finally {
-          if (nbMax.decrementAndGet() == 0) {
-            startTimer();
+          if (command.length != CMD_IDX_END) {
+            logger.log(Level.SEVERE, "Command format error '" + line + "'");
+            continue;
           }
-        }
 
-        assert out != null;
-        out.close();
-        assert err != null;
-        err.close();
+          logger.log(Level.FINE, "Open standard output '" + command[CMD_IDX_OUT] + "'");
+          try {
+            out = new OutputStreamFile(command[CMD_IDX_OUT]).getPrintStream();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            continue;
+          }
 
-        try {
+          logger.log(Level.FINE, "Open standard error '" + command[CMD_IDX_ERR] + "'");
+          try {
+            err = new OutputStreamFile(command[CMD_IDX_ERR]).getPrintStream();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            continue;
+          }
+
           logger.log(Level.FINE, "Open exit fifo  '" + command[CMD_IDX_EXIT] + "'");
-          PrintStream exit = new OutputStreamFile(command[CMD_IDX_EXIT]).getPrintStream();
-          logger.log(Level.FINE, "Write exit code '" + code + "'");
-          exit.println(code);
-          exit.close();
-        } catch (IOException e) {
-          logger.log(Level.SEVERE, e.getMessage(), e);
-          continue;
+          try {
+            exit = new OutputStreamFile(command[CMD_IDX_EXIT]).getPrintStream();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            continue;
+          }
+
+          logger.log(Level.FINE, "Parse command line");
+          TokenIterator args = new TokenIterator(new NoLocation(), "@" + command[CMD_IDX_CLI]);
+          args.allowFileReferenceInFile();
+          if (!args.hasNext()) {
+            logger.log(Level.SEVERE, "Cli format error");
+            continue;
+          }
+
+          String workingDir;
+          try {
+            workingDir = args.next();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, "Cli format error");
+            continue;
+          }
+
+          if (nbMax.getAndIncrement() == 0) {
+            cancelTimer();
+          }
+
+          int code = -1;
+          try {
+            logger.log(Level.FINE, "Run service");
+            nbCurrent.incrementAndGet();
+            code = service.run(out, err, new File(workingDir), args);
+          } finally {
+            if (nbMax.decrementAndGet() == 0) {
+              startTimer();
+            }
+
+            logger.log(Level.FINE, "Write exit code '" + code + "'");
+            assert exit != null;
+            exit.println(code);
+          }
+        } finally {
+          if (out != null) {
+            out.close();
+          } else {
+            unblock(command[CMD_IDX_OUT]);
+          }
+
+          if (err != null) {
+            err.close();
+          } else {
+            unblock(command[CMD_IDX_ERR]);
+          }
+
+          if (exit != null) {
+            exit.close();
+          } else {
+            unblock(command[CMD_IDX_EXIT]);
+          }
         }
       }
     }
@@ -401,6 +419,20 @@ public class Server {
         timer.purge();
         timer = null;
       }
+    }
+  }
+
+  private static void unblock(@Nonnull String name) {
+    logger.log(Level.FINE, "Trying to unblock '" + name + "'");
+    PrintStream out = null;
+    try {
+      out = new OutputStreamFile(name).getPrintStream();
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, e.getMessage(), e);
+    }
+
+    if (out != null) {
+      out.close();
     }
   }
 }
