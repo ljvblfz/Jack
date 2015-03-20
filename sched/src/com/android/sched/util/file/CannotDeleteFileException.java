@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception thrown when deletion of a file or a directory fails.
  */
-public class CannotDeleteFileException extends WithLocationException {
+public class CannotDeleteFileException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   public CannotDeleteFileException(@Nonnull Location location) {

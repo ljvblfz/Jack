@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory can not be cleared of the expected permission.
  */
-public class CannotUnsetPermissionException extends WithLocationException {
+public class CannotUnsetPermissionException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
 
   private final int permission;
