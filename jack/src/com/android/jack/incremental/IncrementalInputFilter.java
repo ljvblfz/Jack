@@ -40,7 +40,6 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.HasKeyId;
@@ -153,8 +152,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final File incrementalFolder;
 
-  public IncrementalInputFilter(@Nonnull Options options, @Nonnull RunnableHooks hooks) {
-    super(hooks);
+  public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
     incrementalFolder = new File(config.get(Options.LIBRARY_OUTPUT_DIR).getPath());
 
