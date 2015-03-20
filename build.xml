@@ -1565,7 +1565,7 @@
   <!-- ******************* -->
   <!-- jack-default-lib    -->
   <!-- ******************* -->
-  <property name="jack-default-lib.build.outdir" value="${jack.dir}/default-lib/build"/>
+  <property name="jack-default-lib.build.outdir" value="${jack.dir}/build/default-lib/jack-lib"/>
 
   <target name="jack-default-lib-clean">
     <delete dir="${jack-default-lib.build.outdir}" />
