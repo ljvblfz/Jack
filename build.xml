@@ -704,7 +704,7 @@
         </fileset>
       </sources>
       <targets>
-        <fileset dir="${jack-api.lib.build.outdir}"/>
+        <fileset dir="${jack-tests.build.outdir}"/>
       </targets>
     </dependset>
     <javac
