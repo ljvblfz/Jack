@@ -22,6 +22,7 @@ import com.android.sched.util.location.Location;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -37,7 +38,7 @@ abstract class BaseVFile extends BaseVElement implements VFile {
 
   @Override
   @Nonnull
-  public InputStream openRead() throws WrongPermissionException {
+  public InputStream getInputStream() throws WrongPermissionException {
     return vfs.openRead(this);
   }
 
@@ -48,8 +49,14 @@ abstract class BaseVFile extends BaseVElement implements VFile {
 
   @Override
   @Nonnull
-  public OutputStream openWrite() throws WrongPermissionException {
+  public OutputStream getOutputStream() throws WrongPermissionException {
     return vfs.openWrite(this);
+  }
+
+  @Override
+  @Nonnull
+  public PrintStream getPrintStream() throws WrongPermissionException {
+    return new PrintStream(getOutputStream());
   }
 
   @Override

@@ -52,8 +52,8 @@ public class LibraryResourceWriter implements RunnableSchedulable<JSession> {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
       OutputVFile outputFile = ojl.createFile(FileType.RSC, path);
-      InputStream is = inputFile.openRead();
-      OutputStream os = outputFile.openWrite();
+      InputStream is = inputFile.getInputStream();
+      OutputStream os = outputFile.getOutputStream();
       try {
         ByteStreamSucker sucker = new ByteStreamSucker(is, os);
         sucker.suck();

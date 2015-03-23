@@ -178,7 +178,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       }
 
       try {
-        reader = new LineNumberReader(new InputStreamReader(file.openRead()));
+        reader = new LineNumberReader(new InputStreamReader(file.getInputStream()));
       } catch (WrongPermissionException e) {
         throw new WrongVFSFormatException(this, vfs.getLocation(), e);
       }
@@ -251,14 +251,15 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   public synchronized void close() throws IOException {
     if (!closed) {
-      PrintStream printer = new PrintStream(vfs.getRootDir().createVFile(INDEX_NAME).openWrite());
+      PrintStream printer =
+          new PrintStream(vfs.getRootDir().createVFile(INDEX_NAME).getOutputStream());
 
       printIndex(printer, getRootDir());
       printer.flush();
       printer.close();
 
       if (debug) {
-        printer = new PrintStream(vfs.getRootDir().createVFile(DEBUG_NAME).openWrite());
+        printer = new PrintStream(vfs.getRootDir().createVFile(DEBUG_NAME).getOutputStream());
 
         printDebug(printer, getRootDir());
         printer.flush();
@@ -322,7 +323,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   InputStream openRead(@Nonnull CaseInsensitiveVFile file) throws WrongPermissionException {
     assert !isClosed();
 
-    return file.getEncodedFile().openRead();
+    return file.getEncodedFile().getInputStream();
   }
 
   @Override
@@ -330,7 +331,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   OutputStream openWrite(@Nonnull CaseInsensitiveVFile file) throws WrongPermissionException {
     assert !isClosed();
 
-    return file.getEncodedFile().openWrite();
+    return file.getEncodedFile().getOutputStream();
   }
 
   //

@@ -424,7 +424,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     InputVFile dependenciesVFile = library.getFile(FileType.DEPENDENCIES, dependencyVPath);
     InputStreamReader fileReader = null;
     try {
-      fileReader = new InputStreamReader(dependenciesVFile.openRead());
+      fileReader = new InputStreamReader(dependenciesVFile.getInputStream());
       dependency.read(fileReader);
     } catch (NoSuchElementException e) {
       throw new CannotReadException(dependenciesVFile, e);

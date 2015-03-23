@@ -23,6 +23,7 @@ import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;
 import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.stream.UncloseablePrintStream;
+import com.android.sched.vfs.OutputStreamProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 /**
  * Class representing a output stream from a file path or a standard output.
  */
-public class OutputStreamFile extends AbstractStreamFile {
+public class OutputStreamFile extends AbstractStreamFile implements OutputStreamProvider {
   private final boolean append;
 
   @CheckForNull
@@ -201,6 +202,7 @@ public class OutputStreamFile extends AbstractStreamFile {
     this.append = true;
   }
 
+  @Override
   @Nonnull
   public OutputStream getOutputStream() {
     if (stream == null) {
@@ -216,6 +218,7 @@ public class OutputStreamFile extends AbstractStreamFile {
     return stream;
   }
 
+  @Override
   @Nonnull
   public PrintStream getPrintStream() {
     if (printer == null) {

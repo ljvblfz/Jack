@@ -17,9 +17,9 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.CheckForNull;
@@ -55,8 +55,8 @@ public class GenericInputVFile implements InputVFile {
 
   @Override
   @Nonnull
-  public InputStream openRead() throws IOException {
-    return file.openRead();
+  public InputStream getInputStream() throws WrongPermissionException {
+    return file.getInputStream();
   }
 
   @Override

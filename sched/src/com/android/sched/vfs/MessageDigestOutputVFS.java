@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.collect.Lists;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
 import java.io.IOException;
@@ -78,10 +79,10 @@ public class MessageDigestOutputVFS extends MessageDigestVFS implements OutputVF
 
     @Override
     @Nonnull
-    public OutputStream openWrite() throws IOException {
+    public OutputStream getOutputStream() throws WrongPermissionException {
       assert !isClosed();
 
-      return new DigestOutputStream(file.openWrite(),
+      return new DigestOutputStream(file.getOutputStream(),
           MessageDigestOutputVFS.this.mdFactory.create()) {
         @Override
         public void close() throws IOException {
@@ -90,6 +91,12 @@ public class MessageDigestOutputVFS extends MessageDigestVFS implements OutputVF
               new String(encode(getMessageDigest().digest()));
         }
       };
+    }
+
+    @Override
+    @Nonnull
+    public PrintStream getPrintStream() throws WrongPermissionException {
+      return new PrintStream(getOutputStream());
     }
 
     @CheckForNull
@@ -182,7 +189,7 @@ public class MessageDigestOutputVFS extends MessageDigestVFS implements OutputVF
 
       DigestOutputStream os =
           new DigestOutputStream(root.createOutputVFile(new VPath(DIGEST_DIRECTORY_NAME, '/'))
-              .openWrite(), MessageDigestOutputVFS.this.mdFactory.create());
+              .getOutputStream(), MessageDigestOutputVFS.this.mdFactory.create());
       PrintStream printer = new PrintStream(os);
 
       printer.println(mdFactory.getService().getAlgorithm());

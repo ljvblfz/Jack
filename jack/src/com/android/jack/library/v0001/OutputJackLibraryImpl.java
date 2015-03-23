@@ -181,7 +181,7 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
         goVFS = new GenericOutputVFS(vfs);
         OutputVFile libraryPropertiesOut =
             goVFS.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
-        os = libraryPropertiesOut.openWrite();
+        os = libraryPropertiesOut.getOutputStream();
         libraryProperties.store(os, "Library properties");
         try {
           for (InputOutputVFS intputOutputVFS : sectionVFS.values()) {
@@ -300,7 +300,7 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
 
     InputStream is = null;
     try {
-      is = libProp.openRead();
+      is = libProp.getInputStream();
       libraryProperties.load(is);
     } catch (IOException e) {
       throw new AssertionError();

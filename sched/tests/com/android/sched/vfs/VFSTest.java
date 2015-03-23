@@ -803,14 +803,14 @@ public class VFSTest {
   }
 
   private void writeToFile(@Nonnull OutputVFile file, @Nonnull String string) throws IOException {
-    OutputStreamWriter writer = new OutputStreamWriter(file.openWrite());
+    OutputStreamWriter writer = new OutputStreamWriter(file.getOutputStream());
     writer.write(string);
     writer.close();
   }
 
   @Nonnull
   private String readFromFile(@Nonnull InputVFile file) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(file.openRead()));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
     String string = reader.readLine();
     Assert.assertNull(reader.readLine());
     reader.close();

@@ -112,7 +112,7 @@ public class DependenciesTest009 {
         inputJackLibrary.getFile(FileType.DEPENDENCIES, TypeDependencies.vpath);
     InputStreamReader reader = null;
     try {
-      reader = new InputStreamReader(typeDependenciesVFile.openRead());
+      reader = new InputStreamReader(typeDependenciesVFile.getInputStream());
       typeDependencies.read(reader);
     } catch (NoSuchElementException e) {
       throw new CannotReadException(typeDependenciesVFile, e);

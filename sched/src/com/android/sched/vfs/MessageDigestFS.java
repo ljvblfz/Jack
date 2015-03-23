@@ -114,19 +114,19 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
 
     @Override
     @Nonnull
-    public InputStream openRead() throws WrongPermissionException {
-      return wrappedFile.openRead();
+    public InputStream getInputStream() throws WrongPermissionException {
+      return wrappedFile.getInputStream();
     }
 
     @Override
     @Nonnull
-    public OutputStream openWrite() throws WrongPermissionException {
+    public OutputStream getOutputStream() throws WrongPermissionException {
       synchronized (MessageDigestFS.this) {
         digests.remove(getPath());
         digest = null;
       }
 
-      return new DigestOutputStream(wrappedFile.openWrite(), mdFactory.create()) {
+      return new DigestOutputStream(wrappedFile.getOutputStream(), mdFactory.create()) {
         @Override
         public void close() throws IOException {
           super.close();
@@ -172,7 +172,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
     LineNumberReader in = null;
     try {
       try {
-        in = new LineNumberReader(new InputStreamReader(digestFile.openRead()));
+        in = new LineNumberReader(new InputStreamReader(digestFile.getInputStream()));
       } catch (WrongPermissionException e) {
         throw new WrongVFSFormatException(this, vfs.getLocation(), e);
       }
@@ -265,7 +265,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
   public synchronized void close() throws CannotCreateFileException, WrongPermissionException,
       IOException {
     if (!closed) {
-      printDigest(vfs.getRootDir().createVFile(DIGEST_FILE_NAME).openWrite());
+      printDigest(vfs.getRootDir().createVFile(DIGEST_FILE_NAME).getOutputStream());
       vfs.close();
       closed = true;
     }

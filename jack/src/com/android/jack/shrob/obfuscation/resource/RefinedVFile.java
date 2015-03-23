@@ -17,6 +17,7 @@
 package com.android.jack.shrob.obfuscation.resource;
 
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputVFile;
@@ -63,8 +64,8 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
 
   @Nonnull
   @Override
-  public InputStream openRead() throws IOException {
-    InputStream inputStream = file.openRead();
+  public InputStream getInputStream() throws WrongPermissionException {
+    InputStream inputStream = file.getInputStream();
     if (refinedEntries.isEmpty()) {
       return inputStream;
     }
