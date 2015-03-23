@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -86,8 +87,8 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
 
     @Override
     @Nonnull
-    public InputStream openRead() throws IOException {
-      return file.openRead();
+    public InputStream getInputStream() throws WrongPermissionException {
+      return file.getInputStream();
     }
 
     @CheckForNull
@@ -182,7 +183,7 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
       }
 
       try {
-        in = new BufferedReader(new InputStreamReader(file.openRead()));
+        in = new BufferedReader(new InputStreamReader(file.getInputStream()));
       } catch (IOException e) {
         logger.log(Level.WARNING, "Cannot open {0}", file.getLocation().getDescription());
         logger.log(Level.WARNING, "Stacktrace", e);

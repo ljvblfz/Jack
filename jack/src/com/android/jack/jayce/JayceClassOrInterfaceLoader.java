@@ -188,7 +188,7 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
     if (type == null || !type.getLevel().keep(minimumLevel)) {
       InputStream in = null;
       try {
-        in = new BufferedInputStream(source.openRead());
+        in = new BufferedInputStream(source.getInputStream());
         NodeLevel loadLevel = getLevelForLoading(minimumLevel);
         type = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
         nnode = new SoftReference<DeclaredTypeNode>(type);

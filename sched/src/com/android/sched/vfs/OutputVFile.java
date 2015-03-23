@@ -16,15 +16,9 @@
 
 package com.android.sched.vfs;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.annotation.Nonnull;
-
 /**
  * Virtual file to write to.
  */
-public interface OutputVFile extends OutputVElement {
-  @Nonnull
-  OutputStream openWrite() throws IOException;
+public interface OutputVFile extends OutputVElement, OutputStreamProvider {
+
 }

@@ -115,8 +115,8 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
         InputStream is = null;
         OutputStream os = null;
         try {
-          is = ((VFile) element).openRead();
-          os = file.openWrite();
+          is = ((VFile) element).getInputStream();
+          os = file.getOutputStream();
           ByteStreamSucker sucker = new ByteStreamSucker(is, os);
           sucker.suck();
         } finally {

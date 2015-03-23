@@ -76,7 +76,7 @@ public abstract class DexWritingTool {
     OutputStream os = null;
     try {
       try {
-        os = new BufferedOutputStream(out.openWrite());
+        os = new BufferedOutputStream(out.getOutputStream());
         merger.finish(os);
       } finally {
         if (os != null) {
@@ -91,7 +91,7 @@ public abstract class DexWritingTool {
   protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
       throws MergingOverflowException, DexWritingException {
     try {
-      merger.addDexFile(new DexBuffer(inputDex.openRead()));
+      merger.addDexFile(new DexBuffer(inputDex.getInputStream()));
     } catch (IOException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
     }

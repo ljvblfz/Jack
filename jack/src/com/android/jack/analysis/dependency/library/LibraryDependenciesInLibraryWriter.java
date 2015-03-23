@@ -52,7 +52,7 @@ public class LibraryDependenciesInLibraryWriter implements RunnableSchedulable<J
     PrintStream ps = null;
     try {
       ps = new PrintStream(
-          ojl.createFile(FileType.DEPENDENCIES, LibraryDependencies.vpath).openWrite());
+          ojl.createFile(FileType.DEPENDENCIES, LibraryDependencies.vpath).getOutputStream());
       libraryDependencies.write(ps);
     } catch (CannotCreateFileException e) {
       IncrementalException incrementalException = new IncrementalException(e);

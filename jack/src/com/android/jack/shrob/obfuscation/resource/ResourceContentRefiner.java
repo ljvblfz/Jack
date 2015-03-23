@@ -69,7 +69,7 @@ public class ResourceContentRefiner implements RunnableSchedulable<JSession> {
         RefinedVFile refinedVFile = new RefinedVFile(originalVFile);
         int position = 0;
         try {
-          reader = new InputStreamReader(originalVFile.openRead());
+          reader = new InputStreamReader(originalVFile.getInputStream());
           int c = reader.read();
           while (c != -1) {
             if (Character.isJavaIdentifierStart(c)) {

@@ -21,6 +21,7 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
 import com.android.sched.util.stream.UncloseableInputStream;
+import com.android.sched.vfs.InputStreamProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
 /**
  * Class representing a input stream from a file path or a standard input.
  */
-public class InputStreamFile extends AbstractStreamFile {
+public class InputStreamFile extends AbstractStreamFile implements InputStreamProvider {
   @CheckForNull
   private InputStream stream;
 
@@ -72,6 +73,7 @@ public class InputStreamFile extends AbstractStreamFile {
     }
   }
 
+  @Override
   @Nonnull
   public InputStream getInputStream() {
     if (stream == null) {

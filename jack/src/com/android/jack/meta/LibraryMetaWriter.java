@@ -98,8 +98,9 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
     OutputVFile outputFile = ojl.createFile(FileType.JPP, path);
     InputStream is = null;
     try {
-      is = inputFile.openRead();
-      ByteStreamSucker sucker = new ByteStreamSucker(is, outputFile.openWrite(), true /* close */);
+      is = inputFile.getInputStream();
+      ByteStreamSucker sucker = new ByteStreamSucker(is, outputFile.getOutputStream(),
+          true /* close */);
       sucker.suck();
     } finally {
       if (is != null) {

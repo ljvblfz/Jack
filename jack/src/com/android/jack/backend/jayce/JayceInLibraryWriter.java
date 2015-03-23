@@ -81,7 +81,7 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
         new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
     try {
-      OutputStream out = new BufferedOutputStream(vFile.openWrite());
+      OutputStream out = new BufferedOutputStream(vFile.getOutputStream());
       try {
         JayceWriterFactory.get(outputJackLibrary, out).write(type);
       } finally {

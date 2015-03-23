@@ -67,8 +67,8 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
       OutputVFile outputFile = outputVDir.getRootOutputVDir().createOutputVFile(path);
-      InputStream is = inputFile.openRead();
-      OutputStream os = outputFile.openWrite();
+      InputStream is = inputFile.getInputStream();
+      OutputStream os = outputFile.getOutputStream();
       try {
         ByteStreamSucker sucker = new ByteStreamSucker(is, os);
         sucker.suck();

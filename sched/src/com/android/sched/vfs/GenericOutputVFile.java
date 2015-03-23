@@ -16,10 +16,11 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnull;
 
@@ -53,7 +54,13 @@ public class GenericOutputVFile implements OutputVFile {
 
   @Override
   @Nonnull
-  public OutputStream openWrite() throws IOException {
-    return file.openWrite();
+  public OutputStream getOutputStream() throws WrongPermissionException {
+    return file.getOutputStream();
+  }
+
+  @Override
+  @Nonnull
+  public PrintStream getPrintStream() throws WrongPermissionException {
+    return new PrintStream(getOutputStream());
   }
 }

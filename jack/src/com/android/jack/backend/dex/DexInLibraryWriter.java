@@ -83,8 +83,8 @@ public class DexInLibraryWriter extends DexWriter implements
           vFile = outputLibrary.createFile(FileType.DEX,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
-          InputStream is = in.openRead();
-          OutputStream os = vFile.openWrite();
+          InputStream is = in.getInputStream();
+          OutputStream os = vFile.getOutputStream();
           try {
             new ByteStreamSucker(is, os, true).suck();
           } finally {
@@ -112,7 +112,7 @@ public class DexInLibraryWriter extends DexWriter implements
           + Jack.getUserFriendlyFormatter().getName(type), e);
     }
     try {
-      outStream = vFile.openWrite();
+      outStream = vFile.getOutputStream();
       typeDex.getStringIds().intern(DexWriter.getJackDexTag());
       typeDex.prepare();
       typeDex.writeTo(outStream, null, false);
