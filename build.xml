@@ -1832,7 +1832,6 @@
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
-    <file name="${jack-api.dist.dir}/${jack-api.lib.name}" />
   </filelist>
 
   <target name="test-jack-clean" >
