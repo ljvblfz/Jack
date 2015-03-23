@@ -24,12 +24,15 @@ import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.util.codec.ImplementationFilter;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.codec.ReflectFactorySelector;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ReflectFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.IntegerPropertyId;
-import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.config.id.ListPropertyId;
+import com.android.sched.util.config.id.LongPropertyId;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -74,7 +77,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
       "sched.runner.thread.detector.frequency",
       "Define at which frequency the detector is triggered (in ms)")
       .withMin(100).requiredIf(ScheduleInstance.DEFAULT_RUNNER.getClazz()
-          .isSubClassOf(MultiWorkersScheduleInstance.class)).addDefaultValue("5000");
+          .isSubClassOf(MultiWorkersScheduleInstance.class)).addDefaultValue("30000");
 
   @Nonnegative
   private final int checkEvery = ThreadConfig.get(CHECK_FREQUENCY).intValue();
@@ -457,11 +460,17 @@ public class MultiWorkersScheduleInstance<T extends Component>
       activeWorkers.add(worker);
     }
 
-    Detector detector = ThreadConfig.get(Detector.DETECTOR)
-        .create(Integer.valueOf(activeWorkers.size()));
-    boolean shutdownInProgress = false;
+    List<Detector> detectors;
+    {
+      List<ReflectFactory<Detector>> factories = ThreadConfig.get(Detector.DETECTORS);
+      detectors = new ArrayList<Detector>(factories.size());
+      for (ReflectFactory<Detector> factory : factories) {
+        detectors.add(factory.create(Integer.valueOf(activeWorkers.size())));
+      }
+    }
 
     // Wait for threads termination
+    boolean shutdownInProgress = false;
     while (activeWorkers.size() > 0) {
       Thread thread = activeWorkers.get(0);
 
@@ -474,10 +483,12 @@ public class MultiWorkersScheduleInstance<T extends Component>
         activeWorkers.remove(0);
       }
 
-      if (!detector.check(activeWorkers) && !shutdownInProgress) {
-        // If there is a blocked thread detected, shutdown all tasks
-        shutdownInProgress = true;
-        new AssertionErrorTask(queue, new AssertionError()).commit();
+      for (Detector detector : detectors) {
+        if (!detector.check(activeWorkers) && !shutdownInProgress) {
+          // If there is a blocked thread detected, shutdown all tasks
+          shutdownInProgress = true;
+          new AssertionErrorTask(queue, new AssertionError()).commit();
+        }
       }
     }
 
@@ -496,15 +507,15 @@ public class MultiWorkersScheduleInstance<T extends Component>
   @VariableName("detector")
   private abstract static class Detector {
     @Nonnull
-    public static final
-        ReflectFactoryPropertyId<Detector> DETECTOR = ReflectFactoryPropertyId.create(
-            "sched.runner.thread.detector", "Set kind of detector", Detector.class)
-            .addArgType(Integer.TYPE)
-            .bypassAccessibility()
-            .addDefaultValue("deadlock")
-            .addDefaultValue("none")
-            .requiredIf(ScheduleInstance.DEFAULT_RUNNER.getClazz()
-                .isSubClassOf(MultiWorkersScheduleInstance.class));
+    public static final ListPropertyId<ReflectFactory<Detector>> DETECTORS =
+        new ListPropertyId<ReflectFactory<Detector>>("sched.runner.thread.detectors",
+            "Set a list of detectors", new ReflectFactorySelector<Detector>(Detector.class)
+                .addArgType(Integer.TYPE).bypassAccessibility())
+            .minElements(1)
+            .requiredIf(
+                ScheduleInstance.DEFAULT_RUNNER.getClazz().isSubClassOf(
+                    MultiWorkersScheduleInstance.class)).addDefaultValue("deadlock,long-running")
+            .addDefaultValue("long-running");
 
     protected Detector(@Nonnegative int size) {
     }
@@ -536,18 +547,17 @@ public class MultiWorkersScheduleInstance<T extends Component>
   @ImplementationName(iface = Detector.class, name = "long-running")
   private static class LongRunning extends Detector {
     @Nonnull
-    private static final IntegerPropertyId TIMEOUT = IntegerPropertyId.create(
+    private static final LongPropertyId TIMEOUT = LongPropertyId.create(
         "sched.runner.thread.detector.long-running.timeout",
         "Duration allowed by the detector before aborting compilation (in ms)")
-        .addDefaultValue("900000")
-        .withMin(0)
-        .requiredIf(DETECTOR.getClazz().isSubClassOf(LongRunning.class));
+        .addDefaultValue("3600000")
+        .withMin(0);
 
     @Nonnull
     private final Logger logger = LoggerFactory.getLogger();
 
     @Nonnegative
-    private final int timeout = ThreadConfig.get(TIMEOUT).intValue();
+    private final long timeout = ThreadConfig.get(TIMEOUT).longValue();
 
     @Nonnull
     private final List<Worker> blockedWorkers;
@@ -660,7 +670,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
       long[] deadlockedThreadIds = threadManager.findDeadlockedThreads();
 
       if (deadlockedThreadIds != null && deadlockedThreadIds.length > 0) {
-        if (activeWorkers.size() >= 0) {
+        if (activeWorkers.size() > 0) {
           // Remove deadlocked threads or thread waiting for deadlocked threads from active workers
           Iterator<Worker> iter = activeWorkers.iterator();
           while (iter.hasNext()) {
