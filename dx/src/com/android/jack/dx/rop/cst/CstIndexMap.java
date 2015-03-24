@@ -98,29 +98,6 @@ public class CstIndexMap {
   }
 
   /**
-   * Merge all {@link TypedConstant} of one dex file into another.
-   * @param dex The dex file where values are merged.
-   */
-  public void mergeConstantsIntoDexFile(DexFile dex) {
-    for (CstString cst : strings) {
-      dex.getStringIds().intern(cst);
-    }
-
-    for (CstBaseMethodRef cst : methods) {
-      dex.getMethodIds().intern(cst);
-    }
-
-    for (CstFieldRef cst : fields) {
-      dex.getFieldIds().intern(cst);
-    }
-
-    for (CstType cst : types) {
-      dex.getTypeIds().intern(cst);
-    }
-  }
-
-
-  /**
    * Return the remapped index of a {@code CstString} into {@code file}.
    * @param file The file where the remapped index apply to.
    * @param index The old index to remap into {@code file}.

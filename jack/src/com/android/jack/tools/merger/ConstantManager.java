@@ -15,6 +15,7 @@
  */
 package com.android.jack.tools.merger;
 
+import com.android.jack.Jack;
 import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
@@ -30,6 +31,7 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +60,24 @@ public class ConstantManager extends MergerTools {
   private final Map<String, CstString> protoStr2CstString = new HashMap<String, CstString>();
 
   @Nonnull
-  private final List<CstIndexMap> cstIndexMaps = new ArrayList<CstIndexMap>();
+  public Collection<CstString> getCstStrings() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(string2CstStrings.values());
+  }
+
+  @Nonnull
+  public Collection<CstFieldRef> getCstFieldRefs() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstFieldRefs);
+  }
+
+  @Nonnull
+  public Collection<CstMethodRef> getCstMethodRefs() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstMethodRefs);
+  }
+
+  @Nonnull
+  public Collection<CstType> getCstTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstTypes);
+  }
 
   @Nonnull
   public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
@@ -164,8 +183,6 @@ public class ConstantManager extends MergerTools {
       throw new TypeIdOverflowException();
     }
 
-    cstIndexMaps.add(cstIndexMap);
-
     return cstIndexMap;
   }
 
@@ -176,11 +193,6 @@ public class ConstantManager extends MergerTools {
     cstFieldRefs.removeAll(cstFieldRefsToRemove);
     cstMethodRefs.removeAll(cstMethodRefsToRemove);
     cstTypes.removeAll(cstTypesToRemove);
-  }
-
-  @Nonnull
-  public List<CstIndexMap> getCstIndexMaps() {
-    return cstIndexMaps;
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {

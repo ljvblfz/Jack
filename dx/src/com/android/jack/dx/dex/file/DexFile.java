@@ -22,7 +22,7 @@ import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBaseMethodRef;
 import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
-import com.android.jack.dx.rop.cst.CstIndexMap;
+import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
@@ -35,8 +35,10 @@ import java.io.Writer;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Collection;
 import java.util.zip.Adler32;
+
+import javax.annotation.Nonnull;
 
 /**
  * Representation of an entire {@code .dex} (Dalvik EXecutable)
@@ -493,20 +495,39 @@ public final class DexFile {
    * particular offsets.
    */
   public void prepare() {
-    prepare(null);
+    prepare(null, null, null, null);
   }
 
   /**
    * Prepares this instance for writing. This performs any necessary prerequisites, including
    * particularly adding stuff to other sections and places all the items in this instance at
    * particular offsets.
-   *
-   * @param cstIndexMaps list used to map offsets from a dex file to this instance
+   * @param cstStrings Collection of CstString to intern
+   * @param cstFieldRefs Collection of CstFieldRef to intern
+   * @param cstMethodRefs Collection of CstMethodRef to intern
+   * @param cstTypes Collection of CstType to intern
    */
-  public void prepare(List<CstIndexMap> cstIndexMaps) {
-    if (cstIndexMaps != null) {
-      for (CstIndexMap cstIndexMap : cstIndexMaps) {
-        cstIndexMap.mergeConstantsIntoDexFile(this);
+  public void prepare(@Nonnull Collection<CstString> cstStrings,
+      @Nonnull Collection<CstFieldRef> cstFieldRefs,
+      @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<CstType> cstTypes) {
+    if (cstStrings != null) {
+      for (CstString cst : cstStrings) {
+        stringIds.intern(cst);
+      }
+    }
+    if (cstFieldRefs != null) {
+      for (CstFieldRef cst : cstFieldRefs) {
+        fieldIds.intern(cst);
+      }
+    }
+    if (cstMethodRefs != null) {
+      for (CstMethodRef cst : cstMethodRefs) {
+        methodIds.intern(cst);
+      }
+    }
+    if (cstTypes != null) {
+      for (CstType cst : cstTypes) {
+        typeIds.intern(cst);
       }
     }
 
