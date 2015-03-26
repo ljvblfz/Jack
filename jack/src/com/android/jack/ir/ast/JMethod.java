@@ -115,6 +115,11 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     return modifier;
   }
 
+  @Override
+  public void setModifier(int modifier) {
+    this.modifier = modifier;
+  }
+
   /**
    * Adds a parameter to this method.
    */

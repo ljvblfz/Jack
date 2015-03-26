@@ -98,11 +98,16 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
   @Override
   protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
-    if (!transform(fields, existingNode, (JField) newNode, transformation)) {
-      if (!transform(methods, existingNode, (JMethod) newNode, transformation)) {
-        super.transform(existingNode, newNode, transformation);
+    if (existingNode instanceof JMethod) {
+      if (transform(methods, existingNode, (JMethod) newNode, transformation)) {
+        return;
+      }
+    } else if (existingNode instanceof JField) {
+      if (transform(fields, existingNode, (JField) newNode, transformation)) {
+        return;
       }
     }
+    super.transform(existingNode, newNode, transformation);
   }
 
   @Override

@@ -452,6 +452,12 @@ public class Options {
   private MultiDexKind multiDexKind = MultiDexKind.NONE;
 
   @Nonnull
+  public static final BooleanPropertyId OPTIMIZE_INNER_CLASSES_ACCESSORS = BooleanPropertyId.create(
+      "jack.optimization.inner-class.accessors",
+      "Avoid creating synthethic accessors for outer class private fields")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
       .addDefaultValue(Boolean.FALSE);

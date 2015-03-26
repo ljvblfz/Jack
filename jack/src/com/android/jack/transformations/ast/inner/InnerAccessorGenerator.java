@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,12 +76,12 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
   static final String THIS_PARAM_NAME = NamingTools.getNonSourceConflictingName("this");
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  protected final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  class Visitor extends JVisitor {
 
     @Nonnull
-    private final TransformationRequest tr;
+    protected final TransformationRequest tr;
 
     @Nonnull
     private final JDefinedClassOrInterface currentType;
@@ -176,54 +176,11 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
             && ((JAsgOperation) parent).getLhs() == x) {
           // writing access
           //
-          SetterMarker marker = accessorClass.getMarker(SetterMarker.class);
-          if (marker == null) {
-            marker = new SetterMarker();
-            accessorClass.addMarker(marker);
-          }
-          JMethod setter = marker.getOrCreateSetter(field, (JDefinedClass) accessorClass);
-
-          // this.this$0.field = $value => $set<id>(this.this$0, $value)
-          JBinaryOperation binOp = (JBinaryOperation) x.getParent();
-
-          JMethodId setterId = setter.getMethodId();
-          JMethodCall setterCall =
-              new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,
-                  setter.getType(), setterId.canBeVirtual());
-
-          if (!field.isStatic()) {
-            JExpression instance = x.getInstance();
-            assert instance != null;
-            setterCall.addArg(instance);
-          }
-          setterCall.addArg(binOp.getRhs());
-          assert setterCall.getArgs().size() == setter.getParams().size();
-
-          tr.append(new Replace(binOp, setterCall));
+          handleOuterFieldWrite(tr, x, accessorClass);
         } else {
           // reading access
           //
-          GetterMarker marker = accessorClass.getMarker(GetterMarker.class);
-          if (marker == null) {
-            marker = new GetterMarker();
-            accessorClass.addMarker(marker);
-          }
-          JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass);
-
-          // this.this$0.field => $get<id>(this.this$0)
-          JMethodId getterId = getter.getMethodId();
-          JMethodCall getterCall = new JMethodCall(x.getSourceInfo(), null, accessorClass,
-              getterId, getter.getType(), getterId.canBeVirtual());
-
-          if (!field.isStatic()) {
-            JExpression instance = x.getInstance();
-            assert instance != null;
-            getterCall.addArg(instance);
-          }
-
-          assert getterCall.getArgs().size() == getter.getParams().size();
-
-          tr.append(new Replace(x, getterCall));
+          handleOuterFieldRead(tr, x, accessorClass);
         }
       }
       return super.visit(x);
@@ -247,56 +204,119 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
         if (!accessorClass.isSameType(currentType)) {
           assert accessorClass.getSourceInfo().getFileSourceInfo()
             .equals(currentType.getSourceInfo().getFileSourceInfo());
-
-          WrapperMarker marker = accessorClass.getMarker(WrapperMarker.class);
-          if (marker == null) {
-            marker = new WrapperMarker();
-            accessorClass.addMarker(marker);
-          }
-
-          JMethod wrapper = marker.getOrCreateWrapper(method, (JDefinedClass) accessorClass,
-              isSuper);
-
-          JMethodCall wrapperCall = null;
-          SourceInfo sourceInfo = x.getSourceInfo();
-          if (x instanceof JNewInstance) {
-            assert wrapper instanceof JConstructor;
-            wrapperCall =
-                new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodId());
-          } else {
-
-            JMethodId wrapperId = wrapper.getMethodId();
-
-            // this.this$0.method(param) => $wrap<id>(this.this$0, param)
-            if (!method.isStatic() && !(wrapper instanceof JConstructor)) {
-              wrapperCall = new JMethodCall(sourceInfo, null, accessorClass, wrapperId,
-                  wrapper.getType(), wrapperId.canBeVirtual());
-              JExpression instance = x.getInstance();
-              assert instance != null;
-              wrapperCall.addArg(instance);
-            } else {
-              wrapperCall = new JMethodCall(sourceInfo, x.getInstance(), accessorClass,
-                  wrapperId, wrapper.getType(), wrapperId.canBeVirtual());
-            }
-          }
-
-          for (JExpression arg : x.getArgs()) {
-            wrapperCall.addArg(arg);
-          }
-
-          if (wrapper instanceof JConstructor) {
-            int numberOfParamToAdd = wrapper.getParams().size() - method.getParams().size();
-            for (int i = 0; i < numberOfParamToAdd; i++) {
-              wrapperCall.addArg(new JNullLiteral(sourceInfo));
-            }
-          }
-
-          assert wrapperCall.getArgs().size() == wrapper.getParams().size();
-          tr.append(new Replace(x, wrapperCall));
+          handleOuterMethodCall(tr, x, method, accessorClass, isSuper);
         }
       }
       return super.visit(x);
     }
+
+  }
+
+  protected void handleOuterFieldWrite(@Nonnull TransformationRequest tr,
+      @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {
+    JField field = fieldRef.getFieldId().getField();
+    assert(field != null);
+    SetterMarker marker = accessorClass.getMarker(SetterMarker.class);
+    if (marker == null) {
+      marker = new SetterMarker();
+      accessorClass.addMarker(marker);
+    }
+    JMethod setter = marker.getOrCreateSetter(field, (JDefinedClass) accessorClass);
+
+    // this.this$0.field = $value => $set<id>(this.this$0, $value)
+    JBinaryOperation binOp = (JBinaryOperation) fieldRef.getParent();
+
+    JMethodId setterId = setter.getMethodId();
+    JMethodCall setterCall =
+        new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,
+            setter.getType(), setterId.canBeVirtual());
+
+    if (!field.isStatic()) {
+      JExpression instance = fieldRef.getInstance();
+      assert instance != null;
+      setterCall.addArg(instance);
+    }
+    setterCall.addArg(binOp.getRhs());
+    assert setterCall.getArgs().size() == setter.getParams().size();
+
+    tr.append(new Replace(binOp, setterCall));
+  }
+
+  protected void handleOuterFieldRead(@Nonnull TransformationRequest tr,
+      @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {
+    JField field = fieldRef.getFieldId().getField();
+    assert(field != null);
+    GetterMarker marker = accessorClass.getMarker(GetterMarker.class);
+    if (marker == null) {
+      marker = new GetterMarker();
+      accessorClass.addMarker(marker);
+    }
+    JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass);
+
+    // this.this$0.field => $get<id>(this.this$0)
+    JMethodId getterId = getter.getMethodId();
+    JMethodCall getterCall = new JMethodCall(fieldRef.getSourceInfo(), null, accessorClass,
+        getterId, getter.getType(), getterId.canBeVirtual());
+
+    if (!field.isStatic()) {
+      JExpression instance = fieldRef.getInstance();
+      assert instance != null;
+      getterCall.addArg(instance);
+    }
+
+    assert getterCall.getArgs().size() == getter.getParams().size();
+
+    tr.append(new Replace(fieldRef, getterCall));
+  }
+
+  protected void handleOuterMethodCall(@Nonnull TransformationRequest tr,
+      @Nonnull JMethodCall methodCall, @Nonnull JMethod method,
+      @Nonnull JDefinedClassOrInterface accessorClass, boolean isSuper) {
+    WrapperMarker marker = accessorClass.getMarker(WrapperMarker.class);
+    if (marker == null) {
+      marker = new WrapperMarker();
+      accessorClass.addMarker(marker);
+    }
+
+    JMethod wrapper = marker.getOrCreateWrapper(method, (JDefinedClass) accessorClass,
+        isSuper);
+
+    JMethodCall wrapperCall = null;
+    SourceInfo sourceInfo = methodCall.getSourceInfo();
+    if (methodCall instanceof JNewInstance) {
+      assert wrapper instanceof JConstructor;
+      wrapperCall =
+          new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodId());
+    } else {
+
+      JMethodId wrapperId = wrapper.getMethodId();
+
+      // this.this$0.method(param) => $wrap<id>(this.this$0, param)
+      if (!method.isStatic() && !(wrapper instanceof JConstructor)) {
+        wrapperCall = new JMethodCall(sourceInfo, null, accessorClass, wrapperId,
+            wrapper.getType(), wrapperId.canBeVirtual());
+        JExpression instance = methodCall.getInstance();
+        assert instance != null;
+        wrapperCall.addArg(instance);
+      } else {
+        wrapperCall = new JMethodCall(sourceInfo, methodCall.getInstance(), accessorClass,
+            wrapperId, wrapper.getType(), wrapperId.canBeVirtual());
+      }
+    }
+
+    for (JExpression arg : methodCall.getArgs()) {
+      wrapperCall.addArg(arg);
+    }
+
+    if (wrapper instanceof JConstructor) {
+      int numberOfParamToAdd = wrapper.getParams().size() - method.getParams().size();
+      for (int i = 0; i < numberOfParamToAdd; i++) {
+        wrapperCall.addArg(new JNullLiteral(sourceInfo));
+      }
+    }
+
+    assert wrapperCall.getArgs().size() == wrapper.getParams().size();
+    tr.append(new Replace(methodCall, wrapperCall));
   }
 
   @Override

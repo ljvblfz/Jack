@@ -106,6 +106,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     updateParents(enclosingPackage);
   }
 
+  @Override
   public void setModifier(int modifier) {
     this.modifier = modifier;
   }

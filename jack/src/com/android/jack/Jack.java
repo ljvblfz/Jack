@@ -198,9 +198,12 @@ import com.android.jack.transformations.ast.RefAsStatementRemover;
 import com.android.jack.transformations.ast.SynchronizeTransformer;
 import com.android.jack.transformations.ast.TryWithResourcesTransformer;
 import com.android.jack.transformations.ast.TypeLegalizer;
+import com.android.jack.transformations.ast.inner.AvoidSynthethicAccessors;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
 import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
+import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorGenerator;
+import com.android.jack.transformations.ast.inner.ReferencedOuterFieldsExposer;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCallRemover;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodRemover;
 import com.android.jack.transformations.ast.splitnew.SplitNewInstance;
@@ -521,6 +524,10 @@ public abstract class Jack {
       }
       if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
         request.addFeature(GenerateLibraryFromIncrementalFolder.class);
+      }
+
+      if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
+        request.addFeature(AvoidSynthethicAccessors.class);
       }
 
       request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
@@ -967,7 +974,11 @@ public abstract class Jack {
           methodPlan2.append(IncDecRemover.class);
           methodPlan2.append(CompoundAssignmentRemover.class);
           methodPlan2.append(ConcatRemover.class);
-          methodPlan2.append(InnerAccessorGenerator.class);
+          if (features.contains(AvoidSynthethicAccessors.class)) {
+            methodPlan2.append(OptimizedInnerAccessorGenerator.class);
+          } else {
+            methodPlan2.append(InnerAccessorGenerator.class);
+          }
         }
       }
     }
@@ -986,6 +997,9 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      if (features.contains(AvoidSynthethicAccessors.class)) {
+        typePlan4.append(ReferencedOuterFieldsExposer.class);
+      }
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {

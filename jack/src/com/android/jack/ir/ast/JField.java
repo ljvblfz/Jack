@@ -188,6 +188,11 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
     return modifier;
   }
 
+  @Override
+  public void setModifier(int modifier) {
+    this.modifier = modifier;
+  }
+
   @CheckForNull
   public JLiteral getConstInitializer() {
     JExpression initializer = getInitializer();

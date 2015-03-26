@@ -22,4 +22,6 @@ package com.android.jack.ir.ast;
 public interface HasModifier {
 
   int getModifier();
+
+  void setModifier(int modifier);
 }
