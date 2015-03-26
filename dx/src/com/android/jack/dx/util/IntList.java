@@ -169,16 +169,7 @@ public final class IntList extends MutabilityControl {
    * @return the indicated element's value
    */
   public int get(int n) {
-    if (n >= size) {
-      throw new IndexOutOfBoundsException("n >= size()");
-    }
-
-    try {
       return values[n];
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      // Translate exception.
-      throw new IndexOutOfBoundsException("n < 0");
-    }
   }
 
   /**
@@ -189,20 +180,8 @@ public final class IntList extends MutabilityControl {
    */
   public void set(int n, int value) {
     throwIfImmutable();
-
-    if (n >= size) {
-      throw new IndexOutOfBoundsException("n >= size()");
-    }
-
-    try {
-      values[n] = value;
-      sorted = false;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      // Translate the exception.
-      if (n < 0) {
-        throw new IllegalArgumentException("n < 0");
-      }
-    }
+    values[n] = value;
+    sorted = false;
   }
 
   /**
