@@ -633,6 +633,7 @@
           <exclude name="com/android/jack/enums/test003/link/Values.java"/>
           <exclude name="com/android/jack/error/test001/jack/A.java"/>
           <exclude name="com/android/jack/error/test002/jack/A.java"/>
+          <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
           <exclude name="com/android/jack/nopackage/jack/**"/>
           <exclude name="com/android/jack/java7/boxing/**"/>
           <exclude name="com/android/jack/java7/switches/**"/>
@@ -659,6 +660,7 @@
       <exclude name="com/android/jack/enums/test003/link/Values.java"/>
       <exclude name="com/android/jack/error/test001/jack/A.java"/>
       <exclude name="com/android/jack/error/test002/jack/A.java"/>
+      <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
       <exclude name="com/android/jack/java7/boxing/**"/>
       <exclude name="com/android/jack/java7/switches/**"/>

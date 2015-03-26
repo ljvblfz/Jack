@@ -26,7 +26,7 @@ import com.android.jack.fibonacci.FibonacciTests;
 import com.android.jack.field.FieldTests;
 import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
-import com.android.jack.frontend.MissingClassTest;
+import com.android.jack.frontend.FrontEndTests;
 import com.android.jack.generic.basic.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
 import com.android.jack.imports.ImportTests;
@@ -108,7 +108,7 @@ import org.junit.runners.Suite.SuiteClasses;
     LibraryTests.class,
     LookupTests.class,
     MergerAllTests.class,
-    MissingClassTest.class,
+    FrontEndTests.class,
     MultiDexAllTests.class,
     NewarrayTests.class,
     ExprsimplifierTests.class,
