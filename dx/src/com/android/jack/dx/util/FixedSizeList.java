@@ -167,18 +167,9 @@ public class FixedSizeList extends MutabilityControl implements ToHuman {
    * @return {@code non-null;} the indicated element
    */
   protected final Object get0(int n) {
-    try {
       Object result = arr[n];
-
-      if (result == null) {
-        throw new NullPointerException("unset: " + n);
-      }
-
+      assert result != null;
       return result;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      // Translate the exception.
-      return throwIndex(n);
-    }
   }
 
   /**
@@ -205,28 +196,7 @@ public class FixedSizeList extends MutabilityControl implements ToHuman {
    */
   protected final void set0(int n, Object obj) {
     throwIfImmutable();
-
-    try {
-      arr[n] = obj;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      // Translate the exception.
-      throwIndex(n);
-    }
-  }
-
-  /**
-   * Throws the appropriate exception for the given index value.
-   *
-   * @param n the index value
-   * @return never
-   * @throws IndexOutOfBoundsException always thrown
-   */
-  private Object throwIndex(int n) {
-    if (n < 0) {
-      throw new IndexOutOfBoundsException("n < 0");
-    }
-
-    throw new IndexOutOfBoundsException("n >= size()");
+    arr[n] = obj;
   }
 
   /**
