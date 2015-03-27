@@ -96,16 +96,12 @@ RETRY=3
 while true; do
   EXIT_CODE=$(curl -f -s -d@- http://127.0.0.1:$SERVER_PORT/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CODE=$?
-  if [ -z "$EXIT_CODE" ]; then
-    kill -9 $PID_OUT $PID_ERR
-    exit 255
-  fi 
   if [ $CODE -eq 0 ]; then
     break;
   elif [ $CODE -eq 7 ]; then
     if [ $RETRY -eq 0 ]; then
       kill -9 $PID_OUT $PID_ERR
-      echo "Cannot lunch background server"
+      echo "Cannot launch background server"
       exit 255
     else
       # Launch the server
