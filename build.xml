@@ -31,6 +31,7 @@
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
     jack-api-src-clean,
+    jack-server-lib-clean,
     jack-annotations-lib-clean,
     jack-intermediate-clean,
     jackunittests-lib-clean,
@@ -67,6 +68,7 @@
 
   <property name="jack.dir" value="${jack-project.dir}/jack" />
   <property name="jack-api.dir" value="${jack-project.dir}/jack-api" />
+  <property name="jack-server.dir" value="${jack-project.dir}/jack-server" />
   <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
   <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
@@ -109,12 +111,11 @@
     <delete dir="${jack.tools.dir}"/>
   </target>
 
-  <target name="jack-copy-libs" depends="ecj,simple-lib,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
+  <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
     junit4,dex-lib,dx-ref-lib,jack-api-lib">
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
-        <file name="${simple.dist.dir}/${simple.libname}"/>
         <file name="${guava.dist.dir}/${guava.libname}"/>
         <file name="${dx.dist.dir}/${dx.libname}"/>
         <file name="${args4j.dist.dir}/${args4j.libname}"/>
@@ -145,7 +146,6 @@
     <filelist id="jack.static.libs.fileset" dir="/">
       <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
       <file name="${ecj.dist.dir}/${ecj.libname}" />
-      <file name="${simple.dist.dir}/${simple.libname}"/>
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
       <file name="${dx.dist.dir}/${dx.libname}" />
@@ -290,15 +290,19 @@
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
       <srcfiles dir="${jack-default-lib.build.outdir}"/>
       <srcfiles file="${jack.dir}/etc/manifest.txt"/>
+      <srcfiles dir="${jack-server.build.outdir}"/>
     </uptodate>
   </target>
 
-  <target name="jack" depends="jack-intermediate,jack-default-lib,jack.check" unless="${jack.uptodate}">
+  <target name="jack" depends="jack-intermediate,jack-default-lib,jack-server-lib-compile,jack.check" unless="${jack.uptodate}">
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.build.outdir}"/>
     </copy>
     <!-- package -->
     <unzip dest="${jack.exec.build.outdir}" src="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
+    <copy todir="${jack.exec.build.outdir}">
+      <fileset dir="${jack-server.build.outdir}"/>
+    </copy>
     <mkdir dir="${jack.exec.build.outdir}/jack-default-lib"/>
     <copy todir="${jack.exec.build.outdir}/jack-default-lib">
       <fileset dir="${jack-default-lib.build.outdir}"/>
@@ -385,6 +389,56 @@
   <target name="jack-api-src">
    <zip destfile="${jack-api.dist.dir}/${jack-api-src.name}"
         basedir="${jack-api.dir}/src" />
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jack-server-lib     -->
+  <!-- ******************* -->
+  <property name="jack-server.build.dir" value="${jack-server.dir}/build" />
+  <property name="jack-server.libs.dir" value="${jack-server.dir}/libs" />
+  <property name="jack-server.build.outdir" value="${jack-server.build.dir}/classes" />
+
+  <target name="jack-server-lib-clean">
+    <delete dir="${jack-server.build.outdir}"/>
+  </target>
+
+  <target name="jack-server-lib-copy-libs" depends="jsr305-lib,simple-lib,args4j-lib,guava-lib">
+    <copy todir="${jack-server.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${simple.dist.dir}/${simple.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+        <file name="${guava.dist.dir}/${guava.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jack-server-lib-compile" depends="jack-server-lib-copy-libs,jack-lib">
+    <mkdir dir="${jack-server.build.outdir}"/>
+    <dependset>
+      <sources>
+          <fileset dir="${jack-server.dir}/src" />
+      </sources>
+      <targets>
+        <fileset dir="${jack-server.build.outdir}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${jack-server.dir}/src" destdir="${jack-server.build.outdir}"
+         source="1.7" target="1.7" debug="true"
+         includeantruntime="false"  includeDestClasses="false" nowarn="true">
+         <classpath>
+           <filelist dir="/" >
+             <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+              <file name="${jack.dist.dir}/${jack.libname}"/>
+              <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
+              <file name="${guava.dist.dir}/${guava.libname}"/>
+              <file name="${simple.dist.dir}/${simple.libname}"/>
+              <file name="${args4j.dist.dir}/${args4j.libname}"/>
+           </filelist>
+         </classpath>
+       </javac>
+    <unzip dest="${jack-server.build.outdir}" src="${simple.dist.dir}/${simple.libname}" />
   </target>
 
 

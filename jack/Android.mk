@@ -44,7 +44,7 @@ endef
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := jack
+LOCAL_MODULE := jack-no-server
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := EXECUTABLES
 
@@ -90,7 +90,6 @@ LOCAL_JAVACFLAGS := -processor com.android.sched.build.SchedAnnotationProcessor
 
 JACK_STATIC_JAVA_LIBRARIES := \
   ecj-jack \
-  simple-jack \
   guava-jack \
   jsr305lib-jack \
   dx-jack \
@@ -109,7 +108,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 $(LOCAL_INSTALLED_MODULE) : $(jack_script)
-
+INSTALLED_JACK_NOSERVER := $(LOCAL_INSTALLED_MODULE)
 JACK_JAR_INTERMEDIATE:=$(LOCAL_BUILT_MODULE).intermediate.jar
 $(JACK_JAR_INTERMEDIATE): $(LOCAL_BUILT_MODULE)
 	java -jar $(call java-lib-libs,sched-build,true) $< $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $@
@@ -145,12 +144,28 @@ $(LOCAL_INSTALLED_MODULE): PRIVATE_JAR_MANIFEST := $(LOCAL_PATH)/$(LOCAL_JAR_MAN
 $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
 	$(hide) rm -rf $<.tmp
 	$(hide) mkdir -p $<.tmp/jack-default-lib
-	$(hide) unzip -d $<.tmp $<
-	$(hide) unzip -d $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
+	$(hide) unzip -qd $<.tmp $<
+	$(hide) unzip -qd $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
 
 # Merge with sched lib support
 $(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)
+
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := jack
+LOCAL_MODULE_TAGS := optional
+LOCAL_STATIC_JAVA_LIBRARIES := \
+  jack-server
+include $(BUILD_HOST_JAVA_LIBRARY)
+$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+	$(hide) rm -rf $<.tmp
+	$(hide) mkdir -p $<.tmp
+	$(hide) unzip -qd $<.tmp $<
+	$(hide) unzip -oqd $<.tmp $(INSTALLED_JACK_NOSERVER)
+	$(hide) jar -cf $@ -C $<.tmp .
+
 
 # Include this library in the build server's output directory
 $(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):jack.jar)
