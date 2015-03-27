@@ -144,4 +144,193 @@ public class FrontEndTests {
 
   }
 
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(KnownBugs.class)
+  public void testInnerError001() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test013.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("ExtendingInnerOnly"));
+      Assert.assertTrue(errString.contains("Inner"));
+   }
+  }
+
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testInnerError002() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test014.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("ExtendingInnerInStaticContext"));
+      Assert.assertTrue(errString.contains("Inner"));
+   }
+  }
+
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(KnownBugs.class)
+  public void testInnerError003() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test015.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("WithOuterContextButStatic"));
+      Assert.assertTrue(errString.contains("Inner"));
+   }
+  }
+
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(KnownBugs.class)
+  public void testInnerError004() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test008.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("NoOuterContext"));
+      Assert.assertTrue(errString.contains("Inner"));
+   }
+  }
+
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(KnownBugs.class)
+  public void testUnusedLocalVar001() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test010.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("UnusedLocalVar"));
+      Assert.assertTrue(errString.contains("Inner"));
+   }
+  }
+
+  /**
+   * Test that Jack is not failing.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testUnusedLocalVar002() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test011.jack"));
+  }
+
+  /**
+   * Test that Jack is not failing.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testUnusedLocalVar003() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test012.jack"));
+  }
+
 }

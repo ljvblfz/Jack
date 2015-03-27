@@ -634,6 +634,11 @@
           <exclude name="com/android/jack/error/test001/jack/A.java"/>
           <exclude name="com/android/jack/error/test002/jack/A.java"/>
           <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
+          <exclude name="com/android/jack/frontend/test008/jack/NoOuterContext.java"/>
+          <exclude name="com/android/jack/frontend/test010/jack/UnusedLocalVar.java"/>
+          <exclude name="com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"/>
+          <exclude name="com/android/jack/frontend/test014/jack/ExtendingInnerInStaticContext.java"/>
+          <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
           <exclude name="com/android/jack/nopackage/jack/**"/>
           <exclude name="com/android/jack/java7/boxing/**"/>
           <exclude name="com/android/jack/java7/switches/**"/>
@@ -662,6 +667,11 @@
       <exclude name="com/android/jack/error/test001/jack/A.java"/>
       <exclude name="com/android/jack/error/test002/jack/A.java"/>
       <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
+      <exclude name="com/android/jack/frontend/test008/jack/NoOuterContext.java"/>
+      <exclude name="com/android/jack/frontend/test010/jack/UnusedLocalVar.java"/>
+      <exclude name="com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"/>
+      <exclude name="com/android/jack/frontend/test014/jack/ExtendingInnerInStaticContext.java"/>
+      <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
       <exclude name="com/android/jack/java7/boxing/**"/>
       <exclude name="com/android/jack/java7/switches/**"/>
