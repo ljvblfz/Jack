@@ -23,8 +23,16 @@ if [ -z "$TMPDIR" ]; then
   TMPDIR="/tmp"
 fi
 
+if [ -z "$SERVER_PORT" ]; then
+  SERVER_PORT=8072
+fi
+
+if [ -z "$SERVER_COUNT" ]; then
+  SERVER_COUNT=1
+fi
+
 if [ -z "$SERVER_NB_COMPILE" ]; then
-  SERVER_NB_COMPILE=6
+  SERVER_NB_COMPILE=4
 fi
 
 if [ -z "$SERVER_TIMEOUT" ]; then
@@ -35,85 +43,33 @@ fi
 # Static setting
 #
 
-set -o nounset
-
-# Release code (3 digits) followed by the sub-release code (3 digits)
-JACK_ID=002009
-
-SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.Server"
-SERVER_DIR="$TMPDIR/jack-$USER"
-SERVER_FIFO="$SERVER_DIR/jack-$JACK_ID.cmd"
-SERVER_LOCK="$SERVER_DIR/jack-$JACK_ID.lock"
-SERVER_LOG="$SERVER_DIR/jack-$JACK_ID.log"
-
-JACK_DIR="$SERVER_DIR/jack-task-$$/"
-JACK_OUT="$JACK_DIR/out"
-JACK_ERR="$JACK_DIR/err"
-JACK_EXIT="$JACK_DIR/exit"
-JACK_CLI="$JACK_DIR/cli"
-JACK_PWD="$PWD"
-
-#
-# Prepare server
-#
-
-mkdir  -m 700 "$SERVER_DIR"  2>/dev/null
-mkfifo -m 600 "$SERVER_FIFO" 2>/dev/null
-
-#
-# Launch the server if needed
-#
-
-SERVER_TMP_LOCK=$SERVER_LOCK.$$
-trap 'rm -f $SERVER_TMP_LOCK 2>/dev/null;' EXIT
-
-while true; do
-  echo $$ > "$SERVER_TMP_LOCK" 2>/dev/null
-  if ln "$SERVER_TMP_LOCK" "$SERVER_LOCK" 2>/dev/null; then
-    rm "$SERVER_TMP_LOCK"
-    echo "Launching background server" $SERVER_PRG
-    $SERVER_PRG $SERVER_NB_COMPILE $SERVER_TIMEOUT "$SERVER_FIFO" "$SERVER_LOCK" >$SERVER_LOG 2>&1 &
-    echo $! > "$SERVER_LOCK"
-    break
-  else
-    CANDIDATE_PID=`cat $SERVER_LOCK`
-    if [ $? -eq 0 ]; then
-      if kill -0 $CANDIDATE_PID 2>/dev/null; then
-        # Server seems to be alive, go ahead
-        rm "$SERVER_TMP_LOCK" 2>/dev/null
-        break
-      else
-        # Stale lock, clean and retry again
-        # Unfortunately, there is a race condition here leading to launching several
-        # servers. We are living with that.
-        echo "Stale lock detected, cleaning"
-        rm "$SERVER_LOCK" "$SERVER_TMP_LOCK" 2>/dev/null
-      fi
-    else
-      # Someone is removing or echoing inside the lock, try again
-      rm "$SERVER_TMP_LOCK" 2>/dev/null
-    fi
-    # Calm down the retry
-    sleep 1
-  fi
-done
-
 #
 # Prepare compilation
 #
 
+SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
+SERVER_DIR="$TMPDIR/jack-$USER"
+JACK_DIR="$SERVER_DIR/jack-task-$$/"
+SERVER_LOG="$SERVER_DIR/jack-$SERVER_PORT.log"
+JACK_OUT="$JACK_DIR/out"
+JACK_ERR="$JACK_DIR/err"
+JACK_CLI="$JACK_DIR/cli"
+JACK_PWD="$PWD"
+
+mkdir  -m 700 "$SERVER_DIR"  2>/dev/null
+
 # Cleanup
-trap 'rm -f $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI 2>/dev/null; rmdir $JACK_DIR 2>/dev/null' EXIT
+trap 'rm -f $JACK_OUT $JACK_ERR $JACK_CLI 2>/dev/null; rmdir $JACK_DIR 2>/dev/null' EXIT
+set -o nounset
+set -o errexit
 
 # Create fifo for a task
 mkdir  -m 700 "$JACK_DIR"
 mkfifo -m 600 "$JACK_OUT"
 mkfifo -m 600 "$JACK_ERR"
-mkfifo -m 600 "$JACK_EXIT"
 
 # Try to cleanup if interrupted
-trap 'rm $JACK_EXIT; kill -9 $PID_OUT $PID_ERR; wait $PID_OUT; wait $PID_ERR; exit -1' SIGHUP SIGINT SIGQUIT SIGTERM
-
+trap 'kill -9 $PID_OUT $PID_ERR; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 # Redirect output and error
 cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
@@ -127,16 +83,39 @@ for i in "$@"; do
 done
 echo >>"$JACK_CLI"
 
+set +o errexit
+trap ERR
+
 #
 # Launch the compilation
 #
 
 # Launch compilation
-echo "+ $JACK_OUT $JACK_ERR $JACK_EXIT $JACK_CLI" >>"$SERVER_FIFO"
-EXIT_CODE=$(cat "$JACK_EXIT")
-if [ -z "$EXIT_CODE" ]; then
-  EXIT_CODE=-1;
-fi
+EXIT_CODE=255
+RETRY=3
+while true; do
+  EXIT_CODE=$(curl -f -s -d@- http://127.0.0.1:$SERVER_PORT/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+  CODE=$?
+  if [ -z "$EXIT_CODE" ]; then
+    kill -9 $PID_OUT $PID_ERR
+    exit 255
+  fi 
+  if [ $CODE -eq 0 ]; then
+    break;
+  elif [ $CODE -eq 7 ]; then
+    if [ $RETRY -eq 0 ]; then
+      kill -9 $PID_OUT $PID_ERR
+      echo "Cannot lunch background server"
+      exit 255
+    else
+      # Launch the server
+      echo "Launching background server" $SERVER_PRG
+      $SERVER_PRG $SERVER_PORT $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >$SERVER_LOG 2>&1 &
+      let RETRY=RETRY-1
+      sleep 3
+    fi
+  fi
+done
 
 # Wait for termination
 wait $PID_OUT

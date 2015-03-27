@@ -48,6 +48,15 @@ public abstract class TimeNanosProbe extends Probe {
   @Override
   @Nonnull
   public String formatValue(long ns) {
+    return formatDuration(ns);
+  }
+
+  @Nonnull
+  public static String formatDuration(long ns) {
+    if (ns == 0) {
+      return "0";
+    }
+
     StringBuilder sb = new StringBuilder();
 
     if (ns < 0) {
