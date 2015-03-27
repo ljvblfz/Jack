@@ -210,7 +210,7 @@
         <fileset dir="${jack.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${jack.dir}/src"
+    <javac encoding="UTF-8" srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false" includeDestClasses="false">
@@ -342,7 +342,7 @@
         <fileset dir="${jack-api.lib.build.outdir}"/>
       </targets>
     </dependset>
-     <javac srcdir="${jack-api.dir}/src" destdir="${jack-api.lib.build.outdir}"
+     <javac encoding="UTF-8" srcdir="${jack-api.dir}/src" destdir="${jack-api.lib.build.outdir}"
           source="1.6" target="1.6" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
           <classpath>
@@ -410,7 +410,7 @@
         <fileset dir="${jack-annotations.build.outdir}"/>
       </targets>
     </dependset>
-     <javac srcdir="${jack.dir}/src"
+     <javac encoding="UTF-8" srcdir="${jack.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-annotations.build.outdir}"
           source="1.6" target="1.6" debug="true"
@@ -466,7 +466,7 @@
         <fileset dir="${jackunittests.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
+    <javac encoding="UTF-8" srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
       source="1.6" target="1.6" debug="true"
       includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
@@ -594,6 +594,7 @@
       </targets>
     </dependset>
     <javac
+      encoding="UTF-8"
       destdir="${jack-tests.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false" nowarn="true">
@@ -680,7 +681,7 @@
         <fileset dir="${args4j.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${args4j.dir}/args4j/src"
+    <javac encoding="UTF-8" srcdir="${args4j.dir}/args4j/src"
       destdir="${args4j.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"/>
@@ -743,7 +744,7 @@
         <fileset dir="${dx.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${dx.dir}/src"
+    <javac encoding="UTF-8" srcdir="${dx.dir}/src"
       destdir="${dx.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -855,7 +856,7 @@
         <fileset dir="${guava.build.outdir}"/>
       </targets>
     </dependset>
-    <javac source="1.6" target="1.6"
+    <javac encoding="UTF-8" source="1.6" target="1.6"
       srcdir="${guava.dir}/src"
       destdir="${guava.build.outdir}"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -899,7 +900,7 @@
         <fileset dir="${jsr305.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${jsr305.dir}/ri/src/main/java"
+    <javac encoding="UTF-8" srcdir="${jsr305.dir}/ri/src/main/java"
       destdir="${jsr305.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"/>
@@ -937,7 +938,7 @@
         <fileset dir="${maths.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${maths.dir}/core/src/java/main"
+    <javac encoding="UTF-8" srcdir="${maths.dir}/core/src/java/main"
     destdir="${maths.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"/>
@@ -1005,7 +1006,7 @@
         <fileset dir="${schedlib.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
+    <javac encoding="UTF-8" srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
       source="1.6" target="1.6" debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
@@ -1056,6 +1057,7 @@
       </targets>
     </dependset>
     <javac
+       encoding="UTF-8"
        srcdir="${sched.dir}/src"
        destdir="${sched-build.build.outdir}"
        source="1.6" target="1.6"
@@ -1143,7 +1145,8 @@
         <fileset dir="${schedtests.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${sched.dir}/tests"
+    <javac encoding="UTF-8"
+      srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false">
@@ -1187,7 +1190,8 @@
         <fileset dir="${watchmaker.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${watchmaker.dir}/framework/src/java/main"
+    <javac encoding="UTF-8" 
+      srcdir="${watchmaker.dir}/framework/src/java/main"
       destdir="${watchmaker.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -1232,7 +1236,8 @@
         <fileset dir="${antlr-rt.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java"
+    <javac encoding="UTF-8"
+      srcdir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java"
       destdir="${antlr-rt.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -1272,7 +1277,8 @@
         <fileset dir="${allocation.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${allocation.dir}/src/main/java"
+    <javac encoding="UTF-8"
+      srcdir="${allocation.dir}/src/main/java"
       destdir="${allocation.build.outdir}"
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -1316,7 +1322,8 @@
         <fileset dir="${junit4.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${junit4.dir}/src/main/java"
+    <javac encoding="UTF-8"
+        srcdir="${junit4.dir}/src/main/java"
         destdir="${junit4.build.outdir}"
         source="1.6" target="1.6"
         debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -1418,7 +1425,8 @@
         <fileset dir="${hamcrest-core.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${hamcrest-core.dir}/src"
+    <javac encoding="UTF-8"
+          srcdir="${hamcrest-core.dir}/src"
           destdir="${hamcrest-core.build.outdir}"
           source="1.6" target="1.6"
           debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"/>
@@ -1497,7 +1505,8 @@
         <fileset dir="${dexcomparator.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${dexcomparator.dir}/src"
+    <javac encoding="UTF-8"
+            srcdir="${dexcomparator.dir}/src"
             destdir="${dexcomparator.build.outdir}"
             source="1.6" target="1.6"
             debug="true" includeantruntime="false"  includeDestClasses="false">
@@ -1559,7 +1568,8 @@
         <fileset dir="${dexlib.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${dexlib.dir}/src/main/java"
+    <javac encoding="UTF-8"
+            srcdir="${dexlib.dir}/src/main/java"
             destdir="${dexlib.build.outdir}"
             source="1.6" target="1.6"
             debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"
@@ -1668,7 +1678,8 @@
         <fileset dir="${core-stubs-mini.build.outdir}"/>
       </targets>
     </dependset>
-    <javac srcdir="${core-stubs-mini.dir}/src"
+    <javac encoding="UTF-8"
+      srcdir="${core-stubs-mini.dir}/src"
       destdir="${core-stubs-mini.build.outdir}"
       source="1.6" target="1.6" debug="true" includeantruntime="false"  includeDestClasses="false"
       nowarn="true"/>
