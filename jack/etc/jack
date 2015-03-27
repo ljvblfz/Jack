@@ -50,7 +50,9 @@ fi
 SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
 SERVER_DIR="$TMPDIR/jack-$USER"
 JACK_DIR="$SERVER_DIR/jack-task-$$/"
-SERVER_LOG="$SERVER_DIR/jack-$SERVER_PORT.log"
+if [ -z "$SERVER_LOG" ]; then
+  SERVER_LOG="$SERVER_DIR/jack-$SERVER_PORT.log"
+fi
 JACK_OUT="$JACK_DIR/out"
 JACK_ERR="$JACK_DIR/err"
 JACK_CLI="$JACK_DIR/cli"
