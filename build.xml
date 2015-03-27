@@ -40,6 +40,7 @@
     args4j-lib-clean,
     dx-lib-clean,
     ecj-clean,
+    simple-lib-clean,
     freemarker-lib-clean,
     guava-lib-clean,
     jsr305-lib-clean,
@@ -72,6 +73,7 @@
   <property name="ddm-lib.dir" value="${jack-project.dir}/ddmlib"/>
   <property name="dx.dir" value="${jack-project.dir}/dx"/>
   <property name="ecj.dir" value="${jack-project.dir}/ecj"/>
+  <property name="simple.dir" value="${jack-project.dir}/simple"/>
   <property name="freemarker.dir" value="${jack-project.dir}/freemarker"/>
   <property name="guava.dir" value="${jack-project.dir}/guava"/>
   <property name="jsr305.dir" value="${jack-project.dir}/jsr305"/>
@@ -107,11 +109,12 @@
     <delete dir="${jack.tools.dir}"/>
   </target>
 
-  <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
+  <target name="jack-copy-libs" depends="ecj,simple-lib,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
     junit4,dex-lib,dx-ref-lib,jack-api-lib">
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
+        <file name="${simple.dist.dir}/${simple.libname}"/>
         <file name="${guava.dist.dir}/${guava.libname}"/>
         <file name="${dx.dist.dir}/${dx.libname}"/>
         <file name="${args4j.dist.dir}/${args4j.libname}"/>
@@ -142,6 +145,7 @@
     <filelist id="jack.static.libs.fileset" dir="/">
       <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
       <file name="${ecj.dist.dir}/${ecj.libname}" />
+      <file name="${simple.dist.dir}/${simple.libname}"/>
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
       <file name="${dx.dist.dir}/${dx.libname}" />
@@ -769,6 +773,27 @@
   <target name="ecj">
     <mkdir dir="${ecj.dist.dir}"/>
     <copy file="${ecj.dir}/ecj-4.5M1.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- simple-lib          -->
+  <!-- ******************* -->
+  <property name="simple.libname" value="simple-lib.jar"/>
+  <property name="simple.dist.dir" value="${simple.dir}/dist"/>
+  <property name="simple.build.outdir" value="${simple.dir}/build/classes"/>
+
+  <target name="simple-lib-clean">
+    <delete dir="${simple.dist.dir}"/>
+  </target>
+
+  <target name="simple-lib">
+    <mkdir dir="${simple.dist.dir}"/>
+    <mkdir dir="${simple.build.outdir}"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-common-6.0.1.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-http-6.0.1.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-transport-6.0.1.jar"/>
+    <jar basedir="${simple.build.outdir}" destfile="${simple.dist.dir}/${simple.libname}"/>
   </target>
 
 

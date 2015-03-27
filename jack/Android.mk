@@ -90,6 +90,7 @@ LOCAL_JAVACFLAGS := -processor com.android.sched.build.SchedAnnotationProcessor
 
 JACK_STATIC_JAVA_LIBRARIES := \
   ecj-jack \
+  simple-jack \
   guava-jack \
   jsr305lib-jack \
   dx-jack \
