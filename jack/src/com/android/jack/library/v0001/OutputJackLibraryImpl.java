@@ -175,14 +175,21 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
   @Override
   public synchronized void close() throws LibraryIOException {
     if (!closed) {
-      OutputStream os = null;
       GenericOutputVFS goVFS = null;
       try {
         goVFS = new GenericOutputVFS(vfs);
         OutputVFile libraryPropertiesOut =
             goVFS.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
-        os = libraryPropertiesOut.getOutputStream();
-        libraryProperties.store(os, "Library properties");
+
+        OutputStream propertiesOS = null;
+        try {
+          propertiesOS = libraryPropertiesOut.getOutputStream();
+          libraryProperties.store(propertiesOS, "Library properties");
+        } finally {
+          if (propertiesOS != null) {
+            propertiesOS.close();
+          }
+        }
         try {
           for (InputOutputVFS intputOutputVFS : sectionVFS.values()) {
             intputOutputVFS.close();
@@ -198,9 +205,6 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
         try {
           if (goVFS != null) {
             goVFS.close();
-          }
-          if (os != null) {
-            os.close();
           }
         } catch (IOException e) {
           throw new LibraryIOException(getLocation(), e);
