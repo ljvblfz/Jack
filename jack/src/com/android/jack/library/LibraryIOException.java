@@ -24,7 +24,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 /**
- * Exception representing a problem related to an io during library access.
+ * Exception representing an I/O problem during library access.
  */
 public class LibraryIOException extends LibraryException {
 
@@ -41,7 +41,6 @@ public class LibraryIOException extends LibraryException {
   @Override
   @Nonnull
   public String getMessage() {
-    // XXX Update message, it is an IO exception
-    return location.getDescription() + " is an invalid library: " + getCause().getMessage();
+    return "I/O error when accessing " + location.getDescription() + ": " + getCause().getMessage();
   }
 }

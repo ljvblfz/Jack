@@ -203,8 +203,9 @@ public class FileAccessErrorTest {
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
     } finally {
       String errOutput = errOut.toString();
-      Assert.assertTrue(errOutput.contains("is an invalid library"));
-      Assert.assertTrue(errOutput.contains("is not readable"));
+      Assert.assertTrue(errOutput.contains(
+          "Error during the library reading phase: I/O error when accessing ")); // user reporting
+      Assert.assertTrue(errOutput.contains("is not readable")); // user reporting too
       for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());

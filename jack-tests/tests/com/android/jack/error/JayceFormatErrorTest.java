@@ -38,9 +38,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * JUnit test checking Jack behavior on exceptions.
+ * Test checking the behavior of Jack with an invalid Jayce format.
  */
-public class JackFormatErrorTest {
+public class JayceFormatErrorTest {
 
   @BeforeClass
   public static void setUpClass() {
@@ -48,10 +48,10 @@ public class JackFormatErrorTest {
   }
 
   /**
-   * Checks that compilation fails correctly when jayce file is corrupted.
+   * Checks that compilation fails correctly when a jayce file is corrupted.
    */
   @Test
-  public void testJackFormatError001() throws Exception {
+  public void testJayceFormatError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
     AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
@@ -73,8 +73,6 @@ public class JackFormatErrorTest {
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
-    toolchain.setVerbose(true);
-
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
 
@@ -84,21 +82,21 @@ public class JackFormatErrorTest {
       .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
-      // Failure is ok since jack file is corrupted.
+      // Failure is OK since a jayce file is corrupted.
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(errOut.toString().contains("is an invalid library"));
+      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
       Assert.assertTrue(errOut.toString().contains(
-          "Unexpected node NForStatement, NDeclaredType was expected"));
+          "Unexpected node NForStatement, NDeclaredType was expected")); // system log
     }
   }
 
   /**
-   * Checks that compilation fails correctly when jack file header is corrupted.
+   * Checks that compilation fails correctly when a Jayce file header is corrupted.
    */
   @Test
-  public void testJackFormatError002() throws Exception {
+  public void testJayceHeaderError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
     AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
@@ -120,8 +118,6 @@ public class JackFormatErrorTest {
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
-    toolchain.setVerbose(true);
-
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
 
@@ -131,20 +127,21 @@ public class JackFormatErrorTest {
       .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
-      // Failure is ok since jack file header is corrupted.
+      // Failure is OK since a jayce file header is corrupted.
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(errOut.toString().contains("is an invalid library"));
-      Assert.assertTrue(errOut.toString().contains("Invalid Jayce header"));
+      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
+      Assert.assertTrue(errOut.toString().contains("Invalid Jayce header")); // system log
     }
   }
 
   /**
-   * Checks that compilation fails correctly when jack file is not longer supported.
+   * Checks that compilation fails correctly with a Jack library containing an invalid Jayce format
+   * version on classpath.
    */
   @Test
-  public void testJackFormatError003() throws Exception {
+  public void testJayceVersionError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
     AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()),
@@ -166,8 +163,6 @@ public class JackFormatErrorTest {
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
-    toolchain.setVerbose(true);
-
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     toolchain.setErrorStream(errOut);
 
@@ -177,12 +172,12 @@ public class JackFormatErrorTest {
       .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
       Assert.fail();
     } catch (JackAbortException e) {
-      // Failure is ok since jack file header is corrupted.
+      // Failure is OK since Jayce format version 0 is not supported.
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
-      Assert.assertTrue(errOut.toString().contains("is an invalid library"));
-      Assert.assertTrue(errOut.toString().contains("Jayce version 0 not supported"));
+      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
+      Assert.assertTrue(errOut.toString().contains("Jayce version 0 not supported")); // system log
     }
   }
 }

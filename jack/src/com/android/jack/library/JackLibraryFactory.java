@@ -90,7 +90,7 @@ public abstract class JackLibraryFactory {
       return (getVersionString(
           Integer.parseInt((String) libraryProperties.get(JackLibrary.KEY_LIB_MAJOR_VERSION))));
     } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Fails to parse the property " + JackLibrary.KEY_LIB_MAJOR_VERSION
+      logger.log(Level.SEVERE, "Failed to parse the property " + JackLibrary.KEY_LIB_MAJOR_VERSION
           + " from the library " + vdir, e);
       throw new LibraryFormatException(vdir.getLocation());
     }
