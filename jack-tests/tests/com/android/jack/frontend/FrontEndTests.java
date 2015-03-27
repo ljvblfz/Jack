@@ -69,7 +69,6 @@ public class FrontEndTests {
    * Test that we do not crash and that we report the error.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testConflictingPackage001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
@@ -118,7 +117,6 @@ public class FrontEndTests {
    * Test that we do not crash and that we report the error.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testDuplicated001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 

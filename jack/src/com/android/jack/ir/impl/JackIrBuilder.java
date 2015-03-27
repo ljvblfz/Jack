@@ -1739,7 +1739,8 @@ public class JackIrBuilder {
 
     @Override
     public final void endVisit(TypeDeclaration typeDecl, BlockScope scope) {
-      if (typeDecl.binding == null || typeDecl.binding.constantPoolName() == null) {
+      assert !JackIrBuilder.hasError(typeDecl);
+      if (typeDecl.binding.constantPoolName() == null) {
         assert false;
         /*
          * Weird case: if JDT determines that this local class is totally
@@ -2009,7 +2010,8 @@ public class JackIrBuilder {
 
     @Override
     public final boolean visit(TypeDeclaration typeDecl, BlockScope scope) {
-      if (typeDecl.binding == null || typeDecl.binding.constantPoolName() == null) {
+      assert !JackIrBuilder.hasError(typeDecl);
+      if (typeDecl.binding.constantPoolName() == null) {
         assert false;
         /*
          * Weird case: if JDT determines that this local class is totally
@@ -2025,6 +2027,7 @@ public class JackIrBuilder {
     }
 
     protected void endVisit(TypeDeclaration x) {
+      assert !JackIrBuilder.hasError(x);
       try {
         JDefinedClassOrInterface type = curClass.type;
 
@@ -2178,6 +2181,7 @@ public class JackIrBuilder {
     }
 
     protected boolean visit(TypeDeclaration x) {
+      assert !JackIrBuilder.hasError(x);
       try {
         JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(x.binding);
         classStack.push(curClass);
@@ -2922,6 +2926,7 @@ public class JackIrBuilder {
             result = makeLocalRef(info, (LocalVariableBinding) path[0]);
           } else if (path[0] instanceof FieldBinding) {
             FieldBinding fb = (FieldBinding) path[0];
+            assert curClass.typeDecl.binding != null;
             assert curClass.typeDecl.binding.isCompatibleWith(x.actualReceiverType.erasure());
             JField field = getTypeMap().get(fb);
             assert field != null;
@@ -3364,6 +3369,16 @@ public class JackIrBuilder {
   @Nonnull
   private final JSession session;
 
+  public static boolean hasError(@Nonnull TypeDeclaration typeDeclaration) {
+    return (typeDeclaration.hasErrors()
+    || (typeDeclaration.getCompilationUnitDeclaration() != null
+        && typeDeclaration.getCompilationUnitDeclaration().hasErrors())
+    || typeDeclaration.compilationResult.hasErrors()
+    // This should be redundant with typeDeclaration.getCompilationUnitDeclaration().hasErrors() but
+    // since it could be null, lets be safe
+    || typeDeclaration.binding == null);
+  }
+
   public JackIrBuilder(@Nonnull LookupEnvironment lookupEnvironment,
       @Nonnull JSession session) {
     this.lookupEnvironment = lookupEnvironment;
@@ -3565,6 +3580,7 @@ public class JackIrBuilder {
 
   private void createMembers(TypeDeclaration x) {
     try {
+      assert !JackIrBuilder.hasError(x);
       SourceTypeBinding binding = x.binding;
       JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(binding);
       SourceInfo info = type.getSourceInfo();
@@ -3684,6 +3700,7 @@ public class JackIrBuilder {
   }
 
   private void createTypes(TypeDeclaration x) {
+    assert !JackIrBuilder.hasError(x);
     SourceInfo info = makeSourceInfo(x);
     try {
       JDefinedClassOrInterface type = (JDefinedClassOrInterface) getTypeMap().get(x.binding);
