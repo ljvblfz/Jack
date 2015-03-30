@@ -17,6 +17,7 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.HasLocation;
 
 import java.io.InputStream;
 
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * Provider of {@link InputStream}.
  */
-public interface InputStreamProvider {
+public interface InputStreamProvider extends HasLocation {
 
   @Nonnull
   InputStream getInputStream() throws WrongPermissionException;
