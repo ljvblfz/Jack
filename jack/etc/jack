@@ -14,45 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+set -o nounset
 
 #
 # Default setting
 #
-
-if [ -z "$TMPDIR" ]; then
-  TMPDIR="/tmp"
-fi
-
-if [ -z "$SERVER_PORT" ]; then
-  SERVER_PORT=8072
-fi
-
-if [ -z "$SERVER_COUNT" ]; then
-  SERVER_COUNT=1
-fi
-
-if [ -z "$SERVER_NB_COMPILE" ]; then
-  SERVER_NB_COMPILE=4
-fi
-
-if [ -z "$SERVER_TIMEOUT" ]; then
-  SERVER_TIMEOUT=60
-fi
+TMPDIR=${TMPDIR:=/tmp}
+SERVER_PORT=${SERVER_PORT:=8072}
+SERVER_COUNT=${SERVER_COUNT:=1}
+SERVER_NB_COMPILE=${SERVER_NB_COMPILE:=4}
+SERVER_TIMEOUT=${SEVER_TIMEOUT:=60}
+SERVER_DIR=${SERVER_DIR:=$TMPDIR/jack-$USER}
+SERVER_LOG=${SERVER_LOG:=$SERVER_DIR/jack-$SERVER_PORT.log}
 
 #
 # Static setting
 #
+SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
 
 #
 # Prepare compilation
 #
-
-SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
-SERVER_DIR="$TMPDIR/jack-$USER"
 JACK_DIR="$SERVER_DIR/jack-task-$$/"
-if [ -z "$SERVER_LOG" ]; then
-  SERVER_LOG="$SERVER_DIR/jack-$SERVER_PORT.log"
-fi
 JACK_OUT="$JACK_DIR/out"
 JACK_ERR="$JACK_DIR/err"
 JACK_CLI="$JACK_DIR/cli"
@@ -62,7 +45,7 @@ mkdir  -m 700 "$SERVER_DIR"  2>/dev/null
 
 # Cleanup
 trap 'rm -f $JACK_OUT $JACK_ERR $JACK_CLI 2>/dev/null; rmdir $JACK_DIR 2>/dev/null' EXIT
-set -o nounset
+
 set -o errexit
 
 # Create fifo for a task
@@ -71,7 +54,7 @@ mkfifo -m 600 "$JACK_OUT"
 mkfifo -m 600 "$JACK_ERR"
 
 # Try to cleanup if interrupted
-trap 'kill -9 $PID_OUT $PID_ERR; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
+trap 'kill -9 $PID_OUT $PID_ERR; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 # Redirect output and error
 cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
@@ -102,9 +85,8 @@ while true; do
     break;
   elif [ $CODE -eq 7 ]; then
     if [ $RETRY -eq 0 ]; then
-      kill -9 $PID_OUT $PID_ERR
       echo "Cannot launch background server"
-      exit 255
+      kill -QUIT $$
     else
       # Launch the server
       echo "Launching background server" $SERVER_PRG
