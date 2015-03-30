@@ -26,6 +26,7 @@ import com.android.jack.fibonacci.FibonacciTests;
 import com.android.jack.field.FieldTests;
 import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
+import com.android.jack.frontend.DuplicateSourceTest;
 import com.android.jack.frontend.FrontEndTests;
 import com.android.jack.generic.basic.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
@@ -87,6 +88,7 @@ import org.junit.runners.Suite.SuiteClasses;
     DebugTests.class,
     DependencyAllTests.class,
     DexTagTests.class,
+    DuplicateSourceTest.class,
     DxTests.class,
     EnumsTests.class,
     ExternalTests.class,
