@@ -39,19 +39,22 @@ JACK_DIR="$SERVER_DIR/jack-task-$$/"
 JACK_OUT="$JACK_DIR/out"
 JACK_ERR="$JACK_DIR/err"
 JACK_CLI="$JACK_DIR/cli"
+JACK_EXIT="$JACK_DIR/exit"
 JACK_PWD="$PWD"
 
-mkdir  -m 700 "$SERVER_DIR"  2>/dev/null
+umask 077
+mkdir "$SERVER_DIR"  2>/dev/null
 
 # Cleanup
-trap 'rm -f $JACK_OUT $JACK_ERR $JACK_CLI 2>/dev/null; rmdir $JACK_DIR 2>/dev/null' EXIT
+trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR" 2>/dev/null' EXIT
 
 set -o errexit
 
-# Create fifo for a task
-mkdir  -m 700 "$JACK_DIR"
-mkfifo -m 600 "$JACK_OUT"
-mkfifo -m 600 "$JACK_ERR"
+# Create fifos and files for a task
+mkdir  "$JACK_DIR"
+mkfifo "$JACK_OUT"
+mkfifo "$JACK_ERR"
+touch  "$JACK_CLI" "$JACK_EXIT"
 
 # Try to cleanup if interrupted
 trap 'kill -9 $PID_OUT $PID_ERR; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
@@ -76,14 +79,16 @@ trap ERR
 #
 
 # Launch compilation
-EXIT_CODE=255
 RETRY=3
 while true; do
-  EXIT_CODE=$(curl -f -s -d@- http://127.0.0.1:$SERVER_PORT/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
-  CODE=$?
-  if [ $CODE -eq 0 ]; then
+  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} http://127.0.0.1:$SERVER_PORT/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+  CURL_CODE=$?
+  JACK_CODE=$(cat "$JACK_EXIT")
+  if [ $CURL_CODE -eq 0 ]; then
+    # No problem, let's go
     break;
-  elif [ $CODE -eq 7 ]; then
+  elif [ $CURL_CODE -eq 7 ]; then
+    # Failed to connect
     if [ $RETRY -eq 0 ]; then
       echo "Cannot launch background server"
       kill -QUIT $$
@@ -94,6 +99,24 @@ while true; do
       let RETRY=RETRY-1
       sleep 3
     fi
+  elif  [ $CURL_CODE -eq 22 ]; then
+    # Http code not OK, let's decode
+    if [ $HTTP_CODE -eq 401 ]; then
+      # 401: Unauthorized
+      echo "Security problem, see server log" >&2
+      kill -QUIT $$
+    elif [ $HTTP_CODE -eq 400 ]; then
+      # 400: Bad request
+      echo "Bad request, see server log" >&2
+      kill -QUIT $$
+    else
+      # Other
+      echo "Internal unknown error, see server log" >&2
+      kill -QUIT $$
+    fi
+  else
+    # In case of partial, timeout, empty, network error, let's retry
+    sleep 1
   fi
 done
 
@@ -102,4 +125,4 @@ wait $PID_OUT
 wait $PID_ERR
 
 # Exit
-exit $EXIT_CODE
+exit $JACK_CODE

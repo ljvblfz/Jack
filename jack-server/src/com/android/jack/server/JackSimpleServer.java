@@ -19,6 +19,7 @@ package com.android.jack.server;
 import com.google.common.base.Joiner;
 
 import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.NoLocation;
@@ -37,6 +38,7 @@ import org.simpleframework.transport.connect.SocketConnection;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.GarbageCollectorMXBean;
@@ -49,10 +51,17 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +105,7 @@ public class JackSimpleServer {
       }
 
       out.println("Post-test stdout for '" + workingDir.getPath() + "' from " + port);
-      err.println("Post-test stderr for '" + cmd  + "' from " + port);
+      err.println("Post-test stderr for '" + cmd + "' from " + port);
 
       return rnd.nextInt(30);
     }
@@ -114,11 +123,11 @@ public class JackSimpleServer {
   private static final int CMD_IDX_CLI = 3;
   private static final int CMD_IDX_END = 4;
 
-  private static final int CLI_IDX_PORT    = 0;
-  private static final int CLI_IDX_COUNT   = 1;
-  private static final int CLI_IDX_MAX     = 2;
+  private static final int CLI_IDX_PORT = 0;
+  private static final int CLI_IDX_COUNT = 1;
+  private static final int CLI_IDX_MAX = 2;
   private static final int CLI_IDX_TIEMOUT = 3;
-  private static final int CLI_IDX_END     = 4;
+  private static final int CLI_IDX_END = 4;
 
   @CheckForNull
   private static Connection connection;
@@ -127,20 +136,19 @@ public class JackSimpleServer {
   @Nonnull
   private static Lock lock = new ReentrantLock();
 
-  private static int  timeout;
+  private static int timeout;
 
-  private static int  currentLocal = 0;
+  private static int currentLocal = 0;
   private static long totalLocal = 0;
-  private static int  maxLocal = 0;
+  private static int maxLocal = 0;
 
-  private static int  currentForward = 0;
+  private static int currentForward = 0;
   private static long totalForward = 0;
-  private static int  maxForward = 0;
+  private static int maxForward = 0;
 
   public static void main(String[] args) {
     if (args.length != CLI_IDX_END) {
-      logger.log(Level.SEVERE,
-          "Usage: <port-nb> <server-count> <max-compile> <timeout-s>");
+      logger.log(Level.SEVERE, "Usage: <port-nb> <server-count> <max-compile> <timeout-s>");
       abort();
     }
 
@@ -152,7 +160,7 @@ public class JackSimpleServer {
       abort();
     }
 
-    logger = Logger.getLogger(JackSimpleServer.class.getSimpleName()  + "." + port);
+    logger = Logger.getLogger(JackSimpleServer.class.getSimpleName() + "." + port);
 
     int count = 0;
     try {
@@ -186,11 +194,11 @@ public class JackSimpleServer {
       router.addContainer(new PathParser("/gc"), new JackGc());
       router.addContainer(new PathParser("/stat"), new JackStat());
 
-      ContainerSocketProcessor processor =
-          new ContainerSocketProcessor(router, nbInstance);
+      ContainerSocketProcessor processor = new ContainerSocketProcessor(router, nbInstance);
       connection = new SocketConnection(processor);
       assert connection != null;
       connection.connect(socket);
+      startTimer();
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Problem during connection ", e);
       abort();
@@ -291,6 +299,15 @@ public class JackSimpleServer {
           if (command.length != CMD_IDX_END) {
             logger.log(Level.SEVERE, "Command format error '" + line + "'");
             response.setStatus(Status.BAD_REQUEST);
+            return;
+          }
+
+          logger.log(Level.INFO, "Check security");
+          try {
+            checkSecurity(command[CMD_IDX_CLI]);
+          } catch (Throwable e) {
+            logger.log(Level.SEVERE, e.getMessage());
+            response.setStatus(Status.UNAUTHORIZED);
             return;
           }
 
@@ -636,17 +653,52 @@ public class JackSimpleServer {
     System.exit(1);
   }
 
-  private static void unblock(@Nonnull String name) {
+  private static volatile PrintStream out = null;
+  private static volatile InputStream in = null;
+
+  private static void unblock(@Nonnull final String name) {
     logger.log(Level.INFO, "Trying to unblock '" + name + "'");
-    PrintStream out = null;
+
+    // To unblock all processes blocked on the open of a fifo, open the fifo in read and open it in
+    // write at the same time.
+
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        try {
+          in = new InputStreamFile(name).getInputStream();
+        } catch (IOException e) {
+          // Best effort
+        }
+      }
+    };
+    thread.start();
+
     try {
       out = new OutputStreamFile(name).getPrintStream();
     } catch (IOException e) {
       // Best effort
     }
 
+    while (true) {
+      try {
+        thread.join();
+        break;
+      } catch (InterruptedException e1) {
+        // If the thread does not finished, we are blocked anyway
+      }
+    }
+
     if (out != null) {
       out.close();
+    }
+
+    if (in != null) {
+      try {
+        in.close();
+      } catch (IOException e) {
+        // Best effort
+      }
     }
   }
 
@@ -699,6 +751,54 @@ public class JackSimpleServer {
       }
     } finally {
       lock.unlock();
+    }
+  }
+
+  private static final Set<PosixFilePermission> directoryRef = EnumSet.of(
+      PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+      PosixFilePermission.OWNER_EXECUTE);
+  private static final Set<PosixFilePermission> fifoRef = EnumSet.of(
+      PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
+
+  private static void checkSecurity(@Nonnull String fifoCli) throws IOException {
+    // Get parent directory
+    java.nio.file.Path path = Paths.get(fifoCli).getParent();
+
+    // Get current UserPrincipal
+    assert path != null;
+    java.nio.file.Path tmp = Files.createTempFile(path, "jss-", "-check");
+    UserPrincipal user = Files.getOwner(tmp);
+    Files.delete(tmp);
+
+    // Check parent directory
+    UserPrincipal owner = Files.getOwner(path);
+    Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(path);
+
+    if (!owner.getName().equals(user.getName())) {
+      throw new SecurityException("Directory '" + path + "' is not owned by '" + user.getName()
+          + "' but by '" + owner.getName() + "'");
+    }
+
+    if (!permissions.equals(directoryRef)) {
+      throw new SecurityException("Directory '" + path + "' must have permission "
+          + PosixFilePermissions.toString(directoryRef) + " but have "
+          + PosixFilePermissions.toString(permissions));
+    }
+
+    // Check fifo
+    path = Paths.get(fifoCli);
+    owner = Files.getOwner(path);
+    permissions = Files.getPosixFilePermissions(path);
+
+    if (!owner.getName().equals(user.getName())) {
+      throw new SecurityException("Fifo '" + path + "' is not owned by '" + user.getName()
+          + "' but by '" + owner.getName() + "'");
+    }
+
+    if (!permissions.equals(fifoRef)) {
+      throw new SecurityException("Fifo '" + path + "' must have permission "
+          + PosixFilePermissions.toString(fifoRef) + " but have "
+          + PosixFilePermissions.toString(permissions));
     }
   }
 }
