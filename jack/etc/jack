@@ -95,7 +95,7 @@ while true; do
     else
       # Launch the server
       echo "Launching background server" $SERVER_PRG
-      $SERVER_PRG $SERVER_PORT $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >$SERVER_LOG 2>&1 &
+      $SERVER_PRG $SERVER_PORT $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
       let RETRY=RETRY-1
       sleep 3
     fi
