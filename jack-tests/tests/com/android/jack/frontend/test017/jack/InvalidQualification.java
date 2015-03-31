@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.frontend.test011.jack;
+package com.android.jack.frontend.test017.jack;
 
-public class UnusedLocalVar extends ClassWithInner {
+public class InvalidQualification {
 
-  public Object get() {
-    ClassWithInner outer = new ClassWithInner();
-    ClassWithInner.Inner inner = outer.new Inner();
-    inner = this.new Inner();
-    inner = new Inner();
-    return inner;
+  public static InvalidQualification get() {
+    InvalidQualification unused = new InvalidQualification();
+    return unused.new InvalidQualification();
   }
 
 }

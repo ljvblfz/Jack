@@ -333,12 +333,11 @@ public class FrontEndTests {
    */
   @Test
   @Category(ExtraTests.class)
-  public void testUnusedLocalVar002() throws Exception {
+  public void testQualifedNew001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(
           outDir,
           /* zipFiles= */ false,
@@ -360,6 +359,36 @@ public class FrontEndTests {
           outDir,
           /* zipFiles= */ false,
           AbstractTestTools.getTestRootDir("com.android.jack.frontend.test012.jack"));
+  }
+
+  /**
+   * Test that Jack is neither failing nor dropping the error in this case.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testUnusedLocalVar004() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test017.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("InvalidQualification"));
+   }
   }
 
 }

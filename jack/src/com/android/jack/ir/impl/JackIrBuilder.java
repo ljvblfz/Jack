@@ -841,18 +841,6 @@ public class JackIrBuilder {
 
           ReferenceBinding superClass = x.binding.declaringClass;
           boolean nestedSuper = isNested(superClass);
-          if (x.qualification != null
-              && (!x.qualification.resolvedType.isCompatibleWith(superClass.enclosingType())
-                  || !nestedSuper)) {
-            // JLS 8.8.7.1. Explicit Constructor Invocations
-            // Let C be the class being instantiated, and let S be the direct superclass of C.
-            // Let O be the innermost lexically enclosing class of S
-            // If invocation is qualified, it is a compile-time error if the type of qualified
-            // expression is not O or a subclass of O
-            scope.problemReporter().unnecessaryEnclosingInstanceSpecification(
-                x.qualification,
-                superClass);
-          }
           if (nestedSuper) {
             processSuperCallThisArgs(superClass, call, qualifier, x);
           }
@@ -1861,6 +1849,22 @@ public class JackIrBuilder {
 
     @Override
     public boolean visit(ExplicitConstructorCall explicitConstructor, BlockScope scope) {
+      ReferenceBinding allocated = explicitConstructor.binding.declaringClass;
+      if (explicitConstructor.isSuperAccess() && explicitConstructor.qualification != null
+          && !explicitConstructor.qualification.resolvedType.isCompatibleWith(
+              allocated.enclosingType())) {
+        // JLS 8.8.7.1. Explicit Constructor Invocations
+        // Let C be the class being instantiated, and let S be the direct superclass of C.
+        // Let O be the innermost lexically enclosing class of S
+        // If invocation is qualified, it is a compile-time error if the type of qualified
+        // expression is not O or a subclass of O
+        scope.problemReporter().unnecessaryEnclosingInstanceSpecification(
+            explicitConstructor.qualification,
+            allocated);
+        throw new FrontendCompilationError();
+      }
+      // STOPSHIP Check other cases and report error to the user
+
       scope.methodScope().isConstructorCall = true;
       return true;
     }
@@ -2024,6 +2028,13 @@ public class JackIrBuilder {
       createTypes(typeDecl);
       createMembers(typeDecl);
       return visit(typeDecl);
+    }
+
+    @Override
+    public boolean visit(QualifiedAllocationExpression allocation, BlockScope scope) {
+      ReferenceBinding allocated = allocation.binding.declaringClass;
+      // STOPSHIP Check error cases and report error to the user
+      return super.visit(allocation, scope);
     }
 
     protected void endVisit(TypeDeclaration x) {
@@ -2787,15 +2798,6 @@ public class JackIrBuilder {
       ReferenceBinding checkedTargetType =
           targetBinding.isAnonymousType() ? (ReferenceBinding) targetBinding.superclass()
               .erasure() : targetBinding;
-
-      if (qualifier != null
-          && (!isNested || checkedTargetType.isStatic())) {
-        // If the class is not an inner class or is declared in a static context,
-        // a compile-time error occurs
-        curClass.scope.problemReporter().unnecessaryEnclosingInstanceSpecification(qualifier,
-            checkedTargetType);
-        return;
-      }
 
       if (isNested) {
         // Synthetic this args for inner classes
