@@ -298,22 +298,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   /**
-   * Removes the field at the specified index.
-   */
-  public void removeField(int i) {
-    assert !isExternal() : "External types can not be modiified.";
-    fields.remove(i);
-  }
-
-  /**
-   * Removes the method at the specified index.
-   */
-  public void removeMethod(int i) {
-    assert !isExternal() : "External types can not be modiified.";
-    methods.remove(i);
-  }
-
-  /**
    * Sets the type which encloses this types.
    *
    * @param enclosingType May be {@code null}.

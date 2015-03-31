@@ -217,13 +217,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     return JModifier.isBridge(modifier);
   }
 
-  /**
-   * Removes the parameter at the specified index.
-   */
-  public void removeParam(int index) {
-    params.remove(index);
-  }
-
   public void setAbstract() {
       modifier |= JModifier.ABSTRACT;
   }

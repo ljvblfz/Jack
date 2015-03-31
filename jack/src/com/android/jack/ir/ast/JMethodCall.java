@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -112,20 +111,6 @@ public class JMethodCall extends JExpression {
   @Nonnull
   public List<JExpression> getArgs() {
     return args;
-  }
-
-  /**
-   * Removes the argument at the specified index.
-   */
-  public void removeArg(@Nonnegative int index) {
-    args.remove(index);
-  }
-
-  /**
-   * Sets the argument at the specified index.
-   */
-  public void setArg(@Nonnegative int index, @Nonnull JExpression arg) {
-    args.set(index, arg);
   }
 
   @CheckForNull
