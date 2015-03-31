@@ -115,6 +115,37 @@ public class FrontEndTests {
   }
 
   /**
+   * Test that we do not crash and that we report the error.
+   */
+  @Test
+  @Category(KnownBugs.class)
+  public void testDuplicated001() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test016.jack"));
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains("Duplicated"));
+   }
+  }
+
+
+  /**
    * Test that Jack is neither failing nor dropping warnings while ecj frontend is subject to skip
    * the local classes.
    */
