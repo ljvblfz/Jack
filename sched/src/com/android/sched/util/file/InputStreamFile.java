@@ -75,7 +75,7 @@ public class InputStreamFile extends AbstractStreamFile implements InputStreamPr
 
   @Override
   @Nonnull
-  public InputStream getInputStream() {
+  public synchronized InputStream getInputStream() {
     if (stream == null) {
       clearRemover();
 

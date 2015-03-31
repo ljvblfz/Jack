@@ -41,9 +41,9 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
   private final boolean append;
 
   @CheckForNull
-  private PrintStream printer;
+  protected PrintStream printer;
   @CheckForNull
-  private OutputStream stream;
+  protected OutputStream stream;
 
   public OutputStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -204,7 +204,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
 
   @Override
   @Nonnull
-  public OutputStream getOutputStream() {
+  public synchronized OutputStream getOutputStream() {
     if (stream == null) {
       clearRemover();
 
@@ -220,11 +220,15 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
 
   @Override
   @Nonnull
-  public PrintStream getPrintStream() {
+  public synchronized PrintStream getPrintStream() {
     if (printer == null) {
       printer = new PrintStream(getOutputStream());
     }
 
     return printer;
+  }
+
+  public boolean isInAppendMode() {
+    return append;
   }
 }

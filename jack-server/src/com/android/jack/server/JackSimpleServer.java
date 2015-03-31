@@ -18,9 +18,13 @@ package com.android.jack.server;
 
 import com.google.common.base.Joiner;
 
+import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
@@ -37,8 +41,11 @@ import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.GarbageCollectorMXBean;
@@ -65,12 +72,14 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -313,18 +322,18 @@ public class JackSimpleServer {
 
           logger.log(Level.INFO, "Open standard output '" + command[CMD_IDX_OUT] + "'");
           try {
-            out = new OutputStreamFile(command[CMD_IDX_OUT]).getPrintStream();
-          } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            out = new FifoStreamFile(command[CMD_IDX_OUT]).getPrintStream(10000);
+          } catch (IOException | TimeoutException e) {
+            logger.log(Level.SEVERE, e.getMessage());
             response.setStatus(Status.BAD_REQUEST);
             return;
           }
 
           logger.log(Level.INFO, "Open standard error '" + command[CMD_IDX_ERR] + "'");
           try {
-            err = new OutputStreamFile(command[CMD_IDX_ERR]).getPrintStream();
-          } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            err = new FifoStreamFile(command[CMD_IDX_ERR]).getPrintStream(10000);
+          } catch (IOException | TimeoutException e) {
+            logger.log(Level.SEVERE, e.getMessage());
             response.setStatus(Status.BAD_REQUEST);
             return;
           }
@@ -653,8 +662,8 @@ public class JackSimpleServer {
     System.exit(1);
   }
 
-  private static volatile PrintStream out = null;
-  private static volatile InputStream in = null;
+  private static volatile PrintStream unblockOut = null;
+  private static volatile InputStream unblockIn = null;
 
   private static void unblock(@Nonnull final String name) {
     logger.log(Level.INFO, "Trying to unblock '" + name + "'");
@@ -666,7 +675,7 @@ public class JackSimpleServer {
       @Override
       public void run() {
         try {
-          in = new InputStreamFile(name).getInputStream();
+          unblockIn = new InputStreamFile(name).getInputStream();
         } catch (IOException e) {
           // Best effort
         }
@@ -675,7 +684,7 @@ public class JackSimpleServer {
     thread.start();
 
     try {
-      out = new OutputStreamFile(name).getPrintStream();
+      unblockOut = new OutputStreamFile(name).getPrintStream();
     } catch (IOException e) {
       // Best effort
     }
@@ -689,16 +698,83 @@ public class JackSimpleServer {
       }
     }
 
-    if (out != null) {
-      out.close();
+    if (unblockOut != null) {
+      unblockOut.close();
     }
 
-    if (in != null) {
+    if (unblockIn != null) {
       try {
-        in.close();
+        unblockIn.close();
       } catch (IOException e) {
         // Best effort
       }
+    }
+  }
+
+  private static class FifoStreamFile extends OutputStreamFile {
+    @CheckForNull
+    private volatile OutputStream tmp;
+
+    public FifoStreamFile(@Nonnull String name) throws WrongPermissionException, NotFileException {
+      super(name);
+      // Check also read permission, writing without reader is useless
+      checkPermissions(file, location, Permission.READ);
+    }
+
+    @Nonnull
+    public synchronized OutputStream getOutputStream(@Nonnegative int timeout)
+        throws TimeoutException {
+      if (stream == null) {
+        Thread thread = new Thread() {
+          @Override
+          public void run() {
+            try {
+              tmp = new FileOutputStream(file, isInAppendMode());
+            } catch (FileNotFoundException e) {
+              throw new ConcurrentIOException(e);
+            }
+          }
+        };
+        thread.setDaemon(true);
+        thread.start();
+
+        try {
+          thread.join(timeout);
+        } catch (InterruptedException e) {
+          // If interrupted, abort timeout
+        }
+
+        if (tmp == null) {
+          // Try to unblock thread above
+          try {
+            // TODO(jack-team) The open can block again ...
+            new InputStreamFile(getPath()).getInputStream().close();
+          } catch (NotFileException | WrongPermissionException | NoSuchFileException e) {
+            // Already check
+            throw new ConcurrentIOException(e);
+          } catch (IOException e) {
+            // Error during close, nothing to do
+          }
+
+          throw new TimeoutException("Cannot open " + location.getDescription() + " for " + timeout
+              + " ms");
+        }
+
+        stream = tmp;
+      }
+
+      assert stream != null;
+      return stream;
+    }
+
+    @Nonnull
+    public synchronized PrintStream getPrintStream(@Nonnegative int timeout)
+        throws TimeoutException {
+      if (printer == null) {
+        printer = new PrintStream(getOutputStream(timeout));
+      }
+
+      return printer;
     }
   }
 
@@ -766,9 +842,15 @@ public class JackSimpleServer {
 
     // Get current UserPrincipal
     assert path != null;
-    java.nio.file.Path tmp = Files.createTempFile(path, "jss-", "-check");
-    UserPrincipal user = Files.getOwner(tmp);
-    Files.delete(tmp);
+    UserPrincipal user;
+    java.nio.file.Path tmp;
+    try {
+      tmp = Files.createTempFile(path, "jss-", "-check");
+      user = Files.getOwner(tmp);
+      Files.delete(tmp);
+    } catch (IOException e) {
+      throw new SecurityException("Cannot create/delete file in '" + path + "' to check security");
+    }
 
     // Check parent directory
     UserPrincipal owner = Files.getOwner(path);
