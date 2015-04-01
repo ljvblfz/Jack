@@ -27,6 +27,7 @@ import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.NoLocation;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.log.tracer.probe.TimeNanosProbe;
 
@@ -86,6 +87,20 @@ import javax.annotation.Nonnull;
  * Server controlling the number of Jack compilations that are executed simultaneously.
  */
 public class JackSimpleServer {
+
+  static {
+    // It seems that loggers must be created from parents to children to have the loggers
+    // correctly initialized. Thus load the initial configuration that define specific level
+    // for some packages firstly. Otherwise the parent logger of JackSimpleServer is not created
+    // before JackSimpleServer logger. Create the JackSimpleServer logger in first means that
+    // it will not have com.android.jack.server as parent even if it is created after.
+    LoggerFactory.loadLoggerConfiguration(JackSimpleServer.class, "/initial.logging.properties");
+  }
+
+
+  @Nonnull
+  private static Logger logger = Logger.getLogger(JackSimpleServer.class.getName());
+
   private static int port;
 
   @Nonnull
@@ -122,9 +137,6 @@ public class JackSimpleServer {
 
   @Nonnull
   private static ServerTask service = new ServerTaskInsideVm();
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(JackSimpleServer.class.getSimpleName());
 
   private static final int CMD_IDX_CMD = 0;
   private static final int CMD_IDX_OUT = 1;
@@ -168,8 +180,6 @@ public class JackSimpleServer {
       logger.log(Level.SEVERE, "Cannot parse port number '" + args[CLI_IDX_PORT] + "'");
       abort();
     }
-
-    logger = Logger.getLogger(JackSimpleServer.class.getSimpleName() + "." + port);
 
     int count = 0;
     try {
