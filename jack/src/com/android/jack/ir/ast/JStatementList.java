@@ -77,11 +77,4 @@ public abstract class JStatementList extends JStatement {
   public List<JStatement> getStatements() {
     return statements;
   }
-
-  /**
-   * Removes the statement from this catch block at the specified index.
-   */
-  public void removeStmt(@Nonnegative int index) {
-    statements.remove(index);
-  }
 }
