@@ -72,9 +72,9 @@ public class TypeShrinker implements RunnableSchedulable<JDefinedClassOrInterfac
     List<JInterface> implementsCopy = new ArrayList<JInterface>(type.getImplements());
     for (JInterface i : implementsCopy) {
       if (mustBeRemoved(i)) {
-        int index = type.getImplements().indexOf(i);
-        type.removeImplements(index);
-        for (JInterface subInterface : ((JDefinedInterface) i).getImplements()) {
+        JDefinedInterface jDefinedInterface = (JDefinedInterface) i;
+        type.remove(jDefinedInterface);
+        for (JInterface subInterface : jDefinedInterface.getImplements()) {
           addImplements(type, subInterface);
         }
       }

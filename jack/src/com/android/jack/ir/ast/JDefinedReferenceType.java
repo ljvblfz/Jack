@@ -22,6 +22,7 @@ import com.android.sched.item.Description;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -61,5 +62,13 @@ public abstract class JDefinedReferenceType extends JReferenceTypeCommon {
   @Nonnull
   public List<JInterface> getImplements() {
     return superInterfaces;
+  }
+
+  @Override
+  protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
+      @Nonnull Transformation transformation) throws UnsupportedOperationException {
+    if (!transform(superInterfaces, existingNode, (JInterface) newNode, transformation)) {
+      super.transform(existingNode, newNode, transformation);
+    }
   }
 }

@@ -171,10 +171,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     superInterfaces.add(superInterface);
   }
 
-  public void removeImplements(int index) {
-    superInterfaces.remove(index);
-  }
-
   public void setImplements(@Nonnull List<JInterface> superInterfaces) {
     this.superInterfaces = superInterfaces;
   }
