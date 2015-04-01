@@ -17,7 +17,7 @@
 package com.android.jack.lookup;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JEnum;
@@ -67,8 +67,8 @@ public class JPhantomLookup extends JLookup {
   private final Map<String, JInterface> interfaceCache =
       new HashMap<String, JInterface>();
   @Nonnull
-  private final Map<String, JAnnotation> annotationCache =
-      new HashMap<String, JAnnotation>();
+  private final Map<String, JAnnotationType> annotationCache =
+      new HashMap<String, JAnnotationType>();
 
   @Nonnull
   private final PhantomAdapter<JReferenceType> coiAdapter =
@@ -156,23 +156,24 @@ public class JPhantomLookup extends JLookup {
   };
 
   @Nonnull
-  private final PhantomAdapter<JAnnotation> annotationAdapter = new PhantomAdapter<JAnnotation>() {
+  private final PhantomAdapter<JAnnotationType> annotationAdapter =
+      new PhantomAdapter<JAnnotationType>() {
     @Nonnull
     @Override
-    public Map<String, JAnnotation> getCache() {
+    public Map<String, JAnnotationType> getCache() {
       return annotationCache;
     }
 
     @Nonnull
     @Override
-    public JAnnotation getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
-      return pack.getPhantomAnnotation(simpleName);
+    public JAnnotationType getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
+      return pack.getPhantomAnnotationType(simpleName);
     }
 
     @Override
     @Nonnull
-    public JAnnotation getDefined(@Nonnull String signature) {
-      return jackLookup.getAnnotation(signature);
+    public JAnnotationType getDefined(@Nonnull String signature) {
+      return jackLookup.getAnnotationType(signature);
     }
   };
 
@@ -241,7 +242,7 @@ public class JPhantomLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JAnnotation getAnnotation(@Nonnull String signature) {
+  public JAnnotationType getAnnotationType(@Nonnull String signature) {
     return getNonArrayType(signature, annotationAdapter);
   }
 
@@ -329,7 +330,7 @@ public class JPhantomLookup extends JLookup {
     checkCacheContent(checkedType, signature, defined, JClass.class, classCache);
     checkCacheContent(checkedType, signature, defined, JEnum.class, enumCache);
     checkCacheContent(checkedType, signature, defined, JInterface.class, interfaceCache);
-    checkCacheContent(checkedType, signature, defined, JAnnotation.class, annotationCache);
+    checkCacheContent(checkedType, signature, defined, JAnnotationType.class, annotationCache);
     return true;
   }
 

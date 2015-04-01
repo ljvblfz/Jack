@@ -242,7 +242,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
 
   @Override
   @Nonnull
-  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType) {
     return annotations.getAnnotation(annotationType);
   }
 
@@ -254,7 +254,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
 
   @Override
   @Nonnull
-  public Collection<JAnnotation> getAnnotationTypes() {
+  public Collection<JAnnotationType> getAnnotationTypes() {
     return annotations.getAnnotationTypes();
   }
 

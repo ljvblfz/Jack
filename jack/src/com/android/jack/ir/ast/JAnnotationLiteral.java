@@ -42,12 +42,12 @@ public class JAnnotationLiteral extends JLiteral {
   @Nonnull
   private final List<JNameValuePair> elements = new ArrayList<JNameValuePair>();
   @Nonnull
-  private final JAnnotation type;
+  private final JAnnotationType type;
   @Nonnull
   private final JRetentionPolicy retentionPolicy;
 
   public JAnnotationLiteral(@Nonnull SourceInfo sourceInfo,
-      @Nonnull JRetentionPolicy retentionPolicy, @Nonnull JAnnotation type) {
+      @Nonnull JRetentionPolicy retentionPolicy, @Nonnull JAnnotationType type) {
     super(sourceInfo);
     this.type = type;
     this.retentionPolicy = retentionPolicy;
@@ -55,7 +55,7 @@ public class JAnnotationLiteral extends JLiteral {
 
   @Nonnull
   @Override
-  public JAnnotation getType() {
+  public JAnnotationType getType() {
     return type;
   }
 

@@ -53,7 +53,7 @@ import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JContinueStatement;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -96,7 +96,7 @@ import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JOrOperation;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
-import com.android.jack.ir.ast.JPhantomAnnotation;
+import com.android.jack.ir.ast.JPhantomAnnotationType;
 import com.android.jack.ir.ast.JPhantomClass;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JPhantomEnum;
@@ -203,7 +203,7 @@ import com.android.sched.item.Name;
     JConditionalExpression.class,
     JConstructor.class,
     JContinueStatement.class,
-    JDefinedAnnotation.class,
+    JDefinedAnnotationType.class,
     JDefinedClass.class,
     JDefinedEnum.class,
     JDefinedInterface.class,
@@ -250,7 +250,7 @@ import com.android.sched.item.Name;
     JOrOperation.class,
     JParameter.class,
     JParameterRef.class,
-    JPhantomAnnotation.class,
+    JPhantomAnnotationType.class,
     JPhantomClass.class,
     JPhantomClassOrInterface.class,
     JPhantomEnum.class,

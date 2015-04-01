@@ -17,8 +17,8 @@
 package com.android.jack.ir.impl;
 
 import com.android.jack.ir.StringInterner;
-import com.android.jack.ir.ast.JAnnotation;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
@@ -132,7 +132,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     } else if (binding.isInterface()) {
       if (binding.isAnnotationType()) {
         assert JModifier.isAnnotation(accessFlags);
-        type = new JDefinedAnnotation(info, name, accessFlags, enclosingPackage, loader);
+        type = new JDefinedAnnotationType(info, name, accessFlags, enclosingPackage, loader);
       } else {
         type = new JDefinedInterface(info, name, accessFlags, enclosingPackage, loader);
       }
@@ -286,7 +286,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
 
   @Override
   public void ensureAnnotation(
-      @Nonnull JDefinedClassOrInterface loaded, @Nonnull JAnnotation annotation) {
+      @Nonnull JDefinedClassOrInterface loaded, @Nonnull JAnnotationType annotationType) {
     ensureAnnotations(loaded);
   }
 
@@ -326,8 +326,8 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     ensureFields(loaded);
     ensureEnclosing(loaded);
     ensureInners(loaded);
-    if (loaded instanceof JDefinedAnnotation) {
-      ensureRetentionPolicy((JDefinedAnnotation) loaded);
+    if (loaded instanceof JDefinedAnnotationType) {
+      ensureRetentionPolicy((JDefinedAnnotationType) loaded);
     }
     assert loaded.getLoader() != this;
   }
@@ -372,7 +372,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   }
 
   @Override
-  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotation loaded) {
+  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotationType loaded) {
     synchronized (this) {
       if (isLoaded(Scope.RETENTION)) {
         return;

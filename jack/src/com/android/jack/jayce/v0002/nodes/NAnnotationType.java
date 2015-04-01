@@ -17,7 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JClassOrInterface;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -54,7 +54,7 @@ public class NAnnotationType extends NInterfaceType {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    JDefinedAnnotation jAnnotationType = (JDefinedAnnotation) node;
+    JDefinedAnnotationType jAnnotationType = (JDefinedAnnotationType) node;
     retentionPolicy = jAnnotationType.getRetentionPolicy();
     modifiers = jAnnotationType.getModifier();
     signature = ImportHelper.getSignatureName(jAnnotationType);
@@ -70,20 +70,20 @@ public class NAnnotationType extends NInterfaceType {
 
   @Nonnull
   @Override
-  public JDefinedAnnotation exportAsJast(@Nonnull ExportSession exportSession) {
+  public JDefinedAnnotationType exportAsJast(@Nonnull ExportSession exportSession) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   @Nonnull
-  public JDefinedAnnotation create(@Nonnull JPackage enclosingPackage,
+  public JDefinedAnnotationType create(@Nonnull JPackage enclosingPackage,
       @Nonnull JayceClassOrInterfaceLoader loader) {
     assert signature != null;
     assert retentionPolicy != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
-    JDefinedAnnotation jInterfaceType =
-        new JDefinedAnnotation(SourceInfo.UNKNOWN, simpleName, modifiers, enclosingPackage, loader);
+    JDefinedAnnotationType jInterfaceType = new JDefinedAnnotationType(SourceInfo.UNKNOWN,
+        simpleName, modifiers, enclosingPackage, loader);
     jInterfaceType.setRetentionPolicy(retentionPolicy);
     return jInterfaceType;
   }
@@ -94,7 +94,7 @@ public class NAnnotationType extends NInterfaceType {
       JMethodLookupException {
     assert sourceInfo != null;
     assert signature != null;
-    JDefinedAnnotation jInterfaceType = (JDefinedAnnotation) loading;
+    JDefinedAnnotationType jInterfaceType = (JDefinedAnnotationType) loading;
     ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);

@@ -97,7 +97,7 @@ public class JAnnotationMethod extends JMethod {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JDefinedAnnotation)) {
+    if (!(parent instanceof JDefinedAnnotationType)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

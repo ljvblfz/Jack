@@ -103,7 +103,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   @Override
   @Nonnull
-  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType) {
     return annotations.getAnnotation(annotationType);
   }
 
@@ -115,7 +115,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   @Override
   @Nonnull
-  public Collection<JAnnotation> getAnnotationTypes() {
+  public Collection<JAnnotationType> getAnnotationTypes() {
     return annotations.getAnnotationTypes();
   }
 

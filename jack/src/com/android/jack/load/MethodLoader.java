@@ -16,7 +16,7 @@
 
 package com.android.jack.load;
 
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
@@ -36,7 +36,7 @@ public interface MethodLoader {
   public void ensureAnnotations(@Nonnull JMethod loaded);
 
   public void ensureAnnotation(@Nonnull JMethod loaded,
-      @Nonnull JAnnotation annotation);
+      @Nonnull JAnnotationType annotation);
 
   public void ensureBody(@Nonnull JMethod loaded);
 

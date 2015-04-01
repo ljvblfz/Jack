@@ -62,7 +62,7 @@ public class IncompatibleJTypeLookupException extends JTypeLookupException {
   private static String getTypeKind(@Nonnull Class<? extends JType> typeClass) {
     if (JEnum.class.isAssignableFrom(typeClass)) {
       return "enum";
-    } else if (JAnnotation.class.isAssignableFrom(typeClass)) {
+    } else if (JAnnotationType.class.isAssignableFrom(typeClass)) {
       return "annotation";
     } else if (JClass.class.isAssignableFrom(typeClass)) {
       return "class";

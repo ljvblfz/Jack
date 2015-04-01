@@ -22,6 +22,6 @@ import com.android.sched.item.Description;
  * Java annotation type.
  */
 @Description("Annotation type")
-public interface JAnnotation extends JInterface {
+public interface JAnnotationType extends JInterface {
 
 }

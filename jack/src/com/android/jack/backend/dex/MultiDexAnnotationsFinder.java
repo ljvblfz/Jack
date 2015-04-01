@@ -20,7 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.annotations.ForceInMainDex;
 import com.android.jack.annotations.MultiDexInstaller;
 import com.android.jack.backend.dex.MultiDexLegacyTracerBrush.MultiDexInstallerMarker;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -49,21 +49,21 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
   private final JVisitor visitor = new JVisitor() {
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface node) {
-      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
+      if (!node.getAnnotations(installerAnnotationType).isEmpty()) {
         markIfNecessary(node);
       }
       return super.visit(node);
     }
     @Override
     public boolean visit(@Nonnull JField node) {
-      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
+      if (!node.getAnnotations(installerAnnotationType).isEmpty()) {
         markIfNecessary(node);
       }
       return false;
     }
     @Override
     public boolean visit(@Nonnull JMethod node) {
-      if (!node.getAnnotations(installerAnnotation).isEmpty()) {
+      if (!node.getAnnotations(installerAnnotationType).isEmpty()) {
         markIfNecessary(node);
       }
       return false;
@@ -71,19 +71,19 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
   };
 
   @Nonnull
-  private final JAnnotation installerAnnotation;
+  private final JAnnotationType installerAnnotationType;
   @Nonnull
-  private final JAnnotation mainDexAnnotation;
+  private final JAnnotationType mainDexAnnotationType;
 
   public MultiDexAnnotationsFinder() {
-    installerAnnotation = getJAnnotation(MultiDexInstaller.class);
-    mainDexAnnotation = getJAnnotation(ForceInMainDex.class);
+    installerAnnotationType = getJAnnotationType(MultiDexInstaller.class);
+    mainDexAnnotationType = getJAnnotationType(ForceInMainDex.class);
   }
 
   @Nonnull
-  private JAnnotation getJAnnotation(@Nonnull Class<? extends Annotation> clazz) {
+  private JAnnotationType getJAnnotationType(@Nonnull Class<? extends Annotation> clazz) {
     String signature = NamingTools.getTypeSignatureName(clazz.getName());
-    return Jack.getSession().getPhantomLookup().getAnnotation(signature);
+    return Jack.getSession().getPhantomLookup().getAnnotationType(signature);
   }
 
   @Override
@@ -94,7 +94,7 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
     }
     visitor.accept(type);
 
-    if (!type.getAnnotations(mainDexAnnotation).isEmpty()) {
+    if (!type.getAnnotations(mainDexAnnotationType).isEmpty()) {
       type.addMarker(ForceInMainDexMarker.INSTANCE);
     }
   }

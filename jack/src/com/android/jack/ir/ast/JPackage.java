@@ -88,7 +88,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final List<JPhantomInterface> phantomInterfaces = new ArrayList<JPhantomInterface>();
 
   @Nonnull
-  private final List<JPhantomAnnotation> phantomAnnotations = new ArrayList<JPhantomAnnotation>();
+  private final List<JPhantomAnnotationType> phantomAnnotations =
+      new ArrayList<JPhantomAnnotationType>();
 
   @Nonnull
   private String name;
@@ -307,21 +308,21 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   @Nonnull
-  public synchronized JAnnotation getPhantomAnnotation(@Nonnull String typeName) {
+  public synchronized JAnnotationType getPhantomAnnotationType(@Nonnull String typeName) {
     try {
       JDefinedClassOrInterface defined = getType(typeName);
-      if (defined instanceof JAnnotation) {
-        return (JAnnotation) defined;
+      if (defined instanceof JAnnotationType) {
+        return (JAnnotationType) defined;
       }
     } catch (JLookupException e) {
       // ignore
     }
-    for (JPhantomAnnotation f : phantomAnnotations) {
+    for (JPhantomAnnotationType f : phantomAnnotations) {
       if (f.name.equals(typeName)) {
         return f;
       }
     }
-    JPhantomAnnotation phantom = new JPhantomAnnotation(typeName, this);
+    JPhantomAnnotationType phantom = new JPhantomAnnotationType(typeName, this);
     phantomAnnotations.add(phantom);
     tracer.getStatistic(PHANTOM_CREATION).incValue();
     return phantom;
@@ -375,9 +376,9 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
               transform(this.phantomInterfaces, existingNode, (JPhantomInterface) newNode,
                   transformation);
           if (!found) {
-            if (newNode instanceof JPhantomAnnotation) {
+            if (newNode instanceof JPhantomAnnotationType) {
               found =
-                  transform(this.phantomAnnotations, existingNode, (JPhantomAnnotation) newNode,
+                  transform(this.phantomAnnotations, existingNode, (JPhantomAnnotationType) newNode,
                       transformation);
             }
           }

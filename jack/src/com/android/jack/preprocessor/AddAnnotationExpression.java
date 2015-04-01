@@ -17,7 +17,7 @@
 package com.android.jack.preprocessor;
 
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 
 import java.util.Collection;
 
@@ -29,11 +29,11 @@ import javax.annotation.Nonnull;
 public class AddAnnotationExpression<T> implements Expression<Collection<T>, Scope> {
 
   @Nonnull
-  private final JAnnotation toAdd;
+  private final JAnnotationType toAdd;
   @Nonnull
   private final Expression<Collection<T>, Scope> on;
 
-  public AddAnnotationExpression(@Nonnull JAnnotation toAdd,
+  public AddAnnotationExpression(@Nonnull JAnnotationType toAdd,
       @Nonnull Expression<Collection<T>, Scope> on) {
     this.toAdd = toAdd;
     this.on = on;

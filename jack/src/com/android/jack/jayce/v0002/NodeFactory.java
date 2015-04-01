@@ -57,7 +57,7 @@ import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JContinueStatement;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -546,7 +546,7 @@ public class NodeFactory {
 
     @Override
     public boolean visit(@Nonnull JDefinedInterface x) {
-      if (x instanceof JDefinedAnnotation) {
+      if (x instanceof JDefinedAnnotationType) {
         newNode = new NAnnotationType();
         return false;
       }

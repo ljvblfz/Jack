@@ -18,7 +18,7 @@ package com.android.jack.backend.dex.multidex.legacy;
 
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.MultiDexLegacyTracerBrush.MultiDexInstallerMarker;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.sched.item.Description;
@@ -40,8 +40,8 @@ public class RuntimeAnnotationFinder implements RunnableSchedulable<JDefinedClas
 
   @Override
   public void run(JDefinedClassOrInterface type) throws Exception {
-    if (type instanceof JDefinedAnnotation &&
-        (((JDefinedAnnotation) type).getRetentionPolicy() == JRetentionPolicy.RUNTIME)) {
+    if (type instanceof JDefinedAnnotationType &&
+        (((JDefinedAnnotationType) type).getRetentionPolicy() == JRetentionPolicy.RUNTIME)) {
       type.addMarker(MultiDexInstallerMarker.INSTANCE);
     }
   }

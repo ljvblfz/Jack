@@ -28,11 +28,11 @@ public interface Annotable {
   void addAnnotation(@Nonnull JAnnotationLiteral annotation);
 
   @Nonnull
-  Collection<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType);
+  Collection<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType);
 
   @Nonnull
   Collection<JAnnotationLiteral> getAnnotations();
 
   @Nonnull
-  Collection<JAnnotation> getAnnotationTypes();
+  Collection<JAnnotationType> getAnnotationTypes();
 }

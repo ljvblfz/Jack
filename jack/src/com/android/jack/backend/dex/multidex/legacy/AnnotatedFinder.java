@@ -19,8 +19,8 @@ package com.android.jack.backend.dex.multidex.legacy;
 import com.android.jack.backend.dex.MainDexMarker;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotation;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -78,9 +78,9 @@ public class AnnotatedFinder implements RunnableSchedulable<JDefinedClassOrInter
   }
 
   private boolean isAnnotatedByRuntimeAnnotation(@Nonnull Annotable annotable) {
-    for (JAnnotation annotation: annotable.getAnnotationTypes()) {
-      if (annotation instanceof JDefinedAnnotation
-          && (((JDefinedAnnotation) annotation).getRetentionPolicy() == JRetentionPolicy.RUNTIME)) {
+    for (JAnnotationType annotation : annotable.getAnnotationTypes()) {
+      if (annotation instanceof JDefinedAnnotationType && (
+          ((JDefinedAnnotationType) annotation).getRetentionPolicy() == JRetentionPolicy.RUNTIME)) {
         return true;
       }
     }

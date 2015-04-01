@@ -17,7 +17,7 @@
 package com.android.jack.frontend;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -139,8 +139,8 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession
     String signature = Jack.getLookupFormatter().getName(typeToCheck);
     if (typeToCheck instanceof JEnum) {
       typeFoundInLookup = lookup.getEnum(signature);
-    } else if (typeToCheck instanceof JAnnotation) {
-      typeFoundInLookup = lookup.getAnnotation(signature);
+    } else if (typeToCheck instanceof JAnnotationType) {
+      typeFoundInLookup = lookup.getAnnotationType(signature);
     } else if (typeToCheck instanceof JClass) {
       typeFoundInLookup = lookup.getClass(signature);
     } else if (typeToCheck instanceof JInterface) {
