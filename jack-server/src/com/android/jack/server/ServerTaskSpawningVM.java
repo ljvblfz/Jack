@@ -16,6 +16,7 @@
 
 package com.android.jack.server;
 
+import com.android.jack.Jack;
 import com.android.jack.util.ExecuteFile;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.CannotReadException;
@@ -148,5 +149,11 @@ public class ServerTaskSpawningVM implements ServerTask {
     tokenizer.lowerCaseMode(false);
 
     return tokenizer;
+  }
+
+  @Override
+  @Nonnull
+  public String getVersion() {
+    return Jack.getVersion().getReleaseCode() + "-" + Jack.getVersion().getSubReleaseCode();
   }
 }

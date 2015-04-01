@@ -76,6 +76,12 @@ public class Server {
 
       return rnd.nextInt(30);
     }
+
+    @Override
+    @Nonnull
+    public String getVersion() {
+      return "0-0";
+    }
   };
 
   @Nonnull

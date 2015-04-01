@@ -131,6 +131,12 @@ public class JackSimpleServer {
 
       return rnd.nextInt(30);
     }
+
+    @Override
+    @Nonnull
+    public String getVersion() {
+      return "0-0";
+    }
   };
 
   @Nonnull
@@ -210,6 +216,7 @@ public class JackSimpleServer {
       router.addContainer(new PathParser("/jack"), new JackRun());
       router.addContainer(new PathParser("/gc"), new JackGc());
       router.addContainer(new PathParser("/stat"), new JackStat());
+      router.addContainer(new PathParser("/id"), new JackId());
 
       ContainerSocketProcessor processor = new ContainerSocketProcessor(router, nbInstance);
       connection = new SocketConnection(processor);
@@ -603,6 +610,27 @@ public class JackSimpleServer {
         } catch (Throwable e) {
           logger.log(Level.SEVERE, "Unexpected exception: ", e);
         }
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Exception during IO: ", e);
+      } finally {
+        try {
+          response.close();
+        } catch (IOException e) {
+          logger.log(Level.SEVERE, "Exception during close: ", e);
+        }
+      }
+    }
+  }
+
+  private static class JackId implements Container {
+    @Override
+    public void handle(@Nonnull Request request, @Nonnull Response response) {
+      try {
+        response.setStatus(Status.OK);
+        PrintStream printer = response.getPrintStream();
+
+        printer.println("server.version: 1");
+        printer.println("jack.version: " + service.getVersion());
       } catch (IOException e) {
         logger.log(Level.SEVERE, "Exception during IO: ", e);
       } finally {
