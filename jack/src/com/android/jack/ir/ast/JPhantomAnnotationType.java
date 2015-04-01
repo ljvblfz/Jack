@@ -29,9 +29,9 @@ import javax.annotation.Nonnull;
  * @see JPhantomClassOrInterface
  */
 @Description("Phantom annotation type")
-public class JPhantomAnnotation extends JPhantomInterface implements JAnnotation {
+public class JPhantomAnnotationType extends JPhantomInterface implements JAnnotationType {
 
-  public JPhantomAnnotation(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
+  public JPhantomAnnotationType(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(name, enclosingPackage);
   }
 

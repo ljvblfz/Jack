@@ -371,7 +371,7 @@ public class JVisitor {
     endVisit((JVariableRef) x);
   }
 
-  public void endVisit(@Nonnull JPhantomAnnotation x) {
+  public void endVisit(@Nonnull JPhantomAnnotationType x) {
     endVisit((JPhantomInterface) x);
   }
 
@@ -751,7 +751,7 @@ public class JVisitor {
     return visit((JVariableRef) x);
   }
 
-  public boolean visit(@Nonnull JPhantomAnnotation x) {
+  public boolean visit(@Nonnull JPhantomAnnotationType x) {
     return visit((JPhantomInterface) x);
   }
 
@@ -1193,7 +1193,7 @@ public class JVisitor {
     visit((JVariableRef) x, transformRequest);
   }
 
-  public void visit(@Nonnull JPhantomAnnotation x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JPhantomAnnotationType x, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visit((JPhantomInterface) x, transformRequest);
   }

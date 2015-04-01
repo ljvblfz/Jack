@@ -19,7 +19,7 @@ package com.android.jack.preprocessor;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
@@ -62,28 +62,28 @@ public class PreProcessorTest {
       }
     }
 
-    JAnnotation installerAnnotation =
-        session.getPhantomLookup().getAnnotation(
+    JAnnotationType installerAnnotationType =
+        session.getPhantomLookup().getAnnotationType(
             "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
     JNodeLookup lookup = session.getLookup();
     {
       JDefinedClassOrInterface coi = lookup.getClass(
           "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
-      Assert.assertFalse(coi.getAnnotations(installerAnnotation).isEmpty());
+      Assert.assertFalse(coi.getAnnotations(installerAnnotationType).isEmpty());
       for (JMethod method : coi.getMethods()) {
         if (method.getName().equals("noAnnotation")) {
-          Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
+          Assert.assertTrue(method.getAnnotations(installerAnnotationType).isEmpty());
         } else {
-          Assert.assertFalse(method.getAnnotations(installerAnnotation).isEmpty());
+          Assert.assertFalse(method.getAnnotations(installerAnnotationType).isEmpty());
         }
       }
     }
     {
       JDefinedClassOrInterface coi = lookup.getClass(
           "Lcom/android/jack/preprocessor/test001/jack/app1/NoAnnotation;");
-      Assert.assertTrue(coi.getAnnotations(installerAnnotation).isEmpty());
+      Assert.assertTrue(coi.getAnnotations(installerAnnotationType).isEmpty());
       for (JMethod method : coi.getMethods()) {
-        Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
+        Assert.assertTrue(method.getAnnotations(installerAnnotationType).isEmpty());
       }
     }
 

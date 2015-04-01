@@ -17,9 +17,9 @@
 package com.android.jack.preprocessor;
 
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -35,12 +35,12 @@ import javax.annotation.Nonnull;
 public class AddAnnotationStep implements TransformationStep {
 
   @Nonnull
-  private final JAnnotation annotation;
+  private final JAnnotationType annotation;
 
   @Nonnull
   private final Collection<?> toAnnotate;
 
-  public AddAnnotationStep(@Nonnull JAnnotation annotation,
+  public AddAnnotationStep(@Nonnull JAnnotationType annotation,
       @Nonnull Collection<?> toAnnotate) {
     this.annotation = annotation;
     this.toAnnotate = toAnnotate;
@@ -54,8 +54,8 @@ public class AddAnnotationStep implements TransformationStep {
         // Do not override existing annotation
         if (annotable.getAnnotations(annotation).isEmpty()) {
           JRetentionPolicy retention = JRetentionPolicy.SOURCE;
-          if (annotation instanceof JDefinedAnnotation) {
-            retention = ((JDefinedAnnotation) annotation).getRetentionPolicy();
+          if (annotation instanceof JDefinedAnnotationType) {
+            retention = ((JDefinedAnnotationType) annotation).getRetentionPolicy();
           }
           JAnnotationLiteral literal = new JAnnotationLiteral(
               SourceInfo.UNKNOWN, retention, annotation);

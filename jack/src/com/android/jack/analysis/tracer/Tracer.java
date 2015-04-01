@@ -21,9 +21,9 @@ import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
-import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JAnnotationMethod;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JClass;
@@ -299,7 +299,7 @@ public class Tracer extends JVisitor {
   }
 
   private void trace(@Nonnull JAnnotationLiteral al) {
-    JAnnotation type = al.getType();
+    JAnnotationType type = al.getType();
     trace(type);
     for (JNameValuePair pair : al.getNameValuePairs()) {
       for (JMethod method : pair.getMethodId().getMethods()) {

@@ -19,7 +19,7 @@ package com.android.jack.jayce;
 import com.android.jack.Jack;
 import com.android.jack.LibraryException;
 import com.android.jack.frontend.ParentSetter;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
@@ -145,7 +145,7 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
   }
 
   @Override
-  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotation loaded) {
+  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotationType loaded) {
     // done at creation
   }
 

@@ -262,7 +262,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   @Nonnull
-  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType) {
     loader.ensureAnnotation(this, annotationType);
     return annotations.getAnnotation(annotationType);
   }
@@ -276,7 +276,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   @Nonnull
-  public Collection<JAnnotation> getAnnotationTypes() {
+  public Collection<JAnnotationType> getAnnotationTypes() {
     return annotations.getAnnotationTypes();
   }
 

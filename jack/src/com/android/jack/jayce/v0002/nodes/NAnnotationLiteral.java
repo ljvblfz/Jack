@@ -16,8 +16,8 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -74,7 +74,7 @@ public class NAnnotationLiteral extends NLiteral {
     assert sourceInfo != null;
     assert annotationType != null;
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JAnnotation type = exportSession.getLookup().getAnnotation(annotationType);
+    JAnnotationType type = exportSession.getLookup().getAnnotationType(annotationType);
     JAnnotationLiteral jAnnotationLiteral =
         new JAnnotationLiteral(jSourceInfo, retentionPolicy, type);
     for (NNameValuePair valuePair : elements) {

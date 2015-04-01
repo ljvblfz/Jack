@@ -18,10 +18,10 @@ package com.android.jack.backend.dex.annotations;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexAnnotations;
-import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationLiteral;
 import com.android.jack.ir.ast.JAnnotationMethod;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
@@ -82,7 +82,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   @CheckForNull
-  private JAnnotation defaultAnnotation;
+  private JAnnotationType defaultAnnotationType;
 
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
@@ -100,7 +100,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
         tr.append(new Remove(defaultValue));
         SourceInfo sourceInfo = defaultValue.getSourceInfo();
         JAnnotationLiteral defaultAnnotation =
-            getDefaultAnnotation((JDefinedAnnotation) enclosingType, tr);
+            getDefaultAnnotation((JDefinedAnnotationType) enclosingType, tr);
         tr.append(new AddNameValuePair(defaultAnnotation,
             new JNameValuePair(sourceInfo, method.getMethodId(), defaultValue)));
         tr.commit();
@@ -109,9 +109,9 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   }
 
   @Nonnull
-  private JAnnotationLiteral getDefaultAnnotation(@Nonnull JDefinedAnnotation targetType,
+  private JAnnotationLiteral getDefaultAnnotation(@Nonnull JDefinedAnnotationType targetType,
       @Nonnull TransformationRequest tr) {
-    JAnnotation defaultAnnotationType = getDefaultAnnotationType(targetType);
+    JAnnotationType defaultAnnotationType = getDefaultAnnotationType(targetType);
     JAnnotationLiteral defaultAnnotation = null;
     List<JAnnotationLiteral> defaultAnnotations = targetType.getAnnotations(defaultAnnotationType);
     if (defaultAnnotations.isEmpty()) {
@@ -134,13 +134,13 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
    * @param type any JDeclaredType produced from source, it is only used to find the JLookup.
    */
   @Nonnull
-  private JAnnotation getDefaultAnnotationType(@Nonnull JDefinedClassOrInterface type) {
-    if (defaultAnnotation == null) {
-      defaultAnnotation = type.getSession()
-          .getPhantomLookup().getAnnotation(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
+  private JAnnotationType getDefaultAnnotationType(@Nonnull JDefinedClassOrInterface type) {
+    if (defaultAnnotationType == null) {
+      defaultAnnotationType = type.getSession()
+          .getPhantomLookup().getAnnotationType(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
     }
-    assert defaultAnnotation != null;
-    return defaultAnnotation;
+    assert defaultAnnotationType != null;
+    return defaultAnnotationType;
   }
 
 }

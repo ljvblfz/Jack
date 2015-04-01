@@ -16,7 +16,7 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.util.NamingTools;
@@ -48,8 +48,8 @@ class RuleBuilder {
   }
 
   @Nonnull
-  public JAnnotation getAnnotation(@Nonnull String annotationName) {
-    return session.getLookup().getAnnotation(
+  public JAnnotationType getAnnotationType(@Nonnull String annotationName) {
+    return session.getLookup().getAnnotationType(
         NamingTools.getTypeSignatureName(annotationName));
   }
 

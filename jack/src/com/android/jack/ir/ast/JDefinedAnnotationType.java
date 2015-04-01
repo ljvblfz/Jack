@@ -27,12 +27,12 @@ import javax.annotation.Nonnull;
  * Java annotation type definition
  */
 @Description("Java annotation type definition")
-public class JDefinedAnnotation extends JDefinedInterface implements JAnnotation {
+public class JDefinedAnnotationType extends JDefinedInterface implements JAnnotationType {
 
   @CheckForNull
   private JRetentionPolicy retentionPolicy;
 
-  public JDefinedAnnotation(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
+  public JDefinedAnnotationType(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name, modifier, enclosingPackage, loader);
   }

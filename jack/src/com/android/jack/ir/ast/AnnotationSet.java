@@ -34,14 +34,14 @@ import javax.annotation.Nonnull;
 class AnnotationSet {
 
   @Nonnull
-  private final Map<JAnnotation, ArrayList<JAnnotationLiteral>> annotations =
-    new HashMap<JAnnotation, ArrayList<JAnnotationLiteral>>();
+  private final Map<JAnnotationType, ArrayList<JAnnotationLiteral>> annotations =
+    new HashMap<JAnnotationType, ArrayList<JAnnotationLiteral>>();
 
   AnnotationSet() {
   }
 
   void addAnnotation(@Nonnull JAnnotationLiteral annotation) throws UnsupportedOperationException {
-    JAnnotation type = annotation.getType();
+    JAnnotationType type = annotation.getType();
     ArrayList<JAnnotationLiteral> annotationLiterals = annotations.get(type);
     if (annotationLiterals == null) {
       annotationLiterals = new ArrayList<JAnnotationLiteral>(1);
@@ -55,7 +55,7 @@ class AnnotationSet {
    *         {@link AnnotationSet} and having the type {@code annotationType}.
    */
   @Nonnull
-  List<JAnnotationLiteral> getAnnotation(@Nonnull JAnnotation annotationType) {
+  List<JAnnotationLiteral> getAnnotation(@Nonnull JAnnotationType annotationType) {
     List<JAnnotationLiteral> annotationLiterals = annotations.get(annotationType);
     if (annotationLiterals == null) {
       return Collections.emptyList();
@@ -77,10 +77,11 @@ class AnnotationSet {
   }
 
   /**
-   * @return {@link Collection} of {@link JAnnotation} contained into this {@link AnnotationSet}.
+   * @return {@link Collection} of {@link JAnnotationType} contained into this
+   *         {@link AnnotationSet}.
    */
   @Nonnull
-  Collection<JAnnotation> getAnnotationTypes() {
+  Collection<JAnnotationType> getAnnotationTypes() {
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations.keySet());
   }
 

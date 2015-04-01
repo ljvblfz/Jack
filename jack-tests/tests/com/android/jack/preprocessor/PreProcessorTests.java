@@ -19,7 +19,7 @@ package com.android.jack.preprocessor;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
@@ -93,7 +93,7 @@ public class PreProcessorTests {
       }
     }
 
-    JAnnotation installerAnnotation = session.getPhantomLookup().getAnnotation(
+    JAnnotationType installerAnnotation = session.getPhantomLookup().getAnnotationType(
         "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
     JNodeLookup lookup = session.getLookup();
     {

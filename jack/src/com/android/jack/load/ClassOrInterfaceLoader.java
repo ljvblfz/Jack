@@ -16,8 +16,8 @@
 
 package com.android.jack.load;
 
-import com.android.jack.ir.ast.JAnnotation;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.sched.marker.Marker;
@@ -46,7 +46,7 @@ public interface ClassOrInterfaceLoader {
   public void ensureAnnotations(@Nonnull JDefinedClassOrInterface loaded);
 
   public void ensureAnnotation(@Nonnull JDefinedClassOrInterface loaded,
-      @Nonnull JAnnotation annotation);
+      @Nonnull JAnnotationType annotation);
 
   public void ensureMethods(@Nonnull JDefinedClassOrInterface loaded);
 
@@ -66,7 +66,7 @@ public interface ClassOrInterfaceLoader {
 
   public void ensureModifier(@Nonnull JDefinedClassOrInterface loaded);
 
-  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotation loaded);
+  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotationType loaded);
 
   public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded);
 

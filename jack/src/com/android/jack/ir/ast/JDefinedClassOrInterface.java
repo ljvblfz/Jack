@@ -361,7 +361,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   @Nonnull
-  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotation annotationType) {
+  public List<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType) {
     loader.ensureAnnotation(this, annotationType);
     return annotations.getAnnotation(annotationType);
   }
@@ -375,7 +375,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   @Nonnull
-  public Collection<JAnnotation> getAnnotationTypes() {
+  public Collection<JAnnotationType> getAnnotationTypes() {
     loader.ensureAnnotations(this);
     return annotations.getAnnotationTypes();
   }

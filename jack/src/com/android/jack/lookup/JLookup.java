@@ -20,7 +20,7 @@ package com.android.jack.lookup;
 import com.google.common.base.Splitter;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JEnum;
@@ -114,7 +114,8 @@ public abstract class JLookup {
   public abstract JInterface getInterface(@Nonnull String typeName) throws JTypeLookupException;
 
   @Nonnull
-  public abstract JAnnotation getAnnotation(@Nonnull String signature) throws JTypeLookupException;
+  public abstract JAnnotationType getAnnotationType(@Nonnull String signature)
+      throws JTypeLookupException;
 
   public abstract void clear();
 

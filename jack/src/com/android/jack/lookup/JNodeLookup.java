@@ -18,7 +18,7 @@ package com.android.jack.lookup;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.IncompatibleJTypeLookupException;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -144,12 +144,13 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedAnnotation getAnnotation(@Nonnull String typeName) throws JTypeLookupException {
+  public JDefinedAnnotationType getAnnotationType(@Nonnull String typeName)
+      throws JTypeLookupException {
     JType type = getType(typeName);
-    if (type instanceof JDefinedAnnotation) {
-      return (JDefinedAnnotation) type;
+    if (type instanceof JDefinedAnnotationType) {
+      return (JDefinedAnnotationType) type;
     } else {
-      throw new IncompatibleJTypeLookupException(type, JDefinedAnnotation.class);
+      throw new IncompatibleJTypeLookupException(type, JDefinedAnnotationType.class);
     }
   }
 

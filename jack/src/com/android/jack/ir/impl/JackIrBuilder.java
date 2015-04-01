@@ -47,7 +47,7 @@ import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JContinueStatement;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
@@ -3223,8 +3223,8 @@ public class JackIrBuilder {
 
     protected void visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
       try {
-        JDefinedAnnotation jAnnotation =
-            (JDefinedAnnotation) getTypeMap().get(annotation.resolvedType);
+        JDefinedAnnotationType jAnnotation =
+            (JDefinedAnnotationType) getTypeMap().get(annotation.resolvedType);
         JAnnotationLiteral literal = new JAnnotationLiteral(makeSourceInfo(annotation),
             jAnnotation.getRetentionPolicy(), jAnnotation);
 

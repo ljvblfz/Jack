@@ -16,7 +16,7 @@
 
 package com.android.jack.load;
 
-import com.android.jack.ir.ast.JAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.marker.Marker;
 
@@ -45,7 +45,7 @@ public abstract class AbstractMethodLoader implements MethodLoader {
 
   @Override
   public void ensureAnnotation(@Nonnull JMethod loaded,
-      @Nonnull JAnnotation annotation) {
+      @Nonnull JAnnotationType annotation) {
     ensureAnnotations(loaded);
   }
 

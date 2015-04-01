@@ -16,8 +16,8 @@
 
 package com.android.jack.load;
 
-import com.android.jack.ir.ast.JAnnotation;
-import com.android.jack.ir.ast.JDefinedAnnotation;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.sched.marker.Marker;
@@ -64,7 +64,7 @@ public abstract class AbstractClassOrInterfaceLoader implements ClassOrInterface
 
   @Override
   public void ensureAnnotation(
-      @Nonnull JDefinedClassOrInterface loaded, @Nonnull JAnnotation annotation) {
+      @Nonnull JDefinedClassOrInterface loaded, @Nonnull JAnnotationType annotationType) {
     ensureAnnotations(loaded);
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractClassOrInterfaceLoader implements ClassOrInterface
   }
 
   @Override
-  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotation loaded) {
+  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotationType loaded) {
     ensureAll(loaded);
   }
 
