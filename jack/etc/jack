@@ -32,11 +32,12 @@ if [ ! -f "$LOCAL_SETTING" ]; then
   cat >"$LOCAL_SETTING.$$" <<-"EOT"
 	# Server settings
 	SERVER=true
-	SERVER_PORT=8072
+	SERVER_PORT_SERVICE=8072
+	SERVER_PORT_ADMIN=8073
 	SERVER_COUNT=1
 	SERVER_NB_COMPILE=4
 	SERVER_TIMEOUT=60
-	SERVER_LOG=$SERVER_DIR/jack-$SERVER_PORT.log
+	SERVER_LOG=$SERVER_DIR/jack-$SERVER_PORT_SERVICE.log
 	JACK_VM_COMMAND=${JACK_VM_COMMAND:=java}
 	# Internal, do not touch
 	SETTING_VERSION=1
@@ -111,7 +112,7 @@ trap ERR
 # Launch compilation
 RETRY=3
 while true; do
-  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} http://127.0.0.1:$SERVER_PORT/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
   if [ $CURL_CODE -eq 0 ]; then
@@ -125,7 +126,7 @@ while true; do
     else
       # Launch the server
       echo "Launching background server" $SERVER_PRG
-      $SERVER_PRG $SERVER_PORT $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
+      $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
       let RETRY=RETRY-1
       sleep 3
     fi

@@ -99,7 +99,8 @@ public class JackSimpleServer {
   @Nonnull
   private static Logger logger = Logger.getLogger(JackSimpleServer.class.getName());
 
-  private static int port;
+  private static int portService;
+  private static int portAdmin;
 
   @Nonnull
   private static final ServerTask serviceTest = new ServerTask() {
@@ -117,8 +118,8 @@ public class JackSimpleServer {
         e.printStackTrace();
       }
 
-      out.println("Pre-test stdout for '" + workingDir.getPath() + "' from " + port);
-      err.println("Pre-test stderr for '" + cmd + "' from " + port);
+      out.println("Pre-test stdout for '" + workingDir.getPath() + "' from " + portService);
+      err.println("Pre-test stderr for '" + cmd + "' from " + portService);
 
       try {
         Thread.sleep(rnd.nextInt(3000));
@@ -126,8 +127,8 @@ public class JackSimpleServer {
         // Doesn't matter
       }
 
-      out.println("Post-test stdout for '" + workingDir.getPath() + "' from " + port);
-      err.println("Post-test stderr for '" + cmd + "' from " + port);
+      out.println("Post-test stdout for '" + workingDir.getPath() + "' from " + portService);
+      err.println("Post-test stderr for '" + cmd + "' from " + portService);
 
       return rnd.nextInt(30);
     }
@@ -148,14 +149,17 @@ public class JackSimpleServer {
   private static final int CMD_IDX_CLI = 3;
   private static final int CMD_IDX_END = 4;
 
-  private static final int CLI_IDX_PORT = 0;
-  private static final int CLI_IDX_COUNT = 1;
-  private static final int CLI_IDX_MAX = 2;
-  private static final int CLI_IDX_TIEMOUT = 3;
-  private static final int CLI_IDX_END = 4;
+  private static final int CLI_IDX_PORTS   = 0;
+  private static final int CLI_IDX_PORTA   = 1;
+  private static final int CLI_IDX_COUNT   = 2;
+  private static final int CLI_IDX_MAX     = 3;
+  private static final int CLI_IDX_TIEMOUT = 4;
+  private static final int CLI_IDX_END     = 5;
 
   @CheckForNull
-  private static Connection connection;
+  private static Connection serviceConnection;
+  @CheckForNull
+  private static Connection adminConnection;
   @CheckForNull
   private static Timer timer;
   @Nonnull
@@ -173,15 +177,24 @@ public class JackSimpleServer {
 
   public static void main(String[] args) {
     if (args.length != CLI_IDX_END) {
-      logger.log(Level.SEVERE, "Usage: <port-nb> <server-count> <max-compile> <timeout-s>");
+      logger.log(Level.SEVERE,
+          "Usage: <port-service> <port-admin> <server-count> <max-compile> <timeout-s>");
       abort();
     }
 
-    port = 0;
+    portService = 0;
     try {
-      port = Integer.parseInt(args[CLI_IDX_PORT]);
+      portService = Integer.parseInt(args[CLI_IDX_PORTS]);
     } catch (NumberFormatException e) {
-      logger.log(Level.SEVERE, "Cannot parse port number '" + args[CLI_IDX_PORT] + "'");
+      logger.log(Level.SEVERE, "Cannot parse port number '" + args[CLI_IDX_PORTS] + "'");
+      abort();
+    }
+
+    portAdmin = 0;
+    try {
+      portAdmin = Integer.parseInt(args[CLI_IDX_PORTA]);
+    } catch (NumberFormatException e) {
+      logger.log(Level.SEVERE, "Cannot parse port number '" + args[CLI_IDX_PORTA] + "'");
       abort();
     }
 
@@ -208,23 +221,38 @@ public class JackSimpleServer {
       abort();
     }
 
-    InetSocketAddress socket = new InetSocketAddress("127.0.0.1", port);
+    InetSocketAddress serviceSocket = new InetSocketAddress("127.0.0.1", portService);
+    InetSocketAddress adminSocket   = new InetSocketAddress("127.0.0.1", portAdmin);
 
-    logger.log(Level.INFO, "Starting simple server on " + socket);
+    logger.log(Level.INFO, "Starting admin connection on " + adminSocket);
     try {
       JackRouter router = new JackRouter();
-      router.addContainer(new PathParser("/jack"), new JackRun());
       router.addContainer(new PathParser("/gc"), new JackGc());
       router.addContainer(new PathParser("/stat"), new JackStat());
       router.addContainer(new PathParser("/id"), new JackId());
+      router.addContainer(new PathParser("/stop"), new JackStop());
+
+      ContainerSocketProcessor processor = new ContainerSocketProcessor(router, 1);
+      adminConnection = new SocketConnection(processor);
+      assert adminConnection != null;
+      adminConnection.connect(adminSocket);
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Problem during admin connection ", e);
+      abort();
+    }
+
+    logger.log(Level.INFO, "Starting service connection server on " + serviceSocket);
+    try {
+      JackRouter router = new JackRouter();
+      router.addContainer(new PathParser("/jack"), new JackRun());
 
       ContainerSocketProcessor processor = new ContainerSocketProcessor(router, nbInstance);
-      connection = new SocketConnection(processor);
-      assert connection != null;
-      connection.connect(socket);
+      serviceConnection = new SocketConnection(processor);
+      assert serviceConnection != null;
+      serviceConnection.connect(serviceSocket);
       startTimer();
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Problem during connection ", e);
+      logger.log(Level.SEVERE, "Problem during service connection ", e);
       abort();
     }
   }
@@ -241,6 +269,11 @@ public class JackSimpleServer {
         public void handle(@Nonnull Request request, @Nonnull Response response) {
           logger.log(Level.INFO, "Unknown request for '" + request.getPath().getPath() + "'");
           response.setStatus(Status.NOT_FOUND);
+          try {
+            response.close();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception during close: ", e);
+          }
         }
       };
     }
@@ -648,7 +681,7 @@ public class JackSimpleServer {
       @CheckForNull MemoryUsage usage) {
     if (usage != null) {
       printer.println(suffix + "commited: " + formatQuatity(usage.getCommitted()));
-      printer.println(suffix + "itnit: " + formatQuatity(usage.getInit()));
+      printer.println(suffix + "init: " + formatQuatity(usage.getInit()));
       printer.println(suffix + "max: " + formatQuatity(usage.getMax()));
       printer.println(suffix + "used: " + formatQuatity(usage.getUsed()));
     }
@@ -696,6 +729,28 @@ public class JackSimpleServer {
     }
   }
 
+  private static class JackStop implements Container {
+    @Override
+    public void handle(@Nonnull Request request, @Nonnull Response response) {
+      logger.log(Level.INFO, "Force shutdown");
+
+      Thread thread = new Thread() {
+        @Override
+        public void run() {
+          shutdown();
+        }
+      };
+      thread.setName("jack-server-shutdown");
+      thread.start();
+      response.setStatus(Status.OK);
+      try {
+        response.close();
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Exception during close: ", e);
+      }
+    }
+  }
+
   private static void abort() {
     logger.log(Level.SEVERE, "Abort sever");
     System.exit(1);
@@ -720,6 +775,7 @@ public class JackSimpleServer {
         }
       }
     };
+    thread.setName("jack-server-unblock");
     thread.start();
 
     try {
@@ -774,6 +830,7 @@ public class JackSimpleServer {
             }
           }
         };
+        thread.setName("jack-server-open");
         thread.setDaemon(true);
         thread.start();
 
@@ -831,26 +888,41 @@ public class JackSimpleServer {
       timer.schedule(new TimerTask() {
         @Override
         public void run() {
-          cancelTimer();
-
-          Connection conn = connection;
-          assert conn != null;
-
-          logger.log(Level.INFO, "Shutdowning server");
-          logger.log(Level.INFO, "# max of concurrent compilations: " + maxLocal);
-          logger.log(Level.INFO, "# total of compilations: " + totalLocal);
-          logger.log(Level.INFO, "# max of concurrent forward compilations: " + maxForward);
-          logger.log(Level.INFO, "# total of forward compilations: " + totalForward);
-          try {
-            conn.close();
-            logger.log(Level.INFO, "Done");
-          } catch (IOException e) {
-            logger.log(Level.SEVERE, "Cannot shutdown the server: ", e);
-          }
+          shutdown();
         }
       }, timeout);
     } finally {
       lock.unlock();
+    }
+  }
+
+  private static void shutdown() {
+    cancelTimer();
+
+    Connection conn = serviceConnection;
+    assert conn != null;
+
+    logger.log(Level.INFO, "Shutdowning service connection");
+    logger.log(Level.INFO, "# max of concurrent compilations: " + maxLocal);
+    logger.log(Level.INFO, "# total of compilations: " + totalLocal);
+    logger.log(Level.INFO, "# max of concurrent forward compilations: " + maxForward);
+    logger.log(Level.INFO, "# total of forward compilations: " + totalForward);
+    try {
+      conn.close();
+      logger.log(Level.INFO, "Done");
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Cannot shutdown the service connection: ", e);
+    }
+
+    conn = adminConnection;
+    assert conn != null;
+
+    logger.log(Level.INFO, "Shutdowning admin connection");
+    try {
+      conn.close();
+      logger.log(Level.INFO, "Done");
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Cannot shutdown the asmin connection: ", e);
     }
   }
 
