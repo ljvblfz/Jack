@@ -57,7 +57,7 @@ mkfifo "$JACK_ERR"
 touch  "$JACK_CLI" "$JACK_EXIT"
 
 # Try to cleanup if interrupted
-trap 'kill -9 $PID_OUT $PID_ERR; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
+trap 'kill -9 $PID_OUT $PID_ERR 2>/dev/null; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 # Redirect output and error
 cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
@@ -116,7 +116,13 @@ while true; do
     fi
   else
     # In case of partial, timeout, empty, network error, let's retry
-    sleep 1
+    if [ $RETRY -eq 0 ]; then
+      echo "Communication error with server, error code " $CURL_CODE
+      kill -QUIT $$
+    else
+      let RETRY=RETRY-1
+      sleep 1
+    fi
   fi
 done
 

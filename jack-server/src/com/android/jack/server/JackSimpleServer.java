@@ -87,7 +87,6 @@ import javax.annotation.Nonnull;
  * Server controlling the number of Jack compilations that are executed simultaneously.
  */
 public class JackSimpleServer {
-
   static {
     // It seems that loggers must be created from parents to children to have the loggers
     // correctly initialized. Thus load the initial configuration that define specific level
@@ -96,7 +95,6 @@ public class JackSimpleServer {
     // it will not have com.android.jack.server as parent even if it is created after.
     LoggerFactory.loadLoggerConfiguration(JackSimpleServer.class, "/initial.logging.properties");
   }
-
 
   @Nonnull
   private static Logger logger = Logger.getLogger(JackSimpleServer.class.getName());
@@ -305,8 +303,8 @@ public class JackSimpleServer {
           if (currentLocal == 0) {
             cancelTimer();
           }
+
           currentLocal++;
-          logger.log(Level.INFO, "Number of concurrent compilations: " + currentLocal);
           if (currentLocal > maxLocal) {
             maxLocal = currentLocal;
           }
@@ -330,79 +328,81 @@ public class JackSimpleServer {
             return;
           }
 
-          logger.log(Level.INFO, "Open standard output '" + command[CMD_IDX_OUT] + "'");
           try {
-            out = new FifoStreamFile(command[CMD_IDX_OUT]).getPrintStream(10000);
-          } catch (IOException | TimeoutException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            response.setStatus(Status.BAD_REQUEST);
-            return;
-          }
-
-          logger.log(Level.INFO, "Open standard error '" + command[CMD_IDX_ERR] + "'");
-          try {
-            err = new FifoStreamFile(command[CMD_IDX_ERR]).getPrintStream(10000);
-          } catch (IOException | TimeoutException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            response.setStatus(Status.BAD_REQUEST);
-            return;
-          }
-
-          logger.log(Level.INFO, "Parse command line");
-          TokenIterator args = new TokenIterator(new NoLocation(), "@" + command[CMD_IDX_CLI]);
-          args.allowFileReferenceInFile();
-          if (!args.hasNext()) {
-            logger.log(Level.SEVERE, "Cli format error");
-            response.setStatus(Status.BAD_REQUEST);
-            return;
-          }
-
-          String workingDir;
-          try {
-            workingDir = args.next();
-          } catch (IOException e) {
-            logger.log(Level.SEVERE, "Cli format error");
-            response.setStatus(Status.BAD_REQUEST);
-            return;
-          }
-
-          int code = -1;
-          long start = System.currentTimeMillis();
-          try {
-            logger.log(Level.INFO, "Run Compilation #" + id);
-            start = System.currentTimeMillis();
-            code = service.run(out, err, new File(workingDir), args);
-          } finally {
-            long stop = System.currentTimeMillis();
-            logger.log(Level.INFO, "Compilation #" + id + " return exit code " + code);
-            logger.log(Level.INFO, "Compilation #" + id + " run in " + (stop - start) + " ms");
-
-            response.setStatus(Status.OK);
-
-            PrintStream printer;
+            logger.log(Level.INFO, "Open standard output '" + command[CMD_IDX_OUT] + "'");
             try {
-              printer = response.getPrintStream();
-              printer.println(code);
-              printer.close();
-            } catch (IOException e) {
-              logger.log(Level.SEVERE, "Problem to send exit code for compilation #" + id);
+              out = new FifoStreamFile(command[CMD_IDX_OUT]).getPrintStream(10000);
+            } catch (IOException | TimeoutException e) {
+              logger.log(Level.SEVERE, e.getMessage());
               response.setStatus(Status.BAD_REQUEST);
               return;
             }
+
+            logger.log(Level.INFO, "Open standard error '" + command[CMD_IDX_ERR] + "'");
+            try {
+              err = new FifoStreamFile(command[CMD_IDX_ERR]).getPrintStream(10000);
+            } catch (IOException | TimeoutException e) {
+              logger.log(Level.SEVERE, e.getMessage());
+              response.setStatus(Status.BAD_REQUEST);
+              return;
+            }
+
+            logger.log(Level.INFO, "Parse command line");
+            TokenIterator args = new TokenIterator(new NoLocation(), "@" + command[CMD_IDX_CLI]);
+            args.allowFileReferenceInFile();
+            if (!args.hasNext()) {
+              logger.log(Level.SEVERE, "Cli format error");
+              response.setStatus(Status.BAD_REQUEST);
+              return;
+            }
+
+            String workingDir;
+            try {
+              workingDir = args.next();
+            } catch (IOException e) {
+              logger.log(Level.SEVERE, "Cli format error");
+              response.setStatus(Status.BAD_REQUEST);
+              return;
+            }
+
+            int code = -1;
+            long start = System.currentTimeMillis();
+            try {
+              logger.log(Level.INFO, "Run Compilation #" + id);
+              start = System.currentTimeMillis();
+              code = service.run(out, err, new File(workingDir), args);
+            } finally {
+              long stop = System.currentTimeMillis();
+              logger.log(Level.INFO, "Compilation #" + id + " return exit code " + code);
+              logger.log(Level.INFO, "Compilation #" + id + " run in " + (stop - start) + " ms");
+
+              response.setStatus(Status.OK);
+
+              PrintStream printer;
+              try {
+                printer = response.getPrintStream();
+                printer.println(code);
+                printer.close();
+              } catch (IOException e) {
+                logger.log(Level.SEVERE, "Problem to send exit code for compilation #" + id);
+                response.setStatus(Status.BAD_REQUEST);
+                return;
+              }
+            }
+          } finally {
+            if (out != null) {
+              out.close();
+            } else {
+              unblock(command[CMD_IDX_OUT]);
+            }
+
+            if (err != null) {
+              err.close();
+            } else {
+              unblock(command[CMD_IDX_ERR]);
+            }
           }
         } finally {
-          if (out != null) {
-            out.close();
-          } else {
-            unblock(command[CMD_IDX_OUT]);
-          }
-
-          if (err != null) {
-            err.close();
-          } else {
-            unblock(command[CMD_IDX_ERR]);
-          }
-
           lock.lock();
           try {
             currentLocal--;
