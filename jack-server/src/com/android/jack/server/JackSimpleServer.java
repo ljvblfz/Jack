@@ -630,7 +630,8 @@ public class JackSimpleServer {
         PrintStream printer = response.getPrintStream();
 
         printer.println("server.version: 1");
-        printer.println("jack.version: " + service.getVersion());
+        printer.println("service.name: " + service.getClass().getCanonicalName());
+        printer.println("service.version: " + service.getVersion());
       } catch (IOException e) {
         logger.log(Level.SEVERE, "Exception during IO: ", e);
       } finally {
