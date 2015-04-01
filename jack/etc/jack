@@ -25,31 +25,32 @@ TMPDIR=${TMPDIR:=/tmp}
 SERVER_DIR=$TMPDIR/jack-$USER
 
 #
-# Create local settings if it does not exist
-#
-if [ ! -f "$LOCAL_SETTING" ]; then
-  echo "Writing local settings in " $LOCAL_SETTING
-  cat >"$LOCAL_SETTING.$$" <<-"EOT"
-	# Server settings
-	SERVER=true
-	SERVER_PORT_SERVICE=8072
-	SERVER_PORT_ADMIN=8073
-	SERVER_COUNT=1
-	SERVER_NB_COMPILE=4
-	SERVER_TIMEOUT=60
-	SERVER_LOG=$SERVER_DIR/jack-$SERVER_PORT_SERVICE.log
-	JACK_VM_COMMAND=${JACK_VM_COMMAND:=java}
-	# Internal, do not touch
-	SETTING_VERSION=1
-EOT
-  ln "$LOCAL_SETTING.$$" "$LOCAL_SETTING"
-  rm "$LOCAL_SETTING.$$"
-fi
-
-#
 # Load local settings
 #
-source "$LOCAL_SETTING"
+source "$LOCAL_SETTING" 2>/dev/null
+
+#
+# Create or update local settings if needed
+#
+if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 2 ]]; then
+  echo "Writing local settings in" $LOCAL_SETTING
+  cat >"$LOCAL_SETTING.$$" <<-EOT
+	# Server settings
+	SERVER=${SERVER:=true}
+	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8072}
+	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8073}
+	SERVER_COUNT=${SERVER_COUNT:=1}
+	SERVER_NB_COMPILE=${SERVER_NB_COMPILE:=4}
+	SERVER_TIMEOUT=${SERVER_TIMEOUT:=60}
+	SERVER_LOG=\${SERVER_LOG:=\$SERVER_DIR/jack-\$SERVER_PORT_SERVICE.log}
+	JACK_VM_COMMAND=\${JACK_VM_COMMAND:=java}
+	# Internal, do not touch
+	SETTING_VERSION=2
+EOT
+  ln -f "$LOCAL_SETTING.$$" "$LOCAL_SETTING"
+  rm "$LOCAL_SETTING.$$"
+  source "$LOCAL_SETTING"
+fi
 
 #
 # If not in server mode, exec jack
