@@ -29,4 +29,7 @@ import javax.annotation.Nonnull;
 public interface ServerTask {
   int run(@Nonnull PrintStream out, @Nonnull PrintStream err, @Nonnull File workingDir,
       @Nonnull TokenIterator args);
+
+  @Nonnull
+  String getVersion();
 }

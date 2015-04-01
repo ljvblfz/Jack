@@ -17,6 +17,7 @@
 package com.android.jack.server;
 
 import com.android.jack.CommandLine;
+import com.android.jack.Jack;
 import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.sched.util.config.cli.TokenIterator;
@@ -91,5 +92,11 @@ public class ServerTaskInsideVm extends CommandLine implements ServerTask {
     }
 
     return runJack(err, options);
+  }
+
+  @Override
+  @Nonnull
+  public String getVersion() {
+    return Jack.getVersion().getReleaseCode() + "-" + Jack.getVersion().getSubReleaseCode();
   }
 }
