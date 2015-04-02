@@ -16,11 +16,14 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.util.AnnotationUtils;
 import com.android.sched.item.Description;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,7 +41,8 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
   private String name;
   @Nonnull
   private final JType type;
-  protected final AnnotationSet annotations = new AnnotationSet();
+  @Nonnull
+  protected final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
 
   protected int modifier;
 
@@ -98,31 +102,33 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   @Override
   public void addAnnotation(@Nonnull JAnnotation annotation) {
-    annotations.addAnnotation(annotation);
+    annotations.add(annotation);
   }
 
   @Override
   @Nonnull
   public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
-    return annotations.getAnnotation(annotationType);
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(
+        AnnotationUtils.getAnnotation(annotations, annotationType));
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotation> getAnnotations() {
-    return annotations.getAnnotations();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations);
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotationType> getAnnotationTypes() {
-    return annotations.getAnnotationTypes();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+        AnnotationUtils.getAnnotationTypes(annotations));
   }
 
   @Override
   protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
-    if (!annotations.transform(existingNode, newNode, transformation)) {
+    if (!transform(annotations, existingNode, (JAnnotation) newNode, transformation)) {
       super.transform(existingNode, newNode, transformation);
     }
   }

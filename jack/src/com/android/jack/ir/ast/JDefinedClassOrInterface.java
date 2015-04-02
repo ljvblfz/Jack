@@ -24,6 +24,7 @@ import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.JMethodIdLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
+import com.android.jack.util.AnnotationUtils;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -73,7 +74,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
    */
   private int modifier;
 
-  protected final AnnotationSet annotations = new AnnotationSet();
+  @Nonnull
+  protected final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
 
   @Nonnull
   private JPackage enclosingPackage;
@@ -352,28 +354,30 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   public void addAnnotation(@Nonnull JAnnotation annotation) {
-    annotations.addAnnotation(annotation);
+    annotations.add(annotation);
   }
 
   @Override
   @Nonnull
   public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
     loader.ensureAnnotation(this, annotationType);
-    return annotations.getAnnotation(annotationType);
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(
+        AnnotationUtils.getAnnotation(annotations, annotationType));
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotation> getAnnotations() {
     loader.ensureAnnotations(this);
-    return annotations.getAnnotations();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations);
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotationType> getAnnotationTypes() {
     loader.ensureAnnotations(this);
-    return annotations.getAnnotationTypes();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+        AnnotationUtils.getAnnotationTypes(annotations));
   }
 
   @Nonnull
@@ -397,7 +401,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
     if (!transform(inners, existingNode, (JClassOrInterface) newNode, transformation)) {
-      if (!annotations.transform(existingNode, newNode, transformation)) {
+      if (!transform(annotations, existingNode, (JAnnotation) newNode, transformation)) {
         super.transform(existingNode, newNode, transformation);
       }
     }

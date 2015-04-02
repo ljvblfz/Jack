@@ -60,8 +60,7 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
-      // Do not visit declStmt, it gets visited within its own code block.
-      annotations.traverse(visitor);
+      visitor.accept(annotations);
     }
     visitor.endVisit(this);
   }
@@ -69,7 +68,9 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override

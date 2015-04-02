@@ -15,13 +15,16 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.util.AnnotationUtils;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,7 +43,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Nonnull
   private final JFieldId fieldId;
   @Nonnull
-  protected final AnnotationSet annotations = new AnnotationSet();
+  protected final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
 
   protected int modifier;
 
@@ -153,8 +156,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
-      // Do not visit declStmt, it gets visited within its own code block.
-      annotations.traverse(visitor);
+      visitor.accept(annotations);
     }
     visitor.endVisit(this);
   }
@@ -162,7 +164,9 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override
@@ -237,31 +241,33 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
 
   @Override
   public void addAnnotation(@Nonnull JAnnotation annotation) {
-    annotations.addAnnotation(annotation);
+    annotations.add(annotation);
   }
 
   @Override
   @Nonnull
   public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
-    return annotations.getAnnotation(annotationType);
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(
+        AnnotationUtils.getAnnotation(annotations, annotationType));
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotation> getAnnotations() {
-    return annotations.getAnnotations();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations);
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotationType> getAnnotationTypes() {
-    return annotations.getAnnotationTypes();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+        AnnotationUtils.getAnnotationTypes(annotations));
   }
 
   @Override
   protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
-    if (!annotations.transform(existingNode, newNode, transformation)) {
+    if (!transform(annotations, existingNode, (JAnnotation) newNode, transformation)) {
       super.transform(existingNode, newNode, transformation);
     }
   }
