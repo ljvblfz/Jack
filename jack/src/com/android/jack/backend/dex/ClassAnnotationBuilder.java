@@ -20,7 +20,7 @@ import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.annotation.Annotations;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
@@ -50,9 +50,9 @@ public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClass
       return;
     }
 
-    Collection<JAnnotationLiteral> annotationLiterals = declaredType.getAnnotations();
-    if (!annotationLiterals.isEmpty()) {
-      Annotations classAnnotations = new AnnotationBuilder().createAnnotations(annotationLiterals);
+    Collection<JAnnotation> annotations = declaredType.getAnnotations();
+    if (!annotations.isEmpty()) {
+      Annotations classAnnotations = new AnnotationBuilder().createAnnotations(annotations);
       if (classAnnotations.size() > 0) {
         ClassDefItemMarker marker = declaredType.getMarker(ClassDefItemMarker.class);
         assert marker != null;

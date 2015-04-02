@@ -77,7 +77,7 @@ public class NClassType extends NDeclaredType {
   public List<NField> fields = Collections.emptyList();
 
   @Nonnull
-  public List<NAnnotationLiteral> annotations = Collections.emptyList();
+  public List<NAnnotation> annotations = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -98,7 +98,7 @@ public class NClassType extends NDeclaredType {
     inners = ImportHelper.getSignatureNameList(jClassType.getMemberTypes());
     fields = loader.load(NField.class, jClassType.getFields());
     methods = loader.load(NMethod.class, jClassType.getMethods());
-    annotations = loader.load(NAnnotationLiteral.class, jClassType.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jClassType.getAnnotations());
     markers = loader.load(NMarker.class, jClassType.getAllMarkers());
     sourceInfo = loader.load(jClassType.getSourceInfo());
   }
@@ -171,7 +171,7 @@ public class NClassType extends NDeclaredType {
       jMethod.setEnclosingType(jClassType);
       jClassType.addMethod(jMethod);
     }
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jClassType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -210,7 +210,7 @@ public class NClassType extends NDeclaredType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      annotations = in.readNodes(NAnnotationLiteral.class);
+      annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
   }

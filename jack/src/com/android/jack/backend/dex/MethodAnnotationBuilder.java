@@ -21,7 +21,7 @@ import com.android.jack.backend.dex.rop.RopHelper;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.dx.rop.annotation.AnnotationsList;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
@@ -60,15 +60,15 @@ public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    Collection<JAnnotationLiteral> literals = method.getAnnotations();
-    if (!literals.isEmpty()) {
-      Annotations annotations = new AnnotationBuilder().createAnnotations(literals);
-      if (annotations.size() > 0) {
+    Collection<JAnnotation> annotations = method.getAnnotations();
+    if (!annotations.isEmpty()) {
+      Annotations ropAnnotations = new AnnotationBuilder().createAnnotations(annotations);
+      if (ropAnnotations.size() > 0) {
         ClassDefItemMarker classDefItemMarker = declaringClass.getMarker(ClassDefItemMarker.class);
         assert classDefItemMarker != null;
 
         ClassDefItem classDefItem = classDefItemMarker.getClassDefItem();
-        classDefItem.addMethodAnnotations(RopHelper.createMethodRef(method), annotations);
+        classDefItem.addMethodAnnotations(RopHelper.createMethodRef(method), ropAnnotations);
       }
     }
 
@@ -76,7 +76,7 @@ public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
     int annotationIndex = 0;
     boolean hasParamAnnotations = false;
     for (JParameter param : method.getParams()) {
-      Collection<JAnnotationLiteral> paramAnnotations = param.getAnnotations();
+      Collection<JAnnotation> paramAnnotations = param.getAnnotations();
       hasParamAnnotations |= paramAnnotations.size() > 0;
       Annotations annotation = new AnnotationBuilder().createAnnotations(paramAnnotations);
       annotationsList.set(annotationIndex++, annotation);

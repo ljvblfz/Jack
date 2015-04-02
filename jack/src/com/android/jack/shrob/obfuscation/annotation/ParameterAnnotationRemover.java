@@ -17,7 +17,7 @@
 package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JParameter;
@@ -43,8 +43,8 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 @Description("RunnableSchedulable that removes annotations from parameters.")
-@Constraint(need = JAnnotationLiteral.class)
-@Transform(modify = JAnnotationLiteral.class)
+@Constraint(need = JAnnotation.class)
+@Transform(modify = JAnnotation.class)
 public class ParameterAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JMethod> {
 
@@ -79,7 +79,7 @@ public class ParameterAnnotationRemover extends AnnotationRemover implements
 
     @Override
     public boolean visit(@Nonnull JParameter param) {
-      for (JAnnotationLiteral annotation : param.getAnnotations()) {
+      for (JAnnotation annotation : param.getAnnotations()) {
         if (!mustBeKept(annotation)) {
           request.append(new Remove(annotation));
           JMethod currentMethod = param.getEnclosingMethod();

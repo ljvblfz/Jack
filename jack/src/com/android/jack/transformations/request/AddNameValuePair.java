@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.request;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.sched.transform.TransformStep;
 
@@ -24,15 +24,15 @@ import javax.annotation.Nonnull;
 
 /**
  * A {@code TransformationStep} allowing to add a {@link JNameValuePair}
- * in a {@link JAnnotationLiteral}.
+ * in a {@link JAnnotation}.
  */
 public class AddNameValuePair implements TransformationStep, TransformStep {
   @Nonnull
-  private final JAnnotationLiteral annotation;
+  private final JAnnotation annotation;
   @Nonnull
   private final JNameValuePair pair;
 
-  public AddNameValuePair(@Nonnull JAnnotationLiteral annotation,
+  public AddNameValuePair(@Nonnull JAnnotation annotation,
       @Nonnull JNameValuePair nameValuePair) {
     this.annotation = annotation;
     this.pair = nameValuePair;

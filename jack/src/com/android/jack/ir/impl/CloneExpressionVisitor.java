@@ -18,7 +18,7 @@ package com.android.jack.ir.impl;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JArrayRef;
@@ -116,11 +116,10 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
-    JAnnotationLiteral clonedAnnotationliteral = new JAnnotationLiteral(
-        annotationLiteral.getSourceInfo(), annotationLiteral.getRetentionPolicy(),
-        annotationLiteral.getType());
-    for (JNameValuePair nvp : annotationLiteral.getNameValuePairs()) {
+  public boolean visit(@Nonnull JAnnotation annotation) {
+    JAnnotation clonedAnnotationliteral = new JAnnotation(annotation.getSourceInfo(),
+        annotation.getRetentionPolicy(), annotation.getType());
+    for (JNameValuePair nvp : annotation.getNameValuePairs()) {
       clonedAnnotationliteral.add(new JNameValuePair(nvp.getSourceInfo(), nvp.getMethodId(),
           cloneExpression(nvp.getValue())));
     }

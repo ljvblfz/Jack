@@ -21,7 +21,7 @@ import com.android.jack.backend.dex.rop.RopHelper;
 import com.android.jack.dx.rop.annotation.Annotation;
 import com.android.jack.dx.rop.annotation.AnnotationVisibility;
 import com.android.jack.dx.rop.annotation.Annotations;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Protect;
@@ -31,11 +31,11 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * Builds {@link Annotations} from list of {@link JAnnotationLiteral}.
+ * Builds {@link Annotations} from list of {@link JAnnotation}.
  */
-@Constraint(need = {JAnnotationLiteral.class, ReflectAnnotations.class})
-@Protect(add = JAnnotationLiteral.class, modify = JAnnotationLiteral.class,
-    remove = JAnnotationLiteral.class)
+@Constraint(need = {JAnnotation.class, ReflectAnnotations.class})
+@Protect(add = JAnnotation.class, modify = JAnnotation.class,
+    remove = JAnnotation.class)
 public class AnnotationBuilder {
 
   /**
@@ -56,28 +56,28 @@ public class AnnotationBuilder {
   }
 
   @Nonnull
-  public Annotations createAnnotations(@Nonnull Collection<JAnnotationLiteral> literals) {
+  public Annotations createAnnotations(@Nonnull Collection<JAnnotation> annotations) {
     Annotations ropAnnotations = new Annotations();
-    for (JAnnotationLiteral jAnnotation : literals) {
-      Annotation annotation;
+    for (JAnnotation annotation : annotations) {
+      Annotation ropAnnotation;
       try {
-        annotation = createAnnotation(jAnnotation);
+        ropAnnotation = createAnnotation(annotation);
       } catch (SourceAnnotationException e) {
         // expected for source visible annotations, just ignore
         continue;
       }
-      ropAnnotations.add(annotation);
+      ropAnnotations.add(ropAnnotation);
     }
     ropAnnotations.setImmutable();
     return ropAnnotations;
   }
 
   @Nonnull
-  private Annotation createAnnotation(@Nonnull JAnnotationLiteral annotationLiteral)
+  private Annotation createAnnotation(@Nonnull JAnnotation annotation)
       throws SourceAnnotationException {
-    Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotationLiteral.getType()),
-        getVisibility(annotationLiteral.getRetentionPolicy()));
-    constantBuilder.createAnnotationPairs(annotationLiteral, ropAnnotation);
+    Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotation.getType()),
+        getVisibility(annotation.getRetentionPolicy()));
+    constantBuilder.createAnnotationPairs(annotation, ropAnnotation);
     ropAnnotation.setImmutable();
     return ropAnnotation;
   }

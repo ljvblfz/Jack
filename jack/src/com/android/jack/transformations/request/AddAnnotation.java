@@ -17,23 +17,23 @@
 package com.android.jack.transformations.request;
 
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNode;
 import com.android.sched.transform.TransformStep;
 
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@link JAnnotationLiteral}
+ * A {@code TransformationStep} allowing to add a {@link JAnnotation}
  * as an annotation of a {@link Annotable}.
  */
 public class AddAnnotation implements TransformationStep, TransformStep {
   @Nonnull
-  private final JAnnotationLiteral annotation;
+  private final JAnnotation annotation;
   @Nonnull
   private final Annotable annotable;
 
-  public AddAnnotation(@Nonnull JAnnotationLiteral annotation, @Nonnull Annotable annotable) {
+  public AddAnnotation(@Nonnull JAnnotation annotation, @Nonnull Annotable annotable) {
     this.annotation = annotation;
     this.annotable = annotable;
   }

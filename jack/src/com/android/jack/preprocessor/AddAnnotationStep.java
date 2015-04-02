@@ -17,7 +17,7 @@
 package com.android.jack.preprocessor;
 
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JNode;
@@ -30,19 +30,19 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * {@link TransformationStep} for adding some {@link JAnnotationLiteral} on one {@link Annotable}.
+ * {@link TransformationStep} for adding some {@link JAnnotation} on one {@link Annotable}.
  */
 public class AddAnnotationStep implements TransformationStep {
 
   @Nonnull
-  private final JAnnotationType annotation;
+  private final JAnnotationType annotationType;
 
   @Nonnull
   private final Collection<?> toAnnotate;
 
   public AddAnnotationStep(@Nonnull JAnnotationType annotation,
       @Nonnull Collection<?> toAnnotate) {
-    this.annotation = annotation;
+    this.annotationType = annotation;
     this.toAnnotate = toAnnotate;
   }
 
@@ -52,15 +52,14 @@ public class AddAnnotationStep implements TransformationStep {
       if (candidate instanceof Annotable) {
         Annotable annotable = (Annotable) candidate;
         // Do not override existing annotation
-        if (annotable.getAnnotations(annotation).isEmpty()) {
+        if (annotable.getAnnotations(annotationType).isEmpty()) {
           JRetentionPolicy retention = JRetentionPolicy.SOURCE;
-          if (annotation instanceof JDefinedAnnotationType) {
-            retention = ((JDefinedAnnotationType) annotation).getRetentionPolicy();
+          if (annotationType instanceof JDefinedAnnotationType) {
+            retention = ((JDefinedAnnotationType) annotationType).getRetentionPolicy();
           }
-          JAnnotationLiteral literal = new JAnnotationLiteral(
-              SourceInfo.UNKNOWN, retention, annotation);
-          annotable.addAnnotation(literal);
-          literal.updateParents((JNode) annotable);
+          JAnnotation annotation = new JAnnotation(SourceInfo.UNKNOWN, retention, annotationType);
+          annotable.addAnnotation(annotation);
+          annotation.updateParents((JNode) annotable);
         }
       }
     }

@@ -17,7 +17,7 @@
 package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -37,8 +37,8 @@ import javax.annotation.Nonnull;
  * {@link RunnableSchedulable} that removes annotations from types.
  */
 @Description("RunnableSchedulable that removes annotations from types.")
-@Constraint(need = JAnnotationLiteral.class)
-@Transform(modify = JAnnotationLiteral.class)
+@Constraint(need = JAnnotation.class)
+@Transform(modify = JAnnotation.class)
 public class TypeAnnotationRemover extends AnnotationRemover
 implements RunnableSchedulable<JDefinedClassOrInterface> {
 
@@ -54,7 +54,7 @@ implements RunnableSchedulable<JDefinedClassOrInterface> {
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     TransformationRequest request = new TransformationRequest(type);
 
-    for (JAnnotationLiteral annotation : type.getAnnotations()) {
+    for (JAnnotation annotation : type.getAnnotations()) {
       if (!mustBeKept(annotation)) {
         request.append(new Remove(annotation));
         logger.log(Level.INFO, "Removed annotation {0} from type {1}", new Object[] {

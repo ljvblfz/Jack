@@ -16,22 +16,22 @@
 
 package com.android.jack.transformations.request;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNameValuePair;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@code TransformationStep} allowing to put a {@link JNameValuePair}
- * in a {@link JAnnotationLiteral} (replaces existing pair with same name).
+ * in a {@link JAnnotation} (replaces existing pair with same name).
  */
 public class PutNameValuePair implements TransformationStep {
   @Nonnull
-  private final JAnnotationLiteral annotation;
+  private final JAnnotation annotation;
   @Nonnull
   private final JNameValuePair pair;
 
-  public PutNameValuePair(@Nonnull JAnnotationLiteral annotation,
+  public PutNameValuePair(@Nonnull JAnnotation annotation,
       @Nonnull JNameValuePair nameValuePair) {
     this.annotation = annotation;
     this.pair = nameValuePair;

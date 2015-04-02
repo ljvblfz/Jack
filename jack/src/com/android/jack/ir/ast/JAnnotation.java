@@ -32,12 +32,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * An annotation on an element of a class. Annotations have an
- * associated type and additionally consist of a set of (name, value)
- * pairs, where the names are unique.
+ * A {@link JAnnotation} is an instance of {@link JAnnotationType} and consist of a reference to an
+ * annotation type and zero or more element-value pairs, each of which associates a value with a
+ * different element of the annotation type.
  */
-@Description("Annotation on an element of a class.")
-public class JAnnotationLiteral extends JLiteral {
+@Description("Annotation instance.")
+public class JAnnotation extends JLiteral {
 
   @Nonnull
   private final List<JNameValuePair> elements = new ArrayList<JNameValuePair>();
@@ -46,7 +46,7 @@ public class JAnnotationLiteral extends JLiteral {
   @Nonnull
   private final JRetentionPolicy retentionPolicy;
 
-  public JAnnotationLiteral(@Nonnull SourceInfo sourceInfo,
+  public JAnnotation(@Nonnull SourceInfo sourceInfo,
       @Nonnull JRetentionPolicy retentionPolicy, @Nonnull JAnnotationType type) {
     super(sourceInfo);
     this.type = type;

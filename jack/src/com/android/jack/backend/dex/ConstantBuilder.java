@@ -35,7 +35,7 @@ import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstShort;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JByteLiteral;
@@ -71,10 +71,10 @@ public class ConstantBuilder {
 
 
     @Override
-    public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
-      Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotationLiteral.getType()),
+    public boolean visit(@Nonnull JAnnotation annotation) {
+      Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotation.getType()),
           AnnotationVisibility.EMBEDDED);
-      createAnnotationPairs(annotationLiteral, ropAnnotation);
+      createAnnotationPairs(annotation, ropAnnotation);
       ropAnnotation.setImmutable();
       CstAnnotation cstAnnotation = new CstAnnotation(ropAnnotation);
       result = cstAnnotation;
@@ -189,9 +189,9 @@ public class ConstantBuilder {
     return constant;
   }
 
-  public void createAnnotationPairs(
-      @Nonnull JAnnotationLiteral annotationLiteral, @Nonnull Annotation ropAnnotation) {
-    for (JNameValuePair jPair : annotationLiteral.getNameValuePairs()) {
+  public void createAnnotationPairs(@Nonnull JAnnotation annotation,
+      @Nonnull Annotation ropAnnotation) {
+    for (JNameValuePair jPair : annotation.getNameValuePairs()) {
       ropAnnotation.add(new NameValuePair(RopHelper.createString(jPair.getName()),
           parseLiteral(jPair.getValue())));
     }

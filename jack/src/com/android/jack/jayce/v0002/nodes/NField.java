@@ -54,7 +54,7 @@ public class NField extends NNode implements HasSourceInfo {
   public NLiteral initialValue;
 
   @Nonnull
-  public List<NAnnotationLiteral> annotations = Collections.emptyList();
+  public List<NAnnotation> annotations = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -69,7 +69,7 @@ public class NField extends NNode implements HasSourceInfo {
     type = ImportHelper.getSignatureName(jField.getType());
     name = jField.getName();
     initialValue = (NLiteral) loader.load(jField.getInitialValue());
-    annotations = loader.load(NAnnotationLiteral.class, jField.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jField.getAnnotations());
     markers = loader.load(NMarker.class, jField.getAllMarkers());
     sourceInfo = loader.load(jField.getSourceInfo());
   }
@@ -95,7 +95,7 @@ public class NField extends NNode implements HasSourceInfo {
     if (initialValue != null) {
       jField.setInitialValue(initialValue.exportAsJast(exportSession));
     }
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jField.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -120,7 +120,7 @@ public class NField extends NNode implements HasSourceInfo {
     type = in.readId();
     name = in.readId();
     initialValue = in.readNode(NLiteral.class);
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     markers = in.readNodes(NMarker.class);
 
   }

@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayLiteral;
@@ -2141,7 +2141,7 @@ public class JackIrBuilder {
 
     protected boolean visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
       try {
-        JAnnotationLiteral literal = (JAnnotationLiteral) annotationParser.parseLiteral(annotation,
+        JAnnotation jAnnotation = (JAnnotation) annotationParser.parseLiteral(annotation,
             annotation.resolvedType, scope);
 
         Binding recipient = annotation.recipient;
@@ -2167,8 +2167,8 @@ public class JackIrBuilder {
           default:
             throw new AssertionError();
         }
-        annotable.addAnnotation(literal);
-        literal.updateParents((JNode) annotable);
+        annotable.addAnnotation(jAnnotation);
+        jAnnotation.updateParents((JNode) annotable);
         return false;
       } catch (JTypeLookupException e) {
         throw translateException(annotation, e);
@@ -3223,19 +3223,19 @@ public class JackIrBuilder {
 
     protected void visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
       try {
-        JDefinedAnnotationType jAnnotation =
+        JDefinedAnnotationType jAnnotationType =
             (JDefinedAnnotationType) getTypeMap().get(annotation.resolvedType);
-        JAnnotationLiteral literal = new JAnnotationLiteral(makeSourceInfo(annotation),
-            jAnnotation.getRetentionPolicy(), jAnnotation);
+        JAnnotation jAnnotation = new JAnnotation(makeSourceInfo(annotation),
+            jAnnotationType.getRetentionPolicy(), jAnnotationType);
 
         MemberValuePair[] pairs = annotation.memberValuePairs();
         for (MemberValuePair pair : pairs) {
           JMethodId methodId = getTypeMap().get(pair.binding).getMethodId();
-          literal.add(new JNameValuePair(makeSourceInfo(pair), methodId,
+          jAnnotation.add(new JNameValuePair(makeSourceInfo(pair), methodId,
               parseLiteral(pair.value, pair.binding.returnType, scope)));
         }
 
-        parsed = literal;
+        parsed = jAnnotation;
       } catch (JTypeLookupException e) {
         throw translateException(annotation, e);
       } catch (RuntimeException e) {

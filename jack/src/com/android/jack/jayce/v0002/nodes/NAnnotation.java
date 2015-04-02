@@ -16,7 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JTypeLookupException;
@@ -36,14 +36,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * An annotation on an element of a class. Annotations have an
- * associated type and additionally consist of a set of (name, value)
- * pairs, where the names are unique.
+ * NNode of a {@link JAnnotation}, it is an instance of {@link JAnnotationType} and consist of a
+ * reference to an annotation type and zero or more element-value pairs, each of which associates a
+ * value with a different element of the annotation type.
  */
-public class NAnnotationLiteral extends NLiteral {
+public class NAnnotation extends NLiteral {
 
   @Nonnull
-  public static final Token TOKEN = Token.ANNOTATION_LITERAL;
+  public static final Token TOKEN = Token.ANNOTATION;
 
   @CheckForNull
   public JRetentionPolicy retentionPolicy;
@@ -59,28 +59,27 @@ public class NAnnotationLiteral extends NLiteral {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    JAnnotationLiteral jAnnotationLiteral = (JAnnotationLiteral) node;
-    retentionPolicy = jAnnotationLiteral.getRetentionPolicy();
-    annotationType = ImportHelper.getSignatureName(jAnnotationLiteral.getType());
-    elements = loader.load(NNameValuePair.class, jAnnotationLiteral.getNameValuePairs());
-    sourceInfo = loader.load(jAnnotationLiteral.getSourceInfo());
+    JAnnotation jAnnotation = (JAnnotation) node;
+    retentionPolicy = jAnnotation.getRetentionPolicy();
+    annotationType = ImportHelper.getSignatureName(jAnnotation.getType());
+    elements = loader.load(NNameValuePair.class, jAnnotation.getNameValuePairs());
+    sourceInfo = loader.load(jAnnotation.getSourceInfo());
   }
 
   @Override
   @Nonnull
-  public JAnnotationLiteral exportAsJast(@Nonnull ExportSession exportSession)
+  public JAnnotation exportAsJast(@Nonnull ExportSession exportSession)
       throws JTypeLookupException, JMethodLookupException {
     assert retentionPolicy != null;
     assert sourceInfo != null;
     assert annotationType != null;
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JAnnotationType type = exportSession.getLookup().getAnnotationType(annotationType);
-    JAnnotationLiteral jAnnotationLiteral =
-        new JAnnotationLiteral(jSourceInfo, retentionPolicy, type);
+    JAnnotation jAnnotation = new JAnnotation(jSourceInfo, retentionPolicy, type);
     for (NNameValuePair valuePair : elements) {
-      jAnnotationLiteral.put(valuePair.exportAsJast(exportSession));
+      jAnnotation.put(valuePair.exportAsJast(exportSession));
     }
-    return jAnnotationLiteral;
+    return jAnnotation;
   }
 
   @Override

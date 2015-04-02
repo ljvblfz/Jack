@@ -62,7 +62,7 @@ public class NEnumType extends NClassType {
     inners = ImportHelper.getSignatureNameList(jEnumType.getMemberTypes());
     fields = loader.load(NField.class, jEnumType.getFields());
     methods = loader.load(NMethod.class, jEnumType.getMethods());
-    annotations = loader.load(NAnnotationLiteral.class, jEnumType.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jEnumType.getAnnotations());
     markers = loader.load(NMarker.class, jEnumType.getAllMarkers());
     sourceInfo = loader.load(jEnumType.getSourceInfo());
   }
@@ -134,7 +134,7 @@ public class NEnumType extends NClassType {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jEnumType.addMethod(jMethod);
     }
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jEnumType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -174,7 +174,7 @@ public class NEnumType extends NClassType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      annotations = in.readNodes(NAnnotationLiteral.class);
+      annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
 

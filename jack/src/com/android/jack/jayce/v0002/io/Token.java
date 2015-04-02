@@ -22,7 +22,7 @@ import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
 import com.android.jack.jayce.v0002.nodes.NAddOperation;
 import com.android.jack.jayce.v0002.nodes.NAlloc;
 import com.android.jack.jayce.v0002.nodes.NAndOperation;
-import com.android.jack.jayce.v0002.nodes.NAnnotationLiteral;
+import com.android.jack.jayce.v0002.nodes.NAnnotation;
 import com.android.jack.jayce.v0002.nodes.NAnnotationMethod;
 import com.android.jack.jayce.v0002.nodes.NAnnotationType;
 import com.android.jack.jayce.v0002.nodes.NArrayLength;
@@ -183,11 +183,11 @@ public enum Token {
       return new NAndOperation();
     }
   },
-  ANNOTATION_LITERAL("annotation-literal", NodeLevel.STRUCTURE) {
+  ANNOTATION("annotation-literal", NodeLevel.STRUCTURE) {
     @Nonnull
     @Override
     public NNode newNode() {
-      return new NAnnotationLiteral();
+      return new NAnnotation();
     }
   },
   ANNOTATION_METHOD("annotation-method", NodeLevel.STRUCTURE) {

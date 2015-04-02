@@ -64,7 +64,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   public int modifier;
   @Nonnull
-  public List<NAnnotationLiteral> annotations = Collections.emptyList();
+  public List<NAnnotation> annotations = Collections.emptyList();
   @CheckForNull
   public NAbstractMethodBody body;
   @Nonnull
@@ -90,7 +90,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     parameters = loader.load(NParameter.class, jMethod.getParams());
     methodKind = jMethod.getMethodId().getKind();
     modifier = jMethod.getModifier();
-    annotations = loader.load(NAnnotationLiteral.class, jMethod.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jMethod.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jMethod.getBody());
     markers = loader.load(NMarker.class, jMethod.getAllMarkers());
     sourceInfo = loader.load(jMethod.getSourceInfo());
@@ -124,7 +124,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       jMethod.addParam(jParam);
       id.addParam(jParam.getType());
     }
-    for (NAnnotationLiteral annotationLiteral : annotations) {
+    for (NAnnotation annotationLiteral : annotations) {
       jMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
     }
     if (body != null && exportSession.getNodeLevel() == NodeLevel.FULL) {
@@ -182,7 +182,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     parameters = in.readNodes(NParameter.class);
     methodKind = in.readMethodKindEnum();
     modifier = in.readInt();
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     body = in.readNode(NAbstractMethodBody.class);
     markers = in.readNodes(NMarker.class);
   }

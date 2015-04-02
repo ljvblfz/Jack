@@ -50,7 +50,7 @@ public class NEnumField extends NField {
     name = jEnumField.getName();
     initialValue = (NLiteral) loader.load(jEnumField.getInitialValue());
     ordinal = jEnumField.ordinal();
-    annotations = loader.load(NAnnotationLiteral.class, jEnumField.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jEnumField.getAnnotations());
     markers = loader.load(NMarker.class, jEnumField.getAllMarkers());
     sourceInfo = loader.load(jEnumField.getSourceInfo());
   }
@@ -78,7 +78,7 @@ public class NEnumField extends NField {
       jField.setInitialValue(initialValue.exportAsJast(exportSession));
     }
 
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jField.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -105,7 +105,7 @@ public class NEnumField extends NField {
     name = in.readId();
     initialValue = in.readNode(NLiteral.class);
     ordinal = in.readInt();
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     markers = in.readNodes(NMarker.class);
 
   }

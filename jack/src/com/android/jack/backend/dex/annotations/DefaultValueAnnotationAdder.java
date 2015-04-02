@@ -18,7 +18,7 @@ package com.android.jack.backend.dex.annotations;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexAnnotations;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
@@ -75,7 +75,7 @@ import javax.annotation.Nonnull;
 @Description("Add annotation methods default values as system annotation.")
 @Synchronized
 @Transform(remove = AnnotationMethodDefaultValue.class,
-    add = {JAnnotationLiteral.class, JNameValuePair.class})
+    add = {JAnnotation.class, JNameValuePair.class})
 public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -99,7 +99,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
         TransformationRequest tr = new TransformationRequest(enclosingType);
         tr.append(new Remove(defaultValue));
         SourceInfo sourceInfo = defaultValue.getSourceInfo();
-        JAnnotationLiteral defaultAnnotation =
+        JAnnotation defaultAnnotation =
             getDefaultAnnotation((JDefinedAnnotationType) enclosingType, tr);
         tr.append(new AddNameValuePair(defaultAnnotation,
             new JNameValuePair(sourceInfo, method.getMethodId(), defaultValue)));
@@ -109,24 +109,26 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   }
 
   @Nonnull
-  private JAnnotationLiteral getDefaultAnnotation(@Nonnull JDefinedAnnotationType targetType,
+  private JAnnotation getDefaultAnnotation(@Nonnull JDefinedAnnotationType targetAnnotationType,
       @Nonnull TransformationRequest tr) {
-    JAnnotationType defaultAnnotationType = getDefaultAnnotationType(targetType);
-    JAnnotationLiteral defaultAnnotation = null;
-    List<JAnnotationLiteral> defaultAnnotations = targetType.getAnnotations(defaultAnnotationType);
+    JAnnotationType defaultAnnotationType = getDefaultAnnotationType(targetAnnotationType);
+    JAnnotation defaultAnnotation = null;
+    List<JAnnotation> defaultAnnotations =
+        targetAnnotationType.getAnnotations(defaultAnnotationType);
     if (defaultAnnotations.isEmpty()) {
-      defaultAnnotation = new JAnnotationLiteral(SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM,
+      defaultAnnotation = new JAnnotation(SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM,
           defaultAnnotationType);
       JMethodId methodId = defaultAnnotationType.getOrCreateMethodId("value",
           Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
       defaultAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
-          new JAnnotationLiteral(SourceInfo.UNKNOWN, targetType.getRetentionPolicy(), targetType)));
-      tr.append(new AddAnnotation(defaultAnnotation, targetType));
+ new JAnnotation(
+          SourceInfo.UNKNOWN, targetAnnotationType.getRetentionPolicy(), targetAnnotationType)));
+      tr.append(new AddAnnotation(defaultAnnotation, targetAnnotationType));
     } else {
       assert defaultAnnotations.size() == 1;
       defaultAnnotation = defaultAnnotations.get(0);
     }
-    return (JAnnotationLiteral) defaultAnnotation.getNameValuePairs().iterator().next().getValue();
+    return (JAnnotation) defaultAnnotation.getNameValuePairs().iterator().next().getValue();
   }
 
   /**

@@ -17,7 +17,7 @@
 package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -37,8 +37,8 @@ import javax.annotation.Nonnull;
  * {@link RunnableSchedulable} that removes annotations from fields.
  */
 @Description("RunnableSchedulable that removes annotations from fields.")
-@Constraint(need = JAnnotationLiteral.class)
-@Transform(modify = JAnnotationLiteral.class)
+@Constraint(need = JAnnotation.class)
+@Transform(modify = JAnnotation.class)
 public class FieldAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JField> {
 
@@ -54,7 +54,7 @@ public class FieldAnnotationRemover extends AnnotationRemover implements
   public void run(@Nonnull JField field) throws Exception {
     TransformationRequest request = new TransformationRequest(field);
 
-    for (JAnnotationLiteral annotation : field.getAnnotations()) {
+    for (JAnnotation annotation : field.getAnnotations()) {
       if (!mustBeKept(annotation)) {
         request.append(new Remove(annotation));
         logger.log(Level.INFO, "Removed annotation {0} from field {1}.{2}", new Object[] {

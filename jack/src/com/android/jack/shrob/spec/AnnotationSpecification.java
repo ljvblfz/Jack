@@ -16,7 +16,7 @@
 
 package com.android.jack.shrob.spec;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.shrob.proguard.GrammarActions;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * Class representing the specification of an annotation in a {@code keep} rule
  */
-public class AnnotationSpecification implements Specification<Collection<JAnnotationLiteral>> {
+public class AnnotationSpecification implements Specification<Collection<JAnnotation>> {
   @Nonnull
   private final NameSpecification annotationType;
 
@@ -35,10 +35,10 @@ public class AnnotationSpecification implements Specification<Collection<JAnnota
   }
 
   @Override
-  public boolean matches(@Nonnull Collection<JAnnotationLiteral> t) {
+  public boolean matches(@Nonnull Collection<JAnnotation> t) {
     boolean annotationFound = false;
 
-    for (JAnnotationLiteral annotation : t) {
+    for (JAnnotation annotation : t) {
       if (annotationType.matches(
           GrammarActions.getBinaryNameFormatter().getName(annotation.getType()))) {
         annotationFound = true;

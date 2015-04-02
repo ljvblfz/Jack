@@ -67,7 +67,7 @@ public class NInterfaceType extends NDeclaredType {
   public List<NField> fields = Collections.emptyList();
 
   @Nonnull
-  public List<NAnnotationLiteral> annotations = Collections.emptyList();
+  public List<NAnnotation> annotations = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -85,7 +85,7 @@ public class NInterfaceType extends NDeclaredType {
     inners = ImportHelper.getSignatureNameList(jInterfaceType.getMemberTypes());
     fields = loader.load(NField.class, jInterfaceType.getFields());
     methods = loader.load(NMethod.class, jInterfaceType.getMethods());
-    annotations = loader.load(NAnnotationLiteral.class, jInterfaceType.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jInterfaceType.getAnnotations());
     markers = loader.load(NMarker.class, jInterfaceType.getAllMarkers());
     sourceInfo = loader.load(jInterfaceType.getSourceInfo());
   }
@@ -141,7 +141,7 @@ public class NInterfaceType extends NDeclaredType {
       jMethod.setEnclosingType(jInterfaceType);
       jInterfaceType.addMethod(jMethod);
     }
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jInterfaceType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -174,7 +174,7 @@ public class NInterfaceType extends NDeclaredType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      annotations = in.readNodes(NAnnotationLiteral.class);
+      annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
   }
