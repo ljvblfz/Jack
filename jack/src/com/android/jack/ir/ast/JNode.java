@@ -51,7 +51,7 @@ public abstract class JNode extends LocalMarkerManager
     INSERT_AFTER;
   }
 
-  private static class ParentSetterVisitor extends JVisitor {
+  private static class ParentSetterVisitor extends JVisitorWithAnnotation {
 
     final Stack<JNode> nodes = new Stack<JNode>();
 

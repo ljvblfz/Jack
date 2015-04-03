@@ -17,13 +17,14 @@ package com.android.jack.ir.impl;
 
 
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JVisitorWithAnnotation;
 import com.android.jack.util.TextOutput;
 
 /**
  * A convenience base class that combines a {@link JVisitor} with a
  * {@link TextOutput}.
  */
-public class TextOutputVisitor extends JVisitor implements TextOutput {
+public class TextOutputVisitor extends JVisitorWithAnnotation implements TextOutput {
 
   private final TextOutput textOutput;
 

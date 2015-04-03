@@ -49,6 +49,7 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JVisitorWithConcurrentModification;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.jack.transformations.LocalVarCreator;
@@ -60,7 +61,6 @@ import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.AnnotationSkipperVisitor;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -101,7 +101,7 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
   /**
    * {@code ThreeAddressCode} is the visitor building the three address form.
    */
-  private static class ThreeAddressCode extends AnnotationSkipperVisitor {
+  private static class ThreeAddressCode extends JVisitorWithConcurrentModification {
 
     @Nonnull
     private static final SubTreeMarkersCollector<DefinitionMarker> defMarkerCollector =
