@@ -16,7 +16,7 @@
 
 package com.android.jack.ecj.loader.jast;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNameValuePair;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -32,9 +32,9 @@ import javax.annotation.Nonnull;
 class JAstBinaryAnnotation implements IBinaryAnnotation {
 
   @Nonnull
-  private final JAnnotationLiteral jAnnotation;
+  private final JAnnotation jAnnotation;
 
-  JAstBinaryAnnotation(@Nonnull JAnnotationLiteral annotation) {
+  JAstBinaryAnnotation(@Nonnull JAnnotation annotation) {
     this.jAnnotation = annotation;
   }
 

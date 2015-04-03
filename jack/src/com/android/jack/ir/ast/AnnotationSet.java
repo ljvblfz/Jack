@@ -34,29 +34,29 @@ import javax.annotation.Nonnull;
 class AnnotationSet {
 
   @Nonnull
-  private final Map<JAnnotationType, ArrayList<JAnnotationLiteral>> annotations =
-    new HashMap<JAnnotationType, ArrayList<JAnnotationLiteral>>();
+  private final Map<JAnnotationType, ArrayList<JAnnotation>> annotations =
+    new HashMap<JAnnotationType, ArrayList<JAnnotation>>();
 
   AnnotationSet() {
   }
 
-  void addAnnotation(@Nonnull JAnnotationLiteral annotation) throws UnsupportedOperationException {
+  void addAnnotation(@Nonnull JAnnotation annotation) throws UnsupportedOperationException {
     JAnnotationType type = annotation.getType();
-    ArrayList<JAnnotationLiteral> annotationLiterals = annotations.get(type);
+    ArrayList<JAnnotation> annotationLiterals = annotations.get(type);
     if (annotationLiterals == null) {
-      annotationLiterals = new ArrayList<JAnnotationLiteral>(1);
+      annotationLiterals = new ArrayList<JAnnotation>(1);
       annotations.put(type, annotationLiterals);
     }
     annotationLiterals.add(annotation);
   }
 
   /**
-   * @return {@link List} of {@link JAnnotationLiteral} contained into this
+   * @return {@link List} of {@link JAnnotation} contained into this
    *         {@link AnnotationSet} and having the type {@code annotationType}.
    */
   @Nonnull
-  List<JAnnotationLiteral> getAnnotation(@Nonnull JAnnotationType annotationType) {
-    List<JAnnotationLiteral> annotationLiterals = annotations.get(annotationType);
+  List<JAnnotation> getAnnotation(@Nonnull JAnnotationType annotationType) {
+    List<JAnnotation> annotationLiterals = annotations.get(annotationType);
     if (annotationLiterals == null) {
       return Collections.emptyList();
     }
@@ -64,13 +64,13 @@ class AnnotationSet {
   }
 
   /**
-   * @return {@link Collection} of {@link JAnnotationLiteral} contained into this
+   * @return {@link Collection} of {@link JAnnotation} contained into this
    *         {@link AnnotationSet}.
    */
   @Nonnull
-  Collection<JAnnotationLiteral> getAnnotations() {
-    Collection<JAnnotationLiteral> allAnnotations = new ArrayList<JAnnotationLiteral>();
-    for (Collection<JAnnotationLiteral> annotationLiterals : annotations.values()) {
+  Collection<JAnnotation> getAnnotations() {
+    Collection<JAnnotation> allAnnotations = new ArrayList<JAnnotation>();
+    for (Collection<JAnnotation> annotationLiterals : annotations.values()) {
       allAnnotations.addAll(annotationLiterals);
     }
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(allAnnotations);
@@ -91,17 +91,17 @@ class AnnotationSet {
    */
   boolean transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
-    if (existingNode instanceof JAnnotationLiteral) {
-      JAnnotationLiteral existingAnnotation = (JAnnotationLiteral) existingNode;
-      List<JAnnotationLiteral> annotationLiterals = getAnnotation(existingAnnotation.getType());
+    if (existingNode instanceof JAnnotation) {
+      JAnnotation existingAnnotation = (JAnnotation) existingNode;
+      List<JAnnotation> annotationLiterals = getAnnotation(existingAnnotation.getType());
       switch (transformation) {
         case INSERT_AFTER:
         case INSERT_BEFORE:
           throw new UnsupportedOperationException();
         case REPLACE:
-          assert newNode instanceof JAnnotationLiteral;
+          assert newNode instanceof JAnnotation;
           annotationLiterals.remove(existingAnnotation);
-          annotationLiterals.add((JAnnotationLiteral) newNode);
+          annotationLiterals.add((JAnnotation) newNode);
           return true;
         case REMOVE:
           assert newNode == null;
@@ -117,14 +117,14 @@ class AnnotationSet {
   }
 
   void traverse(@Nonnull JVisitor visitor) {
-    for (ArrayList<JAnnotationLiteral> annotation : annotations.values()) {
+    for (ArrayList<JAnnotation> annotation : annotations.values()) {
       visitor.accept(annotation);
     }
   }
 
   void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
-    for (List<JAnnotationLiteral> annotationLiterals : annotations.values()) {
-      for (JAnnotationLiteral annotation : annotationLiterals) {
+    for (List<JAnnotation> annotationLiterals : annotations.values()) {
+      for (JAnnotation annotation : annotationLiterals) {
         annotation.traverse(schedule);
       }
     }

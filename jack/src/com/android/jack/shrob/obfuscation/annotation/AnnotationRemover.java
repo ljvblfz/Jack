@@ -16,7 +16,7 @@
 
 package com.android.jack.shrob.obfuscation.annotation;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 
@@ -50,7 +50,7 @@ public abstract class AnnotationRemover {
     this.addSystemAnnotations = addSystemAnnotations;
   }
 
-  boolean mustBeKept(JAnnotationLiteral annotation) {
+  boolean mustBeKept(JAnnotation annotation) {
     switch (annotation.getRetentionPolicy()) {
       case RUNTIME:
         return addRuntimeVisibleAnnotations;

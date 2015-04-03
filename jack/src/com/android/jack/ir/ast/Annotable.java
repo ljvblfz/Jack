@@ -25,13 +25,13 @@ import javax.annotation.Nonnull;
  */
 public interface Annotable {
 
-  void addAnnotation(@Nonnull JAnnotationLiteral annotation);
+  void addAnnotation(@Nonnull JAnnotation annotation);
 
   @Nonnull
-  Collection<JAnnotationLiteral> getAnnotations(@Nonnull JAnnotationType annotationType);
+  Collection<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType);
 
   @Nonnull
-  Collection<JAnnotationLiteral> getAnnotations();
+  Collection<JAnnotation> getAnnotations();
 
   @Nonnull
   Collection<JAnnotationType> getAnnotationTypes();

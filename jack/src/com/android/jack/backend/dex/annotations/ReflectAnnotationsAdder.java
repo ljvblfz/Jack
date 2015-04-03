@@ -20,7 +20,7 @@ import com.android.jack.backend.dex.DexAnnotations;
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JClass;
@@ -72,7 +72,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Add annotations used by reflection")
 @Synchronized
-@Transform(add = {ReflectAnnotations.class, JAnnotationLiteral.class, JNameValuePair.class,
+@Transform(add = {ReflectAnnotations.class, JAnnotation.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
     JNullLiteral.class, JIntLiteral.class, ClassAnnotationSchedulingSeparator.SeparatorTag.class})
 @Constraint(need = {GenericSignature.class, SimpleName.class, FinalNames.class})
@@ -178,7 +178,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     private void addSignature(@Nonnull Annotable annotable, @Nonnull String signature,
         @Nonnull SourceInfo info) {
-      JAnnotationLiteral annotation =
+      JAnnotation annotation =
           createAnnotation(annotable, signatureAnnotationType, info);
       JArrayLiteral literal = buildSignatureAnnotationValue(signature, info);
       JMethodId methodId = getOrCreateMethodId(signatureAnnotationType, ELT_VALUE);
@@ -194,7 +194,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         JMethod method = classType.getEnclosingMethod();
         if (method != null) {
           SourceInfo info = type.getSourceInfo();
-          JAnnotationLiteral annotation =
+          JAnnotation annotation =
               createAnnotation(type, enclosingMethodAnnotationType, info);
           JMethodLiteral newLiteral = new JMethodLiteral(method, info);
           JMethodId methodId = getOrCreateMethodId(enclosingMethodAnnotationType, ELT_VALUE);
@@ -211,7 +211,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       if (marker != null) {
         List<JClass> throwns = marker.getThrownExceptions();
         SourceInfo info = method.getSourceInfo();
-        JAnnotationLiteral annotation = createAnnotation(method, throwsAnnotationType, info);
+        JAnnotation annotation = createAnnotation(method, throwsAnnotationType, info);
         List<JLiteral> literals = new ArrayList<JLiteral>();
         for (JClass thrown : throwns) {
           literals.add(new JClassLiteral(info, thrown, javaLangClass));
@@ -238,7 +238,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       }
       if (!literals.isEmpty()) {
         JMethodId methodId = getOrCreateMethodId(memberClassAnnotationType, ELT_VALUE);
-        JAnnotationLiteral annotation = getAnnotation(type, memberClassAnnotationType, info);
+        JAnnotation annotation = getAnnotation(type, memberClassAnnotationType, info);
         JArrayLiteral array = new JArrayLiteral(info, literals);
         JNameValuePair valuePair = new JNameValuePair(info, methodId, array);
         request.append(new PutNameValuePair(annotation, valuePair));
@@ -247,7 +247,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     private void addEnclosingClass(@Nonnull JDefinedClassOrInterface innerType) {
       SourceInfo info = innerType.getSourceInfo();
-      JAnnotationLiteral annotation =
+      JAnnotation annotation =
           createAnnotation(innerType, enclosingClassAnnotationType, info);
       JLiteral newValue = new JClassLiteral(info, innerType.getEnclosingType(), javaLangClass);
       List<JLiteral> literals = new ArrayList<JLiteral>();
@@ -259,7 +259,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     private void addInnerClass(@Nonnull JDefinedClassOrInterface innerType) {
       SourceInfo info = innerType.getSourceInfo();
-      JAnnotationLiteral annotation = createAnnotation(innerType, innerAnnotationType, info);
+      JAnnotation annotation = createAnnotation(innerType, innerAnnotationType, info);
       SimpleName marker = innerType.getMarker(SimpleName.class);
       assert marker != null;
       String innerShortName = marker.getSimpleName();
@@ -293,10 +293,10 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     @Nonnull
-    private JAnnotationLiteral createAnnotation(@Nonnull Annotable annotable,
+    private JAnnotation createAnnotation(@Nonnull Annotable annotable,
         @Nonnull JAnnotationType annotationType,  @Nonnull SourceInfo info) {
-      JAnnotationLiteral annotation =
-          new JAnnotationLiteral(info, JRetentionPolicy.SYSTEM, annotationType);
+      JAnnotation annotation =
+          new JAnnotation(info, JRetentionPolicy.SYSTEM, annotationType);
       request.append(new AddAnnotation(annotation, annotable));
       return annotation;
     }
@@ -315,11 +315,11 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     @Nonnull
-    private JAnnotationLiteral getAnnotation(@Nonnull Annotable annotable,
+    private JAnnotation getAnnotation(@Nonnull Annotable annotable,
         @Nonnull JAnnotationType annotationType,  @Nonnull SourceInfo info) {
       assert isSystemAnnotation(annotationType);
-      JAnnotationLiteral annotation = null;
-      Collection<JAnnotationLiteral> annotations = annotable.getAnnotations(annotationType);
+      JAnnotation annotation = null;
+      Collection<JAnnotation> annotations = annotable.getAnnotations(annotationType);
       if (annotations.isEmpty()) {
         annotation = createAnnotation(annotable, annotationType, info);
       } else {

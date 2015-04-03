@@ -16,7 +16,7 @@
 
 package com.android.jack.frontend;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
@@ -57,11 +57,11 @@ public class MethodIdDuplicateRemover extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JAnnotationLiteral literal) {
-    for (JNameValuePair pair : literal.getNameValuePairs()) {
-      JMethodId id = getResolvedMethodId(literal.getType(), pair.getMethodId());
+  public boolean visit(@Nonnull JAnnotation annotation) {
+    for (JNameValuePair pair : annotation.getNameValuePairs()) {
+      JMethodId id = getResolvedMethodId(annotation.getType(), pair.getMethodId());
       pair.resolveMethodId(id);
     }
-    return super.visit(literal);
+    return super.visit(annotation);
   }
 }

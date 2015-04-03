@@ -18,7 +18,7 @@ package com.android.jack.ecj.loader.jast;
 
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JByteLiteral;
@@ -98,7 +98,7 @@ class LoaderUtils {
   static Constant convertJLiteralToEcj(@CheckForNull JLiteral literal) {
     Constant constant = Constant.NotAConstant;
     if (literal != null) {
-      if ((literal instanceof JAnnotationLiteral)
+      if ((literal instanceof JAnnotation)
           || (literal instanceof JArrayLiteral)
           || (literal instanceof JEnumLiteral)
           || (literal instanceof JMethodLiteral)
@@ -138,7 +138,7 @@ class LoaderUtils {
       return typeInfo.getGenericSignature().toCharArray();
     }
 
-    JAnnotationLiteral signatureAnnotation =
+    JAnnotation signatureAnnotation =
         AnnotationUtils.getAnnotation(annotableNode, AnnotationUtils.SIGNATURE_ANNOTATION);
     if (signatureAnnotation != null) {
       JNameValuePair pair =

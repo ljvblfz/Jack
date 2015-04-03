@@ -17,7 +17,7 @@
 package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -37,8 +37,8 @@ import javax.annotation.Nonnull;
  * {@link RunnableSchedulable} that removes annotations from methods.
  */
 @Description("RunnableSchedulable that removes annotations from methods.")
-@Constraint(need = JAnnotationLiteral.class)
-@Transform(modify = JAnnotationLiteral.class)
+@Constraint(need = JAnnotation.class)
+@Transform(modify = JAnnotation.class)
 public class MethodAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JMethod> {
 
@@ -54,7 +54,7 @@ public class MethodAnnotationRemover extends AnnotationRemover implements
   public void run(@Nonnull JMethod method) throws Exception {
     TransformationRequest request = new TransformationRequest(method);
 
-    for (JAnnotationLiteral annotation : method.getAnnotations()) {
+    for (JAnnotation annotation : method.getAnnotations()) {
       if (!mustBeKept(annotation)) {
         request.append(new Remove(annotation));
         logger.log(Level.INFO, "Removed annotation {0} from method {1}.{2}", new Object[] {

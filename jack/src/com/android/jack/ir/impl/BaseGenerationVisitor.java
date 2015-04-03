@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayLiteral;
@@ -187,13 +187,13 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
+  public boolean visit(@Nonnull JAnnotation annotation) {
     print("@");
-    printTypeName(annotationLiteral.getType());
+    printTypeName(annotation.getType());
     lparen();
 
     List<JNameValuePair> nameValuePairs =
-        new ArrayList<JNameValuePair>(annotationLiteral.getNameValuePairs());
+        new ArrayList<JNameValuePair>(annotation.getNameValuePairs());
     Collections.sort(nameValuePairs, new Comparator<JNameValuePair>() {
       @Override
       public int compare(JNameValuePair nameValuePair1, JNameValuePair nameValuePair2) {
@@ -1242,16 +1242,16 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     printParameterList(x);
   }
 
-  private void printAnnotationLiterals(Collection<JAnnotationLiteral> annotationLiterals) {
-    List<JAnnotationLiteral> annotations = new ArrayList<JAnnotationLiteral>(annotationLiterals);
-    Collections.sort(annotations, new Comparator<JAnnotationLiteral>() {
+  private void printAnnotationLiterals(Collection<JAnnotation> annotation) {
+    List<JAnnotation> annotations = new ArrayList<JAnnotation>(annotation);
+    Collections.sort(annotations, new Comparator<JAnnotation>() {
       @Override
-      public int compare(JAnnotationLiteral annotation1, JAnnotationLiteral annotation2) {
+      public int compare(JAnnotation annotation1, JAnnotation annotation2) {
         return (Jack.getLookupFormatter().getName(annotation1.getType()).compareTo(
             Jack.getLookupFormatter().getName(annotation2.getType())));
       }
     });
-    for (JAnnotationLiteral annotationLiteral : annotations) {
+    for (JAnnotation annotationLiteral : annotations) {
       accept(annotationLiteral);
       space();
     }

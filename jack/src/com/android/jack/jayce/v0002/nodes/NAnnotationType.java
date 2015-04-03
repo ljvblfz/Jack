@@ -63,7 +63,7 @@ public class NAnnotationType extends NInterfaceType {
     inners = ImportHelper.getSignatureNameList(jAnnotationType.getMemberTypes());
     fields = loader.load(NField.class, jAnnotationType.getFields());
     methods = loader.load(NMethod.class, jAnnotationType.getMethods());
-    annotations = loader.load(NAnnotationLiteral.class, jAnnotationType.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jAnnotationType.getAnnotations());
     markers = loader.load(NMarker.class, jAnnotationType.getAllMarkers());
     sourceInfo = loader.load(jAnnotationType.getSourceInfo());
   }
@@ -119,7 +119,7 @@ public class NAnnotationType extends NInterfaceType {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jInterfaceType.addMethod(jMethod);
     }
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jInterfaceType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -154,7 +154,7 @@ public class NAnnotationType extends NInterfaceType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      annotations = in.readNodes(NAnnotationLiteral.class);
+      annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
   }

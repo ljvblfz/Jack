@@ -17,7 +17,7 @@
 package com.android.jack.ecj.loader.jast;
 
 import com.android.jack.ir.ast.Annotable;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JEnumLiteral;
@@ -90,10 +90,10 @@ class AnnotationUtils {
   static IBinaryAnnotation[] convertJAstAnnotationToEcj(@Nonnull Annotable annotable,
       boolean filterTagbitsAnnotations) {
 
-    Collection<JAnnotationLiteral> annotations = annotable.getAnnotations();
+    Collection<JAnnotation> annotations = annotable.getAnnotations();
     ArrayList<IBinaryAnnotation> list = new ArrayList<IBinaryAnnotation>(annotations.size());
 
-    for (JAnnotationLiteral annotation : annotations) {
+    for (JAnnotation annotation : annotations) {
       boolean isFilteredOut = isDalvikAnnotation(annotation)
               || (filterTagbitsAnnotations && isTagbitsAnnotation(annotation));
       isFilteredOut |= (annotation.getRetentionPolicy() == JRetentionPolicy.SOURCE);
@@ -118,8 +118,8 @@ class AnnotationUtils {
     Object ecjValue;
     Constant constant = LoaderUtils.convertJLiteralToEcj(literal);
     if (constant == Constant.NotAConstant) {
-      if (literal instanceof JAnnotationLiteral) {
-        JAnnotationLiteral subAnnotation = (JAnnotationLiteral) literal;
+      if (literal instanceof JAnnotation) {
+        JAnnotation subAnnotation = (JAnnotation) literal;
         ecjValue = new JAstBinaryAnnotation(subAnnotation);
       } else if (literal instanceof JArrayLiteral) {
         JArrayLiteral array = (JArrayLiteral) literal;
@@ -161,7 +161,7 @@ class AnnotationUtils {
     }
 
     long tagBits = 0;
-    JAnnotationLiteral targetAnnotation = getAnnotation(annotable, TARGET_ANNOTATION);
+    JAnnotation targetAnnotation = getAnnotation(annotable, TARGET_ANNOTATION);
     if (targetAnnotation != null) {
       JNameValuePair pair = targetAnnotation.getNameValuePair(DEFAULT_ANNOTATION_FIELD);
       if ((pair != null) && ((JArrayLiteral) pair.getValue()).getValues().size() != 0) {
@@ -178,7 +178,7 @@ class AnnotationUtils {
         tagBits |= TagBits.AnnotationTarget;
       }
     }
-    JAnnotationLiteral retentionPolicyAnnotation =
+    JAnnotation retentionPolicyAnnotation =
         getAnnotation(annotable, RETENTION_POLICY_ANNOTATION);
     if (retentionPolicyAnnotation != null) {
       JNameValuePair retentionPolicy =
@@ -204,9 +204,9 @@ class AnnotationUtils {
   }
 
   @CheckForNull
-  static JAnnotationLiteral getAnnotation(@Nonnull Annotable annotable,
+  static JAnnotation getAnnotation(@Nonnull Annotable annotable,
       @Nonnull String annotationType) {
-    for (JAnnotationLiteral annotation: annotable.getAnnotations()) {
+    for (JAnnotation annotation: annotable.getAnnotations()) {
       if (annotationType.equals(
           LoaderUtils.getSignatureFormatter().getName(annotation.getType()))) {
         return annotation;
@@ -215,12 +215,12 @@ class AnnotationUtils {
     return null;
   }
 
-  private static boolean isDalvikAnnotation(@Nonnull JAnnotationLiteral annotation) {
+  private static boolean isDalvikAnnotation(@Nonnull JAnnotation annotation) {
     String annotationType = LoaderUtils.getSignatureFormatter().getName(annotation.getType());
     return dalvikAnnotations.contains(annotationType);
   }
 
-  private static boolean isTagbitsAnnotation(@Nonnull JAnnotationLiteral annotation) {
+  private static boolean isTagbitsAnnotation(@Nonnull JAnnotation annotation) {
     String annotationType = LoaderUtils.getSignatureFormatter().getName(annotation.getType());
     return tagbitsAnnotations.contains(annotationType);
   }

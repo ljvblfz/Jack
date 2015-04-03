@@ -18,7 +18,7 @@ package com.android.jack.ecj.loader.jast;
 
 import com.android.jack.ir.ast.HasEnclosingMethod;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -76,7 +76,7 @@ class JAstBinaryType implements IBinaryType {
   @Override
   public int getModifiers() {
     int modifiers;
-    JAnnotationLiteral enclosingAnnotation =
+    JAnnotation enclosingAnnotation =
         AnnotationUtils.getAnnotation(jDeclaredType, AnnotationUtils.INNER_CLASS_ANNOTATION);
     if (enclosingAnnotation != null) {
       JNameValuePair pair =
@@ -308,7 +308,7 @@ class JAstBinaryType implements IBinaryType {
     }
 
     char[] sourceNameArray;
-    JAnnotationLiteral enclosingAnnotation =
+    JAnnotation enclosingAnnotation =
         AnnotationUtils.getAnnotation(jDeclaredType, AnnotationUtils.INNER_CLASS_ANNOTATION);
     if (enclosingAnnotation != null) {
 
@@ -373,7 +373,7 @@ class JAstBinaryType implements IBinaryType {
     if (simpleNameInfo != null) {
       isAnonymous = simpleNameInfo.getSimpleName().isEmpty();
     } else {
-      JAnnotationLiteral enclosingAnnotation =
+      JAnnotation enclosingAnnotation =
           AnnotationUtils.getAnnotation(jDeclaredType, AnnotationUtils.INNER_CLASS_ANNOTATION);
       if (enclosingAnnotation != null) {
         JNameValuePair pair =

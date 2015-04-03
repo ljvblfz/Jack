@@ -17,7 +17,7 @@
 package com.android.jack.transformations.renamepackage;
 
 import com.android.jack.ir.ast.JAbstractStringLiteral;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
@@ -108,16 +108,16 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     }
 
     @Override
-    public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
+    public boolean visit(@Nonnull JAnnotation annotationLiteral) {
       transformationRequestRoot.push(annotationLiteral);
       return super.visit(annotationLiteral);
     }
 
     @Override
-    public void endVisit(@Nonnull JAnnotationLiteral annotationLiteral) {
-      assert annotationLiteral == transformationRequestRoot.peek();
+    public void endVisit(@Nonnull JAnnotation annotation) {
+      assert annotation == transformationRequestRoot.peek();
       transformationRequestRoot.pop();
-      super.endVisit(annotationLiteral);
+      super.endVisit(annotation);
     }
 
     @Override

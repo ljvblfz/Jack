@@ -16,7 +16,7 @@
 
 package com.android.jack.util;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JVisitorWithConcurrentModification;
 
 import javax.annotation.Nonnull;
@@ -30,12 +30,12 @@ public class AnnotationSkipperVisitor extends JVisitorWithConcurrentModification
   }
 
   @Override
-  public boolean visit(@Nonnull JAnnotationLiteral stmt) {
+  public boolean visit(@Nonnull JAnnotation stmt) {
     return false;
   }
 
   @Override
-  public void endVisit(@Nonnull JAnnotationLiteral annotationLiteral) {
+  public void endVisit(@Nonnull JAnnotation annotation) {
   }
 
 }

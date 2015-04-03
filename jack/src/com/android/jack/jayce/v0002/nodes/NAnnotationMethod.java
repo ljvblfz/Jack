@@ -57,7 +57,7 @@ public class NAnnotationMethod extends NMethod {
     name = jAnnotationMethod.getName();
     returnType = ImportHelper.getSignatureName(jAnnotationMethod.getType());
     modifier = jAnnotationMethod.getModifier();
-    annotations = loader.load(NAnnotationLiteral.class, jAnnotationMethod.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jAnnotationMethod.getAnnotations());
     defaultValue = (NLiteral) loader.load(jAnnotationMethod.getDefaultValue());
     markers = loader.load(NMarker.class, jAnnotationMethod.getAllMarkers());
     sourceInfo = loader.load(jAnnotationMethod.getSourceInfo());
@@ -86,7 +86,7 @@ public class NAnnotationMethod extends NMethod {
         exportSession.getLookup().getType(returnType),
         modifier, new JayceMethodLoader(this, enclosingLoader));
     exportSession.setCurrentMethod(jAnnotationMethod);
-    for (NAnnotationLiteral annotationLiteral : annotations) {
+    for (NAnnotation annotationLiteral : annotations) {
       jAnnotationMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
     }
     if (defaultValue != null) {
@@ -115,7 +115,7 @@ public class NAnnotationMethod extends NMethod {
     name = in.readId();
     returnType = in.readId();
     modifier = in.readInt();
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     defaultValue = in.readNode(NLiteral.class);
     markers = in.readNodes(NMarker.class);
   }

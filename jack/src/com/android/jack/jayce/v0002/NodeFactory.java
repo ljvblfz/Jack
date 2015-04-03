@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAddOperation;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAndOperation;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayLiteral;
@@ -136,7 +136,7 @@ import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
 import com.android.jack.jayce.v0002.nodes.NAddOperation;
 import com.android.jack.jayce.v0002.nodes.NAlloc;
 import com.android.jack.jayce.v0002.nodes.NAndOperation;
-import com.android.jack.jayce.v0002.nodes.NAnnotationLiteral;
+import com.android.jack.jayce.v0002.nodes.NAnnotation;
 import com.android.jack.jayce.v0002.nodes.NAnnotationMethod;
 import com.android.jack.jayce.v0002.nodes.NAnnotationType;
 import com.android.jack.jayce.v0002.nodes.NArrayLength;
@@ -273,8 +273,8 @@ public class NodeFactory {
     }
 
     @Override
-    public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
-      newNode = new NAnnotationLiteral();
+    public boolean visit(@Nonnull JAnnotation annotation) {
+      newNode = new NAnnotation();
       return false;
     }
 

@@ -53,7 +53,7 @@ public class NParameter extends NVariable {
   public String name;
 
   @Nonnull
-  public List<NAnnotationLiteral> annotations = Collections.emptyList();
+  public List<NAnnotation> annotations = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -68,7 +68,7 @@ public class NParameter extends NVariable {
     modifiers = jParameter.getModifier();
     type = ImportHelper.getSignatureName(jParameter.getType());
     name = jParameter.getName();
-    annotations = loader.load(NAnnotationLiteral.class, jParameter.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jParameter.getAnnotations());
     markers = loader.load(NMarker.class, jParameter.getAllMarkers());
     sourceInfo = loader.load(jParameter.getSourceInfo());
   }
@@ -87,7 +87,7 @@ public class NParameter extends NVariable {
         exportSession.getCurrentMethod());
     assert id != null;
     exportSession.getParameterResolver().addTarget(id, jParameter);
-    for (NAnnotationLiteral annotation : annotations) {
+    for (NAnnotation annotation : annotations) {
       jParameter.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -113,7 +113,7 @@ public class NParameter extends NVariable {
     modifiers = in.readInt();
     type = in.readId();
     name = in.readId();
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     markers = in.readNodes(NMarker.class);
 
   }

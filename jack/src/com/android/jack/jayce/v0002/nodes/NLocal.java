@@ -52,7 +52,7 @@ public class NLocal extends NVariable {
   public String name;
 
   @Nonnull
-  public List<NAnnotationLiteral> annotationSet = Collections.emptyList();
+  public List<NAnnotation> annotationSet = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -68,7 +68,7 @@ public class NLocal extends NVariable {
     modifiers = jLocal.getModifier();
     type = ImportHelper.getSignatureName(jLocal.getType());
     name = jLocal.getName();
-    annotationSet = loader.load(NAnnotationLiteral.class, jLocal.getAnnotations());
+    annotationSet = loader.load(NAnnotation.class, jLocal.getAnnotations());
     markers = loader.load(NMarker.class, jLocal.getAllMarkers());
     sourceInfo = loader.load(jLocal.getSourceInfo());
   }
@@ -87,7 +87,7 @@ public class NLocal extends NVariable {
         modifiers,
         null); /* methodBody */
     exportSession.getLocalResolver().addTarget(id, jLocal);
-    for (NAnnotationLiteral annotation : annotationSet) {
+    for (NAnnotation annotation : annotationSet) {
       jLocal.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
@@ -112,7 +112,7 @@ public class NLocal extends NVariable {
     modifiers = in.readInt();
     type = in.readId();
     name = in.readId();
-    annotationSet = in.readNodes(NAnnotationLiteral.class);
+    annotationSet = in.readNodes(NAnnotation.class);
     markers = in.readNodes(NMarker.class);
 
   }

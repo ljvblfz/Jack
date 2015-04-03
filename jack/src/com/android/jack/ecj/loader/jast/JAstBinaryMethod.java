@@ -16,7 +16,7 @@
 
 package com.android.jack.ecj.loader.jast;
 
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
@@ -120,14 +120,14 @@ class JAstBinaryMethod implements IBinaryMethod {
       if (jLiteral != null) {
         defaultValue = AnnotationUtils.getEcjAnnotationValue(jLiteral);
       } else {
-        JAnnotationLiteral annotation = AnnotationUtils.getAnnotation(jMethod.getEnclosingType(),
+        JAnnotation annotation = AnnotationUtils.getAnnotation(jMethod.getEnclosingType(),
             AnnotationUtils.DEFAULT_VALUE_ANNOTATION);
         if (annotation != null) {
           JNameValuePair defaultAnnotationPair = annotation.getNameValuePair(
               AnnotationUtils.DEFAULT_ANNOTATION_FIELD);
           assert defaultAnnotationPair != null;
-          JAnnotationLiteral defaultAnnotation =
-              (JAnnotationLiteral) defaultAnnotationPair.getValue();
+          JAnnotation defaultAnnotation =
+              (JAnnotation) defaultAnnotationPair.getValue();
           JNameValuePair defaultValuePair = defaultAnnotation.getNameValuePair(jMethod.getName());
           if (defaultValuePair != null) {
             defaultValue = AnnotationUtils.getEcjAnnotationValue(defaultValuePair.getValue());

@@ -51,7 +51,7 @@ public class NConstructor extends NMethod {
     JConstructor jConstructor = (JConstructor) jElement;
     parameters = loader.load(NParameter.class, jConstructor.getParams());
     modifier = jConstructor.getModifier();
-    annotations = loader.load(NAnnotationLiteral.class, jConstructor.getAnnotations());
+    annotations = loader.load(NAnnotation.class, jConstructor.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jConstructor.getBody());
     markers = loader.load(NMarker.class, jConstructor.getAllMarkers());
     sourceInfo = loader.load(jConstructor.getSourceInfo());
@@ -82,7 +82,7 @@ public class NConstructor extends NMethod {
       JMethodId id = jConstructor.getMethodId();
       id.addParam(jParam.getType());
     }
-    for (NAnnotationLiteral annotationLiteral : annotations) {
+    for (NAnnotation annotationLiteral : annotations) {
       jConstructor.addAnnotation(annotationLiteral.exportAsJast(exportSession));
     }
     if (body != null && exportSession.getNodeLevel() == NodeLevel.FULL) {
@@ -111,7 +111,7 @@ public class NConstructor extends NMethod {
     level = in.getNodeLevel();
     parameters = in.readNodes(NParameter.class);
     modifier = in.readInt();
-    annotations = in.readNodes(NAnnotationLiteral.class);
+    annotations = in.readNodes(NAnnotation.class);
     body = in.readNode(NAbstractMethodBody.class);
     markers = in.readNodes(NMarker.class);
   }

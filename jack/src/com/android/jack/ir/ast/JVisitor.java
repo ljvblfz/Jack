@@ -115,8 +115,8 @@ public class JVisitor {
     endVisit((JExpression) x);
   }
 
-  public void endVisit(@Nonnull JAnnotationLiteral annotationLiteral) {
-    endVisit((JExpression) annotationLiteral);
+  public void endVisit(@Nonnull JAnnotation annotation) {
+    endVisit((JExpression) annotation);
   }
 
   public void endVisit(@Nonnull JArrayLength x) {
@@ -495,8 +495,8 @@ public class JVisitor {
     return visit((JExpression) x);
   }
 
-  public boolean visit(@Nonnull JAnnotationLiteral annotationLiteral) {
-    return visit((JExpression) annotationLiteral);
+  public boolean visit(@Nonnull JAnnotation annotation) {
+    return visit((JExpression) annotation);
   }
 
   public boolean visit(@Nonnull JArrayLength x) {
@@ -883,10 +883,9 @@ public class JVisitor {
     visit((JExpression) x, transformRequest);
   }
 
-  public void visit(
-      @Nonnull JAnnotationLiteral annotationLiteral, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JAnnotation annotation, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) annotationLiteral, transformRequest);
+    visit((JExpression) annotation, transformRequest);
   }
 
   public void visit(@Nonnull JArrayLength x, @Nonnull TransformRequest transformRequest)

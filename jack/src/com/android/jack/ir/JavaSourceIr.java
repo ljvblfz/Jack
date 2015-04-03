@@ -20,7 +20,7 @@ import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAddOperation;
 import com.android.jack.ir.ast.JAndOperation;
-import com.android.jack.ir.ast.JAnnotationLiteral;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -166,7 +166,7 @@ import com.android.sched.item.Name;
     JAbsentArrayDimension.class,
     JAddOperation.class,
     JAndOperation.class,
-    JAnnotationLiteral.class,
+    JAnnotation.class,
     JArrayLength.class,
     JArrayRef.class,
     JArrayType.class,

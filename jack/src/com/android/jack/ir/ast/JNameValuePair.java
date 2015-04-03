@@ -113,7 +113,7 @@ public final class JNameValuePair extends JNode {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JAnnotationLiteral)) {
+    if (!(parent instanceof JAnnotation)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
