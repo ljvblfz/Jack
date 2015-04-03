@@ -133,8 +133,8 @@
   </target>
 
   <target name="jack-lib-compile-step1"
-    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,antlr-rt-lib,
-    args4j-lib,dx-lib,ecj,freemarker-lib,guava-lib,jsr305-lib,maths-lib,sched-lib,watchmaker-lib">
+    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,
+    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
     <mkdir dir="${jack.build.outdir}"/>
@@ -208,6 +208,8 @@
       <sources>
         <!-- All source files -->
           <fileset dir="${jack.dir}/src" />
+          <filelist refid="jack.link.libs.fileset" />
+          <filelist refid="jack.static.libs.fileset" />
       </sources>
       <targets>
         <fileset dir="${jack.build.outdir}"/>
@@ -343,7 +345,8 @@
     <dependset>
       <sources>
         <!-- All source files -->
-          <fileset dir="${jack-api.dir}/src" />
+        <fileset dir="${jack-api.dir}/src" />
+        <fileset file="${jsr305.dist.dir}/${jsr305.libname}"/>
       </sources>
       <targets>
         <fileset dir="${jack-api.lib.build.outdir}"/>
@@ -353,9 +356,7 @@
           source="1.6" target="1.6" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
           <classpath>
-            <filelist dir="/" >
-              <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-            </filelist>
+            <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
           </classpath>
           <exclude name="com/android/jack/api/example/**"/>
         </javac>
@@ -465,10 +466,19 @@
   </target>
 
   <target name="jack-server-lib-compile" depends="jack-server-lib-copy-libs,jack-lib">
+    <filelist id="jack-server-lib-compile.classpath" dir="/" >
+      <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+      <file name="${jack.dist.dir}/${jack.libname}"/>
+      <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
+      <file name="${guava.dist.dir}/${guava.libname}"/>
+      <file name="${simple.dist.dir}/${simple.libname}"/>
+      <file name="${args4j.dist.dir}/${args4j.libname}"/>
+    </filelist>
     <mkdir dir="${jack-server.build.outdir}"/>
     <dependset>
       <sources>
-          <fileset dir="${jack-server.dir}/src" />
+        <fileset dir="${jack-server.dir}/src" />
+        <filelist refid="jack-server-lib-compile.classpath" />
       </sources>
       <targets>
         <fileset dir="${jack-server.build.outdir}"/>
@@ -478,16 +488,9 @@
          source="1.7" target="1.7" debug="true"
          includeantruntime="false"  includeDestClasses="false" nowarn="true">
          <classpath>
-           <filelist dir="/" >
-             <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-              <file name="${jack.dist.dir}/${jack.libname}"/>
-              <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
-              <file name="${guava.dist.dir}/${guava.libname}"/>
-              <file name="${simple.dist.dir}/${simple.libname}"/>
-              <file name="${args4j.dist.dir}/${args4j.libname}"/>
-           </filelist>
+           <filelist refid="jack-server-lib-compile.classpath"/>
          </classpath>
-       </javac>
+    </javac>
     <unzip dest="${jack-server.build.outdir}" src="${simple.dist.dir}/${simple.libname}" />
   </target>
 
@@ -511,15 +514,14 @@
           <fileset dir="${jack.dir}/src/com/android/jack/annotations" includes="**/*.java" />
       </sources>
       <targets>
-        <fileset dir="${jack-annotations.build.outdir}"/>
+        <fileset file="${jack.dist.dir}/${jack-annotations.libname}"/>
       </targets>
     </dependset>
      <javac encoding="UTF-8" srcdir="${jack.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-annotations.build.outdir}"
           source="1.6" target="1.6" debug="true"
-          includeantruntime="false"  includeDestClasses="false" nowarn="true">
-    </javac>
+          includeantruntime="false"  includeDestClasses="false" nowarn="true" />
     <jar destfile="${jack.dist.dir}/${jack-annotations.libname}">
       <fileset dir="${jack-annotations.build.outdir}"/>
     </jar>
@@ -542,14 +544,7 @@
     <delete file="${jackunittests.dist.dir}/${jackunittests.libname}" />
   </target>
 
-  <target name="jackunittests-lib" depends="jack-copy-libs,jack-lib,junit4,dex-lib,dx-ref-lib,dexcomparator-lib,
-    sched-build,sched-build-lib">
-    <!-- project layout -->
-    <mkdir dir="${jackunittests.build.outdir}" />
-    <mkdir dir="${jackunittests.libs.dir}" />
-    <mkdir dir="${jackunittests.dist.dir}" />
-    <!-- fetch dependencies -->
-    <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
+  <target name="jackunittests-lib-check">
     <filelist id="jackunittests.link.libs.fileset" dir="/">
       <file name="${sched-build.dist.dir}/${sched-build.libname}" />
     </filelist>
@@ -560,16 +555,29 @@
       <file name="${dx-ref.dist.dir}/${dx-ref.libname}" />
       <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
     </filelist>
+
+    <union id ="jackunittests.uptodate.files">
+      <filelist refid="jackunittests.static.libs.fileset"/>
+      <filelist refid="jack.static.libs.fileset"/>
+      <filelist refid="jackunittests.static.libs.fileset"/>
+    </union>
+
+    <uptodate property="jackunittests-lib.uptodate" targetfile="${jackunittests.dist.dir}/${jackunittests.libname}">
+      <srcfiles dir="${jack.dir}/tests" />
+      <srcresources refid="jackunittests.uptodate.files" />
+    </uptodate>
+  </target>
+
+  <target name="jackunittests-lib" depends="jack-copy-libs,jack-lib,junit4,dex-lib,dx-ref-lib,dexcomparator-lib,
+    sched-build,sched-build-lib,jackunittests-lib-check" unless="jackunittests-lib.uptodate">
+    <!-- project layout -->
+    <delete dir="${jackunittests.build.outdir}" />
+    <mkdir dir="${jackunittests.build.outdir}" />
+    <mkdir dir="${jackunittests.libs.dir}" />
+    <mkdir dir="${jackunittests.dist.dir}" />
+    <!-- fetch dependencies -->
+    <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
     <!-- compile -->
-    <dependset>
-      <sources>
-        <!-- All source files -->
-          <fileset dir="${jack.dir}/tests" />
-      </sources>
-      <targets>
-        <fileset dir="${jackunittests.build.outdir}"/>
-      </targets>
-    </dependset>
     <javac encoding="UTF-8" srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
       source="1.6" target="1.6" debug="true"
       includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -596,32 +604,10 @@
     <delete file="${jackunittests.dist.dir}/${jackunittests.execname}" />
   </target>
 
-  <target name="jackunittests-check">
-
-    <union id ="jackunittests.uptodate.files">
-      <filelist refid="jackunittests.static.libs.fileset"/>
-      <filelist refid="jack.static.libs.fileset"/>
-      <filelist dir="${jackunittests.dist.dir}">
-        <file name="${jackunittests.libname}"/>
-      </filelist>
-    </union>
-
-    <uptodate property="jackunittests.uptodate"
-      targetfile="${jackunittests.dist.dir}/${jackunittests.execname}">
-      <srcresources refid="jackunittests.uptodate.files"/>
-    </uptodate>
-  </target>
-
-  <target name="jackunittests" depends="jackunittests-lib,jackunittests-check" unless="jackunittests.uptodate">
+  <target name="jackunittests" depends="jackunittests-lib" unless="jackunittests-lib.uptodate">
    <mkdir dir="${jackunittests.exec.build.dir}" />
     <jar manifest="${jack.dir}/etc/manifest.txt"
-       destfile="${jackunittests.exec.build.dir}/${jackunittests.execname}">
-       <archives>
-         <zips>
-           <fileset file="${jackunittests.dist.dir}/${jackunittests.libname}"/>
-        </zips>
-       </archives>
-     </jar>
+       destfile="${jackunittests.exec.build.dir}/${jackunittests.execname}" basedir="${jackunittests.build.outdir}"/>
     <!-- add sched support -->
     <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
     <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
@@ -702,9 +688,18 @@
           <exclude name="com/android/jack/frontend/test006/jack/**"/>
           <exclude name="com/android/jack/frontend/test007/**"/>
         </fileset>
+        <filelist dir="/">
+          <!-- classpath -->
+          <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
+          <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+          <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
+        </filelist>
+        <!-- static libs -->
+        <filelist refid="jackunittests.static.libs.fileset" />
+        <filelist refid="jack.static.libs.fileset" />
       </sources>
       <targets>
-        <fileset dir="${jack-tests.build.outdir}"/>
+        <fileset file="${jack-tests.dist.dir}/${jack-tests.execname}"/>
       </targets>
     </dependset>
     <javac
@@ -799,10 +794,10 @@
     <dependset>
       <sources>
         <!-- All source files -->
-          <fileset dir="${args4j.dir}/args4j/src" />
+        <fileset dir="${args4j.dir}/args4j/src" />
       </sources>
       <targets>
-        <fileset dir="${args4j.build.outdir}"/>
+        <fileset file="${args4j.dist.dir}/${args4j.libname}"/>
       </targets>
     </dependset>
     <javac encoding="UTF-8" srcdir="${args4j.dir}/args4j/src"
@@ -861,8 +856,8 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${dx.dir}/src" />
+        <fileset dir="${dx.dir}/src" />
+        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
       </sources>
       <targets>
         <fileset dir="${dx.build.outdir}"/>
@@ -873,7 +868,7 @@
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
-        <filelist>
+        <filelist dir="/">
           <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
         </filelist>
       </classpath>
@@ -973,8 +968,8 @@
     <mkdir dir="${guava.dist.dir}"/>
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${guava.dir}/src" />
+        <fileset dir="${guava.dir}/src" />
+        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
       </sources>
       <targets>
         <fileset dir="${guava.build.outdir}"/>
@@ -1017,8 +1012,7 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${jsr305.dir}/ri/src/main/java" />
+        <fileset dir="${jsr305.dir}/ri/src/main/java" />
       </sources>
       <targets>
         <fileset dir="${jsr305.build.outdir}"/>
@@ -1055,8 +1049,7 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${maths.dir}/core/src/java/main" />
+        <fileset dir="${maths.dir}/core/src/java/main" />
       </sources>
       <targets>
         <fileset dir="${maths.build.outdir}"/>
@@ -1123,8 +1116,8 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${sched.dir}/src" />
+        <fileset dir="${sched.dir}/src" />
+        <filelist refid="schedlib.link.libs.fileset"/>
       </sources>
       <targets>
         <fileset dir="${schedlib.build.outdir}"/>
@@ -1170,11 +1163,11 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <filelist dir="${sched.dir}/src">
-            <file name="com/android/sched/build/SchedAnnotationProcessor.java" />
-            <file name="com/android/sched/build/JarMerger.java"/>
-          </filelist>
+        <filelist dir="${sched.dir}/src">
+          <file name="com/android/sched/build/SchedAnnotationProcessor.java" />
+          <file name="com/android/sched/build/JarMerger.java"/>
+        </filelist>
+        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
       </sources>
       <targets>
         <fileset dir="${sched-build.build.outdir}"/>
@@ -1262,8 +1255,8 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${sched.dir}/tests" />
+        <fileset dir="${sched.dir}/tests" />
+        <filelist refid="schedtests.link.libs.fileset" />
       </sources>
       <targets>
         <fileset dir="${schedtests.build.outdir}"/>
@@ -1307,8 +1300,11 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${watchmaker.dir}/framework/src/java/main" />
+        <fileset dir="${watchmaker.dir}/framework/src/java/main" />
+        <filelist dir="/">
+          <file name="${maths.dist.dir}/${maths.libname}" />
+          <file name="${guava.dist.dir}/${guava.libname}" />
+        </filelist>
       </sources>
       <targets>
         <fileset dir="${watchmaker.build.outdir}"/>
@@ -1353,8 +1349,7 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java" />
+        <fileset dir="${antlr-rt.dir}/antlr-3.4/runtime/Java/src/main/java" />
       </sources>
       <targets>
         <fileset dir="${antlr-rt.build.outdir}"/>
@@ -1394,11 +1389,11 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${allocation.dir}/src/main/java" />
+        <fileset dir="${allocation.dir}/src/main/java" />
+        <fileset file="${guava.dist.dir}/${guava.libname}" />
       </sources>
       <targets>
-        <fileset dir="${allocation.build.outdir}"/>
+        <fileset file="${allocation.dist.dir}/${allocation.libname}"/>
       </targets>
     </dependset>
     <javac encoding="UTF-8"
@@ -1407,9 +1402,7 @@
       source="1.6" target="1.6"
       debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
-        <filelist dir="/">
-          <file name="${guava.dist.dir}/${guava.libname}" />
-        </filelist>
+        <filelist dir="/" files="${guava.dist.dir}/${guava.libname}" />
       </classpath>
     </javac>
     <!-- package -->
@@ -1439,8 +1432,8 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${junit4.dir}/src/main/java" />
+        <fileset dir="${junit4.dir}/src/main/java" />
+        <fileset file="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
       </sources>
       <targets>
         <fileset dir="${junit4.build.outdir}"/>
@@ -1452,9 +1445,7 @@
         source="1.6" target="1.6"
         debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
-        <filelist dir="/">
-          <file name="${hamcrest-core.dist.dir}/${hamcrest-core.libname}" />
-        </filelist>
+        <filelist dir="/" files="${hamcrest-core.dist.dir}/${hamcrest-core.libname}"/>
       </classpath>
     </javac>
   </target>
@@ -1542,8 +1533,7 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${hamcrest-core.dir}/src" />
+        <fileset dir="${hamcrest-core.dir}/src" />
       </sources>
       <targets>
         <fileset dir="${hamcrest-core.build.outdir}"/>
@@ -1623,7 +1613,10 @@
     <dependset>
       <sources>
         <!-- All source files -->
-          <fileset dir="${dexcomparator.dir}/src" />
+        <fileset dir="${dexcomparator.dir}/src" />
+        <fileset dir="${dexcomparator.libs.dir}">
+          <include name="**/*.jar"/>
+        </fileset>
       </sources>
       <targets>
         <fileset dir="${dexcomparator.build.outdir}"/>
@@ -1683,10 +1676,14 @@
     <mkdir dir="${dexlib.build.outdir}"/>
     <mkdir dir="${dexlib.dist.dir}"/>
     <!-- compile -->
+    <filelist id="dex-lib-compile.classpath" dir="/">
+      <file name="${guava.dist.dir}/${guava.libname}"/>
+      <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+    </filelist>
     <dependset>
       <sources>
-        <!-- All source files -->
-          <fileset dir="${dexlib.dir}/src/main/java" />
+        <fileset dir="${dexlib.dir}/src/main/java" />
+        <filelist refid="dex-lib-compile.classpath" />
       </sources>
       <targets>
         <fileset dir="${dexlib.build.outdir}"/>
@@ -1699,10 +1696,7 @@
             debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true"
             updatedproperty="dexlib.updated">
       <classpath>
-        <filelist dir="/">
-          <file name="${guava.dist.dir}/${guava.libname}"/>
-          <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        </filelist>
+        <filelist refid="dex-lib-compile.classpath" />
       </classpath>
     </javac>
   </target>
@@ -1731,9 +1725,9 @@
       targetfile="${jack-default-lib.build.outdir}">
       <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
+      <srcfiles file="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
     </uptodate>
   </target>
-
 
   <target name="jack-default-lib" depends="jack-intermediate,jack-default-lib.check" unless="jack-default-lib.uptodate">
     <delete dir="${jack-default-lib.build.outdir}" quiet="true"/>
