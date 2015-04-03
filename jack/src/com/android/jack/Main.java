@@ -21,6 +21,7 @@ import com.android.sched.util.location.NoLocation;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.ParserProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,8 +93,8 @@ public abstract class Main extends CommandLine {
       throws CmdLineException {
     Options options = new Options();
 
-    CmdLineParser parser = new CmdLineParser(options);
-    parser.setUsageWidth(100);
+    CmdLineParser parser =
+        new CmdLineParser(options, ParserProperties.defaults().withUsageWidth(100));
 
     parser.parseArgument(list);
     parser.stopOptionParsing();
