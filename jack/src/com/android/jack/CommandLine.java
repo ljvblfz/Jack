@@ -33,6 +33,7 @@ import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.ParserProperties;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -151,7 +152,8 @@ public abstract class CommandLine {
   }
 
   protected static void printUsage(@Nonnull PrintStream printStream) {
-    CmdLineParser parser = new CmdLineParser(new Options());
+    CmdLineParser parser =
+        new CmdLineParser(new Options(), ParserProperties.defaults().withUsageWidth(100));
     printStream.println("Usage: <options> <source files>");
     printStream.println();
     printStream.println("Options:");
