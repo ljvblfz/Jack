@@ -305,12 +305,6 @@ public abstract class Jack {
   public static final ObjectId<JSession> SESSION =
       new ObjectId<JSession>("jack.session", JSession.class);
 
-  /**
-   * List of folders inside Jack jar file that can be used as embedded default jack libraries.
-   */
-  @Nonnull
-  public static final String[] JACK_DEFAULT_LIB_PATH = new String[]{"jack-default-lib"};
-
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
   @CheckForNull
   private static UnmodifiableCollections unmodifiableCollections;
@@ -1282,6 +1276,7 @@ public abstract class Jack {
       }
     }
 
+    assert version != null;
     return version;
   }
 

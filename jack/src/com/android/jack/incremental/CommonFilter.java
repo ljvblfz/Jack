@@ -74,6 +74,12 @@ import javax.annotation.Nonnull;
  */
 public abstract class CommonFilter {
 
+  /**
+   * List of folders inside Jack jar file that can be used as embedded default jack libraries.
+   */
+  @Nonnull
+  private static final String[] JACK_DEFAULT_LIB_PATH = new String[]{"jack-default-lib"};
+
   private static final class FailedToLocateJackJarException extends Exception {
 
     private static final long serialVersionUID = 1L;
@@ -242,7 +248,7 @@ public abstract class CommonFilter {
       List<InputLibrary> libraries = new ArrayList<InputLibrary>();
       try {
         File jackJar = new File(location.toURI().getPath());
-        for (String prefix: Jack.JACK_DEFAULT_LIB_PATH) {
+        for (String prefix: JACK_DEFAULT_LIB_PATH) {
           VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath(),
               session.getHooks(),
               Existence.MUST_EXIST,

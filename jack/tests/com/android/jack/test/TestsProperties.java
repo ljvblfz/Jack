@@ -54,13 +54,24 @@ public class TestsProperties {
     if (!propertyFile.exists()) {
       throw new TestConfigurationException("Configuration file not found: '" + filePath + "'");
     }
-      try {
-        testsProperties.load(new FileInputStream(propertyFile));
-      } catch (FileNotFoundException e) {
-        throw new TestConfigurationException(e);
-      } catch (IOException e) {
-        throw new TestConfigurationException(e);
+
+    FileInputStream is = null;
+    try {
+      is = new FileInputStream(propertyFile);
+      testsProperties.load(is);
+    } catch (FileNotFoundException e) {
+      throw new TestConfigurationException(e);
+    } catch (IOException e) {
+      throw new TestConfigurationException(e);
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (IOException e) {
+          // No need to manage failure when closing input stream
+        }
       }
+    }
 
     String jackHome = testsProperties.getProperty("jack.home");
 

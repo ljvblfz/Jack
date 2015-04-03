@@ -261,8 +261,9 @@ public class TestTools {
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
       @CheckForNull File jarjarRules) throws IOException {
     Options options = buildCommandLineArgs(null /* classpath */, new File[] {fileOrSourcelist});
-    options.setJarjarRulesFile(jarjarRules);
-
+    if (jarjarRules != null) {
+      options.setJarjarRulesFile(jarjarRules);
+    }
     return options;
   }
 
