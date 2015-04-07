@@ -31,6 +31,7 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,23 +162,39 @@ public class ClasspathTests {
 
   @Test
   public void testMissingClasspathEntry() throws Exception {
+    JackApiToolchainBase toolchain = AbstractTestTools.getCandidateToolchain();
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
+    File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .addToClasspath(new File(srcDir, "missing.jack")).srcToLib(testOut, /* zipFiles = */ true,
+            srcDir);
+    String errString = errOut.toString();
+    Assert.assertTrue(errString.contains("Bad classpath entry ignored"));
+    Assert.assertTrue(errString.contains("missing.jack\' does not exist"));
+  }
+
+  @Test
+  public void testMissingClasspathEntryStrict() throws Exception {
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .addToClasspath(new File(srcDir, "missing.jack"))
-    .srcToLib(testOut, /* zipFiles = */ true, srcDir);
-
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
     toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .addToClasspath(new File(srcDir, "missing.jack"))
-      .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+          .addToClasspath(new File(srcDir, "missing.jack")).srcToLib(testOut, /* zipFiles = */ true,
+              srcDir);
       Assert.fail();
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+    } finally {
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("Error during the library reading phase"));
+      Assert.assertTrue(errString.contains("missing.jack\' does not exist"));
     }
   }
 
