@@ -7,7 +7,7 @@ com.android.jack.shrob.test036.jack.E -> com.android.jack.shrob.test036.jack.Ren
     com.android.jack.shrob.test036.jack.E[] values() -> renamedValues
     void <clinit>() -> <clinit>
 com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
-    int[] -ESwitchesValues -> renamed-ESwitchesValues
+    int[] -com_android_jack_shrob_test036_jack_ESwitchesValues -> renamed-com_android_jack_shrob_test036_jack_ESwitchesValues
     void <init>() -> <init>
     int kept(com.android.jack.shrob.test036.jack.E) -> kept
-    int[] -getESwitchesValues() -> renamed-getESwitchesValues
+    int[] -getcom_android_jack_shrob_test036_jack_ESwitchesValues() -> renamed-getcom_android_jack_shrob_test036_jack_ESwitchesValues

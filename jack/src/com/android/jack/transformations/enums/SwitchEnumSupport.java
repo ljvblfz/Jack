@@ -60,6 +60,7 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JMethodLookupException;
@@ -243,7 +244,8 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
     @Nonnull
     private JMethod getSwitchValuesMethod(@Nonnull JDefinedEnum enumType) {
       SourceInfo dbgInfo = SourceInfo.UNKNOWN;
-      String enumName = enumType.getName();
+      String enumName =
+          NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter().getName(enumType));
       String methodName =
           NamingTools.getNonSourceConflictingName("get" + enumName + "SwitchesValues");
       String fieldName =

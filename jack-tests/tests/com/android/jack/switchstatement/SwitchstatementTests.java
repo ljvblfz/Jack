@@ -77,6 +77,10 @@ public class SwitchstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test010"),
     "com.android.jack.switchstatement.test010.dx.Tests");
 
+  private RuntimeTestInfo TEST011 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test011"),
+      "com.android.jack.switchstatement.test011.dx.Tests");
+
   @BeforeClass
   public static void setUpClass() {
     SwitchstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
@@ -188,6 +192,12 @@ public class SwitchstatementTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void test010() throws Exception {
     new RuntimeTestHelper(TEST010).compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test011() throws Exception {
+    new RuntimeTestHelper(TEST011).compileAndRunTest();
   }
 
   @Override
