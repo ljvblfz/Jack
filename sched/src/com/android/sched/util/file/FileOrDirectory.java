@@ -165,6 +165,7 @@ public abstract class FileOrDirectory implements HasLocation {
 
   public static void checkPermissions(@Nonnull File file, @Nonnull Location location,
       int permissions) throws WrongPermissionException {
+    assert file.exists(); // existence should already have been checked
     if ((permissions & Permission.READ) != 0) {
       if (!file.canRead()) {
         throw new WrongPermissionException(location, Permission.READ);

@@ -206,9 +206,9 @@ public abstract class CommonFilter {
         Exception exception = null;
         try {
           File file = new File(library.getPath());
-          FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
           AbstractStreamFile.check(file, library.getLocation());
-          // permissions are OK, the file exists, so let's consider this is not a Jack library
+          FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
+          // the file exists, permissions are OK, so let's consider this is not a Jack library
           throw new NotJackLibraryException(library.getLocation());
         } catch (WrongPermissionException e) {
           exception = e;
