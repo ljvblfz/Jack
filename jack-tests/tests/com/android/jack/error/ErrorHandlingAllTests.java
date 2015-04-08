@@ -27,7 +27,7 @@ value = {
     ConfigErrorTest.class,
     ErrorTest.class,
     FileAccessErrorTest.class,
-    JackFormatErrorTest.class,
+    JayceFormatErrorTest.class,
     SourceErrorTest.class
     })
 public class ErrorHandlingAllTests {
