@@ -28,6 +28,7 @@ import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
 import com.android.jack.frontend.DuplicateSourceTest;
 import com.android.jack.frontend.FrontEndTests;
+import com.android.jack.frontend.ParserTest;
 import com.android.jack.generic.basic.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
 import com.android.jack.imports.ImportTests;
@@ -118,6 +119,7 @@ import org.junit.runners.Suite.SuiteClasses;
     NoPackageTests.class,
     OrderTests.class,
     OpcodesTests.class,
+    ParserTest.class,
     PreProcessorTests.class,
     ReturnstatementTests.class,
     ResourceTests.class,

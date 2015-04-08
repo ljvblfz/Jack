@@ -157,7 +157,7 @@ public abstract class CommonFilter {
     return (javaFileNames);
   }
 
-  private void fillFiles(@Nonnull File folder, @Nonnull String fileExt,
+  protected void fillFiles(@Nonnull File folder, @Nonnull String fileExt,
       @Nonnull Set<String> fileNames) {
     for (File subFile : folder.listFiles()) {
       if (subFile.isDirectory()) {
