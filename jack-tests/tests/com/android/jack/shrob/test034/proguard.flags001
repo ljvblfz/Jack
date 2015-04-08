@@ -1,6 +1,6 @@
 -applymapping mapping.flags
 
--repackageclasses 'p2'
+-repackageclasses 'p2.p3'
 
 -keep,allowobfuscation class * {
   *;
