@@ -484,8 +484,6 @@ public class GrammarActions {
     // TODO(delphinemartin): error when newPackage contains '*' or '?'
     if (newPackage == null) {
       newPackage = "";
-    } else {
-      newPackage = NamingTools.getBinaryName(newPackage);
     }
     flags.setPackageForRenamedClasses(newPackage);
     flags.addKeepPackageNames(name(newPackage), false);
@@ -496,8 +494,6 @@ public class GrammarActions {
     // TODO(delphinemartin): error when newPackage contains '*' or '?'
     if (newPackage == null) {
       newPackage = "";
-    } else {
-      newPackage = NamingTools.getBinaryName(newPackage);
     }
     flags.setPackageForFlatHierarchy(newPackage);
     flags.addKeepPackageNames(name(newPackage), false);

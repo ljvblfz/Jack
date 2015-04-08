@@ -33,6 +33,7 @@ import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.NamingTools;
 import com.android.jack.util.PackageCodec;
 import com.android.sched.item.Description;
 import com.android.sched.marker.MarkerManager;
@@ -251,7 +252,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
 
     @Nonnull
     private final String packageNameForRenamedClasses =
-        ThreadConfig.get(PACKAGE_FOR_RENAMED_CLASSES);
+        NamingTools.getBinaryName(ThreadConfig.get(PACKAGE_FOR_RENAMED_CLASSES));
 
     @Nonnull
     private final JPackage packageForRenamedClasses
@@ -290,7 +291,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
 
     @Nonnull
     private final String packageNameForRenamedPackages =
-        ThreadConfig.get(PACKAGE_FOR_RENAMED_PACKAGES);
+        NamingTools.getBinaryName(ThreadConfig.get(PACKAGE_FOR_RENAMED_PACKAGES));
 
     @Nonnull
     private final JPackage packageForRenamedPackages
