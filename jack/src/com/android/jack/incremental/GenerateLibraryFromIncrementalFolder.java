@@ -20,8 +20,8 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 
 /**
- * A {@link Feature} that represents incremental support.
+ * A {@link Feature} specifying that a library is generated with incremental support.
  */
-@Description("Incremental support")
-public class Incremental implements Feature {
+@Description("Generate library with incremental support")
+public class GenerateLibraryFromIncrementalFolder implements Feature {
 }
