@@ -90,13 +90,19 @@ public class ObfuscationWithMappingTests extends AbstractTest {
   @Override
   @Test
   public void test34_001() throws Exception {
-    // Test 35 already has a partial mapping, it can't be used in this test suite.
+    // Test 34 already has a partial mapping, it can't be used in this test suite.
   }
 
   @Override
   @Test
   public void test35_001() throws Exception {
-    // Test 34 already has a partial mapping, it can't be used in this test suite.
+    // Test 35 already has a partial mapping, it can't be used in this test suite.
+  }
+
+  @Override
+  @Test
+  public void test44_001() throws Exception {
+    // Irrelevant.
   }
 
   @Test

@@ -1,2 +1,3 @@
-This tests contains two classes with the same enclosing package. One has a mapping entry, the other has not.
-They have to stay in the same package for the test to pass. This time we use the -repackageclasses option.
+This tests contains two classes with the same enclosing package.
+One has a mapping entry, the other has not.
+We use the -repackageclasses option with a package name containing a separator.
