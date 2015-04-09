@@ -309,8 +309,8 @@ public class LegacyToolchain extends AndroidToolchain {
     arguments.add(out.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(arguments.toArray(new String[arguments.size()]));
-    execFile.setErr(outRedirectStream);
-    execFile.setOut(errRedirectStream);
+    execFile.setErr(errRedirectStream);
+    execFile.setOut(outRedirectStream);
     execFile.setVerbose(isVerbose);
     try {
       if (execFile.run() != 0) {

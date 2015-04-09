@@ -166,8 +166,8 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     args.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     if (exec.run() != 0) {
@@ -255,8 +255,8 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     args.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     if (exec.run() != 0) {
@@ -330,8 +330,8 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     arguments.add(out.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(arguments.toArray(new String[arguments.size()]));
-    execFile.setErr(outRedirectStream);
-    execFile.setOut(errRedirectStream);
+    execFile.setErr(errRedirectStream);
+    execFile.setOut(outRedirectStream);
     execFile.setVerbose(isVerbose);
     try {
       if (execFile.run() != 0) {

@@ -89,8 +89,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     try {
@@ -120,8 +120,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     try {
@@ -202,8 +202,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     try {
@@ -229,8 +229,8 @@ public class JackCliToolchain extends JackBasedToolchain {
     args.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(outRedirectStream);
-    exec.setOut(errRedirectStream);
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
 
     try {
