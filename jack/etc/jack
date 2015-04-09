@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# v 1.1-a11
+#
 set -o nounset
 umask 077
 
@@ -89,7 +91,8 @@ mkfifo "$JACK_ERR"
 touch  "$JACK_CLI" "$JACK_EXIT"
 
 # Try to cleanup if interrupted
-trap 'kill -9 $PID_OUT $PID_ERR 2>/dev/null; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255' SIGHUP SIGINT SIGQUIT SIGTERM ERR
+abort () { kill -9 $PID_OUT $PID_ERR 2>/dev/null; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255; }
+trap 'abort' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 # Redirect output and error
 cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
@@ -113,7 +116,7 @@ trap ERR
 # Launch compilation
 RETRY=3
 while true; do
-  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --connect-timeout 5 --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
   if [ $CURL_CODE -eq 0 ]; then
@@ -123,7 +126,7 @@ while true; do
     # Failed to connect
     if [ $RETRY -eq 0 ]; then
       echo "Cannot launch background server"
-      kill -QUIT $$
+      abort
     else
       # Launch the server
       echo "Launching background server" $SERVER_PRG
@@ -135,22 +138,22 @@ while true; do
     # Http code not OK, let's decode
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "Security problem, see server log" >&2
-      kill -QUIT $$
+      echo "Security problem, see server log" $>&2
+      abort
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
-      echo "Bad request, see server log" >&2
-      kill -QUIT $$
+      echo "Bad request, see server log ($SERVER_LOG)" >&2
+      abort
     else
       # Other
-      echo "Internal unknown error, try other ports in ~/.jack, or see server log ($HTTP_CODE)" >&2
-      kill -QUIT $$
+      echo "Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see server log ($SERVER_LOG)" >&2
+      abort
     fi
   else
     # In case of partial, timeout, empty, network error, let's retry
     if [ $RETRY -eq 0 ]; then
       echo "Communication error with server ($CURL_CODE)"
-      kill -QUIT $$
+      abort
     else
       let RETRY=RETRY-1
       sleep 1
