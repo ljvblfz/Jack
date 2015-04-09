@@ -70,7 +70,7 @@ public class ImportTests {
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addStaticLibs(jackOut);
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
