@@ -198,6 +198,11 @@ class JAstBuilder extends JavaParser {
 
   private void createTypes(@Nonnull JPackage enclosingPackage, @Nonnull ReferenceMapper refMap,
       @Nonnull TypeDeclaration typeDeclaration) {
+    if (hasErrors || JackIrBuilder.hasError(typeDeclaration)) {
+      // An error has already been detected, don't even try to handle the unit.
+      hasErrors = true;
+      return;
+    }
     EcjSourceTypeLoader.createType(refMap, enclosingPackage, typeDeclaration.binding,
         typeDeclaration,
         new FileLocation(new File(new String(typeDeclaration.compilationResult.fileName))));

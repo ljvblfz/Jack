@@ -35,7 +35,6 @@ public class DuplicateSourceTest {
    * command line.
    */
   @Test
-  @Category(KnownBugs.class)
   public void test001() throws Exception {
     File output = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();

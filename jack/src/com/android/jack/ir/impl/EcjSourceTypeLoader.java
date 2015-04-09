@@ -303,6 +303,8 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
           ReferenceMapper referenceMapper = refMap.get();
           for (TypeDeclaration memberType : declaration.memberTypes) {
             try {
+              assert !JackIrBuilder.hasError(memberType);
+
               ((JDefinedClassOrInterface) referenceMapper.get(memberType.binding))
                   .getEnclosingType();
             } catch (JTypeLookupException e) {
