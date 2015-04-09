@@ -113,7 +113,7 @@ trap ERR
 # Launch compilation
 RETRY=3
 while true; do
-  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
   if [ $CURL_CODE -eq 0 ]; then
@@ -143,13 +143,13 @@ while true; do
       kill -QUIT $$
     else
       # Other
-      echo "Internal unknown error, see server log" >&2
+      echo "Internal unknown error, try other ports in ~/.jack, or see server log ($HTTP_CODE)" >&2
       kill -QUIT $$
     fi
   else
     # In case of partial, timeout, empty, network error, let's retry
     if [ $RETRY -eq 0 ]; then
-      echo "Communication error with server, error code " $CURL_CODE
+      echo "Communication error with server ($CURL_CODE)"
       kill -QUIT $$
     else
       let RETRY=RETRY-1
