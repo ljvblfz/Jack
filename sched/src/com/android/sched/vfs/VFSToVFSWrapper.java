@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
 public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
 
   @Nonnull
-  private final BaseVFS<BaseVDir, BaseVFile> workVFS;
+  private BaseVFS<BaseVDir, BaseVFile> workVFS;
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> finalVFS;
   @Nonnull
@@ -254,4 +254,8 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
     return workVFS.getVDirLocation(parent, path);
   }
 
+  @SuppressWarnings("unchecked")
+  public void setWorkVFS(@Nonnull VFS temporaryVFS) {
+    workVFS = (BaseVFS<BaseVDir, BaseVFile>) temporaryVFS;
+  }
 }

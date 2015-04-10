@@ -53,6 +53,7 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
@@ -467,11 +468,19 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Override
   @Nonnull
   public OutputJackLibrary getOutputJackLibrary() {
-    if (incrementalInputLibrary == null) {
-      return getOutputJackLibraryFromVfs();
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+      VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      ReadWriteZipFS zipVFS = (ReadWriteZipFS) ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      zipVFS.setWorkVFS(dirVFS);
+      return JackLibraryFactory.getOutputLibrary(zipVFS, Jack.getEmitterId(),
+          Jack.getVersion().getVerboseVersion());
+    } else {
+      if (incrementalInputLibrary == null) {
+        return getOutputJackLibraryFromVfs();
+      } else {
+        return (JackLibraryFactory.getOutputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR),
+            Jack.getEmitterId(), Jack.getVersion().getVerboseVersion()));
+      }
     }
-
-    return (JackLibraryFactory.getOutputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR),
-        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion()));
   }
 }

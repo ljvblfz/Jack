@@ -265,8 +265,6 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.VFS;
-import com.android.sched.vfs.VFSToVFSWrapper;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -605,18 +603,6 @@ public abstract class Jack {
           if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
               && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
             config.get(Options.DEX_OUTPUT_ZIP).close();
-          }
-
-          if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-            VFS incrementalFolder = config.get(Options.LIBRARY_OUTPUT_DIR);
-            Event timeToZip =
-                TracerFactory.getTracer().start(JackEventType.ZIP_JACK_LIBRARY_IN_INCREMENTAL);
-            try {
-              new VFSToVFSWrapper(incrementalFolder, config.get(Options.LIBRARY_OUTPUT_ZIP))
-                  .close();
-            } finally {
-              timeToZip.end();
-            }
           }
         } catch (LibraryIOException e) {
           throw new AssertionError(e);

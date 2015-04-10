@@ -840,13 +840,13 @@ public class Options {
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
         LoggerFactory.getLogger().log(Level.WARNING,
-            "Incremental mode is disable due to multi-dex legacy mode");
+            "Incremental mode is disabled due to multi-dex legacy mode");
       } else if (flags != null) {
         LoggerFactory.getLogger().log(Level.WARNING,
-            "Incremental mode is disable due to usage of shrink or obfuscation");
+            "Incremental mode is disabled due to usage of shrinking or obfuscation");
       } else if (jarjarRulesFile != null) {
         LoggerFactory.getLogger().log(Level.WARNING,
-            "Incremental mode is disable due to usage of jarjar");
+            "Incremental mode is disabled due to usage of jarjar");
       } else {
         configBuilder.set(Options.INCREMENTAL_MODE, true);
         configBuilder.setString(Options.INPUT_FILTER, "incremental");
