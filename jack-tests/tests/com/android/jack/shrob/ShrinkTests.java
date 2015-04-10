@@ -85,6 +85,58 @@ public class ShrinkTests extends AbstractTest {
         candidateNodeListing));
   }
 
+  private void runTestWithLib(@Nonnull String testNumber, @Nonnull String flagNumber,
+      boolean importLib) throws Exception {
+    File testFolder = new File(shrobTestsDir, "test" + testNumber);
+
+    File libOut = AbstractTestTools.createTempDir();
+    JackApiToolchainBase toolchainLib =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchainLib.addToClasspath(toolchainLib.getDefaultBootClasspath()).srcToLib(libOut,
+    /* zipFiles = */false, new File(shrobTestsDir, "test" + testNumber + "/lib"));
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+
+    File refFolder = new File(testFolder, "refsShrinking");
+
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    toolchain.disableDxOptimizations();
+    if (importLib) {
+      toolchain.addStaticLibs(libOut);
+    } else {
+      toolchain.addToClasspath(libOut);
+    }
+
+    File outFolder = AbstractTestTools.createTempDir();
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setWithDebugInfo(true);
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+    env.setProguardFlags(dontObfuscateFlagFile,
+        new ProguardFlags(testFolder, "proguard.flags" + flagNumber));
+
+    env.runTest(new ComparatorMapping(new File(refFolder, "expected-" + flagNumber + ".txt"),
+        candidateNodeListing));
+  }
+
+  @Test
+  public void test003_001() throws Exception {
+    runTestWithLib("003", "001", false);
+  }
+
+  @Test
+  public void test003_002() throws Exception {
+    runTestWithLib("003", "002", true);
+  }
+
   @Test
   public void test020() throws Exception {
     File libOut = AbstractTestTools.createTempDir();
