@@ -59,6 +59,7 @@ fi
 #
 if [ "$SERVER" != "true" ]; then
   exec $JACK_VM_COMMAND -jar $JACK_JAR "$@"
+  echo "Cannot succeed to launch Jack" >&2
   exit 255
 fi
 
@@ -77,7 +78,7 @@ JACK_CLI="$JACK_DIR/cli"
 JACK_EXIT="$JACK_DIR/exit"
 JACK_PWD="$PWD"
 
-mkdir "$SERVER_DIR"  2>/dev/null
+mkdir "$SERVER_DIR" 2>/dev/null
 
 # Cleanup
 trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR" 2>/dev/null' EXIT
@@ -93,6 +94,7 @@ touch  "$JACK_CLI" "$JACK_EXIT"
 # Try to cleanup if interrupted
 abort () { kill -9 $PID_OUT $PID_ERR 2>/dev/null; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255; }
 trap 'abort' SIGHUP SIGINT SIGQUIT SIGTERM ERR
+
 # Redirect output and error
 cat <"$JACK_OUT" >&1 &
 PID_OUT=$!
@@ -106,15 +108,20 @@ for i in "$@"; do
 done
 echo >>"$JACK_CLI"
 
-set +o errexit
-trap ERR
-
 #
 # Launch the compilation
 #
 
+set +o errexit
+trap ERR
+
+RETRY_LAUNCH=3
+RETRY_SESSION=3
+DELAY_CONNECT=3
+
+
 # Launch compilation
-RETRY=3
+DATE_CONNECT=$(date +%s)
 while true; do
   HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --connect-timeout 5 --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
@@ -124,21 +131,27 @@ while true; do
     break;
   elif [ $CURL_CODE -eq 7 ]; then
     # Failed to connect
-    if [ $RETRY -eq 0 ]; then
-      echo "Cannot launch background server"
-      abort
+    if [ $(date +%s) -ge $DATE_CONNECT ]; then
+      if [ $RETRY_LAUNCH -eq 0 ]; then
+        echo "Cannot launch background server" >&2
+        abort
+      else
+        let RETRY_LAUNCH=RETRY_LAUNCH-1
+        echo "Launching background server" $SERVER_PRG
+        $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
+        # New server, let's try a bit to connect
+        let DATE_CONNECT=$(date +%s)+$DELAY_CONNECT;
+      fi
     else
-      # Launch the server
-      echo "Launching background server" $SERVER_PRG
-      $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
-      let RETRY=RETRY-1
-      sleep 3
+      sleep 0.2 2>/dev/null
     fi
+    # Trying with a new connection, let's retry session 3 times max
+    RETRY_SESSION=3
   elif  [ $CURL_CODE -eq 22 ]; then
-    # Http code not OK, let's decode
+    # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "Security problem, see server log" $>&2
+      echo "Security problem, see server log ($SERVER_LOG)" >&2
       abort
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
@@ -150,13 +163,12 @@ while true; do
       abort
     fi
   else
-    # In case of partial, timeout, empty, network error, let's retry
-    if [ $RETRY -eq 0 ]; then
-      echo "Communication error with server ($CURL_CODE)"
+    # In case of partial, timeout, empty respond, network error, let's retry
+    if [ $RETRY_SESSION -eq 0 ]; then
+      echo "Communication error with server ($CURL_CODE)" >&2
       abort
     else
-      let RETRY=RETRY-1
-      sleep 1
+      let RETRY_SESSION=RETRY_SESSION-1
     fi
   fi
 done
