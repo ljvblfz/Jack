@@ -18,20 +18,23 @@ package com.android.sched.util.log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  * A very simple formatter that produces one line messages, but also prints stack traces.
  */
-public class ConsoleFormatter extends SimpleFormatter {
+public class LogFormatter extends SimpleFormatter {
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  @Nonnull
+  private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
-  /* (non-Javadoc)
-   * @see java.util.logging.SimpleFormatter#format(java.util.logging.LogRecord)
-   */
   @Override
   public synchronized String format(@CheckForNull LogRecord record) {
     assert record != null;
@@ -39,6 +42,8 @@ public class ConsoleFormatter extends SimpleFormatter {
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
 
+    printWriter.append(TIME_FORMAT.format(new Date()));
+    printWriter.append(": ");
     printWriter.append(record.getLevel().toString());
     printWriter.append(": ");
     String n = record.getLoggerName();

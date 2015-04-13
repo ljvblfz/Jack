@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.CLILogConfiguration.LogConfigurationException;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 
@@ -40,6 +41,13 @@ public abstract class Main extends CommandLine {
    * @param args supported arguments are the same as for the ecj batch compiler.
    */
   public static void main(@Nonnull String[] args) {
+    try {
+      CLILogConfiguration.setupLogs();
+    } catch (LogConfigurationException e) {
+      System.err.println("Failed to setup logs: " + e.getMessage());
+      System.exit(ExitStatus.FAILURE_USAGE);
+    }
+
     if (args.length == 0) {
       printVersion();
       System.err.println("Try --help for help.");
@@ -101,4 +109,5 @@ public abstract class Main extends CommandLine {
 
     return options;
   }
+
 }

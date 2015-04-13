@@ -21,7 +21,6 @@ import com.android.sched.util.codec.KeyValueCodec.Entry;
 
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -83,7 +82,7 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   }
 
   @Override
-  @CheckForNull
+  @Nonnull
   public T checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     return parser.checkString(context, string);

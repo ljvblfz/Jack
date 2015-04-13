@@ -29,12 +29,14 @@ SERVER_DIR=$TMPDIR/jack-$USER
 #
 # Load local settings
 #
-source "$LOCAL_SETTING" 2>/dev/null
+if [[ -f "$LOCAL_SETTING" ]]; then
+  source "$LOCAL_SETTING"
+fi
 
 #
 # Create or update local settings if needed
 #
-if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 2 ]]; then
+if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 3 ]]; then
   echo "Writing local settings in" $LOCAL_SETTING
   cat >"$LOCAL_SETTING.$$" <<-EOT
 	# Server settings
@@ -44,10 +46,12 @@ if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 2 ]]; then
 	SERVER_COUNT=${SERVER_COUNT:=1}
 	SERVER_NB_COMPILE=${SERVER_NB_COMPILE:=4}
 	SERVER_TIMEOUT=${SERVER_TIMEOUT:=60}
+	JACK_MAIN_COMMAND=\${JACK_MAIN_COMMAND:=""}
+	JACK_SERVER_COMMAND=\${JACK_SERVER_COMMAND:=""}
 	SERVER_LOG=\${SERVER_LOG:=\$SERVER_DIR/jack-\$SERVER_PORT_SERVICE.log}
 	JACK_VM_COMMAND=\${JACK_VM_COMMAND:=java}
 	# Internal, do not touch
-	SETTING_VERSION=2
+	SETTING_VERSION=3
 EOT
   ln -f "$LOCAL_SETTING.$$" "$LOCAL_SETTING"
   rm "$LOCAL_SETTING.$$"
@@ -58,15 +62,13 @@ fi
 # If not in server mode, exec jack
 #
 if [ "$SERVER" != "true" ]; then
-  exec $JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.Main "$@"
+  if [ -z "$JACK_MAIN_COMMAND" ]; then
+    JACK_MAIN_COMMAND=java -Djava.io.tmpdir=$TMPDIR -jar $JACK_JAR
+  fi
+  exec $JACK_MAIN_COMMAND "$@"
   echo "ERROR: Cannot succeed to launch Jack without Jack server" >&2
   exit 255
 fi
-
-#
-# Static setting
-#
-SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
 
 #
 # Prepare compilation
@@ -77,11 +79,17 @@ JACK_ERR="$JACK_DIR/err"
 JACK_CLI="$JACK_DIR/cli"
 JACK_EXIT="$JACK_DIR/exit"
 JACK_PWD="$PWD"
+JACK_CLIENT_LOG=${JACK_CLIENT_LOG:="$SERVER_DIR/client.log"}
+
+if [ -z "$JACK_SERVER_COMMAND" ]; then
+  JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
+fi
+
 
 mkdir "$SERVER_DIR" 2>/dev/null
 
 # Cleanup
-trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>>$SERVER_LOG; rmdir "$JACK_DIR" 2>>$SERVER_LOG' EXIT
+trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>>$JACK_CLIENT_LOG; rmdir "$JACK_DIR" 2>>$JACK_CLIENT_LOG;' EXIT
 
 set -o errexit
 
@@ -93,7 +101,7 @@ mkfifo "$JACK_ERR"
 touch  "$JACK_CLI" "$JACK_EXIT"
 
 # Try to cleanup if interrupted
-abort () { echo $(uptime) >>$SERVER_LOG; kill -9 $PID_OUT $PID_ERR 2>>$SERVER_LOG; wait $PID_OUT $PID_ERR 2>>$SERVER_LOG; exit 255; }
+abort () { echo $(uptime) >>$JACK_CLIENT_LOG; kill -9 $PID_OUT $PID_ERR 2>>$JACK_CLIENT_LOG; wait $PID_OUT $PID_ERR 2>>$JACK_CLIENT_LOG; exit 255; }
 trap 'abort' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 
 # Redirect output and error
@@ -128,7 +136,7 @@ while true; do
   HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --connect-timeout 10 --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
-  echo "CURL: $$ - $CURL_TIME - $CURL_CODE - $HTTP_CODE - $JACK_CODE" >>$SERVER_LOG
+  echo "CURL: $$ - $CURL_TIME - $CURL_CODE - $HTTP_CODE - $JACK_CODE" >>$JACK_CLIENT_LOG
   if [ $CURL_CODE -eq 0 ]; then
     # No problem, let's go
     break;
@@ -140,8 +148,8 @@ while true; do
         abort
       else
         let RETRY_LAUNCH=RETRY_LAUNCH-1
-        echo "Launching background server" $SERVER_PRG
-        $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
+        echo "Launching background server" $JACK_SERVER_COMMAND
+        $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT &
         # New server, let's try a bit to connect
         let DATE_CONNECT=$(date +%s)+$DELAY_CONNECT;
       fi
@@ -154,15 +162,15 @@ while true; do
     # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "ERROR: Security problem, see Jack server log ($SERVER_LOG)" >&2
+      echo "ERROR: Security problem, see Jack server log" >&2
       abort
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
-      echo "ERROR: Bad request, see Jack server log ($SERVER_LOG)" >&2
+      echo "Bad request, see server log" >&2
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see Jack server log ($SERVER_LOG)" >&2
+      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see Jack server log" >&2
       abort
     fi
   else

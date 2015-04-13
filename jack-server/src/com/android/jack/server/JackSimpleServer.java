@@ -18,6 +18,7 @@ package com.android.jack.server;
 
 import com.google.common.base.Joiner;
 
+import com.android.jack.server.ServerLogConfiguration.ServerLogConfigurationException;
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.InputStreamFile;
@@ -27,7 +28,6 @@ import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.NoLocation;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.log.tracer.probe.TimeNanosProbe;
 
@@ -88,14 +88,6 @@ import javax.annotation.Nonnull;
  * Server controlling the number of Jack compilations that are executed simultaneously.
  */
 public class JackSimpleServer {
-  static {
-    // It seems that loggers must be created from parents to children to have the loggers
-    // correctly initialized. Thus load the initial configuration that define specific level
-    // for some packages firstly. Otherwise the parent logger of JackSimpleServer is not created
-    // before JackSimpleServer logger. Create the JackSimpleServer logger in first means that
-    // it will not have com.android.jack.server as parent even if it is created after.
-    LoggerFactory.loadLoggerConfiguration(JackSimpleServer.class, "/initial.logging.properties");
-  }
 
   @Nonnull
   private static Logger logger = Logger.getLogger(JackSimpleServer.class.getName());
@@ -180,6 +172,12 @@ public class JackSimpleServer {
   private static int maxForward = 0;
 
   public static void main(String[] args) {
+    try {
+      ServerLogConfiguration.setupLog();
+    } catch (ServerLogConfigurationException e) {
+      System.err.println("Failed to setup server logs: " + e.getMessage());
+      abort();
+    }
     logger.log(Level.INFO, "Using Jack version: " + service.getVersion());
 
     if (args.length != CLI_IDX_END) {
