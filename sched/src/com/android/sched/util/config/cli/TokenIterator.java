@@ -32,6 +32,8 @@ import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +42,8 @@ import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.util.NoSuchElementException;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -51,6 +55,9 @@ import javax.annotation.Nonnull;
  * these files.
  */
 public class TokenIterator {
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
+
   @Nonnull
   private static final Entry NULL = new Entry();
   private static final char  DEFAULT_FILE_PREFIX = '@';
@@ -73,15 +80,76 @@ public class TokenIterator {
   @CheckForNull
   private IOException pending = null;
 
-  @Nonnull
-  private final Stack<StreamTokenizer> tokenizers = new Stack<StreamTokenizer>();
-  @Nonnull
-  private final Stack<Location>        locations  = new Stack<Location>();
+  private class Sources {
+    private class Source {
+      @CheckForNull
+      private final StreamTokenizer tokenizer;
+      @Nonnull
+      private final Location location;
+      @CheckForNull
+      private final InputStreamFile file;
+
+      public Source(@Nonnull Location location) {
+        this.tokenizer = null;
+        this.file = null;
+        this.location = location;
+      }
+
+      public Source(@Nonnull InputStreamFile file, @Nonnull StreamTokenizer tokenizer) {
+        this.tokenizer = tokenizer;
+        this.file = file;
+        this.location = file.getLocation();
+      }
+    }
+
+    @Nonnull
+    private final Stack<Source> stack = new Stack<Source>();
+
+    public void push(@Nonnull Location location) {
+      stack.push(new Source(location));
+    }
+
+    public void push(@Nonnull String fileName) throws WrongPermissionException,
+        NoSuchFileException, NotFileException {
+      InputStreamFile file = new InputStreamFile(baseDirectory, fileName);
+
+      stack.push(new Source(file, getTokenizer(file)));
+    }
+
+    public void pop() {
+      InputStreamFile file = stack.pop().file;
+
+      if (file != null) {
+        try {
+          file.getInputStream().close();
+        } catch (IOException e) {
+          logger.log(Level.FINE, "Cannot close " + file.getLocation().getDescription());
+        }
+      }
+    }
+
+    public void clear() {
+      while (!stack.isEmpty()) {
+        pop();
+      }
+    }
+
+    @Nonnull
+    public Location getCurrentLocation() {
+      return stack.peek().location;
+    }
+
+    @CheckForNull
+    public StreamTokenizer getCurrentTokenizer() {
+      return stack.peek().tokenizer;
+    }
+  }
+
+  private final Sources sources = new Sources();
 
   public TokenIterator (@Nonnull Location location, @Nonnull String... args) {
     this.args = args.clone();
-    tokenizers.push(null);
-    locations.push(location);
+    sources.push(location);
   }
 
   @Nonnull
@@ -226,7 +294,7 @@ public class TokenIterator {
       CannotReadException {
 
     while (true) {
-      StreamTokenizer tokenizer = tokenizers.peek();
+      StreamTokenizer tokenizer = sources.getCurrentTokenizer();
 
       while (tokenizer != null) {
         try {
@@ -234,28 +302,29 @@ public class TokenIterator {
             if (allowFileRefInFile && (!tokenizer.sval.isEmpty())
                 && tokenizer.sval.charAt(0) == filePrefix) {
               // If it is a @<file_name>, create a tokenizer with this file, and set it to current
-              pushFileTokenizer(tokenizer.sval.substring(1));
-              tokenizer = tokenizers.peek();
+              sources.push(tokenizer.sval.substring(1));
+              tokenizer = sources.getCurrentTokenizer();
               continue;
             } else {
               // If the current tokenizer has a next, return it
-              return new Entry(tokenizer.sval, new LineLocation(locations.peek(),
+              return new Entry(tokenizer.sval, new LineLocation(sources.getCurrentLocation(),
                   tokenizer.lineno()));
             }
           }
         } catch (IOException e) {
-          // Stop the iterator
-          tokenizers.clear();
-          tokenizers.push(null);
-          index = args.length;
-
-          throw new CannotReadException(locations.peek());
+          try {
+            throw new CannotReadException(sources.getCurrentLocation());
+          } finally {
+            // Stop the iterator
+            sources.clear();
+            sources.push(new NoLocation());
+            index = args.length;
+          }
         }
 
         // Else, go to the next one
-        tokenizers.pop();
-        tokenizer = tokenizers.peek();
-        locations.pop();
+        sources.pop();
+        tokenizer = sources.getCurrentTokenizer();
       }
 
       // If the is no current tokenizer, switch to arg
@@ -267,21 +336,13 @@ public class TokenIterator {
       // Else, analyze the next arg
       if (allowFileRefInArray && (!args[index].isEmpty()) && args[index].charAt(0) == filePrefix) {
         // If it is a @<file_name>, create a tokenizer with this file, and set it to current
-        pushFileTokenizer(args[index].substring(1));
+        sources.push(args[index].substring(1));
         index++;
       } else {
         // Else, return the arg
-        return new Entry(args[index++], locations.peek());
+        return new Entry(args[index++], sources.getCurrentLocation());
       }
     }
-  }
-
-  private void pushFileTokenizer(@Nonnull String fileName) throws WrongPermissionException,
-      NoSuchFileException, NotFileException {
-    InputStreamFile file = new InputStreamFile(baseDirectory, fileName);
-
-    tokenizers.push(getTokenizer(file));
-    locations.push(file.getLocation());
   }
 
   @Nonnull
