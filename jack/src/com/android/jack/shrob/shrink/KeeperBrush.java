@@ -16,12 +16,23 @@
 
 package com.android.jack.shrob.shrink;
 
+import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.analysis.tracer.AbstractTracerBrush;
 import com.android.jack.analysis.tracer.Tracer;
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JPhantomClass;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.ir.ast.JPhantomInterface;
+import com.android.jack.ir.formatter.UserFriendlyFormatter;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
@@ -42,6 +53,26 @@ import javax.annotation.Nonnull;
 @Constraint(need = SeedMarker.class)
 @HasKeyId
 public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
+
+  private static final class UnknownReferencedTypeException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
+    @Nonnull
+    private final JPhantomClassOrInterface phantomClOrI;
+
+    private UnknownReferencedTypeException(@Nonnull JPhantomClassOrInterface phantomClOrI) {
+      this.phantomClOrI = phantomClOrI;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Unknown referenced type '"
+          + UserFriendlyFormatter.getFormatter().getName(phantomClOrI)
+          + "'. Add type into your classpath.";
+    }
+  }
 
   @Nonnull
   public static final BooleanPropertyId KEEP_ENCLOSING_METHOD = BooleanPropertyId.create(
@@ -117,4 +148,45 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
     return marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING;
   }
 
+  @Override
+  public boolean startTrace(@Nonnull JDefinedClassOrInterface type) {
+    boolean traceType = markIfNecessary(type);
+    if (traceType) {
+      try {
+        if (type instanceof JDefinedClass) {
+          verifyHierarchy((JDefinedClass) type);
+        } else {
+          assert type instanceof JDefinedInterface;
+          verifyImplementedInterfaces(type);
+        }
+      } catch (UnknownReferencedTypeException e) {
+        ShrinkingException reportable = new ShrinkingException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
+      }
+    }
+    return traceType;
+  }
+
+  private void verifyHierarchy(@Nonnull JDefinedClass t) throws UnknownReferencedTypeException {
+    JClass superClass = t.getSuperClass();
+    if (superClass instanceof JPhantomClass) {
+      throw new UnknownReferencedTypeException((JPhantomClass) superClass);
+    } else if (superClass != null) {
+      verifyHierarchy((JDefinedClass) superClass);
+    }
+    verifyImplementedInterfaces(t);
+  }
+
+  private void verifyImplementedInterfaces(@Nonnull JDefinedClassOrInterface t)
+      throws UnknownReferencedTypeException {
+    for (JInterface jInterface : t.getImplements()) {
+      if (jInterface instanceof JPhantomInterface) {
+        throw new UnknownReferencedTypeException((JPhantomInterface) jInterface);
+      } else {
+        assert jInterface instanceof JDefinedInterface;
+        verifyImplementedInterfaces((JDefinedInterface) jInterface);
+      }
+    }
+  }
 }

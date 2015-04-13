@@ -143,6 +143,7 @@ public class ResourceTests {
     File shrobbedJackAr =
         AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(jackAr, shrobbedJackAr, /* zipFiles = */ true);
 
     // check that resources are contained in dex archive
@@ -170,6 +171,7 @@ public class ResourceTests {
     File shrobbedJackAr =
         AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(jackFolder, shrobbedJackAr, /* zipFiles = */ true);
 
     // check that resources are contained in Jack archive
@@ -189,6 +191,7 @@ public class ResourceTests {
     File shrobbedJackDir = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(jackAr, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir
@@ -215,6 +218,7 @@ public class ResourceTests {
     File shrobbedJackDir = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(jackFolder, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir
