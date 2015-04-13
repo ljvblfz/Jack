@@ -183,19 +183,19 @@ public abstract class AbstractTestTools {
     return new File(getTestsRootDir(), packageName.replace(".", File.separator));
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public static final <T extends IToolchain> T getCandidateToolchain() {
+  public static final IToolchain getCandidateToolchain() {
     IToolchain result = createToolchain("candidate.toolchain");
-    return (T) result;
+    return result;
   }
 
+  @SuppressWarnings("unchecked")
   @Nonnull
   public static final <T extends IToolchain> T getCandidateToolchain(
       @Nonnull Class<? extends IToolchain> clazz) {
-    T result = getCandidateToolchain();
+    IToolchain result = getCandidateToolchain();
     Assume.assumeTrue(clazz.isAssignableFrom(result.getClass()));
-    return result;
+    return (T) result;
   }
 
   @Nonnull

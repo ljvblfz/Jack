@@ -113,7 +113,7 @@ public class ClasspathTests {
 
     {
       // reference compilation
-      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
       toolchain.addToClasspath(defaultBootClasspath)
@@ -127,7 +127,7 @@ public class ClasspathTests {
           + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete"
           + toolchain.getLibraryElementsExtension()).delete();
       Assert.assertTrue(deleted);
-      toolchain = AbstractTestTools.getCandidateToolchain();
+      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
       toolchain.addToClasspath(defaultBootClasspath)
