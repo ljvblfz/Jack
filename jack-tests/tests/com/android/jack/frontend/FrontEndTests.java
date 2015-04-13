@@ -16,6 +16,7 @@
 
 package com.android.jack.frontend;
 
+import com.android.jack.Options;
 import com.android.jack.category.ExtraTests;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -78,6 +79,7 @@ public class FrontEndTests {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
