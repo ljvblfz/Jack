@@ -31,8 +31,10 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.MetaImporter;
+import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -113,6 +115,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -121,6 +124,28 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class Options {
+
+  private static class DeprecatedVerbosity implements Reportable {
+    @Nonnull
+    private final VerbosityLevel verbosity;
+
+    private DeprecatedVerbosity(@Nonnull VerbosityLevel verbosity) {
+      this.verbosity = verbosity;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Verbosity level '" + verbosity.name().toLowerCase() + "' is deprecated";
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.WARNING;
+    }
+
+  }
 
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
@@ -290,7 +315,7 @@ public class Options {
       .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
-      metaVar = "[error | warning | info | debug]")
+      metaVar = "[error | warning | info]")
   private VerbosityLevel verbose = VerbosityLevel.WARNING;
 
   /**
@@ -895,9 +920,6 @@ public class Options {
     Config config = this.config;
     assert config != null;
 
-    LoggerFactory.loadLoggerConfiguration(
-        this.getClass(), "/" + config.get(VERBOSITY_LEVEL).getId() + ".jack.logging.properties");
-
     // FINDBUGS
     assert config != null;
 
@@ -920,6 +942,10 @@ public class Options {
       throw new PropertyIdException(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO,
           new NoLocation(),
           "Impossible to emit synthetic debug info when not emitting debug info");
+    }
+
+    if (verbose == VerbosityLevel.DEBUG || verbose == VerbosityLevel.TRACE) {
+      config.get(Reporter.REPORTER).report(Severity.NON_FATAL, new DeprecatedVerbosity(verbose));
     }
   }
 
@@ -1058,6 +1084,9 @@ public class Options {
     }
     return proguardFlagsFileFromWorkingDir;
   }
+
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private static Directory createTempDir(

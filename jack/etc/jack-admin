@@ -29,12 +29,14 @@ SERVER_DIR=$TMPDIR/jack-$USER
 #
 # Load local settings
 #
-source "$LOCAL_SETTING" 2>/dev/null
+if [[ -f "$LOCAL_SETTING" ]]; then
+  source "$LOCAL_SETTING"
+fi
 
 #
 # Create or update local settings if needed
 #
-if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 2 ]]; then
+if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 3 ]]; then
   echo "Writing local settings in" $LOCAL_SETTING
   cat >"$LOCAL_SETTING.$$" <<-EOT
 	# Server settings
@@ -44,19 +46,18 @@ if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 2 ]]; then
 	SERVER_COUNT=${SERVER_COUNT:=1}
 	SERVER_NB_COMPILE=${SERVER_NB_COMPILE:=4}
 	SERVER_TIMEOUT=${SERVER_TIMEOUT:=60}
+	JACK_MAIN_COMMAND=\${JACK_MAIN_COMMAND:=""}
+	JACK_SERVER_COMMAND=\${JACK_SERVER_COMMAND:=""}
 	SERVER_LOG=\${SERVER_LOG:=\$SERVER_DIR/jack-\$SERVER_PORT_SERVICE.log}
 	JACK_VM_COMMAND=\${JACK_VM_COMMAND:=java}
 	# Internal, do not touch
-	SETTING_VERSION=2
+	SETTING_VERSION=3
 EOT
   ln -f "$LOCAL_SETTING.$$" "$LOCAL_SETTING"
   rm "$LOCAL_SETTING.$$"
   source "$LOCAL_SETTING"
 fi
 
-#
-# Static setting
-#
 mkdir "$SERVER_DIR" 2>/dev/null
 
 #
@@ -65,7 +66,7 @@ mkdir "$SERVER_DIR" 2>/dev/null
 
 if [ $# -ne 1 ]
 then
-        echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | server-stat ]"
+        echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-stat ]"
         exit 255
 fi
 
@@ -77,9 +78,8 @@ case $1 in
     echo "Getting statistic from background server"
     CMD="stat" ;;
   server-log)
-    echo "Log location of background server:"
-    echo $SERVER_LOG
-    exit 0 ;;
+    echo "Command server-log is not supported any more" 1>&2
+    exit 255 ;;
   kill-server)
     echo "Killing background server"
     kill $(ps aux | grep JackSimpleServer | grep -v grep | awk '{print $2}') 2>/dev/null
@@ -87,18 +87,20 @@ case $1 in
       echo "ERROR: No Jack server to kill" >&2
       exit 2
     else
-      exit 0 
+      exit 0
     fi ;;
   list-server)
     ps aux | grep JackSimpleServer | grep -v grep
     exit $? ;;
   start-server)
-    SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
-    echo "Launching Jack server" $SERVER_PRG
-    $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
+    if [ -z "$JACK_SERVER_COMMAND" ]; then
+      JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
+    fi
+    echo "Launching Jack server" $JACK_SERVER_COMMAND
+    $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT &
     exit 0 ;;
   *)
-    echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | server-stat ]"
+    echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-stat ]"
     exit 255 ;;
 esac
 

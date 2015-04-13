@@ -27,6 +27,7 @@ import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.test.TestConfigurationException;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 
 import java.io.File;
@@ -158,6 +159,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     try {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
+      LoggerFactory.configure(LogLevel.ERROR);
       apiV01Config.getTask().run();
     } catch (ConfigurationException e) {
       Throwable t1 = e.getCause();
@@ -176,6 +178,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     } finally {
       System.setOut(stdOut);
       System.setOut(stdErr);
+      LoggerFactory.configure(LogLevel.ERROR);
     }
   }
 

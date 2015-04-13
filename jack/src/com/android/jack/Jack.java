@@ -290,10 +290,6 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public abstract class Jack {
 
-  static {
-    LoggerFactory.loadLoggerConfiguration(Jack.class, "/initial.logging.properties");
-  }
-
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
   @Nonnull

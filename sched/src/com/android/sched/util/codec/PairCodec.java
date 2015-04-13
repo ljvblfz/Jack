@@ -57,7 +57,7 @@ public class PairCodec<T, U> implements StringCodec<Pair<T, U>>{
     }
 
     @Override
-    public final boolean equals(Object obj) {
+    public final boolean equals(@CheckForNull Object obj) {
       if (obj instanceof Pair) {
         return first.equals(((Pair<?, ?>) obj).first) && second.equals(((Pair<?, ?>) obj).second);
       }

@@ -359,7 +359,7 @@ public class Api01ConfigImpl implements Api01Config {
     com.android.jack.Options.VerbosityLevel jackVerbosityLevel;
     switch (verbosityLevel) {
       case DEBUG: {
-        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.DEBUG;
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.INFO;
         break;
       }
       case ERROR: {
