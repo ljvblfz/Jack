@@ -22,6 +22,7 @@
     jack-api,
     jack-api-src,
     jack-annotations-lib,
+    jack-launcher,
     jackunittests,
     jack-tests,
     dx-lib,
@@ -31,6 +32,7 @@
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
     jack-api-src-clean,
+    jack-launcher-clean,
     jack-server-lib-clean,
     jack-annotations-lib-clean,
     jack-intermediate-clean,
@@ -68,6 +70,7 @@
 
   <property name="jack.dir" value="${jack-project.dir}/jack" />
   <property name="jack-api.dir" value="${jack-project.dir}/jack-api" />
+  <property name="jack-launcher.dir" value="${jack-project.dir}/jack-launcher" />
   <property name="jack-server.dir" value="${jack-project.dir}/jack-server" />
   <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
@@ -391,6 +394,53 @@
         basedir="${jack-api.dir}/src" />
   </target>
 
+
+  <!-- ******************* -->
+  <!-- jack-launcher       -->
+  <!-- ******************* -->
+  <property name="jack-launcher.build.dir" value="${jack-launcher.dir}/build" />
+  <property name="jack-launcher.dist.dir" value="${jack-launcher.dir}/dist" />
+  <property name="jack-launcher.libs.dir" value="${jack-launcher.dir}/libs" />
+  <property name="jack-launcher.build.outdir" value="${jack-launcher.build.dir}/classes" />
+  <property name="jack-launcher.name" value="jack-launcher.jar" />
+
+  <target name="jack-launcher-clean">
+    <delete dir="${jack-launcher.build.outdir}"/>
+  </target>
+
+  <target name="jack-launcher-copy-libs" depends="jsr305-lib">
+    <copy todir="${jack-launcher.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jack-launcher" depends="jack-launcher-copy-libs">
+    <mkdir dir="${jack-launcher.build.outdir}"/>
+    <dependset>
+      <sources>
+          <fileset dir="${jack-launcher.dir}/src" />
+          <fileset file="${jack-launcher.libs.dir}/${jsr305.libname}" />
+      </sources>
+      <targets>
+        <fileset dir="${jack-launcher.build.outdir}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${jack-launcher.dir}/src" destdir="${jack-launcher.build.outdir}"
+         source="1.6" target="1.6" debug="true"
+         includeantruntime="false"  includeDestClasses="false" nowarn="true">
+         <classpath>
+           <filelist dir="/" >
+             <file name="${jack-launcher.libs.dir}/${jsr305.libname}"/>
+            </filelist>
+         </classpath>
+       </javac>
+    <unzip dest="${jack-launcher.build.outdir}" src="${jack-launcher.libs.dir}/${jsr305.libname}" />
+    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}" manifest="${jack-launcher.dir}/etc/manifest.txt">
+      <fileset dir="${jack-launcher.build.outdir}"/>
+    </jar>
+  </target>
 
   <!-- ******************* -->
   <!-- jack-server-lib     -->
