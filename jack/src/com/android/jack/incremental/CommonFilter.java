@@ -192,12 +192,13 @@ public abstract class CommonFilter {
         .getVerboseVersion()));
   }
 
+  @SuppressWarnings("unused")
   @Nonnull
   protected List<InputLibrary> getInputLibrariesFromFiles(
       @Nonnull List<InputLibrary> files,
       boolean strictMode) {
     List<InputLibrary> libraries;
-    if (!ThreadConfig.get(Options.USE_DEFAULT_LIBRARIES).booleanValue()) {
+    if (true || !ThreadConfig.get(Options.USE_DEFAULT_LIBRARIES).booleanValue()) {
       libraries = new ArrayList<InputLibrary>();
     } else {
       libraries = getDefaultLibraries();
