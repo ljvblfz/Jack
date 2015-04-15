@@ -53,7 +53,8 @@ public class PropertyIdException extends ConfigurationException implements HasLo
     Iterator<ChainedException> iter = causes.iterator();
     iter.next();
     while (iter.hasNext()) {
-      new PropertyIdException(propertyId, location, iter.next()).putAsLastExceptionOf(this);
+      new PropertyIdException(propertyId, location, (Throwable) iter.next()).putAsLastExceptionOf(
+          this);
     }
   }
 
