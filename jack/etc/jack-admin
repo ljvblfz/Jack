@@ -57,7 +57,6 @@ fi
 #
 # Static setting
 #
-SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
 mkdir "$SERVER_DIR" 2>/dev/null
 
 #
@@ -66,7 +65,7 @@ mkdir "$SERVER_DIR" 2>/dev/null
 
 if [ $# -ne 1 ]
 then
-        echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | stat-server ]"
+        echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | server-stat ]"
         exit 255
 fi
 
@@ -74,7 +73,7 @@ case $1 in
   stop-server)
     echo "Stopping background server"
     CMD="stop" ;;
-  stat-server)
+  server-stat)
     echo "Getting statistic from background server"
     CMD="stat" ;;
   server-log)
@@ -89,11 +88,12 @@ case $1 in
     ps aux | grep JackSimpleServer | grep -v grep
     exit $? ;;
   start-server)
+    SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer
     echo "Launching background server" $SERVER_PRG
     $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
     exit 0 ;;
   *)
-    echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | stat-server ]"
+    echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-log | server-stat ]"
     exit 255 ;;
 esac
 
