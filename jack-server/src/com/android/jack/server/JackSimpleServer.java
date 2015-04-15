@@ -177,6 +177,8 @@ public class JackSimpleServer {
   private static int maxForward = 0;
 
   public static void main(String[] args) {
+    logger.log(Level.INFO, "Using Jack version: " + service.getVersion());
+
     if (args.length != CLI_IDX_END) {
       logger.log(Level.SEVERE,
           "Usage: <port-service> <port-admin> <server-count> <max-compile> <timeout-s>");
