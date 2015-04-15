@@ -19,6 +19,7 @@ package com.android.jack.launcher;
 import com.android.jack.launcher.util.BytesStreamSucker;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,8 +49,8 @@ class ZipLoader extends ClassLoader {
     @Nonnull
     private final ZipEntry entry;
 
-    ZipURLConnection(@Nonnull URL u, @Nonnull ZipFile zip, @Nonnull ZipEntry entry) {
-      super(u);
+    ZipURLConnection(@Nonnull URL url, @Nonnull ZipFile zip, @Nonnull ZipEntry entry) {
+      super(url);
       this.zip = zip;
       this.entry = entry;
     }
@@ -76,21 +77,21 @@ class ZipLoader extends ClassLoader {
     }
 
     @Override
-    protected URLConnection openConnection(@Nonnull URL u) throws IOException {
-      ZipEntry entry = zip.getEntry(getZipEntry(u));
+    protected URLConnection openConnection(@Nonnull URL url) throws IOException {
+      ZipEntry entry = zip.getEntry(getZipEntry(url));
       if (entry == null) {
-        throw new FileNotFoundException(u.toString());
+        throw new FileNotFoundException(url.toString());
       }
-      return new ZipURLConnection(u, zip, entry);
+      return new ZipURLConnection(url, zip, entry);
     }
   }
 
   @Nonnull
-  private static URL makeURL(@Nonnull ZipFile file, @Nonnull ZipEntry entry,
-      @Nonnull ZipURLStreamHandler handler) {
+  private static URL makeURL(@Nonnull ZipEntry entry, @Nonnull ZipURLStreamHandler handler) {
     try {
       assert entry.getName().indexOf(BANG) == -1;
-      return new URL("launcherzip", "", -1, file.getName() + BANG + entry.getName(), handler);
+      return new URL("launcherzip", "", -1, handler.zip.getName() + BANG + entry.getName(),
+          handler);
     } catch (MalformedURLException e) {
       throw new AssertionError();
     }
@@ -104,13 +105,10 @@ class ZipLoader extends ClassLoader {
   }
 
   @Nonnull
-  private final ZipFile[] entries;
-  @Nonnull
   private final ZipURLStreamHandler[] handlers;
 
 
   public ZipLoader(@Nonnull ZipFile[] entries) {
-    this.entries = entries;
     handlers = new ZipURLStreamHandler[entries.length];
     for (int i = 0; i < entries.length; i++) {
       handlers[i] = new ZipURLStreamHandler(entries[i]);
@@ -123,7 +121,8 @@ class ZipLoader extends ClassLoader {
 
     ZipEntry foundEntry = null;
     ZipFile foundZip = null;
-    for (ZipFile zip : entries) {
+    for (ZipURLStreamHandler handler : handlers) {
+      ZipFile zip = handler.zip;
       foundEntry = zip.getEntry(name.replace('.', '/') + ".class");
       if (foundEntry != null) {
         foundZip = zip;
@@ -141,10 +140,17 @@ class ZipLoader extends ClassLoader {
       in = foundZip.getInputStream(foundEntry);
       long size = foundEntry.getSize();
       assert size >= -1 && size <= Integer.MAX_VALUE;
-      ByteArrayOutputStream out = size == -1 ? new ByteArrayOutputStream() :
-          new ByteArrayOutputStream((int) size);
-      new BytesStreamSucker(in, out, /* toBeClose = */ true).suck();
-      byte[] classData = out.toByteArray();
+      byte[] classData;
+      if (size == -1) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new BytesStreamSucker(in, out, /* toBeClose = */ true).suck();
+        classData = out.toByteArray();
+      } else {
+        classData = new byte[(int) size];
+        // FINDBUGS
+        in = new DataInputStream(in);
+        ((DataInputStream) in).readFully(classData);
+      }
       return defineClass(name, classData, 0, classData.length);
     } catch (IOException e) {
       throw new ClassNotFoundException(name);
@@ -166,7 +172,8 @@ class ZipLoader extends ClassLoader {
     if (found != null) {
       return found;
     } else {
-      for (ZipFile zip : entries) {
+      for (ZipURLStreamHandler handler : handlers) {
+        ZipFile zip = handler.zip;
         ZipEntry foundEntry = zip.getEntry(name);
         if (foundEntry != null) {
           try {
@@ -185,11 +192,11 @@ class ZipLoader extends ClassLoader {
   @CheckForNull
   @Override
   protected URL findResource(@Nonnull String name) {
-    for (int i = 0; i < entries.length; i++) {
-      ZipFile zip = entries[i];
+    for (ZipURLStreamHandler handler : handlers) {
+      ZipFile zip = handler.zip;
       ZipEntry foundEntry = zip.getEntry(name);
       if (foundEntry != null) {
-        return makeURL(zip, foundEntry, handlers[i]);
+        return makeURL(foundEntry, handler);
       }
     }
     return null;
@@ -199,11 +206,11 @@ class ZipLoader extends ClassLoader {
   @Override
   protected Enumeration<URL> findResources(@Nonnull String name) {
     Vector<URL> vector = new Vector<URL>();
-    for (int i = 0; i < entries.length; i++) {
-      ZipFile zip = entries[i];
+    for (ZipURLStreamHandler handler : handlers) {
+      ZipFile zip = handler.zip;
       ZipEntry foundEntry = zip.getEntry(name);
       if (foundEntry != null) {
-        vector.add(makeURL(zip, foundEntry, handlers[i]));
+        vector.add(makeURL(foundEntry, handler));
       }
     }
     return vector.elements();
