@@ -88,7 +88,7 @@ case $1 in
     ps aux | grep JackSimpleServer | grep -v grep
     exit $? ;;
   start-server)
-    SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer
+    SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
     echo "Launching background server" $SERVER_PRG
     $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
     exit 0 ;;
