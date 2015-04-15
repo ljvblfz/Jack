@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.JackAbortException;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.sched.transform.TransformRequest;
@@ -84,6 +85,10 @@ public class JVisitor {
     if (e instanceof VirtualMachineError) {
       // Always rethrow VM errors (an attempt to wrap may fail).
       throw (VirtualMachineError) e;
+    }
+    if (e instanceof JackAbortException) {
+      // No need to wrap JackAbortException
+      throw (JackAbortException) e;
     }
     JNodeInternalError ice;
     if (e instanceof JNodeInternalError) {
