@@ -82,8 +82,13 @@ case $1 in
     exit 0 ;;
   kill-server)
     echo "Killing background server"
-    kill $(ps aux | grep JackSimpleServer | grep -v grep | awk '{print $2}')
-    exit $? ;;
+    kill $(ps aux | grep JackSimpleServer | grep -v grep | awk '{print $2}') 2>/dev/null
+    if [ $? -ne 0 ]; then
+      echo "No server to kill" >&2
+      exit 2
+    else
+      exit 0 
+    fi ;;
   list-server)
     ps aux | grep JackSimpleServer | grep -v grep
     exit $? ;;
