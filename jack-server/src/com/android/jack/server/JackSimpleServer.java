@@ -56,6 +56,7 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -237,7 +238,11 @@ public class JackSimpleServer {
       assert adminConnection != null;
       adminConnection.connect(adminSocket);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Problem during admin connection ", e);
+      if (e.getCause() instanceof BindException) {
+        logger.log(Level.SEVERE, "Problem during service connection: " + e.getCause().getMessage());
+      } else {
+        logger.log(Level.SEVERE, "Problem during service connection ", e);
+      }
       abort();
     }
 
@@ -252,7 +257,11 @@ public class JackSimpleServer {
       serviceConnection.connect(serviceSocket);
       startTimer();
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Problem during service connection ", e);
+      if (e.getCause() instanceof BindException) {
+        logger.log(Level.SEVERE, "Problem during service connection: " + e.getCause().getMessage());
+      } else {
+        logger.log(Level.SEVERE, "Problem during service connection ", e);
+      }
       abort();
     }
   }
