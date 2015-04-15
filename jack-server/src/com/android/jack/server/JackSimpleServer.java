@@ -31,11 +31,13 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.log.tracer.probe.TimeNanosProbe;
 
+import org.simpleframework.http.Path;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.http.core.ContainerSocketProcessor;
+import org.simpleframework.http.parse.PathParser;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
 
@@ -54,7 +56,6 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
-import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -225,44 +226,25 @@ public class JackSimpleServer {
 
     logger.log(Level.INFO, "Starting admin connection on " + adminSocket);
     try {
-      JackRouter router = new JackRouter(0);
-      router.addContainer("gc", new JackGc());
-      router.addContainer("stat", new JackStat());
-      router.addContainer("id", new JackId());
-      router.addContainer("stop", new JackStop());
+      JackRouter router = new JackRouter();
+      router.addContainer(new PathParser("/gc"), new JackGc());
+      router.addContainer(new PathParser("/stat"), new JackStat());
+      router.addContainer(new PathParser("/id"), new JackId());
+      router.addContainer(new PathParser("/stop"), new JackStop());
 
       ContainerSocketProcessor processor = new ContainerSocketProcessor(router, 1);
       adminConnection = new SocketConnection(processor);
       assert adminConnection != null;
       adminConnection.connect(adminSocket);
     } catch (IOException e) {
-      if (e.getCause() instanceof BindException) {
-        logger.log(Level.SEVERE, "Problem during service connection: " + e.getCause().getMessage());
-      } else {
-        logger.log(Level.SEVERE, "Problem during service connection ", e);
-      }
+      logger.log(Level.SEVERE, "Problem during admin connection ", e);
       abort();
     }
 
     logger.log(Level.INFO, "Starting service connection server on " + serviceSocket);
     try {
-      JackRouter jackV1Version = new JackRouter(2, Status.NOT_IMPLEMENTED);
-      jackV1Version.addContainer(service.getVersion(), new JackRun());
-
-      JackRouter protocolVersion =
-          new JackRouter(1, new ErrorContainer(Status.NOT_IMPLEMENTED), new ErrorContainer(
-              Status.BAD_REQUEST) {
-            @Override
-            public void handle(@Nonnull Request request, @Nonnull Response response) {
-              logger.log(Level.WARNING,
-                  "Jack version not available, try to shutdown server (jack-admin stop-server)");
-              super.handle(request, response);
-            }
-          });
-      protocolVersion.addContainer("1", jackV1Version);
-
-      JackRouter router = new JackRouter(0);
-      router.addContainer("jack", protocolVersion);
+      JackRouter router = new JackRouter();
+      router.addContainer(new PathParser("/jack"), new JackRun());
 
       ContainerSocketProcessor processor = new ContainerSocketProcessor(router, nbInstance);
       serviceConnection = new SocketConnection(processor);
@@ -270,89 +252,51 @@ public class JackSimpleServer {
       serviceConnection.connect(serviceSocket);
       startTimer();
     } catch (IOException e) {
-      if (e.getCause() instanceof BindException) {
-        logger.log(Level.SEVERE, "Problem during service connection: " + e.getCause().getMessage());
-      } else {
-        logger.log(Level.SEVERE, "Problem during service connection ", e);
-      }
+      logger.log(Level.SEVERE, "Problem during service connection ", e);
       abort();
-    }
-  }
-
-  private static class ErrorContainer implements Container {
-    @Nonnull
-    private final Status status;
-
-    public ErrorContainer(@Nonnull Status status) {
-      this.status = status;
-    }
-
-    @Override
-    public void handle(@Nonnull Request request, @Nonnull Response response) {
-      response.setStatus(status);
-      try {
-        response.close();
-      } catch (IOException e) {
-        logger.log(Level.SEVERE, "Exception during close: ", e);
-      }
     }
   }
 
   private static class JackRouter implements Container {
     @Nonnull
     private final Map<String, Container> registry = new HashMap<String, Container>();
-    @Nonnegative
-    private final int       index;
     @Nonnull
-    private final Container notFound;
-    @Nonnull
-    private final Container noSegment;
+    private final Container primary;
 
-    public JackRouter(@Nonnegative int index) {
-      this(index, Status.NOT_FOUND);
+    public JackRouter() {
+      primary = new Container() {
+        @Override
+        public void handle(@Nonnull Request request, @Nonnull Response response) {
+          logger.log(Level.INFO, "Unknown request for '" + request.getPath().getPath() + "'");
+          response.setStatus(Status.NOT_FOUND);
+          try {
+            response.close();
+          } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception during close: ", e);
+          }
+        }
+      };
     }
 
-    public JackRouter(@Nonnegative int index, @Nonnull final Status error) {
-      this(index, new ErrorContainer(error), new ErrorContainer(error));
+    public JackRouter(@Nonnull Container primary) {
+      this.primary = primary;
     }
 
-    public JackRouter(@Nonnegative int index, @Nonnull final Status notFound,
-        @Nonnull final Status noSegment) {
-      this(index, new ErrorContainer(notFound), new ErrorContainer(noSegment));
-    }
-
-    public JackRouter(@Nonnegative int index, @Nonnull Container notFound,
-        @Nonnull Container noSegment) {
-      this.index = index;
-      this.notFound = notFound;
-      this.noSegment = noSegment;
-    }
-
-    @Nonnull
-    public JackRouter addContainer(@Nonnull String fragment, @Nonnull Container container) {
-      registry.put(fragment, container);
-
-      return this;
+    public void addContainer(@Nonnull Path path, @Nonnull Container container) {
+      registry.put(path.getPath(), container);
     }
 
     @Override
     public void handle(@Nonnull Request request, @Nonnull Response response) {
-      String segments[] = request.getPath().getSegments();
+      String normalizedPath = request.getPath().getPath();
 
-      if (index >= segments.length) {
-        logger.log(Level.WARNING, "Unknown request for missing segment #" + index + ": '"
-            + request.getPath().getPath() + "'");
-        noSegment.handle(request, response);
-      }
+      logger.log(Level.INFO, "Route request from '" + normalizedPath + "'");
 
-      Container container = registry.get(segments[index]);
+      Container container = registry.get(normalizedPath);
       if (container != null) {
-        logger.log(Level.INFO, "Request for segment #" + index + ": '" + segments[index] + "'");
         container.handle(request, response);
       } else {
-        logger.log(Level.WARNING, "Unknown request for segment #" + index + ": '" + segments[index]
-            + "'");
-        notFound.handle(request, response);
+        primary.handle(request, response);
       }
     }
   }
@@ -718,9 +662,9 @@ public class JackSimpleServer {
         response.setStatus(Status.OK);
         PrintStream printer = response.getPrintStream();
 
-        printer.println("server.version: 2");
+        printer.println("server.version: 1");
         printer.println("service.name: " + service.getClass().getCanonicalName());
-        printer.println("service.versions: " + service.getVersion());
+        printer.println("service.version: " + service.getVersion());
       } catch (IOException e) {
         logger.log(Level.SEVERE, "Exception during IO: ", e);
       } finally {
@@ -1051,4 +995,3 @@ public class JackSimpleServer {
     }
   }
 }
-
