@@ -174,8 +174,10 @@ LOCAL_MODULE := jack
 LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_JAVA_LIBRARIES := \
   jack-server
+LOCAL_ADDITIONAL_DEPENDENCIES := $(jack_admin_script)
 include $(BUILD_HOST_JAVA_LIBRARY)
 $(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+	$(hide) $(jack_admin_script) kill-server || echo
 	$(hide) rm -rf $<.tmp
 	$(hide) mkdir -p $<.tmp
 	$(hide) unzip -qd $<.tmp $<
