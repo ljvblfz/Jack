@@ -58,7 +58,7 @@ fi
 # If not in server mode, exec jack
 #
 if [ "$SERVER" != "true" ]; then
-  exec $JACK_VM_COMMAND -jar $JACK_JAR "$@"
+  exec $JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.Main "$@"
   echo "Cannot succeed to launch Jack" >&2
   exit 255
 fi
