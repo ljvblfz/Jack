@@ -162,7 +162,7 @@ public class ClasspathTests {
 
   @Test
   public void testMissingClasspathEntry() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
