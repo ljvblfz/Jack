@@ -343,10 +343,10 @@ int size = staticFields.size();
       out.annotate(0, offsetString() + " class data for " + thisClass.toHuman());
     }
 
-    encodeSize(file, out, "static_fields", staticFields.size());
-    encodeSize(file, out, "instance_fields", instanceFields.size());
-    encodeSize(file, out, "direct_methods", directMethods.size());
-    encodeSize(file, out, "virtual_methods", virtualMethods.size());
+    encodeSize(out, "static_fields", staticFields.size());
+    encodeSize(out, "instance_fields", instanceFields.size());
+    encodeSize(out, "direct_methods", directMethods.size());
+    encodeSize(out, "virtual_methods", virtualMethods.size());
 
     encodeList(file, out, "static_fields", staticFields);
     encodeList(file, out, "instance_fields", instanceFields);
@@ -362,12 +362,11 @@ int size = staticFields.size();
    * Helper for {@link #encodeOutput}, which writes out the given
    * size value, annotating it as well (if annotations are enabled).
    *
-   * @param file {@code non-null;} file this instance is part of
    * @param out {@code non-null;} where to write to
    * @param label {@code non-null;} the label for the purposes of annotation
    * @param size {@code >= 0;} the size to write
    */
-  private static void encodeSize(DexFile file, AnnotatedOutput out, String label, int size) {
+  private static void encodeSize(AnnotatedOutput out, String label, int size) {
     if (out.annotates()) {
       out.annotate(String.format("  %-21s %08x", label + "_size:", Integer.valueOf(size)));
     }

@@ -182,10 +182,9 @@ public final class CatchStructs {
   /**
    * Writes this instance to the given stream.
    *
-   * @param file {@code non-null;} file this instance is part of
    * @param out {@code non-null;} where to write to
    */
-  public void writeTo(DexFile file, AnnotatedOutput out) {
+  public void writeTo(AnnotatedOutput out) {
     finishProcessingIfNecessary();
 
     if (out.annotates()) {
