@@ -23,9 +23,8 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
-import com.android.jack.test.toolchain.Toolchain;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.ThreadConfig;
@@ -73,7 +72,7 @@ public class AnnotationProcessorTests {
   @Nonnull
   private static File getNoConfigProcessors() throws Exception {
     if (noConfigProcessors == null) {
-      Toolchain toolchain = AbstractTestTools.getReferenceToolchain();
+      IToolchain toolchain = AbstractTestTools.getReferenceToolchain();
       File processorsDir = AbstractTestTools.createTempDir();
       File processorsSrcDir = AbstractTestTools.getTestRootDir(
           "com.android.jack.annotation.processor.sample.processors");
@@ -89,7 +88,7 @@ public class AnnotationProcessorTests {
   @Nonnull
   private static File getAutoProcessors() throws Exception {
     if (autoProcessors == null) {
-      Toolchain toolchain = AbstractTestTools.getReferenceToolchain();
+      IToolchain toolchain = AbstractTestTools.getReferenceToolchain();
       File processorsDir = AbstractTestTools.createTempDir();
       File processorsSrcDir = AbstractTestTools.getTestRootDir(
           "com.android.jack.annotation.processor.sample.processors");

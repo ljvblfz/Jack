@@ -185,8 +185,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static final IToolchain getCandidateToolchain() {
-    IToolchain result = createToolchain("candidate.toolchain");
-    return result;
+    return createToolchain("candidate.toolchain");
   }
 
   @SuppressWarnings("unchecked")
@@ -211,18 +210,18 @@ public abstract class AbstractTestTools {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public static final <T extends IToolchain> T getReferenceToolchain() {
-    return (T) createToolchain("reference.toolchain");
+  public static final IToolchain getReferenceToolchain() {
+    return createToolchain("reference.toolchain");
   }
 
+  @SuppressWarnings("unchecked")
   @Nonnull
   public static final <T extends IToolchain> T getReferenceToolchain(
       @Nonnull Class<? extends IToolchain> clazz) {
-    T result = getReferenceToolchain();
+    IToolchain result = getReferenceToolchain();
     Assume.assumeTrue(clazz.isAssignableFrom(result.getClass()));
-    return result;
+    return (T) result;
   }
 
   @Nonnull
