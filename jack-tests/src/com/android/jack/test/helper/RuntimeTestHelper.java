@@ -25,6 +25,7 @@ import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -51,6 +52,10 @@ public class RuntimeTestHelper {
   private List<String> jUnitClasses = new ArrayList<String>(1);
 
   @Nonnull
+  private List<Class<? extends IToolchain>> ignoredCandidateToolchains =
+      new ArrayList<Class<? extends IToolchain>>(0);
+
+  @Nonnull
   RuntimeTestInfo[] runtimeTestInfos;
 
   private boolean withDebugInfos = false;
@@ -66,6 +71,12 @@ public class RuntimeTestHelper {
     for (RuntimeTestInfo info : rtTestInfos) {
       jUnitClasses.add(info.jUnit);
     }
+  }
+
+  @Nonnull
+  public RuntimeTestHelper addIgnoredCandidateToolchain(Class<? extends IToolchain> toolchain) {
+    ignoredCandidateToolchains.add(toolchain);
+    return this;
   }
 
   @Nonnull
@@ -273,7 +284,7 @@ public class RuntimeTestHelper {
   @Nonnull
   private AndroidToolchain createCandidateToolchain() {
     AndroidToolchain candidateTestTools =
-        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, ignoredCandidateToolchains);
     candidateTestTools.setSourceLevel(level);
     candidateTestTools.setWithDebugInfos(withDebugInfos);
     return candidateTestTools;

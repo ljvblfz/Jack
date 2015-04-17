@@ -16,15 +16,23 @@
 
 package com.android.jack.shrob;
 
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -90,4 +98,141 @@ public class ObfuscationWithMappingTests extends AbstractTest {
   public void test35_001() throws Exception {
     // Test 34 already has a partial mapping, it can't be used in this test suite.
   }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_009() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_009();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_010() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_010();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_011() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_011();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_012() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_012();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_014() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_014();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_015() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_015();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_016() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_016();
+  }
+
+  @Test
+  @Override
+  public void test5_005() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test5_005();
+  }
+
+  @Test
+  @Override
+  public void test8_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test8_001();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test8_002() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test8_002();
+  }
+
+  @Test
+  @Override
+  public void test10_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test10_001();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test11_002() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test11_002();
+  }
+
+  @Test
+  @Override
+  public void test15_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test15_001();
+  }
+
+  @Test
+  @Override
+  public void test17_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test17_001();
+  }
+
+  @Test
+  @Override
+  public void test19_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test19_001();
+  }
+
+  @Test
+  @Override
+  public void test36_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test36_001();
+  }
+
+  @Test
+  @Override
+  public void test38_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test38_001();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test40_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test40_001();
+  }
+
 }

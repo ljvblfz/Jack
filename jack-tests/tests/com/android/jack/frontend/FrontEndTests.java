@@ -23,6 +23,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -31,6 +32,8 @@ import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FrontEndTests {
 
@@ -154,7 +157,9 @@ public class FrontEndTests {
   public void testUninstanciableLocalClass001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =  AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+    IToolchain toolchain =  AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);

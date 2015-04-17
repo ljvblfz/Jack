@@ -23,6 +23,7 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -30,6 +31,8 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -89,6 +92,113 @@ public class ShrinkMultiDexTests extends AbstractTest {
 
     env.runTest(new ComparatorMapping(new File(refFolder, "expected-" + flagNumber + ".txt"),
         candidateNodeListing));
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_009() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_009();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_010() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_010();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_011() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_011();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_012() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_012();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_014() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_014();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_015() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_015();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test1_016() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test1_016();
+  }
+
+  @Test
+  @Override
+  public void test8_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test8_001();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test11_002() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test11_002();
+  }
+
+  @Test
+  @Override
+  public void test17_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test17_001();
+  }
+
+  @Test
+  @Override
+  public void test19_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test19_001();
+  }
+
+  @Test
+  @Override
+  public void test36_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test36_001();
+  }
+
+  @Test
+  @Override
+  public void test38_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test38_001();
+  }
+
+  @Test
+  @Category(SlowTests.class)
+  @Override
+  public void test40_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test40_001();
   }
 
 }
