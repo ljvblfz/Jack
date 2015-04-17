@@ -147,30 +147,21 @@ public class Optimizer {
   }
 
   private static void runSsaFormSteps(SsaMethod ssaMeth, EnumSet<OptionalStep> steps) {
-    boolean needsDeadCodeRemover = true;
 
     if (steps.contains(OptionalStep.SCCP)) {
       SCCP.process(ssaMeth);
-      DeadCodeRemover.process(ssaMeth);
-      needsDeadCodeRemover = false;
     }
 
     if (steps.contains(OptionalStep.LITERAL_UPGRADE)) {
       LiteralOpUpgrader.process(ssaMeth);
-      DeadCodeRemover.process(ssaMeth);
-      needsDeadCodeRemover = false;
     }
 
     if (steps.contains(OptionalStep.CONST_COLLECTOR)) {
       ConstCollector.process(ssaMeth);
-      DeadCodeRemover.process(ssaMeth);
-      needsDeadCodeRemover = false;
     }
 
     // dead code remover must be run before phi type resolver
-    if (needsDeadCodeRemover) {
-      DeadCodeRemover.process(ssaMeth);
-    }
+    DeadCodeRemover.process(ssaMeth);
 
     PhiTypeResolver.process(ssaMeth);
   }
