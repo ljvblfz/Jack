@@ -81,7 +81,7 @@ JACK_PWD="$PWD"
 mkdir "$SERVER_DIR" 2>/dev/null
 
 # Cleanup
-trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR" 2>/dev/null' EXIT
+trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>>$SERVER_LOG; rmdir "$JACK_DIR" 2>>$SERVER_LOG' EXIT
 
 set -o errexit
 
@@ -92,7 +92,7 @@ mkfifo "$JACK_ERR"
 touch  "$JACK_CLI" "$JACK_EXIT"
 
 # Try to cleanup if interrupted
-abort () { kill -9 $PID_OUT $PID_ERR 2>/dev/null; wait $PID_OUT $PID_ERR 2>/dev/null; exit 255; }
+abort () { kill -9 $PID_OUT $PID_ERR 2>>$SERVER_LOG; wait $PID_OUT $PID_ERR 2>>$SERVER_LOG; exit 255; }
 trap 'abort' SIGHUP SIGINT SIGQUIT SIGTERM ERR
 
 # Redirect output and error
@@ -126,6 +126,7 @@ while true; do
   HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --connect-timeout 10 --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
+  echo "CURL: $$ - $CURL_CODE - $HTTP_CODE - $JACK_CODE" >>$SERVER_LOG
   if [ $CURL_CODE -eq 0 ]; then
     # No problem, let's go
     break;
