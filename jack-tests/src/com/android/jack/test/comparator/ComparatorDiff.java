@@ -30,8 +30,8 @@ import javax.annotation.Nonnull;
  */
 public class ComparatorDiff extends ComparatorFile {
 
-  public ComparatorDiff(@Nonnull File candidate, @Nonnull File reference) {
-    super(candidate, reference);
+  public ComparatorDiff(@Nonnull File reference, @Nonnull File candidate) {
+    super(reference, candidate);
   }
 
   @Override

@@ -67,8 +67,8 @@ public class MultiDexTests {
 
   private class ComparatorMultiDexListing extends ComparatorFile {
 
-    protected ComparatorMultiDexListing(File candidate, File reference) {
-      super(candidate, reference);
+    protected ComparatorMultiDexListing(@Nonnull File reference, @Nonnull File candidate) {
+      super(reference, candidate);
     }
 
     @Override
@@ -115,7 +115,8 @@ public class MultiDexTests {
     env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
     env.setReferenceTestTools(new DummyToolchain());
 
-    env.runTest(new ComparatorMultiDexListing(env.getCandidateDex(), new File(testFolder, "ref-list-001.txt")));
+    env.runTest(new ComparatorMultiDexListing(new File(testFolder, "ref-list-001.txt"),
+        env.getCandidateDex()));
 
     Assert.assertFalse(new File(env.getCandidateDexDir(), "classes2.dex").exists());
   }
@@ -140,8 +141,10 @@ public class MultiDexTests {
     env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
     env.setReferenceTestTools(new DummyToolchain());
 
-    Comparator c1 = new ComparatorMultiDexListing(env.getCandidateDex(), new File(testFolder, "ref-list-002-1.txt"));
-    Comparator c2 = new ComparatorMultiDexListing(new File(env.getCandidateDexDir(), "classes2.dex"), new File(testFolder, "ref-list-002-2.txt"));
+    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-1.txt"),
+        env.getCandidateDex());
+    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-2.txt"),
+        new File(env.getCandidateDexDir(), "classes2.dex"));
     env.runTest(c1, c2);
 
     Assert.assertFalse(new File(env.getCandidateDexDir(), "classes3.dex").exists());
@@ -167,8 +170,10 @@ public class MultiDexTests {
     env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
     env.setReferenceTestTools(new DummyToolchain());
 
-    Comparator c1 = new ComparatorMultiDexListing(env.getCandidateDex(), new File(testFolder, "ref-list-003-1.txt"));
-    Comparator c2 = new ComparatorMultiDexListing(new File(env.getCandidateDexDir(), "classes2.dex"), new File(testFolder, "ref-list-003-2.txt"));
+    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-003-1.txt"),
+        env.getCandidateDex());
+    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-003-2.txt"),
+        new File(env.getCandidateDexDir(), "classes2.dex"));
     env.runTest(c1, c2);
 
     Assert.assertFalse(new File(env.getCandidateDexDir(), "classes3.dex").exists());
@@ -415,8 +420,10 @@ public class MultiDexTests {
     env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
     env.setReferenceTestTools(new DummyToolchain());
 
-    Comparator c1 = new ComparatorMultiDexListing(env.getCandidateDex(), new File(testFolder, "ref-list-002-1.txt"));
-    Comparator c2 = new ComparatorMultiDexListing(new File(env.getCandidateDexDir(), "classes2.dex"), new File(testFolder, "ref-list-002-2.txt"));
+    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-1.txt"),
+        env.getCandidateDex());
+    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-2.txt"),
+        new File(env.getCandidateDexDir(), "classes2.dex"));
     env.runTest(c1, c2);
 
     Assert.assertFalse(new File(env.getCandidateDexDir(), "classes3.dex").exists());

@@ -69,7 +69,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     env.setCandidateTestTools(toolchain);
     env.setReferenceTestTools(new DummyToolchain());
 
-    env.runTest(new ComparatorMapping(candidateOutputMapping, refOutputMapping));
+    env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
   }
 
   @Override

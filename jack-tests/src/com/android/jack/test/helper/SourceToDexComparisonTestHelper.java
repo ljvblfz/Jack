@@ -145,7 +145,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
 
   @Nonnull
   public ComparatorDex createDexFileComparator() {
-    ComparatorDex comparator = new ComparatorDex(candidateDex, refDex);
+    ComparatorDex comparator = new ComparatorDex(refDex, candidateDex);
     comparator.setWithDebugInfo(withDebugInfos);
     comparator.setStrict(false);
     comparator.setCompareDebugInfoBinary(false);

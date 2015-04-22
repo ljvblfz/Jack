@@ -29,8 +29,8 @@ import javax.annotation.Nonnull;
  */
 public class ComparatorMapping extends ComparatorFile {
 
-  public ComparatorMapping(@Nonnull File candidate, @Nonnull File reference) {
-    super(candidate, reference);
+  public ComparatorMapping(@Nonnull File reference, @Nonnull File candidate) {
+    super(reference, candidate);
   }
 
   @Override

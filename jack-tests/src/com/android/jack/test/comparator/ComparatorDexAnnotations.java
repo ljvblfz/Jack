@@ -29,8 +29,8 @@ import javax.annotation.Nonnull;
  */
 public class ComparatorDexAnnotations extends ComparatorFile {
 
-  public ComparatorDexAnnotations(@Nonnull File candidate, @Nonnull File reference) {
-    super(candidate, reference);
+  public ComparatorDexAnnotations(@Nonnull File reference, @Nonnull File candidate) {
+    super(reference, candidate);
   }
 
   @Override

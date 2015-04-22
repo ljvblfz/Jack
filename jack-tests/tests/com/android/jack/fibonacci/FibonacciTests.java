@@ -57,7 +57,7 @@ public class FibonacciTests extends RuntimeTest {
   public void testCompareFiboDexFile() throws Exception {
     SourceToDexComparisonTestHelper helper =
         new CheckDexStructureTestHelper(new File(TEST001.directory, "jack"));
-    helper.runTest(new ComparatorDex(helper.getCandidateDex(), helper.getReferenceDex()));
+    helper.runTest(new ComparatorDex(helper.getReferenceDex(), helper.getCandidateDex()));
   }
 
   @Override

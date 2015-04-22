@@ -81,8 +81,7 @@ public class ShrinkTests extends AbstractTest {
         new ProguardFlags(shrobTestsDir,"keepAllAttributes.flags"),
         new ProguardFlags(testFolder, "proguard.flags" + flagNumber));
 
-    env.runTest(new ComparatorMapping(
-        new File(refFolder, "expected-" + flagNumber + ".txt"),
+    env.runTest(new ComparatorMapping(new File(refFolder, "expected-" + flagNumber + ".txt"),
         candidateNodeListing));
   }
 

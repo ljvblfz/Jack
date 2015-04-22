@@ -46,6 +46,6 @@ public class AnnotationsTest extends AbstractTest {
 //      new ProguardFlags(TestTools.getJackTestFolder("shrob"),"keepDebugInfo.flags"),
       new ProguardFlags(shrobFolder,"keepAllAttributes.flags"),
       new ProguardFlags(testFolder,"proguard.flags" + flagNumber));
-    env.runTest(new ComparatorDexAnnotations(env.getCandidateDex(), env.getReferenceDex()));
+    env.runTest(new ComparatorDexAnnotations(env.getReferenceDex(), env.getCandidateDex()));
   }
 }

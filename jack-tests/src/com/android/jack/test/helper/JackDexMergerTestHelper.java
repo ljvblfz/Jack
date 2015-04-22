@@ -75,15 +75,15 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
   }
 
   public void compare() throws Exception {
-    ComparatorDex comparatorDex = new ComparatorDex(candidateDex, refDex);
+    ComparatorDex comparatorDex = new ComparatorDex(refDex, candidateDex);
     comparatorDex.setWithDebugInfo(false);
     comparatorDex.setStrict(true);
     comparatorDex.setCompareDebugInfoBinary(false);
     comparatorDex.setCompareInstructionNumber(true);
     comparatorDex.setInstructionNumberTolerance(0);
     ComparatorDexAnnotations comparatorAnnotations =
-        new ComparatorDexAnnotations(candidateDex, refDex);
-    ComparatorDiff comparatorDiff = new ComparatorDiff(candidateDex, refDex);
+        new ComparatorDexAnnotations(refDex, candidateDex);
+    ComparatorDiff comparatorDiff = new ComparatorDiff(refDex, candidateDex);
     runTest(new ComparatorComposite(comparatorDex, comparatorAnnotations, comparatorDiff));
   }
 }

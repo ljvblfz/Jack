@@ -60,6 +60,6 @@ public class ObfuscationWithAttributesTests extends AbstractTest {
     env.setCandidateTestTools(toolchain);
     env.setReferenceTestTools(refToolchain);
     env.setWithDebugInfo(true);
-    env.runTest(new ComparatorDex(env.getCandidateDex(), env.getReferenceDex()));
+    env.runTest(new ComparatorDex(env.getReferenceDex(), env.getCandidateDex()));
   }
 }

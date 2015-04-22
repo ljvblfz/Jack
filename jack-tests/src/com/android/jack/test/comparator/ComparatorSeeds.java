@@ -22,13 +22,15 @@ import com.android.jack.shrob.SeedsComparator;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 /**
  * This {@link Comparator} is used to compare shrob seeds.
  */
 public class ComparatorSeeds extends ComparatorFile {
 
-  public ComparatorSeeds(File candidate, File reference) {
-    super(candidate, reference);
+  public ComparatorSeeds(@Nonnull File reference, @Nonnull File candidate) {
+    super(reference, candidate);
   }
 
   @Override

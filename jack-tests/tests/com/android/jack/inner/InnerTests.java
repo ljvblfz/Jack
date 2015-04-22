@@ -314,7 +314,7 @@ public class InnerTests extends RuntimeTest {
   private void checkStructure(@Nonnull String test) throws Exception {
     SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(
         AbstractTestTools.getTestRootDir("com.android.jack.inner." + test + ".jack"));
-    helper.runTest(new ComparatorDex(helper.getCandidateDex(), helper.getReferenceDex()));
+    helper.runTest(new ComparatorDex(helper.getReferenceDex(), helper.getCandidateDex()));
   }
 
   @Override

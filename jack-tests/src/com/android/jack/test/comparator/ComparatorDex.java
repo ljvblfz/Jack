@@ -35,8 +35,8 @@ public class ComparatorDex extends ComparatorFile {
   private boolean compareInstructionNumber = false;
   private float instructionNumberTolerance = 0f;
 
-  public ComparatorDex(@Nonnull File candidate, @Nonnull File reference) {
-    super(candidate, reference);
+  public ComparatorDex(@Nonnull File reference, @Nonnull File candidate) {
+    super(reference, candidate);
   }
 
   @Nonnull

@@ -26,12 +26,12 @@ import javax.annotation.Nonnull;
 public abstract class ComparatorFile implements Comparator {
 
   @Nonnull
-  protected File candidate;
-  @Nonnull
   protected File reference;
+  @Nonnull
+  protected File candidate;
 
-  protected ComparatorFile(@Nonnull File candidate, @Nonnull File reference) {
-    this.candidate = candidate;
+  protected ComparatorFile(@Nonnull File reference, @Nonnull File candidate) {
     this.reference = reference;
+    this.candidate = candidate;
   }
 }

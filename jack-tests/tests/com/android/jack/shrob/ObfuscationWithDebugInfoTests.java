@@ -45,6 +45,6 @@ public class ObfuscationWithDebugInfoTests extends AbstractTest {
         new ProguardFlags(AbstractTestTools.getTestRootDir("com.android.jack.shrob"),
             "keepDebugInfo.flags"), new ProguardFlags(testFolder, "proguard.flags" + flagNumber));
 
-    env.runTest(new ComparatorDex(env.getCandidateDex(), env.getReferenceDex()));
+    env.runTest(new ComparatorDex(env.getReferenceDex(), env.getCandidateDex()));
   }
 }
