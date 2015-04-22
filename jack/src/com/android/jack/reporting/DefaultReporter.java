@@ -16,12 +16,12 @@
 
 package com.android.jack.reporting;
 
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.io.PrintStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -32,22 +32,18 @@ import javax.annotation.Nonnull;
 public class DefaultReporter extends CommonReporter {
 
   @Override
-  protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
-      @Nonnull String message,
-      @CheckForNull String fileName,
-      int startLine,
-      int endLine,
-      int startColumn,
-      int endColumn) {
+  protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel, @Nonnull String message,
+      @Nonnull SourceInfo sourceInfo) {
     StringBuffer messageBuffer = new StringBuffer(problemLevel.toString());
-    if (fileName != null) {
+    if (sourceInfo != SourceInfo.UNKNOWN) {
       messageBuffer.append(": ");
-      messageBuffer.append(fileName);
-      if (startLine >= 0) {
+      messageBuffer.append(sourceInfo.getFileName());
+      if (sourceInfo.getStartLine() >= 0) {
         messageBuffer.append(":");
-        messageBuffer.append(startLine);
+        messageBuffer.append(sourceInfo.getStartLine());
       }
     }
+
     messageBuffer.append(": ");
     messageBuffer.append(message);
 

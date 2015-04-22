@@ -16,12 +16,13 @@
 
 package com.android.jack.reporting;
 
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 
+import java.io.File;
 import java.io.PrintStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -31,39 +32,42 @@ import javax.annotation.Nonnull;
 @ImplementationName(iface = Reporter.class, name = "sdk")
 public class SdkReporter extends CommonReporter {
 
-  private static final char MESSAGE_SEPARATOR = ':';
-
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
-      @Nonnull String message,
-      @CheckForNull String fileName,
-      int startLine,
-      int endLine,
-      int startColumn,
-      int endColumn) {
-    StringBuffer messageBuffer = new StringBuffer(problemLevel.toString());
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    if (fileName != null) {
-      messageBuffer.append(fileName);
+      @Nonnull String message, @Nonnull SourceInfo sourceInfo) {
+    StringBuffer messageBuffer = new StringBuffer("MESSAGE:{");
+
+    messageBuffer.append("\"kind\":\"").append(convertLevelName(problemLevel)).append("\",");
+    messageBuffer.append("\"text\":\"").append(message).append("\",");
+    messageBuffer.append("\"sources\":[{");
+
+    if (sourceInfo != SourceInfo.UNKNOWN) {
+      String fileName = new File(sourceInfo.getFileName()).getAbsolutePath();
+
+      messageBuffer.append("\"file\":\"").append(fileName).append("\",");
+      messageBuffer.append("\"position\":{");
+
+      // Convert unknown values to match sdk expectations
+      int startLine = sourceInfo.getStartLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? -1
+          : sourceInfo.getStartLine();
+      int startColumn = sourceInfo.getStartColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1
+          : sourceInfo.getStartColumn();
+      int endLine =
+          sourceInfo.getEndLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : sourceInfo.getEndLine();
+      int endColumn = sourceInfo.getEndColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1
+          : sourceInfo.getEndColumn();
+
+      messageBuffer.append("\"startLine\":").append(startLine).append(',');
+      messageBuffer.append("\"startColumn\":").append(startColumn).append(',');
+      messageBuffer.append("\"startOffset\":-1,");
+      messageBuffer.append("\"endLine\":").append(endLine).append(',');
+      messageBuffer.append("\"endColumn\":").append(endColumn).append(',');
+      messageBuffer.append("\"endOffset\":-1");
+
+      messageBuffer.append('}');
     }
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    if (startLine >= 0) {
-      messageBuffer.append(startLine);
-    }
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    if (endLine >= 0) {
-      messageBuffer.append(endLine);
-    }
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    if (startColumn >= 0) {
-      messageBuffer.append(startColumn);
-    }
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    if (endColumn >= 0) {
-      messageBuffer.append(endColumn);
-    }
-    messageBuffer.append(MESSAGE_SEPARATOR);
-    messageBuffer.append(message);
+
+    messageBuffer.append("}]}");
 
     PrintStream printer = streamByLevel.get(problemLevel);
     if (printer == null) {
@@ -72,4 +76,18 @@ public class SdkReporter extends CommonReporter {
 
     printer.println(messageBuffer.toString());
   }
+
+  private String convertLevelName(@Nonnull ProblemLevel problemLevel) {
+    switch (problemLevel) {
+      case ERROR:
+        return "ERROR";
+      case WARNING:
+        return "WARNING";
+      case INFO:
+        return "INFO";
+      default:
+        throw new AssertionError("Unkown problem level: '" + problemLevel.name() + "'");
+    }
+  }
+
 }
