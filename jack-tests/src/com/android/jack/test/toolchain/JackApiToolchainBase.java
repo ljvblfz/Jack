@@ -21,7 +21,6 @@ import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackProvider;
 import com.android.jack.api.JackProvider.SubReleaseKind;
 import com.android.jack.api.v01.VerbosityLevel;
-import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestConfigurationException;
 
 import java.io.File;
@@ -127,8 +126,5 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
     this.incrementalFolder = incrementalFolder;
     return this;
   }
-
-  @Nonnull
-  public abstract JackApiToolchainBase setShrobFlags(@Nonnull Flags shrobFlags);
 
 }

@@ -26,7 +26,6 @@ import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
-import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestConfigurationException;
 import com.android.sched.vfs.Container;
 
@@ -130,13 +129,6 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     } catch (ConfigurationException e) {
       throw new TestConfigurationException(e);
     }
-  }
-
-  @Override
-  @Nonnull
-  public JackApiV01Toolchain setShrobFlags(@Nonnull Flags shrobFlags) {
-    // STOPSHIP(jmhenaff): another CL remove the need for this API
-    throw new AssertionError("Must no be used");
   }
 
   @Override
