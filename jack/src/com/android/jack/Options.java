@@ -1042,7 +1042,6 @@ public class Options {
     this.standardOutput = standardOutput;
   }
 
-  //STOPSHIP: Hack to handle working directory with proguard flags file
   public List<File> getProguardFlagsFile() {
     List<File> proguardFlagsFileFromWorkingDir = new ArrayList<File>(proguardFlagsFiles.size());
     for (File proguardFlagsFile : proguardFlagsFiles) {
