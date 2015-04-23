@@ -65,7 +65,7 @@ public class Api01ConfigImpl implements Api01Config {
   @Override
   @Nonnull
   public Api01CompilationTask getTask() throws ConfigurationException {
-    RunnableHooks configHooks = new RunnableHooks(); //STOPSHIP: run configHooks
+    RunnableHooks configHooks = new RunnableHooks();
     try {
       Jack.check(options, configHooks);
     } catch (com.android.sched.util.config.ConfigurationException e) {
