@@ -482,6 +482,12 @@ public class Options {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
+  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION = BooleanPropertyId.create(
+      "jack.optimization.tail-recursion",
+      "Optimize tail recursive calls")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
       .addDefaultValue(Boolean.FALSE);

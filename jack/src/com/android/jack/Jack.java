@@ -103,6 +103,8 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.Reporter;
@@ -524,6 +526,10 @@ public abstract class Jack {
 
       if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
         request.addFeature(AvoidSynthethicAccessors.class);
+      }
+
+      if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+        request.addFeature(TailRecursionOptimization.class);
       }
 
       request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
@@ -1014,6 +1020,9 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan3 =
             typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan3.append(FieldInitMethodCallRemover.class);
+        if (features.contains(TailRecursionOptimization.class)) {
+          methodPlan3.append(TailRecursionOptimizer.class);
+        }
       }
       typePlan4.append(FieldInitMethodRemover.class);
     }

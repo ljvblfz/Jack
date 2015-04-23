@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.ir.impl.ReferenceMapperTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
+import com.android.jack.optimizations.tailrecursion.TailRecursionTest;
 import com.android.jack.preprocessor.PreProcessorTest;
 import com.android.jack.reporting.ProblemLevelTest;
 import com.android.jack.tracer.TracingTest;
@@ -63,6 +64,7 @@ import org.junit.runners.Suite.SuiteClasses;
     Types.class,
     UnaryTest.class,
     UselessCastRemoverTest.class,
-    TracingTest.class})
+    TracingTest.class,
+    TailRecursionTest.class})
 public class AllUnitTests {
 }

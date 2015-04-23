@@ -25,6 +25,7 @@ import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -364,6 +365,10 @@ public class TestTools {
       request.addFeature(DropMethodBody.class);
     }
 
+    if (options.getConfig().get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+      request.addFeature(TailRecursionOptimization.class);
+    }
+
     OutputJackLibrary outputLibrary = null;
     try {
       outputLibrary = JackLibraryFactory.getOutputLibrary(new CachedDirectFS(new Directory(
@@ -393,19 +398,7 @@ public class TestTools {
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
     commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
-    JSession session = TestTools.buildSession(commandLineArgs);
-    Assert.assertNotNull(session);
-
-    JDefinedClassOrInterface type =
-        (JDefinedClassOrInterface) session.getLookup().getType(className);
-    Assert.assertNotNull(type);
-
-    JMethod foundMethod = null;
-    foundMethod = getMethod(type, methodSignature);
-
-    Assert.assertNotNull(foundMethod);
-
-    return foundMethod;
+    return getJMethodWithCommandLineArgs(commandLineArgs, className, methodSignature);
   }
 
   @Nonnull
@@ -416,6 +409,12 @@ public class TestTools {
     commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
         methodSignature);
     commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
+    return getJMethodWithCommandLineArgs(commandLineArgs, className, methodSignature);
+  }
+
+  @Nonnull
+  public static JMethod getJMethodWithCommandLineArgs(@Nonnull Options commandLineArgs,
+      @Nonnull String className, @Nonnull String methodSignature) throws Exception {
     JSession session = TestTools.buildSession(commandLineArgs);
     Assert.assertNotNull(session);
 
