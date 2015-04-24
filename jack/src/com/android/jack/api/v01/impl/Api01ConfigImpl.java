@@ -116,8 +116,7 @@ public class Api01ConfigImpl implements Api01Config {
         if (e instanceof RuntimeException) {
           throw (RuntimeException) e;
         } else {
-          throw new RuntimeException(e); //STOPSHIP: we have Throwables here that we can't throw as
-                                         //is
+          throw new RuntimeException(e);
         }
       } finally {
         runSessionHooks.runHooks();
