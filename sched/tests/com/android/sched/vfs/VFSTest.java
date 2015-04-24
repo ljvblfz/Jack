@@ -629,7 +629,6 @@ public class VFSTest {
           new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
       testOutputVFS(zipVFS);
       testDelete(zipVFS);
-      //STOPSHIP: should be a ZipLocation but is currently a FileOrDirLocation
 //      checkZipLocations(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
