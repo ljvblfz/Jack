@@ -20,6 +20,7 @@ import com.android.jack.api.JackConfig;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -188,7 +189,7 @@ public interface Api01Config extends JackConfig {
    * @param sourceEntries The source entries
    * @throws ConfigurationException
    */
-  void setSourceEntries(@Nonnull List<File> sourceEntries) throws ConfigurationException;
+  void setSourceEntries(@Nonnull Collection<File> sourceEntries) throws ConfigurationException;
 
   /**
    * Sets the value for the given property.

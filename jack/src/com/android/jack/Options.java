@@ -107,6 +107,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -526,8 +527,8 @@ public class Options {
     return helpProperties;
   }
 
-  public void setInputSources(@Nonnull List<File> inputSources) {
-    this.inputSources = inputSources;
+  public void setInputSources(@Nonnull Collection<File> inputSources) {
+    this.inputSources = new ArrayList<File>(inputSources);
   }
 
   public void setOutputDir(File out) {

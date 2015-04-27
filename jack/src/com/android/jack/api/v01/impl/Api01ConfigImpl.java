@@ -44,6 +44,7 @@ import com.android.sched.util.RunnableHooks;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -328,7 +329,7 @@ public class Api01ConfigImpl implements Api01Config {
   }
 
   @Override
-  public void setSourceEntries(@Nonnull List<File> sourceEntries) {
+  public void setSourceEntries(@Nonnull Collection<File> sourceEntries) {
     options.setInputSources(sourceEntries);
   }
 
