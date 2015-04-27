@@ -150,11 +150,23 @@ public class ShrinkTests extends AbstractTest {
           new File(shrobTestsDir, "test021/jack"));
 
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+      File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+      toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+      toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+          candidateNodeListing.getPath());
+      toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+      toolchain.disableDxOptimizations();
+
+
       toolchain.addProguardFlags(
           dontObfuscateFlagFile,
           new ProguardFlags(new File( shrobTestsDir, "test021"),"proguard.flags001"));
       shrinkOut = AbstractTestTools.createTempDir();
       toolchain.libToLib(jackOut, shrinkOut, /* zipFiles = */ false);
+
+      new ComparatorMapping(candidateNodeListing,
+          new File(shrobTestsDir, "test021/refsShrinking/expected-001.txt")).compare();
 
       dexOut = AbstractTestTools.createTempDir();
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
