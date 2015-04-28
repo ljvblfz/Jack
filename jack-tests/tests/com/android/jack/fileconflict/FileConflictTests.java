@@ -577,8 +577,6 @@ public class FileConflictTests {
     toolchain = getToolchain(isApiTest);
     toolchain.addProguardFlags(new File(TEST001_DIR, "proguard.flags"));
     toolchain.addStaticLibs(jackImport1, jackImport2);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-
     if (collisionPolicy != null) {
       toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), collisionPolicy);
     }
