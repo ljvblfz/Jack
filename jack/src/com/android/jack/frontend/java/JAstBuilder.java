@@ -27,6 +27,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.impl.EcjSourceTypeLoader;
 import com.android.jack.ir.impl.JackIrBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
+import com.android.jack.ir.impl.SourceCompilationException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
@@ -132,6 +133,8 @@ class JAstBuilder extends JavaParser {
         List<JDefinedClassOrInterface> types;
         try {
           types = astBuilder.process(unit);
+        } catch (SourceCompilationException e) {
+          return;
         } finally {
           jackIrBuilderEvent.end();
         }

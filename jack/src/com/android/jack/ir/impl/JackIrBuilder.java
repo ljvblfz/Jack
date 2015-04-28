@@ -854,7 +854,7 @@ public class JackIrBuilder {
                 superClass);
           }
           if (nestedSuper) {
-            processSuperCallThisArgs(superClass, call, qualifier, x.qualification);
+            processSuperCallThisArgs(superClass, call, qualifier, x);
           }
           call.addArgs(callArgs);
           if (nestedSuper) {
@@ -1291,7 +1291,7 @@ public class JackIrBuilder {
             ReferenceBinding targetType =
                 scope.enclosingSourceType().enclosingTypeAt(
                     (x.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
-            receiver = makeThisReference(info, targetType, true, scope);
+            receiver = makeThisReference(info, targetType, true, scope, x);
           }
         }
 
@@ -1488,7 +1488,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         ReferenceBinding targetType = (ReferenceBinding) x.qualification.resolvedType;
-        push(makeThisReference(info, targetType, true, scope));
+        push(makeThisReference(info, targetType, true, scope, x));
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
@@ -2476,11 +2476,38 @@ public class JackIrBuilder {
       return new JThisRef(info, jThis);
     }
 
+    @Nonnull
+    private Object[] getEmulationPath(@Nonnull BlockScope scope,
+        @Nonnull ReferenceBinding targetType,
+        boolean exactMatch,
+        boolean denyEnclosingArgInConstructorCall,
+        ASTNode node) {
+      Object[] path = scope.getEmulationPath(targetType, exactMatch,
+          denyEnclosingArgInConstructorCall);
+      // STOPSHIP Check other cases and report error to the user
+      if (path == null) {
+        throw new FrontendCompilationError();
+      }
+      return path;
+    }
+
+    @Nonnull
+    private VariableBinding[] getEmulationPath(@Nonnull BlockScope scope,
+        @Nonnull LocalVariableBinding localVariable,
+        ASTNode node) {
+      VariableBinding[] path = scope.getEmulationPath(localVariable);
+      // STOPSHIP Report error to the user
+      if (path == null) {
+        throw new FrontendCompilationError();
+      }
+      return path;
+    }
+
     private JExpression makeThisReference(SourceInfo info, ReferenceBinding targetType,
-        boolean exactMatch, BlockScope scope) throws JTypeLookupException {
+        boolean exactMatch, BlockScope scope, ASTNode node) throws JTypeLookupException {
       targetType = (ReferenceBinding) targetType.erasure();
-      Object[] path = scope.getEmulationPath(targetType, exactMatch, false);
-      assert path != null : "No emulation path.";
+      Object[] path = getEmulationPath(scope, targetType, exactMatch,
+          /* denyEnclosingArgInConstructorCall = */ false, node);
       if (path == BlockScope.EmulationPathToImplicitThis) {
         return makeThisRef(info);
       }
@@ -2627,15 +2654,16 @@ public class JackIrBuilder {
     }
 
     private void processSuperCallThisArgs(ReferenceBinding superClass, JMethodCall call,
-        JExpression qualifier, Expression qualification) throws JTypeLookupException {
+        JExpression qualifier, ExplicitConstructorCall expression) throws JTypeLookupException {
       if (superClass.syntheticEnclosingInstanceTypes() != null) {
+        Expression qualification = expression.qualification;
         for (ReferenceBinding targetType : superClass.syntheticEnclosingInstanceTypes()) {
           if (qualification != null && superClass.enclosingType() == targetType) {
             assert qualification.resolvedType.erasure().isCompatibleWith(targetType);
             call.addArg(qualifier);
           } else {
             call.addArg(makeThisReference(call.getSourceInfo(), targetType, false,
-                curMethod.scope));
+                curMethod.scope, expression));
           }
         }
       }
@@ -2797,16 +2825,13 @@ public class JackIrBuilder {
               JMultiExpression multiExpr = new JMultiExpression(info, exprs);
               call.addArg(multiExpr);
             } else {
-              JExpression thisRef = makeThisReference(info, argType, false, scope);
+              JExpression thisRef = makeThisReference(info, argType, false, scope, x);
               call.addArg(thisRef);
-              Object[] emulationPath = scope.getEmulationPath(
+              Object[] emulationPath = getEmulationPath(scope,
                   argType,
                   false /* onlyExactMatch */,
-                  true /* denyEnclosingArgInConstructorCall */);
-              if (emulationPath == BlockScope.NoEnclosingInstanceInConstructorCall) {
-                scope.problemReporter().noSuchEnclosingInstance(checkedTargetType,
-                    x.concreteStatement(), true);
-              }
+                  true /* denyEnclosingArgInConstructorCall */,
+                  x);
             }
           }
         }
@@ -2900,16 +2925,7 @@ public class JackIrBuilder {
       if (binding instanceof LocalVariableBinding) {
         LocalVariableBinding b = (LocalVariableBinding) binding;
         if ((x.bits & ASTNode.DepthMASK) != 0) {
-          VariableBinding[] path = scope.getEmulationPath(b);
-          if (path == null) {
-            /*
-             * Don't like this, but in rare cases (e.g. the variable is only
-             * ever used as an unnecessary qualifier) JDT provides no emulation
-             * to the desired variable.
-             */
-            // throw new InternalCompilerException("No emulation path.");
-            return null;
-          }
+          VariableBinding[] path = getEmulationPath(scope, b, x);
           assert path.length == 1;
           if (curMethod.scope.isInsideInitializer()
               && path[0] instanceof SyntheticArgumentBinding) {
@@ -2948,7 +2964,7 @@ public class JackIrBuilder {
             ReferenceBinding targetType =
                 scope.enclosingSourceType().enclosingTypeAt(
                     (x.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
-            thisRef = makeThisReference(info, targetType, true /* exactMatch */, scope);
+            thisRef = makeThisReference(info, targetType, true /* exactMatch */, scope, x);
           } else {
             thisRef = makeThisRef(info);
           }
@@ -3266,6 +3282,15 @@ public class JackIrBuilder {
     }
   }
 
+  private static class FrontendCompilationError extends Error {
+
+    private static final long serialVersionUID = 1L;
+
+    public FrontendCompilationError() {
+      super();
+    }
+  }
+
   private static final String ARRAY_LENGTH_FIELD = "length";
 
   /**
@@ -3395,7 +3420,8 @@ public class JackIrBuilder {
     return typeMap;
   }
 
-  public List<JDefinedClassOrInterface> process(CompilationUnitDeclaration cud) {
+  public List<JDefinedClassOrInterface> process(CompilationUnitDeclaration cud)
+      throws SourceCompilationException {
     if (cud.types == null) {
       return Collections.emptyList();
     }
@@ -3425,9 +3451,18 @@ public class JackIrBuilder {
       // Create fields and empty methods.
       createMembers(typeDecl);
     }
+    boolean hasErrors = false;
     for (TypeDeclaration typeDecl : cud.types) {
-      // Build the code.
-      typeDecl.traverse(astVisitor, cud.scope);
+      try {
+        // Build the code.
+        typeDecl.traverse(astVisitor, cud.scope);
+      } catch (FrontendCompilationError e) {
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      throw new SourceCompilationException();
     }
 
     List<JDefinedClassOrInterface> result = newTypes;
