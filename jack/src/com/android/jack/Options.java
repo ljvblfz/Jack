@@ -17,7 +17,6 @@
 package com.android.jack;
 
 import com.google.common.base.Joiner;
-import com.google.common.io.Files;
 
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
@@ -78,6 +77,7 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
+import com.android.sched.util.file.Files;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.OutputStreamFile;

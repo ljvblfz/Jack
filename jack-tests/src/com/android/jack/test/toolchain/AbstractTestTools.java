@@ -17,7 +17,7 @@
 package com.android.jack.test.toolchain;
 
 import com.google.common.base.Splitter;
-import com.google.common.io.Files;
+
 
 import com.android.jack.Sourcelist;
 import com.android.jack.test.TestConfigurationException;
@@ -28,6 +28,7 @@ import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.file.Files;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.junit.Assume;
@@ -333,7 +334,7 @@ public abstract class AbstractTestTools {
 
       assert src.isFile();
 
-      Files.copy(src, dest);
+      com.google.common.io.Files.copy(src, dest);
     }
   }
 
