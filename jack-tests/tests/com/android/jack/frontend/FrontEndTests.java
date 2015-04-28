@@ -305,7 +305,6 @@ public class FrontEndTests {
    * Test that Jack is neither failing nor dropping the error in this case.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testUnusedLocalVar001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 

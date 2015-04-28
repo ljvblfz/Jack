@@ -1862,8 +1862,17 @@ public class JackIrBuilder {
             explicitConstructor.qualification,
             allocated);
         throw new FrontendCompilationError();
+      } else if (explicitConstructor.qualification != null && isNested(allocated)) {
+        ReferenceBinding targetType;
+        if (allocated.isAnonymousType()) {
+          targetType = (ReferenceBinding) allocated.superclass().erasure();
+        } else {
+          targetType = allocated;
+        }
+        scope.problemReporter().unnecessaryEnclosingInstanceSpecification(
+            explicitConstructor.qualification, targetType);
+        throw new FrontendCompilationError();
       }
-      // STOPSHIP Check other cases and report error to the user
 
       scope.methodScope().isConstructorCall = true;
       return true;
@@ -2033,7 +2042,17 @@ public class JackIrBuilder {
     @Override
     public boolean visit(QualifiedAllocationExpression allocation, BlockScope scope) {
       ReferenceBinding allocated = allocation.binding.declaringClass;
-      // STOPSHIP Check error cases and report error to the user
+      if (allocation.enclosingInstance != null && !isNested(allocated)) {
+        ReferenceBinding targetType;
+        if (allocated.isAnonymousType()) {
+          targetType = (ReferenceBinding) allocated.superclass().erasure();
+        } else {
+          targetType = allocated;
+        }
+        scope.problemReporter().unnecessaryEnclosingInstanceSpecification(allocation,
+            targetType);
+        throw new FrontendCompilationError();
+      }
       return super.visit(allocation, scope);
     }
 
