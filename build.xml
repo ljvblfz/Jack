@@ -722,6 +722,7 @@
       <exclude name="com/android/jack/frontend/test014/jack/ExtendingInnerInStaticContext.java"/>
       <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
+      <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
       <exclude name="com/android/jack/java7/boxing/**"/>
       <exclude name="com/android/jack/java7/switches/**"/>
