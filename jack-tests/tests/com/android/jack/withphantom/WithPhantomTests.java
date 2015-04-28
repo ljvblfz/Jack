@@ -77,21 +77,26 @@ public class WithPhantomTests {
     File tempOut1 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink1.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
     File tempOut2 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
-    toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink2.flags"))
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addProguardFlags(new ProguardFlags(testFolder, "shrink2.flags"))
+
     .libToLib(tempJackFolder, tempOut2, /* zipFiles = */ false);
 
     File tempOut3 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut3, /* zipFiles = */ false);
 
     File tempOut4 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf2.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut4, /* zipFiles = */ false);
 
     File tempOut5 = AbstractTestTools.createTempDir();
@@ -126,21 +131,25 @@ public class WithPhantomTests {
     File tempOut1 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink1.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
     File tempOut2 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink2.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut2, /* zipFiles = */ false);
 
     File tempOut3 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut3, /* zipFiles = */ false);
 
     File tempOut4 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf2.flags"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .libToLib(tempJackFolder, tempOut4, /* zipFiles = */ false);
 
     File tempOutFolder = AbstractTestTools.createTempDir();
