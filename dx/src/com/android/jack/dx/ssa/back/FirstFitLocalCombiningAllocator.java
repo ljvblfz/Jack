@@ -124,11 +124,9 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
    *
    * @param ssaMeth {@code non-null;} method to process
    * @param interference non-null interference graph for SSA registers
-   * @param minimizeRegisters true if converter should take steps to
    * minimize rop-form registers
    */
-  public FirstFitLocalCombiningAllocator(SsaMethod ssaMeth, InterferenceGraph interference,
-      boolean minimizeRegisters) {
+  public FirstFitLocalCombiningAllocator(SsaMethod ssaMeth, InterferenceGraph interference) {
     super(ssaMeth, interference);
 
     ssaRegsMapped = new BitSet(ssaMeth.getRegCount());

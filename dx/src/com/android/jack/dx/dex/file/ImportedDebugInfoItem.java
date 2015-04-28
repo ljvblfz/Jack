@@ -34,8 +34,6 @@ import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 
-import java.io.PrintWriter;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -114,15 +112,6 @@ public class ImportedDebugInfoItem extends OffsettedItem {
    * @param prefix {@code null-ok;} prefix to attach to each line of output
    */
   public void annotateTo(DexFile file, AnnotatedOutput out, String prefix) {
-    throw new RuntimeException("unsupported");
-  }
-
-  /**
-   * Does a human-friendly dump of this instance.
-   * @param out {@code non-null;} where to dump
-   * @param prefix {@code non-null;} prefix to attach to each line of output
-   */
-  public void debugPrint(PrintWriter out, String prefix) {
     throw new RuntimeException("unsupported");
   }
 

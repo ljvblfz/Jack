@@ -250,7 +250,7 @@ public final class CodeItem extends OffsettedItem implements Code {
     out.writeInt(debugOff);
     out.writeInt(insnsSz);
 
-    writeCodes(file, out);
+    writeCodes(out);
 
     if (catches != null) {
       if (needPadding) {
@@ -260,7 +260,7 @@ public final class CodeItem extends OffsettedItem implements Code {
         out.writeShort(0);
       }
 
-      catches.writeTo(file, out);
+      catches.writeTo(out);
     }
 
     if (annotates) {
@@ -278,10 +278,9 @@ public final class CodeItem extends OffsettedItem implements Code {
   /**
    * Helper for {@link #writeTo0} which writes out the actual bytecode.
    *
-   * @param file {@code non-null;} file we are part of
    * @param out {@code non-null;} where to write to
    */
-  private void writeCodes(DexFile file, AnnotatedOutput out) {
+  private void writeCodes(AnnotatedOutput out) {
     DalvInsnList insns = code.getInsns();
 
     try {

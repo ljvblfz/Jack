@@ -104,7 +104,7 @@ public class Optimizer {
     ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
     runSsaFormSteps(ssaMeth, steps);
 
-    RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth, false);
+    RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth);
 
     if (resultMeth.getBlocks().getRegCount() > advice.getMaxOptimalRegisterCount()) {
       // Try to see if we can squeeze it under the register count bar
@@ -114,16 +114,13 @@ public class Optimizer {
   }
 
   /**
-   * Runs the optimizer with a strategy to minimize the number of rop-form
-   * registers used by the end result. Dex bytecode does not have instruction
-   * forms that take register numbers larger than 15 for all instructions.
-   * If we've produced a method that uses more than 16 registers, try again
-   * with a different strategy to see if we can get under the bar. The end
-   * result will be much more efficient.
+   * Dex bytecode does not have instruction forms that take register numbers larger than 15 for all
+   * instructions. If we've produced a method that uses more than 16 registers, try again by
+   * removing the CONST_COLLECTOR step to see if we can get under the bar. The end result will be
+   * much more efficient.
    *
    * @param rmeth method to process
-   * @param paramWidth the total width, in register-units, of this method's
-   * parameters
+   * @param paramWidth the total width, in register-units, of this method's parameters
    * @param isStatic true if this method has no 'this' pointer argument.
    * @param steps set of optional optimization steps to run
    * @return optimized method
@@ -145,7 +142,7 @@ public class Optimizer {
 
     runSsaFormSteps(ssaMeth, newSteps);
 
-    resultMeth = SsaToRop.convertToRopMethod(ssaMeth, true);
+    resultMeth = SsaToRop.convertToRopMethod(ssaMeth);
     return resultMeth;
   }
 

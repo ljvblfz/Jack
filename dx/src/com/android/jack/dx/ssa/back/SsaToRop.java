@@ -48,12 +48,6 @@ public class SsaToRop {
   /** {@code non-null;} method to process */
   private final SsaMethod ssaMeth;
 
-  /**
-   * {@code true} if the converter should attempt to minimize
-   * the rop-form register count
-   */
-  private final boolean minimizeRegisters;
-
   /** {@code non-null;} interference graph */
   private final InterferenceGraph interference;
 
@@ -61,23 +55,19 @@ public class SsaToRop {
    * Converts a method in SSA form to ROP form.
    *
    * @param ssaMeth {@code non-null;} method to process
-   * @param minimizeRegisters {@code true} if the converter should
-   * attempt to minimize the rop-form register count
    * @return {@code non-null;} rop-form output
    */
-  public static RopMethod convertToRopMethod(SsaMethod ssaMeth, boolean minimizeRegisters) {
-    return new SsaToRop(ssaMeth, minimizeRegisters).convert();
+  public static RopMethod convertToRopMethod(SsaMethod ssaMeth) {
+    return new SsaToRop(ssaMeth).convert();
   }
 
   /**
    * Constructs an instance.
    *
    * @param ssaMethod {@code non-null;} method to process
-   * @param minimizeRegisters {@code true} if the converter should
    * attempt to minimize the rop-form register count
    */
-  private SsaToRop(SsaMethod ssaMethod, boolean minimizeRegisters) {
-    this.minimizeRegisters = minimizeRegisters;
+  private SsaToRop(SsaMethod ssaMethod) {
     this.ssaMeth = ssaMethod;
     this.interference = LivenessAnalyzer.constructInterferenceGraph(ssaMethod);
   }
@@ -96,8 +86,7 @@ public class SsaToRop {
     // allocator = new NullRegisterAllocator(ssaMeth, interference);
     // allocator = new FirstFitAllocator(ssaMeth, interference);
 
-    RegisterAllocator allocator =
-        new FirstFitLocalCombiningAllocator(ssaMeth, interference, minimizeRegisters);
+    RegisterAllocator allocator = new FirstFitLocalCombiningAllocator(ssaMeth, interference);
 
     RegisterMapper mapper = allocator.allocateRegisters();
 
