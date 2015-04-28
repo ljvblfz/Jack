@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.frontend.java.EcjProblem;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.OutputStreamFile;
@@ -32,7 +33,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -92,14 +92,18 @@ abstract class CommonReporter implements Reporter {
     if (reportable instanceof EcjProblem) {
       assert severity == Severity.NON_FATAL;
       CategorizedProblem problem = ((EcjProblem) reportable).getProblem();
+      SourceInfo sourceInfo;
+
+      if (problem.getOriginatingFileName() == null) {
+        sourceInfo = SourceInfo.UNKNOWN;
+      } else {
+        sourceInfo = Jack.getSession().getSourceInfoFactory().create(problem.getSourceLineNumber(),
+            SourceInfo.UNKNOWN_LINE_NUMBER, String.valueOf(problem.getOriginatingFileName()));
+      }
+
       printFilteredProblem(reportable.getDefaultProblemLevel(),
-          reportable.getMessage(),
-          problem.getOriginatingFileName() != null ?
-              String.valueOf(problem.getOriginatingFileName()) : null,
-          problem.getSourceLineNumber(),
-          -1 /* endLine */,
-          problem.getSourceEnd(),
-          -1 /* endColumn */);
+          reportable.getMessage(), sourceInfo);
+
     } else {
       // default behavior
       if (severity == Severity.FATAL) {
@@ -111,16 +115,11 @@ abstract class CommonReporter implements Reporter {
   }
 
   private void printFilteredProblem(@Nonnull ProblemLevel problemLevel, @Nonnull String message) {
-    printFilteredProblem(problemLevel, message, null /* fileName */, -1, -1, -1, -1);
+    printFilteredProblem(problemLevel, message, SourceInfo.UNKNOWN);
   }
 
   protected abstract void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
-      @Nonnull String message,
-      @CheckForNull String fileName,
-      int startLine,
-      int endLine,
-      int startColumn,
-      int endColumn);
+      @Nonnull String message, @Nonnull SourceInfo sourceInfo);
 
   class RunReporter implements Runnable {
 
