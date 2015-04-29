@@ -157,6 +157,9 @@ public class JackSimpleServer {
   private static final int CLI_IDX_TIEMOUT = 4;
   private static final int CLI_IDX_END     = 5;
 
+  @Nonnegative
+  private static final int FIFO_TIMEOUT = 30000;
+
   @CheckForNull
   private static Connection serviceConnection;
   @CheckForNull
@@ -382,7 +385,7 @@ public class JackSimpleServer {
           try {
             logger.log(Level.INFO, "Open standard output '" + command[CMD_IDX_OUT] + "'");
             try {
-              out = new FifoStreamFile(command[CMD_IDX_OUT]).getPrintStream(10000);
+              out = new FifoStreamFile(command[CMD_IDX_OUT]).getPrintStream(FIFO_TIMEOUT);
             } catch (IOException | TimeoutException e) {
               logger.log(Level.SEVERE, e.getMessage());
               response.setStatus(Status.BAD_REQUEST);
@@ -391,7 +394,7 @@ public class JackSimpleServer {
 
             logger.log(Level.INFO, "Open standard error '" + command[CMD_IDX_ERR] + "'");
             try {
-              err = new FifoStreamFile(command[CMD_IDX_ERR]).getPrintStream(10000);
+              err = new FifoStreamFile(command[CMD_IDX_ERR]).getPrintStream(FIFO_TIMEOUT);
             } catch (IOException | TimeoutException e) {
               logger.log(Level.SEVERE, e.getMessage());
               response.setStatus(Status.BAD_REQUEST);
