@@ -26,7 +26,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
-import com.android.sched.util.collect.Lists;
 
 import junit.framework.Assert;
 
@@ -36,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -236,8 +236,8 @@ public class RuntimeTestHelper {
     File [] refSources = getRefSrcDir();
     List<File> extras = getReferenceExtraSources();
     List<File> sources = new ArrayList<File>(extras.size() + refSources.length);
-    sources = Lists.addAll(sources, refSources);
-    sources = Lists.addAll(sources, extras);
+    Collections.addAll(sources, refSources);
+    sources.addAll(extras);
 
     File refPartBinaryDir = AbstractTestTools.createTempDir();
     File refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
