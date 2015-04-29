@@ -69,7 +69,7 @@ import com.android.jack.frontend.VirtualMethodsMarker;
 import com.android.jack.frontend.java.JackBatchCompiler;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportExceptionAroundEcjError;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
-import com.android.jack.incremental.GenerateLibraryFromIncrementalFolder;
+import com.android.jack.incremental.Incremental;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JClass;
@@ -515,8 +515,8 @@ public abstract class Jack {
       if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
         request.addFeature(MultiDexLegacy.class);
       }
-      if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-        request.addFeature(GenerateLibraryFromIncrementalFolder.class);
+      if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
+        request.addFeature(Incremental.class);
       }
 
       request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
@@ -867,6 +867,7 @@ public abstract class Jack {
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
+    Config config = ThreadConfig.getConfig();
 
     // TODO(jack-team): Remove this hack
     boolean preDexing = !getSession().getImportedLibraries().isEmpty();
@@ -1012,10 +1013,12 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan;
       // In incremental library mode, Jayce files must be copied into output library
-      if (features.contains(GenerateLibraryFromIncrementalFolder.class)) {
-        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      } else {
+      if (features.contains(Incremental.class)
+          && ((!config.get(Options.GENERATE_JACK_LIBRARY).booleanValue())
+              || config.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) != Container.ZIP)) {
         typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      } else {
+        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       }
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
@@ -1165,10 +1168,12 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan;
       // In incremental library mode, dex files must be copied into output library
-      if (features.contains(GenerateLibraryFromIncrementalFolder.class)) {
-        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      } else {
+      if (features.contains(Incremental.class)
+          && ((!config.get(Options.GENERATE_JACK_LIBRARY).booleanValue())
+              || config.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) != Container.ZIP)) {
         typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      } else {
+        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       }
       if (productions.contains(DexInLibraryProduct.class)) {
         typePlan.append(DexInLibraryWriter.class);
