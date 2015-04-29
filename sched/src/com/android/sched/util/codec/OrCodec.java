@@ -74,7 +74,6 @@ public class OrCodec<T> implements StringCodec<T> {
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull T data) {
-    //STOPSHIP: TBI
   }
 
   @Override
@@ -111,7 +110,6 @@ public class OrCodec<T> implements StringCodec<T> {
   @Override
   @Nonnull
   public String formatValue(@Nonnull T data) {
-    //STOPSHIP: rework?
     for (StringCodec<? extends T> codec : codecList) {
       try {
         return ((StringCodec<T>) codec).formatValue(data);
