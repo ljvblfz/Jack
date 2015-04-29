@@ -76,7 +76,7 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
       }
       visitor.accept(fields);
       visitor.accept(methods);
-      annotations.traverse(visitor);
+      visitor.accept(annotations);
     }
     visitor.endVisit(this);
   }
@@ -90,7 +90,9 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
     for (JMethod method : methods) {
       method.traverse(schedule);
     }
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override

@@ -16,9 +16,11 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.MethodLoader;
+import com.android.jack.util.AnnotationUtils;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -55,7 +57,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private final JType returnType;
 
   @Nonnull
-  private final AnnotationSet annotations = new AnnotationSet();
+  private final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
 
   @Nonnull
   private JMethodId methodId;
@@ -257,27 +259,29 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   public void addAnnotation(@Nonnull JAnnotation annotation) {
-    annotations.addAnnotation(annotation);
+    annotations.add(annotation);
   }
 
   @Override
   @Nonnull
   public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
     loader.ensureAnnotation(this, annotationType);
-    return annotations.getAnnotation(annotationType);
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(
+        AnnotationUtils.getAnnotation(annotations, annotationType));
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotation> getAnnotations() {
     loader.ensureAnnotations(this);
-    return annotations.getAnnotations();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations);
   }
 
   @Override
   @Nonnull
   public Collection<JAnnotationType> getAnnotationTypes() {
-    return annotations.getAnnotationTypes();
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+        AnnotationUtils.getAnnotationTypes(annotations));
   }
 
   @Override
@@ -318,7 +322,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     if (body != null) {
       visitor.accept(body);
     }
-    annotations.traverse(visitor);
+    visitor.accept(annotations);
   }
 
   protected void visitChildren(@Nonnull ScheduleInstance<? super Component> schedule)
@@ -332,14 +336,16 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     if (body != null) {
       body.traverse(schedule);
     }
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override
   protected void transform(@Nonnull JNode existingNode, @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException {
     if (!transform(params, existingNode, (JParameter) newNode, transformation)) {
-      if (!annotations.transform(existingNode, newNode, transformation)) {
+      if (!transform(annotations, existingNode, (JAnnotation) newNode, transformation)) {
         super.transform(existingNode, newNode, transformation);
       }
     }

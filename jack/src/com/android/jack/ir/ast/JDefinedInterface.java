@@ -48,7 +48,7 @@ public class JDefinedInterface extends JDefinedClassOrInterface implements JInte
       }
       visitor.accept(fields);
       visitor.accept(methods);
-      annotations.traverse(visitor);
+      visitor.accept(annotations);
     }
     visitor.endVisit(this);
   }
@@ -62,7 +62,9 @@ public class JDefinedInterface extends JDefinedClassOrInterface implements JInte
     for (JMethod method : methods) {
       method.traverse(schedule);
     }
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override

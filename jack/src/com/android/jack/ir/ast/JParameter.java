@@ -47,7 +47,7 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
-      annotations.traverse(visitor);
+      visitor.accept(annotations);
     }
     visitor.endVisit(this);
   }
@@ -55,7 +55,9 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    annotations.traverse(schedule);
+    for (JAnnotation annotation : annotations) {
+      annotation.traverse(schedule);
+    }
   }
 
   @Override
