@@ -208,7 +208,6 @@ public abstract class CommonFilter {
       if (library instanceof InputJackLibrary) {
         libraries.add(library);
       } else if (library instanceof InvalidLibrary) {
-        // STOPSHIP: rework reporting of InvalidLibrary, the following code is pretty bad...
         // let's find why this library is invalid
         Exception exception = null;
         try {
