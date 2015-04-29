@@ -52,9 +52,9 @@ public class SdkReporter extends CommonReporter {
           : sourceInfo.getStartLine();
       int startColumn = sourceInfo.getStartColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1
           : sourceInfo.getStartColumn();
-      int endLine =
-          sourceInfo.getEndLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : sourceInfo.getEndLine();
-      int endColumn = sourceInfo.getEndColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1
+      int endLine = sourceInfo.getEndLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? startLine
+          : sourceInfo.getEndLine();
+      int endColumn = sourceInfo.getEndColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? startColumn
           : sourceInfo.getEndColumn();
 
       messageBuffer.append("\"startLine\":").append(startLine).append(',');
