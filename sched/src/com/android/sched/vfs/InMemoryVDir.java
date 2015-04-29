@@ -116,10 +116,6 @@ abstract class InMemoryVDir extends BaseVDir {
   @Override
   @Nonnull
   public synchronized Collection<? extends BaseVElement> list() {
-//    assert !vfs.isClosed();
-    // STOPSHIP: There is a problem with this assertion, likely due to PrefixedFS that has a close()
-    // method that is not related to the the close() method of the underlying VFS.
-
     return Collections.unmodifiableCollection(map.values());
   }
 
