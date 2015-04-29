@@ -322,7 +322,7 @@ public class VFSTest {
   }
 
   @Test
-  @Ignore //STOPSHIP: fix this
+  @Ignore
   public void testMessageDigestFSWithCaseInsensitiveFS()
       throws NotDirectoryException,
       CannotCreateFileException,
