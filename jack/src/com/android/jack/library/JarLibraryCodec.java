@@ -61,7 +61,6 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
   @CheckForNull
   public JarLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    // STOPSHIP: rework
     InputZipFile inputZipFile;
     try {
       inputZipFile = new InputZipFile(string, context.getRunnableHooks(), existence, change);
