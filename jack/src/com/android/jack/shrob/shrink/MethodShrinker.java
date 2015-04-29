@@ -17,7 +17,10 @@
 package com.android.jack.shrob.shrink;
 
 import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -37,8 +40,36 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes all methods not marked with the KeepMarker")
 @Synchronized
-@Constraint(need = KeepMarker.class)
+@Constraint(need = {KeepMarker.class, PartialTypeHierarchy.class})
 public class MethodShrinker implements RunnableSchedulable<JMethod> {
+
+  private static final class UnknownReferencedTypeException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
+    @Nonnull
+    private final JPhantomClassOrInterface unknownType;
+
+    @Nonnull
+    private final JMethod shrinkedMethod;
+
+    private UnknownReferencedTypeException(@Nonnull JPhantomClassOrInterface unknownType,
+        @Nonnull JMethod shrinkedMethod) {
+      this.unknownType = unknownType;
+      this.shrinkedMethod = shrinkedMethod;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Unknown referenced type '"
+          + Jack.getUserFriendlyFormatter().getName(unknownType)
+          + "' while trying to remove method '"
+          + Jack.getUserFriendlyFormatter().getName(shrinkedMethod)
+          + "' from '"
+          + Jack.getUserFriendlyFormatter().getName(shrinkedMethod.getEnclosingType()) + "'";
+    }
+  }
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -56,6 +87,13 @@ public class MethodShrinker implements RunnableSchedulable<JMethod> {
       logger.log(Level.INFO, "Removed method {0} from {1}", new Object[] {
           Jack.getUserFriendlyFormatter().getName(method),
           Jack.getUserFriendlyFormatter().getName(method.getEnclosingType())});
+      PartialTypeHierarchy pth = method.getEnclosingType().getMarker(PartialTypeHierarchy.class);
+      if (pth != null)  {
+        ShrinkingException reportable = new ShrinkingException(
+            new UnknownReferencedTypeException(pth.getUnknownType(), method));
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
+      }
     }
     tracer.getStatistic(ShrinkStatistic.METHODS_REMOVED).add(toRemove);
   }

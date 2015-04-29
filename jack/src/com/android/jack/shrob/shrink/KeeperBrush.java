@@ -18,10 +18,16 @@ package com.android.jack.shrob.shrink;
 
 import com.android.jack.analysis.tracer.AbstractTracerBrush;
 import com.android.jack.analysis.tracer.Tracer;
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JPhantomClass;
+import com.android.jack.ir.ast.JPhantomInterface;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
@@ -38,7 +44,7 @@ import javax.annotation.Nonnull;
  * shrinking.
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
-@Transform(add = KeepMarker.class)
+@Transform(add = {KeepMarker.class, PartialTypeHierarchy.class})
 @Constraint(need = SeedMarker.class)
 @HasKeyId
 public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
@@ -117,4 +123,38 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
     return marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING;
   }
 
+  @Override
+  public boolean startTrace(@Nonnull JDefinedClassOrInterface type) {
+    boolean traceType = markIfNecessary(type);
+    if (traceType) {
+      if (type instanceof JDefinedClass) {
+        verifyHierarchy((JDefinedClass) type);
+      } else {
+        assert type instanceof JDefinedInterface;
+        verifyImplementedInterfaces(type);
+      }
+    }
+    return traceType;
+  }
+
+  private void verifyHierarchy(@Nonnull JDefinedClass t) {
+    JClass superClass = t.getSuperClass();
+    if (superClass instanceof JPhantomClass) {
+      t.addMarker(new PartialTypeHierarchy((JPhantomClass) superClass));
+    } else if (superClass != null) {
+      verifyHierarchy((JDefinedClass) superClass);
+    }
+    verifyImplementedInterfaces(t);
+  }
+
+  private void verifyImplementedInterfaces(@Nonnull JDefinedClassOrInterface t) {
+    for (JInterface jInterface : t.getImplements()) {
+      if (jInterface instanceof JPhantomInterface) {
+        t.addMarker(new PartialTypeHierarchy((JPhantomInterface) jInterface));
+      } else {
+        assert jInterface instanceof JDefinedInterface;
+        verifyImplementedInterfaces((JDefinedInterface) jInterface);
+      }
+    }
+  }
 }
