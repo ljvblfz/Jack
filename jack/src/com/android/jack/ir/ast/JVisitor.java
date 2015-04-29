@@ -120,8 +120,13 @@ public class JVisitor {
     endVisit((JExpression) x);
   }
 
+  /**
+   * End visit of a {@link JAnnotation}.
+   * @param annotation annotation to visit.
+   */
   public void endVisit(@Nonnull JAnnotation annotation) {
-    endVisit((JExpression) annotation);
+    // Few JVisitor instances need to visit annotation, thus by default don't visit them.
+    // Use JVisitorWithAnnotation to visit them.
   }
 
   public void endVisit(@Nonnull JArrayLength x) {
@@ -500,8 +505,14 @@ public class JVisitor {
     return visit((JExpression) x);
   }
 
+  /**
+   * Visit of a {@link JAnnotation}.
+   * @param annotation annotation to visit.
+   */
   public boolean visit(@Nonnull JAnnotation annotation) {
-    return visit((JExpression) annotation);
+    // Few JVisitor instances need to visit annotation, thus by default don't visit them.
+    // Use JVisitorWithAnnotation to visit them.
+    return false;
   }
 
   public boolean visit(@Nonnull JArrayLength x) {
@@ -888,9 +899,15 @@ public class JVisitor {
     visit((JExpression) x, transformRequest);
   }
 
+  /**
+   * Visit of a {@link JAnnotation} with a {@link TransformRequest} to apply on.
+   * @param annotation annotation to visit.
+   * @param transformRequest transformation request to apply.
+   */
   public void visit(@Nonnull JAnnotation annotation, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) annotation, transformRequest);
+    // Few JVisitor instances need to visit annotation, thus by default don't visit them.
+    // Use JVisitorWithAnnotation to visit them.
   }
 
   public void visit(@Nonnull JArrayLength x, @Nonnull TransformRequest transformRequest)
