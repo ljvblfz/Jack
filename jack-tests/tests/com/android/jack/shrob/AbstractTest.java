@@ -23,6 +23,8 @@ import com.android.jack.ProguardFlags;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,6 +35,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -594,5 +598,11 @@ public abstract class AbstractTest {
   @Category(KnownBugs.class)
   public void test41_001() throws Exception {
     runTest("041", "001", "");
+  }
+
+  protected void checkToolchainIsNotJillBased() {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(LegacyJillToolchain.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, excludeList);
   }
 }
