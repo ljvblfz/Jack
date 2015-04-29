@@ -59,7 +59,7 @@ fi
 #
 if [ "$SERVER" != "true" ]; then
   exec $JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.Main "$@"
-  echo "Cannot succeed to launch Jack" >&2
+  echo "ERROR: Cannot succeed to launch Jack without Jack server" >&2
   exit 255
 fi
 
@@ -135,7 +135,7 @@ while true; do
     # Failed to connect
     if [ $(date +%s) -ge $DATE_CONNECT ]; then
       if [ $RETRY_LAUNCH -eq 0 ]; then
-        echo "Cannot launch background server" >&2
+        echo "ERROR: Cannot launch Jack server" >&2
         abort
       else
         let RETRY_LAUNCH=RETRY_LAUNCH-1
@@ -153,21 +153,21 @@ while true; do
     # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "Security problem, see server log ($SERVER_LOG)" >&2
+      echo "ERROR: Security problem, see Jack server log ($SERVER_LOG)" >&2
       abort
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
-      echo "Bad request, see server log ($SERVER_LOG)" >&2
+      echo "ERROR: Bad request, see Jack server log ($SERVER_LOG)" >&2
       abort
     else
       # Other
-      echo "Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see server log ($SERVER_LOG)" >&2
+      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see Jack server log ($SERVER_LOG)" >&2
       abort
     fi
   else
     # In case of partial, timeout, empty respond, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
-      echo "Communication error with server ($CURL_CODE)" >&2
+      echo "ERROR: Communication error with Jack server ($CURL_CODE)" >&2
       abort
     else
       let RETRY_SESSION=RETRY_SESSION-1

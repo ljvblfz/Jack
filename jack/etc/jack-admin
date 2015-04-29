@@ -84,7 +84,7 @@ case $1 in
     echo "Killing background server"
     kill $(ps aux | grep JackSimpleServer | grep -v grep | awk '{print $2}') 2>/dev/null
     if [ $? -ne 0 ]; then
-      echo "No server to kill" >&2
+      echo "ERROR: No Jack server to kill" >&2
       exit 2
     else
       exit 0 
@@ -94,7 +94,7 @@ case $1 in
     exit $? ;;
   start-server)
     SERVER_PRG="$JACK_VM_COMMAND -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
-    echo "Launching background server" $SERVER_PRG
+    echo "Launching Jack server" $SERVER_PRG
     $SERVER_PRG $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT >>$SERVER_LOG 2>&1 &
     exit 0 ;;
   *)
@@ -128,7 +128,7 @@ while true; do
   elif [ $CURL_CODE -eq 7 ]; then
     # Failed to connect
     if [ $(date +%s) -ge $DATE_CONNECT ]; then
-        echo "No Jack server running"
+        echo "ERROR: No Jack server running"
         exit 255
     else
       sleep 0.2 2>/dev/null
@@ -139,21 +139,21 @@ while true; do
     # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "Security problem, see server log" >&2
+      echo "ERROR: Security problem, see Jack server log" >&2
       exit 255
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
-      echo "Bad request, see server log" >&2
+      echo "ERROR: Bad request, see Jack server log" >&2
       exit 255
     else
       # Other
-      echo "Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see server log" >&2
+      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see Jack server log" >&2
       exit 255
     fi
   else
     # In case of partial, timeout, empty respond, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
-      echo "Communication error with server ($CURL_CODE)" >&2
+      echo "ERROR: Communication error with Jack server ($CURL_CODE)" >&2
       exit 255
     else
       let RETRY_SESSION=RETRY_SESSION-1
