@@ -2495,8 +2495,13 @@ public class JackIrBuilder {
         ASTNode node) {
       Object[] path = scope.getEmulationPath(targetType, exactMatch,
           denyEnclosingArgInConstructorCall);
-      // STOPSHIP Check other cases and report error to the user
-      if (path == null) {
+      if (path == BlockScope.NoEnclosingInstanceInConstructorCall) {
+        scope.problemReporter().noSuchEnclosingInstance(targetType, node,
+            /* isConstructorCall = */ true);
+        throw new FrontendCompilationError();
+      } else if (path == BlockScope.NoEnclosingInstanceInStaticContext || path == null) {
+        scope.problemReporter().noSuchEnclosingInstance(targetType, node,
+            /* isConstructorCall = */ false);
         throw new FrontendCompilationError();
       }
       return path;
@@ -2507,8 +2512,8 @@ public class JackIrBuilder {
         @Nonnull LocalVariableBinding localVariable,
         ASTNode node) {
       VariableBinding[] path = scope.getEmulationPath(localVariable);
-      // STOPSHIP Report error to the user
       if (path == null) {
+        scope.problemReporter().needImplementation(node);
         throw new FrontendCompilationError();
       }
       return path;

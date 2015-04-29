@@ -184,7 +184,6 @@ public class FrontEndTests {
    * Test that Jack is neither failing nor dropping the error in this case.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testInnerError001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
@@ -246,7 +245,6 @@ public class FrontEndTests {
    * Test that Jack is neither failing nor dropping the error in this case.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testInnerError003() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
@@ -277,7 +275,6 @@ public class FrontEndTests {
    * Test that Jack is neither failing nor dropping the error in this case.
    */
   @Test
-  @Category(KnownBugs.class)
   public void testInnerError004() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
 
