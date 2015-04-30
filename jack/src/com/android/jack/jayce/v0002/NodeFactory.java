@@ -126,7 +126,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JUnlock;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SimpleName;
@@ -255,7 +255,7 @@ import javax.annotation.Nonnull;
  */
 public class NodeFactory {
 
-  private static class Creator extends JVisitorWithAnnotation {
+  private static class Creator extends JVisitor {
 
     @CheckForNull
     private NNode newNode;

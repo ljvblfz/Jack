@@ -56,7 +56,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.sched.item.Description;
@@ -74,7 +74,7 @@ import javax.annotation.Nonnull;
  * A visitor that traces dependencies
  */
 @Description("traces dependencies")
-public class Tracer extends JVisitorWithAnnotation {
+public class Tracer extends JVisitor {
 
   @Nonnull
   protected static final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();

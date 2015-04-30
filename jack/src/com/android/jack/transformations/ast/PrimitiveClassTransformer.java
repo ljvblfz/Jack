@@ -26,12 +26,12 @@ import com.android.jack.ir.ast.JFieldLookupException;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType;
-import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.AnnotationSkipperVisitor;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -59,7 +59,7 @@ public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  private static class Visitor extends AnnotationSkipperVisitor {
 
     private static final String FIELD_TYPE_NAME = "TYPE";
     @Nonnull

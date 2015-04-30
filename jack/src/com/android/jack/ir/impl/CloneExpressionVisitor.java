@@ -54,7 +54,7 @@ import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JThisRef;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ import javax.annotation.Nonnull;
 /**
  * A general purpose expression cloner.
  */
-public class CloneExpressionVisitor extends JVisitorWithAnnotation {
+public class CloneExpressionVisitor extends JVisitor {
   @CheckForNull
   protected JExpression expression;
 
