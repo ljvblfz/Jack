@@ -34,7 +34,7 @@ public class ResourceReadingException extends ReportableException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Error during the resource reading phase: " + getCause().getMessage();
+    return "Resource reading phase: " + getCause().getMessage();
   }
 
   @Override

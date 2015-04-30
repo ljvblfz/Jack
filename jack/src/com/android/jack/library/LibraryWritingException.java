@@ -33,7 +33,7 @@ public class LibraryWritingException extends ReportableException {
 
   @Override
   public String getMessage() {
-    return "Error during the library writing phase: " + getCause().getMessage();
+    return "Library writing phase: " + getCause().getMessage();
   }
 
   @Override

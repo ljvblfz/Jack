@@ -34,7 +34,7 @@ public class MetaReadingException extends ReportableException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Error during the meta reading phase: " + getCause().getMessage();
+    return "Meta reading phase: " + getCause().getMessage();
   }
 
   @Override

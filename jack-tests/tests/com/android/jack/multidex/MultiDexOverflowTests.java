@@ -49,7 +49,7 @@ public class MultiDexOverflowTests {
 
   @Nonnull
   private static final String EXPECTED_MESSAGE =
-      "Error during the dex writing phase: classes.dex has too many IDs";
+      "Dex writing phase: classes.dex has too many IDs";
 
   @BeforeClass
   public static void init() throws IOException, Exception {

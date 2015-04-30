@@ -52,7 +52,7 @@ public class MergerTest011 extends MergerTestTools {
 
   @Nonnull
   private static final String EXPECTED_MESSAGE =
-      "Error during the dex writing phase: classes.dex has too many IDs. Try using multi-dex";
+      "Dex writing phase: classes.dex has too many IDs. Try using multi-dex";
 
 
   @BeforeClass
