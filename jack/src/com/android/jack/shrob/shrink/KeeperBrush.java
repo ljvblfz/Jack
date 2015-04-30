@@ -27,6 +27,7 @@ import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPhantomClass;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JPhantomInterface;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.KeepModifier;
@@ -36,6 +37,9 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -127,33 +131,41 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   public boolean startTrace(@Nonnull JDefinedClassOrInterface type) {
     boolean traceType = markIfNecessary(type);
     if (traceType) {
+      List<JPhantomClassOrInterface> unknownTypes = new ArrayList<JPhantomClassOrInterface>();
+
       if (type instanceof JDefinedClass) {
-        verifyHierarchy((JDefinedClass) type);
+        findUnknownTypes((JDefinedClass) type, unknownTypes);
       } else {
         assert type instanceof JDefinedInterface;
-        verifyImplementedInterfaces(type);
+        findUnknownTypes(type.getImplements(), unknownTypes);
+      }
+
+      if (!unknownTypes.isEmpty()) {
+        type.addMarker(new PartialTypeHierarchy(type, unknownTypes));
       }
     }
     return traceType;
   }
 
-  private void verifyHierarchy(@Nonnull JDefinedClass t) {
+  private void findUnknownTypes(@Nonnull JDefinedClass t,
+      @Nonnull List<JPhantomClassOrInterface> unknownTypes) {
     JClass superClass = t.getSuperClass();
     if (superClass instanceof JPhantomClass) {
-      t.addMarker(new PartialTypeHierarchy((JPhantomClass) superClass));
+      unknownTypes.add((JPhantomClass) superClass);
     } else if (superClass != null) {
-      verifyHierarchy((JDefinedClass) superClass);
+      findUnknownTypes((JDefinedClass) superClass, unknownTypes);
     }
-    verifyImplementedInterfaces(t);
+    findUnknownTypes(t.getImplements(), unknownTypes);
   }
 
-  private void verifyImplementedInterfaces(@Nonnull JDefinedClassOrInterface t) {
-    for (JInterface jInterface : t.getImplements()) {
+  private void findUnknownTypes(@Nonnull List<JInterface> interfaces,
+      @Nonnull List<JPhantomClassOrInterface> unknownTypes) {
+    for (JInterface jInterface : interfaces) {
       if (jInterface instanceof JPhantomInterface) {
-        t.addMarker(new PartialTypeHierarchy((JPhantomInterface) jInterface));
+        unknownTypes.add((JPhantomInterface) jInterface);
       } else {
         assert jInterface instanceof JDefinedInterface;
-        verifyImplementedInterfaces((JDefinedInterface) jInterface);
+        findUnknownTypes(((JDefinedInterface) jInterface).getImplements(), unknownTypes);
       }
     }
   }

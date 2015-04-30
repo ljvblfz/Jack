@@ -59,6 +59,8 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.shrob.shrink.PartialTypeHierarchy;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.util.log.LoggerFactory;
@@ -193,15 +195,23 @@ public class Tracer extends JVisitor {
         }
       }
 
+      PartialTypeHierarchy pth = t.getMarker(PartialTypeHierarchy.class);
+      if (pth != null) {
+        Jack.getSession().getReporter().report(Severity.NON_FATAL, pth);
+      }
       for (JMethod method : t.getMethods()) {
         // Clinit and constructor without parameters must always be trace without taking into
         // account seed.
         if ((JMethod.isClinit(method) || isNullaryConstructor(method))) {
           trace(method);
-        } else if (brush.startTraceSeed(method)) {
-          trace(method);
-          brush.setMustTraceOverridingMethods(method);
-          brush.endTraceSeed(method);
+        } else {
+          // To be safe, Jack is conservative when there is partial type hierarchy.
+          // It considers all methods of the type as seed.
+          if (brush.startTraceSeed(method) || pth != null) {
+            trace(method);
+            brush.setMustTraceOverridingMethods(method);
+            brush.endTraceSeed(method);
+          }
         }
       }
 

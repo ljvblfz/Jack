@@ -16,26 +16,42 @@
 
 package com.android.jack.shrob.shrink;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.reporting.Reportable;
 import com.android.sched.item.Description;
 import com.android.sched.marker.DynamicValidOn;
 import com.android.sched.marker.Marker;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
- * Indicates that the type hierarchy is partial, {@link JDefinedClassOrInterface} contains reference
- * to types which does not belong to classpath.
+ * Indicates that the type hierarchy is partial, {@link JDefinedClassOrInterface} contains
+ * references to types which does not belong to classpath.
  */
 @Description("Indicates that the type hierarchy is partial.")
-public class PartialTypeHierarchy implements Marker {
+public class PartialTypeHierarchy implements Marker, Reportable {
 
   @Nonnull
-  private final JPhantomClassOrInterface unknownType;
+  private static final Joiner typeNameJoiner = Joiner.on(", ");
 
-  public PartialTypeHierarchy(@Nonnull JPhantomClassOrInterface unknownType) {
-    this.unknownType = unknownType;
+  @Nonnull
+  private final List<JPhantomClassOrInterface> unknownTypes;
+
+  @Nonnull
+  private final JDefinedClassOrInterface definedType;
+
+  public PartialTypeHierarchy(@Nonnull JDefinedClassOrInterface definedType,
+      @Nonnull List<JPhantomClassOrInterface> unknownTypes) {
+    this.definedType = definedType;
+    this.unknownTypes = unknownTypes;
   }
 
   @DynamicValidOn
@@ -48,8 +64,24 @@ public class PartialTypeHierarchy implements Marker {
     return this;
   }
 
+  @Override
   @Nonnull
-  public JPhantomClassOrInterface getUnknownType() {
-    return unknownType;
+  public String getMessage() {
+    return "Shrinking: force to keep members of '"
+        + Jack.getUserFriendlyFormatter().getName(definedType)
+        + "' due to unknown referenced types "
+        + typeNameJoiner.join(
+            Iterables.transform(unknownTypes, new Function<JPhantomClassOrInterface, String>() {
+              @Override
+              public String apply(JPhantomClassOrInterface arg0) {
+                return Jack.getUserFriendlyFormatter().getName(arg0);
+              }
+            }));
+  }
+
+  @Override
+  @Nonnull
+  public ProblemLevel getDefaultProblemLevel() {
+    return ProblemLevel.WARNING;
   }
 }
