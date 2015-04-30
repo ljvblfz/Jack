@@ -17,6 +17,7 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
+import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
@@ -45,6 +46,8 @@ import com.android.sched.vfs.VPath;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -62,16 +65,41 @@ public abstract class DexWritingTool {
   @Nonnull
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
+  private int currentMergerIdx = 0;
+
+  private static final int mergersLimit = 100;
+
   @Nonnull
-  protected DexFile createDexFile() {
+  private final List<JackMerger> mergers = new ArrayList<JackMerger>();
+
+  @Nonnull
+  protected final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
+
+  public DexWritingTool() {
+    mergers.add(getNewMerger());
+  }
+
+  private JackMerger getNewMerger() {
+    return new JackMerger(createDexFile(),
+        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue());
+  }
+
+  @Nonnull
+  private DexFile createDexFile() {
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
     return new DexFile(options);
   }
 
-  public abstract void write(@Nonnull OutputVFS outputVDir) throws DexWritingException;
+  public abstract void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException;
 
-  protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
+  public void finishMerge(@Nonnull OutputVFS outputVDir) throws DexWritingException {
+    for (int i = 0; i < mergers.size(); i++) {
+      finishMerge(mergers.get(i), getOutputDex(outputVDir, i + 1));
+    }
+  }
+
+  private void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
       throws DexWritingException {
     OutputStream os = null;
     try {
@@ -86,6 +114,50 @@ public abstract class DexWritingTool {
     } catch (IOException e) {
       throw new DexWritingException(e);
     }
+  }
+
+  @Nonnull
+  private synchronized int getCurrentMergerIdx() {
+    return currentMergerIdx;
+  }
+
+  @Nonnull
+  private synchronized int getNextMergerIdx(int oldMergerIdx) {
+    if (currentMergerIdx > oldMergerIdx) {
+      return getCurrentMergerIdx();
+    }
+    currentMergerIdx++;
+    mergers.add(getNewMerger());
+    return getCurrentMergerIdx();
+  }
+
+  /**
+   * An iterator on mergers. Takes care of creating new mergers when they are required.
+   */
+  protected class AvailableMergerIterator implements Iterator<JackMerger> {
+
+    private int currentIdx;
+
+    public AvailableMergerIterator() {
+      currentIdx = getCurrentMergerIdx() - 1;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return currentIdx < mergersLimit;
+    }
+
+    @Override
+    public JackMerger next() {
+      currentIdx = getNextMergerIdx(currentIdx);
+      return mergers.get(currentIdx);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
@@ -111,19 +183,6 @@ public abstract class DexWritingTool {
       return outputVfs.getRootOutputVDir().createOutputVFile(new VPath(dexName, '/'));
     } catch (CannotCreateFileException e) {
       throw new DexWritingException(e);
-    }
-  }
-
-  protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
-      @Nonnull List<InputVFile> anyDexList) {
-    final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
-
-    for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
-        if (type.containsMarker(MainDexMarker.class)) {
-          mainDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
-        } else {
-          anyDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
-        }
     }
   }
 

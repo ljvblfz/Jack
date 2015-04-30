@@ -16,20 +16,11 @@
 
 package com.android.jack.backend.dex;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVFS;
-import com.android.sched.vfs.OutputVFile;
-
-import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -41,35 +32,16 @@ import javax.annotation.Nonnull;
     description = "only emit one dex file")
 public class SingleDexWritingTool extends DexWritingTool {
 
-  @Override
-  public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
-
-    JackMerger merger = new JackMerger(createDexFile());
-    OutputVFile outputDex = getOutputDex(outputVDir);
-
-    final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
-
-    Collection<InputVFile> inputVFiles = Collections2.transform(Jack.getSession().getTypesToEmit(),
-        new Function<JDefinedClassOrInterface, InputVFile>() {
-          @Override
-          public InputVFile apply(@Nonnull JDefinedClassOrInterface type) {
-            return getDexInputVFileOfType(jackOutputLibrary, type);
-          }
-        });
-
-    for (InputVFile vFile : inputVFiles) {
-      try {
-        mergeDex(merger, vFile);
-      } catch (MergingOverflowException e) {
-        throw new DexWritingException(new SingleDexOverflowException(e));
-      }
-    }
-
-    finishMerge(merger, outputDex);
-  }
-
   @Nonnull
-  private OutputVFile getOutputDex(@Nonnull OutputVFS outputVDir) throws DexWritingException {
-    return getOutputDex(outputVDir, 1);
+  private final JackMerger merger = (new AvailableMergerIterator()).next();
+
+  @Override
+  public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
+    InputVFile vFile = getDexInputVFileOfType(jackOutputLibrary, type);
+    try {
+      mergeDex(merger, vFile);
+    } catch (MergingOverflowException e) {
+      throw new DexWritingException(new SingleDexOverflowException(e));
+    }
   }
 }

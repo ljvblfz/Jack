@@ -16,59 +16,52 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.OutputVFS;
-import com.android.sched.vfs.OutputVFile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@link DexWritingTool} that merges dex files, each one corresponding to a type, in several dex
- * files.
+ * files. It is assumed that all types marked for MainDex will be submitted before any not marked
+ * type.
  */
 @ImplementationName(iface = DexWritingTool.class, name = "multidex",
     description = "allow emitting several dex files")
 public class StandardMultiDexWritingTool extends DexWritingTool {
 
-  @Override
-  public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
-    int dexCount = 1;
-    JackMerger merger = new JackMerger(createDexFile());
-    OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);
-    List<InputVFile> mainDexList = new ArrayList<InputVFile>();
-    List<InputVFile> anyDexList = new ArrayList<InputVFile>();
-    fillDexLists(mainDexList, anyDexList);
+  @Nonnull
+  private boolean seenNonMarkedType = false;
 
-    for (InputVFile currentDex : mainDexList) {
+  @Nonnull
+  private final JackMerger mainMerger = (new AvailableMergerIterator()).next();
+
+  @Override
+  public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
+    InputVFile vFile = getDexInputVFileOfType(jackOutputLibrary, type);
+    if (type.getMarker(MainDexMarker.class) != null) {
+      assert !seenNonMarkedType;
       try {
-        mergeDex(merger, currentDex);
+        mergeDex(mainMerger, vFile);
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new MainDexOverflowException(e));
       }
-    }
-
-    for (InputVFile currentDex : anyDexList) {
-      try {
-        mergeDex(merger, currentDex);
-      } catch (MergingOverflowException e) {
-        finishMerge(merger, outputDex);
-        outputDex = getOutputDex(outputVDir, dexCount++);
-        merger = new JackMerger(createDexFile());
+    } else {
+      seenNonMarkedType = true;
+      AvailableMergerIterator iter = new AvailableMergerIterator();
+      while (iter.hasNext()) {
+        JackMerger merger = iter.next();
         try {
-          mergeDex(merger, currentDex);
-        } catch (MergingOverflowException e1) {
-          // This should not happen, the type is not too big, we've just read it from a dex.
-          throw new AssertionError(e1);
+          mergeDex(merger, vFile);
+          break;
+        } catch (MergingOverflowException e) {
+          //continue;
         }
       }
+      assert iter.hasNext();
     }
-
-    finishMerge(merger, outputDex);
   }
 }

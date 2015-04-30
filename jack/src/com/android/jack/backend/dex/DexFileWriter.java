@@ -16,42 +16,49 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
-import com.android.jack.Options;
-import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.FileType;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.scheduling.marker.ClassDefItemMarker;
+import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.vfs.Container;
-import com.android.sched.vfs.OutputVFS;
 
 import javax.annotation.Nonnull;
 
 /**
- * Write dex to a file.
+ * Merge dexes respecting a filter
  */
 @HasKeyId
-@Description("Write dex into a file")
+@Description("Merge dexes respecting a filter which defaults to a filter accepting every type")
 @Name("DexFileWriter")
-@Constraint(need = {ClassDefItemMarker.Complete.class})
-@Produce(DexFileProduct.class)
-public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
+public class DexFileWriter extends DexWriter
+  implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   /**
    * File name prefix of a {@code .dex} file automatically loaded in an archive.
    */
+  @Nonnull
   static final String DEX_PREFIX = "classes";
 
   @Nonnull
   public static final String DEX_FILENAME = DEX_PREFIX + FileType.DEX.getFileExtension();
+
+  @Nonnull
+  private static final Filter<JDefinedClassOrInterface> filter =
+    new Filter<JDefinedClassOrInterface>() {
+      @Override
+      public boolean accept(Class<? extends RunnableSchedulable<?>> runnableSchedulable,
+          JDefinedClassOrInterface t) {
+        return true;
+      }
+
+    };
 
   @Nonnull
   public static final ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY =
@@ -60,26 +67,20 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
           .addDefaultValue("single-dex");
 
   @Nonnull
-  private final OutputVFS outputVDir;
-
-  {
-    assert ThreadConfig.get(Options.GENERATE_DEX_FILE).booleanValue();
-    Container container = ThreadConfig.get(Options.DEX_OUTPUT_CONTAINER_TYPE);
-    if (container == Container.DIR) {
-      outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_DIR);
-    } else {
-      outputVDir = ThreadConfig.get(Options.DEX_OUTPUT_ZIP);
-    }
+  protected Filter<JDefinedClassOrInterface> getFilter() {
+    return filter;
   }
 
   @Override
-  public void run(@Nonnull JSession session) {
-
-    DexWritingTool writingTool = ThreadConfig.get(DEX_WRITING_POLICY);
+  public void run(JDefinedClassOrInterface type) throws Exception {
+    if (!getFilter().accept(this.getClass(), type)) {
+      return;
+    }
+    DexWritingTool writingTool = ThreadConfig.get(DexFileWriter.DEX_WRITING_POLICY);
     try {
-      writingTool.write(outputVDir);
+      writingTool.merge(type);
     } catch (DexWritingException e) {
-      session.getReporter().report(Severity.FATAL, e);
+      Jack.getSession().getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
     }
   }

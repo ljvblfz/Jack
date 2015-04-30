@@ -46,7 +46,7 @@ import javax.annotation.Nonnull;
 public class JackMerger extends MergerTools {
 
   @Nonnull
-  private final ConstantManager cstManager = new ConstantManager();
+  private final ConstantManager cstManager;
 
   @Nonnull
   private final AnnotationMerger am = new AnnotationMerger();
@@ -56,15 +56,14 @@ public class JackMerger extends MergerTools {
 
   private boolean finished = false;
 
-  public JackMerger(@Nonnull DexFile dexResult) {
+  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy) {
     this.dexResult = dexResult;
+    cstManager = new ConstantManager(bestMergingAccuracy);
     dexResult.getDexOptions().forceJumbo = true;
   }
 
   public void addDexFile(@Nonnull DexBuffer dexToMerge) throws MergingOverflowException {
-    if (finished) {
-      throw new AssertionError("Merge already finished");
-    }
+    assert !finished;
 
     CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge);
 
@@ -84,7 +83,9 @@ public class JackMerger extends MergerTools {
           cstIndexMap.getCstType(classDefToMerge.getTypeIndex()), classDefToMerge.getAccessFlags(),
           superType, getInterfacesList(classDefToMerge, cstIndexMap), sourceFilename);
 
-      dexResult.add(newClassDef);
+      synchronized (dexResult) {
+        dexResult.add(newClassDef);
+      }
 
       mergeAnnotations(dexToMerge, classDefToMerge, newClassDef, cstIndexMap);
 
