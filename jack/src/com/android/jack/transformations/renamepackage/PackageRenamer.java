@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
@@ -78,7 +78,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   @Nonnull
   private final InputStreamFile jarjarRulesFile = ThreadConfig.get(JARJAR_FILE);
 
-  private static class Visitor extends JVisitorWithAnnotation {
+  private static class Visitor extends JVisitor {
 
     @Nonnull
     private final PackageRemapper remapper;

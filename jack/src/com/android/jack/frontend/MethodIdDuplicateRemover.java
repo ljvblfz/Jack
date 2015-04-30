@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNameValuePair;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 
 import java.util.Collection;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * Update methodIds of {@link JMethodCall}s and {@link JNameValuePair}s.
  */
-public class MethodIdDuplicateRemover extends JVisitorWithAnnotation {
+public class MethodIdDuplicateRemover extends JVisitor {
 
   public MethodIdDuplicateRemover() {
     super(false /* needLoading */);

@@ -51,7 +51,7 @@ import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JShortLiteral;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 
 import java.util.List;
 
@@ -64,7 +64,7 @@ import javax.annotation.Nonnull;
  * {@code ConstantBuilder} is not thread safe.
  */
 public class ConstantBuilder {
-  private class Visitor extends JVisitorWithAnnotation {
+  private class Visitor extends JVisitor {
 
     @CheckForNull
     private Constant result;
