@@ -17,7 +17,7 @@
 package com.android.jack.frontend;
 
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JVisitorWithAnnotation;
 
 import java.util.Stack;
 
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * Parent setter.
  */
-public class ParentSetter extends JVisitor {
+public class ParentSetter extends JVisitorWithAnnotation {
 
   public ParentSetter() {
     super(false /* needLoading */);

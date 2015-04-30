@@ -28,7 +28,7 @@ import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JVisitorWithAnnotation;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
@@ -51,7 +51,7 @@ import javax.annotation.Nonnull;
 @Support(SanityChecks.class)
 public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession> {
 
-  private static class Visitor extends JVisitor {
+  private static class Visitor extends JVisitorWithAnnotation {
 
     @Nonnull
     private final JSession session;

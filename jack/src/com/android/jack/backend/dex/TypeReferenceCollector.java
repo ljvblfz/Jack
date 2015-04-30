@@ -29,7 +29,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.JVisitorWithAnnotation;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 
 import javax.annotation.Nonnull;
@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 /**
  * A visitor for collecting types referenced directly by a class or interface.
  */
-public abstract class TypeReferenceCollector extends JVisitor {
+public abstract class TypeReferenceCollector extends JVisitorWithAnnotation {
 
   protected abstract void collect(@Nonnull JType type);
 
