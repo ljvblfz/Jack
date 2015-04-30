@@ -18,7 +18,7 @@ package com.android.jack.transformations.parent;
 
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 @Support(SanityChecks.class)
 public class AstChecker implements RunnableSchedulable<JSession> {
 
-  static class AstCheckerVisitor extends JVisitorWithAnnotation {
+  static class AstCheckerVisitor extends JVisitor {
     @Nonnull
     private final Stack<JNode> nodes = new Stack<JNode>();
 

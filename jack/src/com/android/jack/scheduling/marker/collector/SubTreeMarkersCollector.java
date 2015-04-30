@@ -19,7 +19,7 @@ package com.android.jack.scheduling.marker.collector;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSwitchStatement;
-import com.android.jack.ir.ast.JVisitorWithAnnotation;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.ReflectDefaultCtorFactory;
@@ -41,7 +41,7 @@ public class SubTreeMarkersCollector<T extends Marker> {
   @Nonnull
   private final Class<? extends SubTreeMarkers<T>> subTreeMarkersClass;
 
-  private class MarkerCollectorVisitor extends JVisitorWithAnnotation {
+  private class MarkerCollectorVisitor extends JVisitor {
 
     @Nonnull
     private final JNode root;
