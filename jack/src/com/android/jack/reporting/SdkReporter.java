@@ -16,6 +16,8 @@
 
 package com.android.jack.reporting;
 
+import com.google.common.base.Strings;
+
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
@@ -35,16 +37,19 @@ public class SdkReporter extends CommonReporter {
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
       @Nonnull String message, @Nonnull SourceInfo sourceInfo) {
+    String escapedMessage = convertString(message);
+
     StringBuffer messageBuffer = new StringBuffer("MESSAGE:{");
 
     messageBuffer.append("\"kind\":\"").append(convertLevelName(problemLevel)).append("\",");
-    messageBuffer.append("\"text\":\"").append(message).append("\",");
+    messageBuffer.append("\"text\":\"").append(escapedMessage).append("\",");
     messageBuffer.append("\"sources\":[{");
 
     if (sourceInfo != SourceInfo.UNKNOWN) {
       String fileName = new File(sourceInfo.getFileName()).getAbsolutePath();
+      String escapedFileName = convertString(fileName);
 
-      messageBuffer.append("\"file\":\"").append(fileName).append("\",");
+      messageBuffer.append("\"file\":\"").append(escapedFileName).append("\",");
       messageBuffer.append("\"position\":{");
 
       // Convert unknown values to match sdk expectations
@@ -88,6 +93,51 @@ public class SdkReporter extends CommonReporter {
       default:
         throw new AssertionError("Unkown problem level: '" + problemLevel.name() + "'");
     }
+  }
+
+  // http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
+  @Nonnull
+  private static String convertString(@Nonnull String s) {
+    StringBuffer buffer = new StringBuffer();
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '"':
+          buffer.append("\\\"");
+          break;
+        case '\\':
+          buffer.append("\\\\");
+          break;
+        case '/':
+          buffer.append("\\/");
+          break;
+        case '\b':
+          buffer.append("\\b");
+          break;
+        case '\f':
+          buffer.append("\\f");
+          break;
+        case '\n':
+          buffer.append("\\n");
+          break;
+        case '\r':
+          buffer.append("\\r");
+          break;
+        case '\t':
+          buffer.append("\\t");
+          break;
+        default:
+          if (Character.isISOControl(c)) {
+            buffer.append("\\u");
+            String cAsHex = Integer.toHexString(c);
+            buffer.append(Strings.repeat("0", 4 - cAsHex.length()));
+            buffer.append(cAsHex.toUpperCase());
+          } else {
+            buffer.append(c);
+          }
+      }
+    }
+    return buffer.toString();
   }
 
 }
