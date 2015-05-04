@@ -438,6 +438,9 @@
          </classpath>
        </javac>
     <unzip dest="${jack-launcher.build.outdir}" src="${jack-launcher.libs.dir}/${jsr305.libname}" />
+    <copy todir="${jack-launcher.build.outdir}">
+      <fileset dir="${jack-launcher.dir}/rsc" includes="**"/>
+    </copy>
     <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}" manifest="${jack-launcher.dir}/etc/manifest.txt">
       <fileset dir="${jack-launcher.build.outdir}"/>
     </jar>
