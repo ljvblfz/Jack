@@ -349,11 +349,11 @@ public class Options {
    */
   @Option(name = "--sanity-checks",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  private boolean sanityChecks = true;
+  private boolean sanityChecks = false;
   @Nonnull
   public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
       "jack.sanitychecks", "enable/disable compiler sanity checks")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.FALSE);
 
   /**
    * Enable tracer and output into this dir (.html).
