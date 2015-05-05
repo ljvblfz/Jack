@@ -43,7 +43,6 @@ import com.android.sched.util.location.ZipLocation;
 import junit.framework.Assert;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -322,7 +321,6 @@ public class VFSTest {
   }
 
   @Test
-  @Ignore
   public void testMessageDigestFSWithCaseInsensitiveFS()
       throws NotDirectoryException,
       CannotCreateFileException,
