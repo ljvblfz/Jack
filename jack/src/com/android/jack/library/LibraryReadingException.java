@@ -34,7 +34,7 @@ public class LibraryReadingException extends ReportableException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Error during the library reading phase: " + getCause().getMessage();
+    return "Library reading phase: " + getCause().getMessage();
   }
 
   @Override

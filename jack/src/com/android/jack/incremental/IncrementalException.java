@@ -33,7 +33,7 @@ public class IncrementalException extends ReportableException {
 
   @Override
   public String getMessage() {
-    return "Error in incremental support: " + getCause().getMessage();
+    return "Incremental support: " + getCause().getMessage();
   }
 
   @Override

@@ -198,7 +198,7 @@ public class ClasspathTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
     } finally {
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Error during the library reading phase"));
+      Assert.assertTrue(errString.contains("Library reading phase"));
       Assert.assertTrue(errString.contains("missing.jack\' does not exist"));
     }
   }

@@ -34,7 +34,7 @@ public class ShrinkingException extends ReportableException {
   @Override
   @Nonnull
   public String getMessage() {
-    return "Error during shrinking: " + getCause().getMessage();
+    return "Shrinking: " + getCause().getMessage();
   }
 
   @Override

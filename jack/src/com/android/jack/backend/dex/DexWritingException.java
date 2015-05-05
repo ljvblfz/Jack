@@ -33,7 +33,7 @@ public class DexWritingException extends ReportableException {
 
   @Override
   public String getMessage() {
-    return "Error during the dex writing phase: " + getCause().getMessage();
+    return "Dex writing phase: " + getCause().getMessage();
   }
 
   @Override
