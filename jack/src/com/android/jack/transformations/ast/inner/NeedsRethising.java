@@ -16,54 +16,33 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 /**
  * This marker indicates that a field has an associated getter.
  */
-@ValidOn({JDefinedClassOrInterface.class})
-@Description("This marker indicates that a field or method inside the class"
-    + "is accessed from an inner class.")
-public class ReferencedFromInnerClassMarker implements Marker {
+@ValidOn(JMethod.class)
+@Description("This marker indicates that this method became static in inner class"
+    + "accessors generation, and it has to be rewritten to use its last argument instead"
+    + "of 'this'.")
+public class NeedsRethising implements Marker {
 
   @Nonnull
-  private final HashSet<JField> fields = new HashSet<JField>();
+  public static final NeedsRethising INSTANCE = new NeedsRethising();
 
-  @Nonnull
-  private final HashSet<JMethod> methods = new HashSet<JMethod>();
+  private NeedsRethising() {
 
-  @Nonnull
-  Set<JMethod> getMethods() {
-    return methods;
-  }
-
-  @Nonnull
-  Set<JField> getFields() {
-    return fields;
-  }
-
-  synchronized void addField(@Nonnull JField field) {
-    fields.add(field);
-  }
-
-  synchronized void addMethod(@Nonnull JMethod method) {
-    methods.add(method);
   }
 
   @Override
   @Nonnull
   public Marker cloneIfNeeded() {
-    throw new AssertionError("Not yet supported");
+    return this;
   }
 
 }

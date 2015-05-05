@@ -53,7 +53,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   private final List<JMethod> methods = new ArrayList<JMethod>();
 
   @Nonnull
-  private final MethodKind methodKind;
+  private MethodKind methodKind;
 
   public JMethodId(@Nonnull String name, @Nonnull MethodKind kind) {
     assert !(name.contains("(") || name.contains(")"));
@@ -182,6 +182,13 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Nonnull
   public MethodKind getKind() {
     return methodKind;
+  }
+
+  public void setKind(@Nonnull MethodKind methodKind) {
+    assert methods.size() == 1;
+    assert methodKind != MethodKind.INSTANCE_VIRTUAL;
+    assert this.methodKind != MethodKind.INSTANCE_VIRTUAL;
+    this.methodKind = methodKind;
   }
 
   public boolean canBeVirtual() {

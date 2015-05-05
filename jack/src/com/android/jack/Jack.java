@@ -209,7 +209,9 @@ import com.android.jack.transformations.ast.inner.AvoidSynthethicAccessors;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
 import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
+import com.android.jack.transformations.ast.inner.MethodCallDispatchAdjuster;
 import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorGenerator;
+import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.ReferencedOuterFieldsExposer;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCallRemover;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodRemover;
@@ -1029,12 +1031,23 @@ public abstract class Jack {
     planBuilder.append(TryStatementSchedulingSeparator.class);
     planBuilder.append(EnumMappingSchedulingSeparator.class);
 
+    if (features.contains(AvoidSynthethicAccessors.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      typePlan.append(ReferencedOuterFieldsExposer.class);
+
+      planBuilder.append(OptimizedInnerAccessorSchedulingSeparator.class);
+
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan =
+          typePlan2.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(MethodCallDispatchAdjuster.class);
+    }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (features.contains(AvoidSynthethicAccessors.class)) {
-        typePlan4.append(ReferencedOuterFieldsExposer.class);
-      }
       typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
