@@ -2,6 +2,7 @@ package com.android.jack;
 
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTests;
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.processor.AnnotationProcessorTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
 import com.android.jack.assertion.AssertionTests;
@@ -73,6 +74,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+    AnnotationProcessorTests.class,
     AnnotationTests.class,
     ArithmeticTests.class,
     ArrayTests.class,

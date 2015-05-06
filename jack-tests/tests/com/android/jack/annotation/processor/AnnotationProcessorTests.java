@@ -18,22 +18,40 @@ package com.android.jack.annotation.processor;
 
 import com.android.jack.annotation.processor.sample.processors.ResourceAnnotationProcessor;
 import com.android.jack.annotation.processor.sample.processors.SourceAnnotationProcessor;
+import com.android.jack.comparator.util.BytesStreamSucker;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.LibraryFormatException;
+import com.android.jack.library.LibraryVersionException;
+import com.android.jack.library.NotJackLibraryException;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.sched.util.config.ConfigurationException;
-import com.android.sched.util.config.GatherConfigBuilder;
-import com.android.sched.util.config.ThreadConfig;
+import com.android.jack.test.util.ExecFileException;
+import com.android.jack.test.util.ExecuteFile;
+import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
+import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.MessageDigestCodec;
+import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.config.MessageDigestFactory;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.vfs.CaseInsensitiveFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WrongVFSFormatException;
+import com.android.sched.vfs.ZipUtils;
 
 import junit.framework.Assert;
 
@@ -41,7 +59,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -62,9 +88,7 @@ public class AnnotationProcessorTests {
   private static File autoProcessors;
 
   @BeforeClass
-  public static void setupClass() throws ConfigurationException {
-    // required for creating InputJackLibrary when running tests on cli
-    ThreadConfig.setConfig(new GatherConfigBuilder().build());
+  public static void setupClass() {
     noConfigProcessors = null;
     autoProcessors = null;
   }
@@ -72,15 +96,14 @@ public class AnnotationProcessorTests {
   @Nonnull
   private static File getNoConfigProcessors() throws Exception {
     if (noConfigProcessors == null) {
-      IToolchain toolchain = AbstractTestTools.getReferenceToolchain();
       File processorsDir = AbstractTestTools.createTempDir();
-      File processorsSrcDir = AbstractTestTools.getTestRootDir(
-          "com.android.jack.annotation.processor.sample.processors");
-      toolchain.srcToLib(processorsDir, /*zipFiles=*/ false,
-          ANNOTATIONS_DIR,
-          processorsSrcDir
-          );
-      noConfigProcessors = processorsDir;
+      File processorsJar = AbstractTestTools.createTempFile("processor", ".jar");
+
+      File processorsSrcDir = compileProcessorsToDir(processorsDir);
+
+      makeZipFromDir(processorsDir, processorsJar);
+
+      noConfigProcessors = processorsJar;
     }
     return noConfigProcessors;
   }
@@ -88,20 +111,83 @@ public class AnnotationProcessorTests {
   @Nonnull
   private static File getAutoProcessors() throws Exception {
     if (autoProcessors == null) {
-      IToolchain toolchain = AbstractTestTools.getReferenceToolchain();
       File processorsDir = AbstractTestTools.createTempDir();
-      File processorsSrcDir = AbstractTestTools.getTestRootDir(
-          "com.android.jack.annotation.processor.sample.processors");
-      toolchain.srcToLib(processorsDir, /*zipFiles=*/ false,
-          ANNOTATIONS_DIR,
-          processorsSrcDir
-          );
+      File processorsJar = AbstractTestTools.createTempFile("autoProcessor", ".jar");
+
+      File processorsSrcDir = compileProcessorsToDir(processorsDir);
+
       AbstractTestTools.copyFileToDir(new File(processorsSrcDir,
           "javax.annotation.processing.Processor"),
           "META-INF/services/javax.annotation.processing.Processor", processorsDir);
-      autoProcessors = processorsDir;
+
+      makeZipFromDir(processorsDir, processorsJar);
+
+      autoProcessors = processorsJar;
     }
     return autoProcessors;
+  }
+
+  @Nonnull
+  private static File compileProcessorsToDir(@Nonnull File outputDir) throws ExecFileException {
+    File compiler = AbstractTestTools.getPrebuilt("legacy-java-compiler");
+    File processorsSrcDir = AbstractTestTools.getTestRootDir(
+        "com.android.jack.annotation.processor.sample.processors");
+    List<String> compilerArgs = new ArrayList<String>();
+    compilerArgs.add("-cp");
+    compilerArgs.add(
+        new File(TestsProperties.getJackRootDir(), "jack-tests/libs/jsr305-lib.jar").getPath());
+    compilerArgs.add("-source");
+    compilerArgs.add("1.7");
+    compilerArgs.add("-encoding");
+    compilerArgs.add("utf8");
+    compilerArgs.add("-d");
+    compilerArgs.add(outputDir.getPath());
+    AbstractTestTools.addFile(compilerArgs, true, processorsSrcDir, ANNOTATIONS_DIR);
+
+    ExecuteFile compile = new ExecuteFile(compiler.getPath(),
+        compilerArgs.toArray(new String[compilerArgs.size()]));
+    compile.setErr(System.err);
+    compile.setOut(System.out);
+    if (compile.run() != 0) {
+      throw new AssertionError();
+    }
+    return processorsSrcDir;
+  }
+
+  private static void makeZipFromDir(@Nonnull File dir, @Nonnull File zip)
+      throws IOException {
+    assert dir.isDirectory();
+    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
+    try {
+      addFilesToZip(out, dir, "");
+    } finally {
+      out.close();
+    }
+  }
+
+  private static void addFilesToZip(ZipOutputStream zip, File file, String entryPath)
+      throws IOException {
+    if (file.isFile()) {
+      zip.putNextEntry(new ZipEntry(entryPath));
+      InputStream in = new FileInputStream(file);
+      try {
+        new BytesStreamSucker(in, zip).suck();
+        zip.closeEntry();
+      } finally {
+        try {
+          in.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+    } else {
+      for (File sub: file.listFiles()) {
+        // Zip entries names must not start with /
+        String subEntryPath = entryPath.isEmpty() ? sub.getName() :
+          entryPath + ZipUtils.ZIP_SEPARATOR + sub.getName();
+        addFilesToZip(zip, sub, subEntryPath);
+      }
+    }
   }
 
   @Test
@@ -115,11 +201,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
@@ -136,11 +218,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
@@ -159,11 +237,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     try {
       libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
@@ -185,17 +259,8 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
         );
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
-    try {
-      libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
-      Assert.fail();
-    } catch (FileTypeDoesNotExistException e) {
-      // expected
-    }
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    Assert.assertFalse(libOut.containsFileType(FileType.RSC));
     try {
       libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
       Assert.fail();
@@ -217,54 +282,8 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
-    try {
-      libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
-      Assert.fail();
-    } catch (FileTypeDoesNotExistException e) {
-      // expected
-    }
-    libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
-  }
-
-  @Test
-  public void compileWithAnnotationProcessorReuseClassOut() throws Exception {
-    File classesOut = AbstractTestTools.createTempDir();
-    File jackOut = AbstractTestTools.createTempDir();
-    File processors = getAutoProcessors();
-    {
-      JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-      jack.setAnnotationProcessorPath(processors.getPath());
-      jack.addResourceDir(classesOut);
-      jack.addToClasspath(jack.getDefaultBootClasspath());
-      jack.srcToLib(jackOut,
-          /*zipFiles=*/false,
-          ANNOTATIONS_DIR,
-          ANNOTATED_DIR
-              );
-    }
-    {
-      JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-      jack.setAnnotationProcessorPath(processors.getPath());
-      jack.addResourceDir(classesOut);
-      jack.addToClasspath(jack.getDefaultBootClasspath());
-      jack.srcToLib(jackOut,
-          /*zipFiles=*/false,
-          ANNOTATIONS_DIR,
-          ANNOTATED_DIR
-              );
-    }
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
-    libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
-    libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile1", '/'));
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    Assert.assertFalse(libOut.containsFileType(FileType.RSC));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
 
@@ -281,11 +300,18 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
+    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    libOut.getFile(FileType.JAYCE, new VPath("Annotated2WithOption", '/'));
+  }
+
+  private InputJackLibrary openDirAsJackLibrary(File jackOut)
+      throws LibraryVersionException, LibraryFormatException, NotJackLibraryException,
+      ParsingException {
+    CodecContext context = new CodecContext();
     InputJackLibrary libOut =
         JackLibraryFactory.getInputLibrary(
-            new DirectFS(new Directory(jackOut.getPath(), /* hooks = */ null,
-                Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE),
-                Permission.READ));
-    libOut.getFile(FileType.JAYCE, new VPath("Annotated2WithOption", '/'));
+            new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST)
+            .checkString(context, jackOut.getPath()));
+    return libOut;
   }
 }
