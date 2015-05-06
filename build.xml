@@ -15,9 +15,9 @@
    limitations under the License.
 -->
 
-<project name="jack" default="dist">
+<project name="jack" default="all">
 
-  <target name="dist" depends="dexcomparator-lib,
+  <target name="all" depends="dexcomparator-lib,
     jack,
     jack-api,
     jack-api-src,
@@ -64,7 +64,8 @@
     ddm-lib-clean,
     dx-ref-lib-clean,
     core-stubs-mini-clean,
-    jack-default-lib-clean" />
+    jack-default-lib-clean,
+    dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
 
@@ -94,6 +95,35 @@
   <property name="tools.dir" value="${jack-project.dir}/tools"/>
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
+
+  <!-- ******************* -->
+  <!-- Distributed files   -->
+  <!-- ******************* -->
+
+  <property name="jack-top-dist.dir" value="${jack-project.dir}/dist" />
+
+  <target name="dist-clean">
+    <delete dir="${jack-top-dist.dir}"/>
+  </target>
+
+  <target name="dist" depends="jack,
+    jack-api,
+    jack-api-src,
+    jack-annotations-lib,
+    jack-launcher">
+    <mkdir dir="${jack-top-dist.dir}"/>
+    <copy todir="${jack-top-dist.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jack.dist.dir}/${jack.execname}" />
+        <file name="${jack-api.dist.dir}/${jack-api.name}" />
+        <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
+        <file name="${jack.dir}/etc/jack" />
+        <file name="${jack.dir}/etc/jack-admin" />
+        <file name="${jack-launcher.dist.dir}/${jack-launcher.name}" />
+        <file name="${jack.dist.dir}/${jack-annotations.libname}" />
+      </filelist>
+    </copy>
+  </target>
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
