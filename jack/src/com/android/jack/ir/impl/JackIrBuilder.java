@@ -123,6 +123,7 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.util.CloneExpressionVisitor;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.config.ThreadConfig;
 

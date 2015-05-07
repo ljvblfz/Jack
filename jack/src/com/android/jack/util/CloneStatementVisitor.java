@@ -47,7 +47,6 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JWhileStatement;
-import com.android.jack.ir.impl.CloneExpressionVisitor;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
 import com.android.jack.transformations.request.AddJLocalInMethodBody;
 import com.android.jack.transformations.request.TransformationRequest;
