@@ -88,7 +88,6 @@ import com.android.sched.util.location.StringLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
-import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.VFS;
@@ -811,10 +810,9 @@ public class Options {
       configBuilder.set(GENERATE_JAYCE_IN_LIBRARY, true);
       configBuilder.set(GENERATE_DEPENDENCIES_IN_LIBRARY, true);
     } else {
-      configBuilder.set(GENERATE_JACK_LIBRARY, true);
+      configBuilder.setString(Options.LIBRARY_OUTPUT_DIR, createTempDir(hooks).getPath());
       configBuilder.set(LIBRARY_OUTPUT_CONTAINER_TYPE, Container.DIR);
-      configBuilder.set(Options.LIBRARY_OUTPUT_DIR, new CachedDirectFS(
-          annotationProcessorOutputClasses, Permission.READ | Permission.WRITE));
+      configBuilder.set(GENERATE_JACK_LIBRARY, true);
     }
 
     switch (multiDexKind) {
