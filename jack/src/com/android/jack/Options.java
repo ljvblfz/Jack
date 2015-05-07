@@ -48,8 +48,8 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
-import com.android.sched.util.codec.DirectFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
 import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
@@ -214,7 +214,7 @@ public class Options {
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.library.output.dir", "Output folder for library",
-      new DirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
+      new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
 
