@@ -81,10 +81,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       "sched.vfs.case-insensitive.debug",
       "generate an index file '" + DEBUG_NAME + "' for debugging purpose").addDefaultValue(false);
 
-  private final int nbGroup = ThreadConfig.get(NB_GROUP).intValue();
-  private final int szGroup = ThreadConfig.get(SZ_GROUP).intValue();
-  private final MessageDigestFactory mdf = ThreadConfig.get(ALGO);
-  private final boolean debug = ThreadConfig.get(DEBUG).booleanValue();
+  private final int nbGroup;
+  private final int szGroup;
+  @Nonnull
+  private final MessageDigestFactory mdf;
+  private final boolean debug;
 
   @Nonnull
   private final CaseInsensitiveVDir root = new CaseInsensitiveVDir(this, null, "");
@@ -191,8 +192,14 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
-  @SuppressWarnings("unchecked")
   public CaseInsensitiveFS(@Nonnull VFS vfs) throws WrongVFSFormatException {
+    this(vfs, ThreadConfig.get(NB_GROUP).intValue(), ThreadConfig.get(SZ_GROUP).intValue(),
+        ThreadConfig.get(ALGO), ThreadConfig.get(DEBUG).booleanValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  public CaseInsensitiveFS(@Nonnull VFS vfs, int nbGroup, int szGroup,
+      @Nonnull MessageDigestFactory mdf, boolean debug) throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
@@ -200,6 +207,15 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     capabilities.add(Capabilities.UNIQUE_ELEMENT);
     this.capabilities = Collections.unmodifiableSet(capabilities);
 
+    this.nbGroup = nbGroup;
+    this.szGroup = szGroup;
+    this.mdf = mdf;
+    this.debug = false;
+
+    initVFS();
+  }
+
+  private void initVFS() throws WrongVFSFormatException {
     LineNumberReader reader = null;
     VFile file = null;
     try {
