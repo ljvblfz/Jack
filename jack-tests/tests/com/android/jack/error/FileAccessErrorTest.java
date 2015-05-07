@@ -60,18 +60,20 @@ public class FileAccessErrorTest {
         "public class A {} \n");
 
     File jackOutputFile = AbstractTestTools.createTempDir();
-    if (!jackOutputFile.setReadable(false)) {
-      Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
-    }
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-
     try {
-      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
-      .srcToLib(jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
-      Assert.fail();
-    } catch (PropertyIdException e) {
-      // Failure is ok since jack output folder is not readable
+      if (!jackOutputFile.setReadable(false)) {
+        Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
+      }
+      JackApiToolchainBase jackApiToolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+      try {
+        jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+        .srcToLib(jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
+        Assert.fail();
+      } catch (PropertyIdException e) {
+        // Failure is ok since jack output folder is not readable
+      }
     } finally {
       if (!jackOutputFile.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
