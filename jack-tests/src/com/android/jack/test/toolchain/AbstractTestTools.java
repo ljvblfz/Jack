@@ -296,13 +296,15 @@ public abstract class AbstractTestTools {
     return result;
   }
 
-  public static void deleteTempDir(@CheckForNull File tmp) throws IOException {
-    if (tmp == null) {
-      return;
-    }
+  public static void deleteTempDir(@Nonnull File tmp) throws IOException {
 
     if (tmp.isDirectory()) {
-      for (File sub : tmp.listFiles()) {
+      File[] fileList = tmp.listFiles();
+      if (fileList == null) {
+        throw new IOException("Failed to delete dir " + tmp.getAbsolutePath()
+            + " because listing of content failed");
+      }
+      for (File sub : fileList) {
         deleteTempDir(sub);
       }
     }
