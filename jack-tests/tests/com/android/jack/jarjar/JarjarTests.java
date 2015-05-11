@@ -67,7 +67,8 @@ public class JarjarTests {
   @Test
   public void jarjar003_1() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.setJarjarRules(new File(JARJAR003.directory, "jarjar-rules.txt"));
+    toolchain.setJarjarRules(
+        Collections.singletonList(new File(JARJAR003.directory, "jarjar-rules.txt")));
     File lib = AbstractTestTools.createTempFile("jarjarTest003Jack", toolchain.getLibraryExtension());
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(

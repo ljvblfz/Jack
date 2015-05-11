@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -154,7 +155,7 @@ public class ToolchainTest {
     File jarjarTestRenamedOut = AbstractTestTools.createTempFile("jarjartestrenamed", ".jack");
     File jarjarRules = new File(testFolder, "jarjar-rules.txt");
     toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
-    toolchain.setJarjarRules(jarjarRules);
+    toolchain.setJarjarRules(Collections.singletonList(jarjarRules));
     toolchain.libToLib(jarjarTestJackOut, jarjarTestRenamedOut, /* zipFiles = */ true);
 
     File jarjarTestDexOutFolder = AbstractTestTools.createTempDir();

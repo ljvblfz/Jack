@@ -165,9 +165,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     args.addAll(extraJackArgs);
 
-    if (jarjarRules != null) {
+    for (File jarjarFile : jarjarRules) {
       args.add("--config-jarjar");
-      args.add(jarjarRules.getAbsolutePath());
+      args.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
@@ -273,9 +273,9 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(classpath);
     }
 
-    if (jarjarRules != null) {
+    for (File jarjarFile : jarjarRules) {
       args.add("--config-jarjar");
-      args.add(jarjarRules.getAbsolutePath());
+      args.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {

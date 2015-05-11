@@ -57,6 +57,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -254,16 +256,15 @@ public class TestTools {
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist) throws IOException {
-    return buildCommandLineArgs(fileOrSourcelist, null);
+    return buildCommandLineArgs(fileOrSourcelist, Collections.<File>emptyList());
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
-      @CheckForNull File jarjarRules) throws IOException {
+      @Nonnull List<File> jarjarRules) throws IOException {
     Options options = buildCommandLineArgs(null /* classpath */, new File[] {fileOrSourcelist});
-    if (jarjarRules != null) {
-      options.setJarjarRulesFile(jarjarRules);
-    }
+    options.setJarjarRulesFiles(jarjarRules);
+
     return options;
   }
 

@@ -168,8 +168,8 @@ public class Api01ConfigImpl implements Api01Config {
   }
 
   @Override
-  public void setJarJarConfigFile(@Nonnull File jarJarConfigFile) {
-    options.setJarjarRulesFile(jarJarConfigFile);
+  public void setJarJarConfigFiles(@Nonnull List<File> jarJarConfigFiles) {
+    options.setJarjarRulesFiles(jarJarConfigFiles);
   }
 
   @Override

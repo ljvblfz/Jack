@@ -321,9 +321,9 @@ public class Options {
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")
   private File libraryOutZip = null;
 
-  @Option(name = "--config-jarjar", usage = "use a jarjar rules file (default: none)",
+  @Option(name = "--config-jarjar", usage = "use jarjar rules files (default: none)",
       metaVar = "<FILE>")
-  private File jarjarRulesFile = null;
+  private List<File> jarjarRulesFiles = new ArrayList<File>(0);
 
   @Option(name = "--import", usage = "import the given file into the output (repeatable)",
       metaVar = "<FILE>")
@@ -644,9 +644,10 @@ public class Options {
           new OutputStreamFile(new PrintStream(reporterStream), new NoLocation()));
     }
 
-    if (jarjarRulesFile != null) {
+    if (!jarjarRulesFiles.isEmpty()) {
       configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
-      configBuilder.setString(PackageRenamer.JARJAR_FILE, jarjarRulesFile.getPath());
+      String sep = PackageRenamer.JARJAR_FILES.getCodec().getSeparator();
+      configBuilder.setString(PackageRenamer.JARJAR_FILES, Joiner.on(sep).join(jarjarRulesFiles));
     }
 
     if (processor != null) {
@@ -844,7 +845,7 @@ public class Options {
       } else if (flags != null) {
         LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disabled due to usage of shrinking or obfuscation");
-      } else if (jarjarRulesFile != null) {
+      } else if (!jarjarRulesFiles.isEmpty()) {
         LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disabled due to usage of jarjar");
       } else {
@@ -998,8 +999,8 @@ public class Options {
     this.proguardFlagsFiles = proguardFlagsFiles;
   }
 
-  public void setJarjarRulesFile(@Nonnull File jarjarRulesFile) {
-    this.jarjarRulesFile = jarjarRulesFile;
+  public void setJarjarRulesFiles(@Nonnull List<File> jarjarRulesFiles) {
+    this.jarjarRulesFiles = jarjarRulesFiles;
   }
 
   public void disableDxOptimizations() {

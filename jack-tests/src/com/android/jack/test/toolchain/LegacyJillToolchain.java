@@ -129,8 +129,11 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
       AbstractTestTools.createjar(jarFile, classesDir);
 
-      if (jarjarRules != null) {
-        processWithJarJar(jarjarRules, jarFile, jarFileJarjar);
+      if (jarjarRules.size() > 0) {
+        if (jarjarRules.size() > 1) {
+          throw new AssertionError("Not yet supported");
+        }
+        processWithJarJar(jarjarRules.get(0), jarFile, jarFileJarjar);
       } else {
         jarFileJarjar = jarFile;
       }
