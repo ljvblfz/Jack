@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.invoke_virtual;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_1;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_13;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_14;
@@ -27,6 +26,7 @@ import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_22;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_23;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_4;
 import com.android.jack.opcodes.invoke_virtual.jm.T_invoke_virtual_7;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_invoke_virtual extends DxTestCase {

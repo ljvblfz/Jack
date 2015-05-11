@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.if_eq;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_eq.jm.T_if_eq_1;
 import com.android.jack.opcodes.if_eq.jm.T_if_eq_2;
 import com.android.jack.opcodes.if_eq.jm.T_if_eq_3;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_eq extends DxTestCase {

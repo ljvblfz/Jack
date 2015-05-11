@@ -16,12 +16,12 @@
 
 package com.android.jack.opcodes.invoke_super;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.invoke_super.jm.T_invoke_super_1;
 import com.android.jack.opcodes.invoke_super.jm.T_invoke_super_15;
 import com.android.jack.opcodes.invoke_super.jm.T_invoke_super_18;
 import com.android.jack.opcodes.invoke_super.jm.T_invoke_super_19;
 import com.android.jack.opcodes.invoke_super.jm.T_invoke_super_26;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_invoke_super extends DxTestCase {

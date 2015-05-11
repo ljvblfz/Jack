@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.aget_object;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_1;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_4;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_5;
@@ -24,6 +23,7 @@ import com.android.jack.opcodes.aget_object.jm.T_aget_object_6;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_7;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_8;
 import com.android.jack.opcodes.aget_object.jm.T_aget_object_9;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aget_object extends DxTestCase {

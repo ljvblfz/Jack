@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.aput_short;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aput_short.jm.T_aput_short_1;
 import com.android.jack.opcodes.aput_short.jm.T_aput_short_4;
 import com.android.jack.opcodes.aput_short.jm.T_aput_short_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aput_short extends DxTestCase {

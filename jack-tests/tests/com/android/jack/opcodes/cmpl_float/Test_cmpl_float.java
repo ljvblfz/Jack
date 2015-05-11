@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.cmpl_float;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.cmpl_float.jm.T_cmpl_float_1;
 import com.android.jack.opcodes.cmpl_float.jm.T_cmpl_float_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_cmpl_float extends DxTestCase {

@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.aget_byte;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aget_byte.jm.T_aget_byte_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aget_byte extends DxTestCase {

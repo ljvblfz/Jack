@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.aput_object;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aput_object.jm.T_aput_object_1;
 import com.android.jack.opcodes.aput_object.jm.T_aput_object_10;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aput_object extends DxTestCase {

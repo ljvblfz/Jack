@@ -16,13 +16,13 @@
 
 package com.android.jack.opcodes.iput;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.iput.jm.T_iput_1;
 import com.android.jack.opcodes.iput.jm.T_iput_12;
 import com.android.jack.opcodes.iput.jm.T_iput_14;
 import com.android.jack.opcodes.iput.jm.T_iput_16;
 import com.android.jack.opcodes.iput.jm.T_iput_18;
 import com.android.jack.opcodes.iput.jm.T_iput_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_iput extends DxTestCase {

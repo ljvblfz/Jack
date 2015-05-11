@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.return_wide;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_11;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_12;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_13;
@@ -27,6 +26,7 @@ import com.android.jack.opcodes.return_wide.jm.T_return_wide_2;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_6;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_7;
 import com.android.jack.opcodes.return_wide.jm.T_return_wide_9;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_return_wide extends DxTestCase {

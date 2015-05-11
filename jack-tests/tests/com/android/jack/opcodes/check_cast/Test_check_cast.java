@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.check_cast;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.check_cast.jm.T_check_cast_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_check_cast extends DxTestCase {

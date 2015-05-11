@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.array_length;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.array_length.jm.T_array_length_1;
 import com.android.jack.opcodes.array_length.jm.T_array_length_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_array_length extends DxTestCase {

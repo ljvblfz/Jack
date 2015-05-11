@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.int_to_char;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.int_to_char.jm.T_int_to_char_1;
 import com.android.jack.opcodes.int_to_char.jm.T_int_to_char_3;
 import com.android.jack.opcodes.int_to_char.jm.T_int_to_char_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_int_to_char extends DxTestCase {

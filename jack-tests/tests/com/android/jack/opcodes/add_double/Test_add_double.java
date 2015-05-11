@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.add_double;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.add_double.jm.T_add_double_1;
 import com.android.jack.opcodes.add_double.jm.T_add_double_3;
 import com.android.jack.opcodes.add_double.jm.T_add_double_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_add_double extends DxTestCase {

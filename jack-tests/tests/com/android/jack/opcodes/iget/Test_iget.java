@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.iget;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.iget.jm.T_iget_1;
 import com.android.jack.opcodes.iget.jm.T_iget_11;
 import com.android.jack.opcodes.iget.jm.T_iget_15;
@@ -24,6 +23,7 @@ import com.android.jack.opcodes.iget.jm.T_iget_2;
 import com.android.jack.opcodes.iget.jm.T_iget_4;
 import com.android.jack.opcodes.iget.jm.T_iget_5;
 import com.android.jack.opcodes.iget.jm.T_iget_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_iget extends DxTestCase {

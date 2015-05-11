@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.if_nez;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_nez.jm.T_if_nez_1;
 import com.android.jack.opcodes.if_nez.jm.T_if_nez_2;
 import com.android.jack.opcodes.if_nez.jm.T_if_nez_3;
 import com.android.jack.opcodes.if_nez.jm.T_if_nez_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_nez extends DxTestCase {

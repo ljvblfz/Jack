@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.cmpl_double;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.cmpl_double.jm.T_cmpl_double_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_cmpl_double extends DxTestCase {

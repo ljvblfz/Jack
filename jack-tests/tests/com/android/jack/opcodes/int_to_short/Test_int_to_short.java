@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.int_to_short;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.int_to_short.jm.T_int_to_short_1;
 import com.android.jack.opcodes.int_to_short.jm.T_int_to_short_3;
 import com.android.jack.opcodes.int_to_short.jm.T_int_to_short_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_int_to_short extends DxTestCase {

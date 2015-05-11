@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.packed_switch;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.packed_switch.jm.T_packed_switch_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_packed_switch extends DxTestCase {

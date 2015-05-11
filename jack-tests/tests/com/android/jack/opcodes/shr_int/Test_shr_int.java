@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.shr_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.shr_int.jm.T_shr_int_1;
 import com.android.jack.opcodes.shr_int.jm.T_shr_int_3;
 import com.android.jack.opcodes.shr_int.jm.T_shr_int_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_shr_int extends DxTestCase {

@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.if_gt;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_gt.jm.T_if_gt_1;
 import com.android.jack.opcodes.if_gt.jm.T_if_gt_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_gt extends DxTestCase {

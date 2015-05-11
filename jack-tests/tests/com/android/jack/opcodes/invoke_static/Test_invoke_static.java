@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.invoke_static;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_1;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_12;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_13;
@@ -29,6 +28,7 @@ import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_5;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_6;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_7;
 import com.android.jack.opcodes.invoke_static.jm.T_invoke_static_8;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_invoke_static extends DxTestCase {

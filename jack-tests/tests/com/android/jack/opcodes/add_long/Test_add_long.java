@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.add_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.add_long.jm.T_add_long_1;
 import com.android.jack.opcodes.add_long.jm.T_add_long_3;
 import com.android.jack.opcodes.add_long.jm.T_add_long_4;
 import com.android.jack.opcodes.add_long.jm.T_add_long_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_add_long extends DxTestCase {

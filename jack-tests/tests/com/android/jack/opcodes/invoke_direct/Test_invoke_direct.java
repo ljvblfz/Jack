@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.invoke_direct;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.invoke_direct.jm.T_invoke_direct_2;
 import com.android.jack.opcodes.invoke_direct.jm.T_invoke_direct_21;
+import com.android.jack.test.DxTestCase;
 
 
 
