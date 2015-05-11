@@ -194,7 +194,7 @@ public class RuntimeTestHelper {
           new File(testBinaryDir, helper.getCandidateDex().getName()));
     } else {
       if (jarjarRules != null) {
-        candidateTestTools.setJarjarRules(jarjarRules);
+        candidateTestTools.setJarjarRules(Collections.singletonList(jarjarRules));
       }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
       candidateTestTools.addToClasspath(candidateClassPath)
@@ -220,7 +220,9 @@ public class RuntimeTestHelper {
     if (getLinkSrc().length != 0) {
       File linkBinaryDir = AbstractTestTools.createTempDir();
       linkBinary = new File(linkBinaryDir, candidateTestTools.getBinaryFileName());
-      candidateTestTools.setJarjarRules(jarjarRules);
+      if (jarjarRules != null) {
+        candidateTestTools.setJarjarRules(Collections.singletonList(jarjarRules));
+      }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
       candidateTestTools.addToClasspath(candidateBootClasspath)
       .srcToExe(linkBinaryDir, /* zipFile = */ false, getLinkSrc());

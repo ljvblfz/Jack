@@ -188,8 +188,8 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     apiV01Config.setSourceEntries(Lists.newArrayList(sources));
     apiV01Config.setResourceDirs(resImport);
     apiV01Config.setProguardConfigFiles(proguardFlags);
-    if (jarjarRules != null) {
-      apiV01Config.setJarJarConfigFile(jarjarRules);
+    if (!jarjarRules.isEmpty()) {
+      apiV01Config.setJarJarConfigFiles(jarjarRules);
     }
     apiV01Config.setProcessorOptions(annotationProcessorOptions);
 
@@ -215,7 +215,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     apiV01Config.setResourceDirs(resImport);
     apiV01Config.setProguardConfigFiles(proguardFlags);
     if (jarjarRules != null) {
-      apiV01Config.setJarJarConfigFile(jarjarRules);
+      apiV01Config.setJarJarConfigFiles(jarjarRules);
     }
   }
 

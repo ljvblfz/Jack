@@ -22,6 +22,7 @@ import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import java.io.File;
+import java.util.Collections;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -170,7 +171,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   @Nonnull
   protected void executeCandidateToolchain() throws Exception {
     if (jarjarRulesFile != null) {
-      candidateTestTools.setJarjarRules(jarjarRulesFile);
+      candidateTestTools.setJarjarRules(Collections.singletonList(jarjarRulesFile));
     }
     candidateTestTools.setWithDebugInfos(withDebugInfos);
     candidateTestTools.setSourceLevel(sourceLevel);
@@ -184,7 +185,7 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
   @Nonnull
   protected void executeReferenceToolchain() throws Exception {
     if (jarjarRulesFile != null) {
-      referenceTestTools.setJarjarRules(jarjarRulesFile);
+      referenceTestTools.setJarjarRules(Collections.singletonList(jarjarRulesFile));
     }
     referenceTestTools.setWithDebugInfos(withDebugInfos);
     referenceTestTools.setSourceLevel(sourceLevel);

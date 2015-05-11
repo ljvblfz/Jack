@@ -78,7 +78,7 @@ public interface IToolchain {
   IToolchain addProguardFlags(@Nonnull File... proguardFlags);
 
   @Nonnull
-  IToolchain setJarjarRules(@Nonnull File jarjarRules);
+  IToolchain setJarjarRules(@Nonnull List<File> jarjarRules);
 
   @Nonnull
   IToolchain setOutputStream(@Nonnull OutputStream outputStream);

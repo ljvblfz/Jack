@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.Collections;
 
 @Ignore("Tree")
 @Category(SlowTests.class)
@@ -124,7 +125,7 @@ public class NoClasspathTest {
     File conscyptRules =
         new JarJarRules(TestTools.getFromAndroidTree("external/conscrypt/jarjar-rules.txt"));
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.setJarjarRules(conscyptRules);
+    toolchain.setJarjarRules(Collections.singletonList(conscyptRules));
     toolchain.libToLib(conscryptJack, conscryptRenamedJack, /* zipFiles = */ true);
 
     File okhttpJack = AbstractTestTools.createTempFile("okkttp", ".jack");
@@ -137,7 +138,7 @@ public class NoClasspathTest {
     File okhttpRules =
         new JarJarRules(TestTools.getFromAndroidTree("external/okhttp/jarjar-rules.txt"));
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.setJarjarRules(okhttpRules);
+    toolchain.setJarjarRules(Collections.singletonList(okhttpRules));
     toolchain.libToLib(okhttpJack, okhttpRenamedJack, /* zipFiles = */ true);
 
     File extJack = AbstractTestTools.createTempFile("ext", ".jack");
@@ -159,7 +160,7 @@ public class NoClasspathTest {
     File jarjarRules =
         new JarJarRules(TestTools.getFromAndroidTree("external/bouncycastle/jarjar-rules.txt"));
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.setJarjarRules(jarjarRules);
+    toolchain.setJarjarRules(Collections.singletonList(jarjarRules));
     toolchain.libToLib(bouncyCastleJack, bouncyCastleRenamedJack, /* zipFiles = */ true);
 
     File[] classpath = new File[] {coreOut,
