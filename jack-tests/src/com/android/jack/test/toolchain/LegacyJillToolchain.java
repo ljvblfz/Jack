@@ -406,6 +406,9 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       case JAVA_7:
         args.add("1.7");
         break;
+      case JAVA_8:
+        args.add("1.8");
+        break;
       default:
         throw new AssertionError("Unkown level: '" + level.toString() + "'");
     }

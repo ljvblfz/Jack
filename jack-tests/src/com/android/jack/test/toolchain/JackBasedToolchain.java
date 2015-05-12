@@ -103,6 +103,9 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
       case JAVA_7:
         addProperty("jack.java.source.version", "1.7");
         break;
+      case JAVA_8:
+        addProperty("jack.java.source.version", "1.8");
+        break;
       default:
         throw new AssertionError("Unkown level: '" + sourceLevel.toString() + "'");
     }
