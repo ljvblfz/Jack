@@ -23,6 +23,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -45,6 +46,10 @@ import com.android.sched.vfs.VPath;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -55,6 +60,9 @@ import javax.annotation.Nonnull;
  */
 @VariableName("writer")
 public abstract class DexWritingTool {
+
+  @Nonnull
+  private static final TypePackageAndMethodFormatter FORMATTER = Jack.getLookupFormatter();
 
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
@@ -117,13 +125,26 @@ public abstract class DexWritingTool {
   protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
       @Nonnull List<InputVFile> anyDexList) {
     final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
+    Collection<JDefinedClassOrInterface> typesToEmit = Jack.getSession().getTypesToEmit();
 
-    for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
-        if (type.containsMarker(MainDexMarker.class)) {
-          mainDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
-        } else {
-          anyDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
-        }
+    List<JDefinedClassOrInterface> anyTypeList = new ArrayList<JDefinedClassOrInterface>(
+        typesToEmit.size());
+
+    for (JDefinedClassOrInterface type : typesToEmit) {
+      if (type.containsMarker(MainDexMarker.class)) {
+        mainDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
+      } else {
+        anyTypeList.add(type);
+      }
+    }
+    Collections.sort(anyTypeList, new Comparator<JDefinedClassOrInterface>() {
+      @Override
+      public int compare(@Nonnull JDefinedClassOrInterface first,
+          @Nonnull JDefinedClassOrInterface second) {
+        return FORMATTER.getName(first).compareTo(FORMATTER.getName(second));
+      }});
+    for (JDefinedClassOrInterface type : anyTypeList) {
+      anyDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
     }
   }
 
