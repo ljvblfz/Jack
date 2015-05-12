@@ -1,0 +1,15 @@
+Lcom/android/jack/multidex/test002/jack/manymethods/Big066;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big067;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big068;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big069;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big070;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big071;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big072;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big073;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big074;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big075;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big076;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big077;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big078;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big079;:
+Lcom/android/jack/multidex/test002/jack/manymethods/Big080;:

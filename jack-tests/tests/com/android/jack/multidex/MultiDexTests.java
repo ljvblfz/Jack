@@ -260,15 +260,6 @@ public class MultiDexTests {
     return sb.toString();
   }
 
-  private int getTypeCountInDex(@Nonnull File dex) throws IOException, FileNotFoundException {
-    assert dex.isFile();
-    int count = 0;
-    for (ClassDef def : new DexBuffer(dex).classDefs()) {
-      count++;
-    }
-    return count;
-  }
-
   @Nonnull
   private static File prepareLib(@Nonnull File sources, @Nonnull File... classpath) throws Exception {
     File outDir = AbstractTestTools.createTempDir();
@@ -350,14 +341,14 @@ public class MultiDexTests {
         /* zipFile = */ false,
         testFolder);
 
-    File classesDex = new File(out, "classes.dex");
-    Assert.assertTrue(classesDex.exists());
-    File classes2Dex = new File(out, "classes2.dex");
-    Assert.assertTrue(classes2Dex.exists());
+    String outList = getListingOfDex(new File(out, "classes.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002a-1.txt"), outList);
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002a-2.txt"), outList2);
     File classes3Dex = new File(out, "classes3.dex");
     Assert.assertFalse(classes3Dex.exists());
-    int totalTypeNumber = getTypeCountInDex(classesDex) + getTypeCountInDex(classes2Dex);
-    Assert.assertEquals(100, totalTypeNumber);
   }
 
   @Test
@@ -386,10 +377,10 @@ public class MultiDexTests {
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-1.txt"), outList);
+        new File(testFolder,"ref-list-002b-1.txt"), outList);
     String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-2.txt"), outList2);
+        new File(testFolder,"ref-list-002b-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
   }
 
@@ -420,9 +411,9 @@ public class MultiDexTests {
     env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
     env.setReferenceTestTools(new DummyToolchain());
 
-    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-1.txt"),
+    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002b-1.txt"),
         env.getCandidateDex());
-    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002-2.txt"),
+    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-002b-2.txt"),
         new File(env.getCandidateDexDir(), "classes2.dex"));
     env.runTest(c1, c2);
 
@@ -446,14 +437,14 @@ public class MultiDexTests {
     .addToClasspath(library)
     .srcToExe(out, /* zipFile = */ false, testFolder);
 
-    File classesDex = new File(out, "classes.dex");
-    Assert.assertTrue(classesDex.exists());
-    File classes2Dex = new File(out, "classes2.dex");
-    Assert.assertTrue(classes2Dex.exists());
+    String outList = getListingOfDex(new File(out, "classes.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002a-1.txt"), outList);
+    String outList2 = getListingOfDex(new File(out, "classes2.dex"));
+    ListingComparator.compare(
+        new File(testFolder,"ref-list-002a-2.txt"), outList2);
     File classes3Dex = new File(out, "classes3.dex");
     Assert.assertFalse(classes3Dex.exists());
-    int totalTypeNumber = getTypeCountInDex(classesDex) + getTypeCountInDex(classes2Dex);
-    Assert.assertEquals(100, totalTypeNumber);
   }
 
   @Test
@@ -477,10 +468,10 @@ public class MultiDexTests {
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-1.txt"), outList);
+        new File(testFolder,"ref-list-002b-1.txt"), outList);
     String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-2.txt"), outList2);
+        new File(testFolder,"ref-list-002b-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
   }
 
@@ -511,10 +502,10 @@ public class MultiDexTests {
     // The old toolchain is doing a little better than us here it seems to identify when
     // InterfaceWithEnum.class instance is used or not.
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-1.txt"), outList);
+        new File(testFolder,"ref-list-002b-1.txt"), outList);
     String outList2 = getListingOfDex(new File(out, "classes2.dex"));
     ListingComparator.compare(
-        new File(testFolder,"ref-list-002-2.txt"), outList2);
+        new File(testFolder,"ref-list-002b-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
   }
 
