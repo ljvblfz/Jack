@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.div_double;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.div_double.jm.T_div_double_1;
 import com.android.jack.opcodes.div_double.jm.T_div_double_3;
 import com.android.jack.opcodes.div_double.jm.T_div_double_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_div_double extends DxTestCase {

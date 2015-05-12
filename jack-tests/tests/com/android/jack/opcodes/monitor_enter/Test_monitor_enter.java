@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.monitor_enter;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.monitor_enter.jm.T_monitor_enter_1;
 import com.android.jack.opcodes.monitor_enter.jm.T_monitor_enter_2;
 import com.android.jack.opcodes.monitor_enter.jm.T_monitor_enter_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_monitor_enter extends DxTestCase {

@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.mul_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.mul_int.jm.T_mul_int_1;
 import com.android.jack.opcodes.mul_int.jm.T_mul_int_3;
 import com.android.jack.opcodes.mul_int.jm.T_mul_int_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_mul_int extends DxTestCase {

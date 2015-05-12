@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.aput_wide;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aput_wide.jm.T_aput_wide_1;
 import com.android.jack.opcodes.aput_wide.jm.T_aput_wide_2;
 import com.android.jack.opcodes.aput_wide.jm.T_aput_wide_3;
 import com.android.jack.opcodes.aput_wide.jm.T_aput_wide_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aput_wide extends DxTestCase {

@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.shl_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.shl_long.jm.T_shl_long_1;
 import com.android.jack.opcodes.shl_long.jm.T_shl_long_3;
 import com.android.jack.opcodes.shl_long.jm.T_shl_long_4;
 import com.android.jack.opcodes.shl_long.jm.T_shl_long_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_shl_long extends DxTestCase {

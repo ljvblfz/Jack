@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.opc_throw;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.opc_throw.jm.T_opc_throw_1;
 import com.android.jack.opcodes.opc_throw.jm.T_opc_throw_12;
 import com.android.jack.opcodes.opc_throw.jm.T_opc_throw_2;
 import com.android.jack.opcodes.opc_throw.jm.T_opc_throw_8;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_opc_throw extends DxTestCase {

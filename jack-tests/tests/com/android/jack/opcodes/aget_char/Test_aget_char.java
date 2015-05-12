@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.aget_char;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aget_char.jm.T_aget_char_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aget_char extends DxTestCase {

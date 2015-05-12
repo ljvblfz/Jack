@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.return_object;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.return_object.jm.T_return_object_1;
 import com.android.jack.opcodes.return_object.jm.T_return_object_12;
 import com.android.jack.opcodes.return_object.jm.T_return_object_13;
@@ -24,6 +23,7 @@ import com.android.jack.opcodes.return_object.jm.T_return_object_2;
 import com.android.jack.opcodes.return_object.jm.T_return_object_6;
 import com.android.jack.opcodes.return_object.jm.T_return_object_7;
 import com.android.jack.opcodes.return_object.jm.T_return_object_9;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_return_object extends DxTestCase {

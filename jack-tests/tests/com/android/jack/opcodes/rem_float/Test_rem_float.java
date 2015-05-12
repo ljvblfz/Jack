@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.rem_float;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.rem_float.jm.T_rem_float_1;
 import com.android.jack.opcodes.rem_float.jm.T_rem_float_3;
 import com.android.jack.opcodes.rem_float.jm.T_rem_float_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_rem_float extends DxTestCase {

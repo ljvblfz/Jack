@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.sparse_switch;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.sparse_switch.jm.T_sparse_switch_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_sparse_switch extends DxTestCase {

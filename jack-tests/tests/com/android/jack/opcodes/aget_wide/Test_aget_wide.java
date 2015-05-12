@@ -16,12 +16,12 @@
 
 package com.android.jack.opcodes.aget_wide;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aget_wide.jm.T_aget_wide_1;
 import com.android.jack.opcodes.aget_wide.jm.T_aget_wide_2;
 import com.android.jack.opcodes.aget_wide.jm.T_aget_wide_3;
 import com.android.jack.opcodes.aget_wide.jm.T_aget_wide_4;
 import com.android.jack.opcodes.aget_wide.jm.T_aget_wide_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aget_wide extends DxTestCase {

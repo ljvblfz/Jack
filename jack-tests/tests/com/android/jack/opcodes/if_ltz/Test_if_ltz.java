@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.if_ltz;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_ltz.jm.T_if_ltz_1;
 import com.android.jack.opcodes.if_ltz.jm.T_if_ltz_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_ltz extends DxTestCase {

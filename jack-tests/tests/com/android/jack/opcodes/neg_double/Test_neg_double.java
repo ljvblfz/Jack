@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.neg_double;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.neg_double.jm.T_neg_double_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_neg_double extends DxTestCase {

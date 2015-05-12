@@ -40,7 +40,7 @@ public class OpcodesTests extends RuntimeTest {
       setSrcDirName("jm");
       setRefDirName( ".");
       addReferenceExtraSources(new File(TestsProperties.getJackRootDir(),
-          "jack-tests/src/com/android/jack/DxTestCase.java"));
+          "jack-tests/src/com/android/jack/test/DxTestCase.java"));
     }
   }
 

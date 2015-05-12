@@ -16,13 +16,13 @@
 
 package com.android.jack.opcodes.aget;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aget.jm.T_aget_1;
 import com.android.jack.opcodes.aget.jm.T_aget_2;
 import com.android.jack.opcodes.aget.jm.T_aget_3;
 import com.android.jack.opcodes.aget.jm.T_aget_4;
 import com.android.jack.opcodes.aget.jm.T_aget_5;
 import com.android.jack.opcodes.aget.jm.T_aget_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aget extends DxTestCase {

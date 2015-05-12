@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.const4_16;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_1;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_10;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_11;
@@ -33,6 +32,7 @@ import com.android.jack.opcodes.const4_16.jm.T_const4_16_6;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_7;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_8;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_9;
+import com.android.jack.test.DxTestCase;
 import com.android.jack.opcodes.const4_16.jm.T_const4_16_17;
 
 

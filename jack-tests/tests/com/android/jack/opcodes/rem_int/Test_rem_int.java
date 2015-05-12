@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.rem_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.rem_int.jm.T_rem_int_1;
 import com.android.jack.opcodes.rem_int.jm.T_rem_int_3;
 import com.android.jack.opcodes.rem_int.jm.T_rem_int_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_rem_int extends DxTestCase {

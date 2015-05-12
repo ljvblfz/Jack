@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.if_ne;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_ne.jm.T_if_ne_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_ne extends DxTestCase {

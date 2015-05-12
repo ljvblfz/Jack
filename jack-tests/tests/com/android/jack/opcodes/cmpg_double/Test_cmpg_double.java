@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.cmpg_double;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.cmpg_double.jm.T_cmpg_double_1;
 import com.android.jack.opcodes.cmpg_double.jm.T_cmpg_double_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_cmpg_double extends DxTestCase {

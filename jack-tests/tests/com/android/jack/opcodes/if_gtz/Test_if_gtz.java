@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.if_gtz;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_gtz.jm.T_if_gtz_1;
 import com.android.jack.opcodes.if_gtz.jm.T_if_gtz_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_gtz extends DxTestCase {

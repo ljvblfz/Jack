@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.add_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.add_int.jm.T_add_int_1;
 import com.android.jack.opcodes.add_int.jm.T_add_int_3;
 import com.android.jack.opcodes.add_int.jm.T_add_int_4;
@@ -25,6 +24,7 @@ import com.android.jack.opcodes.add_int.jm.T_add_int_6;
 import com.android.jack.opcodes.add_int.jm.T_add_int_7;
 import com.android.jack.opcodes.add_int.jm.T_add_int_8;
 import com.android.jack.opcodes.add_int.jm.T_add_int_9;
+import com.android.jack.test.DxTestCase;
 import com.android.jack.opcodes.add_int.jm.T_add_int_10;
 
 

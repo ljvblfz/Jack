@@ -16,12 +16,12 @@
 
 package com.android.jack.opcodes.sget;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.sget.jm.T_sget_1;
 import com.android.jack.opcodes.sget.jm.T_sget_11;
 import com.android.jack.opcodes.sget.jm.T_sget_2;
 import com.android.jack.opcodes.sget.jm.T_sget_5;
 import com.android.jack.opcodes.sget.jm.T_sget_9;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_sget extends DxTestCase {

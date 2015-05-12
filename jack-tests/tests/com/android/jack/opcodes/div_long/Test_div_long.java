@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.div_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.div_long.jm.T_div_long_1;
 import com.android.jack.opcodes.div_long.jm.T_div_long_4;
 import com.android.jack.opcodes.div_long.jm.T_div_long_5;
 import com.android.jack.opcodes.div_long.jm.T_div_long_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_div_long extends DxTestCase {

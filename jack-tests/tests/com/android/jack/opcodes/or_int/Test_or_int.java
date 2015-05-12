@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.or_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.or_int.jm.T_or_int_1;
 import com.android.jack.opcodes.or_int.jm.T_or_int_3;
 import com.android.jack.opcodes.or_int.jm.T_or_int_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_or_int extends DxTestCase {

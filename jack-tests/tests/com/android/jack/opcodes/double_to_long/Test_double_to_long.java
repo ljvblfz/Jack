@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.double_to_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.double_to_long.jm.T_double_to_long_1;
 import com.android.jack.opcodes.double_to_long.jm.T_double_to_long_3;
 import com.android.jack.opcodes.double_to_long.jm.T_double_to_long_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_double_to_long extends DxTestCase {

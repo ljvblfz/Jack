@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.if_lt;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_lt.jm.T_if_lt_1;
 import com.android.jack.opcodes.if_lt.jm.T_if_lt_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_lt extends DxTestCase {

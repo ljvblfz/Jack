@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.const_wide;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_1;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_2;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_3;
@@ -24,6 +23,7 @@ import com.android.jack.opcodes.const_wide.jm.T_const_wide_4;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_5;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_6;
 import com.android.jack.opcodes.const_wide.jm.T_const_wide_7;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_const_wide extends DxTestCase {

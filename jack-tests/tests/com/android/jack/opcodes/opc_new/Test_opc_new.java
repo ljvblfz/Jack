@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.opc_new;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.opc_new.jm.T_opc_new_1;
 import com.android.jack.opcodes.opc_new.jm.T_opc_new_3;
 import com.android.jack.opcodes.opc_new.jm.T_opc_new_9;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_opc_new extends DxTestCase {

@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.opc_return;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_11;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_12;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_13;
@@ -31,6 +30,7 @@ import com.android.jack.opcodes.opc_return.jm.T_opc_return_5;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_6;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_7;
 import com.android.jack.opcodes.opc_return.jm.T_opc_return_8;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_opc_return extends DxTestCase {

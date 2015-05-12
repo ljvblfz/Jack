@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.aput_char;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.aput_char.jm.T_aput_char_1;
 import com.android.jack.opcodes.aput_char.jm.T_aput_char_4;
 import com.android.jack.opcodes.aput_char.jm.T_aput_char_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_aput_char extends DxTestCase {
