@@ -185,4 +185,10 @@ public class JAstClasspath extends ClasspathLocation {
   @Override
   public void initialize() {
   }
+
+  @Override
+  public boolean hasAnnotationFileFor(String qualifiedTypeName) {
+    // Jack does not support ecj external annotation file
+    return false;
+  }
 }
