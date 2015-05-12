@@ -24,6 +24,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -47,6 +48,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -63,6 +66,22 @@ public abstract class DexWritingTool {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
+  private static final TypePackageAndMethodFormatter formatter = Jack.getLookupFormatter();
+
+  @Nonnull
+  protected static final Comparator<JDefinedClassOrInterface> nameComp =
+    new Comparator<JDefinedClassOrInterface>() {
+      @Override
+      public int compare(@Nonnull JDefinedClassOrInterface first,
+          @Nonnull JDefinedClassOrInterface second) {
+        return formatter.getName(first).compareTo(formatter.getName(second));
+      }
+    };
+
+  protected final boolean deterMultidex =
+      ThreadConfig.get(Options.DETERMINISTIC_MULTIDEX_MODE).booleanValue();
+
+  @Nonnull
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
   private int currentMergerIdx = 0;
@@ -76,22 +95,32 @@ public abstract class DexWritingTool {
   protected final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
 
   public DexWritingTool() {
-    mergers.add(getNewMerger());
-  }
-
-  private JackMerger getNewMerger() {
-    return new JackMerger(createDexFile(),
-        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue());
+    mergers.add(getNewJackMerger(0));
   }
 
   @Nonnull
-  private DexFile createDexFile() {
+  protected DexFile createDexFile() {
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
     return new DexFile(options);
   }
 
+  @Nonnull
+  private JackMerger getNewJackMerger(int firstTypeIndex) {
+    if (deterMultidex) {
+      return new JackMerger(createDexFile(),
+          ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue(), firstTypeIndex);
+    } else {
+      return new JackMerger(createDexFile(),
+          ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue());
+    }
+  }
+
   public abstract void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException;
+
+  @Nonnull
+  public abstract Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> collection);
 
   public void finishMerge(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     for (int i = 0; i < mergers.size(); i++) {
@@ -122,48 +151,52 @@ public abstract class DexWritingTool {
   }
 
   @Nonnull
-  private synchronized int getNextMergerIdx(int oldMergerIdx) {
+  private synchronized int getNextMergerIdx(int oldMergerIdx, int typeIdx) {
     if (currentMergerIdx > oldMergerIdx) {
       return getCurrentMergerIdx();
     }
     currentMergerIdx++;
-    mergers.add(getNewMerger());
+    mergers.add(getNewJackMerger(typeIdx));
     return getCurrentMergerIdx();
   }
 
   /**
    * An iterator on mergers. Takes care of creating new mergers when they are required.
    */
-  protected class AvailableMergerIterator implements Iterator<JackMerger> {
+  protected class AvailableMergerIterator {
 
     private int currentIdx;
 
     public AvailableMergerIterator() {
-      currentIdx = getCurrentMergerIdx() - 1;
+      currentIdx = getCurrentMergerIdx();
     }
 
-    @Override
     public boolean hasNext() {
       return currentIdx < mergersLimit;
     }
 
-    @Override
-    public JackMerger next() {
-      currentIdx = getNextMergerIdx(currentIdx);
-      return mergers.get(currentIdx);
+    public JackMerger current() {
+      return mergers.get(getCurrentMergerIdx());
     }
 
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException();
+    public JackMerger next(int firstTypeIndex) {
+      currentIdx = getNextMergerIdx(currentIdx, firstTypeIndex);
+      return mergers.get(currentIdx);
     }
 
   }
 
-  protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
+  protected void mergeDex(@Nonnull JackMerger merger, JDefinedClassOrInterface type)
       throws MergingOverflowException, DexWritingException {
+    InputVFile inputDex = getDexInputVFileOfType(jackOutputLibrary, type);
     try {
-      merger.addDexFile(new DexBuffer(inputDex.getInputStream()));
+      if (deterMultidex) {
+        NumberMarker marker = type.getMarker(NumberMarker.class);
+        assert marker != null;
+        merger.addDexFile(new DexBuffer(inputDex.getInputStream()), marker.getNumber());
+      } else {
+        merger.addDexFile(new DexBuffer(inputDex.getInputStream()), -1);
+      }
     } catch (IOException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
     }

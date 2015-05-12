@@ -56,16 +56,23 @@ public class JackMerger extends MergerTools {
 
   private boolean finished = false;
 
-  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy) {
+  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy, int firstTypeIndex) {
+    cstManager = new ConstantManager(bestMergingAccuracy, firstTypeIndex);
     this.dexResult = dexResult;
-    cstManager = new ConstantManager(bestMergingAccuracy);
     dexResult.getDexOptions().forceJumbo = true;
   }
 
-  public void addDexFile(@Nonnull DexBuffer dexToMerge) throws MergingOverflowException {
+  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy) {
+    cstManager = new ConstantManager(bestMergingAccuracy);
+    this.dexResult = dexResult;
+    dexResult.getDexOptions().forceJumbo = true;
+  }
+
+  public void addDexFile(@Nonnull DexBuffer dexToMerge, int typeNumber)
+      throws MergingOverflowException {
     assert !finished;
 
-    CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge);
+    CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge, typeNumber);
 
     for (ClassDef classDefToMerge : dexToMerge.classDefs()) {
       CstType superType = null;

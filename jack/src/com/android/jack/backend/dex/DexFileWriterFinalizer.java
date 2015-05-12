@@ -18,10 +18,12 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
@@ -36,6 +38,7 @@ import javax.annotation.Nonnull;
 @Description("Finalize dex and write it to a file.")
 @Name("DexFileWriterFinalizer")
 @Produce(DexFileProduct.class)
+@Constraint(no = {DexFileWriterSeparator.SeparatorTag.class})
 public class DexFileWriterFinalizer implements RunnableSchedulable<JSession> {
 
   @Nonnull
@@ -59,6 +62,12 @@ public class DexFileWriterFinalizer implements RunnableSchedulable<JSession> {
     } catch (DexWritingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
+    }
+
+    if (ThreadConfig.get(Options.DETERMINISTIC_MULTIDEX_MODE).booleanValue()) {
+      for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
+        type.removeMarker(NumberMarker.class);
+      }
     }
   }
 

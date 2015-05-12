@@ -20,7 +20,9 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.vfs.InputVFile;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
@@ -33,15 +35,22 @@ import javax.annotation.Nonnull;
 public class SingleDexWritingTool extends DexWritingTool {
 
   @Nonnull
-  private final JackMerger merger = (new AvailableMergerIterator()).next();
+  private final JackMerger merger = (new AvailableMergerIterator()).current();
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
-    InputVFile vFile = getDexInputVFileOfType(jackOutputLibrary, type);
     try {
-      mergeDex(merger, vFile);
+      mergeDex(merger, type);
     } catch (MergingOverflowException e) {
       throw new DexWritingException(new SingleDexOverflowException(e));
     }
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> types) {
+    assert !deterMultidex;
+    return types.iterator();
   }
 }

@@ -26,4 +26,8 @@ public class MethodIdOverflowException extends MergingOverflowException {
   public MethodIdOverflowException() {
     super("Method ID");
   }
+
+  public MethodIdOverflowException(int typeIndex) {
+    super("Method ID", typeIndex);
+  }
 }

@@ -16,13 +16,35 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
-import com.android.sched.item.Production;
+import com.android.sched.marker.Marker;
+import com.android.sched.marker.ValidOn;
+
+import javax.annotation.Nonnull;
 
 /**
- * Represents the production of main standard multidex {@code DexFile}.
+ * A {@link Marker} containing a number that defines merging order for types.
  */
-@Description("Main standard multidex production")
-public class MainMultiDexProduct implements Production {
+@Description(
+    "Contains a number that defines merging order for types.")
+@ValidOn(value = {JDefinedClassOrInterface.class})
+public class NumberMarker implements Marker {
+
+  private final int number;
+
+  public NumberMarker(int number) {
+    this.number = number;
+  }
+
+  @Override
+  @Nonnull
+  public Marker cloneIfNeeded() {
+    return this;
+  }
+
+  public int getNumber() {
+    return number;
+  }
 
 }

@@ -20,7 +20,11 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.vfs.InputVFile;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
@@ -37,34 +41,65 @@ public class MinimalMultiDexWritingTool extends DexWritingTool {
 
   public MinimalMultiDexWritingTool() {
     AvailableMergerIterator iter = new AvailableMergerIterator();
-    mainMerger = iter.next();
+    mainMerger = iter.current();
   }
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
-    InputVFile vFile = getDexInputVFileOfType(jackOutputLibrary, type);
     if (type.getMarker(MainDexMarker.class) != null) {
       try {
-        mergeDex(mainMerger, vFile);
+        mergeDex(mainMerger, type);
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new MainDexOverflowException(e));
       }
     } else {
       AvailableMergerIterator iter = new AvailableMergerIterator();
-      JackMerger merger = iter.next();
+      JackMerger merger = iter.current();
       if (merger == mainMerger) {
-        merger = iter.next();
+        merger = iter.next(0);
       }
       do {
         try {
-          mergeDex(merger, vFile);
+          mergeDex(merger, type);
           break;
         } catch (MergingOverflowException e) {
-          merger = iter.next();
+          merger = iter.next(e.getTypeIndex());
         }
       } while (iter.hasNext());
       assert iter.hasNext();
     }
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> types) {
+    ArrayList<JDefinedClassOrInterface> mainList =
+        new ArrayList<JDefinedClassOrInterface>();
+    ArrayList<JDefinedClassOrInterface> defaultList =
+        new ArrayList<JDefinedClassOrInterface>(types.size());
+    for (JDefinedClassOrInterface type : types) {
+      if (type.containsMarker(MainDexMarker.class)) {
+        mainList.add(type);
+      } else {
+        defaultList.add(type);
+      }
+    }
+
+    if (deterMultidex) {
+      Collections.sort(defaultList, nameComp);
+      int number = 0;
+      for (JDefinedClassOrInterface type : mainList) {
+        type.addMarker(new NumberMarker(number++));
+      }
+      number = 0;
+      for (JDefinedClassOrInterface type : defaultList) {
+        type.addMarker(new NumberMarker(number++));
+      }
+    }
+
+    mainList.addAll(defaultList);
+    return mainList.iterator();
   }
 
 }

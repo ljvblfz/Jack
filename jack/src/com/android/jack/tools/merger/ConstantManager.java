@@ -33,11 +33,15 @@ import com.android.jack.dx.rop.type.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -56,6 +60,9 @@ public class ConstantManager extends MergerTools {
   private int pesimisticTypesSize = 0;
 
   private final boolean bestMergingAccuracy;
+
+  @Nonnull
+  private final Door door;
 
   @CheckForNull
   private volatile MergingOverflowException thrown = null;
@@ -109,10 +116,16 @@ public class ConstantManager extends MergerTools {
 
   public ConstantManager(boolean bestMergingAccuracy) {
     this.bestMergingAccuracy = bestMergingAccuracy;
+    door = new Door();
+  }
+
+  public ConstantManager(boolean bestMergingAccuracy, int firstExpectedIndex) {
+    this.bestMergingAccuracy = bestMergingAccuracy;
+    door = new StrictOrderDoor(firstExpectedIndex);
   }
 
   @Nonnull
-  private CstIndexMap addDexFileInternal(@Nonnull DexBuffer dexBuffer, boolean fastPath)
+  private CstIndexMap addDexFileInternal(@Nonnull DexBuffer dexBuffer, boolean fastPath, int index)
       throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap(dexBuffer);
 
@@ -209,22 +222,22 @@ public class ConstantManager extends MergerTools {
       if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
         removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
             cstTypesNewlyAdded);
-        thrown = new FieldIdOverflowException();
-        throw new FieldIdOverflowException();
+        thrown = new FieldIdOverflowException(index);
+        throw new FieldIdOverflowException(index);
       }
 
       if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
         removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
             cstTypesNewlyAdded);
-        thrown = new MethodIdOverflowException();
-        throw new MethodIdOverflowException();
+        thrown = new MethodIdOverflowException(index);
+        throw new MethodIdOverflowException(index);
       }
 
       if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
         removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
             cstTypesNewlyAdded);
-        thrown = new TypeIdOverflowException();
-        throw new TypeIdOverflowException();
+        thrown = new TypeIdOverflowException(index);
+        throw new TypeIdOverflowException(index);
       }
 
       synchronized (this) {
@@ -239,41 +252,26 @@ public class ConstantManager extends MergerTools {
     return cstIndexMap;
   }
 
-  private void unlockAccordingToPath(boolean fastPath) {
-    if (fastPath) {
-      lock.release();
-    } else {
-      lock.release(SLOW_PATH_PERMITS);
-    }
-  }
+  private class Door {
 
-  @Nonnull
-  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
-    CstIndexMap cstIndexMap;
-    int typesSize = dexBuffer.typeIds().size();
-    int fieldsSize = dexBuffer.fieldIds().size();
-    int methodsSize = dexBuffer.methodIds().size();
-    boolean fastPath;
-    synchronized (this) {
-      if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
-          && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
-          && pesimisticTypesSize + typesSize <= DexFormat.MAX_TYPE_IDX + 1) {
-        //thread safe
-        fastPath = true;
-        pesimisticFieldsSize += fieldsSize;
-        pesimisticMethodsSize += methodsSize;
-        pesimisticTypesSize += typesSize;
-      } else {
-        //not thread safe because of rollback risk
-        fastPath = false;
+    public boolean enter(int index, int fieldsSize, int methodsSize, int typesSize) {
+      boolean fastPath = false;
+      synchronized (ConstantManager.this) {
+        if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
+            && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
+            && pesimisticTypesSize + typesSize <= DexFormat.MAX_TYPE_IDX + 1) {
+          pesimisticFieldsSize += fieldsSize;
+          pesimisticMethodsSize += methodsSize;
+          pesimisticTypesSize += typesSize;
+          fastPath = true;
+        } else {
+          fastPath = false;
+        }
       }
-    }
-
-    try {
       if (fastPath) {
         //requires only 1 semaphore token, many threads can use the fast path in parallel
         lock.acquireUninterruptibly();
-        synchronized (this) {
+        synchronized (ConstantManager.this) {
           if (pesimisticFieldsSize > DexFormat.MAX_MEMBER_IDX + 1
               || pesimisticMethodsSize > DexFormat.MAX_MEMBER_IDX + 1
               || pesimisticTypesSize > DexFormat.MAX_TYPE_IDX + 1) {
@@ -292,7 +290,124 @@ public class ConstantManager extends MergerTools {
         //requires all semaphore tokens, we want exclusive access
         lock.acquireUninterruptibly(SLOW_PATH_PERMITS);
       }
+      return fastPath;
+    }
 
+    public void inviteNext() {
+
+    }
+
+  }
+
+  private class StrictOrderDoor extends Door {
+    @Nonnull
+    private final ReentrantLock doorLock = new ReentrantLock();
+
+    @Nonnull
+    private final PriorityQueue<QueueElem> queue = new PriorityQueue<QueueElem>(40,
+        new Comparator<QueueElem>() {
+          @Override
+          public int compare(QueueElem o1, QueueElem o2) {
+            return o1.priority - o2.priority;
+          }
+    });
+
+    private int expected;
+
+    public StrictOrderDoor(int firstExpectedIndex) {
+      expected = firstExpectedIndex;
+    }
+
+    @Override
+    public boolean enter(int index, int fieldsSize, int methodsSize, int typesSize) {
+      boolean fastPath = false;
+      doorLock.lock();
+      try {
+        QueueElem elem = new QueueElem(index);
+        while (index != expected) {
+          queue.add(elem);
+          elem.getCondition().awaitUninterruptibly();
+        }
+        synchronized (ConstantManager.this) {
+          if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
+              && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
+              && pesimisticTypesSize + typesSize <= DexFormat.MAX_TYPE_IDX + 1) {
+            //thread safe
+            pesimisticFieldsSize += fieldsSize;
+            pesimisticMethodsSize += methodsSize;
+            pesimisticTypesSize += typesSize;
+            //in ordered mode fastPath permit can and has to be aquired here
+            //can be aquired because if we are expected then there is no thread on slowPath.
+            //has to be aquired to make sure that a thread that wants slowPath won't beat us
+            //to aquire its SLOW_PATH_PERMITS and run before us which would break the ordering
+            boolean aquired = lock.tryAcquire();
+            assert aquired;
+            fastPath = true;
+          } else {
+            //not thread safe because of rollback risk
+            fastPath = false;
+          }
+        }
+      } finally {
+        doorLock.unlock();
+      }
+      if (fastPath) {
+        inviteNext();
+      } else {
+        lock.acquireUninterruptibly(SLOW_PATH_PERMITS);
+      }
+      return fastPath;
+    }
+
+    @Override
+    public void inviteNext() {
+      doorLock.lock();
+      try {
+        expected++;
+        QueueElem elem = queue.poll();
+        if (elem != null) {
+          elem.getCondition().signal();
+        }
+      } finally {
+        doorLock.unlock();
+      }
+    }
+
+    private class QueueElem {
+      @Nonnull
+      private final Condition cond = doorLock.newCondition();
+      private final int priority;
+
+      public QueueElem(int priority) {
+        super();
+        this.priority = priority;
+      }
+
+      public Condition getCondition() {
+        return cond;
+      }
+    }
+  }
+
+  private void unlockAccordingToPath(boolean fastPath) {
+    if (fastPath) {
+      lock.release();
+    } else {
+      lock.release(SLOW_PATH_PERMITS);
+    }
+  }
+
+  @Nonnull
+  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer, int index)
+      throws MergingOverflowException {
+    CstIndexMap cstIndexMap;
+    int fieldsSize = dexBuffer.fieldIds().size();
+    int methodsSize = dexBuffer.methodIds().size();
+    int typesSize = dexBuffer.typeIds().size();
+
+    boolean fastPath = door.enter(index, fieldsSize, methodsSize, typesSize);
+
+    try {
       if (!fastPath) {
         synchronized (this) {
           if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
@@ -303,8 +418,11 @@ public class ConstantManager extends MergerTools {
             pesimisticFieldsSize += fieldsSize;
             pesimisticMethodsSize += methodsSize;
             pesimisticTypesSize += typesSize;
-            lock.release(SLOW_PATH_PERMITS - 1);
           }
+        }
+        if (fastPath) {
+          lock.release(SLOW_PATH_PERMITS - 1);
+          door.inviteNext();
         }
       }
 
@@ -314,10 +432,12 @@ public class ConstantManager extends MergerTools {
         //not a bug, once thrown becomes non null it will stay that way
         throw thrown;
       }
-
-      cstIndexMap = addDexFileInternal(dexBuffer, fastPath);
+      cstIndexMap = addDexFileInternal(dexBuffer, fastPath, index);
     } finally {
       unlockAccordingToPath(fastPath);
+      if (!fastPath) {
+        door.inviteNext();
+      }
     }
     return cstIndexMap;
   }
@@ -337,4 +457,5 @@ public class ConstantManager extends MergerTools {
         && (dexFile.getMethodIds().items().size() == cstMethodRefs.size())
         && (dexFile.getTypeIds().items().size() == cstTypes.size()));
   }
+
 }
