@@ -65,7 +65,7 @@ public class Version {
       assert releaseCode >= 1;
 
       subReleaseCode = Integer.parseInt(prop.getProperty("jack.version.sub-release.code"));
-      assert subReleaseCode >= 1;
+      assert subReleaseCode >= 0;
 
       subReleaseKind =
           SubReleaseKind.valueOf(SubReleaseKind.class,
