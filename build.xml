@@ -437,6 +437,7 @@
 
   <target name="jack-launcher-clean">
     <delete dir="${jack-launcher.build.outdir}"/>
+    <delete dir="${jack-launcher.dist.dir}/${jack-launcher.name}"/>
   </target>
 
   <target name="jack-launcher-copy-libs" depends="jsr305-lib">
@@ -668,6 +669,7 @@
     <delete dir="${jack-tests.libs.dir}" />
     <delete dir="${jack-tests.build.outdir}" />
     <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
+    <delete file="${jack-tests.dist.dir}/${jack-tests.execname}" />
   </target>
 
   <target name="jack-tests-copy-libs" depends="jack-api-lib,junit4,dx-ref-lib,ddm-lib,ecj,
