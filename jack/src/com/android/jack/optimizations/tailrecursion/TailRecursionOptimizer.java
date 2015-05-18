@@ -16,7 +16,10 @@
 
 package com.android.jack.optimizations.tailrecursion;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.annotations.DisableTailRecursionOptimisation;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpression;
@@ -45,6 +48,7 @@ import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.NamingTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -122,6 +126,11 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
   private static final StatisticId<Counter> TAIL_RECURSION_OPTS = new StatisticId< Counter >(
       "jack.optimization.tail-recursion", "Tail recursion optimizations",
       CounterImpl.class, Counter.class);
+
+  @Nonnull
+  private final JAnnotationType annotationType =
+    Jack.getSession().getPhantomLookup().getAnnotationType(
+    NamingTools.getTypeSignatureName(DisableTailRecursionOptimisation.class.getName()));
 
   private class TailRecursionVisitor extends JVisitor {
 
@@ -226,7 +235,9 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
     if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
-        || method.isSynthetic() || !filter.accept(this.getClass(), method)) {
+        || method.isSynthetic() || !filter.accept(this.getClass(), method)
+        || !method.getAnnotations(annotationType).isEmpty()
+        || !method.getEnclosingType().getAnnotations(annotationType).isEmpty()) {
       return;
     }
 
