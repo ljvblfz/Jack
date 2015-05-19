@@ -55,4 +55,15 @@ public class JNullLiteral extends JValueLiteral {
       throws Exception {
     visitor.visit(this, transformRequest);
   }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression
+        || parent instanceof JThrowStatement
+        || parent instanceof JNameValuePair
+        || parent instanceof JReturnStatement
+        || parent instanceof JFieldInitializer)) {
+      super.checkValidity();
+    }
+  }
 }

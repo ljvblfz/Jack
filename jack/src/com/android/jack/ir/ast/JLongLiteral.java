@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java literal expression that evaluates to a Long.
  */
 @Description("Java literal expression that evaluates to a Long")
-public class JLongLiteral extends JValueLiteral implements JNumberLiteral {
+public class JLongLiteral extends JNumberValueLiteral implements JNumberLiteral {
 
   private final long value;
 
