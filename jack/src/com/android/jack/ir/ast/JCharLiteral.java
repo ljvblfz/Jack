@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java character literal expression.
  */
 @Description("Java character literal expression")
-public class JCharLiteral extends JValueLiteral
+public class JCharLiteral extends JNumberValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
   private final char value;
@@ -79,5 +79,12 @@ public class JCharLiteral extends JValueLiteral
   @Nonnull
   public Number getNumber() {
     return new Number(Character.valueOf(value));
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JSwitchStatement || parent instanceof JCaseStatement)) {
+      super.checkValidity();
+    }
   }
 }

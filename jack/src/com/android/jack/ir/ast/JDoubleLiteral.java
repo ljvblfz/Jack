@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java double literal expression.
  */
 @Description("Java double literal expression")
-public class JDoubleLiteral extends JValueLiteral implements JNumberLiteral {
+public class JDoubleLiteral extends JNumberValueLiteral implements JNumberLiteral {
 
   private final double value;
 

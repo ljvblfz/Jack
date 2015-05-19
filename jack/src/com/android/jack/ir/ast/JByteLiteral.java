@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java byte literal expression.
  */
 @Description("Java byte literal expression")
-public class JByteLiteral extends JValueLiteral
+public class JByteLiteral extends JNumberValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
   private final byte value;
@@ -81,5 +81,12 @@ public class JByteLiteral extends JValueLiteral
   @Nonnull
   public Number getNumber() {
     return new Number(Byte.valueOf(value));
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JSwitchStatement || parent instanceof JCaseStatement)) {
+      super.checkValidity();
+    }
   }
 }

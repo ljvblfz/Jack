@@ -72,4 +72,18 @@ public class JEnumLiteral extends JValueLiteral {
       throws Exception {
     visitor.visit(this, transformRequest);
   }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression
+        || parent instanceof JNameValuePair
+        || parent instanceof JAnnotationMethod
+        || parent instanceof JCaseStatement
+        || parent instanceof JSwitchStatement
+        || parent instanceof JReturnStatement
+        || parent instanceof JFieldInitializer
+        || parent instanceof JSynchronizedBlock)) {
+      super.checkValidity();
+    }
+  }
 }

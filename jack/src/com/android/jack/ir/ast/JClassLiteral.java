@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -73,5 +74,17 @@ public class JClassLiteral extends JLiteral {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression
+        || parent instanceof JNameValuePair
+        || parent instanceof JAnnotationMethod
+        || parent instanceof JFieldInitializer
+        || parent instanceof JReturnStatement
+        || parent instanceof JSynchronizedBlock)) {
+      throw new JNodeInternalError(this, "Invalid parent");
+    }
   }
 }

@@ -28,7 +28,8 @@ import javax.annotation.Nonnull;
  * Java integer literal expression.
  */
 @Description("Java integer literal expression")
-public class JIntLiteral extends JValueLiteral implements JIntegralConstant32, JNumberLiteral {
+public class JIntLiteral extends JNumberValueLiteral implements JIntegralConstant32,
+    JNumberLiteral {
 
   private final int value;
 
@@ -78,5 +79,12 @@ public class JIntLiteral extends JValueLiteral implements JIntegralConstant32, J
   @Nonnull
   public Number getNumber() {
     return new Number(Integer.valueOf(value));
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JSwitchStatement || parent instanceof JCaseStatement)) {
+      super.checkValidity();
+    }
   }
 }
