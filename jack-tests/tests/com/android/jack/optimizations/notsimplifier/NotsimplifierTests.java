@@ -32,18 +32,30 @@ public class NotsimplifierTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.optimizations.notsimplifier.test001"),
     "com.android.jack.optimizations.notsimplifier.test001.dx.Tests");
 
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.optimizations.notsimplifier.test002"),
+      "com.android.jack.optimizations.notsimplifier.test002.dx.Tests");
+
   @BeforeClass
   public static void setUpClass() {
     NotsimplifierTests.class.getClassLoader().setDefaultAssertionStatus(true);
   }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test002() throws Exception {
+    new RuntimeTestHelper(TEST002).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST002);
   }
 }
