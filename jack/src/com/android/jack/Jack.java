@@ -236,6 +236,8 @@ import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
+import com.android.jack.transformations.typedef.TypeDefRemover;
+import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
 import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
@@ -541,6 +543,10 @@ public abstract class Jack {
 
       if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
         request.addProduction(DependencyInLibraryProduct.class);
+      }
+
+      if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
+        request.addFeature(TypeDefRemover.RemoveTypeDef.class);
       }
 
       ProductionSet targetProduction = request.getTargetProductions();
@@ -890,6 +896,12 @@ public abstract class Jack {
     // Build the plan
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
+    }
+
+    if (features.contains(RemoveTypeDef.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(TypeDefRemover.class);
     }
 
     appendStringRefiners(planBuilder);

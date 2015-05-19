@@ -142,7 +142,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public JAbstractMethodBody loadBody(@Nonnull JMethod method) throws JTypeLookupException,
       JMethodLookupException {
     if (body != null) {
-      JSession session = method.getParent(JSession.class);
+      JSession session = method.getEnclosingType().getSession();
       ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
           NodeLevel.FULL);
       exportSession.setCurrentMethod(method);
