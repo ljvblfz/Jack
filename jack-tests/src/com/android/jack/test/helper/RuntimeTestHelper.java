@@ -206,13 +206,6 @@ public class RuntimeTestHelper {
       checker.check(testBinary);
     }
 
-    referenceTestTools = createReferenceToolchain();
-    File testLib =
-        AbstractTestTools.createTempFile("testRef", referenceTestTools.getLibraryExtension());
-    referenceTestTools.addToClasspath(referenceClasspath)
-    .srcToLib(testLib, /* zipFiles = */ true,
-        getSrcDir());
-
     // Compile link src
     candidateTestTools = createCandidateToolchain();
 
@@ -227,36 +220,45 @@ public class RuntimeTestHelper {
     }
 
     // Compile ref part src
-    referenceTestTools = createReferenceToolchain();
-
-    List<File> referenceClasspathAsList = new ArrayList<File>();
-    for (File f : referenceBootClasspath) {
-      referenceClasspathAsList.add(f);
-    }
-    if (libLibRef != null) {
-      referenceClasspathAsList.add(libLibRef);
-    }
-    if (testLib != null) {
-      referenceClasspathAsList.add(testLib);
-    }
-
-    referenceClasspath =
-        referenceClasspathAsList.toArray(new File[referenceClasspathAsList.size()]);
-
-
     File [] refSources = getRefSrcDir();
     List<File> extras = getReferenceExtraSources();
     List<File> sources = new ArrayList<File>(extras.size() + refSources.length);
     Collections.addAll(sources, refSources);
     sources.addAll(extras);
 
-    File refPartBinaryDir = AbstractTestTools.createTempDir();
-    File refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
-    referenceTestTools.addToClasspath(referenceClasspath)
-    .srcToExe(
-        refPartBinaryDir,
-        /* zipFile = */ false,
-        sources.toArray(new File[sources.size()]));
+    File refPartBinaryDir = null;
+    File refPartBinary = null;
+    if (sources.size() > 0) {
+      referenceTestTools = createReferenceToolchain();
+      File testLib =
+          AbstractTestTools.createTempFile("testRef", referenceTestTools.getLibraryExtension());
+      referenceTestTools.addToClasspath(referenceClasspath)
+      .srcToLib(testLib, /* zipFiles = */ true,
+          getSrcDir());
+
+      List<File> referenceClasspathAsList = new ArrayList<File>();
+      for (File f : referenceBootClasspath) {
+        referenceClasspathAsList.add(f);
+      }
+      if (libLibRef != null) {
+        referenceClasspathAsList.add(libLibRef);
+      }
+      if (testLib != null) {
+        referenceClasspathAsList.add(testLib);
+      }
+
+      referenceClasspath =
+          referenceClasspathAsList.toArray(new File[referenceClasspathAsList.size()]);
+
+      referenceTestTools = createReferenceToolchain();
+      refPartBinaryDir = AbstractTestTools.createTempDir();
+      refPartBinary = new File(refPartBinaryDir, referenceTestTools.getBinaryFileName());
+      referenceTestTools.addToClasspath(referenceClasspath)
+      .srcToExe(
+          refPartBinaryDir,
+          /* zipFile = */ false,
+          sources.toArray(new File[sources.size()]));
+    }
 
     List<File> rtClasspath = new ArrayList<File>();
     rtClasspath.add(new File(TestsProperties.getJackRootDir(),
