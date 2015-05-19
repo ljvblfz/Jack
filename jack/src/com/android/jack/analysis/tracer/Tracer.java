@@ -208,8 +208,8 @@ public class Tracer extends JVisitor {
           // To be safe, Jack is conservative when there is partial type hierarchy.
           // It considers all methods of the type as seed.
           if (brush.startTraceSeed(method) || pth != null) {
-            trace(method);
-            brush.setMustTraceOverridingMethods(method);
+            trace(method.getMethodId(), method.getEnclosingType(), method.getType(),
+                true /* mustTraceOverridingMethods */);
             brush.endTraceSeed(method);
           }
         }

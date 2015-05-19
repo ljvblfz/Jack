@@ -28,6 +28,7 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.util.TextUtils;
+import com.android.sched.scheduler.ScheduleInstance;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -76,6 +77,42 @@ public class ShrinkTests extends AbstractTest {
 
     // Otherwise test10_001 cannot work with jill based toolchains
     env.setWithDebugInfo(true);
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+    env.setProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(shrobTestsDir,"keepAllAttributes.flags"),
+        new ProguardFlags(testFolder, "proguard.flags" + flagNumber));
+
+    env.runTest(new ComparatorMapping(new File(refFolder, "expected-" + flagNumber + ".txt"),
+        candidateNodeListing));
+  }
+
+  protected void runTestInMonoThreadWithOrderedInput(
+      @Nonnull String testNumber,
+      @Nonnull String flagNumber,
+      @Nonnull String mappingNumber)
+      throws Exception {
+    File testFolder = new File(shrobTestsDir, "test" + testNumber);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+
+    File refFolder = new File(testFolder, "refsShrinking");
+
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    toolchain.disableDxOptimizations();
+    toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+
+    File outFolder = AbstractTestTools.createTempDir();
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
     env.setCandidateTestTools(toolchain);
     env.setReferenceTestTools(new DummyToolchain());
     env.setProguardFlags(
@@ -289,6 +326,10 @@ public class ShrinkTests extends AbstractTest {
     runTest("042", "003", "");
   }
 
+  @Test
+  public void test43_001() throws Exception {
+    runTestInMonoThreadWithOrderedInput("043", "001", "");
+  }
 
   @Test
   @Category(SlowTests.class)
