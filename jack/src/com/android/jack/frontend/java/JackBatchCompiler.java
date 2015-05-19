@@ -25,6 +25,8 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JarLibrary;
 import com.android.jack.reporting.Reporter;
+import com.android.sched.scheduler.ScheduleInstance;
+import com.android.sched.scheduler.SingleScheduleInstance;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory;
@@ -97,9 +99,6 @@ public class JackBatchCompiler extends Main {
     }
 
   }
-
-  @Nonnull
-  private static final String USE_SINGLE_THREAD_SYSPROP = "jdt.compiler.useSingleThread";
 
   @Nonnull
   private static final java.util.logging.Logger jackLogger = LoggerFactory.getLogger();
@@ -211,7 +210,8 @@ public class JackBatchCompiler extends Main {
         progress,
         session);
     batchCompiler.remainingIterations = maxRepetition - currentRepetition;
-    batchCompiler.useSingleThread = Boolean.getBoolean(USE_SINGLE_THREAD_SYSPROP);
+    batchCompiler.useSingleThread = ThreadConfig.get(ScheduleInstance.DEFAULT_RUNNER)
+        .getInstanciatedClass().isAssignableFrom(SingleScheduleInstance.class);
 
     if (compilerOptions.processAnnotations) {
       initializeAnnotationProcessorManager();
