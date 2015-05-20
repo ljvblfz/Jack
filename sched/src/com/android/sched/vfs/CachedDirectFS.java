@@ -228,12 +228,19 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Nonnull
   @Override
   OutputStream openWrite(@Nonnull CachedParentVFile file) throws WrongPermissionException {
+    return openWrite(file, false);
+  }
+
+  @Nonnull
+  @Override
+  OutputStream openWrite(@Nonnull CachedParentVFile file, boolean append)
+      throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileOutputStream(path);
+      return new FileOutputStream(path, append);
     } catch (FileNotFoundException e) {
       FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
       throw new ConcurrentIOException(e);

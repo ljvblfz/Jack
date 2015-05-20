@@ -368,9 +368,16 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull CaseInsensitiveVFile file) throws WrongPermissionException {
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull CaseInsensitiveVFile file, boolean append)
+      throws WrongPermissionException {
     assert !isClosed();
 
-    return file.getEncodedFile().getOutputStream();
+    return file.getEncodedFile().getOutputStream(append);
   }
 
   //

@@ -204,6 +204,12 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull ZipVFile file, boolean append) {
+    throw new UnsupportedOperationException();
+  }
+
   //
   // VElement
   //

@@ -26,12 +26,10 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.vfs.VFS;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 
@@ -55,27 +53,24 @@ class IncrementalLogWriter {
   @Nonnull
   private static Joiner commaJoiner = Joiner.on(",").useForNull("");
 
-  IncrementalLogWriter(@Nonnull OutputJackLibrary library, @Nonnull VFS incrementalFolder)
-      throws LibraryIOException {
+  IncrementalLogWriter(@Nonnull OutputJackLibrary library) throws LibraryIOException {
     this.library = library;
+    OutputVFile vFile;
     try {
-      library.getFile(FileType.LOG, vpath);
+      vFile = library.getFile(FileType.LOG, vpath);
     } catch (FileTypeDoesNotExistException e) {
       try {
-        library.createFile(FileType.LOG, vpath);
+        vFile = library.createFile(FileType.LOG, vpath);
       } catch (CannotCreateFileException e1) {
         throw new LibraryIOException(library.getLocation(), e1);
       }
     }
 
-    File logFile = new File(incrementalFolder.getPath(),
-        FileType.LOG.buildFileVPath(vpath).getPathAsString(File.separatorChar));
     try {
-      ps = new PrintStream(new FileOutputStream(logFile, true));
+      ps = new PrintStream(vFile.getPrintStream(/* append = */ true));
       writeString("***");
-    } catch (FileNotFoundException e) {
-      // File already creates by using VFS
-      throw new AssertionError();
+    } catch (WrongPermissionException e) {
+      throw new LibraryIOException(library.getLocation(), e);
     }
   }
 
