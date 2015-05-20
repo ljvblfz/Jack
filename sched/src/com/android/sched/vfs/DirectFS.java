@@ -125,12 +125,20 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   @Override
   OutputStream openWrite(@Nonnull ParentVFile file) throws WrongPermissionException {
+    return openWrite(file, false);
+  }
+
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull ParentVFile file, boolean append)
+      throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileOutputStream(path);
+      return new FileOutputStream(path, append);
     } catch (FileNotFoundException e) {
       FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
       throw new ConcurrentIOException(e);

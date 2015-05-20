@@ -139,6 +139,16 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
         }
       };
     }
+
+    @Override
+    @Nonnull
+    public OutputStream getOutputStream(boolean append) throws WrongPermissionException {
+      if (append) {
+        throw new UnsupportedOperationException();
+      } else {
+        return getOutputStream();
+      }
+    }
   }
 
   static class MessageDigestVDir extends BaseVDir {
@@ -357,6 +367,13 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull final MessageDigestVFile file) {
+    // should be implemented in MessageDigestVFile
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull MessageDigestVFile file, boolean append) {
     // should be implemented in MessageDigestVFile
     throw new UnsupportedOperationException();
   }

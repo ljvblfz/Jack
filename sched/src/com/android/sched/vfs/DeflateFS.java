@@ -93,7 +93,13 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return new DeflaterOutputStream(vfs.openWrite(file), new Deflater());
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return new DeflaterOutputStream(vfs.openWrite(file, append), new Deflater());
   }
 
   @Override
