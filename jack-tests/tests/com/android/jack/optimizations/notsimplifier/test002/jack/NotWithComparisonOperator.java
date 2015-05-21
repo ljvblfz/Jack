@@ -16,29 +16,19 @@
 
 package com.android.jack.optimizations.notsimplifier.test002.jack;
 
-public class NotSimplifier {
+public interface NotWithComparisonOperator {
 
-  public static boolean smallerOrEqualTo0(double n) {
-    return !(n > 0);
-  }
+  public boolean testWithDouble(double n);
 
-  public static boolean smallerOrEqualTo0(float n) {
-    return !(n > 0);
-  }
+  public boolean testWithFloat(float n);
 
-  public static boolean smallerOrEqualTo0(long n) {
-    return !(n > 0);
-  }
+  public boolean testWithLong(long n);
 
-  public static boolean smallerOrEqualTo0(int n) {
-    return !(n > 0);
-  }
+  public boolean testWithInt(int n);
 
-  public static boolean smallerOrEqualTo0(byte n) {
-    return !(n > 0);
-  }
+  public boolean testWithShort(short n);
 
-  public static boolean smallerOrEqualTo0(char n) {
-    return !(n > 0);
-  }
+  public boolean testWithByte(byte n);
+
+  public boolean testWithChar(char n);
 }
