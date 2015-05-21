@@ -19,7 +19,9 @@ package com.android.jack.transformations.cast;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JDynamicCastOperation;
+import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -57,10 +59,14 @@ public class UselessCastRemover implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JCastOperation cast) {
       JType destType = cast.getCastType();
-      JType srcType = cast.getExpr().getType();
-      if (srcType instanceof JReferenceType && destType instanceof JReferenceType) {
-        if (((JReferenceType) srcType).canBeSafelyUpcast((JReferenceType) destType)) {
-          request.append(new Replace(cast, cast.getExpr()));
+      JExpression castedExpr = cast.getExpr();
+      JType srcType = castedExpr.getType();
+      // Do not remove cast of 'null' expression otherwise type is lost
+      if (!(castedExpr instanceof JNullLiteral)) {
+        if (srcType instanceof JReferenceType && destType instanceof JReferenceType) {
+          if (((JReferenceType) srcType).canBeSafelyUpcast((JReferenceType) destType)) {
+            request.append(new Replace(cast, castedExpr));
+          }
         }
       }
       super.endVisit(cast);
