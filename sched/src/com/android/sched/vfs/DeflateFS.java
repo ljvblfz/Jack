@@ -119,6 +119,11 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   }
 
   @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return vfs.getLastModified(file);
+  }
+
+  @Override
   @Nonnull
   BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
       throws CannotCreateFileException {

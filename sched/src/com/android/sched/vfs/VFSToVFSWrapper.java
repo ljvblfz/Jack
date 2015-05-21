@@ -219,6 +219,11 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   }
 
   @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVFile file) {
     return workVFS.getVFileLocation(file);

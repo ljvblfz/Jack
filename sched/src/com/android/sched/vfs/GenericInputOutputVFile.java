@@ -88,4 +88,9 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   public VPath getPathFromRoot() {
     return file.getPathFromRoot();
   }
+
+  @Override
+  public long getLastModified() {
+    return file.getLastModified();
+  }
 }

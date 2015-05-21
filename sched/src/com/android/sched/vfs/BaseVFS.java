@@ -85,6 +85,8 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @Nonnull
   abstract VPath getPathFromRoot(@Nonnull FILE file);
 
+  abstract long getLastModified(@Nonnull FILE file);
+
   //
   // Location related
   //
