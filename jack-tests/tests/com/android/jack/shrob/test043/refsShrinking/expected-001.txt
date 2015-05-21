@@ -1,0 +1,8 @@
+Lcom/android/jack/shrob/test043/jack/I;:
+getInt()I
+Lcom/android/jack/shrob/test043/jack/B;:
+<init>()V
+getInt()I
+Lcom/android/jack/shrob/test043/jack/A;:
+<init>()V
+test()V
