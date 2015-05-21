@@ -75,4 +75,10 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   public void delete() throws CannotDeleteFileException {
     vfs.delete(this);
   }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return vfs.getPathFromRoot(this);
+  }
 }

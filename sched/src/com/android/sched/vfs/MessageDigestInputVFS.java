@@ -101,6 +101,13 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
       // This implementation is obsolete anyway
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    @Nonnull
+    public VPath getPathFromRoot() {
+      // This implementation is obsolete anyway
+      throw new UnsupportedOperationException();
+    }
   }
 
   /**

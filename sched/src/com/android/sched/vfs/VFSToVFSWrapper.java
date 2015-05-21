@@ -258,4 +258,17 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   public void setWorkVFS(@Nonnull VFS temporaryVFS) {
     workVFS = (BaseVFS<BaseVDir, BaseVFile>) temporaryVFS;
   }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return workVFS.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return workVFS.getPathFromRoot(file);
+  }
+
 }

@@ -40,9 +40,7 @@ import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -127,7 +125,7 @@ public class JayceFileImporter {
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();
-        String name = getNameFromInputVFile(jackLibrary, jayceFile, FileType.JAYCE);
+        String name = jayceFile.getPathFromRoot().getPathAsString('/');
         try {
           addImportedTypes(session, name, jackLibrary);
         } catch (JLookupException e) {
@@ -144,7 +142,7 @@ public class JayceFileImporter {
       Iterator<InputVFile> rscFileIt = jackLibrary.iterator(FileType.RSC);
       while (rscFileIt.hasNext()) {
         InputVFile rscFile = rscFileIt.next();
-        String name = getNameFromInputVFile(jackLibrary, rscFile, FileType.RSC);
+        String name = rscFile.getPathFromRoot().getPathAsString('/');
         try {
           addImportedResource(rscFile, session, name);
         } catch (ResourceImportConflictException e) {
@@ -156,28 +154,6 @@ public class JayceFileImporter {
         }
       }
     }
-  }
-
-  // TODO(jack-team): remove this hack
-  @Nonnull
-  private String getNameFromInputVFile(@Nonnull InputJackLibrary jackLibrary,
-      @Nonnull InputVFile jayceFile, @Nonnull FileType fileType) {
-    Location loc = jayceFile.getLocation();
-    String name;
-    if (loc instanceof ZipLocation) {
-      name = ((ZipLocation) jayceFile.getLocation()).getEntryName();
-      if (jackLibrary.getMajorVersion() != 0) {
-        name = name.substring(
-            fileType.buildDirVPath(VPath.ROOT).split().iterator().next().length() + 1);
-      }
-    } else {
-      name = ((FileLocation) jayceFile.getLocation()).getPath();
-      if (jackLibrary.getMajorVersion() != 0) {
-        String prefix = fileType.buildDirVPath(VPath.ROOT).split().iterator().next() + '/';
-        name = name.substring(name.lastIndexOf(prefix) + prefix.length());
-      }
-    }
-    return name;
   }
 
   private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,

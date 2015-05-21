@@ -68,4 +68,15 @@ public class GenericInputVFile implements InputVFile {
   public String getDigest() {
     return file.getDigest();
   }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return file.getPathFromRoot();
+  }
+
+  @Nonnull
+  VFile getVFile() {
+    return file;
+  }
 }

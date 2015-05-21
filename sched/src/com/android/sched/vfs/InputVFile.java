@@ -18,10 +18,14 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotDeleteFileException;
 
+import javax.annotation.Nonnull;
+
 /**
  * Virtual file to read from.
  */
 public interface InputVFile extends InputVElement, InputStreamProvider  {
 
   void delete() throws CannotDeleteFileException;
+  @Nonnull
+  VPath getPathFromRoot();
 }
