@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -62,5 +63,21 @@ public class JBooleanLiteral extends JValueLiteral {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression
+        || parent instanceof JNameValuePair
+        || parent instanceof JAnnotationMethod
+        || parent instanceof JAssertStatement
+        || parent instanceof JDoStatement
+        || parent instanceof JForStatement
+        || parent instanceof JIfStatement
+        || parent instanceof JReturnStatement
+        || parent instanceof JFieldInitializer
+        || parent instanceof JWhileStatement)) {
+      throw new JNodeInternalError(this, "Invalid parent");
+    }
   }
 }

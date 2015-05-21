@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Description;
@@ -53,6 +54,21 @@ public abstract class JAbstractStringLiteral extends JValueLiteral implements Cl
       return super.clone();
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
+    }
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JExpression
+        || parent instanceof JNameValuePair
+        || parent instanceof JAssertStatement
+        || parent instanceof JCaseStatement
+        || parent instanceof JReturnStatement
+        || parent instanceof JSwitchStatement
+        || parent instanceof JAnnotationMethod
+        || parent instanceof JFieldInitializer
+        || parent instanceof JSynchronizedBlock)) {
+      throw new JNodeInternalError(this, "Invalid parent");
     }
   }
 }

@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -84,5 +85,13 @@ public class JArrayLiteral extends JLiteral {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JNameValuePair
+        || parent instanceof JAnnotationMethod)) {
+      throw new JNodeInternalError(this, "Invalid parent");
+    }
   }
 }
