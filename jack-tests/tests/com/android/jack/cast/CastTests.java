@@ -35,6 +35,10 @@ public class CastTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.cast.explicit001"),
     "com.android.jack.cast.explicit001.dx.Tests");
 
+  private RuntimeTestInfo EXPLICIT002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.cast.explicit002"),
+      "com.android.jack.cast.explicit002.dx.Tests");
+
   private RuntimeTestInfo IMPLICIT001 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.cast.implicit001"),
     "com.android.jack.cast.implicit001.dx.Tests");
@@ -63,10 +67,17 @@ public class CastTests extends RuntimeTest {
   public static void setUpClass() {
     CastTests.class.getClassLoader().setDefaultAssertionStatus(true);
   }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void explicit001() throws Exception {
     new RuntimeTestHelper(EXPLICIT001).compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void explicit002() throws Exception {
+    new RuntimeTestHelper(EXPLICIT002).compileAndRunTest();
   }
 
   @Test
@@ -129,6 +140,7 @@ public class CastTests extends RuntimeTest {
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(EXPLICIT001);
+    rtTestInfos.add(EXPLICIT002);
     rtTestInfos.add(IMPLICIT001);
     rtTestInfos.add(IMPLICIT002);
     rtTestInfos.add(IMPLICIT003);

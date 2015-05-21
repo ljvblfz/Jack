@@ -85,7 +85,7 @@ public class UselessCastRemoverTest {
   public void castNullToString() throws Exception {
     final String methodSignature = "castNullToString()Ljava/lang/String;";
 
-    buildMethodAndCheckUselessCastRemover(CAST, methodSignature, true);
+    buildMethodAndCheckUselessCastRemover(CAST, methodSignature, false);
   }
 
   @Test
