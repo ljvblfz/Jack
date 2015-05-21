@@ -97,6 +97,12 @@ public class MessageDigestInputVFS extends MessageDigestVFS implements InputVFS 
     }
 
     @Override
+    public long getLastModified() {
+      // This implementation is obsolete anyway
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void delete() {
       // This implementation is obsolete anyway
       throw new UnsupportedOperationException();

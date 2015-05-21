@@ -291,6 +291,11 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   }
 
   @Override
+  long getLastModified(@Nonnull MessageDigestVFile file) {
+    return vfs.getLastModified(file.getWrappedFile());
+  }
+
+  @Override
   public synchronized void close() throws CannotCreateFileException, WrongPermissionException,
       IOException {
     if (!closed) {

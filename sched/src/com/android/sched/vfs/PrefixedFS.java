@@ -158,6 +158,11 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   }
 
   @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return vfs.getLastModified(file);
+  }
+
+  @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVFile file) {
     return vfs.getVFileLocation(file);

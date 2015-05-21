@@ -72,6 +72,11 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   }
 
   @Override
+  public long getLastModified() {
+    return vfs.getLastModified(this);
+  }
+
+  @Override
   public void delete() throws CannotDeleteFileException {
     vfs.delete(this);
   }

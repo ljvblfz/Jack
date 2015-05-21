@@ -478,6 +478,11 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     return list(dir).isEmpty();
   }
 
+  @Override
+  public long getLastModified(@Nonnull CaseInsensitiveVFile file) {
+    return vfs.getLastModified(file.getEncodedFile());
+  }
+
   //
   // Location
   //

@@ -220,6 +220,11 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  long getLastModified(@Nonnull ZipVFile file) {
+    throw new UnsupportedOperationException();
+  }
+
   //
   // Location
   //

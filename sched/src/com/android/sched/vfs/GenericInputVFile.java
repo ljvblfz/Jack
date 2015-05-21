@@ -79,4 +79,9 @@ public class GenericInputVFile implements InputVFile {
   VFile getVFile() {
     return file;
   }
+
+  @Override
+  public long getLastModified() {
+    return file.getLastModified();
+  }
 }

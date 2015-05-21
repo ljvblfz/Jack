@@ -26,6 +26,9 @@ import javax.annotation.Nonnull;
 public interface InputVFile extends InputVElement, InputStreamProvider  {
 
   void delete() throws CannotDeleteFileException;
+
   @Nonnull
   VPath getPathFromRoot();
+
+  long getLastModified();
 }
