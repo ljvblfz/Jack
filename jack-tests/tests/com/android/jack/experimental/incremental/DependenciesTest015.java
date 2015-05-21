@@ -26,14 +26,12 @@ import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * JUnit test checking incremental support.
@@ -60,8 +58,7 @@ public class DependenciesTest015 {
 
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    List<File> jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(1, jackFilesLib.size());
+    Assert.assertEquals(1, iteLib.getJayceCount());
 
 
     IncrementalTestHelper iteProg =
@@ -74,15 +71,14 @@ public class DependenciesTest015 {
 
     iteProg.incrementalBuildFromFolder(new File[]{iteLib.getCompilerStateFolder()});
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(1, iteProg.getJayceCount());
 
     iteLib.deleteJavaFile(f);
     iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
         + "public abstract class A { \n" + "public abstract int m(); }");
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(1, jackFilesLib.size());
+    Assert.assertEquals(1, iteLib.getJayceCount());
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     iteProg.setErr(err);
@@ -108,8 +104,7 @@ public class DependenciesTest015 {
 
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    List<File> jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(1, jackFilesLib.size());
+    Assert.assertEquals(1, iteLib.getJayceCount());
 
 
     IncrementalTestHelper iteProg =
@@ -121,7 +116,7 @@ public class DependenciesTest015 {
     iteProg.incrementalBuildFromFolder(null /* classpath */,
         Arrays.asList(iteLib.getCompilerStateFolder()));
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(1, iteProg.getJayceCount());
 
     DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
@@ -131,13 +126,12 @@ public class DependenciesTest015 {
         + "public class C { \n" + "public void m() {} }");
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(2, jackFilesLib.size());
+    Assert.assertEquals(2, iteLib.getJayceCount());
 
 
     iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getCompilerStateFolder()));
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(1, iteProg.getJayceCount());
 
     db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
@@ -159,8 +153,7 @@ public class DependenciesTest015 {
 
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    List<File> jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(1, jackFilesLib.size());
+    Assert.assertEquals(1, iteLib.getJayceCount());
 
 
     IncrementalTestHelper iteProg =
@@ -172,7 +165,7 @@ public class DependenciesTest015 {
     iteProg.incrementalBuildFromFolder(null /* classpath */,
         Arrays.asList(iteLib.getCompilerStateFolder()), MultiDexKind.NATIVE);
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(1, iteProg.getJayceCount());
 
     DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
@@ -182,13 +175,12 @@ public class DependenciesTest015 {
         + "public class C { \n" + "public void m() {} }");
     iteLib.incrementalBuildFromFolder();
     iteLib.snapshotJackFilesModificationDate();
-    jackFilesLib = iteLib.getJackFiles();
-    Assert.assertEquals(2, jackFilesLib.size());
+    Assert.assertEquals(2, iteLib.getJayceCount());
 
 
     iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getCompilerStateFolder()));
     iteProg.snapshotJackFilesModificationDate();
-    Assert.assertEquals(1, iteProg.getJackFiles().size());
+    Assert.assertEquals(1, iteProg.getJayceCount());
 
     db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
