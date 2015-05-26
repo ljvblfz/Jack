@@ -50,6 +50,9 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
+  @Nonnull
+  private final OutputJackLibrary outputJackLibrary;
+
   public NoInputFilter(@Nonnull Options options) {
     this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
@@ -64,6 +67,8 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
     LibraryDependencies libraryDependencies = session.getLibraryDependencies();
     libraryDependencies.addImportedLibraries(importedLibrariesFromCommandLine);
     libraryDependencies.addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
+
+    outputJackLibrary = getOutputJackLibraryFromVfs();
   }
 
   @Override
@@ -87,6 +92,6 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Override
   @Nonnull
   public OutputJackLibrary getOutputJackLibrary() {
-    return getOutputJackLibraryFromVfs();
+    return outputJackLibrary;
   }
 }
