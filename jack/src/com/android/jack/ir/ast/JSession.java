@@ -123,9 +123,8 @@ public class JSession extends JNode {
     phantomLookup = new JPhantomLookup(lookup);
   }
 
-  @Nonnull
+  @CheckForNull
   public InputFilter getInputFilter() {
-    assert inputFilter != null;
     return inputFilter;
   }
 
