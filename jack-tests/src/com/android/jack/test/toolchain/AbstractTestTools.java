@@ -20,6 +20,8 @@ import com.google.common.base.Splitter;
 
 
 import com.android.jack.Sourcelist;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -28,6 +30,7 @@ import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.stream.ByteStreamSucker;
 
@@ -639,5 +642,12 @@ public abstract class AbstractTestTools {
         fis.close();
       }
     }
+  }
+
+  /**
+   * The returned {@link InputJackLibrary} must be closed.
+   */
+  public static InputJackLibrary getInputJackLibraryFromDir(@Nonnull File dir) {
+    return new InputJackLibraryCodec().parseString(new CodecContext(), dir.getPath());
   }
 }
