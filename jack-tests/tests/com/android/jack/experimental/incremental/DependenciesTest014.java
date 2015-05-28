@@ -55,7 +55,7 @@ public class DependenciesTest014 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(2, ite.getJackFiles().size());
+    Assert.assertEquals(2, ite.getJayceCount());
 
     ite.deleteJavaFile(f);
     ite.incrementalBuildFromFolder();
@@ -86,7 +86,7 @@ public class DependenciesTest014 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(3, ite.getJackFiles().size());
+    Assert.assertEquals(3, ite.getJayceCount());
 
     ite.deleteJavaFile(fB);
     ite.deleteJavaFile(fC);
