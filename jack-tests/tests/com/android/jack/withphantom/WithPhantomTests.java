@@ -26,6 +26,7 @@ import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -55,6 +56,7 @@ public class WithPhantomTests {
   }
 
   @Test
+  @Ignore
   public void testPhantomOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -100,6 +102,7 @@ public class WithPhantomTests {
   }
 
   @Test
+  @Ignore
   public void testPhantomInner() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -185,6 +188,7 @@ public class WithPhantomTests {
   }
 
   @Test
+  @Ignore
   public void testPhantomLocalOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();

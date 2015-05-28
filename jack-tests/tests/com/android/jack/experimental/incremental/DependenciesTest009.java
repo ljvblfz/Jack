@@ -22,6 +22,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.sched.util.file.CannotReadException;
@@ -35,7 +36,9 @@ import com.android.sched.vfs.InputVFile;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,6 +63,7 @@ public class DependenciesTest009 {
    * identical.
    */
   @Test
+  @Ignore
   public void testDependency001() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
