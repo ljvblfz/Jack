@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="rsc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/args4j-lib.jar"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
-	<classpathentry kind="lib" path="libs/simple-lib.jar"/>
+	<classpathentry kind="lib" path="libs/simple-lib.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.simpleframework.org/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Scheduler"/>
-	<classpathentry kind="lib" path="libs/guava-lib.jar"/>
+	<classpathentry kind="lib" path="libs/guava-lib.jar" sourcepath="/ssd2/yroussel/android/ub-jack/toolchain/jack/guava/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jack-server-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jack-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -51,7 +51,7 @@ public class JackProviderImpl implements JackProvider {
 
   @Override
   public Collection<Class<? extends JackConfig>> getSupportedConfigs() {
-    List<Class<? extends JackConfig>> result = new ArrayList<Class<? extends JackConfig>>(1);
+    List<Class<? extends JackConfig>> result = new ArrayList<Class<? extends JackConfig>>(2);
     result.add(Api01Config.class);
     result.add(Cli01Config.class);
     return result;

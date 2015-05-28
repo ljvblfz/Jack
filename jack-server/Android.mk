@@ -17,25 +17,36 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := jack-server
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_MODULE_TAGS := optional
 LOCAL_JAVACFLAGS := -target 1.7 -source 1.7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := \
-  simple-jack
-LOCAL_JAVA_LIBRARIES := \
-  sched-build \
+  simple-jack \
+  schedlib-norsc \
   allocation-jack \
-  ecj-jack \
   guava-jack \
-  jsr305lib-jack \
-  dx-jack \
-  schedlib \
   freemarker-jack \
   watchmaker-jack \
   maths-jack \
-  args4j-jack \
   antlr-runtime-jack \
   jack-api \
-  jack-no-server
+  jack-server-api
+LOCAL_JAVA_LIBRARIES := \
+  jsr305lib-jack
+
+JACK_SERVER_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+
+LOCAL_JAVA_RESOURCE_DIRS  := rsc
+
+JACK_SERVER_VERSION_FILE := $(call local-intermediates-dir,COMMON)/generated.version/jack-server-version.properties
+LOCAL_JAVA_RESOURCE_FILES += $(JACK_SERVER_VERSION_FILE)
 
 include $(BUILD_HOST_JAVA_LIBRARY)
+
+$(JACK_SERVER_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
+	$(copy-file-to-target)
+
+$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+	@echo JarJar and Install: $@
+	$(hide) java -jar $(JARJAR) process $(JACK_SERVER_JARJAR_RULES) $< $@

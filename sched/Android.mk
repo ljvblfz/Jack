@@ -62,6 +62,25 @@ LOCAL_JAVA_LIBRARIES := \
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := schedlib-norsc
+
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_SRC_FILES := $(call all-java-files-under,src)
+
+LOCAL_JAVA_LIBRARIES := \
+  guava-jack \
+  jsr305lib-jack \
+  allocation-jack \
+  freemarker-jack \
+  watchmaker-jack \
+  maths-jack
+
+include $(BUILD_HOST_JAVA_LIBRARY)
+
 #
 # Build sched lib tests
 #

@@ -60,7 +60,7 @@ endef
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := jack-no-server
+LOCAL_MODULE := jack
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
@@ -124,7 +124,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 JACK_VERSION_FILE := $(call local-intermediates-dir,COMMON)/generated.version/jack-version.properties
 LOCAL_JAVA_RESOURCE_FILES += $(JACK_VERSION_FILE)
-LOCAL_ADDITIONAL_DEPENDENCIES += $(JACK_VERSION_FILE)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(JACK_VERSION_FILE) $(jack_admin_script) $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 
@@ -132,8 +132,10 @@ $(JACK_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
 	$(copy-file-to-target)
 
 $(LOCAL_INSTALLED_MODULE) : $(jack_script) $(jack_admin_script)
-INSTALLED_JACK_NOSERVER := $(LOCAL_INSTALLED_MODULE)
 JACK_JAR_INTERMEDIATE:=$(LOCAL_BUILT_MODULE).intermediate.jar
+
+# Merge with sched lib support
+$(JACK_JAR_INTERMEDIATE):  $(call java-lib-libs,sched-build,true)
 $(JACK_JAR_INTERMEDIATE): $(LOCAL_BUILT_MODULE)
 	java -jar $(call java-lib-libs,sched-build,true) $< $(call java-lib-libs,$(JACK_STATIC_JAVA_LIBRARIES),true) $@
 
@@ -166,32 +168,14 @@ $(JACK_DEFAULT_LIB): $(JACK_DEFAULT_LIB_SRC) $(JACK_CORE_STUBS_MINI) $(JACK_JAR_
 # overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
 $(LOCAL_INSTALLED_MODULE): PRIVATE_JAR_MANIFEST := $(LOCAL_PATH)/$(LOCAL_JAR_MANIFEST)
 $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
+	@echo "Install: $@"
 	$(hide) rm -rf $<.tmp
 	$(hide) mkdir -p $<.tmp/jack-default-lib
 	$(hide) unzip -qd $<.tmp $<
 	$(hide) unzip -qd $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
-
-# Merge with sched lib support
-$(LOCAL_BUILT_MODULE):  $(call java-lib-libs,sched-build,true)
-
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := jack
-LOCAL_MODULE_TAGS := optional
-LOCAL_STATIC_JAVA_LIBRARIES := \
-  jack-server
-LOCAL_ADDITIONAL_DEPENDENCIES := $(jack_admin_script)
-include $(BUILD_HOST_JAVA_LIBRARY)
-$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
-	$(hide) $(jack_admin_script) kill-server || echo
-	$(hide) rm -rf $<.tmp
-	$(hide) mkdir -p $<.tmp
-	$(hide) unzip -qd $<.tmp $<
-	$(hide) unzip -oqd $<.tmp $(INSTALLED_JACK_NOSERVER)
-	$(hide) jar -cf $@ -C $<.tmp .
-
+	$(hide) $(jack_admin_script) force-install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (rm $@; exit 47)
+	$(hide) $(jack_admin_script) force-install jack $@ || (rm $@; exit 47)
 
 # Include this library in the build server's output directory
 $(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):jack.jar)

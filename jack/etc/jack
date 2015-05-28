@@ -22,99 +22,53 @@ umask 077
 #
 # Settings
 #
-LOCAL_SETTING="$HOME/.jack"
+JACK_VERSION=${JACK_VERSION:=3.1.ENGINEERING}
+JACK_HOME="${JACK_HOME:=$HOME/.jack-home}"
+CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-client}"
 TMPDIR=${TMPDIR:=/tmp}
-SERVER_DIR=$TMPDIR/jack-$USER
+CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 
 #
-# Load local settings
+# Load client settings
 #
-if [[ -f "$LOCAL_SETTING" ]]; then
-  source "$LOCAL_SETTING"
+if [ -f "$CLIENT_SETTING" ]; then
+  source "$CLIENT_SETTING"
 fi
 
 #
-# Create or update local settings if needed
+# Create or update client settings if needed
 #
-if [[ ! -f "$LOCAL_SETTING" || $SETTING_VERSION -lt 3 ]]; then
-  echo "Writing local settings in" $LOCAL_SETTING
-  cat >"$LOCAL_SETTING.$$" <<-EOT
+if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
+  echo "Writing client settings in" $CLIENT_SETTING
+  cat >"$CLIENT_SETTING.$$" <<-EOT
 	# Server settings
-	SERVER=${SERVER:=true}
-	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8072}
-	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8073}
-	SERVER_COUNT=${SERVER_COUNT:=1}
-	SERVER_NB_COMPILE=${SERVER_NB_COMPILE:=4}
-	SERVER_TIMEOUT=${SERVER_TIMEOUT:=60}
-	JACK_MAIN_COMMAND=\${JACK_MAIN_COMMAND:=""}
-	JACK_SERVER_COMMAND=\${JACK_SERVER_COMMAND:=""}
-	SERVER_LOG=\${SERVER_LOG:=\$SERVER_DIR/jack-\$SERVER_PORT_SERVICE.log}
-	JACK_VM_COMMAND=\${JACK_VM_COMMAND:=java}
-	# Internal, do not touch
-	SETTING_VERSION=3
-EOT
-  ln -f "$LOCAL_SETTING.$$" "$LOCAL_SETTING"
-  rm "$LOCAL_SETTING.$$"
-  source "$LOCAL_SETTING"
-fi
+	SERVER_HOST=${SERVER_HOST:=127.0.0.1}
+	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8074}
+	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8075}
 
-#
-# If not in server mode, exec jack
-#
-if [ "$SERVER" != "true" ]; then
-  if [ -z "$JACK_MAIN_COMMAND" ]; then
-    JACK_MAIN_COMMAND=java -Djava.io.tmpdir=$TMPDIR -jar $JACK_JAR
-  fi
-  exec $JACK_MAIN_COMMAND "$@"
-  echo "ERROR: Cannot succeed to launch Jack without Jack server" >&2
-  exit 255
+	# Internal, do not touch
+	SETTING_VERSION=4
+EOT
+  ln -f "$CLIENT_SETTING.$$" "$CLIENT_SETTING"
+  rm "$CLIENT_SETTING.$$"
+  source "$CLIENT_SETTING"
 fi
 
 #
 # Prepare compilation
 #
-JACK_DIR="$SERVER_DIR/jack-task-$$/"
-JACK_OUT="$JACK_DIR/out"
-JACK_ERR="$JACK_DIR/err"
-JACK_CLI="$JACK_DIR/cli"
-JACK_EXIT="$JACK_DIR/exit"
 JACK_PWD="$PWD"
-JACK_CLIENT_LOG=${JACK_CLIENT_LOG:="$SERVER_DIR/client.log"}
-
-if [ -z "$JACK_SERVER_COMMAND" ]; then
-  JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
-fi
-
-
-mkdir "$SERVER_DIR" 2>/dev/null
+JACK_DIR="$CLIENT_TMP_DIR/jack-task-$$/"
+JACK_EXIT="$JACK_DIR/exit"
 
 # Cleanup
-trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>>$JACK_CLIENT_LOG; rmdir "$JACK_DIR" 2>>$JACK_CLIENT_LOG;' EXIT
+trap 'rm -f "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR";' EXIT
 
+mkdir "$CLIENT_TMP_DIR" 2>/dev/null || (exit 0)
 set -o errexit
+mkdir "$JACK_DIR"
 
-# Create fifos and files for a task
-mkdir  "$JACK_DIR"
-mkfifo "$JACK_OUT"
-mkfifo "$JACK_ERR"
-touch  "$JACK_CLI" "$JACK_EXIT"
-
-# Try to cleanup if interrupted
-abort () { echo $(uptime) >>$JACK_CLIENT_LOG; kill -9 $PID_OUT $PID_ERR 2>>$JACK_CLIENT_LOG; wait $PID_OUT $PID_ERR 2>>$JACK_CLIENT_LOG; exit 255; }
-trap 'abort' SIGHUP SIGINT SIGQUIT SIGTERM ERR
-
-# Redirect output and error
-cat <"$JACK_OUT" >&1 &
-PID_OUT=$!
-cat <"$JACK_ERR" >&2 &
-PID_ERR=$!
-
-# Prepare the working directory and command line
-echo -n \"$PWD\" "" >"$JACK_CLI"
-for i in "$@"; do
-  echo -n \"$i\" "" >>"$JACK_CLI"
-done
-echo >>"$JACK_CLI"
+abort () { exit 255; }
 
 #
 # Launch the compilation
@@ -123,40 +77,41 @@ echo >>"$JACK_CLI"
 set +o errexit
 trap ERR
 
+# put arguments in a non array variable
+ARGS=""
+for i in "$@"; do
+  ARGS="$ARGS $i"
+done
+
+exec 3>&1
+exec 4>&2
+
 RETRY_LAUNCH=1
 RETRY_SESSION=3
-DELAY_CONNECT=30
-
-
 # Launch compilation
-DATE_CONNECT=$(date +%s)
 while true; do
-  CURL_TIME=$(date +%H:%M:%S)
-  HTTP_CODE=$(curl --fail --silent --data @- --output "$JACK_EXIT" --write-out %{http_code} --connect-timeout 10 --no-proxy 127.0.0.1:$SERVER_PORT_SERVICE http://127.0.0.1:$SERVER_PORT_SERVICE/jack <<< "+ $JACK_OUT $JACK_ERR $JACK_CLI")
+
+  HTTP_CODE=$(curl -f \
+       --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
+       --no-buffer --write-out '%{http_code}\n' --silent --connect-timeout 10 \
+       -X POST \
+       -H "Accept: application/vnd.jack.command-out;version=1" \
+       -F "cli=$ARGS;type=plain/text" \
+       -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
+       -F "pwd=$JACK_PWD;type=plain/text" \
+       --no-proxy ${SERVER_HOST}:$SERVER_PORT_SERVICE \
+       http://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
+       )
+
   CURL_CODE=$?
   JACK_CODE=$(cat "$JACK_EXIT")
-  echo "CURL: $$ - $CURL_TIME - $CURL_CODE - $HTTP_CODE - $JACK_CODE" >>$JACK_CLIENT_LOG
   if [ $CURL_CODE -eq 0 ]; then
     # No problem, let's go
     break;
   elif [ $CURL_CODE -eq 7 ]; then
     # Failed to connect
-    if [ $(date +%s) -ge $DATE_CONNECT ]; then
-      if [ $RETRY_LAUNCH -eq 0 ]; then
-        echo "ERROR: Cannot launch Jack server" >&2
-        abort
-      else
-        let RETRY_LAUNCH=RETRY_LAUNCH-1
-        echo "Launching background server" $JACK_SERVER_COMMAND
-        $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT &
-        # New server, let's try a bit to connect
-        let DATE_CONNECT=$(date +%s)+$DELAY_CONNECT;
-      fi
-    else
-      sleep 0.2 2>/dev/null
-    fi
-    # Trying with a new connection, let's retry session 3 times max
-    RETRY_SESSION=3
+    echo "ERROR: Cannot connect to Jack server" >&2
+    abort
   elif  [ $CURL_CODE -eq 22 ]; then
     # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
@@ -169,7 +124,7 @@ while true; do
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in ~/.jack, or see Jack server log" >&2
+      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in $CLIENT_SETTING, or see Jack server log" >&2
       abort
     fi
   else
@@ -182,10 +137,6 @@ while true; do
     fi
   fi
 done
-
-# Wait for termination
-wait $PID_OUT
-wait $PID_ERR
 
 # Exit
 exit $JACK_CODE

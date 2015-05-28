@@ -17,11 +17,31 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := jack-launcher
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_JAR_MANIFEST := etc/manifest.txt
 LOCAL_STATIC_JAVA_LIBRARIES := \
-  jsr305lib-jack
-LOCAL_JAVA_RESOURCE_DIRS  := rsc
+  schedlib-norsc \
+  jsr305lib-jack \
+  jack-server-api \
+  guava-jack \
+  jsr305lib-jack \
+  allocation-jack \
+  freemarker-jack \
+  watchmaker-jack \
+  maths-jack
+
+JACK_LAUNCHER_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+
+JACK_LAUNCHER_VERSION_FILE := $(call local-intermediates-dir,COMMON)/generated.version/jack-launcher-version.properties
+LOCAL_JAVA_RESOURCE_FILES += $(JACK_LAUNCHER_VERSION_FILE)
 
 include $(BUILD_HOST_JAVA_LIBRARY)
+
+$(JACK_LAUNCHER_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
+	$(copy-file-to-target)
+
+$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
+	@echo JarJar and Install: $@
+	$(hide) java -jar $(JARJAR) process $(JACK_LAUNCHER_JARJAR_RULES) $< $@

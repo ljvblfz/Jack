@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package com.android.jack.server;
+package com.android.jack.server.tasks;
 
-import com.android.sched.util.config.cli.TokenIterator;
+import com.android.jack.server.JackHttpServer;
 
-import java.io.File;
-import java.io.PrintStream;
+import org.simpleframework.http.Request;
+import org.simpleframework.http.Response;
+import org.simpleframework.http.Status;
+
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 /**
- * Interface of tasks that will be launched by the Jack server.
+ * Service task: Execute one Jack command.
  */
-public interface ServerTask {
-  int run(@Nonnull PrintStream out, @Nonnull PrintStream err, @Nonnull File workingDir,
-      @Nonnull TokenIterator args);
-
+public class JillTask extends SynchronousServiceTask {
   @Nonnull
-  String getVersion();
+  private static Logger logger = Logger.getLogger(JillTask.class.getName());
+
+  public JillTask(@Nonnull JackHttpServer jackServer) {
+    super(jackServer);
+  }
+
+  @Override
+  protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
+    response.setStatus(Status.NOT_IMPLEMENTED);
+  }
 }

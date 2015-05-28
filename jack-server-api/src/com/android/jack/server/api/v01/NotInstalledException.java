@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.jack.server;
-
-import com.android.jack.ExitStatus;
+package com.android.jack.server.api.v01;
 
 /**
- * Server exit status.
+ * Thrown when refusing to replace the server.
  */
-public class ServerExitStatus extends ExitStatus {
-  /**
-   * Jack jar not found.
-   */
-  public static final int FAILURE_JACK_JAR_NOT_FOUND = -1;
+public class NotInstalledException extends Exception {
+
+  private static final long serialVersionUID = 1L;
+
+  public NotInstalledException(String message) {
+    super(message);
+  }
+
+  public NotInstalledException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

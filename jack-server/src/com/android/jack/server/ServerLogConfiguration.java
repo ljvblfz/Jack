@@ -24,7 +24,6 @@ import com.android.sched.util.log.LogFormatter;
 import com.android.sched.util.log.LoggerConfiguration;
 import com.android.sched.util.log.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,9 +134,9 @@ public class ServerLogConfiguration implements LoggerConfiguration {
     }
 
   @Nonnull
-  public static void setupLog() throws ServerLogConfigurationException {
+  public static void setupLog(String defaultLogPattern) throws ServerLogConfigurationException {
     String stringLevel = System.getProperty(LOG_LEVEL_PROPERTY, LogLevel.WARNING.name());
-    String logFilePattern = System.getProperty(LOG_FILE_PROPERTY, getDefaultLogPattern());
+    String logFilePattern = System.getProperty(LOG_FILE_PROPERTY, defaultLogPattern);
     try {
       LogLevel level = new EnumCodec<>(LogLevel.class, LogLevel.values()).checkString(
           new CodecContext(), stringLevel);
@@ -149,17 +148,4 @@ public class ServerLogConfiguration implements LoggerConfiguration {
       throw new ServerLogConfigurationException(e.getMessage());
     }
   }
-
-  @Nonnull
-  private static String getDefaultLogPattern() {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    if (tmpDir != null) {
-      tmpDir = tmpDir.replace(File.separatorChar, '/') + '/';
-    } else {
-      tmpDir = "";
-    }
-
-    return tmpDir + "jack-" + System.getProperty("user.name") + "/jack-server-%u-%g.log";
-  }
-
 }
