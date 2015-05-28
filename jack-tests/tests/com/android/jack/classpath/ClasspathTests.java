@@ -19,6 +19,7 @@ package com.android.jack.classpath;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -27,6 +28,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
@@ -126,10 +128,11 @@ public class ClasspathTests {
 
     {
       // delete unused inner in classpath and check we can still compile with it
-      boolean deleted = new File(libOut, FileType.JAYCE.getPrefix()
-          + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete"
-          + toolchain.getLibraryElementsExtension()).delete();
-      Assert.assertTrue(deleted);
+      InputJackLibrary lib = AbstractTestTools.getInputJackLibraryFromDir(libOut);
+      lib.getFile(FileType.JAYCE,
+          new VPath("com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete", '/'))
+          .delete();
+      lib.close();
       toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
