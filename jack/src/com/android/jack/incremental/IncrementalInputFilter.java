@@ -53,8 +53,6 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.ReadWriteZipFS;
-import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -153,11 +151,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final File incrementalFolder;
 
-  @Nonnull
-  private final OutputJackLibrary outputJackLibrary;
-
   public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
+
     incrementalFolder = new File(config.get(Options.LIBRARY_OUTPUT_DIR).getPath());
 
     this.options = options;
@@ -198,8 +194,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
     filesToRecompile = getInternalFileNamesToCompile();
-
-    outputJackLibrary = createOutputJackLibrary();
 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
@@ -357,7 +351,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @CheckForNull
   private InputJackLibrary getIncrementalInternalLibrary() {
     try {
-      return JackLibraryFactory.getInputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR));
+      return JackLibraryFactory.getInputLibrary(incrementalVfs);
     } catch (NotJackLibraryException e) {
       // No incremental internal library, it is the first compilation
     } catch (LibraryVersionException e) {
@@ -463,33 +457,17 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throw new JackAbortException(e);
     }
 
-    inputLibraries.add(0, incrementalInputLibrary);
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+      // Incremental folder already contains dex files of imported libraries, thus import only
+      // incremental folder.
+      inputLibraries.clear();
+      inputLibraries.add(incrementalInputLibrary);
+      return inputLibraries;
+    } else {
+      // Incremental folder does not contains dex files, thus add it into imported libraries
+      inputLibraries.add(0, incrementalInputLibrary);
+    }
 
     return inputLibraries;
-  }
-
-  @Nonnull
-  private OutputJackLibrary createOutputJackLibrary() {
-
-    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-      VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
-      ReadWriteZipFS zipVFS = (ReadWriteZipFS) ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
-      zipVFS.setWorkVFS(dirVFS);
-      return JackLibraryFactory.getOutputLibrary(zipVFS, Jack.getEmitterId(),
-          Jack.getVersion().getVerboseVersion());
-    } else {
-      if (incrementalInputLibrary == null) {
-        return getOutputJackLibraryFromVfs();
-      } else {
-        return (JackLibraryFactory.getOutputLibrary(ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR),
-            Jack.getEmitterId(), Jack.getVersion().getVerboseVersion()));
-      }
-    }
-  }
-
-  @Override
-  @Nonnull
-  public OutputJackLibrary getOutputJackLibrary() {
-    return outputJackLibrary;
   }
 }
