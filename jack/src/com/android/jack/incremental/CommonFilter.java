@@ -52,6 +52,7 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.PrefixedFS;
+import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
@@ -136,7 +137,27 @@ public abstract class CommonFilter {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
+  @Nonnull
+  protected final VFS incrementalVfs;
+
+  @Nonnull
+  private final OutputJackLibrary outputJackLibrary;
+
   public CommonFilter() {
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+      VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      ((ReadWriteZipFS) incrementalVfs).setWorkVFS(dirVFS);
+    } else {
+      if (ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.DIR) {
+        incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      } else {
+        incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      }
+    }
+
+    outputJackLibrary = JackLibraryFactory.getOutputLibrary(incrementalVfs,
+        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
   }
 
   @Nonnull
@@ -175,21 +196,6 @@ public abstract class CommonFilter {
         }
       }
     }
-  }
-
-  @Nonnull
-  protected OutputJackLibrary getOutputJackLibraryFromVfs() {
-    VFS vfs;
-    Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
-
-    if (containerType == Container.DIR) {
-      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
-    } else {
-      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
-    }
-
-    return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersion()
-        .getVerboseVersion()));
   }
 
   @SuppressWarnings("unused")
@@ -293,4 +299,8 @@ public abstract class CommonFilter {
     }
   }
 
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary() {
+    return outputJackLibrary;
+  }
 }
