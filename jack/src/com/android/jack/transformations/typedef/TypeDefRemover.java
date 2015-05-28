@@ -116,9 +116,6 @@ public class TypeDefRemover extends TypeRemover {
 
   @Override
   protected boolean mustBeRemoved(@Nonnull JDefinedClassOrInterface type) {
-    if (type == stringDef || type == intDef) {
-      return true;
-    }
     if (type instanceof JDefinedAnnotationType) {
       if ((!type.getAnnotations(stringDef).isEmpty()) || !type.getAnnotations(intDef).isEmpty()) {
         JDefinedAnnotationType typeDef = (JDefinedAnnotationType) type;
