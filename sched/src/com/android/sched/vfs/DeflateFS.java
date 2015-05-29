@@ -198,4 +198,16 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
     return vfs.getVDirLocation(parent, path);
   }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return vfs.getPathFromRoot(file);
+  }
 }

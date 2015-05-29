@@ -299,4 +299,29 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   private File getNativeFile(@Nonnull VPath path, @Nonnull String name) {
     return new File(new File(dir.getFile(), path.getPathAsString(File.separatorChar)), name);
   }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull ParentVDir parent, @Nonnull ParentVFile file) {
+    StringBuffer path =
+        getPathFromDirInternal(parent, (ParentVDir) file.getParent()).append(file.getName());
+    return new VPath(path.toString(), '/');
+  }
+
+  @Nonnull
+  private static StringBuffer getPathFromDirInternal(@Nonnull ParentVDir baseDir,
+      @Nonnull ParentVDir currentDir) {
+    if (baseDir == currentDir) {
+      return new StringBuffer();
+    }
+    ParentVDir currentParent = (ParentVDir) currentDir.getParent();
+    assert currentParent != null;
+    return getPathFromDirInternal(baseDir, currentParent).append(currentDir.getName()).append('/');
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot(@Nonnull ParentVFile file) {
+    return getPathFromDir(root, file);
+  }
 }

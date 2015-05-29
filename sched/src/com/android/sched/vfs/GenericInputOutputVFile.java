@@ -82,4 +82,10 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   public String getDigest() {
     return file.getDigest();
   }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return file.getPathFromRoot();
+  }
 }

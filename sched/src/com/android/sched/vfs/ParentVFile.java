@@ -36,4 +36,9 @@ public class ParentVFile extends BaseVFile {
   public VPath getPath() {
     return parent.getPath().clone().appendPath(new VPath(name, '/'));
   }
+
+  @Nonnull
+  VDir getParent() {
+    return parent;
+  }
 }
