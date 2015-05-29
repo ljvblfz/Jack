@@ -30,6 +30,7 @@ import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.MessageDigestFS.MessageDigestVDir;
 import com.android.sched.vfs.MessageDigestFS.MessageDigestVFile;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ import javax.annotation.Nonnull;
  * A {@link VFS} filter implementation that creates a file containing a message digest for each
  * file.
  */
-public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> implements VFS {
+public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFile> implements VFS {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
   @Nonnull
@@ -81,7 +82,7 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
     @Nonnull
     private final BaseVFile wrappedFile;
 
-    public MessageDigestVFile(@Nonnull BaseVFS<BaseVDir, MessageDigestVFile> vfs,
+    public MessageDigestVFile(@Nonnull BaseVFS<MessageDigestVDir, MessageDigestVFile> vfs,
         @Nonnull BaseVFile wrappedFile) {
       super(vfs, wrappedFile.getName());
       this.wrappedFile = wrappedFile;
@@ -140,12 +141,40 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
     }
   }
 
+  static class MessageDigestVDir extends BaseVDir {
+
+    @Nonnull
+    private final BaseVDir wrappedFile;
+
+    public MessageDigestVDir(@Nonnull BaseVFS<MessageDigestVDir, MessageDigestVFile> vfs,
+        @Nonnull BaseVDir wrappedFile) {
+      super(vfs, wrappedFile.getName());
+      this.wrappedFile = wrappedFile;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return wrappedFile.getLocation();
+    }
+
+    @Override
+    @Nonnull
+    public VPath getPath() {
+      return wrappedFile.getPath();
+    }
+
+    @Nonnull
+    public BaseVDir getWrappedDir() {
+      return wrappedFile;
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public MessageDigestFS(@Nonnull VFS vfs, @Nonnull MessageDigestFactory factory)
       throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
     this.mdFactory = factory;
-    changeVFS(this.vfs.getRootDir());
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
     capabilities.add(Capabilities.DIGEST);
@@ -309,8 +338,8 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
 
   @Override
   @Nonnull
-  public BaseVDir getRootDir() {
-    return vfs.getRootDir();
+  public MessageDigestVDir getRootDir() {
+    return new MessageDigestVDir(this, vfs.getRootDir());
   }
 
   @Override
@@ -330,21 +359,20 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
   @Override
   @Nonnull
   synchronized void delete(@Nonnull MessageDigestVFile file) throws CannotDeleteFileException {
-    vfs.delete(file.getWrappedFile());
+    file.getWrappedFile().delete();
     digests.remove(file.getPath());
     digest = null;
   }
 
   @Override
   @Nonnull
-  Collection<? extends BaseVElement> list(@Nonnull BaseVDir dir) {
-    Collection<? extends BaseVElement> elements = vfs.list(dir);
+  Collection<? extends BaseVElement> list(@Nonnull MessageDigestVDir dir) {
+    Collection<? extends BaseVElement> elements = dir.getWrappedDir().list();
     List<BaseVElement> newElements = new ArrayList<BaseVElement>(elements.size());
     for (BaseVElement element : elements) {
       BaseVElement newElement;
       if (element.isVDir()) {
-        element.changeVFS(this);
-        newElement = element;
+        newElement = new MessageDigestVDir(this, (BaseVDir) element);
       } else {
         newElement = new MessageDigestVFile(this, (BaseVFile) element);
       }
@@ -356,42 +384,36 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
 
 
   @Override
-  boolean isEmpty(@Nonnull BaseVDir dir) {
+  boolean isEmpty(@Nonnull MessageDigestVDir dir) {
     return vfs.isEmpty(dir);
   }
 
   @Override
   @Nonnull
-  MessageDigestVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
+  MessageDigestVFile createVFile(@Nonnull MessageDigestVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return new MessageDigestVFile(this, vfs.createVFile(parent, name));
+    return new MessageDigestVFile(this, parent.getWrappedDir().createVFile(name));
   }
 
   @Override
   @Nonnull
-  BaseVDir createVDir(@Nonnull BaseVDir parent, @Nonnull String name)
+  MessageDigestVDir createVDir(@Nonnull MessageDigestVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return changeVFS(vfs.createVDir(parent, name));
+    return new MessageDigestVDir(this, parent.getWrappedDir().createVDir(name));
   }
 
   @Override
   @Nonnull
-  BaseVDir getVDir(@Nonnull BaseVDir parent, @Nonnull String name) throws NotDirectoryException,
-      NoSuchFileException {
-    return changeVFS(vfs.getVDir(parent, name));
+  MessageDigestVDir getVDir(@Nonnull MessageDigestVDir parent, @Nonnull String name)
+      throws NotDirectoryException, NoSuchFileException {
+    return new MessageDigestVDir(this, parent.getWrappedDir().getVDir(name));
   }
 
   @Override
   @Nonnull
-  MessageDigestVFile getVFile(@Nonnull BaseVDir parent, @Nonnull String name)
+  MessageDigestVFile getVFile(@Nonnull MessageDigestVDir parent, @Nonnull String name)
       throws NotFileException, NoSuchFileException {
-    return new MessageDigestVFile(this, vfs.getVFile(parent, name));
-  }
-
-  @Nonnull
-  private BaseVDir changeVFS(@Nonnull BaseVDir dir) {
-    dir.changeVFS(this);
-    return dir;
+    return new MessageDigestVFile(this, parent.getWrappedDir().getVFile(name));
   }
 
   @Override
@@ -414,31 +436,31 @@ public class MessageDigestFS extends BaseVFS<BaseVDir, MessageDigestVFile> imple
 
   @Override
   @Nonnull
-  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+  Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
     return vfs.getVFileLocation(parent, name);
   }
 
   @Override
   @Nonnull
-  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+  Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
     return vfs.getVFileLocation(parent, path);
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir dir) {
+  Location getVDirLocation(@Nonnull MessageDigestVDir dir) {
     return vfs.getVDirLocation(dir);
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
+  Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
     return vfs.getVDirLocation(parent, name);
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
+  Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
     return vfs.getVDirLocation(parent, path);
   }
 }
