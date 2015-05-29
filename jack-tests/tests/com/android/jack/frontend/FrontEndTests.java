@@ -21,6 +21,7 @@ import com.android.jack.category.ExtraTests;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
@@ -159,6 +160,7 @@ public class FrontEndTests {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(JillBasedToolchain.class);
+    excludeList.add(IncrementalToolchain.class);
     IToolchain toolchain =  AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();

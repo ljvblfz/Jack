@@ -18,7 +18,6 @@ package com.android.jack.test.toolchain;
 
 import com.google.common.base.Splitter;
 
-
 import com.android.jack.Sourcelist;
 import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.TestsProperties;
@@ -90,9 +89,10 @@ public abstract class AbstractTestTools {
 
   static {
 
-toolchainBuilders = new HashMap<String, ToolchainBuilder>();
+    toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
+    toolchainBuilders.put("jack-api-inc-v01"  , new JackApiV01IncrementalToolchainBuilder());
     toolchainBuilders.put("jack-api-2steps-v01", new JackApiV01TwoStepsToolchainBuilder());
     toolchainBuilders.put("legacy", new LegacyToolchainBuilder());
     toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
@@ -138,6 +138,15 @@ toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     @Nonnull
     public JackApiV01Toolchain build() {
       return new JackApiV01Toolchain(getPrebuilt("jack"));
+    }
+  }
+
+  private static class JackApiV01IncrementalToolchainBuilder implements ToolchainBuilder {
+
+    @Override
+    @Nonnull
+    public JackApiV01Toolchain build() {
+      return new JackApiV01IncrementalToolchain(getPrebuilt("jack"));
     }
   }
 

@@ -20,6 +20,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
 
@@ -73,6 +74,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToDexDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -90,6 +92,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToDexArchive() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -108,6 +111,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToDexArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -133,6 +137,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToJackArchive() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -154,6 +159,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -182,6 +188,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToJackDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -202,6 +209,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -228,6 +236,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToDexDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -252,6 +261,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
