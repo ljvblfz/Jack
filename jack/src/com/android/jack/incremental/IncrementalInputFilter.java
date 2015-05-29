@@ -382,13 +382,19 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private void fillModifiedFileNames(@Nonnull Set<String> modifiedFileNames) {
     assert fileDependencies != null;
+    assert incrementalInputLibrary != null;
 
     for (String javaFileName : fileDependencies.getCompiledJavaFiles()) {
       if (fileNamesOnCmdLine.contains(javaFileName)) {
         File javaFile = new File(javaFileName);
         for (String typeName : fileDependencies.getTypeNames(javaFileName)) {
-          File dexFile = getDexFile(typeName);
-          if (!dexFile.exists() || ((javaFile.lastModified() > dexFile.lastModified()))) {
+          InputVFile dexFile;
+          try {
+            dexFile = incrementalInputLibrary.getFile(FileType.DEX, new VPath(typeName, '/'));
+          } catch (FileTypeDoesNotExistException e) {
+            dexFile = null;
+          }
+          if (dexFile == null || ((javaFile.lastModified() > dexFile.getLastModified()))) {
             modifiedFileNames.add(javaFileName);
           }
         }
@@ -410,12 +416,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
 
     tracer.getStatistic(IncrementalInputFilter.DELETED_FILES).incValue(deletedFileNames.size());
-  }
-
-  @Nonnull
-  private File getDexFile(@Nonnull String typeName) {
-    return new File(incrementalFolder, FileType.DEX.buildFileVPath(
-        new VPath(typeName, '/')).getPathAsString(File.separatorChar));
   }
 
   @Nonnull

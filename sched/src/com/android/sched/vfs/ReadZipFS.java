@@ -293,6 +293,11 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     return list(dir).isEmpty();
   }
 
+  @Override
+  long getLastModified(@Nonnull ZipVFile file) {
+    return inputZipFile.getLastModified();
+  }
+
   //
   // Location
   //

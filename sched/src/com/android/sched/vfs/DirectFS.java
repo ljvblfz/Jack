@@ -255,6 +255,11 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   }
 
   @Override
+  public long getLastModified(@Nonnull ParentVFile file) {
+    return getNativeFile(file.getPath()).lastModified();
+  }
+
+  @Override
   @Nonnull
   FileLocation getVFileLocation(@Nonnull ParentVFile file) {
     return new FileLocation(getNativeFile(file.getPath()));

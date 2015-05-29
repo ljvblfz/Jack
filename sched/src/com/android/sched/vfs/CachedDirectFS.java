@@ -366,6 +366,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   @Override
+  public long getLastModified(@Nonnull CachedParentVFile file) {
+    return getNativeFile(file.getPath()).lastModified();
+  }
+
+  @Override
   @Nonnull
   FileLocation getVFileLocation(@Nonnull CachedParentVFile file) {
     return new FileLocation(getNativeFile(file.getPath()));
