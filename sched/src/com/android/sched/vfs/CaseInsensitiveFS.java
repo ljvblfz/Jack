@@ -63,7 +63,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   public static final IntegerPropertyId NB_GROUP = IntegerPropertyId
       .create("sched.vfs.case-insensitive.group.count",
-          "Number of directory used to encode a path name").withMin(0).addDefaultValue(2);
+          "Number of directory used to encode a path name").withMin(0).addDefaultValue(1);
 
   public static final IntegerPropertyId SZ_GROUP = IntegerPropertyId
       .create("sched.vfs.case-insensitive.group.size",
