@@ -53,7 +53,7 @@ public class DependenciesTest008 {
         " public static void main(String[] args) {new B().m();} } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(2, ite.getJackFiles().size());
+      Assert.assertEquals(2, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
@@ -65,7 +65,7 @@ public class DependenciesTest008 {
         Assert.fail();
       } catch (FrontendCompilationException e)  {
         // Error is ok
-        Assert.assertEquals(0, ite.getJackFiles().size());
+        Assert.assertEquals(0, ite.getJayceCount());
       }
   }
 
@@ -83,14 +83,14 @@ public class DependenciesTest008 {
         "class B { } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(2, ite.getJackFiles().size());
+      Assert.assertEquals(2, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
           "public class A { }\n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(1, ite.getJackFiles().size());
+      Assert.assertEquals(1, ite.getJayceCount());
   }
 
   /**
@@ -113,7 +113,7 @@ public class DependenciesTest008 {
         "public class C { public void test() {new B();} } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(3, ite.getJackFiles().size());
+      Assert.assertEquals(3, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
@@ -124,7 +124,7 @@ public class DependenciesTest008 {
         Assert.fail();
       } catch (FrontendCompilationException e)  {
         // Error is ok
-        Assert.assertEquals(0, ite.getJackFiles().size());
+        Assert.assertEquals(0, ite.getJayceCount());
       }
   }
 }
