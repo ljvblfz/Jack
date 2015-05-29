@@ -124,6 +124,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test001a() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -146,6 +147,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test001b() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -169,6 +171,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test001c() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -218,6 +221,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test002a() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -241,6 +245,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test002b() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -265,6 +270,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test002c() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -282,6 +288,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test002d() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -305,6 +312,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test002e() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -370,6 +378,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @Ignore
   public void test003a() throws Exception {
     // compile source files to a Jack dir
     File jackOutput = AbstractTestTools.createTempDir();
