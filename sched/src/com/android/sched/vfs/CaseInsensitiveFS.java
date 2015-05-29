@@ -210,7 +210,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     this.nbGroup = nbGroup;
     this.szGroup = szGroup;
     this.mdf = mdf;
-    this.debug = false;
+    this.debug = debug;
 
     initVFS();
   }
