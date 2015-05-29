@@ -65,7 +65,7 @@ public class CaseInsensitiveDirectFSCodec implements StringCodec<VFS> {
       throws ParsingException {
     try {
       Service service = messageDigestCodec.checkString(context, "SHA");
-      return new CaseInsensitiveFS(codec.checkString(context, string), /* nbGroup = */ 2,
+      return new CaseInsensitiveFS(codec.checkString(context, string), /* nbGroup = */ 1,
           /* szGroup = */ 2, new MessageDigestFactory(service), /* debug = */ false);
     } catch (WrongVFSFormatException e) {
       throw new ParsingException(e);
