@@ -27,6 +27,7 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
+import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorException;
@@ -44,6 +45,7 @@ import com.android.sched.util.TextUtils;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -395,6 +397,7 @@ public class MultiDexTests {
 
   @Test
   @Category(SlowTests.class)
+  @Ignore
   public void legacyAppTest002b_auto() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareLibrary(frameworks);
@@ -485,6 +488,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @Ignore
   public void legacyAppTest002b_auto_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareLibrary(frameworks);

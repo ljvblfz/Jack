@@ -26,6 +26,7 @@ import com.android.sched.util.stream.ByteStreamSucker;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -183,6 +184,7 @@ public class ResourceTests {
   }
 
   @Test
+  @Ignore
   public void testJackArchiveToJackDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -203,6 +205,7 @@ public class ResourceTests {
   }
 
   @Test
+  @Ignore
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
