@@ -153,6 +153,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final File incrementalFolder;
 
+  @Nonnull
+  private final OutputJackLibrary outputJackLibrary;
+
   public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
     incrementalFolder = new File(config.get(Options.LIBRARY_OUTPUT_DIR).getPath());
@@ -195,6 +198,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
     filesToRecompile = getInternalFileNamesToCompile();
+
+    outputJackLibrary = createOutputJackLibrary();
 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
@@ -463,9 +468,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     return inputLibraries;
   }
 
-  @Override
   @Nonnull
-  public OutputJackLibrary getOutputJackLibrary() {
+  private OutputJackLibrary createOutputJackLibrary() {
+
     if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
       VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
       ReadWriteZipFS zipVFS = (ReadWriteZipFS) ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
@@ -480,5 +485,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
             Jack.getEmitterId(), Jack.getVersion().getVerboseVersion()));
       }
     }
+  }
+
+  @Override
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary() {
+    return outputJackLibrary;
   }
 }
