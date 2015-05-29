@@ -95,8 +95,20 @@ public class MessageDigestOutputVFS extends MessageDigestVFS implements OutputVF
 
     @Override
     @Nonnull
+    public OutputStream getOutputStream(boolean append) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @Nonnull
     public PrintStream getPrintStream() throws WrongPermissionException {
       return new PrintStream(getOutputStream());
+    }
+
+    @Override
+    @Nonnull
+    public PrintStream getPrintStream(boolean append) {
+      throw new UnsupportedOperationException();
     }
 
     @CheckForNull

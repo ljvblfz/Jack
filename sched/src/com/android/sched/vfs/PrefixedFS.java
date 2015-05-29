@@ -87,7 +87,13 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return vfs.openWrite(file);
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return vfs.openWrite(file, append);
   }
 
   @Override

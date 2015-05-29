@@ -199,9 +199,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
       try {
-        VFS incrementalFolder = config.get(Options.LIBRARY_OUTPUT_DIR);
-        assert incrementalFolder != null;
-        incLog = new IncrementalLogWriter(getOutputJackLibrary(), incrementalFolder);
+        incLog = new IncrementalLogWriter(getOutputJackLibrary());
         incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
         incLog.writeLibraryDescriptions("classpath", classpathContent);
         incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(

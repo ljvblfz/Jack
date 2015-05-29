@@ -51,6 +51,10 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @Nonnull
   abstract OutputStream openWrite(@Nonnull FILE file) throws WrongPermissionException;
 
+  @Nonnull
+  abstract OutputStream openWrite(@Nonnull FILE file, boolean append)
+      throws WrongPermissionException;
+
   //
   // VElement related
   //
