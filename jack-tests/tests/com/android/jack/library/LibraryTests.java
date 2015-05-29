@@ -16,15 +16,14 @@
 
 package com.android.jack.library;
 
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.config.ConfigurationException;
-import com.android.sched.util.config.GatherConfigBuilder;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
@@ -61,6 +60,7 @@ public class LibraryTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testRscLibraryInClassPath() throws Exception {
     File emptyLib = createRscLibrary();
 
@@ -82,6 +82,7 @@ public class LibraryTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testImportRscLibrary() throws Exception {
     File lib = createRscLibrary();
     File out = AbstractTestTools.createTempFile("library001", ".jack");

@@ -28,6 +28,7 @@ import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
@@ -336,6 +337,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002f() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
