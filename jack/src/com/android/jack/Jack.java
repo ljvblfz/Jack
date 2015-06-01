@@ -76,6 +76,7 @@ import com.android.jack.frontend.java.JackBatchCompiler.TransportExceptionAround
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
 import com.android.jack.incremental.GenerateLibraryFromIncrementalFolder;
 import com.android.jack.incremental.Incremental;
+import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JClass;
@@ -440,7 +441,9 @@ public abstract class Jack {
         buildSession(session, options, hooks);
 
         if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-          session.setJackOutputLibrary(session.getInputFilter().getOutputJackLibrary());
+          InputFilter inputFilter = session.getInputFilter();
+          assert inputFilter != null;
+          session.setJackOutputLibrary(inputFilter.getOutputJackLibrary());
         }
 
         Request request = createInitialRequest();
@@ -631,8 +634,9 @@ public abstract class Jack {
         plan.getScheduleInstance().process(session);
       } finally {
         try {
-          if (session.getInputFilter() != null) {
-            session.getInputFilter().getOutputJackLibrary().close();
+          InputFilter inputFilter = session.getInputFilter();
+          if (inputFilter != null) {
+            inputFilter.getOutputJackLibrary().close();
           }
 
           // TODO(jack-team): auto-close
@@ -700,8 +704,10 @@ public abstract class Jack {
 
     Config config = ThreadConfig.getConfig();
 
+    InputFilter inputFilter = config.get(Options.INPUT_FILTER).create(options);
+
     try {
-      session.setInputFilter(config.get(Options.INPUT_FILTER).create(options));
+      session.setInputFilter(inputFilter);
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
       if (cause instanceof JackAbortException) {
@@ -716,7 +722,7 @@ public abstract class Jack {
     new MetaImporter(config.get(MetaImporter.IMPORTED_META)).doImport(session);
 
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
-    for (InputLibrary library : session.getInputFilter().getImportedLibrary()) {
+    for (InputLibrary library : inputFilter.getImportedLibrary()) {
       if (library instanceof InputJackLibrary) {
         addPackageLoaderForLibrary(session, config.get(IMPORT_POLICY),
             (InputJackLibrary) library);
@@ -726,7 +732,7 @@ public abstract class Jack {
     }
     JayceFileImporter jayceImporter = new JayceFileImporter(inputJackLibraries);
 
-    for (InputLibrary library : session.getInputFilter().getClasspath()) {
+    for (InputLibrary library : inputFilter.getClasspath()) {
       if (library instanceof InputJackLibrary) {
         addPackageLoaderForLibrary(session, config.get(CLASSPATH_POLICY),
             (InputJackLibrary) library);
@@ -734,7 +740,7 @@ public abstract class Jack {
       }
     }
 
-    Set<String> fileNamesToCompile = session.getInputFilter().getFileNamesToCompile();
+    Set<String> fileNamesToCompile = inputFilter.getFileNamesToCompile();
     if (!fileNamesToCompile.isEmpty()) {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
