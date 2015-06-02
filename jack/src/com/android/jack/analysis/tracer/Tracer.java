@@ -47,7 +47,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodNameLiteral;
-import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
@@ -165,7 +164,7 @@ public class Tracer extends JVisitor {
         }
 
 
-        if (JModifier.isAnonymousType(t.getModifier())) {
+        if (t.isAnonymous()) {
           trace(t.getEnclosingType());
           if (brush.startTraceEnclosingMethod()) {
             JMethod enclosingMethod = ((JDefinedClass) t).getEnclosingMethod();
