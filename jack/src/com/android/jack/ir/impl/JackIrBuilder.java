@@ -2854,11 +2854,9 @@ public class JackIrBuilder {
             } else {
               JExpression thisRef = makeThisReference(info, argType, false, scope, x);
               call.addArg(thisRef);
-              Object[] emulationPath = getEmulationPath(scope,
-                  argType,
-                  false /* onlyExactMatch */,
-                  true /* denyEnclosingArgInConstructorCall */,
-                  x);
+              // just check
+              getEmulationPath(scope, argType, false /* onlyExactMatch */,
+                  true /* denyEnclosingArgInConstructorCall */, x);
             }
           }
         }
