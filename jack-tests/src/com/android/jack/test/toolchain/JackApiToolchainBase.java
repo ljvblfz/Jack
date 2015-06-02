@@ -48,59 +48,57 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
   protected VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
 
   @CheckForNull
-  private static JackProvider configProvider;
+  private JackProvider configProvider;
 
   @Nonnull
-  private static String releaseName;
+  private String releaseName;
   @Nonnegative
-  private static int releaseCode;
+  private int releaseCode;
   @Nonnull
-  private static SubReleaseKind subReleaseKind;
+  private SubReleaseKind subReleaseKind;
   @Nonnegative
-  private static int subSubReleaseCode;
+  private int subSubReleaseCode;
   @Nonnull
-  private static String compilerVersion;
+  private String compilerVersion;
 
   @Nonnull
-  public static String getReleaseName() {
+  public String getReleaseName() {
     return releaseName;
   }
 
   @Nonnegative
-  public static int getReleaseCode() {
+  public int getReleaseCode() {
     return releaseCode;
   }
 
   @Nonnull
-  public static SubReleaseKind getSubReleaseKind() {
+  public SubReleaseKind getSubReleaseKind() {
     return subReleaseKind;
   }
 
   @Nonnegative
-  public static int getSubSubReleaseCode() {
+  public int getSubSubReleaseCode() {
     return subSubReleaseCode;
   }
 
   @Nonnull
-  public static String getCompilerVersion() {
+  public String getCompilerVersion() {
     return compilerVersion;
   }
 
   protected <T extends JackConfig> JackApiToolchainBase(@Nonnull File jackPrebuilt,
       @Nonnull Class<T> jackConfig) {
 
-    if (configProvider == null) {
-      try {
-        ClassLoader classLoader = URLClassLoader.newInstance(
-            new URL[] {jackPrebuilt.toURI().toURL()}, JackApiToolchainBase.class.getClassLoader());
-        ServiceLoader<JackProvider> serviceLoader =
-            ServiceLoader.load(JackProvider.class, classLoader);
-        configProvider = serviceLoader.iterator().next();
-      } catch (MalformedURLException e1) {
-        throw new TestConfigurationException(e1);
-      } catch (NoSuchElementException e) {
-        throw new TestConfigurationException(e);
-      }
+    try {
+      ClassLoader classLoader = URLClassLoader.newInstance(new URL[] {jackPrebuilt.toURI().toURL()},
+          JackApiToolchainBase.class.getClassLoader());
+      ServiceLoader<JackProvider> serviceLoader =
+          ServiceLoader.load(JackProvider.class, classLoader);
+      configProvider = serviceLoader.iterator().next();
+    } catch (MalformedURLException e1) {
+      throw new TestConfigurationException(e1);
+    } catch (NoSuchElementException e) {
+      throw new TestConfigurationException(e);
     }
 
     assert configProvider != null;

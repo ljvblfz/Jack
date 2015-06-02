@@ -140,11 +140,6 @@ public class RuntimeTestHelper {
     File[] candidateBootClasspath = candidateTestTools.getDefaultBootClasspath();
     File[] referenceBootClasspath = referenceTestTools.getDefaultBootClasspath();
 
-    String candidateBootClasspathAsString =
-        AbstractTestTools.getClasspathAsString(candidateTestTools.getDefaultBootClasspath());
-    String referenceBootClasspathAsString =
-        AbstractTestTools.getClasspathAsString(referenceTestTools.getDefaultBootClasspath());
-
     // Compile lib src
     File libLibRef = null;
     File libBinaryRef = null;
@@ -168,8 +163,6 @@ public class RuntimeTestHelper {
     // Compile test src
     candidateTestTools = createCandidateToolchain();
 
-    String candidateClasspathAsString;
-    String referenceClasspathAsString;
     File[] candidateClassPath;
     File[] referenceClasspath;
     if (libSources.length != 0) {
@@ -177,17 +170,13 @@ public class RuntimeTestHelper {
       System.arraycopy(candidateBootClasspath, 0, candidateClassPath, 0,
           candidateBootClasspath.length);
       candidateClassPath[candidateClassPath.length - 1] = libLibCandidate;
-      candidateClasspathAsString = AbstractTestTools.getClasspathAsString(candidateClassPath);
       referenceClasspath = new File[referenceBootClasspath.length + 1];
       System.arraycopy(referenceBootClasspath, 0, referenceClasspath, 0,
           referenceBootClasspath.length);
       referenceClasspath[referenceClasspath.length - 1] = libLibRef;
-      referenceClasspathAsString = AbstractTestTools.getClasspathAsString(referenceClasspath);
     } else {
       candidateClassPath = candidateBootClasspath;
       referenceClasspath = referenceBootClasspath;
-      candidateClasspathAsString = candidateBootClasspathAsString;
-      referenceClasspathAsString = referenceBootClasspathAsString;
     }
 
     File jarjarRules = getJarjarRules();
@@ -365,7 +354,12 @@ public class RuntimeTestHelper {
         if (runtimeTestInfos.length > 1) {
           throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
         }
-        properties.load(new FileInputStream(propertyFile));
+        FileInputStream fis = new FileInputStream(propertyFile);
+        try {
+          properties.load(fis);
+        } finally {
+          fis.close();
+        }
         break;
       }
     }

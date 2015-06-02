@@ -244,12 +244,19 @@ public class LegacyJillToolchain extends JillBasedToolchain {
 
       Properties prop = new Properties();
       FileReader fr = new FileReader(jackProperties);
-      prop.load(fr);
-      fr.close();
+      try {
+        prop.load(fr);
+      } finally {
+        fr.close();
+      }
+
       prop.setProperty("rsc", "true");
       FileWriter fw = new FileWriter(jackProperties);
-      prop.store(fw, "Edited by legacy-jill toolchain");
-      fw.close();
+      try {
+        prop.store(fw, "Edited by legacy-jill toolchain");
+      } finally {
+        fw.close();
+      }
 
       AbstractTestTools.zip(tmpUnzippedOutLib, out);
     } else {

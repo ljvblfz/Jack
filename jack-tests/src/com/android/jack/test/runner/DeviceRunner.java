@@ -30,6 +30,7 @@ import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,6 +49,8 @@ import javax.annotation.Nonnull;
 /**
  * This runner is used to execute tests on a device.
  */
+// It is safe because ROOT_DIR and ANDROID_DATA_DIR are well known paths
+@SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
 public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
   @Nonnull
@@ -72,7 +75,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   @Nonnull
   MyShellOuputReceiver hostOutput = new MyShellOuputReceiver();
 
-  private class MyShellOuputReceiver implements IShellOutputReceiver {
+  private static class MyShellOuputReceiver implements IShellOutputReceiver {
 
     @Nonnull
     private final PrintStream out;
@@ -113,7 +116,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
     }
   }
 
-  private class ShellOutputToStringReceiver implements IShellOutputReceiver {
+  private static class ShellOutputToStringReceiver implements IShellOutputReceiver {
 
     @Nonnull
     StringBuffer outBuffer = new StringBuffer();

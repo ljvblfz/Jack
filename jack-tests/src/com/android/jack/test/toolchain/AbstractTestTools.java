@@ -339,10 +339,13 @@ public abstract class AbstractTestTools {
         throw new AssertionError("Unable to create directory '" + dest.getPath() + "'");
       }
 
-      for (String file : src.list()) {
-        File srcFile = new File(src, file);
-        File destFile = new File(dest, file);
-        recursiveFileCopy(srcFile, destFile);
+      String [] files = src.list();
+      if (files != null) {
+        for (String file : files) {
+          File srcFile = new File(src, file);
+          File destFile = new File(dest, file);
+          recursiveFileCopy(srcFile, destFile);
+        }
       }
 
     } else {
@@ -456,8 +459,11 @@ public abstract class AbstractTestTools {
   private static void fillWithFiles(@Nonnull File file, @Nonnull List<File> jackFiles,
       @Nonnull String extension) {
     if (file.isDirectory()) {
-      for (File subFile : file.listFiles()) {
-        fillWithFiles(subFile, jackFiles, extension);
+      File[] files = file.listFiles();
+      if (files != null) {
+        for (File subFile : files) {
+          fillWithFiles(subFile, jackFiles, extension);
+        }
       }
     } else if (extension == null || extension.equals("*") || file.getName().endsWith(extension)) {
       jackFiles.add(file);
@@ -491,8 +497,10 @@ public abstract class AbstractTestTools {
       boolean mustExist) throws IOException {
     if (fileObject.isDirectory()) {
       File allFiles[] = fileObject.listFiles();
-      for (File aFile : allFiles) {
-        getJavaFiles(aFile, filePaths, mustExist);
+      if (allFiles != null) {
+        for (File aFile : allFiles) {
+          getJavaFiles(aFile, filePaths, mustExist);
+        }
       }
     } else if (fileObject.getName().endsWith(".java") && (!mustExist || fileObject.isFile())) {
       filePaths.add(fileObject.getCanonicalFile());
@@ -606,13 +614,15 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File getRuntimeEnvironmentRootDir(@Nonnull String rtName) {
-    String rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+    String rtLocationPath;
 
-    if (rtLocationPath == null) {
-      throw new TestConfigurationException(
-          "Location for runtime '" + rtName + "' is not specified. Set property '"
-              + RUNTIME_LOCATION_PREFIX + rtName + "'");
+    try {
+      rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+    } catch (TestConfigurationException e) {
+      throw new TestConfigurationException("Location for runtime '" + rtName
+          + "' is not specified. Set property '" + RUNTIME_LOCATION_PREFIX + rtName + "'");
     }
+
     File rtLocation = new File(rtLocationPath);
     if (!rtLocation.exists()) {
       throw new TestConfigurationException(
