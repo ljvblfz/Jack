@@ -693,9 +693,9 @@ public abstract class Jack {
 
     Config config = ThreadConfig.getConfig();
 
-    InputFilter inputFilter = config.get(Options.INPUT_FILTER).create(options);
-
+    InputFilter inputFilter;
     try {
+      inputFilter = config.get(Options.INPUT_FILTER).create(options);
       session.setInputFilter(inputFilter);
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
