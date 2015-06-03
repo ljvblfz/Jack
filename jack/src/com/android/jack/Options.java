@@ -1056,7 +1056,7 @@ public class Options {
   }
 
   public void setResourceDirs(@Nonnull List<File> resourceDirs) {
-    resImport = resourceDirs;
+    resImport = new ArrayList<File>(resourceDirs);
   }
 
   public void setMetaDirs(@Nonnull List<File> metaDirs) {
