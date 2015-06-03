@@ -20,7 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.library.FileType;
 import com.android.jack.library.LibraryReadingException;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
@@ -32,7 +32,6 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -210,7 +209,7 @@ public class ClasspathTests {
   }
 
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void testInvalidJackLibraryInClasspath() throws Exception {
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     compileWithInvalidClasspathEntry(srcDir, new File(srcDir, "invalid.jack"));

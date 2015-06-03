@@ -18,8 +18,8 @@ package com.android.jack;
 
 
 import com.android.jack.test.category.NonPreSubmitTests;
+import com.android.jack.test.junit.JackTestRunner;
 
-import org.junit.experimental.categories.Categories;
 import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
@@ -27,7 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
 /**
  * Test suite to run before submitting a CL (along with regression tests).
  */
-@RunWith(Categories.class)
+@RunWith(JackTestRunner.class)
 @ExcludeCategory(NonPreSubmitTests.class)
 @SuiteClasses(value = {AllWithRegressionTests.class, PreSubmitUnitTests.class})
 public class PreSubmitTests {

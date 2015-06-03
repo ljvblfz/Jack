@@ -16,9 +16,9 @@
 
 package com.android.jack.assertion;
 
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -47,7 +47,8 @@ public class AssertionTests extends RuntimeTest {
   }
   @Test
   // this test must be run with assertions enabled (for now, use dalvik)
-  @Category({RuntimeRegressionTest.class, KnownBugs.class})
+  @Category(RuntimeRegressionTest.class)
+  @KnownIssue
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }

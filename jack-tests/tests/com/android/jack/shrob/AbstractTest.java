@@ -20,8 +20,8 @@ import com.google.common.io.Files;
 
 import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
@@ -595,7 +595,7 @@ public abstract class AbstractTest {
   }
 
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test41_001() throws Exception {
     runTest("041", "001", "");
   }

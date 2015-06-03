@@ -18,7 +18,7 @@ package com.android.jack.resource;
 
 import com.android.jack.library.FileType;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.util.stream.ByteStreamSucker;
@@ -27,7 +27,6 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -277,7 +276,7 @@ public class ResourceTests {
   }
 
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void testResourceContentAdaptation() throws Exception {
     // compile source file to a Jack dir
     File jackOutputFolder = AbstractTestTools.createTempDir();
