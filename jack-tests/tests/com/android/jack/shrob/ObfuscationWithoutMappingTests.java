@@ -18,15 +18,14 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -74,21 +73,21 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
 
   @Override
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test33_001() throws Exception {
     super.test33_001();
   }
 
   @Override
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test34_001() throws Exception {
     super.test34_001();
   }
 
   @Override
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test35_001() throws Exception {
     super.test35_001();
   }
