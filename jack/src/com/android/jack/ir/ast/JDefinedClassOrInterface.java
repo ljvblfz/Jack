@@ -573,6 +573,11 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     if (parent == null || parent != enclosingPackage) {
       throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
+  }
 
+  @Override
+  public void setName(@Nonnull String name) {
+    enclosingPackage.removeItemWithName(this);
+    super.setName(name);
   }
 }
