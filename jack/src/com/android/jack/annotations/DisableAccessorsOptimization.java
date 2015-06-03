@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * optimization.
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 public @interface DisableAccessorsOptimization {
 
 }

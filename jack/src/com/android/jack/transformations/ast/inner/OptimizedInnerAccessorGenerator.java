@@ -89,7 +89,8 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
       @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {
     JField field = fieldRef.getFieldId().getField();
     assert(field != null);
-    if (!field.isPrivate()) {
+    if (!field.isPrivate() || !field.getAnnotations(annotationType).isEmpty()
+        || !accessorClass.getAnnotations(annotationType).isEmpty()) {
       super.handleOuterFieldWrite(tr, fieldRef, accessorClass);
       return;
     }
@@ -101,7 +102,8 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
       @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {
     JField field = fieldRef.getFieldId().getField();
     assert(field != null);
-    if (!field.isPrivate()) {
+    if (!field.isPrivate() || !field.getAnnotations(annotationType).isEmpty()
+        || !accessorClass.getAnnotations(annotationType).isEmpty()) {
       super.handleOuterFieldRead(tr, fieldRef, accessorClass);
       return;
     }
