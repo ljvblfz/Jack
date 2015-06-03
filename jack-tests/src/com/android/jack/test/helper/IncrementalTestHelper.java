@@ -18,7 +18,7 @@ package com.android.jack.test.helper;
 
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.InputJackLibraryCodec;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -28,7 +28,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
-import com.android.sched.util.codec.CodecContext;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -129,30 +128,46 @@ public class IncrementalTestHelper {
     fileModificationDate.clear();
   }
 
-  public void snapshotJackFilesModificationDate() {
-    Iterator<InputVFile> jayceIter = getJayceIterator();
-    while (jayceIter.hasNext()) {
-      InputVFile jayceFile = jayceIter.next();
-      fileModificationDate.put(jayceFile.getPathFromRoot(),
-          Long.valueOf(jayceFile.getLastModified()));
+  public void snapshotJackFilesModificationDate() throws LibraryIOException {
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        InputVFile jayceFile = jayceIter.next();
+        fileModificationDate.put(jayceFile.getPathFromRoot(),
+            Long.valueOf(jayceFile.getLastModified()));
+      }
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
+      }
     }
   }
 
   @Nonnull
-  public List<String> getFQNOfRebuiltTypes() {
+  public List<String> getFQNOfRebuiltTypes() throws LibraryIOException {
     assert !fileModificationDate.isEmpty();
 
     List<String> fqnOfRebuiltTypes = new ArrayList<String>();
-    Iterator<InputVFile> jayceIter = getJayceIterator();
-    while (jayceIter.hasNext()) {
-      InputVFile jayceFile = jayceIter.next();
-      VPath path = jayceFile.getPathFromRoot();
-      Long previousDate = fileModificationDate.get(path);
-      if (previousDate == null || jayceFile.getLastModified() > previousDate.longValue()) {
-        String fqnWithExtension = path.getPathAsString('.');
-        String fqn = fqnWithExtension.substring(0,
-            fqnWithExtension.lastIndexOf(FileType.JAYCE.getFileExtension()));
-        fqnOfRebuiltTypes.add(fqn);
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        InputVFile jayceFile = jayceIter.next();
+        VPath path = jayceFile.getPathFromRoot();
+        Long previousDate = fileModificationDate.get(path);
+        if (previousDate == null || jayceFile.getLastModified() > previousDate.longValue()) {
+          String fqnWithExtension = path.getPathAsString('.');
+          String fqn = fqnWithExtension.substring(0,
+              fqnWithExtension.lastIndexOf(FileType.JAYCE.getFileExtension()));
+          fqnOfRebuiltTypes.add(fqn);
+        }
+      }
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
       }
     }
 
@@ -220,20 +235,20 @@ public class IncrementalTestHelper {
   }
 
   @Nonnull
-  public Iterator<InputVFile> getJayceIterator() {
-    InputJackLibrary compilerStateLib =
-        new InputJackLibraryCodec().parseString(new CodecContext(), compilerStateFolder.getPath());
-
-    return compilerStateLib.iterator(FileType.JAYCE);
-  }
-
-  @Nonnull
-  public int getJayceCount() {
+  public int getJayceCount() throws LibraryIOException {
     int size = 0;
-    Iterator<InputVFile> jayceIter = getJayceIterator();
-    while (jayceIter.hasNext()) {
-      size++;
-      jayceIter.next();
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        size++;
+        jayceIter.next();
+      }
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
+      }
     }
     return size;
   }
