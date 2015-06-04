@@ -20,29 +20,35 @@ import com.android.jack.backend.dex.MergingManager.AvailableMergerIterator;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
-import com.android.sched.util.codec.ImplementationName;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link DexWritingTool} that merges dex files, each one corresponding to a type, in several dex
- * files. It is assumed that all types marked for MainDex will be submitted before any not marked
- * type.
+ * An abstract {@link DexWritingTool} containing common logic from default
+ * and deterministic StandardMultiDexWritingTools.
  */
-@ImplementationName(iface = DexWritingTool.class, name = "multidex",
-    description = "allow emitting several dex files")
-public class StandardMultiDexWritingTool extends MultiDexWritingTool {
+public abstract class StandardMultiDexWritingTool extends MultiDexWritingTool {
+
   @Nonnull
   private boolean seenNonMarkedType = false;
 
+  @CheckForNull
+  private JackMerger mainMerger;
+
   @Nonnull
-  private final JackMerger mainMerger = manager.getIterator().next(0);
+  protected abstract JackMerger createMainMerger(int numberOfMainTypes);
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
     if (type.getMarker(MainDexMarker.class) != null) {
       assert !seenNonMarkedType;
       try {
+        assert mainMerger != null;
         manager.mergeDex(mainMerger, type);
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new MainDexOverflowException(e));
@@ -61,5 +67,31 @@ public class StandardMultiDexWritingTool extends MultiDexWritingTool {
       }
       assert iter.hasNext();
     }
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<JDefinedClassOrInterface> sortAndPrepare(
+      @Nonnull Collection<JDefinedClassOrInterface> types) {
+    int numberOfMainTypes = 0;
+    ArrayList<JDefinedClassOrInterface> mainList =
+        new ArrayList<JDefinedClassOrInterface>();
+    ArrayList<JDefinedClassOrInterface> defaultList =
+        new ArrayList<JDefinedClassOrInterface>(types.size());
+    for (JDefinedClassOrInterface type : types) {
+      if (type.containsMarker(MainDexMarker.class)) {
+        mainList.add(type);
+        numberOfMainTypes++;
+      } else {
+        defaultList.add(type);
+      }
+    }
+
+    sortAndPrepareInternal(defaultList, mainList);
+
+    mainMerger = createMainMerger(numberOfMainTypes);
+
+    mainList.addAll(defaultList);
+    return mainList.iterator();
   }
 }

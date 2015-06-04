@@ -51,6 +51,12 @@ import javax.annotation.Nonnull;
  */
 public class ConstantManager extends MergerTools {
 
+  public static final int DEFAULT_MULTIDEX_MAIN_DEX_INDEX = 0;
+
+  public static final int DEFAULT_MULTIDEX_NON_MAIN_DEX_INDEX = 1;
+
+  public static final int FIRST_DETERMINISTIC_MODE_INDEX = 0;
+
   private static final int SLOW_PATH_PERMITS = 10000;
 
   private int pesimisticFieldsSize = 0;
@@ -61,8 +67,8 @@ public class ConstantManager extends MergerTools {
 
   private final boolean bestMergingAccuracy;
 
-  @Nonnull
-  private final Door door;
+  @CheckForNull
+  private Door door;
 
   @CheckForNull
   private volatile MergingOverflowException thrown = null;
@@ -114,14 +120,31 @@ public class ConstantManager extends MergerTools {
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstTypes);
   }
 
-  public ConstantManager(boolean bestMergingAccuracy) {
+  private ConstantManager(boolean bestMergingAccuracy) {
     this.bestMergingAccuracy = bestMergingAccuracy;
-    door = new Door();
   }
 
-  public ConstantManager(boolean bestMergingAccuracy, int firstExpectedIndex) {
-    this.bestMergingAccuracy = bestMergingAccuracy;
-    door = new StrictOrderDoor(firstExpectedIndex);
+  @Nonnull
+  public static ConstantManager getDefaultInstance(boolean bestMergingAccuracy) {
+    ConstantManager manager = new ConstantManager(bestMergingAccuracy);
+    manager.door = manager.new DefaultDoor(0);
+    return manager;
+  }
+
+  @Nonnull
+  public static ConstantManager getDefaultInstance(boolean bestMergingAccuracy,
+      int numberOfMainDexTypesExpected) {
+    ConstantManager manager = new ConstantManager(bestMergingAccuracy);
+    manager.door = manager.new DefaultDoor(numberOfMainDexTypesExpected);
+    return manager;
+  }
+
+  @Nonnull
+  public static ConstantManager getDeterministicInstance(boolean bestMergingAccuracy,
+      int firstTypeIndex) {
+    ConstantManager manager = new ConstantManager(bestMergingAccuracy);
+    manager.door = manager.new StrictOrderDoor(firstTypeIndex);
+    return manager;
   }
 
   @Nonnull
@@ -252,10 +275,41 @@ public class ConstantManager extends MergerTools {
     return cstIndexMap;
   }
 
-  private class Door {
+  private interface Door {
 
+    public abstract boolean enter(int index, int fieldsSize, int methodsSize, int typesSize);
+
+    public abstract void inviteNext();
+
+  }
+
+  private class DefaultDoor implements Door {
+
+    private int expectedMainDexTypes;
+
+    @Nonnull
+    private final ReentrantLock doorLock = new ReentrantLock();
+
+    @Nonnull
+    private final Condition allMarkedTypesProcessed = doorLock.newCondition();
+
+    public DefaultDoor(int numberOfMainDexTypes) {
+      this.expectedMainDexTypes = numberOfMainDexTypes;
+    }
+
+    @Override
     public boolean enter(int index, int fieldsSize, int methodsSize, int typesSize) {
       boolean fastPath = false;
+      if (expectedMainDexTypes > 0 && index != DEFAULT_MULTIDEX_MAIN_DEX_INDEX) {
+        doorLock.lock();
+        try {
+          while (expectedMainDexTypes > 0) {
+            allMarkedTypesProcessed.awaitUninterruptibly();
+          }
+        } finally {
+          doorLock.unlock();
+        }
+      }
       synchronized (ConstantManager.this) {
         if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
             && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
@@ -275,7 +329,7 @@ public class ConstantManager extends MergerTools {
           if (pesimisticFieldsSize > DexFormat.MAX_MEMBER_IDX + 1
               || pesimisticMethodsSize > DexFormat.MAX_MEMBER_IDX + 1
               || pesimisticTypesSize > DexFormat.MAX_TYPE_IDX + 1) {
-              //things changed while we were acquiring
+              //things changed while we were acquiring due to someone finishing slowPath
               fastPath = false;
               pesimisticFieldsSize -= fieldsSize;
               pesimisticMethodsSize -= methodsSize;
@@ -285,6 +339,8 @@ public class ConstantManager extends MergerTools {
         }
         if (!fastPath) {
           lock.acquireUninterruptibly(SLOW_PATH_PERMITS);
+        } else {
+          inviteNext();
         }
       } else {
         //requires all semaphore tokens, we want exclusive access
@@ -293,13 +349,25 @@ public class ConstantManager extends MergerTools {
       return fastPath;
     }
 
+    @Override
     public void inviteNext() {
-
+      doorLock.lock();
+      try {
+        if (expectedMainDexTypes > 0) {
+          //if types marked for main dex are expected and I invite someone that means I am marked
+          expectedMainDexTypes--;
+        }
+        if (expectedMainDexTypes == 0) {
+          allMarkedTypesProcessed.signalAll();
+        }
+      } finally {
+        doorLock.unlock();
+      }
     }
 
   }
 
-  private class StrictOrderDoor extends Door {
+  private class StrictOrderDoor implements Door {
     @Nonnull
     private final ReentrantLock doorLock = new ReentrantLock();
 
@@ -405,6 +473,7 @@ public class ConstantManager extends MergerTools {
     int methodsSize = dexBuffer.methodIds().size();
     int typesSize = dexBuffer.typeIds().size();
 
+    assert door != null;
     boolean fastPath = door.enter(index, fieldsSize, methodsSize, typesSize);
 
     try {
@@ -422,6 +491,7 @@ public class ConstantManager extends MergerTools {
         }
         if (fastPath) {
           lock.release(SLOW_PATH_PERMITS - 1);
+          assert door != null;
           door.inviteNext();
         }
       }
@@ -436,6 +506,7 @@ public class ConstantManager extends MergerTools {
     } finally {
       unlockAccordingToPath(fastPath);
       if (!fastPath) {
+        assert door != null;
         door.inviteNext();
       }
     }

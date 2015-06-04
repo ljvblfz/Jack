@@ -56,14 +56,8 @@ public class JackMerger extends MergerTools {
 
   private boolean finished = false;
 
-  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy, int firstTypeIndex) {
-    cstManager = new ConstantManager(bestMergingAccuracy, firstTypeIndex);
-    this.dexResult = dexResult;
-    dexResult.getDexOptions().forceJumbo = true;
-  }
-
-  public JackMerger(@Nonnull DexFile dexResult, boolean bestMergingAccuracy) {
-    cstManager = new ConstantManager(bestMergingAccuracy);
+  public JackMerger(@Nonnull DexFile dexResult, @Nonnull ConstantManager cstManager) {
+    this.cstManager = cstManager;
     this.dexResult = dexResult;
     dexResult.getDexOptions().forceJumbo = true;
   }

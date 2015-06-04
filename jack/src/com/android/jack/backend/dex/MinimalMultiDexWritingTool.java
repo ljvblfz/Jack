@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.backend.dex.MergingManager.AvailableMergerIterator;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.tools.merger.ConstantManager;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
@@ -33,7 +34,11 @@ import javax.annotation.Nonnull;
 public class MinimalMultiDexWritingTool extends MultiDexWritingTool {
 
   @Nonnull
-  private final JackMerger mainMerger = manager.getIterator().next(0);
+  private final JackMerger mainMerger;
+
+  public MinimalMultiDexWritingTool() {
+    mainMerger = manager.getIterator().next(ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX);
+  }
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
@@ -47,7 +52,7 @@ public class MinimalMultiDexWritingTool extends MultiDexWritingTool {
       AvailableMergerIterator iter = manager.getIterator();
       JackMerger merger = iter.current();
       if (merger == mainMerger) {
-        merger = iter.next(0);
+        merger = iter.next(ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX);
       }
       do {
         try {

@@ -18,39 +18,43 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.ConstantManager;
+import com.android.jack.tools.merger.JackMerger;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@link DexWritingTool} that merges dex files, each one corresponding to a type, in several dex
- * files, keeping the main dex as small as possible and maintaining determinism.
+ * files. It is assumed that all types marked for MainDex will be submitted before any not marked
+ * type.
  */
-@ImplementationName(iface = DexWritingTool.class, name = "deter-minimal-multidex", description =
-    "allow emitting several dex files, keeping the first dex (main dex) as small as possible" +
-    " and maintaining determinism")
-public class DeterministicMinimalMultiDexWritingTool extends MinimalMultiDexWritingTool {
+@ImplementationName(iface = DexWritingTool.class, name = "multidex",
+    description = "allow emitting several dex files")
+public class DefaultStandardMultiDexWritingTool extends StandardMultiDexWritingTool {
 
   @Override
   @Nonnull
   protected MergingManager getManager() {
-    return new DeterministicMergingManager();
+    return new MarkedFirstMergingManager();
+  }
+
+  @Override
+  @Nonnull
+  protected JackMerger createMainMerger(int numberOfMainTypes) {
+    MarkedFirstMergingManager markedFirstManager = (MarkedFirstMergingManager) manager;
+    return markedFirstManager.getAndCreateMarkedFirstMerger(numberOfMainTypes);
   }
 
   @Override
   protected void sortAndPrepareInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
       @Nonnull ArrayList<JDefinedClassOrInterface> mainList) {
-    Collections.sort(defaultList, nameComp);
-    int number = ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX;
     for (JDefinedClassOrInterface type : mainList) {
-      type.addMarker(new NumberMarker(number++));
+      type.addMarker(new NumberMarker(ConstantManager.DEFAULT_MULTIDEX_MAIN_DEX_INDEX));
     }
-    number = ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX;
     for (JDefinedClassOrInterface type : defaultList) {
-      type.addMarker(new NumberMarker(number++));
+      type.addMarker(new NumberMarker(ConstantManager.DEFAULT_MULTIDEX_NON_MAIN_DEX_INDEX));
     }
   }
 

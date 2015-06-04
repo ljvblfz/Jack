@@ -17,6 +17,8 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.tools.merger.ConstantManager;
+import com.android.jack.tools.merger.JackMerger;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.util.ArrayList;
@@ -40,10 +42,16 @@ public class DeterministicStandardMultiDexWritingTool extends StandardMultiDexWr
   }
 
   @Override
-  protected void sortAndNumberInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
+  @Nonnull
+  protected JackMerger createMainMerger(int numberOfMainTypes) {
+    return manager.getIterator().next(ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX);
+  }
+
+  @Override
+  protected void sortAndPrepareInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
       @Nonnull ArrayList<JDefinedClassOrInterface> mainList) {
     Collections.sort(defaultList, nameComp);
-    int number = 0;
+    int number = ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX;
     for (JDefinedClassOrInterface type : mainList) {
       type.addMarker(new NumberMarker(number++));
     }

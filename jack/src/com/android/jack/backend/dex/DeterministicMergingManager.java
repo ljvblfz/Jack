@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.tools.merger.ConstantManager;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
@@ -38,9 +39,9 @@ public class DeterministicMergingManager extends MergingManager {
 
   @Override
   @Nonnull
-  public JackMerger getNewJackMerger(int firstTypeIndex) {
-    return new JackMerger(createDexFile(),
-        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue(), firstTypeIndex);
+  protected JackMerger getNewJackMerger(int firstTypeIndex) {
+    return new JackMerger(createDexFile(), ConstantManager.getDeterministicInstance(
+        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue(), firstTypeIndex));
   }
 
   @Override
