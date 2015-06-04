@@ -649,7 +649,7 @@ public abstract class AbstractTestTools {
   /**
    * The returned {@link InputJackLibrary} must be closed.
    */
-  public static InputJackLibrary getInputJackLibraryFromDir(@Nonnull File dir) {
-    return new InputJackLibraryCodec().parseString(new CodecContext(), dir.getPath());
+  public static InputJackLibrary getInputJackLibrary(@Nonnull File dirOrZip) {
+    return new InputJackLibraryCodec().parseString(new CodecContext(), dirOrZip.getPath());
   }
 }
