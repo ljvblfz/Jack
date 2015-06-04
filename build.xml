@@ -1873,6 +1873,35 @@
     <fail message="tests.config is undefined" unless="tests.config" />
   </target>
 
+  <target name="tests-check-name">
+    <fail message="test.name is undefined" unless="test.name" />
+  </target>
+
+  <target name="test-jack-by-name" depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
+  </target>
+
+  <target name="test-jack-by-name-no-dep">
+    <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
+    <junit fork="yes" failureproperty="test-jack.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-ea"/>
+       <classpath>
+        <filelist refid="jack.junit.tests.classpath" />
+       </classpath>
+      <test name="${test.name}"
+        todir="${jack.tests.output}/test-jack-by-name/"
+        outfile="test-jack-by-name" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jack-by-name">
+      <fileset dir="${jack.tests.output}/test-jack-by-name">
+        <include name="test-jack-by-name.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jack-by-name/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jack.failure" />
+  </target>
+
   <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep">
   </target>
 
