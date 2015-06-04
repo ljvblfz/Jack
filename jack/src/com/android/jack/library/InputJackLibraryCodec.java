@@ -94,7 +94,6 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
         }
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
-        assert hooks != null;
         vfs = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
             Existence.MUST_EXIST, ChangePermission.NOCHANGE));
       }
