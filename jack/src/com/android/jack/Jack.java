@@ -744,7 +744,8 @@ public abstract class Jack {
     }
 
     try {
-      jayceImporter.doImport(session);
+      jayceImporter.doJayceImport(session);
+      jayceImporter.doResourceImport(session);
     } catch (LibraryReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);

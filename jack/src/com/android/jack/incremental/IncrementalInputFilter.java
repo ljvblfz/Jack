@@ -26,6 +26,7 @@ import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
+import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -60,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -158,6 +160,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
+
     fileNamesOnCmdLine = getJavaFileNamesSpecifiedOnCommandLine(options);
 
     tracer.getStatistic(IncrementalInputFilter.SOURCE_FILES).incValue(fileNamesOnCmdLine.size());
@@ -165,6 +168,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     JSession session = Jack.getSession();
     if (incrementalInputLibrary != null) {
       try {
+        // Remove all resources, they are always recopied
+        deleteAllResources();
         fillDependencies(incrementalInputLibrary, FileDependencies.vpath, fileDependencies);
         fillDependencies(incrementalInputLibrary, TypeDependencies.vpath, typeDependencies);
         fillDependencies(incrementalInputLibrary, LibraryDependencies.vpath,
@@ -175,6 +180,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         session.getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       } catch (FileTypeDoesNotExistException e) {
+        LibraryReadingException reportable = new LibraryReadingException(
+            new LibraryFormatException(incrementalInputLibrary.getLocation()));
+        session.getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
+      } catch (CannotDeleteFileException e) {
         LibraryReadingException reportable = new LibraryReadingException(
             new LibraryFormatException(incrementalInputLibrary.getLocation()));
         session.getReporter().report(Severity.FATAL, reportable);
@@ -220,6 +230,16 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         Jack.getSession().getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       }
+    }
+  }
+
+  private void deleteAllResources() throws CannotDeleteFileException,
+      FileTypeDoesNotExistException {
+    assert incrementalInputLibrary != null;
+
+    Iterator<InputVFile> vFileIt = incrementalInputLibrary.iterator(FileType.RSC);
+    while (vFileIt.hasNext()) {
+      incrementalInputLibrary.delete(FileType.RSC, vFileIt.next().getPathFromRoot());
     }
   }
 
@@ -444,22 +464,36 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     List<InputLibrary> inputLibraries =
         new ArrayList<InputLibrary>(importedLibrariesFromCommandLine);
 
+    JSession session = Jack.getSession();
     if (needFullBuild()) {
-      Jack.getSession().setFileDependencies(new FileDependencies());
-      Jack.getSession().setTypeDependencies(new TypeDependencies());
+      session.setFileDependencies(new FileDependencies());
+      session.setTypeDependencies(new TypeDependencies());
       return inputLibraries;
     }
 
     try {
       updateIncrementalState();
     } catch (IncrementalException e) {
-      Jack.getSession().getReporter().report(Severity.FATAL, e);
+      session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
     }
 
     if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
       // Incremental folder already contains dex files of imported libraries, thus import only
       // incremental folder.
+      // Import resources of Jack libraries that are remove from the imported list
+      List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
+      for (InputLibrary library : inputLibraries) {
+        if (library instanceof InputJackLibrary) {
+          inputJackLibraries.add((InputJackLibrary) library);
+        }
+      }
+      try {
+        new JayceFileImporter(inputJackLibraries).doResourceImport(session);
+      } catch (LibraryReadingException e) {
+        session.getReporter().report(Severity.FATAL, e);
+        throw new JackAbortException(e);
+      }
       inputLibraries.clear();
       inputLibraries.add(incrementalInputLibrary);
       return inputLibraries;
