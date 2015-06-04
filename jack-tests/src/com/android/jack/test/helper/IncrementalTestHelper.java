@@ -130,7 +130,7 @@ public class IncrementalTestHelper {
   public void snapshotJackFilesModificationDate() throws LibraryIOException {
     InputJackLibrary compilerStateLib = null;
     try {
-      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
       Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
       while (jayceIter.hasNext()) {
         InputVFile jayceFile = jayceIter.next();
@@ -151,7 +151,7 @@ public class IncrementalTestHelper {
     List<String> fqnOfRebuiltTypes = new ArrayList<String>();
     InputJackLibrary compilerStateLib = null;
     try {
-      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
       Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
       while (jayceIter.hasNext()) {
         InputVFile jayceFile = jayceIter.next();
@@ -237,7 +237,7 @@ public class IncrementalTestHelper {
     int size = 0;
     InputJackLibrary compilerStateLib = null;
     try {
-      compilerStateLib = AbstractTestTools.getInputJackLibraryFromDir(compilerStateFolder);
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
       Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
       while (jayceIter.hasNext()) {
         size++;

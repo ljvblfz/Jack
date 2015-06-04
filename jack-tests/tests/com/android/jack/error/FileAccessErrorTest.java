@@ -20,6 +20,8 @@ import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Main;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.category.KnownBugs;
@@ -30,16 +32,18 @@ import com.android.sched.util.codec.ListParsingException;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Iterator;
 
 /**
  * JUnit test checking Jack behavior on file access error.
@@ -168,7 +172,6 @@ public class FileAccessErrorTest {
    * Checks that compilation fails correctly when jack file is not readable.
    */
   @Test
-  @Ignore
   public void testFileAccessError004() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 
@@ -190,10 +193,15 @@ public class FileAccessErrorTest {
 
     jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    InputJackLibrary jackLib = null;
     try {
-      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
-        if (!jackFile.setReadable(false)) {
-          Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
+      jackLib = AbstractTestTools.getInputJackLibrary(te.getJackFolder());
+      Iterator<InputVFile> jackFileIter = jackLib.iterator(FileType.JAYCE);
+      while (jackFileIter.hasNext()) {
+        InputVFile vFile = jackFileIter.next();
+        File file = new File(((FileLocation) vFile.getLocation()).getPath());
+        if (!file.setReadable(false)) {
+          Assert.fail("Fails to change file permissions of " + file.getAbsolutePath());
         }
       }
 
@@ -206,6 +214,9 @@ public class FileAccessErrorTest {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
     } finally {
+      if (jackLib != null) {
+        jackLib.close();
+      }
       String errOutput = errOut.toString();
       Assert.assertTrue(errOutput.contains(
           "Error during the library reading phase: I/O error when accessing ")); // user reporting
