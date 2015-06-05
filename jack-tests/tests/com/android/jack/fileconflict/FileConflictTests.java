@@ -604,7 +604,7 @@ public class FileConflictTests {
     File lib1 = new File(TEST002_DIR, "lib1");
 
     JackBasedToolchain toolchain = getToolchain(isApiTest);
-    toolchain.addResource(new File(lib1, "rsc"));
+    toolchain.addResourceDir(new File(lib1, "rsc"));
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
@@ -618,7 +618,7 @@ public class FileConflictTests {
     File jackImport2 = AbstractTestTools.createTempDir();
     File lib2 = new File(TEST002_DIR, "lib2");
     toolchain = getToolchain(isApiTest);
-    toolchain.addResource(new File(lib2, "rsc"));
+    toolchain.addResourceDir(new File(lib2, "rsc"));
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }

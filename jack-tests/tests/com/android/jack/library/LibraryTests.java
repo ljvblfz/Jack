@@ -121,7 +121,7 @@ public class LibraryTests {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File emptyLib = AbstractTestTools.createTempFile("rsc", toolchain.getLibraryExtension());
 
-    toolchain.addResource(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
+    toolchain.addResourceDir(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
     return emptyLib;

@@ -115,7 +115,7 @@ public class ResourceTests {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -168,7 +168,7 @@ public class ResourceTests {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -230,7 +230,7 @@ public class ResourceTests {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -264,7 +264,7 @@ public class ResourceTests {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -288,7 +288,7 @@ public class ResourceTests {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -321,7 +321,7 @@ public class ResourceTests {
     String resource2LongPath = "com/android/jack/resource/test003/jack/A.txt";
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(rscFolder).addToClasspath(toolchain.getDefaultBootClasspath())
+    toolchain.addResourceDir(rscFolder).addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
           jackOutputFolder,
           /* zipFiles = */ false,
@@ -370,7 +370,7 @@ public class ResourceTests {
     // compile source file to a Jack file
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File jackAr = AbstractTestTools.createTempFile("resourcetestjack", toolchain.getLibraryExtension());
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackAr,
