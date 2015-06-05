@@ -162,4 +162,10 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+  @Override
+  public void setName(@Nonnull String name) {
+    enclosingPackage.removeItemWithName(this);
+    super.setName(name);
+  }
 }

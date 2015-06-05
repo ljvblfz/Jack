@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -92,6 +93,9 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       new ArrayList<JPhantomAnnotationType>();
 
   @Nonnull
+  private final Set<String> deletedItems = new HashSet<String>();
+
+  @Nonnull
   private String name;
 
   @Nonnull
@@ -127,10 +131,12 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   public void addType(@Nonnull JDefinedClassOrInterface type) {
+    addItemWithName(type);
     declaredTypes.add(type);
   }
 
   public void addPackage(@Nonnull JPackage newPackage) {
+    addItemWithName(newPackage);
     subPackages.add(newPackage);
   }
 
@@ -330,6 +336,9 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Override
   public void setName(@Nonnull String name) {
+    if (enclosingPackage != null) {
+      enclosingPackage.removeItemWithName(this);
+    }
     this.name = StringInterner.get().intern(name);
   }
 
@@ -344,6 +353,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
+    assert enclosingPackage == null || !enclosingPackage.deletedItems.contains(getName());
+
     if (visitor.visit(this)) {
       if (visitor.needLoading()) {
         loadSubPackages();
@@ -395,6 +406,11 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
     if (!found) {
       super.transform(existingNode, newNode, transformation);
+    } else {
+      if (transformation == Transformation.REMOVE) {
+        assert existingNode instanceof HasName;
+        removeItemWithName((HasName) existingNode);
+      }
     }
   }
 
@@ -439,6 +455,8 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   @Nonnull
   protected JPackage loadSubPackage(@Nonnull String simpleName)
       throws JPackageLookupException {
+    assert !deletedItems.contains(simpleName);
+
     List<PackageLoader> subLoaders = null;
     for (PackageLoader loader : loaders) {
       try {
@@ -468,11 +486,13 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
 
     for (String name : subNames) {
-      try {
-        getSubPackage(name);
-      } catch (JPackageLookupException e) {
-        // We know the packages exist so this should not happen
-        throw new AssertionError(e);
+      if (!deletedItems.contains(name)) {
+        try {
+          getSubPackage(name);
+        } catch (JPackageLookupException e) {
+          // We know the packages exist so this should not happen
+          throw new AssertionError(e);
+        }
       }
     }
   }
@@ -480,6 +500,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   @Nonnull
   protected JDefinedClassOrInterface loadClassOrInterface(
       @Nonnull String simpleName) throws JTypeLookupException {
+    assert !deletedItems.contains(simpleName);
     for (PackageLoader loader : loaders) {
       try {
         return loader.loadClassOrInterface(this, simpleName);
@@ -497,11 +518,13 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     }
 
     for (String name : subNames) {
-      try {
-        getType(name);
-      } catch (JTypeLookupException e) {
-        // We know the packages exist so this should not happen
-        throw new AssertionError(e);
+      if (!deletedItems.contains(name)) {
+        try {
+          getType(name);
+        } catch (JTypeLookupException e) {
+          // We know the packages exist so this should not happen
+          throw new AssertionError(e);
+        }
       }
     }
   }
@@ -519,5 +542,14 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     } else  {
       throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
+  }
+
+  void removeItemWithName(@Nonnull HasName itemWithName) {
+    deletedItems.add(itemWithName.getName());
+  }
+
+  private void addItemWithName(@Nonnull HasName itemWithName) {
+    assert itemWithName instanceof JPackage || itemWithName instanceof JClassOrInterface;
+    deletedItems.remove(itemWithName.getName());
   }
 }
