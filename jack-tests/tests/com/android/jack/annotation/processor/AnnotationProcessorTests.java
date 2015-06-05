@@ -239,7 +239,7 @@ public class AnnotationProcessorTests {
     {
       JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
       jack.setAnnotationProcessorPath(processors.getPath());
-      jack.addResource(classesOut);
+      jack.addResourceDir(classesOut);
       jack.addToClasspath(jack.getDefaultBootClasspath());
       jack.srcToLib(jackOut,
           /*zipFiles=*/false,
@@ -250,7 +250,7 @@ public class AnnotationProcessorTests {
     {
       JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
       jack.setAnnotationProcessorPath(processors.getPath());
-      jack.addResource(classesOut);
+      jack.addResourceDir(classesOut);
       jack.addToClasspath(jack.getDefaultBootClasspath());
       jack.srcToLib(jackOut,
           /*zipFiles=*/false,

@@ -87,8 +87,8 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   }
 
   @Nonnull
-  public JackBasedToolchain addResource(@Nonnull File resource) {
-    resImport.add(resource);
+  public JackBasedToolchain addResourceDir(@Nonnull File resourceDir) {
+    resImport.add(resourceDir);
     return this;
   }
 

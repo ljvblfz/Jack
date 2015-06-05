@@ -84,7 +84,7 @@ public class AnnotationProcessorErrorTest {
         Collections.singletonList(ResourceAnnotationProcessor.class.getName()));
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackApiToolchain.setErrorStream(errOut);
-    jackApiToolchain.addResource(te.getOutputDexFolder());
+    jackApiToolchain.addResourceDir(te.getOutputDexFolder());
     jackApiToolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(),
         CollisionPolicy.FAIL.name());
 
