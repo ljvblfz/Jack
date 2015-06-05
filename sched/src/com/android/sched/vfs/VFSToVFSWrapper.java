@@ -226,7 +226,7 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
 
   @Override
   long getLastModified(@Nonnull BaseVFile file) {
-    throw new UnsupportedOperationException();
+    return workVFS.getLastModified(file);
   }
 
   @Override

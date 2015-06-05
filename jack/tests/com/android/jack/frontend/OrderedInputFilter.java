@@ -25,7 +25,6 @@ import com.android.jack.incremental.CommonFilter;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
@@ -56,9 +55,6 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
-  @Nonnull
-  private final OutputJackLibrary outputJackLibrary;
-
   public OrderedInputFilter(@Nonnull Options options) {
     this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
@@ -73,8 +69,6 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
     LibraryDependencies libraryDependencies = session.getLibraryDependencies();
     libraryDependencies.addImportedLibraries(importedLibrariesFromCommandLine);
     libraryDependencies.addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
-
-    outputJackLibrary = getOutputJackLibraryFromVfs();
   }
 
   @Override
@@ -93,12 +87,6 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   public List<? extends InputLibrary> getImportedLibrary() {
     return importedLibrariesFromCommandLine;
-  }
-
-  @Override
-  @Nonnull
-  public OutputJackLibrary getOutputJackLibrary() {
-    return outputJackLibrary;
   }
 
   @Override
