@@ -206,8 +206,7 @@ public class JayceFileImporter {
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
-        throw new ResourceImportConflictException(newResource.getLocation(),
-            existingResource.getLocation());
+        throw new ResourceImportConflictException(existingResource, newResource.getLocation());
       }
     }
     session.addResource(newResource);
