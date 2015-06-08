@@ -72,8 +72,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
-          throw new ResourceImportConflictException(newResource.getLocation(),
-              existingResource.getLocation());
+          throw new ResourceImportConflictException(existingResource, newResource.getLocation());
         } else {
           session.getUserLogger().log(Level.INFO,
               "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
