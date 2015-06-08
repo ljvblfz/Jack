@@ -23,7 +23,6 @@ import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -50,9 +49,6 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
-  @Nonnull
-  private final OutputJackLibrary outputJackLibrary;
-
   public NoInputFilter(@Nonnull Options options) {
     this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
@@ -67,8 +63,6 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
     LibraryDependencies libraryDependencies = session.getLibraryDependencies();
     libraryDependencies.addImportedLibraries(importedLibrariesFromCommandLine);
     libraryDependencies.addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
-
-    outputJackLibrary = getOutputJackLibraryFromVfs();
   }
 
   @Override
@@ -87,11 +81,5 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   public List<? extends InputLibrary> getImportedLibrary() {
     return importedLibrariesFromCommandLine;
-  }
-
-  @Override
-  @Nonnull
-  public OutputJackLibrary getOutputJackLibrary() {
-    return outputJackLibrary;
   }
 }

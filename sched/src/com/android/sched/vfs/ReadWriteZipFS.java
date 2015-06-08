@@ -175,7 +175,7 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
 
   @Override
   long getLastModified(@Nonnull BaseVFile file) {
-    throw new UnsupportedOperationException();
+    return vfs.getLastModified(file);
   }
 
   @Override
