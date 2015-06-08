@@ -27,7 +27,6 @@ import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorException;
@@ -38,8 +37,8 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;

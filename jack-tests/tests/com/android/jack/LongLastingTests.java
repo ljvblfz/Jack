@@ -17,11 +17,9 @@
 package com.android.jack;
 
 
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
+import com.android.jack.test.junit.JackTestRunner;
 
-import org.junit.experimental.categories.Categories;
-import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
@@ -32,9 +30,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * Test suite containing tests that are too time-consuming and cannot be run before submitting each
  * CL.
  */
-@RunWith(Categories.class)
+@RunWith(JackTestRunner.class)
 @IncludeCategory(SlowTests.class)
-@ExcludeCategory(KnownBugs.class)
 @SuiteClasses(value = {AllTests.class, LongLastingUnitTests.class})
 public class LongLastingTests {
 }

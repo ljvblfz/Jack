@@ -18,7 +18,7 @@ package com.android.jack.withphantom;
 
 import com.android.jack.ProguardFlags;
 import com.android.jack.library.FileType;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -28,7 +28,6 @@ import junit.framework.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -151,7 +150,7 @@ public class WithPhantomTests {
     toolchain.libToExe(tempJackFolder, tempOutFolder, /* zipFile = */ false);
   }
 
-  @Category(KnownBugs.class)
+  @KnownIssue
   @Test
   public void testPhantomLocal() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();

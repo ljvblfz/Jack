@@ -16,10 +16,10 @@
 
 package com.android.jack.annotation;
 
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -128,7 +128,8 @@ public class AnnotationTests extends RuntimeTest {
 
   @Test
   // Annotation on package are not supported in dex format: http://code.google.com/p/android/issues/detail?id=16149
-  @Category({RuntimeRegressionTest.class, KnownBugs.class})
+  @Category(RuntimeRegressionTest.class)
+  @KnownIssue
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005).compileAndRunTest();
   }
@@ -169,7 +170,7 @@ public class AnnotationTests extends RuntimeTest {
     rtTestInfos.add(TEST001);
     rtTestInfos.add(TEST002);
     rtTestInfos.add(TEST003);
-//    rtTestInfos.add(TEST005); // KnownBug
+//    rtTestInfos.add(TEST005); // KnownIssue
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
     rtTestInfos.add(TEST008);

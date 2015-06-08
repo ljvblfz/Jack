@@ -25,7 +25,7 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
@@ -38,7 +38,6 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -193,7 +192,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test001d() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -356,7 +355,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test002g() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -481,7 +480,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test004() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
 

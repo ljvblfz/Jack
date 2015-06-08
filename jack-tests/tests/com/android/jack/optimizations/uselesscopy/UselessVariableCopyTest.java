@@ -17,7 +17,7 @@
 package com.android.jack.optimizations.uselesscopy;
 
 import com.android.jack.TestTools;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
@@ -28,7 +28,6 @@ import org.jf.dexlib.DexFile;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -40,7 +39,7 @@ public class UselessVariableCopyTest {
    * Verify that generated dex does not contains useless 'mov' instructions.
    */
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void test001() throws Exception {
     File out = AbstractTestTools.createTempDir();
     File outDex = new File(out, "classes.dex");
