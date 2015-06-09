@@ -18,21 +18,20 @@ package com.android.jack.withphantom;
 
 import com.android.jack.ProguardFlags;
 import com.android.jack.library.FileType;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
-import junit.framework.Assert;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -50,13 +49,7 @@ public class WithPhantomTests {
   @Nonnull
   private static final String TEST002_JACK = TEST002 + ".jack";
 
-  @Nonnull
-  private static String fixPath(@Nonnull String unixPath) {
-    return unixPath.replace('/', File.separatorChar);
-  }
-
   @Test
-  @Ignore
   public void testPhantomOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -69,10 +62,16 @@ public class WithPhantomTests {
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST001_JACK));
 
-    boolean deleted =
-        new File(tempJackFolder, FileType.JAYCE.getPrefix() + File.separatorChar
-            + fixPath("com/android/jack/withphantom/test001/jack/A.jayce")).delete();
-    Assert.assertTrue(deleted);
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(tempJackFolder);
+      lib.getFile(FileType.JAYCE, new VPath("com/android/jack/withphantom/test001/jack/A", '/'))
+          .delete();
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
 
     File testFolder = AbstractTestTools.getTestRootDir(TEST001);
 
@@ -93,6 +92,7 @@ public class WithPhantomTests {
 
     File tempOut4 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf2.flags"))
     .libToLib(tempJackFolder, tempOut4, /* zipFiles = */ false);
 
@@ -102,7 +102,6 @@ public class WithPhantomTests {
   }
 
   @Test
-  @Ignore
   public void testPhantomInner() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -115,19 +114,22 @@ public class WithPhantomTests {
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST001_JACK));
 
-    boolean deleted =
-        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
-            + "com/android/jack/withphantom/test001/jack/A$Inner1.jayce")).delete();
-    Assert.assertTrue(deleted);
-    deleted =
-        new File(tempJackFolder, fixPath(FileType.DEX.getPrefix() + File.separatorChar
-            + "com/android/jack/withphantom/test001/jack/A$Inner1.dex")).delete();
-    Assert.assertTrue(deleted);
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(tempJackFolder);
+      lib.getFile(FileType.JAYCE,
+          new VPath("com/android/jack/withphantom/test001/jack/A$Inner1", '/')).delete();
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
 
     File testFolder = AbstractTestTools.getTestRootDir(TEST001);
 
     File tempOut1 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink1.flags"))
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
@@ -138,6 +140,7 @@ public class WithPhantomTests {
 
     File tempOut3 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
     .libToLib(tempJackFolder, tempOut3, /* zipFiles = */ false);
 
@@ -151,7 +154,6 @@ public class WithPhantomTests {
     toolchain.libToExe(tempJackFolder, tempOutFolder, /* zipFile = */ false);
   }
 
-  @Category(KnownBugs.class)
   @Test
   public void testPhantomLocal() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
@@ -163,22 +165,28 @@ public class WithPhantomTests {
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST002_JACK));
 
-    File[] inners =
-        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
-            + "com/android/jack/withphantom/test002/jack/")).listFiles(new FilenameFilter() {
-          @Override
-          public boolean accept(File dir, String name) {
-            return name.startsWith("A$");
-          }
-        });
-    for (File file : inners) {
-      Assert.assertTrue(file.delete());
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(tempJackFolder);
+      Iterator<InputVFile> libIter = lib.iterator(FileType.JAYCE);
+      while (libIter.hasNext()) {
+        InputVFile jayceFile = libIter.next();
+        String path = jayceFile.getPathFromRoot().getPathAsString('/');
+        if (path.startsWith("com/android/jack/withphantom/test002/jack/A$")) {
+          jayceFile.delete();
+        }
+      }
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
     }
 
     File testFolder = AbstractTestTools.getTestRootDir(TEST002);
 
     File tempOut1 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
@@ -188,7 +196,6 @@ public class WithPhantomTests {
   }
 
   @Test
-  @Ignore
   public void testPhantomLocalOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -201,10 +208,16 @@ public class WithPhantomTests {
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir(TEST002_JACK));
 
-    boolean deleted =
-        new File(tempJackFolder, fixPath(FileType.JAYCE.getPrefix() + File.separatorChar
-            + "com/android/jack/withphantom/test002/jack/A.jayce")).delete();
-    Assert.assertTrue(deleted);
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(tempJackFolder);
+      lib.getFile(FileType.JAYCE, new VPath("com/android/jack/withphantom/test002/jack/A", '/'))
+          .delete();
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
 
     File testFolder = AbstractTestTools.getTestRootDir(TEST002);
 
