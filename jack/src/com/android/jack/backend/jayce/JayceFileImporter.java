@@ -117,11 +117,11 @@ public class JayceFileImporter {
     this.jackLibraries = jackLibraries;
   }
 
-  public void doImport(@Nonnull JSession session) throws LibraryReadingException {
-
+  public void doJayceImport(@Nonnull JSession session) throws LibraryReadingException {
     for (InputJackLibrary jackLibrary : jackLibraries) {
       Reporter reporter = session.getReporter();
-      logger.log(Level.FINE, "Importing {0}", jackLibrary.getLocation().getDescription());
+      logger.log(Level.FINE, "Importing jayces from {0}",
+          jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();
@@ -138,7 +138,14 @@ public class JayceFileImporter {
           }
         }
       }
+    }
+  }
 
+  public void doResourceImport(@Nonnull JSession session) throws LibraryReadingException {
+    for (InputJackLibrary jackLibrary : jackLibraries) {
+      Reporter reporter = session.getReporter();
+      logger.log(Level.FINE, "Importing resources from {0}",
+          jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> rscFileIt = jackLibrary.iterator(FileType.RSC);
       while (rscFileIt.hasNext()) {
         InputVFile rscFile = rscFileIt.next();
