@@ -163,6 +163,11 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(res.getPath());
     }
 
+    for (File meta : metaImport) {
+      args.add("--import-meta");
+      args.add(meta.getPath());
+    }
+
     args.addAll(extraJackArgs);
 
     for (File jarjarFile : jarjarRules) {
@@ -264,6 +269,11 @@ public class JackCliToolchain extends JackBasedToolchain {
     for (File res : resImport) {
       args.add("--import-resource");
       args.add(res.getPath());
+    }
+
+    for (File meta : metaImport) {
+      args.add("--import-meta");
+      args.add(meta.getPath());
     }
 
     addProperties(properties, args);
