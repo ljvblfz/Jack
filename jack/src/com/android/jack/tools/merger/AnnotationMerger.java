@@ -59,15 +59,18 @@ import javax.annotation.Nonnull;
  */
 public class AnnotationMerger extends MergerTools {
 
+  @CheckForNull
+  private CstIndexMap cstIndexMap;
+
   public void mergeAnnotationDirectory(@Nonnull DexBuffer dex,
       @Nonnegative int annotationDirectoryOffset, @Nonnull ClassDefItem newClassDef,
       @Nonnull CstIndexMap cstIndexMap) {
+    this.cstIndexMap = cstIndexMap;
     Section directoryIn = dex.open(annotationDirectoryOffset);
 
     int classAnnotationSetOffset = directoryIn.readInt();
     if (classAnnotationSetOffset != 0) {
-      newClassDef.setClassAnnotations(
-          readAnnotationSet(dex, classAnnotationSetOffset, cstIndexMap));
+      newClassDef.setClassAnnotations(readAnnotationSet(dex, classAnnotationSetOffset));
     }
 
     int fieldsSize = directoryIn.readInt();
@@ -78,34 +81,30 @@ public class AnnotationMerger extends MergerTools {
 
     for (int i = 0; i < fieldsSize; i++) {
       CstFieldRef cstFieldRef = cstIndexMap.getCstFieldRef(directoryIn.readInt());
-      newClassDef.addFieldAnnotations(cstFieldRef,
-          readAnnotationSet(dex, directoryIn.readInt(), cstIndexMap));
+      newClassDef.addFieldAnnotations(cstFieldRef, readAnnotationSet(dex, directoryIn.readInt()));
     }
 
     for (int i = 0; i < methodsSize; i++) {
       CstMethodRef cstMethodRef = cstIndexMap.getCstMethodRef(directoryIn.readInt());
-      newClassDef.addMethodAnnotations(cstMethodRef,
-          readAnnotationSet(dex, directoryIn.readInt(), cstIndexMap));
+      newClassDef.addMethodAnnotations(cstMethodRef, readAnnotationSet(dex, directoryIn.readInt()));
     }
 
     for (int i = 0; i < parameterListSize; i++) {
       CstMethodRef cstMethodRef = cstIndexMap.getCstMethodRef(directoryIn.readInt());
       newClassDef.addParameterAnnotations(cstMethodRef,
-          readAnnotationSetRefList(dex, directoryIn.readInt(), cstIndexMap));
+          readAnnotationSetRefList(dex, directoryIn.readInt()));
     }
   }
 
   @Nonnull
   private AnnotationsList readAnnotationSetRefList(@Nonnull DexBuffer dex,
-      @Nonnegative int annotationSetRefListOffset,
-      @Nonnull CstIndexMap cstIndexMap) {
+      @Nonnegative int annotationSetRefListOffset) {
     Section annotationSetRefListIn = dex.open(annotationSetRefListOffset);
     int parameterCount = annotationSetRefListIn.readInt();
     AnnotationsList parameterAnnotationList = new AnnotationsList(parameterCount);
 
     for (int paramIdx = 0; paramIdx < parameterCount; paramIdx++) {
-      Annotations annotations
-        = readAnnotationSet(dex, annotationSetRefListIn.readInt(), cstIndexMap);
+      Annotations annotations = readAnnotationSet(dex, annotationSetRefListIn.readInt());
       annotations.setImmutable();
       parameterAnnotationList.set(paramIdx, annotations);
     }
@@ -115,13 +114,13 @@ public class AnnotationMerger extends MergerTools {
 
   @Nonnull
   private Annotations readAnnotationSet(@Nonnull DexBuffer dex,
-      @Nonnegative int annotationSetOffset, @Nonnull CstIndexMap cstIndexMap) {
+      @Nonnegative int annotationSetOffset) {
     Section annotationSetIn = dex.open(annotationSetOffset);
     int size = annotationSetIn.readInt();
     Annotations annotations = new Annotations();
 
     for (int j = 0; j < size; j++) {
-      annotations.add(readAnnotationItem(dex, annotationSetIn.readInt(), cstIndexMap));
+      annotations.add(readAnnotationItem(dex, annotationSetIn.readInt()));
     }
 
     return annotations;
@@ -129,9 +128,10 @@ public class AnnotationMerger extends MergerTools {
 
   @Nonnull
   private com.android.jack.dx.rop.annotation.Annotation readAnnotationItem(@Nonnull DexBuffer dex,
-      @Nonnegative int annotationItemOffset, @Nonnull CstIndexMap cstIndexMap) {
+      @Nonnegative int annotationItemOffset) {
     Section annotationItemIn = dex.open(annotationItemOffset);
     Annotation ioAnnotation = annotationItemIn.readAnnotation();
+    assert cstIndexMap != null;
     CstType annotationType = cstIndexMap.getCstType(ioAnnotation.getTypeIndex());
     com.android.jack.dx.rop.annotation.Annotation a =
         new com.android.jack.dx.rop.annotation.Annotation(annotationType,
@@ -139,8 +139,9 @@ public class AnnotationMerger extends MergerTools {
 
     for (int i = 0; i < ioAnnotation.getValues().length; i++) {
       AnnotationValueReader avr =
-          new AnnotationValueReader(dex, ioAnnotation.getValues()[i].asByteInput(), cstIndexMap);
+          new AnnotationValueReader(dex, ioAnnotation.getValues()[i].asByteInput());
       avr.readValue();
+      assert cstIndexMap != null;
       a.add(new NameValuePair(cstIndexMap.getCstString(ioAnnotation.getNames()[i]),
           avr.getCstValue()));
     }
@@ -148,12 +149,10 @@ public class AnnotationMerger extends MergerTools {
     return (a);
   }
 
-  private static final class AnnotationValueReader extends EncodedValueReader {
+  private final class AnnotationValueReader extends EncodedValueReader {
 
     @Nonnegative
     private final int cstIndex = 0;
-
-    @Nonnull CstIndexMap cstIndexMap;
 
     @CheckForNull
     private Constant constantValue;
@@ -164,11 +163,9 @@ public class AnnotationMerger extends MergerTools {
     @Nonnull
     private final DexBuffer dex;
 
-    public AnnotationValueReader(@Nonnull DexBuffer dex, @Nonnull ByteInput in,
-        @Nonnull CstIndexMap cstIndexMap) {
+    public AnnotationValueReader(@Nonnull DexBuffer dex, @Nonnull ByteInput in) {
       super(in);
       this.dex = dex;
-      this.cstIndexMap = cstIndexMap;
     }
 
     @Nonnull

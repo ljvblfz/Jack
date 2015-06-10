@@ -517,12 +517,6 @@ public class Options {
       BooleanPropertyId.create("jack.shrob", "Enable shrink and obfuscation features")
       .addDefaultValue(false);
 
-  @Nonnull
-  public static final BooleanPropertyId BEST_MERGING_ACCURACY =
-      BooleanPropertyId.create("jack.dex.bestaccuracy", "Try to create less dex files in return "
-          + "for longer merge time.")
-      .addDefaultValue(false);
-
   @CheckForNull
   protected Flags flags = null;
 

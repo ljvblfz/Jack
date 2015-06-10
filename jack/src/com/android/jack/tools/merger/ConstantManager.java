@@ -32,14 +32,11 @@ import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,45 +44,20 @@ import javax.annotation.Nonnull;
  */
 public class ConstantManager extends MergerTools {
 
-  private static final int SLOW_PATH_PERMITS = 10000;
-
-  private int pesimisticFieldsSize = 0;
-
-  private int pesimisticMethodsSize = 0;
-
-  private int pesimisticTypesSize = 0;
-
-  private final boolean bestMergingAccuracy;
-
-  @CheckForNull
-  private volatile MergingOverflowException thrown = null;
+  @Nonnull
+  private final Map<String, CstString> string2CstStrings = new HashMap<String, CstString>();
 
   @Nonnull
-  private final Semaphore lock = new Semaphore(SLOW_PATH_PERMITS);
+  private final HashSet<CstFieldRef> cstFieldRefs = new HashSet<CstFieldRef>();
 
   @Nonnull
-  private final Map<String, CstString> string2CstStrings =
-    new ConcurrentHashMap<String, CstString>();
+  private final HashSet<CstMethodRef> cstMethodRefs = new HashSet<CstMethodRef>();
 
   @Nonnull
-  private final Set<CstFieldRef> cstFieldRefs =
-    Collections.newSetFromMap(new ConcurrentHashMap<CstFieldRef, Boolean>());
+  private final HashSet<CstType> cstTypes = new HashSet<CstType>();
 
   @Nonnull
-  private final Set<CstMethodRef> cstMethodRefs =
-    Collections.newSetFromMap(new ConcurrentHashMap<CstMethodRef, Boolean>());
-
-  @Nonnull
-  private final Set<CstType> cstTypes =
-    Collections.newSetFromMap(new ConcurrentHashMap<CstType, Boolean>());
-
-  @Nonnull
-  private final Map<String, CstString> protoStr2CstString =
-    new ConcurrentHashMap<String, CstString>();
-
-  @Nonnull
-  private final List<CstIndexMap> cstIndexMaps =
-    Collections.synchronizedList(new ArrayList<CstIndexMap>());
+  private final Map<String, CstString> protoStr2CstString = new HashMap<String, CstString>();
 
   @Nonnull
   public Collection<CstString> getCstStrings() {
@@ -107,13 +79,8 @@ public class ConstantManager extends MergerTools {
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstTypes);
   }
 
-  public ConstantManager(boolean bestMergingAccuracy) {
-    this.bestMergingAccuracy = bestMergingAccuracy;
-  }
-
   @Nonnull
-  private CstIndexMap addDexFileInternal(@Nonnull DexBuffer dexBuffer, boolean fastPath)
-      throws MergingOverflowException {
+  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap(dexBuffer);
 
     List<String> cstStringsNewlyAdded = new ArrayList<String>();
@@ -198,127 +165,24 @@ public class ConstantManager extends MergerTools {
       cstIndexMap.addMethodMapping(idx++, cstMethodRef);
     }
 
-    if (fastPath) {
-      synchronized (this) {
-        //adjust pessimistic estimations to reflect what really happened
-        pesimisticFieldsSize += cstFieldRefsNewlyAdded.size() - dexBuffer.fieldIds().size();
-        pesimisticMethodsSize += cstMethodRefsNewlyAdded.size() - dexBuffer.methodIds().size();
-        pesimisticTypesSize += cstTypesNewlyAdded.size() - dexBuffer.typeIds().size();
-      }
-    } else {
-      if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
-        removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-            cstTypesNewlyAdded);
-        thrown = new FieldIdOverflowException();
-        throw new FieldIdOverflowException();
-      }
-
-      if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
-        removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-            cstTypesNewlyAdded);
-        thrown = new MethodIdOverflowException();
-        throw new MethodIdOverflowException();
-      }
-
-      if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
-        removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-            cstTypesNewlyAdded);
-        thrown = new TypeIdOverflowException();
-        throw new TypeIdOverflowException();
-      }
-
-      synchronized (this) {
-        pesimisticFieldsSize += cstFieldRefsNewlyAdded.size();
-        pesimisticMethodsSize += cstMethodRefsNewlyAdded.size();
-        pesimisticTypesSize += cstTypesNewlyAdded.size();
-      }
+    if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
+      throw new FieldIdOverflowException();
     }
 
-    cstIndexMaps.add(cstIndexMap);
-
-    return cstIndexMap;
-  }
-
-  private void unlockAccordingToPath(boolean fastPath) {
-    if (fastPath) {
-      lock.release();
-    } else {
-      lock.release(SLOW_PATH_PERMITS);
-    }
-  }
-
-  @Nonnull
-  public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
-    CstIndexMap cstIndexMap;
-    int typesSize = dexBuffer.typeIds().size();
-    int fieldsSize = dexBuffer.fieldIds().size();
-    int methodsSize = dexBuffer.methodIds().size();
-    boolean fastPath;
-    synchronized (this) {
-      if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
-          && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
-          && pesimisticTypesSize + typesSize <= DexFormat.MAX_TYPE_IDX + 1) {
-        //thread safe
-        fastPath = true;
-        pesimisticFieldsSize += fieldsSize;
-        pesimisticMethodsSize += methodsSize;
-        pesimisticTypesSize += typesSize;
-      } else {
-        //not thread safe because of rollback risk
-        fastPath = false;
-      }
+    if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
+      throw new MethodIdOverflowException();
     }
 
-    try {
-      if (fastPath) {
-        //requires only 1 semaphore token, many threads can use the fast path in parallel
-        lock.acquireUninterruptibly();
-        synchronized (this) {
-          if (pesimisticFieldsSize > DexFormat.MAX_MEMBER_IDX + 1
-              || pesimisticMethodsSize > DexFormat.MAX_MEMBER_IDX + 1
-              || pesimisticTypesSize > DexFormat.MAX_TYPE_IDX + 1) {
-              //things changed while we were acquiring
-              fastPath = false;
-              pesimisticFieldsSize -= fieldsSize;
-              pesimisticMethodsSize -= methodsSize;
-              pesimisticTypesSize -= typesSize;
-              lock.release();
-          }
-        }
-        if (!fastPath) {
-          lock.acquireUninterruptibly(SLOW_PATH_PERMITS);
-        }
-      } else {
-        //requires all semaphore tokens, we want exclusive access
-        lock.acquireUninterruptibly(SLOW_PATH_PERMITS);
-      }
-
-      if (!fastPath) {
-        synchronized (this) {
-          if (pesimisticFieldsSize + fieldsSize <= DexFormat.MAX_MEMBER_IDX + 1
-              && pesimisticMethodsSize + methodsSize <= DexFormat.MAX_MEMBER_IDX + 1
-              && pesimisticTypesSize + typesSize <= DexFormat.MAX_TYPE_IDX + 1) {
-            //We can change to fastPath afterall
-            fastPath = true;
-            pesimisticFieldsSize += fieldsSize;
-            pesimisticMethodsSize += methodsSize;
-            pesimisticTypesSize += typesSize;
-            lock.release(SLOW_PATH_PERMITS - 1);
-          }
-        }
-      }
-
-      if (!bestMergingAccuracy && thrown != null) {
-        //if someone else overflowed already, and we are not in bestMergingAccuracy mode
-        //let's just assume we overflow as well
-        //not a bug, once thrown becomes non null it will stay that way
-        throw thrown;
-      }
-
-      cstIndexMap = addDexFileInternal(dexBuffer, fastPath);
-    } finally {
-      unlockAccordingToPath(fastPath);
+    if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded);
+      throw new TypeIdOverflowException();
     }
+
     return cstIndexMap;
   }
 
