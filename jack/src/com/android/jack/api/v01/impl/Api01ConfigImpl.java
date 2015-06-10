@@ -36,6 +36,7 @@ import com.android.jack.api.v01.TypeCollisionPolicy;
 import com.android.jack.api.v01.UnrecoverableException;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -103,6 +104,8 @@ public class Api01ConfigImpl implements Api01Config {
           pe = e;
           throw e.getCause();
         }
+      } catch (FrontendCompilationException e) {
+        throw new CompilationException(e.getMessage(), e);
       } catch (JackUserException e) {
         throw new CompilationException(e.getMessage(), e);
       } catch (JackAbortException e) {
