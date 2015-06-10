@@ -16,11 +16,15 @@
 
 package com.android.jack.backend.dex;
 
-import com.android.jack.backend.dex.MergingManager.AvailableMergerIterator;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
@@ -31,29 +35,29 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = DexWritingTool.class, name = "multidex",
     description = "allow emitting several dex files")
-public class StandardMultiDexWritingTool extends MultiDexWritingTool {
+public class StandardMultiDexWritingTool extends DexWritingTool {
   @Nonnull
   private boolean seenNonMarkedType = false;
 
   @Nonnull
-  private final JackMerger mainMerger = manager.getIterator().next(0);
+  private final JackMerger mainMerger = (new AvailableMergerIterator()).current();
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
     if (type.getMarker(MainDexMarker.class) != null) {
       assert !seenNonMarkedType;
       try {
-        manager.mergeDex(mainMerger, type);
+        mergeDex(mainMerger, type);
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new MainDexOverflowException(e));
       }
     } else {
       seenNonMarkedType = true;
-      AvailableMergerIterator iter = manager.getIterator();
+      AvailableMergerIterator iter = new AvailableMergerIterator();
       JackMerger merger = iter.current();
       while (iter.hasNext()) {
         try {
-          manager.mergeDex(merger, type);
+          mergeDex(merger, type);
           break;
         } catch (MergingOverflowException e) {
           merger = iter.next(e.getTypeIndex());
@@ -61,5 +65,36 @@ public class StandardMultiDexWritingTool extends MultiDexWritingTool {
       }
       assert iter.hasNext();
     }
+  }
+
+  @Override
+  @Nonnull
+  public Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> types) {
+    ArrayList<JDefinedClassOrInterface> mainList =
+        new ArrayList<JDefinedClassOrInterface>();
+    ArrayList<JDefinedClassOrInterface> defaultList =
+        new ArrayList<JDefinedClassOrInterface>(types.size());
+    for (JDefinedClassOrInterface type : types) {
+      if (type.containsMarker(MainDexMarker.class)) {
+        mainList.add(type);
+      } else {
+        defaultList.add(type);
+      }
+    }
+
+    if (deterMultidex) {
+      Collections.sort(defaultList, nameComp);
+      int number = 0;
+      for (JDefinedClassOrInterface type : mainList) {
+        type.addMarker(new NumberMarker(number++));
+      }
+      for (JDefinedClassOrInterface type : defaultList) {
+        type.addMarker(new NumberMarker(number++));
+      }
+    }
+
+    mainList.addAll(defaultList);
+    return mainList.iterator();
   }
 }

@@ -35,12 +35,12 @@ import javax.annotation.Nonnull;
 public class SingleDexWritingTool extends DexWritingTool {
 
   @Nonnull
-  private final JackMerger merger = manager.getIterator().next(0);
+  private final JackMerger merger = (new AvailableMergerIterator()).current();
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
     try {
-      manager.mergeDex(merger, type);
+      mergeDex(merger, type);
     } catch (MergingOverflowException e) {
       throw new DexWritingException(new SingleDexOverflowException(e));
     }
@@ -50,6 +50,7 @@ public class SingleDexWritingTool extends DexWritingTool {
   @Nonnull
   public Iterator<JDefinedClassOrInterface> sortAndNumber(
       Collection<JDefinedClassOrInterface> types) {
+    assert !deterMultidex;
     return types.iterator();
   }
 }
