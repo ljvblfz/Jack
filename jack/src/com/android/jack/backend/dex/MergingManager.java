@@ -30,7 +30,6 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
-import com.android.jack.tools.merger.ConstantManager;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.config.ThreadConfig;
@@ -63,20 +62,20 @@ public class MergingManager {
   @Nonnull
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
-  protected int currentMergerIdx = -1;
+  private int currentMergerIdx = -1;
 
   private static final int mergersLimit = 100;
 
   @Nonnull
-  protected final List<JackMerger> mergers = new ArrayList<JackMerger>();
+  private final List<JackMerger> mergers = new ArrayList<JackMerger>();
 
   @Nonnull
   protected final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
 
   @Nonnull
-  protected JackMerger getNewJackMerger(int firstTypeIndex) {
-    return new JackMerger(createDexFile(), ConstantManager.getDefaultInstance(
-        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue()));
+  public JackMerger getNewJackMerger(int firstTypeIndex) {
+    return new JackMerger(createDexFile(),
+        ThreadConfig.get(Options.BEST_MERGING_ACCURACY).booleanValue());
   }
 
   public void mergeDex(@Nonnull JackMerger merger, @Nonnull JDefinedClassOrInterface type)
@@ -124,7 +123,7 @@ public class MergingManager {
   }
 
   @Nonnull
-  protected synchronized int getCurrentMergerIdx() {
+  private synchronized int getCurrentMergerIdx() {
     return currentMergerIdx;
   }
 

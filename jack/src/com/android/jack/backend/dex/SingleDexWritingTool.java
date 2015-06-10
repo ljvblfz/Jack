@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.tools.merger.ConstantManager;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
@@ -36,8 +35,7 @@ import javax.annotation.Nonnull;
 public class SingleDexWritingTool extends DexWritingTool {
 
   @Nonnull
-  private final JackMerger merger =
-    manager.getIterator().next(ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX);
+  private final JackMerger merger = manager.getIterator().next(0);
 
   @Override
   public void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException {
@@ -50,7 +48,7 @@ public class SingleDexWritingTool extends DexWritingTool {
 
   @Override
   @Nonnull
-  public Iterator<JDefinedClassOrInterface> sortAndPrepare(
+  public Iterator<JDefinedClassOrInterface> sortAndNumber(
       Collection<JDefinedClassOrInterface> types) {
     return types.iterator();
   }

@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.tools.merger.ConstantManager;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.util.ArrayList;
@@ -41,14 +40,14 @@ public class DeterministicMinimalMultiDexWritingTool extends MinimalMultiDexWrit
   }
 
   @Override
-  protected void sortAndPrepareInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
+  protected void sortAndNumberInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
       @Nonnull ArrayList<JDefinedClassOrInterface> mainList) {
     Collections.sort(defaultList, nameComp);
-    int number = ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX;
+    int number = 0;
     for (JDefinedClassOrInterface type : mainList) {
       type.addMarker(new NumberMarker(number++));
     }
-    number = ConstantManager.FIRST_DETERMINISTIC_MODE_INDEX;
+    number = 0;
     for (JDefinedClassOrInterface type : defaultList) {
       type.addMarker(new NumberMarker(number++));
     }

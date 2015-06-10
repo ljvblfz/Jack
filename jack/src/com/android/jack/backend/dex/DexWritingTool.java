@@ -57,8 +57,8 @@ public abstract class DexWritingTool {
   public abstract void merge(@Nonnull JDefinedClassOrInterface type) throws DexWritingException;
 
   @Nonnull
-  public abstract Iterator<JDefinedClassOrInterface> sortAndPrepare(
-      @Nonnull Collection<JDefinedClassOrInterface> collection);
+  public abstract Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> collection);
 
   @Nonnull
   protected MergingManager getManager() {

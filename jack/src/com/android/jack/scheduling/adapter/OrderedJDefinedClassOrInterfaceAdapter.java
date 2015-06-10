@@ -47,6 +47,6 @@ public class OrderedJDefinedClassOrInterfaceAdapter
   public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JSession session)
       throws Exception {
     DexWritingTool writingTool = ThreadConfig.get(DexFileWriter.DEX_WRITING_POLICY);
-    return writingTool.sortAndPrepare(session.getTypesToEmit());
+    return writingTool.sortAndNumber(session.getTypesToEmit());
   }
 }

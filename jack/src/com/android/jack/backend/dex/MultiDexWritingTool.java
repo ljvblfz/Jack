@@ -31,15 +31,15 @@ import javax.annotation.Nonnull;
 @VariableName("writer")
 public abstract class MultiDexWritingTool extends DexWritingTool {
 
-  protected void sortAndPrepareInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
+  protected void sortAndNumberInternal(@Nonnull ArrayList<JDefinedClassOrInterface> defaultList,
       @Nonnull ArrayList<JDefinedClassOrInterface> mainList) {
 
   }
 
   @Override
   @Nonnull
-  public Iterator<JDefinedClassOrInterface> sortAndPrepare(
-      @Nonnull Collection<JDefinedClassOrInterface> types) {
+  public Iterator<JDefinedClassOrInterface> sortAndNumber(
+      Collection<JDefinedClassOrInterface> types) {
     ArrayList<JDefinedClassOrInterface> mainList =
         new ArrayList<JDefinedClassOrInterface>();
     ArrayList<JDefinedClassOrInterface> defaultList =
@@ -52,7 +52,7 @@ public abstract class MultiDexWritingTool extends DexWritingTool {
       }
     }
 
-    sortAndPrepareInternal(defaultList, mainList);
+    sortAndNumberInternal(defaultList, mainList);
 
     mainList.addAll(defaultList);
     return mainList.iterator();
