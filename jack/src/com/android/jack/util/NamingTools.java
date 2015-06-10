@@ -94,17 +94,14 @@ public class NamingTools {
     return (nameIndex < 0) ? "" : binaryName.substring(0, nameIndex);
   }
 
-  public static boolean isIdentifier(@Nonnull String name) {
+  public static boolean isTypeIdentifier(@Nonnull String name) {
     int nameLength = name.length();
     if (nameLength == 0) {
       return false;
     }
-    if (!Character.isJavaIdentifierStart(name.charAt(0))) {
-      return false;
-    }
     for (int i = 1; i < nameLength; i++) {
       char curChar = name.charAt(i);
-      if (!(Character.isJavaIdentifierPart(curChar) || curChar == '-')) {
+      if (curChar == '.' || curChar == ';' || curChar == '[' || curChar == '/') {
         return false;
       }
     }

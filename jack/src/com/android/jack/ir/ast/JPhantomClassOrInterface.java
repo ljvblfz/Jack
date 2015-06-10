@@ -48,7 +48,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
 
   public JPhantomClassOrInterface(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(SourceInfo.UNKNOWN, name);
-    assert NamingTools.isIdentifier(name);
+    assert NamingTools.isTypeIdentifier(name);
     this.enclosingPackage = enclosingPackage;
   }
 

@@ -95,7 +95,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name);
-    assert NamingTools.isIdentifier(name) || "package-info".equals(name);
+    assert NamingTools.isTypeIdentifier(name);
     assert JModifier.isTypeModifier(modifier);
     assert JModifier.isValidTypeModifier(modifier);
     this.modifier = modifier;
