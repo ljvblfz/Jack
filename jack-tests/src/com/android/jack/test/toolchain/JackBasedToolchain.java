@@ -47,6 +47,8 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   protected List<File> resImport = new ArrayList<File>();
   @Nonnull
+  protected List<File> metaImport = new ArrayList<File>();
+  @Nonnull
   protected final Map<String, String> annotationProcessorOptions = new HashMap<String, String>();
   @CheckForNull
   protected String processorPath;
@@ -89,6 +91,12 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
   @Nonnull
   public JackBasedToolchain addResourceDir(@Nonnull File resourceDir) {
     resImport.add(resourceDir);
+    return this;
+  }
+
+  @Nonnull
+  public JackBasedToolchain addMetaDir(@Nonnull File metaDir) {
+    metaImport.add(metaDir);
     return this;
   }
 
