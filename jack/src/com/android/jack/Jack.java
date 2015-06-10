@@ -725,7 +725,7 @@ public abstract class Jack {
 
       try {
         if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {
-          throw new FrontendCompilationException("Failed to compile.");
+          throw new FrontendCompilationException("Failed to compile");
         }
       } catch (TransportExceptionAroundEcjError e) {
         throw e.getCause();
