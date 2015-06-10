@@ -16,15 +16,12 @@
 
 package com.android.jack.multidex;
 
-import com.google.common.io.Files;
-
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.comparator.DifferenceFoundException;
 import com.android.jack.dx.io.ClassDef;
 import com.android.jack.dx.io.DexBuffer;
-import com.android.jack.library.FileType;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.shrob.ListingComparator;
 import com.android.jack.test.category.KnownBugs;
@@ -45,19 +42,15 @@ import com.android.sched.util.TextUtils;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
@@ -263,7 +256,8 @@ public class MultiDexTests {
   }
 
   @Nonnull
-  private static File prepareLib(@Nonnull File sources, @Nonnull File... classpath) throws Exception {
+  private static File prepareLib(@Nonnull File sources, @Nonnull File... classpath)
+      throws Exception {
     File outDir = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(LegacyJillToolchain.class);
@@ -289,37 +283,27 @@ public class MultiDexTests {
   }
 
   @Nonnull
-  private static File prepareLibrary(@Nonnull File frameworks) throws IOException, Exception {
+  private static File prepareLibrary(@Nonnull File classpath) throws IOException, Exception {
     return prepareLib(AbstractTestTools.getTestRootDir("com.android.jack.multidex.fakelibrary"),
-        frameworks);
+        classpath);
   }
 
-  private static void setMetaIntoJackProperties(@Nonnull File library) throws IOException {
-    File jackProperties = new File(library, "jack.properties");
-    Properties libraryProperties = new Properties();
-    FileInputStream fis = null;
-    FileOutputStream fos = null;
-    try {
-      fis = new FileInputStream(jackProperties);
-      libraryProperties.load(fis);
-    } catch (IOException e) {
-      Assert.fail();
-    } finally {
-      if (fis != null) {
-        fis.close();
-      }
-    }
-    try {
-      fos = new FileOutputStream(jackProperties);
-      libraryProperties.put(FileType.JPP.buildPropertyName(null /*suffix*/), "true");
-        libraryProperties.store(fos, "Library properties");
-    } catch (IOException e) {
-      Assert.fail();
-    } finally {
-      if (fos != null) {
-        fos.close();
-      }
-    }
+  @Nonnull
+  private static File prepareAutoLibrary() throws Exception {
+    File jppDir = AbstractTestTools.getTestRootDir("com.android.jack.multidex.jpp");
+    File autoLibrary = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addMetaDir(jppDir)
+    .addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(frameworks)
+    .srcToLib(
+        autoLibrary,
+        /* zipFiles = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.multidex.fakelibrary"));
+    return autoLibrary;
   }
 
   @Test
@@ -388,14 +372,9 @@ public class MultiDexTests {
 
   @Test
   @Category(SlowTests.class)
-  @Ignore
   public void legacyAppTest002b_auto() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
-    File autoLibrary = prepareLibrary(frameworks);
-    setMetaIntoJackProperties(autoLibrary);
-    File jackInf = new File(autoLibrary, FileType.JPP.getPrefix());
-    Assert.assertTrue(jackInf.mkdir());
-    Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
+    File autoLibrary = prepareAutoLibrary();
 
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -479,14 +458,9 @@ public class MultiDexTests {
   }
 
   @Test
-  @Ignore
   public void legacyAppTest002b_auto_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
-    File autoLibrary = prepareLibrary(frameworks);
-    setMetaIntoJackProperties(autoLibrary);
-    File jackInf = new File(autoLibrary, FileType.JPP.getPrefix());
-    Assert.assertTrue(jackInf.mkdir());
-    Files.copy(new File(testFolder,"config-001.jpp"), new File(jackInf, "config-001.jpp"));
+    File autoLibrary = prepareAutoLibrary();
 
     File out = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
