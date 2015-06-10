@@ -21,10 +21,10 @@ import com.android.jack.JackAbortException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.FileType;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Merge dexes respecting a filter which defaults to a filter accepting every type")
 @Name("DexFileWriter")
-@Transform(add = {DexFileWriterSeparator.SeparatorTag.class})
 public class DexFileWriter extends DexWriter
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 
@@ -51,13 +50,32 @@ public class DexFileWriter extends DexWriter
   public static final String DEX_FILENAME = DEX_PREFIX + FileType.DEX.getFileExtension();
 
   @Nonnull
+  private static final Filter<JDefinedClassOrInterface> filter =
+    new Filter<JDefinedClassOrInterface>() {
+      @Override
+      public boolean accept(Class<? extends RunnableSchedulable<?>> runnableSchedulable,
+          JDefinedClassOrInterface t) {
+        return true;
+      }
+
+    };
+
+  @Nonnull
   public static final ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY =
       ImplementationPropertyId.create("jack.dex.output.policy",
           "Define which policy will be used to emit dex files", DexWritingTool.class)
           .addDefaultValue("single-dex");
 
+  @Nonnull
+  protected Filter<JDefinedClassOrInterface> getFilter() {
+    return filter;
+  }
+
   @Override
   public void run(JDefinedClassOrInterface type) throws Exception {
+    if (!getFilter().accept(this.getClass(), type)) {
+      return;
+    }
     DexWritingTool writingTool = ThreadConfig.get(DexFileWriter.DEX_WRITING_POLICY);
     try {
       writingTool.merge(type);

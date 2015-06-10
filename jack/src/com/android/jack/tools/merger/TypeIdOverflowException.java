@@ -26,8 +26,4 @@ public class TypeIdOverflowException extends MergingOverflowException {
   public TypeIdOverflowException() {
     super("Type ID");
   }
-
-  public TypeIdOverflowException(int typeIndex) {
-    super("Type ID", typeIndex);
-  }
 }

@@ -27,8 +27,4 @@ public class FieldIdOverflowException extends MergingOverflowException {
     super("Field ID");
   }
 
-  public FieldIdOverflowException(int typeIndex) {
-    super("Field ID", typeIndex);
-  }
-
 }

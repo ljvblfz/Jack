@@ -153,11 +153,6 @@ public class Options {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId DETERMINISTIC_MULTIDEX_MODE = BooleanPropertyId
-      .create("jack.dex.deterministic", "Enable deterministic multidex mode")
-      .addDefaultValue(Boolean.FALSE);
-
-  @Nonnull
   public static final ReflectFactoryPropertyId<InputFilter> INPUT_FILTER = ReflectFactoryPropertyId
       .create("jack.input.filter", "Inputs filter", InputFilter.class)
       .addDefaultValue("no-filter").addArgType(Options.class);

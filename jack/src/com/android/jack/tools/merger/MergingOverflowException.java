@@ -28,20 +28,8 @@ public abstract class MergingOverflowException extends Exception {
   @Nonnull
   private final String overflowKind;
 
-  private final int typeIndex;
-
   public MergingOverflowException(@Nonnull String overflowKind) {
     this.overflowKind = overflowKind;
-    this.typeIndex = -1;
-  }
-
-  public MergingOverflowException(@Nonnull String overflowKind, int typeIndex) {
-    this.overflowKind = overflowKind;
-    this.typeIndex = typeIndex;
-  }
-
-  public int getTypeIndex() {
-    return typeIndex;
   }
 
   @Override

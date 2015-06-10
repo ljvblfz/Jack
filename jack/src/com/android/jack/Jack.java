@@ -38,7 +38,8 @@ import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexFileWriterFinalizer;
-import com.android.jack.backend.dex.DexFileWriterSeparator;
+import com.android.jack.backend.dex.DexFileWriterMain;
+import com.android.jack.backend.dex.DexFileWriterNonMain;
 import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.dex.DexInLibraryWriter;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
@@ -47,10 +48,12 @@ import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
+import com.android.jack.backend.dex.MainMultiDexProduct;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
 import com.android.jack.backend.dex.MethodBodyRemover;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.backend.dex.StandardMultiDexWritingTool;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
@@ -120,7 +123,6 @@ import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
-import com.android.jack.scheduling.adapter.OrderedJDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.feature.Resources;
@@ -550,6 +552,9 @@ public abstract class Jack {
         }
 
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
+          if (config.get(DexFileWriter.DEX_WRITING_POLICY) instanceof StandardMultiDexWritingTool) {
+            request.addProduction(MainMultiDexProduct.class);
+          }
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
         }
@@ -576,10 +581,18 @@ public abstract class Jack {
         fillDexPlan(planBuilder);
 
         if (targetProduction.contains(DexFileProduct.class)) {
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-                planBuilder.appendSubPlan(OrderedJDefinedClassOrInterfaceAdapter.class);
-          typePlan.append(DexFileWriter.class);
-          planBuilder.append(DexFileWriterSeparator.class);
+          if (targetProduction.contains(MainMultiDexProduct.class)) {
+            SubPlanBuilder<JDefinedClassOrInterface> typePlan1 =
+                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+            typePlan1.append(DexFileWriterMain.class);
+            SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
+                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+            typePlan2.append(DexFileWriterNonMain.class);
+          } else {
+            SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+            typePlan.append(DexFileWriter.class);
+          }
           planBuilder.append(DexFileWriterFinalizer.class);
         }
 
