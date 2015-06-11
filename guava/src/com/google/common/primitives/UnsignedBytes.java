@@ -24,10 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.nio.ByteOrder;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Comparator;
 
 /**
@@ -89,7 +86,10 @@ public final class UnsignedBytes {
    *     than 255
    */
   public static byte checkedCast(long value) {
-    checkArgument(value >> Byte.SIZE == 0, "out of range: %s", value);
+    if ((value >> Byte.SIZE) != 0) {
+      // don't use checkArgument here, to avoid boxing
+      throw new IllegalArgumentException("Out of range: " + value);
+    }
     return (byte) value;
   }
 
@@ -197,8 +197,10 @@ public final class UnsignedBytes {
   /**
    * Returns the unsigned {@code byte} value represented by the given decimal string.
    *
-   * @throws NumberFormatException if the string does not contain a valid unsigned {@code long}
+   * @throws NumberFormatException if the string does not contain a valid unsigned {@code byte}
    *         value
+   * @throws NullPointerException if {@code s} is null 
+   *         (in contrast to {@link Byte#parseByte(String)})
    * @since 13.0
    */
   @Beta
@@ -214,6 +216,8 @@ public final class UnsignedBytes {
    * @throws NumberFormatException if the string does not contain a valid unsigned {@code byte}
    *         with the given radix, or if {@code radix} is not between {@link Character#MIN_RADIX}
    *         and {@link Character#MAX_RADIX}.
+   * @throws NullPointerException if {@code s} is null 
+   *         (in contrast to {@link Byte#parseByte(String)})
    * @since 13.0
    */
   @Beta
@@ -294,8 +298,8 @@ public final class UnsignedBytes {
     enum UnsafeComparator implements Comparator<byte[]> {
       INSTANCE;
 
-      static final boolean littleEndian =
-          ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
+      static final boolean BIG_ENDIAN =
+          ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN);
 
       /*
        * The following static final fields exist for performance reasons.
@@ -322,23 +326,7 @@ public final class UnsignedBytes {
       static final int BYTE_ARRAY_BASE_OFFSET;
 
       static {
-        theUnsafe = (Unsafe) AccessController.doPrivileged(
-            new PrivilegedAction<Object>() {
-              @Override
-              public Object run() {
-                try {
-                  Field f = Unsafe.class.getDeclaredField("theUnsafe");
-                  f.setAccessible(true);
-                  return f.get(null);
-                } catch (NoSuchFieldException e) {
-                  // It doesn't matter what we throw;
-                  // it's swallowed in getBestComparator().
-                  throw new Error();
-                } catch (IllegalAccessException e) {
-                  throw new Error();
-                }
-              }
-            });
+        theUnsafe = getUnsafe();
 
         BYTE_ARRAY_BASE_OFFSET = theUnsafe.arrayBaseOffset(byte[].class);
 
@@ -346,6 +334,36 @@ public final class UnsignedBytes {
         if (theUnsafe.arrayIndexScale(byte[].class) != 1) {
           throw new AssertionError();
         }
+      }
+      
+      /**
+       * Returns a sun.misc.Unsafe.  Suitable for use in a 3rd party package.
+       * Replace with a simple call to Unsafe.getUnsafe when integrating
+       * into a jdk.
+       *
+       * @return a sun.misc.Unsafe
+       */
+      private static sun.misc.Unsafe getUnsafe() {
+          try {
+              return sun.misc.Unsafe.getUnsafe();
+          } catch (SecurityException tryReflectionInstead) {}
+          try {
+              return java.security.AccessController.doPrivileged
+              (new java.security.PrivilegedExceptionAction<sun.misc.Unsafe>() {
+                  public sun.misc.Unsafe run() throws Exception {
+                      Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
+                      for (java.lang.reflect.Field f : k.getDeclaredFields()) {
+                          f.setAccessible(true);
+                          Object x = f.get(null);
+                          if (k.isInstance(x))
+                              return k.cast(x);
+                      }
+                      throw new NoSuchFieldError("the Unsafe");
+                  }});
+          } catch (java.security.PrivilegedActionException e) {
+              throw new RuntimeException("Could not initialize intrinsics",
+                                         e.getCause());
+          }
       }
 
       @Override public int compare(byte[] left, byte[] right) {
@@ -360,33 +378,19 @@ public final class UnsignedBytes {
         for (int i = 0; i < minWords * Longs.BYTES; i += Longs.BYTES) {
           long lw = theUnsafe.getLong(left, BYTE_ARRAY_BASE_OFFSET + (long) i);
           long rw = theUnsafe.getLong(right, BYTE_ARRAY_BASE_OFFSET + (long) i);
-          long diff = lw ^ rw;
-
-          if (diff != 0) {
-            if (!littleEndian) {
+          if (lw != rw) {
+            if (BIG_ENDIAN) {
               return UnsignedLongs.compare(lw, rw);
             }
 
-            // Use binary search
-            int n = 0;
-            int y;
-            int x = (int) diff;
-            if (x == 0) {
-              x = (int) (diff >>> 32);
-              n = 32;
-            }
-
-            y = x << 16;
-            if (y == 0) {
-              n += 16;
-            } else {
-              x = y;
-            }
-
-            y = x << 8;
-            if (y == 0) {
-              n += 8;
-            }
+            /*
+             * We want to compare only the first index where left[index] != right[index].
+             * This corresponds to the least significant nonzero byte in lw ^ rw, since lw
+             * and rw are little-endian.  Long.numberOfTrailingZeros(diff) tells us the least 
+             * significant nonzero bit, and zeroing out the first three bits of L.nTZ gives us the 
+             * shift to get that least significant nonzero byte.
+             */
+            int n = Long.numberOfTrailingZeros(lw ^ rw) & ~0x7;
             return (int) (((lw >>> n) & UNSIGNED_MASK) - ((rw >>> n) & UNSIGNED_MASK));
           }
         }

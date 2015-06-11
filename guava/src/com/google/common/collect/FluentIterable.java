@@ -22,25 +22,29 @@ import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 
 /**
- * {@code FluentIterable} provides a rich interface for manipulating {@code Iterable}s in a chained
- * fashion. A {@code FluentIterable} can be created from an {@code Iterable}, or from a set of
- * elements. The following types of methods are provided on {@code FluentIterable}:
+ * {@code FluentIterable} provides a rich interface for manipulating {@code Iterable} instances in a
+ * chained fashion. A {@code FluentIterable} can be created from an {@code Iterable}, or from a set
+ * of elements. The following types of methods are provided on {@code FluentIterable}:
  * <ul>
  * <li>chained methods which return a new {@code FluentIterable} based in some way on the contents
  * of the current one (for example {@link #transform})
  * <li>conversion methods which copy the {@code FluentIterable}'s contents into a new collection or
- * array (for example {@link #toImmutableList})
+ * array (for example {@link #toList})
  * <li>element extraction methods which facilitate the retrieval of certain elements (for example
  * {@link #last})
  * <li>query methods which answer questions about the {@code FluentIterable}'s contents (for example
@@ -56,16 +60,15 @@ import javax.annotation.Nullable;
  *       .filter(activeInLastMonth())
  *       .transform(Functions.toStringFunction())
  *       .limit(10)
- *       .toImmutableList();}</pre>
+ *       .toList();}</pre>
  *
- * Anything which can be done using {@code FluentIterable} could be done in a different fashion
+ * <p>Anything which can be done using {@code FluentIterable} could be done in a different fashion
  * (often with {@link Iterables}), however the use of {@code FluentIterable} makes many sets of
  * operations significantly more concise.
  *
  * @author Marcin Mikosik
  * @since 12.0
  */
-@Beta
 @GwtCompatible(emulated = true)
 public abstract class FluentIterable<E> implements Iterable<E> {
   // We store 'iterable' and use it instead of 'this' to allow Iterables to perform instanceof
@@ -109,6 +112,16 @@ public abstract class FluentIterable<E> implements Iterable<E> {
   }
 
   /**
+   * Returns a fluent iterable containing {@code elements} in the specified order.
+   *
+   * @since 18.0
+   */
+  @Beta
+  public static <E> FluentIterable<E> of(E[] elements) {
+    return from(Lists.newArrayList(elements));
+  }
+
+  /**
    * Returns a string representation of this fluent iterable, with the format
    * {@code [e1, e2, ..., en]}.
    */
@@ -145,14 +158,43 @@ public abstract class FluentIterable<E> implements Iterable<E> {
    * should use an explicit {@code break} or be certain that you will eventually remove all the
    * elements.
    */
+  @CheckReturnValue
   public final FluentIterable<E> cycle() {
     return from(Iterables.cycle(iterable));
+  }
+
+  /**
+   * Returns a fluent iterable whose iterators traverse first the elements of this fluent iterable,
+   * followed by those of {@code other}. The iterators are not polled until necessary.
+   *
+   * <p>The returned iterable's {@code Iterator} supports {@code remove()} when the corresponding
+   * {@code Iterator} supports it.
+   *
+   * @since 18.0
+   */
+  @Beta
+  @CheckReturnValue
+  public final FluentIterable<E> append(Iterable<? extends E> other) {
+    return from(Iterables.concat(iterable, other));
+  }
+
+  /**
+   * Returns a fluent iterable whose iterators traverse first the elements of this fluent iterable,
+   * followed by {@code elements}.
+   *
+   * @since 18.0
+   */
+  @Beta
+  @CheckReturnValue
+  public final FluentIterable<E> append(E... elements) {
+    return from(Iterables.concat(iterable, Arrays.asList(elements)));
   }
 
   /**
    * Returns the elements from this fluent iterable that satisfy a predicate. The
    * resulting fluent iterable's iterator does not support {@code remove()}.
    */
+  @CheckReturnValue
   public final FluentIterable<E> filter(Predicate<? super E> predicate) {
     return from(Iterables.filter(iterable, predicate));
   }
@@ -163,6 +205,7 @@ public abstract class FluentIterable<E> implements Iterable<E> {
    * @param type the type of elements desired
    */
   @GwtIncompatible("Class.isInstance")
+  @CheckReturnValue
   public final <T> FluentIterable<T> filter(Class<T> type) {
     return from(Iterables.filter(iterable, type));
   }
@@ -214,10 +257,10 @@ public abstract class FluentIterable<E> implements Iterable<E> {
    * function-returned iterables' iterator does. After a successful {@code remove()} call,
    * the returned fluent iterable no longer contains the corresponding element.
    *
-   * @since 13.0
+   * @since 13.0 (required {@code Function<E, Iterable<T>>} until 14.0)
    */
   public <T> FluentIterable<T> transformAndConcat(
-      Function<? super E, ? extends Iterable<T>> function) {
+      Function<? super E, ? extends Iterable<? extends T>> function) {
     return from(Iterables.concat(transform(function)));
   }
 
@@ -293,6 +336,7 @@ public abstract class FluentIterable<E> implements Iterable<E> {
    * to {@code * remove()} before a call to {@code next()} will throw an
    * {@link IllegalStateException}.
    */
+  @CheckReturnValue
   public final FluentIterable<E> skip(int numberToSkip) {
     return from(Iterables.skip(iterable, numberToSkip));
   }
@@ -307,6 +351,7 @@ public abstract class FluentIterable<E> implements Iterable<E> {
    * @param size the maximum number of elements in the returned fluent iterable
    * @throws IllegalArgumentException if {@code size} is negative
    */
+  @CheckReturnValue
   public final FluentIterable<E> limit(int size) {
     return from(Iterables.limit(iterable, size));
   }
@@ -319,47 +364,102 @@ public abstract class FluentIterable<E> implements Iterable<E> {
   }
 
   /**
-   * Returns an {@code ImmutableList} containing all of the elements from this
-   * fluent iterable in proper sequence.
+   * Returns an {@code ImmutableList} containing all of the elements from this fluent iterable in
+   * proper sequence.
+   *
+   * @since 14.0 (since 12.0 as {@code toImmutableList()}).
    */
-  public final ImmutableList<E> toImmutableList() {
+  public final ImmutableList<E> toList() {
     return ImmutableList.copyOf(iterable);
   }
 
   /**
-   * Returns an {@code ImmutableList} containing all of the elements from this
-   * {@code FluentIterable} in the order specified by {@code comparator}.  To produce an
-   * {@code ImmutableList} sorted by its natural ordering, use
-   * {@code toSortedImmutableList(Ordering.natural())}.
+   * Returns an {@code ImmutableList} containing all of the elements from this {@code
+   * FluentIterable} in the order specified by {@code comparator}.  To produce an {@code
+   * ImmutableList} sorted by its natural ordering, use {@code toSortedList(Ordering.natural())}.
    *
    * @param comparator the function by which to sort list elements
    * @throws NullPointerException if any element is null
-   * @since 13.0
+   * @since 14.0 (since 13.0 as {@code toSortedImmutableList()}).
    */
-  public final ImmutableList<E> toSortedImmutableList(Comparator<? super E> comparator) {
+  public final ImmutableList<E> toSortedList(Comparator<? super E> comparator) {
     return Ordering.from(comparator).immutableSortedCopy(iterable);
   }
 
   /**
-   * Returns an {@code ImmutableSet} containing all of the elements from this
-   * fluent iterable with duplicates removed.
+   * Returns an {@code ImmutableSet} containing all of the elements from this fluent iterable with
+   * duplicates removed.
+   *
+   * @since 14.0 (since 12.0 as {@code toImmutableSet()}).
    */
-  public final ImmutableSet<E> toImmutableSet() {
+  public final ImmutableSet<E> toSet() {
     return ImmutableSet.copyOf(iterable);
   }
 
   /**
-   * Returns an {@code ImmutableSortedSet} containing all of the elements from this
-   * {@code FluentIterable} in the order specified by {@code comparator}, with duplicates
-   * (determined by {@code comaprator.compare(x, y) == 0}) removed. To produce an
-   * {@code ImmutableSortedSet} sorted by its natural ordering, use
-   * {@code toImmutableSortedSet(Ordering.natural())}.
+   * Returns an {@code ImmutableSortedSet} containing all of the elements from this {@code
+   * FluentIterable} in the order specified by {@code comparator}, with duplicates (determined by
+   * {@code comparator.compare(x, y) == 0}) removed. To produce an {@code ImmutableSortedSet} sorted
+   * by its natural ordering, use {@code toSortedSet(Ordering.natural())}.
    *
    * @param comparator the function by which to sort set elements
    * @throws NullPointerException if any element is null
+   * @since 14.0 (since 12.0 as {@code toImmutableSortedSet()}).
    */
-  public final ImmutableSortedSet<E> toImmutableSortedSet(Comparator<? super E> comparator) {
+  public final ImmutableSortedSet<E> toSortedSet(Comparator<? super E> comparator) {
     return ImmutableSortedSet.copyOf(comparator, iterable);
+  }
+
+  /**
+   * Returns an immutable map for which the elements of this {@code FluentIterable} are the keys in
+   * the same order, mapped to values by the given function. If this iterable contains duplicate
+   * elements, the returned map will contain each distinct element once in the order it first
+   * appears.
+   *
+   * @throws NullPointerException if any element of this iterable is {@code null}, or if {@code
+   *     valueFunction} produces {@code null} for any key
+   * @since 14.0
+   */
+  public final <V> ImmutableMap<E, V> toMap(Function<? super E, V> valueFunction) {
+    return Maps.toMap(iterable, valueFunction);
+  }
+
+  /**
+   * Creates an index {@code ImmutableListMultimap} that contains the results of applying a
+   * specified function to each item in this {@code FluentIterable} of values. Each element of this
+   * iterable will be stored as a value in the resulting multimap, yielding a multimap with the same
+   * size as this iterable. The key used to store that value in the multimap will be the result of
+   * calling the function on that value. The resulting multimap is created as an immutable snapshot.
+   * In the returned multimap, keys appear in the order they are first encountered, and the values
+   * corresponding to each key appear in the same order as they are encountered.
+   *
+   * @param keyFunction the function used to produce the key for each value
+   * @throws NullPointerException if any of the following cases is true:
+   *     <ul>
+   *       <li>{@code keyFunction} is null
+   *       <li>An element in this fluent iterable is null
+   *       <li>{@code keyFunction} returns {@code null} for any element of this iterable
+   *     </ul>
+   * @since 14.0
+   */
+  public final <K> ImmutableListMultimap<K, E> index(Function<? super E, K> keyFunction) {
+    return Multimaps.index(iterable, keyFunction);
+  }
+
+  /**
+   * Returns an immutable map for which the {@link java.util.Map#values} are the elements of this
+   * {@code FluentIterable} in the given order, and each key is the product of invoking a supplied
+   * function on its corresponding value.
+   *
+   * @param keyFunction the function used to produce the key for each value
+   * @throws IllegalArgumentException if {@code keyFunction} produces the same key for more than one
+   *     value in this fluent iterable
+   * @throws NullPointerException if any element of this fluent iterable is null, or if
+   *     {@code keyFunction} produces {@code null} for any value
+   * @since 14.0
+   */
+  public final <K> ImmutableMap<K, E> uniqueIndex(Function<? super E, K> keyFunction) {
+    return Maps.uniqueIndex(iterable, keyFunction);
   }
 
   /**
@@ -372,6 +472,37 @@ public abstract class FluentIterable<E> implements Iterable<E> {
   @GwtIncompatible("Array.newArray(Class, int)")
   public final E[] toArray(Class<E> type) {
     return Iterables.toArray(iterable, type);
+  }
+
+  /**
+   * Copies all the elements from this fluent iterable to {@code collection}. This is equivalent to
+   * calling {@code Iterables.addAll(collection, this)}.
+   *
+   * @param collection the collection to copy elements to
+   * @return {@code collection}, for convenience
+   * @since 14.0
+   */
+  public final <C extends Collection<? super E>> C copyInto(C collection) {
+    checkNotNull(collection);
+    if (iterable instanceof Collection) {
+      collection.addAll(Collections2.cast(iterable));
+    } else {
+      for (E item : iterable) {
+        collection.add(item);
+      }
+    }
+    return collection;
+  }
+
+  /**
+   * Returns a {@link String} containing all of the elements of this fluent iterable joined with
+   * {@code joiner}.
+   *
+   * @since 18.0
+   */
+  @Beta
+  public final String join(Joiner joiner) {
+    return joiner.join(this);
   }
 
   /**

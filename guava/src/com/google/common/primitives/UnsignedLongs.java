@@ -243,6 +243,8 @@ public final class UnsignedLongs {
    *
    * @throws NumberFormatException if the string does not contain a valid unsigned {@code long}
    *         value
+   * @throws NullPointerException if {@code s} is null 
+   *         (in contrast to {@link Long#parseLong(String)})
    */
   public static long parseUnsignedLong(String s) {
     return parseUnsignedLong(s, 10);
@@ -285,6 +287,8 @@ public final class UnsignedLongs {
    * @throws NumberFormatException if the string does not contain a valid unsigned {@code long}
    *         with the given radix, or if {@code radix} is not between {@link Character#MIN_RADIX}
    *         and {@link Character#MAX_RADIX}.
+   * @throws NullPointerException if {@code s} is null 
+   *         (in contrast to {@link Long#parseLong(String)})
    */
   public static long parseUnsignedLong(String s, int radix) {
     checkNotNull(s);

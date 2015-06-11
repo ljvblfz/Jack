@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -46,7 +47,7 @@ class EmptyImmutableSortedSet<E> extends ImmutableSortedSet<E> {
     return true;
   }
 
-  @Override public boolean contains(Object target) {
+  @Override public boolean contains(@Nullable Object target) {
     return false;
   }
 
@@ -58,6 +59,11 @@ class EmptyImmutableSortedSet<E> extends ImmutableSortedSet<E> {
     return Iterators.emptyIterator();
   }
 
+  @GwtIncompatible("NavigableSet")
+  @Override public UnmodifiableIterator<E> descendingIterator() {
+    return Iterators.emptyIterator();
+  }
+
   @Override boolean isPartialView() {
     return false;
   }
@@ -66,12 +72,9 @@ class EmptyImmutableSortedSet<E> extends ImmutableSortedSet<E> {
     return ImmutableList.of();
   }
 
-  @Override public Object[] toArray() {
-    return ObjectArrays.EMPTY_ARRAY;
-  }
-
-  @Override public <T> T[] toArray(T[] a) {
-    return asList().toArray(a);
+  @Override
+  int copyIntoArray(Object[] dst, int offset) {
+    return offset;
   }
 
   @Override public boolean equals(@Nullable Object object) {

@@ -20,7 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.NavigableSet;
 
 import javax.annotation.Nullable;
 
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  *
  * @author Louis Wasserman
  */
-@GwtCompatible
+@GwtCompatible(emulated = true)
 abstract class AbstractSortedMultiset<E> extends AbstractMultiset<E> implements SortedMultiset<E> {
   @GwtTransient final Comparator<? super E> comparator;
 
@@ -48,18 +48,13 @@ abstract class AbstractSortedMultiset<E> extends AbstractMultiset<E> implements 
   }
 
   @Override
-  public SortedSet<E> elementSet() {
-    return (SortedSet<E>) super.elementSet();
+  public NavigableSet<E> elementSet() {
+    return (NavigableSet<E>) super.elementSet();
   }
 
   @Override
-  SortedSet<E> createElementSet() {
-    return new SortedMultisets.ElementSet<E>() {
-      @Override
-      SortedMultiset<E> multiset() {
-        return AbstractSortedMultiset.this;
-      }
-    };
+  NavigableSet<E> createElementSet() {
+    return new SortedMultisets.NavigableElementSet<E>(this);
   }
 
   @Override
@@ -127,7 +122,7 @@ abstract class AbstractSortedMultiset<E> extends AbstractMultiset<E> implements 
   }
 
   SortedMultiset<E> createDescendingMultiset() {
-    return new SortedMultisets.DescendingMultiset<E>() {
+    return new DescendingMultiset<E>() {
       @Override
       SortedMultiset<E> forwardMultiset() {
         return AbstractSortedMultiset.this;

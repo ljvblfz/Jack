@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2011 The Guava Authors
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the
  * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing permissions and
@@ -17,29 +17,28 @@ package com.google.common.primitives;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 
 /**
  * A wrapper class for unsigned {@code long} values, supporting arithmetic operations.
- * 
+ *
  * <p>In some cases, when speed is more important than code readability, it may be faster simply to
  * treat primitive {@code long} values as unsigned, using the methods from {@link UnsignedLongs}.
- * 
+ *
  * <p>See the Guava User Guide article on <a href=
  * "http://code.google.com/p/guava-libraries/wiki/PrimitivesExplained#Unsigned_support">
  * unsigned primitive utilities</a>.
- * 
+ *
  * @author Louis Wasserman
  * @author Colin Evans
  * @since 11.0
  */
-@Beta
 @GwtCompatible(serializable = true)
 public final class UnsignedLong extends Number implements Comparable<UnsignedLong>, Serializable {
 
@@ -56,33 +55,52 @@ public final class UnsignedLong extends Number implements Comparable<UnsignedLon
   }
 
   /**
-   * Returns an {@code UnsignedLong} that, when treated as signed, is equal to {@code value}. The
-   * inverse operation is {@link #longValue()}.
-   * 
-   * <p>Put another way, if {@code value} is negative, the returned result will be equal to
-   * {@code 2^64 + value}; otherwise, the returned result will be equal to {@code value}.
+   * Returns an {@code UnsignedLong} corresponding to a given bit representation.
+   * The argument is interpreted as an unsigned 64-bit value. Specifically, the sign bit
+   * of {@code bits} is interpreted as a normal bit, and all other bits are treated as usual.
+   *
+   * <p>If the argument is nonnegative, the returned result will be equal to {@code bits},
+   * otherwise, the result will be equal to {@code 2^64 + bits}.
+   *
+   * <p>To represent decimal constants less than {@code 2^63}, consider {@link #valueOf(long)}
+   * instead.
+   *
+   * @since 14.0
    */
-  public static UnsignedLong asUnsigned(long value) {
-    return new UnsignedLong(value);
+  public static UnsignedLong fromLongBits(long bits) {
+    // TODO(user): consider caching small values, like Long.valueOf
+    return new UnsignedLong(bits);
   }
 
   /**
-   * Returns a {@code UnsignedLong} representing the same value as the specified {@code BigInteger}
-   * . This is the inverse operation of {@link #bigIntegerValue()}.
-   * 
+   * Returns an {@code UnsignedLong} representing the same value as the specified {@code long}.
+   *
+   * @throws IllegalArgumentException if {@code value} is negative
+   * @since 14.0
+   */
+  public static UnsignedLong valueOf(long value) {
+    checkArgument(value >= 0,
+        "value (%s) is outside the range for an unsigned long value", value);
+    return fromLongBits(value);
+  }
+
+  /**
+   * Returns a {@code UnsignedLong} representing the same value as the specified
+   * {@code BigInteger}. This is the inverse operation of {@link #bigIntegerValue()}.
+   *
    * @throws IllegalArgumentException if {@code value} is negative or {@code value >= 2^64}
    */
   public static UnsignedLong valueOf(BigInteger value) {
     checkNotNull(value);
     checkArgument(value.signum() >= 0 && value.bitLength() <= Long.SIZE,
         "value (%s) is outside the range for an unsigned long value", value);
-    return asUnsigned(value.longValue());
+    return fromLongBits(value.longValue());
   }
 
   /**
    * Returns an {@code UnsignedLong} holding the value of the specified {@code String}, parsed as
    * an unsigned {@code long} value.
-   * 
+   *
    * @throws NumberFormatException if the string does not contain a parsable unsigned {@code long}
    *         value
    */
@@ -93,56 +111,64 @@ public final class UnsignedLong extends Number implements Comparable<UnsignedLon
   /**
    * Returns an {@code UnsignedLong} holding the value of the specified {@code String}, parsed as
    * an unsigned {@code long} value in the specified radix.
-   * 
+   *
    * @throws NumberFormatException if the string does not contain a parsable unsigned {@code long}
    *         value, or {@code radix} is not between {@link Character#MIN_RADIX} and
    *         {@link Character#MAX_RADIX}
    */
   public static UnsignedLong valueOf(String string, int radix) {
-    return asUnsigned(UnsignedLongs.parseUnsignedLong(string, radix));
+    return fromLongBits(UnsignedLongs.parseUnsignedLong(string, radix));
   }
 
   /**
    * Returns the result of adding this and {@code val}. If the result would have more than 64 bits,
    * returns the low 64 bits of the result.
+   *
+   * @since 14.0
    */
-  public UnsignedLong add(UnsignedLong val) {
-    checkNotNull(val);
-    return asUnsigned(this.value + val.value);
+  public UnsignedLong plus(UnsignedLong val) {
+    return fromLongBits(this.value + checkNotNull(val).value);
   }
 
   /**
-   * Returns the result of subtracting this and {@code val}. If the result would be negative,
-   * returns the low 64 bits of the result.
+   * Returns the result of subtracting this and {@code val}. If the result would have more than 64
+   * bits, returns the low 64 bits of the result.
+   *
+   * @since 14.0
    */
-  public UnsignedLong subtract(UnsignedLong val) {
-    checkNotNull(val);
-    return asUnsigned(this.value - val.value);
+  public UnsignedLong minus(UnsignedLong val) {
+    return fromLongBits(this.value - checkNotNull(val).value);
   }
 
   /**
    * Returns the result of multiplying this and {@code val}. If the result would have more than 64
    * bits, returns the low 64 bits of the result.
+   *
+   * @since 14.0
    */
-  public UnsignedLong multiply(UnsignedLong val) {
-    checkNotNull(val);
-    return asUnsigned(value * val.value);
+  @CheckReturnValue
+  public UnsignedLong times(UnsignedLong val) {
+    return fromLongBits(value * checkNotNull(val).value);
   }
 
   /**
    * Returns the result of dividing this by {@code val}.
+   *
+   * @since 14.0
    */
-  public UnsignedLong divide(UnsignedLong val) {
-    checkNotNull(val);
-    return asUnsigned(UnsignedLongs.divide(value, val.value));
+  @CheckReturnValue
+  public UnsignedLong dividedBy(UnsignedLong val) {
+    return fromLongBits(UnsignedLongs.divide(value, checkNotNull(val).value));
   }
 
   /**
-   * Returns the remainder of dividing this by {@code val}.
+   * Returns this modulo {@code val}.
+   *
+   * @since 14.0
    */
-  public UnsignedLong remainder(UnsignedLong val) {
-    checkNotNull(val);
-    return asUnsigned(UnsignedLongs.remainder(value, val.value));
+  @CheckReturnValue
+  public UnsignedLong mod(UnsignedLong val) {
+    return fromLongBits(UnsignedLongs.remainder(value, checkNotNull(val).value));
   }
 
   /**
@@ -155,8 +181,8 @@ public final class UnsignedLong extends Number implements Comparable<UnsignedLon
 
   /**
    * Returns the value of this {@code UnsignedLong} as a {@code long}. This is an inverse operation
-   * to {@link #asUnsigned}.
-   * 
+   * to {@link #fromLongBits}.
+   *
    * <p>Note that if this {@code UnsignedLong} holds a value {@code >= 2^63}, the returned value
    * will be equal to {@code this - 2^64}.
    */

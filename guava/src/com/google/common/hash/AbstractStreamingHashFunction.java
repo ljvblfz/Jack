@@ -33,8 +33,12 @@ import java.nio.charset.Charset;
  * @author Kevin Bourrillion
  */
 abstract class AbstractStreamingHashFunction implements HashFunction {
-  @Override public HashCode hashString(CharSequence input) {
-    return newHasher().putString(input).hash();
+  @Override public <T> HashCode hashObject(T instance, Funnel<? super T> funnel) {
+    return newHasher().putObject(instance, funnel).hash();
+  }
+
+  @Override public HashCode hashUnencodedChars(CharSequence input) {
+    return newHasher().putUnencodedChars(input).hash();
   }
 
   @Override public HashCode hashString(CharSequence input, Charset charset) {
@@ -146,7 +150,7 @@ abstract class AbstractStreamingHashFunction implements HashFunction {
       return putBytes(ByteBuffer.wrap(bytes, off, len).order(ByteOrder.LITTLE_ENDIAN));
     }
 
-    private final Hasher putBytes(ByteBuffer readBuffer) {
+    private Hasher putBytes(ByteBuffer readBuffer) {
       // If we have room for all of it, this is easy
       if (readBuffer.remaining() <= buffer.remaining()) {
         buffer.put(readBuffer);
@@ -172,7 +176,7 @@ abstract class AbstractStreamingHashFunction implements HashFunction {
     }
 
     @Override
-    public final Hasher putString(CharSequence charSequence) {
+    public final Hasher putUnencodedChars(CharSequence charSequence) {
       for (int i = 0; i < charSequence.length(); i++) {
         putChar(charSequence.charAt(i));
       }

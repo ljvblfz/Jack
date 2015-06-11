@@ -16,7 +16,7 @@
 
 package com.android.sched.util.stream;
 
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import java.io.PrintStream;
 import java.util.Locale;
@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  */
 public class NullPrintStream extends PrintStream {
   public NullPrintStream() {
-    super(new NullOutputStream());
+    super(ByteStreams.nullOutputStream());
   }
 
   @Override

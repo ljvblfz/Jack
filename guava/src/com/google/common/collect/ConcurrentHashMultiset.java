@@ -18,8 +18,8 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Multisets.checkNonnegative;
+import static com.google.common.collect.CollectPreconditions.checkNonnegative;
+import static com.google.common.collect.CollectPreconditions.checkRemove;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
@@ -119,11 +119,11 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
    * internally and not exposed externally, so no one else will have a strong reference to the
    * values. Weak keys on the other hand can be useful in some scenarios.
    *
-   * @since 7.0
+   * @since 15.0 (source compatible (accepting the since removed {@code GenericMapMaker} class)
+   *     since 7.0)
    */
   @Beta
-  public static <E> ConcurrentHashMultiset<E> create(
-      GenericMapMaker<? super E, ? super Number> mapMaker) {
+  public static <E> ConcurrentHashMultiset<E> create(MapMaker mapMaker) {
     return new ConcurrentHashMultiset<E>(mapMaker.<E, AtomicInteger>makeMap());
   }
 
@@ -151,23 +151,8 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
    * @return the nonnegative number of occurrences of the element
    */
   @Override public int count(@Nullable Object element) {
-    AtomicInteger existingCounter = safeGet(element);
+    AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     return (existingCounter == null) ? 0 : existingCounter.get();
-  }
-
-  /**
-   * Depending on the type of the underlying map, map.get may throw NullPointerException or
-   * ClassCastException, if the object is null or of the wrong type. We usually just want to treat
-   * those cases as if the element isn't in the map, by catching the exceptions and returning null.
-   */
-  private AtomicInteger safeGet(Object element) {
-    try {
-      return countMap.get(element);
-    } catch (NullPointerException e) {
-      return null;
-    } catch (ClassCastException e) {
-      return null;
-    }
   }
 
   /**
@@ -231,7 +216,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     checkArgument(occurrences > 0, "Invalid occurrences: %s", occurrences);
 
     while (true) {
-      AtomicInteger existingCounter = safeGet(element);
+      AtomicInteger existingCounter = Maps.safeGet(countMap, element);
       if (existingCounter == null) {
         existingCounter = countMap.putIfAbsent(element, new AtomicInteger(occurrences));
         if (existingCounter == null) {
@@ -294,7 +279,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     }
     checkArgument(occurrences > 0, "Invalid occurrences: %s", occurrences);
 
-    AtomicInteger existingCounter = safeGet(element);
+    AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     if (existingCounter == null) {
       return 0;
     }
@@ -333,7 +318,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     }
     checkArgument(occurrences > 0, "Invalid occurrences: %s", occurrences);
 
-    AtomicInteger existingCounter = safeGet(element);
+    AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     if (existingCounter == null) {
       return false;
     }
@@ -365,7 +350,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     checkNotNull(element);
     checkNonnegative(count, "count");
     while (true) {
-      AtomicInteger existingCounter = safeGet(element);
+      AtomicInteger existingCounter = Maps.safeGet(countMap, element);
       if (existingCounter == null) {
         if (count == 0) {
           return 0;
@@ -421,7 +406,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     checkNonnegative(expectedOldCount, "oldCount");
     checkNonnegative(newCount, "newCount");
 
-    AtomicInteger existingCounter = safeGet(element);
+    AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     if (existingCounter == null) {
       if (expectedOldCount != 0) {
         return false;
@@ -466,29 +451,29 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
       @Override protected Set<E> delegate() {
         return delegate;
       }
-      @Override public boolean remove(Object object) {
-        try {
-          return delegate.remove(object);
-        } catch (NullPointerException e) {
-          return false;
-        } catch (ClassCastException e) {
-          return false;
-        }
+
+      @Override
+      public boolean contains(@Nullable Object object) {
+        return object != null && Collections2.safeContains(delegate, object);
       }
+
+      @Override
+      public boolean containsAll(Collection<?> collection) {
+        return standardContainsAll(collection);
+      }
+
+      @Override public boolean remove(Object object) {
+        return object != null && Collections2.safeRemove(delegate, object);
+      }
+
       @Override public boolean removeAll(Collection<?> c) {
         return standardRemoveAll(c);
       }
     };
   }
 
-  private transient EntrySet entrySet;
-
-  @Override public Set<Multiset.Entry<E>> entrySet() {
-    EntrySet result = entrySet;
-    if (result == null) {
-      entrySet = result = new EntrySet();
-    }
-    return result;
+  @Override public Set<Multiset.Entry<E>> createEntrySet() {
+    return new EntrySet();
   }
 
   @Override int distinctElements() {
@@ -533,7 +518,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
       }
 
       @Override public void remove() {
-        checkState(last != null);
+        checkRemove(last != null);
         ConcurrentHashMultiset.this.setCount(last.getElement(), 0);
         last = null;
       }
@@ -567,21 +552,6 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
       // Not Iterables.addAll(list, this), because that'll forward right back here.
       Iterators.addAll(list, iterator());
       return list;
-    }
-
-    @Override public boolean remove(Object object) {
-      if (object instanceof Multiset.Entry) {
-        Multiset.Entry<?> entry = (Multiset.Entry<?>) object;
-        Object element = entry.getElement();
-        int entryCount = entry.getCount();
-        if (entryCount != 0) {
-          // Safe as long as we never add a new entry, which we won't.
-          @SuppressWarnings("unchecked")
-          Multiset<Object> multiset = (Multiset) multiset();
-          return multiset.setCount(element, entryCount, 0);
-        }
-      }
-      return false;
     }
   }
 

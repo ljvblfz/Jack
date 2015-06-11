@@ -1,8 +1,8 @@
-URL: http://code.google.com/p/guava-libraries/wiki/Release13
-Tag: v13.0.1
+https://github.com/google/guava/wiki/Release18
+Tag: v18.0
 License: Apache 2
 Description: The Guava project contains several of Google's core libraries that
 we rely on in our Java-based projects: collections, caching, primitives
 support, concurrency libraries, common annotations, string processing, I/O, and
 so forth.
-Local Modifications: the lib folder was not imported.
+Local Modifications: only library sources were imported.
