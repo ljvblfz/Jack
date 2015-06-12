@@ -16,7 +16,6 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAnnotationType;
@@ -30,18 +29,12 @@ import junit.framework.Assert;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Collection;
 
 public class PreProcessorTest {
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void test001() throws Exception {

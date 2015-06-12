@@ -33,7 +33,6 @@ public class FinalizerTest {
 
   @BeforeClass
   public static void setUpClass() {
-    FinalizerTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
         "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
   }

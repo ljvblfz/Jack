@@ -35,10 +35,7 @@ import java.io.File;
 
 public class ImportTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    ImportTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testCompileNonConflictingSourceAndImport() throws Exception {

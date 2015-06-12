@@ -33,10 +33,7 @@ import javax.annotation.Nonnull;
  */
 public class ExceptionsTest {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void java7Exception001() throws Exception {

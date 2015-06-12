@@ -29,10 +29,7 @@ import org.junit.Test;
  */
 public class BoxingTest {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void java7Boxing001() throws Exception {

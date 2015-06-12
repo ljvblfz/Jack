@@ -32,10 +32,7 @@ import java.util.List;
  */
 public class DependenciesTest004 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that changing a class into an interface is well detected.

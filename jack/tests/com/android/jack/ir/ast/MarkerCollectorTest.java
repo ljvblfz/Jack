@@ -50,7 +50,6 @@ public class MarkerCollectorTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    MarkerCollectorTest.class.getClassLoader().setDefaultAssertionStatus(true);
     Options options = new Options();
     RunnableHooks hooks = new RunnableHooks();
     options.checkValidity(hooks);

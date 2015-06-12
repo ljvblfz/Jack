@@ -27,15 +27,14 @@ import com.android.jack.test.toolchain.IToolchain;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
-import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
 import org.jf.dexlib.Code.Analysis.AnalyzedInstruction;
 import org.jf.dexlib.Code.Analysis.MethodAnalyzer;
 import org.jf.dexlib.Code.Format.Instruction23x;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -58,10 +57,6 @@ public class DxTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.dx.overlapping"),
     "com.android.jack.dx.overlapping.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    DxTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void compiler() throws Exception {

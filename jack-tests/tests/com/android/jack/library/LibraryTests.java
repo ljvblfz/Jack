@@ -44,10 +44,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public class LibraryTests {
-  @BeforeClass
-  public static void setUpClass() {
-    LibraryTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testEmptyLibraryInClassPath() throws Exception {

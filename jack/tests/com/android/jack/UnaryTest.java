@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JVisitor;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -31,11 +30,6 @@ import javax.annotation.Nonnull;
  * JUnit test for compilation of static field access.
  */
 public class UnaryTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testCompile5() throws Exception {

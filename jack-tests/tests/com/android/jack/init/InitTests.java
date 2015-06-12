@@ -33,10 +33,7 @@ public class InitTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.init.test002"),
     "com.android.jack.init.test002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    InitTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void test001() throws Exception {

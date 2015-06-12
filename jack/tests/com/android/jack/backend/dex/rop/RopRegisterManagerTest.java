@@ -24,15 +24,9 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class RopRegisterManagerTest {
-
-  @Before
-  public void setUp() throws Exception {
-    RopRegisterManagerTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Return reg must be created before getting it.

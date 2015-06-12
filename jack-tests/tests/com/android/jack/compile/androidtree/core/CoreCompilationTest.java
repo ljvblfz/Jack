@@ -45,7 +45,6 @@ public class CoreCompilationTest {
 
   @BeforeClass
   public static void setUpClass() {
-    CoreCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
   }
 

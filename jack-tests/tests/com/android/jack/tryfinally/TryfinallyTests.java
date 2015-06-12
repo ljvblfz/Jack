@@ -44,10 +44,7 @@ public class TryfinallyTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.tryfinally.finallyblock"),
     "com.android.jack.tryfinally.finallyblock.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    TryfinallyTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void finally002() throws Exception {

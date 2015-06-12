@@ -36,10 +36,7 @@ public class ThrowstatementTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.throwstatement.test002"),
       "com.android.jack.throwstatement.test002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ThrowstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @Category(RuntimeRegressionTest.class)

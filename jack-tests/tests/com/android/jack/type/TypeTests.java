@@ -36,10 +36,7 @@ public class TypeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.type.test002"),
     "com.android.jack.type.test002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    TypeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

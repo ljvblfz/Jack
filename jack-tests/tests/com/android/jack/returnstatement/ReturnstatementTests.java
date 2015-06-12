@@ -39,10 +39,7 @@ public class ReturnstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.returnstatement.returnvoid"),
     "com.android.jack.returnstatement.returnvoid.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ReturnstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void returns() throws Exception {

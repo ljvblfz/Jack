@@ -135,10 +135,7 @@ public class InnerTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.inner.test026"),
     "com.android.jack.inner.test026.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    InnerTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

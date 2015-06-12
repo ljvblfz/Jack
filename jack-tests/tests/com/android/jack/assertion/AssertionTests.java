@@ -41,10 +41,6 @@ public class AssertionTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.assertion.test003"),
     "com.android.jack.assertion.test003.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    AssertionTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   // this test must be run with assertions enabled (for now, use dalvik)
   @Category({RuntimeRegressionTest.class, KnownBugs.class})

@@ -32,10 +32,7 @@ import java.util.List;
  */
 public class DependenciesTest007 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that runtime is correct after transformation of an interface call to a virtual call.

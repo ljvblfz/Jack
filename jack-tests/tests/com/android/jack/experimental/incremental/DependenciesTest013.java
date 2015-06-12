@@ -34,10 +34,7 @@ import java.io.File;
  */
 public class DependenciesTest013 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation support array creation.

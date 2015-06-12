@@ -32,10 +32,7 @@ import java.util.List;
  */
 public class DependenciesTest010 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation support switch on constant value.

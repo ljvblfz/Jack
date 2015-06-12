@@ -37,10 +37,7 @@ public class FibonacciTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001"),
     "com.android.jack.fibonacci.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FibonacciTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @Category(RuntimeRegressionTest.class)

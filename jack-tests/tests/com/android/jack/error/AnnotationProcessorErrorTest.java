@@ -19,7 +19,6 @@ package com.android.jack.error;
 import com.google.common.io.Files;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.Main;
 import com.android.jack.backend.jayce.JayceFileImporter.CollisionPolicy;
 import com.android.jack.errorhandling.annotationprocessor.ResourceAnnotationProcessor;
 import com.android.jack.errorhandling.annotationprocessor.ResourceAnnotationTest;
@@ -38,7 +37,6 @@ import junit.framework.Assert;
 
 import org.jf.dexlib.ClassDefItem;
 import org.jf.dexlib.DexFile;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -55,11 +53,6 @@ import javax.annotation.Nonnull;
  * JUnit test checking Jack behavior when using annotation processor.
  */
 public class AnnotationProcessorErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Checks that compilation succeed when running annotation processor to generate resource file.

@@ -63,11 +63,6 @@ public class CastTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.cast.useless002"),
     "com.android.jack.cast.useless002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    CastTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
   @Test
   @Category(RuntimeRegressionTest.class)
   public void explicit001() throws Exception {

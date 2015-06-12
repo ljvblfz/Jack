@@ -17,7 +17,6 @@
 package com.android.jack.gwt;
 
 import com.android.jack.Jack;
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JConstructor;
@@ -37,6 +36,7 @@ import com.android.sched.util.RunnableHooks;
 import junit.framework.Assert;
 
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,8 +48,6 @@ public class BinaryLookup {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-
     Options fiboArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName("com/android/jack/fibonacci/test001/jack/Fibo"));
     fiboArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
@@ -98,6 +96,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupJavaLangStringError2() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("java/lang/String;");
@@ -111,6 +111,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupTypeError1() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("L;");
@@ -124,6 +126,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupTypeError2() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("");
@@ -137,6 +141,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupTypeError3() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("L/C;");
@@ -150,6 +156,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupTypeError4() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("Lp/;");
@@ -163,6 +171,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupTypeError5() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("E");
@@ -176,6 +186,8 @@ public class BinaryLookup {
 
   @Test
   public void lookupArrayError1() throws JTypeLookupException {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean fail = false;
     try {
       lookup.getType("[[[[");

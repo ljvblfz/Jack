@@ -32,10 +32,7 @@ import java.util.List;
  */
 public class DependenciesTest005 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that runtime is correct after incremental compilation due to a constant modification.

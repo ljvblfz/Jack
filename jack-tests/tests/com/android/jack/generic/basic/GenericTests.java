@@ -27,10 +27,7 @@ import org.junit.Test;
  */
 public class GenericTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    GenericTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Verifies that the test source can compile from source to dex file.

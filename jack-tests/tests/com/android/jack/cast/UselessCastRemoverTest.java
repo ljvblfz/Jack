@@ -28,7 +28,6 @@ import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -45,10 +44,6 @@ public class UselessCastRemoverTest {
   @Nonnull
   private static final String CAST_USELESS003 = "com/android/jack/cast/useless003/jack/UselessCast";
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    UselessCastRemoverTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void test001() throws Exception {

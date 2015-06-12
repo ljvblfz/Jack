@@ -34,10 +34,7 @@ import java.io.FileInputStream;
  */
 public class DependenciesTest014 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation works when file without dependency is deleted.

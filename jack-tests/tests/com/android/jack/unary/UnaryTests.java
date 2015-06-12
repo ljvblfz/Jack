@@ -44,10 +44,7 @@ public class UnaryTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.unary.test004"),
     "com.android.jack.unary.test004.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    UnaryTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

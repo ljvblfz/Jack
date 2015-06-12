@@ -56,10 +56,7 @@ public class InvokeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.invoke.test007"),
     "com.android.jack.invoke.test007.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    InvokeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

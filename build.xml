@@ -1858,6 +1858,10 @@
 
   <property name="jack.tests.output" value="${jack-project.dir}/tests-results"/>
 
+  <condition property="jack.tests.assertions" value="-da" else="-ea">
+    <istrue value="${tests.disable-assertions}"/>
+  </condition>
+
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
@@ -1871,7 +1875,38 @@
     <fail message="tests.config is undefined" unless="tests.config" />
   </target>
 
-  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep">
+  <target name="tests-check-name">
+    <fail message="test.name is undefined" unless="test.name" />
+  </target>
+
+  <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
+  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
+  </target>
+
+  <target name="test-jack-by-name-no-dep">
+    <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
+    <junit fork="yes" failureproperty="test-jack.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="${jack.tests.assertions}"/>
+       <classpath>
+        <filelist refid="jack.junit.tests.classpath" />
+       </classpath>
+      <test name="${test.name}"
+        todir="${jack.tests.output}/test-jack-by-name/"
+        outfile="test-jack-by-name" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jack-by-name">
+      <fileset dir="${jack.tests.output}/test-jack-by-name">
+        <include name="test-jack-by-name.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jack-by-name/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jack.failure" />
+  </target>
+
+  <target name="test-jack" description="run Jack tests that must pass before submitting a change"
+    depends="tests-check-config, jack-tests, test-jack-nodep">
   </target>
 
   <target name="test-jack-nodep">
@@ -1879,7 +1914,7 @@
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
        </classpath>
@@ -1904,7 +1939,7 @@
      <junit fork="yes" failureproperty="test-jack.failure">
        <formatter type="xml"/>
        <jvmarg value="-Dtests.config=${tests.config}"/>
-       <jvmarg value="-ea"/>
+       <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
          <filelist refid="jack.junit.tests.classpath" />
        </classpath>
@@ -1929,7 +1964,7 @@
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
-        <jvmarg value="-ea"/>
+        <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
         </classpath>
@@ -1954,7 +1989,7 @@
     freemarker-lib,maths-lib">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dtests.config=${tests.config}"/>
         <formatter type="xml"/>
         <classpath>
           <filelist dir="/">

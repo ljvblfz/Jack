@@ -17,7 +17,6 @@
 package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.Main;
 import com.android.jack.jayce.JayceProperties;
 import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
@@ -31,7 +30,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -41,11 +39,6 @@ import java.io.File;
  * Test checking the behavior of Jack with an invalid Jayce format.
  */
 public class JayceFormatErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Checks that compilation fails correctly when a jayce file is corrupted.

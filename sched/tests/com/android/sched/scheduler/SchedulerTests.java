@@ -38,8 +38,6 @@ public class SchedulerTests {
 
   @Before
   public void setUp() throws Exception {
-    Scheduler.class.getClassLoader().setDefaultAssertionStatus(true);
-
     scheduler = Scheduler.getScheduler();
     SchedulableManager sm = SchedulableManager.getSchedulableManager();
 

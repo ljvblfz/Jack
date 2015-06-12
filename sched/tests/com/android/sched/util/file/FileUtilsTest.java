@@ -18,7 +18,6 @@ package com.android.sched.util.file;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,12 +27,6 @@ import java.io.IOException;
  * JUnit tests for class {@link FileUtils}.
  */
 public class FileUtilsTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    // Enable assertions
-    FileUtilsTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Test method for {@link com.android.sched.util.file.FileUtils#getFileSeparator()}.

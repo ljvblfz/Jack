@@ -44,10 +44,7 @@ import javax.annotation.Nonnull;
  */
 public class DependenciesTest009 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that usages does not change during incremental compilation and that dependencies are

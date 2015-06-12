@@ -34,8 +34,6 @@ public class TypeModifierTest {
 
   @Before
   public void setUp() throws Exception {
-    TypeModifierTest.class.getClassLoader().setDefaultAssertionStatus(true);
-
     Options jackArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(OUTER_CLASS_BINARY_NAME));
     jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");

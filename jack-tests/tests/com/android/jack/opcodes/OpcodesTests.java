@@ -575,10 +575,7 @@ public class OpcodesTests extends RuntimeTest {
     "com.android.jack.opcodes.rem_float.Test_rem_float");
 
 
-  @BeforeClass
-  public static void setUpClass() {
-    OpcodesTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void invoke_static() throws Exception {

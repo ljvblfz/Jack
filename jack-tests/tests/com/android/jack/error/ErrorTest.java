@@ -22,7 +22,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -34,11 +33,6 @@ import javax.annotation.Nonnull;
  * JUnit checking that compilation failed properly.
  */
 public class ErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    ErrorTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testError001() throws Exception {

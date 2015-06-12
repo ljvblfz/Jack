@@ -479,4 +479,12 @@ public class TestTools {
     }
     throw new AssertionError("Encoded method not found.");
   }
+
+  public static boolean areAssertionsEnabled() {
+    boolean assertEnable = false;
+    // assertEnable = true if assertions are already enabled
+    assert true == (assertEnable = true);
+    return assertEnable;
+  }
+
 }

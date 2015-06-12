@@ -78,7 +78,7 @@ public class MultiDexTests {
 
   @BeforeClass
   public static void init() throws IOException, Exception {
-    MultiDexTests.class.getClassLoader().setDefaultAssertionStatus(true);
+
 
     annotations = prepareAnnotations();
 

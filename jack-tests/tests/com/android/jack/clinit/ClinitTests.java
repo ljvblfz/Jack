@@ -28,11 +28,6 @@ public class ClinitTests {
   public static final String CLASS_WITH_VARIABLE_INIT_BINARY_NAME
     = "com/android/jack/clinit/jack/ClInitWithVariableInit";
 
-  @Before
-  public void setUp() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
   @Test
   public void testCompileWithClinit() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();

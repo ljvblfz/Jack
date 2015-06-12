@@ -18,7 +18,6 @@ package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
-import com.android.jack.Main;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
@@ -37,7 +36,6 @@ import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -49,11 +47,6 @@ import java.util.Iterator;
  * JUnit test checking Jack behavior on file access error.
  */
 public class FileAccessErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Checks that compilation fails correctly when folder to generate jack files is not readable.

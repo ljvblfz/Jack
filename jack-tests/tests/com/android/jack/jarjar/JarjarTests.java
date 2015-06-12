@@ -49,7 +49,7 @@ public class JarjarTests {
 
   @Before
   public void setUp() {
-    JarjarTests.class.getClassLoader().setDefaultAssertionStatus(true);
+
   }
 
   @Test

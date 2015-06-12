@@ -61,7 +61,6 @@ public class VFSTest {
 
   @Before
   public void setUp() throws ConfigurationException {
-    VFSTest.class.getClassLoader().setDefaultAssertionStatus(true);
     ThreadConfig.setConfig(new AsapConfigBuilder().build());
   }
 

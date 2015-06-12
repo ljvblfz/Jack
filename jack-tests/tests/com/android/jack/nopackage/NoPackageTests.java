@@ -26,10 +26,7 @@ import java.io.File;
 
 public class NoPackageTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    NoPackageTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void test001() throws Exception {

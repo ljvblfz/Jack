@@ -373,10 +373,6 @@ public abstract class Jack {
   public static void check(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, ConfigurationException {
 
-    boolean assertEnable = false;
-    // assertEnable = true if assertions are already enabled
-    assert true == (assertEnable = true);
-
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();
@@ -401,13 +397,7 @@ public abstract class Jack {
     ThreadConfig.setConfig(config);
 
     boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
-    if (sanityChecks != assertEnable) {
-      logger.log(Level.INFO, "Jack assertion status overriden by sanity checks option");
-    }
 
-    ClassLoader classLoader = Jack.class.getClassLoader();
-    classLoader.clearAssertionStatus();
-    classLoader.setDefaultAssertionStatus(sanityChecks);
     logger.log(Level.INFO, "Jack sanity checks {0}",
         (sanityChecks ? "enabled" : "disabled"));
   }

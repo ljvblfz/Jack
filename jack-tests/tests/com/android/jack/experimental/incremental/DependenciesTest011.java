@@ -34,10 +34,7 @@ import java.util.List;
  */
 public class DependenciesTest011 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation support throws declaration.

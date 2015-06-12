@@ -31,10 +31,7 @@ import org.junit.Test;
  */
 public class DependenciesTest008 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that jack files are deleted according to recompiled files.

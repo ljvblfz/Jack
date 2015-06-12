@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JVisitor;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -34,11 +33,6 @@ import javax.annotation.Nonnull;
  * JUnit test for compilation of finally blocks.
  */
 public class FinallyTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testCompile005() throws Exception {

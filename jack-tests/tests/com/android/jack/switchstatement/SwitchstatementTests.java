@@ -81,10 +81,7 @@ public class SwitchstatementTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test011"),
       "com.android.jack.switchstatement.test011.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    SwitchstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

@@ -28,7 +28,7 @@ public class InstanceTest {
 
   @Before
   public void setUp() throws Exception {
-    InstanceTest.class.getClassLoader().setDefaultAssertionStatus(true);
+
   }
 
   @Test

@@ -36,7 +36,6 @@ import com.android.sched.scheduler.TagOrMarkerOrComponentSet;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -47,11 +46,6 @@ import java.util.List;
 public class StaticValuesTest {
 
   private static final String CLINIT = "<clinit>";
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testGeneratedClinit1() throws Exception {
