@@ -293,6 +293,10 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(flags.getAbsolutePath());
     }
 
+    if (withDebugInfos) {
+      args.add("-g");
+    }
+
     libToImportStaticLibs(args, in);
 
   }
