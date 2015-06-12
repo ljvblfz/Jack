@@ -40,8 +40,6 @@ public class FieldModifierTest {
 
   @Before
   public void setUp() throws Exception {
-    FieldModifierTest.class.getClassLoader().setDefaultAssertionStatus(true);
-
     Options jackArgs =
         TestTools.buildCommandLineArgs(TestTools
             .getJackTestFromBinaryName(FIELD_MODIFIER_BINARY_NAME));

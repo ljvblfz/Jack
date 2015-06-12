@@ -19,15 +19,9 @@ package com.android.jack.transformations.ast.string;
 import com.android.jack.signature.GenericSignatureParser;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class StringSplittingTest {
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    StringSplittingTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testTypeStringSplitting() {

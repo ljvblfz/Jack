@@ -48,10 +48,7 @@ public class NewarrayTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.newarray.test005"),
       "com.android.jack.newarray.test005.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    NewarrayTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

@@ -30,7 +30,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
-import org.junit.Before;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.List;
@@ -38,13 +38,11 @@ import java.util.List;
 public class GotoTest {
   private static final String TEST_CLASS_BINARY_NAME = "com/android/jack/frontend/SynthetizeCode";
 
-  @Before
-  public void setUp() throws Exception {
-    GotoTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
   @Test
   public void dumpGoto() throws Exception {
+
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     JMethod dumpGoto = TestTools.getJMethodWithRejectAllFilter(
         TestTools.getJackUnitTestFromBinaryName(TEST_CLASS_BINARY_NAME),
         "L" + TEST_CLASS_BINARY_NAME + ";", "synthetizeCode()V");

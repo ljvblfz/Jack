@@ -32,10 +32,7 @@ public class OrderTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.order.test001"),
     "com.android.jack.order.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    OrderTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

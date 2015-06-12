@@ -43,10 +43,7 @@ public class StringTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.string.concat003"),
     "com.android.jack.string.concat003.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    StringTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testCompileNewString() throws Exception {

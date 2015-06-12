@@ -1865,6 +1865,10 @@
 
   <property name="jack.tests.output" value="${jack-project.dir}/tests-results"/>
 
+  <condition property="jack.tests.assertions" value="-da" else="-ea">
+    <istrue value="${tests.disable-assertions}"/>
+  </condition>
+
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
@@ -1891,7 +1895,7 @@
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
        </classpath>
@@ -1917,7 +1921,7 @@
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
        </classpath>
@@ -1943,7 +1947,7 @@
      <junit fork="yes" failureproperty="test-jack.failure">
        <formatter type="xml"/>
        <jvmarg value="-Dtests.config=${tests.config}"/>
-       <jvmarg value="-ea"/>
+       <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
          <filelist refid="jack.junit.tests.classpath" />
        </classpath>
@@ -1969,7 +1973,7 @@
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
-        <jvmarg value="-ea"/>
+        <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
         </classpath>
@@ -1995,7 +1999,7 @@
     freemarker-lib,maths-lib">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dtests.config=${tests.config}"/>
         <formatter type="xml"/>
         <classpath>
           <filelist dir="/">

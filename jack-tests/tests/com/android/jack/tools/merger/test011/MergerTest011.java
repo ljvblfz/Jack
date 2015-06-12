@@ -55,10 +55,7 @@ public class MergerTest011 extends MergerTestTools {
       "Dex writing phase: classes.dex has too many IDs. Try using multi-dex";
 
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testMergerWithHighNumberOfMethods() throws Exception {

@@ -20,15 +20,9 @@ import static org.junit.Assert.fail;
 
 import com.android.sched.schedulable.AdapterSchedulable;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ManagedVisitorTest {
-
-  @Before
-  public void setUp() {
-    ManagedVisitor.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testConstructor() {

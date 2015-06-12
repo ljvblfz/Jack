@@ -44,10 +44,7 @@ public class IfstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.ifstatement.simpleTest"),
     "com.android.jack.ifstatement.simpleTest.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    IfstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void advancedTest() throws Exception {

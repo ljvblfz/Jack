@@ -109,10 +109,7 @@ public class RegressionTests {
       new VerifyTests(),
   };
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void runRegressionTests() throws Exception {

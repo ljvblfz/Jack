@@ -16,7 +16,6 @@
 
 package com.android.jack.error;
 
-import com.android.jack.Main;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -24,7 +23,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -34,11 +32,6 @@ import java.io.File;
  * JUnit test checking Jack behavior on exceptions.
  */
 public class CommandLineErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Checks that compilation ends correctly when arguments define no source and no import.

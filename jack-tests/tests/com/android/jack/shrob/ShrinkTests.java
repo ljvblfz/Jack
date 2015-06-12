@@ -45,10 +45,7 @@ public class ShrinkTests extends AbstractTest {
   private static ProguardFlags dontObfuscateFlagFile =
       new ProguardFlags(shrobTestsDir, "dontobfuscate.flags");
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Override
   protected void runTest(

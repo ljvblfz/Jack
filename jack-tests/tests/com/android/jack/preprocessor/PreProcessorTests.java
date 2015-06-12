@@ -46,7 +46,7 @@ public class PreProcessorTests {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
+
   }
 
   @Test

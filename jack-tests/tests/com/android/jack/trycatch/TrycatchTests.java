@@ -57,10 +57,7 @@ public class TrycatchTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.trycatch.test005"),
     "com.android.jack.trycatch.test005.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    TrycatchTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

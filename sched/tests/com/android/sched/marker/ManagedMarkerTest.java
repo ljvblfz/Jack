@@ -18,14 +18,9 @@ package com.android.sched.marker;
 
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ManagedMarkerTest {
-  @Before
-  public void setUp() {
-    StaticMarkerManager.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testConstructor() {

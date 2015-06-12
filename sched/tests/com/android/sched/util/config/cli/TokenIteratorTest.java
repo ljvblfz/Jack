@@ -36,7 +36,6 @@ import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -47,10 +46,6 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 
 public class TokenIteratorTest {
-  @Before
-  public void setUp() throws Exception {
-    TokenIteratorTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @After
   public void tearDown() throws Exception {

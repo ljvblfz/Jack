@@ -36,7 +36,6 @@ import com.android.jack.util.filter.SignatureMethodFilter;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -51,11 +50,6 @@ public class SynchronizedTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   @Nonnull
   private static final File FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
-
-  @Before
-  public void setUp() throws Exception {
-    SynchronizedTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testSynchronizedBlock() throws Exception {

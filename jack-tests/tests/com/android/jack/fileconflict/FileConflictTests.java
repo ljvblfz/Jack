@@ -84,10 +84,7 @@ public class FileConflictTests {
   private static final File TEST002_DIR =
       AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test002.jack");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FileConflictTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Test the behavior of Jack when importing 2 Jack folders containing conflicting Jack files, and

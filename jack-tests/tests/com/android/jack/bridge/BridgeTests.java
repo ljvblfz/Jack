@@ -60,10 +60,6 @@ public class BridgeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.bridge.test007"),
     "com.android.jack.bridge.test007.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    BridgeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

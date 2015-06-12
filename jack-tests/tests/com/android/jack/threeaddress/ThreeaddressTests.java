@@ -32,10 +32,7 @@ public class ThreeaddressTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.threeaddress.test001"),
     "com.android.jack.threeaddress.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ThreeaddressTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

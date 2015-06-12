@@ -31,7 +31,6 @@ import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -74,10 +73,6 @@ public class ConstantTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test007"),
     "com.android.jack.constant.test007.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ConstantTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void clazz() throws Exception {

@@ -16,7 +16,6 @@
 
 package com.android.jack.frontend;
 
-import com.android.jack.Main;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -28,7 +27,6 @@ import com.android.jack.util.NamingTools;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -39,11 +37,6 @@ public class ClinitTest {
     = "com/android/jack/clinit/jack/ClInitWithVariableInit";
   public static final String CLASS_BINARY_NAME
     = "com/android/jack/clinit/jack/ClInit";
-
-  @Before
-  public void setUp() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void searchStaticInit() throws Exception {

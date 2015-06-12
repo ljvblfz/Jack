@@ -16,23 +16,14 @@
 
 package com.android.jack.ir.impl;
 
-import com.android.jack.Main;
-
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * JUnit test for ReferenceMapper.
  */
 public class ReferenceMapperTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    // Enable assertions
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   private static final String[] TYPES =
     { "Z", "B", "C", "S", "I", "J", "F", "D", "Ljava/lang/Object;" };

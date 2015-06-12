@@ -43,11 +43,6 @@ import java.util.List;
 
 public class ClasspathTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    ClasspathTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
   @Test
   public void test001() throws Exception {
     File libOut = AbstractTestTools.createTempDir();

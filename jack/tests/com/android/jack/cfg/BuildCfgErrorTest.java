@@ -22,17 +22,11 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.util.graph.GraphException;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class BuildCfgErrorTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
-
-  @Before
-  public void setUp() throws Exception {
-    BuildCfgErrorTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Add a successor twice to a block is not allow.

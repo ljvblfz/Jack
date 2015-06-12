@@ -33,10 +33,7 @@ import javax.annotation.Nonnull;
  */
 public class SwitchesTest {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void java7Switches001() throws Exception {

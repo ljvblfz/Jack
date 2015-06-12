@@ -33,7 +33,6 @@ import com.android.sched.scheduler.SubPlanBuilder;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,11 +40,6 @@ import javax.annotation.Nonnull;
 
 @Ignore("Tree")
 public class BlockStatisticsOnCore {
-
-  @BeforeClass
-  public static void setUpClass() {
-    BlockStatisticsOnCore.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void computeBlockStatOnCore() throws Exception {

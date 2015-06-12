@@ -38,10 +38,7 @@ import java.util.Arrays;
  */
 public class DependenciesTest015 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation works when library on classpath is modified.

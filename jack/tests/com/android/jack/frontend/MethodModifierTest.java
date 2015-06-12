@@ -38,8 +38,6 @@ public class MethodModifierTest {
 
   @Before
   public void setUp() throws Exception {
-    MethodModifierTest.class.getClassLoader().setDefaultAssertionStatus(true);
-
     Options jackArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(classBinaryName));
     jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");

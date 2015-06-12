@@ -32,10 +32,7 @@ public class SynchronizeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.synchronize.test001"),
     "com.android.jack.synchronize.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    SynchronizeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

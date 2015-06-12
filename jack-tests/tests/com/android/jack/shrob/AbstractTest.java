@@ -48,10 +48,7 @@ public abstract class AbstractTest {
   @Nonnull
   private static final Charset charSet = Charset.forName("UTF-8");
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   protected abstract void runTest(
       @Nonnull String testNumber,

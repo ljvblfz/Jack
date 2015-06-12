@@ -70,10 +70,7 @@ public class ResourceTests {
   private static final File FILE =
       AbstractTestTools.getTestRootDir("com.android.jack.resource.test001.jack");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ResourceTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @KnownIssue(candidate=IncrementalToolchain.class)

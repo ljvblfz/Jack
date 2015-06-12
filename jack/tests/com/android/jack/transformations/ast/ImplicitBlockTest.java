@@ -34,7 +34,6 @@ import com.android.sched.scheduler.SubPlanBuilder;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -48,11 +47,6 @@ public class ImplicitBlockTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   @Nonnull
   private static final File FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    ImplicitBlockTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void implicitBlockIfThen() throws Exception {

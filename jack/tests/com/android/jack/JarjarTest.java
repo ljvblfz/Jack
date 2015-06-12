@@ -40,7 +40,6 @@ public class JarjarTest {
 
   @BeforeClass
   public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
     Rule rule = new Rule();
     rule.setPattern("org.**");
     rule.setResult("foo.@1");

@@ -36,10 +36,7 @@ public class NotsimplifierTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.optimizations.notsimplifier.test002"),
       "com.android.jack.optimizations.notsimplifier.test002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    NotsimplifierTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @Category(RuntimeRegressionTest.class)

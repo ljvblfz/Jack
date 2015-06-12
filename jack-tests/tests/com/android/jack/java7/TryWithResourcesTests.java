@@ -28,10 +28,7 @@ import org.junit.Test;
  */
 public class TryWithResourcesTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    TryWithResourcesTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Verifies that the test source can compiled from source to dex file.

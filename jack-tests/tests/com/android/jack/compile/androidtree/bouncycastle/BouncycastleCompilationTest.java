@@ -45,7 +45,6 @@ public class BouncycastleCompilationTest {
 
   @BeforeClass
   public static void setUpClass() {
-    BouncycastleCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
             "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")
