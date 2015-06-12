@@ -87,7 +87,8 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
             ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
         try {
           Service service = messageDigestCodec.checkString(context, "SHA");
-          vfs = new CaseInsensitiveFS(directFS, /* nbGroup = */ 1, /* szGroup = */ 2,
+          vfs = new CaseInsensitiveFS(directFS, /* numGroups = */ JackLibrary.NUM_GROUPS_FOR_DIRS,
+              /* groupSize = */ JackLibrary.GROUP_SIZE_FOR_DIRS,
               new MessageDigestFactory(service), /* debug = */ false);
         } catch (WrongVFSFormatException e) {
           vfs = directFS;
