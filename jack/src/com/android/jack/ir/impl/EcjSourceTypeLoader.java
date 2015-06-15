@@ -119,6 +119,9 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     name = intern(name);
     JDefinedClassOrInterface type;
     int accessFlags = binding.getAccessFlags();
+    if (binding.isAnonymousType()) {
+      accessFlags |= JModifier.ANONYMOUS_TYPE;
+    }
     if (binding.isClass()) {
       type = new JDefinedClass(info, name, accessFlags, enclosingPackage, loader);
     } else if (binding.isInterface()) {
