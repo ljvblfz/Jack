@@ -340,6 +340,10 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return JModifier.isAbstract(getModifier());
   }
 
+  public boolean isAnonymous() {
+    return JModifier.isAnonymousType(getModifier());
+  }
+
   public void setAbstract() {
     modifier = getModifier() | JModifier.ABSTRACT;
   }

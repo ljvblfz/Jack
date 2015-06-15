@@ -275,7 +275,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       int accessFlags = innerType.getModifier();
 
       // An anonymous class should not be flagged as final
-      if (JModifier.isAnonymousType(accessFlags)) {
+      if (innerType.isAnonymous()) {
         accessFlags &= ~JModifier.FINAL;
       }
 
