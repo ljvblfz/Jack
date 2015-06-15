@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.CollectPreconditions.checkRemove;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
@@ -100,18 +101,18 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
 
   // Query Operations (optimizations)
 
-  @Override public boolean containsValue(Object value) {
+  @Override public boolean containsValue(@Nullable Object value) {
     return inverse.containsKey(value);
   }
 
   // Modification Operations
 
-  @Override public V put(K key, V value) {
+  @Override public V put(@Nullable K key, @Nullable V value) {
     return putInBothMaps(key, value, false);
   }
 
   @Override
-  public V forcePut(K key, V value) {
+  public V forcePut(@Nullable K key, @Nullable V value) {
     return putInBothMaps(key, value, true);
   }
 
@@ -140,7 +141,7 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
     inverse.delegate.put(newValue, key);
   }
 
-  @Override public V remove(Object key) {
+  @Override public V remove(@Nullable Object key) {
     return containsKey(key) ? removeFromBothMaps(key) : null;
   }
 
@@ -318,7 +319,7 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
         }
 
         @Override public void remove() {
-          checkState(entry != null);
+          checkRemove(entry != null);
           V value = entry.getValue();
           iterator.remove();
           removeFromInverseMap(value);

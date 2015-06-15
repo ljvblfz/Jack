@@ -16,7 +16,7 @@
 
 package com.android.sched.util.stream;
 
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +55,7 @@ public class ByteStreamSucker {
   }
 
   public ByteStreamSucker(@Nonnull InputStream is) {
-    this(is, new NullOutputStream(), false);
+    this(is, ByteStreams.nullOutputStream(), false);
   }
 
   public void suck() throws IOException {

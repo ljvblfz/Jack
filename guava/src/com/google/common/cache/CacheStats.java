@@ -20,7 +20,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+
+import java.util.concurrent.Callable;
 
 import javax.annotation.Nullable;
 
@@ -44,9 +47,14 @@ import javax.annotation.Nullable;
  * </ul>
  * <li>When an entry is evicted from the cache, {@code evictionCount} is incremented.
  * <li>No stats are modified when a cache entry is invalidated or manually removed.
+ * <li>No stats are modified on a query to {@link Cache#getIfPresent}.
  * <li>No stats are modified by operations invoked on the {@linkplain Cache#asMap asMap} view of
  *     the cache.
  * </ul>
+ * 
+ * <p>A lookup is specifically defined as an invocation of one of the methods 
+ * {@link LoadingCache#get(Object)}, {@link LoadingCache#getUnchecked(Object)}, 
+ * {@link Cache#get(Object, Callable)}, or {@link LoadingCache#getAll(Iterable)}.
  *
  * @author Charles Fry
  * @since 10.0
@@ -257,7 +265,7 @@ public final class CacheStats {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("hitCount", hitCount)
         .add("missCount", missCount)
         .add("loadSuccessCount", loadSuccessCount)

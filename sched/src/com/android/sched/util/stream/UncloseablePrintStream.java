@@ -16,7 +16,7 @@
 
 package com.android.sched.util.stream;
 
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -32,7 +32,7 @@ public class UncloseablePrintStream extends PrintStream {
   private final PrintStream stream;
 
   public UncloseablePrintStream(@Nonnull PrintStream stream) {
-    super(new NullOutputStream());
+    super(ByteStreams.nullOutputStream());
     this.stream = stream;
   }
 

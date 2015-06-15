@@ -17,22 +17,23 @@
 package com.google.common.reflect;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
+import javax.annotation.Nullable;
+
 /**
  * Captures a free type variable that can be used in {@link TypeToken#where}.
- * For example: <pre>   {@code
+ * For example:
  *
+ * <pre>   {@code
  *   static <T> TypeToken<List<T>> listOf(Class<T> elementType) {
  *     return new TypeToken<List<T>>() {}
  *         .where(new TypeParameter<T>() {}, elementType);
- *   }
- * }</pre>
+ *   }}</pre>
  *
  * @author Ben Yu
  * @since 12.0
@@ -41,10 +42,6 @@ import java.lang.reflect.TypeVariable;
 public abstract class TypeParameter<T> extends TypeCapture<T> {
 
   final TypeVariable<?> typeVariable;
-
-  private TypeParameter(TypeVariable<?> typeVariable) {
-    this.typeVariable = checkNotNull(typeVariable);
-  }
 
   protected TypeParameter() {
     Type type = capture();
@@ -56,7 +53,7 @@ public abstract class TypeParameter<T> extends TypeCapture<T> {
     return typeVariable.hashCode();
   }
 
-  @Override public final boolean equals(Object o) {
+  @Override public final boolean equals(@Nullable Object o) {
     if (o instanceof TypeParameter) {
       TypeParameter<?> that = (TypeParameter<?>) o;
       return typeVariable.equals(that.typeVariable);

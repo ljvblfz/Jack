@@ -16,15 +16,16 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.CollectPreconditions.checkNonnegative;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -42,21 +43,38 @@ import javax.annotation.Nullable;
 /**
  * A comparator, with additional methods to support common operations. This is
  * an "enriched" version of {@code Comparator}, in the same sense that {@link
- * FluentIterable} is an enriched {@link Iterable}). For example: <pre>   {@code
+ * FluentIterable} is an enriched {@link Iterable}.
  *
- *   if (Ordering.from(comparator).reverse().isOrdered(list)) { ... }}</pre>
+ * <p>The common ways to get an instance of {@code Ordering} are:
  *
- * The {@link #from(Comparator)} method returns the equivalent {@code Ordering}
- * instance for a pre-existing comparator. You can also skip the comparator step
- * and extend {@code Ordering} directly: <pre>   {@code
+ * <ul>
+ * <li>Subclass it and implement {@link #compare} instead of implementing
+ *     {@link Comparator} directly
+ * <li>Pass a <i>pre-existing</i> {@link Comparator} instance to {@link
+ *     #from(Comparator)}
+ * <li>Use the natural ordering, {@link Ordering#natural}
+ * </ul>
  *
- *   Ordering<String> byLengthOrdering = new Ordering<String>() {
- *     public int compare(String left, String right) {
- *       return Ints.compare(left.length(), right.length());
- *     }
- *   };}</pre>
+ * <p>Then you can use the <i>chaining</i> methods to get an altered version of
+ * that {@code Ordering}, including:
  *
- * Except as noted, the orderings returned by the factory methods of this
+ * <ul>
+ * <li>{@link #reverse}
+ * <li>{@link #compound(Comparator)}
+ * <li>{@link #onResultOf(Function)}
+ * <li>{@link #nullsFirst} / {@link #nullsLast}
+ * </ul>
+ *
+ * <p>Finally, use the resulting {@code Ordering} anywhere a {@link Comparator}
+ * is required, or use any of its special operations, such as:</p>
+ *
+ * <ul>
+ * <li>{@link #immutableSortedCopy}
+ * <li>{@link #isOrdered} / {@link #isStrictlyOrdered}
+ * <li>{@link #min} / {@link #max}
+ * </ul>
+ *
+ * <p>Except as noted, the orderings returned by the factory methods of this
  * class are serializable if and only if the provided instances that back them
  * are. For example, if {@code ordering} and {@code function} can themselves be
  * serialized, then {@code ordering.onResultOf(function)} can as well.
@@ -92,9 +110,10 @@ public abstract class Ordering<T> implements Comparator<T> {
 
   /**
    * Returns an ordering based on an <i>existing</i> comparator instance. Note
-   * that there's no need to create a <i>new</i> comparator just to pass it in
-   * here; simply subclass {@code Ordering} and implement its {@code compareTo}
-   * method directly instead.
+   * that it is unnecessary to create a <i>new</i> anonymous inner class
+   * implementing {@code Comparator} just to pass it in here. Instead, simply
+   * subclass {@code Ordering} and implement its {@code compare} method
+   * directly.
    *
    * @param comparator the comparator that defines the order
    * @return comparator itself if it is already an {@code Ordering}; otherwise
@@ -186,7 +205,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *   Ordering.allEqual().nullsLast().sortedCopy(
    *       asList(t, null, e, s, null, t, null))}</pre>
    *
-   * Assuming {@code t}, {@code e} and {@code s} are non-null, this returns
+   * <p>Assuming {@code t}, {@code e} and {@code s} are non-null, this returns
    * {@code [t, e, s, t, null, null, null]} regardlesss of the true comparison
    * order of those three values (which might not even implement {@link
    * Comparable} at all).
@@ -197,6 +216,8 @@ public abstract class Ordering<T> implements Comparator<T> {
    * is expected.
    *
    * <p>The returned comparator is serializable.
+   *
+   * @since 13.0
    */
   @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked")
@@ -348,6 +369,10 @@ public abstract class Ordering<T> implements Comparator<T> {
     return new ByFunctionOrdering<F, T>(function, this);
   }
 
+  <T2 extends T> Ordering<Map.Entry<T2, ?>> onKeys() {
+    return onResultOf(Maps.<T2>keyFunction());
+  }
+
   /**
    * Returns an ordering which first uses the ordering {@code this}, but which
    * in the event of a "tie", then delegates to {@code secondaryComparator}.
@@ -433,7 +458,6 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * @since 11.0
    */
-  @Beta
   public <E extends T> E min(Iterator<E> iterator) {
     // let this throw NoSuchElementException as necessary
     E minSoFar = iterator.next();
@@ -472,7 +496,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *     comparable</i> under this ordering.
    */
   public <E extends T> E min(@Nullable E a, @Nullable E b) {
-    return compare(a, b) <= 0 ? a : b;
+    return (compare(a, b) <= 0) ? a : b;
   }
 
   /**
@@ -510,7 +534,6 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * @since 11.0
    */
-  @Beta
   public <E extends T> E max(Iterator<E> iterator) {
     // let this throw NoSuchElementException as necessary
     E maxSoFar = iterator.next();
@@ -549,7 +572,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *     comparable</i> under this ordering.
    */
   public <E extends T> E max(@Nullable E a, @Nullable E b) {
-    return compare(a, b) >= 0 ? a : b;
+    return (compare(a, b) >= 0) ? a : b;
   }
 
   /**
@@ -588,64 +611,130 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws IllegalArgumentException if {@code k} is negative
    * @since 8.0
    */
-  @Beta
   public <E extends T> List<E> leastOf(Iterable<E> iterable, int k) {
-    checkArgument(k >= 0, "%d is negative", k);
+    if (iterable instanceof Collection) {
+      Collection<E> collection = (Collection<E>) iterable;
+      if (collection.size() <= 2L * k) {
+        // In this case, just dumping the collection to an array and sorting is
+        // faster than using the implementation for Iterator, which is
+        // specialized for k much smaller than n.
 
-    // values is not an E[], but we use it as such for readability. Hack.
-    @SuppressWarnings("unchecked")
-    E[] values = (E[]) Iterables.toArray(iterable);
-
-    // TODO(nshupe): also sort whole list if k is *near* values.length?
-    // TODO(kevinb): benchmark this impl against hand-coded heap
-    E[] resultArray;
-    if (values.length <= k) {
-      Arrays.sort(values, this);
-      resultArray = values;
-    } else {
-      quicksortLeastK(values, 0, values.length - 1, k);
-
-      // this is not an E[], but we use it as such for readability. Hack.
-      @SuppressWarnings("unchecked")
-      E[] tmp = (E[]) new Object[k];
-      resultArray = tmp;
-      System.arraycopy(values, 0, resultArray, 0, k);
+        @SuppressWarnings("unchecked") // c only contains E's and doesn't escape
+        E[] array = (E[]) collection.toArray();
+        Arrays.sort(array, this);
+        if (array.length > k) {
+          array = ObjectArrays.arraysCopyOf(array, k);
+        }
+        return Collections.unmodifiableList(Arrays.asList(array));
+      }
     }
-
-    return Collections.unmodifiableList(Arrays.asList(resultArray));
+    return leastOf(iterable.iterator(), k);
   }
 
   /**
-   * Returns the {@code k} greatest elements of the given iterable according to
-   * this ordering, in order from greatest to least. If there are fewer than
+   * Returns the {@code k} least elements from the given iterator according to
+   * this ordering, in order from least to greatest.  If there are fewer than
    * {@code k} elements present, all will be included.
    *
    * <p>The implementation does not necessarily use a <i>stable</i> sorting
    * algorithm; when multiple elements are equivalent, it is undefined which
    * will come first.
    *
-   * @return an immutable {@code RandomAccess} list of the {@code k} greatest
-   *     elements in <i>descending order</i>
+   * @return an immutable {@code RandomAccess} list of the {@code k} least
+   *     elements in ascending order
    * @throws IllegalArgumentException if {@code k} is negative
-   * @since 8.0
+   * @since 14.0
    */
-  @Beta
-  public <E extends T> List<E> greatestOf(Iterable<E> iterable, int k) {
-    // TODO(kevinb): see if delegation is hurting performance noticeably
-    // TODO(kevinb): if we change this implementation, add full unit tests.
-    return reverse().leastOf(iterable, k);
-  }
+  public <E extends T> List<E> leastOf(Iterator<E> elements, int k) {
+    checkNotNull(elements);
+    checkNonnegative(k, "k");
 
-  private <E extends T> void quicksortLeastK(
-      E[] values, int left, int right, int k) {
-    if (right > left) {
-      int pivotIndex = (left + right) >>> 1; // left + ((right - left) / 2)
-      int pivotNewIndex = partition(values, left, right, pivotIndex);
-      quicksortLeastK(values, left, pivotNewIndex - 1, k);
-      if (pivotNewIndex < k) {
-        quicksortLeastK(values, pivotNewIndex + 1, right, k);
+    if (k == 0 || !elements.hasNext()) {
+      return ImmutableList.of();
+    } else if (k >= Integer.MAX_VALUE / 2) {
+      // k is really large; just do a straightforward sorted-copy-and-sublist
+      ArrayList<E> list = Lists.newArrayList(elements);
+      Collections.sort(list, this);
+      if (list.size() > k) {
+        list.subList(k, list.size()).clear();
+      }
+      list.trimToSize();
+      return Collections.unmodifiableList(list);
+    }
+
+    /*
+     * Our goal is an O(n) algorithm using only one pass and O(k) additional
+     * memory.
+     *
+     * We use the following algorithm: maintain a buffer of size 2*k. Every time
+     * the buffer gets full, find the median and partition around it, keeping
+     * only the lowest k elements.  This requires n/k find-median-and-partition
+     * steps, each of which take O(k) time with a traditional quickselect.
+     *
+     * After sorting the output, the whole algorithm is O(n + k log k). It
+     * degrades gracefully for worst-case input (descending order), performs
+     * competitively or wins outright for randomly ordered input, and doesn't
+     * require the whole collection to fit into memory.
+     */
+    int bufferCap = k * 2;
+    @SuppressWarnings("unchecked") // we'll only put E's in
+    E[] buffer = (E[]) new Object[bufferCap];
+    E threshold = elements.next();
+    buffer[0] = threshold;
+    int bufferSize = 1;
+    // threshold is the kth smallest element seen so far.  Once bufferSize >= k,
+    // anything larger than threshold can be ignored immediately.
+
+    while (bufferSize < k && elements.hasNext()) {
+      E e = elements.next();
+      buffer[bufferSize++] = e;
+      threshold = max(threshold, e);
+    }
+
+    while (elements.hasNext()) {
+      E e = elements.next();
+      if (compare(e, threshold) >= 0) {
+        continue;
+      }
+
+      buffer[bufferSize++] = e;
+      if (bufferSize == bufferCap) {
+        // We apply the quickselect algorithm to partition about the median,
+        // and then ignore the last k elements.
+        int left = 0;
+        int right = bufferCap - 1;
+
+        int minThresholdPosition = 0;
+        // The leftmost position at which the greatest of the k lower elements
+        // -- the new value of threshold -- might be found.
+
+        while (left < right) {
+          int pivotIndex = (left + right + 1) >>> 1;
+          int pivotNewIndex = partition(buffer, left, right, pivotIndex);
+          if (pivotNewIndex > k) {
+            right = pivotNewIndex - 1;
+          } else if (pivotNewIndex < k) {
+            left = Math.max(pivotNewIndex, left + 1);
+            minThresholdPosition = pivotNewIndex;
+          } else {
+            break;
+          }
+        }
+        bufferSize = k;
+
+        threshold = buffer[minThresholdPosition];
+        for (int i = minThresholdPosition + 1; i < bufferSize; i++) {
+          threshold = max(threshold, buffer[i]);
+        }
       }
     }
+
+    Arrays.sort(buffer, 0, bufferSize, this);
+
+    bufferSize = Math.min(bufferSize, k);
+    return Collections.unmodifiableList(
+        Arrays.asList(ObjectArrays.arraysCopyOf(buffer, bufferSize)));
+    // We can't use ImmutableList; we have to be null-friendly!
   }
 
   private <E extends T> int partition(
@@ -667,49 +756,95 @@ public abstract class Ordering<T> implements Comparator<T> {
   }
 
   /**
-   * Returns a copy of the given iterable sorted by this ordering. The input is
-   * not modified. The returned list is modifiable, serializable, and has random
-   * access.
+   * Returns the {@code k} greatest elements of the given iterable according to
+   * this ordering, in order from greatest to least. If there are fewer than
+   * {@code k} elements present, all will be included.
+   *
+   * <p>The implementation does not necessarily use a <i>stable</i> sorting
+   * algorithm; when multiple elements are equivalent, it is undefined which
+   * will come first.
+   *
+   * @return an immutable {@code RandomAccess} list of the {@code k} greatest
+   *     elements in <i>descending order</i>
+   * @throws IllegalArgumentException if {@code k} is negative
+   * @since 8.0
+   */
+  public <E extends T> List<E> greatestOf(Iterable<E> iterable, int k) {
+    // TODO(kevinb): see if delegation is hurting performance noticeably
+    // TODO(kevinb): if we change this implementation, add full unit tests.
+    return reverse().leastOf(iterable, k);
+  }
+
+  /**
+   * Returns the {@code k} greatest elements from the given iterator according to
+   * this ordering, in order from greatest to least. If there are fewer than
+   * {@code k} elements present, all will be included.
+   *
+   * <p>The implementation does not necessarily use a <i>stable</i> sorting
+   * algorithm; when multiple elements are equivalent, it is undefined which
+   * will come first.
+   *
+   * @return an immutable {@code RandomAccess} list of the {@code k} greatest
+   *     elements in <i>descending order</i>
+   * @throws IllegalArgumentException if {@code k} is negative
+   * @since 14.0
+   */
+  public <E extends T> List<E> greatestOf(Iterator<E> iterator, int k) {
+    return reverse().leastOf(iterator, k);
+  }
+
+  /**
+   * Returns a <b>mutable</b> list containing {@code elements} sorted by this
+   * ordering; use this only when the resulting list may need further
+   * modification, or may contain {@code null}. The input is not modified. The
+   * returned list is serializable and has random access.
    *
    * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not discard
    * elements that are duplicates according to the comparator. The sort
    * performed is <i>stable</i>, meaning that such elements will appear in the
-   * resulting list in the same order they appeared in the input.
+   * returned list in the same order they appeared in {@code elements}.
    *
-   * @param iterable the elements to be copied and sorted
-   * @return a new list containing the given elements in sorted order
+   * <p><b>Performance note:</b> According to our
+   * benchmarking
+   * on Open JDK 7, {@link #immutableSortedCopy} generally performs better (in
+   * both time and space) than this method, and this method in turn generally
+   * performs better than copying the list and calling {@link
+   * Collections#sort(List)}.
    */
-  public <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
+  public <E extends T> List<E> sortedCopy(Iterable<E> elements) {
     @SuppressWarnings("unchecked") // does not escape, and contains only E's
-    E[] array = (E[]) Iterables.toArray(iterable);
+    E[] array = (E[]) Iterables.toArray(elements);
     Arrays.sort(array, this);
     return Lists.newArrayList(Arrays.asList(array));
   }
 
   /**
-   * Returns an <i>immutable</i> copy of the given iterable sorted by this
+   * Returns an <b>immutable</b> list containing {@code elements} sorted by this
    * ordering. The input is not modified.
    *
    * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not discard
    * elements that are duplicates according to the comparator. The sort
    * performed is <i>stable</i>, meaning that such elements will appear in the
-   * resulting list in the same order they appeared in the input.
+   * returned list in the same order they appeared in {@code elements}.
    *
-   * @param iterable the elements to be copied and sorted
-   * @return a new immutable list containing the given elements in sorted order
-   * @throws NullPointerException if {@code iterable} or any of its elements is
-   *     null
+   * <p><b>Performance note:</b> According to our
+   * benchmarking
+   * on Open JDK 7, this method is the most efficient way to make a sorted copy
+   * of a collection.
+   *
+   * @throws NullPointerException if any of {@code elements} (or {@code
+   *     elements} itself) is null
    * @since 3.0
    */
   public <E extends T> ImmutableList<E> immutableSortedCopy(
-      Iterable<E> iterable) {
+      Iterable<E> elements) {
     @SuppressWarnings("unchecked") // we'll only ever have E's in here
-    E[] elements = (E[]) Iterables.toArray(iterable);
-    for (E e : elements) {
+    E[] array = (E[]) Iterables.toArray(elements);
+    for (E e : array) {
       checkNotNull(e);
     }
-    Arrays.sort(elements, this);
-    return ImmutableList.asImmutableList(elements);
+    Arrays.sort(array, this);
+    return ImmutableList.asImmutableList(array);
   }
 
   /**

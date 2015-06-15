@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import static com.google.common.collect.CollectPreconditions.checkRemove;
 import static com.google.common.collect.Maps.keyOrNull;
 
 import com.google.common.annotations.Beta;
@@ -25,8 +26,6 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-
-import javax.annotation.Nullable;
 
 /**
  * A navigable map which forwards all its method calls to another navigable map. Subclasses should
@@ -50,7 +49,6 @@ import javax.annotation.Nullable;
  * @author Louis Wasserman
  * @since 12.0
  */
-@Beta
 public abstract class ForwardingNavigableMap<K, V>
     extends ForwardingSortedMap<K, V> implements NavigableMap<K, V> {
 
@@ -238,7 +236,7 @@ public abstract class ForwardingNavigableMap<K, V>
    * {@code pollFirstEntry} to forward to this implementation.
    */
   protected Entry<K, V> standardPollFirstEntry() {
-    return poll(entrySet().iterator());
+    return Iterators.pollNext(entrySet().iterator());
   }
 
   @Override
@@ -252,7 +250,7 @@ public abstract class ForwardingNavigableMap<K, V>
    * to override {@code pollFirstEntry} to forward to this implementation.
    */
   protected Entry<K, V> standardPollLastEntry() {
-    return poll(descendingMap().entrySet().iterator());
+    return Iterators.pollNext(descendingMap().entrySet().iterator());
   }
 
   @Override
@@ -308,7 +306,7 @@ public abstract class ForwardingNavigableMap<K, V>
 
         @Override
         public void remove() {
-          Iterators.checkRemove(toRemove != null);
+          checkRemove(toRemove != null);
           forward().remove(toRemove.getKey());
           toRemove = null;
         }
@@ -332,11 +330,8 @@ public abstract class ForwardingNavigableMap<K, V>
   @Beta
   protected class StandardNavigableKeySet extends Maps.NavigableKeySet<K, V> {
     /** Constructor for use by subclasses. */
-    public StandardNavigableKeySet() {}
-
-    @Override
-    NavigableMap<K, V> map() {
-      return ForwardingNavigableMap.this;
+    public StandardNavigableKeySet() {
+      super(ForwardingNavigableMap.this);
     }
   }
 
@@ -352,6 +347,7 @@ public abstract class ForwardingNavigableMap<K, V>
    * {@code descendingMap}, you may wish to override {@code descendingKeySet} to forward to this
    * implementation.
    */
+  @Beta
   protected NavigableSet<K> standardDescendingKeySet() {
     return descendingMap().navigableKeySet();
   }
@@ -398,15 +394,5 @@ public abstract class ForwardingNavigableMap<K, V>
    */
   protected SortedMap<K, V> standardTailMap(K fromKey) {
     return tailMap(fromKey, true);
-  }
-
-  @Nullable
-  private static <T> T poll(Iterator<T> iterator) {
-    if (iterator.hasNext()) {
-      T result = iterator.next();
-      iterator.remove();
-      return result;
-    }
-    return null;
   }
 }

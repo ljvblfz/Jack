@@ -31,36 +31,33 @@ import javax.annotation.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-abstract class ImmutableMapKeySet<K, V> extends TransformedImmutableSet<Entry<K, V>, K> {
-  ImmutableMapKeySet(ImmutableSet<Entry<K, V>> entrySet) {
-    super(entrySet);
-  }
+final class ImmutableMapKeySet<K, V> extends ImmutableSet<K> {
+  private final ImmutableMap<K, V> map;
 
-  ImmutableMapKeySet(ImmutableSet<Entry<K, V>> entrySet, int hashCode) {
-    super(entrySet, hashCode);
+  ImmutableMapKeySet(ImmutableMap<K, V> map) {
+    this.map = map;
   }
-
-  abstract ImmutableMap<K, V> map();
 
   @Override
-  K transform(Entry<K, V> entry) {
-    return entry.getKey();
+  public int size() {
+    return map.size();
+  }
+
+  @Override
+  public UnmodifiableIterator<K> iterator() {
+    return asList().iterator();
   }
 
   @Override
   public boolean contains(@Nullable Object object) {
-    return map().containsKey(object);
-  }
-
-  @Override
-  boolean isPartialView() {
-    return true;
+    return map.containsKey(object);
   }
 
   @Override
   ImmutableList<K> createAsList() {
-    final ImmutableList<Entry<K, V>> entryList = map().entrySet().asList();
+    final ImmutableList<Entry<K, V>> entryList = map.entrySet().asList();
     return new ImmutableAsList<K>() {
+
       @Override
       public K get(int index) {
         return entryList.get(index).getKey();
@@ -70,12 +67,18 @@ abstract class ImmutableMapKeySet<K, V> extends TransformedImmutableSet<Entry<K,
       ImmutableCollection<K> delegateCollection() {
         return ImmutableMapKeySet.this;
       }
+
     };
+  }
+
+  @Override
+  boolean isPartialView() {
+    return true;
   }
 
   @GwtIncompatible("serialization")
   @Override Object writeReplace() {
-    return new KeySetSerializedForm<K>(map());
+    return new KeySetSerializedForm<K>(map);
   }
 
   @GwtIncompatible("serialization")

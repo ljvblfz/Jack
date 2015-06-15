@@ -71,7 +71,10 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
       if (!result.containsKey(key)) {
         @SuppressWarnings("unchecked")
         K castKey = (K) key;
-        result.put(castKey, getIfPresent(key));
+        V value = getIfPresent(key);
+        if (value != null) {
+          result.put(castKey, value);
+        }
       }
     }
     return ImmutableMap.copyOf(result);
@@ -147,7 +150,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
      * @param count the number of hits to record
      * @since 11.0
      */
-    public void recordHits(int count);
+    void recordHits(int count);
 
     /**
      * Records cache misses. This should be called when a cache request returns a value that was
@@ -160,7 +163,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
      * @param count the number of misses to record
      * @since 11.0
      */
-    public void recordMisses(int count);
+    void recordMisses(int count);
 
     /**
      * Records the successful load of a new entry. This should be called when a cache request
@@ -170,7 +173,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
      * @param loadTime the number of nanoseconds the cache spent computing or retrieving the new
      *     value
      */
-    public void recordLoadSuccess(long loadTime);
+    void recordLoadSuccess(long loadTime);
 
     /**
      * Records the failed load of a new entry. This should be called when a cache request causes
@@ -180,20 +183,20 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
      * @param loadTime the number of nanoseconds the cache spent computing or retrieving the new
      *     value prior to an exception being thrown
      */
-    public void recordLoadException(long loadTime);
+    void recordLoadException(long loadTime);
 
     /**
      * Records the eviction of an entry from the cache. This should only been called when an entry
      * is evicted due to the cache's eviction strategy, and not as a result of manual {@linkplain
      * Cache#invalidate invalidations}.
      */
-    public void recordEviction();
+    void recordEviction();
 
     /**
      * Returns a snapshot of this counter's values. Note that this may be an inconsistent view, as
      * it may be interleaved with update operations.
      */
-    public CacheStats snapshot();
+    CacheStats snapshot();
   }
 
   /**
@@ -203,12 +206,12 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
    */
   @Beta
   public static final class SimpleStatsCounter implements StatsCounter {
-    private final LongAdder hitCount = new LongAdder();
-    private final LongAdder missCount = new LongAdder();
-    private final LongAdder loadSuccessCount = new LongAdder();
-    private final LongAdder loadExceptionCount = new LongAdder();
-    private final LongAdder totalLoadTime = new LongAdder();
-    private final LongAdder evictionCount = new LongAdder();
+    private final LongAddable hitCount = LongAddables.create();
+    private final LongAddable missCount = LongAddables.create();
+    private final LongAddable loadSuccessCount = LongAddables.create();
+    private final LongAddable loadExceptionCount = LongAddables.create();
+    private final LongAddable totalLoadTime = LongAddables.create();
+    private final LongAddable evictionCount = LongAddables.create();
 
     /**
      * Constructs an instance with all counts initialized to zero.

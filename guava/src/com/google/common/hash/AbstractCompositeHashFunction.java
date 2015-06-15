@@ -16,6 +16,8 @@
 
 package com.google.common.hash;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.nio.charset.Charset;
 
 /**
@@ -29,6 +31,9 @@ abstract class AbstractCompositeHashFunction extends AbstractStreamingHashFuncti
   final HashFunction[] functions;
 
   AbstractCompositeHashFunction(HashFunction... functions) {
+    for (HashFunction function : functions) {
+      checkNotNull(function);
+    }
     this.functions = functions;
   }
 
@@ -117,9 +122,9 @@ abstract class AbstractCompositeHashFunction extends AbstractStreamingHashFuncti
         return this;
       }
 
-      @Override public Hasher putString(CharSequence chars) {
+      @Override public Hasher putUnencodedChars(CharSequence chars) {
         for (Hasher hasher : hashers) {
-          hasher.putString(chars);
+          hasher.putUnencodedChars(chars);
         }
         return this;
       }

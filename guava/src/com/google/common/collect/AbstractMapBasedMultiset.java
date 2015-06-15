@@ -18,8 +18,8 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Multisets.checkNonnegative;
+import static com.google.common.collect.CollectPreconditions.checkNonnegative;
+import static com.google.common.collect.CollectPreconditions.checkRemove;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
@@ -61,10 +61,6 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   protected AbstractMapBasedMultiset(Map<E, Count> backingMap) {
     this.backingMap = checkNotNull(backingMap);
     this.size = super.size();
-  }
-
-  Map<E, Count> backingMap() {
-    return backingMap;
   }
 
   /** Used during deserialization only. The backing map must be empty. */
@@ -109,21 +105,21 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
           }
           @Override
           public int getCount() {
-            int count = mapEntry.getValue().get();
-            if (count == 0) {
+            Count count = mapEntry.getValue();
+            if (count == null || count.get() == 0) {
               Count frequency = backingMap.get(getElement());
               if (frequency != null) {
-                count = frequency.get();
+                return frequency.get();
               }
             }
-            return count;
+            return (count == null) ? 0 : count.get();
           }
         };
       }
 
       @Override
       public void remove() {
-        Iterators.checkRemove(toRemove != null);
+        checkRemove(toRemove != null);
         size -= toRemove.getValue().getAndSet(0);
         backingEntries.remove();
         toRemove = null;
@@ -157,7 +153,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
   /*
    * Not subclassing AbstractMultiset$MultisetIterator because next() needs to
-   * retrieve the Map.Entry<E, AtomicInteger> entry, which can then be used for
+   * retrieve the Map.Entry<E, Count> entry, which can then be used for
    * a more efficient remove() call.
    */
   private class MapBasedMultisetIterator implements Iterator<E> {
@@ -188,8 +184,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
     @Override
     public void remove() {
-      checkState(canRemove,
-          "no calls to next() since the last call to remove()");
+      checkRemove(canRemove);
       int frequency = currentEntry.getValue().get();
       if (frequency <= 0) {
         throw new ConcurrentModificationException();
@@ -203,14 +198,8 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   }
 
   @Override public int count(@Nullable Object element) {
-    try {
-      Count frequency = backingMap.get(element);
-      return (frequency == null) ? 0 : frequency.get();
-    } catch (NullPointerException e) {
-      return 0;
-    } catch (ClassCastException e) {
-      return 0;
-    }
+    Count frequency = Maps.safeGet(backingMap, element);
+    return (frequency == null) ? 0 : frequency.get();
   }
 
   // Optional Operations - Modification Operations
@@ -298,19 +287,6 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     }
 
     return i.getAndSet(count);
-  }
-
-  // Views
-
-  @Override Set<E> createElementSet() {
-    return new MapBasedElementSet();
-  }
-
-  class MapBasedElementSet extends Multisets.ElementSet<E> {
-    @Override
-    Multiset<E> multiset() {
-      return AbstractMapBasedMultiset.this;
-    }
   }
 
   // Don't allow default serialization.

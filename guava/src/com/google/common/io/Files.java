@@ -16,19 +16,23 @@
 
 package com.google.common.io;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.io.FileWriteMode.APPEND;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.TreeTraverser;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,8 +48,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.zip.Checksum;
 
 /**
  * Provides utility methods for working with files.
@@ -53,6 +58,7 @@ import java.util.zip.Checksum;
  * <p>All method parameters must be non-null unless documented otherwise.
  *
  * @author Chris Nokleberg
+ * @author Colin Decker
  * @since 1.0
  */
 @Beta
@@ -74,6 +80,8 @@ public final class Files {
    */
   public static BufferedReader newReader(File file, Charset charset)
       throws FileNotFoundException {
+    checkNotNull(file);
+    checkNotNull(charset);
     return new BufferedReader(
         new InputStreamReader(new FileInputStream(file), charset));
   }
@@ -89,103 +97,144 @@ public final class Files {
    */
   public static BufferedWriter newWriter(File file, Charset charset)
       throws FileNotFoundException {
+    checkNotNull(file);
+    checkNotNull(charset);
     return new BufferedWriter(
         new OutputStreamWriter(new FileOutputStream(file), charset));
   }
 
   /**
-   * Returns a factory that will supply instances of {@link FileInputStream}
-   * that read from a file.
+   * Returns a new {@link ByteSource} for reading bytes from the given file.
    *
-   * @param file the file to read from
-   * @return the factory
+   * @since 14.0
    */
-  public static InputSupplier<FileInputStream> newInputStreamSupplier(
-      final File file) {
-    Preconditions.checkNotNull(file);
-    return new InputSupplier<FileInputStream>() {
-      @Override
-      public FileInputStream getInput() throws IOException {
-        return new FileInputStream(file);
+  public static ByteSource asByteSource(File file) {
+    return new FileByteSource(file);
+  }
+
+  private static final class FileByteSource extends ByteSource {
+
+    private final File file;
+
+    private FileByteSource(File file) {
+      this.file = checkNotNull(file);
+    }
+
+    @Override
+    public FileInputStream openStream() throws IOException {
+      return new FileInputStream(file);
+    }
+
+    @Override
+    public long size() throws IOException {
+      if (!file.isFile()) {
+        throw new FileNotFoundException(file.toString());
       }
-    };
-  }
+      return file.length();
+    }
 
-  /**
-   * Returns a factory that will supply instances of {@link FileOutputStream}
-   * that write to a file.
-   *
-   * @param file the file to write to
-   * @return the factory
-   */
-  public static OutputSupplier<FileOutputStream> newOutputStreamSupplier(
-      File file) {
-    return newOutputStreamSupplier(file, false);
-  }
-
-  /**
-   * Returns a factory that will supply instances of {@link FileOutputStream}
-   * that write to or append to a file.
-   *
-   * @param file the file to write to
-   * @param append if true, the encoded characters will be appended to the file;
-   *     otherwise the file is overwritten
-   * @return the factory
-   */
-  public static OutputSupplier<FileOutputStream> newOutputStreamSupplier(
-      final File file, final boolean append) {
-    Preconditions.checkNotNull(file);
-    return new OutputSupplier<FileOutputStream>() {
-      @Override
-      public FileOutputStream getOutput() throws IOException {
-        return new FileOutputStream(file, append);
+    @Override
+    public byte[] read() throws IOException {
+      Closer closer = Closer.create();
+      try {
+        FileInputStream in = closer.register(openStream());
+        return readFile(in, in.getChannel().size());
+      } catch (Throwable e) {
+        throw closer.rethrow(e);
+      } finally {
+        closer.close();
       }
-    };
+    }
+
+    @Override
+    public String toString() {
+      return "Files.asByteSource(" + file + ")";
+    }
   }
 
   /**
-   * Returns a factory that will supply instances of
-   * {@link InputStreamReader} that read a file using the given character set.
-   *
-   * @param file the file to read from
-   * @param charset the charset used to decode the input stream; see {@link
-   *     Charsets} for helpful predefined constants
-   * @return the factory
+   * Reads a file of the given expected size from the given input stream, if
+   * it will fit into a byte array. This method handles the case where the file
+   * size changes between when the size is read and when the contents are read
+   * from the stream.
    */
-  public static InputSupplier<InputStreamReader> newReaderSupplier(File file,
-      Charset charset) {
-    return CharStreams.newReaderSupplier(newInputStreamSupplier(file), charset);
+  static byte[] readFile(
+      InputStream in, long expectedSize) throws IOException {
+    if (expectedSize > Integer.MAX_VALUE) {
+      throw new OutOfMemoryError("file is too large to fit in a byte array: "
+          + expectedSize + " bytes");
+    }
+
+    // some special files may return size 0 but have content, so read
+    // the file normally in that case
+    return expectedSize == 0
+        ? ByteStreams.toByteArray(in)
+        : ByteStreams.toByteArray(in, (int) expectedSize);
   }
 
   /**
-   * Returns a factory that will supply instances of {@link OutputStreamWriter}
-   * that write to a file using the given character set.
+   * Returns a new {@link ByteSink} for writing bytes to the given file. The
+   * given {@code modes} control how the file is opened for writing. When no
+   * mode is provided, the file will be truncated before writing. When the
+   * {@link FileWriteMode#APPEND APPEND} mode is provided, writes will
+   * append to the end of the file without truncating it.
    *
-   * @param file the file to write to
-   * @param charset the charset used to encode the output stream; see {@link
-   *     Charsets} for helpful predefined constants
-   * @return the factory
+   * @since 14.0
    */
-  public static OutputSupplier<OutputStreamWriter> newWriterSupplier(File file,
-      Charset charset) {
-    return newWriterSupplier(file, charset, false);
+  public static ByteSink asByteSink(File file, FileWriteMode... modes) {
+    return new FileByteSink(file, modes);
+  }
+
+  private static final class FileByteSink extends ByteSink {
+
+    private final File file;
+    private final ImmutableSet<FileWriteMode> modes;
+
+    private FileByteSink(File file, FileWriteMode... modes) {
+      this.file = checkNotNull(file);
+      this.modes = ImmutableSet.copyOf(modes);
+    }
+
+    @Override
+    public FileOutputStream openStream() throws IOException {
+      return new FileOutputStream(file, modes.contains(APPEND));
+    }
+
+    @Override
+    public String toString() {
+      return "Files.asByteSink(" + file + ", " + modes + ")";
+    }
   }
 
   /**
-   * Returns a factory that will supply instances of {@link OutputStreamWriter}
-   * that write to or append to a file using the given character set.
+   * Returns a new {@link CharSource} for reading character data from the given
+   * file using the given character set.
    *
-   * @param file the file to write to
-   * @param charset the charset used to encode the output stream; see {@link
-   *     Charsets} for helpful predefined constants
-   * @param append if true, the encoded characters will be appended to the file;
-   *     otherwise the file is overwritten
-   * @return the factory
+   * @since 14.0
    */
-  public static OutputSupplier<OutputStreamWriter> newWriterSupplier(File file,
-      Charset charset, boolean append) {
-    return CharStreams.newWriterSupplier(newOutputStreamSupplier(file, append),
-        charset);
+  public static CharSource asCharSource(File file, Charset charset) {
+    return asByteSource(file).asCharSource(charset);
+  }
+
+  /**
+   * Returns a new {@link CharSink} for writing character data to the given
+   * file using the given character set. The given {@code modes} control how
+   * the file is opened for writing. When no mode is provided, the file
+   * will be truncated before writing. When the
+   * {@link FileWriteMode#APPEND APPEND} mode is provided, writes will
+   * append to the end of the file without truncating it.
+   *
+   * @since 14.0
+   */
+  public static CharSink asCharSink(File file, Charset charset,
+      FileWriteMode... modes) {
+    return asByteSink(file, modes).asCharSink(charset);
+  }
+
+  private static FileWriteMode[] modes(boolean append) {
+    return append
+        ? new FileWriteMode[]{ FileWriteMode.APPEND }
+        : new FileWriteMode[0];
   }
 
   /**
@@ -198,23 +247,7 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static byte[] toByteArray(File file) throws IOException {
-    Preconditions.checkArgument(file.length() <= Integer.MAX_VALUE);
-    if (file.length() == 0) {
-      // Some special files are length 0 but have content nonetheless.
-      return ByteStreams.toByteArray(newInputStreamSupplier(file));
-    } else {
-      // Avoid an extra allocation and copy.
-      byte[] b = new byte[(int) file.length()];
-      boolean threw = true;
-      InputStream in = new FileInputStream(file);
-      try {
-        ByteStreams.readFully(in, b);
-        threw = false;
-      } finally {
-        Closeables.close(in, threw);
-      }
-      return b;
-    }
+    return asByteSource(file).read();
   }
 
   /**
@@ -228,20 +261,7 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static String toString(File file, Charset charset) throws IOException {
-    return new String(toByteArray(file), charset.name());
-  }
-
-  /**
-   * Copies to a file all bytes from an {@link InputStream} supplied by a
-   * factory.
-   *
-   * @param from the input factory
-   * @param to the destination file
-   * @throws IOException if an I/O error occurs
-   */
-  public static void copy(InputSupplier<? extends InputStream> from, File to)
-      throws IOException {
-    ByteStreams.copy(from, newOutputStreamSupplier(to));
+    return asCharSource(file, charset).read();
   }
 
   /**
@@ -252,20 +272,7 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static void write(byte[] from, File to) throws IOException {
-    ByteStreams.write(from, newOutputStreamSupplier(to));
-  }
-
-  /**
-   * Copies all bytes from a file to an {@link OutputStream} supplied by
-   * a factory.
-   *
-   * @param from the source file
-   * @param to the output factory
-   * @throws IOException if an I/O error occurs
-   */
-  public static void copy(File from, OutputSupplier<? extends OutputStream> to)
-      throws IOException {
-    ByteStreams.copy(newInputStreamSupplier(from), to);
+    asByteSink(to).write(from);
   }
 
   /**
@@ -276,37 +283,26 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static void copy(File from, OutputStream to) throws IOException {
-    ByteStreams.copy(newInputStreamSupplier(from), to);
+    asByteSource(from).copyTo(to);
   }
 
   /**
    * Copies all the bytes from one file to another.
-   *.
+   *
+   * <p><b>Warning:</b> If {@code to} represents an existing file, that file
+   * will be overwritten with the contents of {@code from}. If {@code to} and
+   * {@code from} refer to the <i>same</i> file, the contents of that file
+   * will be deleted.
+   *
    * @param from the source file
    * @param to the destination file
    * @throws IOException if an I/O error occurs
    * @throws IllegalArgumentException if {@code from.equals(to)}
    */
   public static void copy(File from, File to) throws IOException {
-    Preconditions.checkArgument(!from.equals(to),
+    checkArgument(!from.equals(to),
         "Source %s and destination %s must be different", from, to);
-    copy(newInputStreamSupplier(from), to);
-  }
-
-  /**
-   * Copies to a file all characters from a {@link Readable} and
-   * {@link Closeable} object supplied by a factory, using the given
-   * character set.
-   *
-   * @param from the readable supplier
-   * @param to the destination file
-   * @param charset the charset used to encode the output stream; see {@link
-   *     Charsets} for helpful predefined constants
-   * @throws IOException if an I/O error occurs
-   */
-  public static <R extends Readable & Closeable> void copy(
-      InputSupplier<R> from, File to, Charset charset) throws IOException {
-    CharStreams.copy(from, newWriterSupplier(to, charset));
+    asByteSource(from).copyTo(asByteSink(to));
   }
 
   /**
@@ -321,7 +317,7 @@ public final class Files {
    */
   public static void write(CharSequence from, File to, Charset charset)
       throws IOException {
-    write(from, to, charset, false);
+    asCharSink(to, charset).write(from);
   }
 
   /**
@@ -352,23 +348,7 @@ public final class Files {
    */
   private static void write(CharSequence from, File to, Charset charset,
       boolean append) throws IOException {
-    CharStreams.write(from, newWriterSupplier(to, charset, append));
-  }
-
-  /**
-   * Copies all characters from a file to a {@link Appendable} &
-   * {@link Closeable} object supplied by a factory, using the given
-   * character set.
-   *
-   * @param from the source file
-   * @param charset the charset used to decode the input stream; see {@link
-   *     Charsets} for helpful predefined constants
-   * @param to the appendable supplier
-   * @throws IOException if an I/O error occurs
-   */
-  public static <W extends Appendable & Closeable> void copy(File from,
-      Charset charset, OutputSupplier<W> to) throws IOException {
-    CharStreams.copy(newReaderSupplier(from, charset), to);
+    asCharSink(to, charset, modes(append)).write(from);
   }
 
   /**
@@ -383,7 +363,7 @@ public final class Files {
    */
   public static void copy(File from, Charset charset, Appendable to)
       throws IOException {
-    CharStreams.copy(newReaderSupplier(from, charset), to);
+    asCharSource(from, charset).copyTo(to);
   }
 
   /**
@@ -392,6 +372,8 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static boolean equal(File file1, File file2) throws IOException {
+    checkNotNull(file1);
+    checkNotNull(file2);
     if (file1 == file2 || file1.equals(file2)) {
       return true;
     }
@@ -406,8 +388,7 @@ public final class Files {
     if (len1 != 0 && len2 != 0 && len1 != len2) {
       return false;
     }
-    return ByteStreams.equal(newInputStreamSupplier(file1),
-        newInputStreamSupplier(file2));
+    return asByteSource(file1).contentEquals(asByteSource(file2));
   }
 
   /**
@@ -452,6 +433,7 @@ public final class Files {
    * @throws IOException if an I/O error occurs
    */
   public static void touch(File file) throws IOException {
+    checkNotNull(file);
     if (!file.createNewFile()
         && !file.setLastModified(System.currentTimeMillis())) {
       throw new IOException("Unable to update modification time of " + file);
@@ -469,6 +451,7 @@ public final class Files {
    * @since 4.0
    */
   public static void createParentDirs(File file) throws IOException {
+    checkNotNull(file);
     File parent = file.getCanonicalFile().getParentFile();
     if (parent == null) {
       /*
@@ -487,8 +470,10 @@ public final class Files {
   }
 
   /**
-   * Moves the file from one path to another. This method can rename a file or
-   * move it to a different directory, like the Unix {@code mv} command.
+   * Moves a file from one path to another. This method can rename a file
+   * and/or move it to a different directory. In either case {@code to} must
+   * be the target path for the file itself; not just the new name for the
+   * file or the path to the new parent directory.
    *
    * @param from the source file
    * @param to the destination file
@@ -496,8 +481,9 @@ public final class Files {
    * @throws IllegalArgumentException if {@code from.equals(to)}
    */
   public static void move(File from, File to) throws IOException {
-    Preconditions.checkNotNull(to);
-    Preconditions.checkArgument(!from.equals(to),
+    checkNotNull(from);
+    checkNotNull(to);
+    checkArgument(!from.equals(to),
         "Source %s and destination %s must be different", from, to);
 
     if (!from.renameTo(to)) {
@@ -524,13 +510,17 @@ public final class Files {
    */
   public static String readFirstLine(File file, Charset charset)
       throws IOException {
-    return CharStreams.readFirstLine(Files.newReaderSupplier(file, charset));
+    return asCharSource(file, charset).readFirstLine();
   }
 
   /**
    * Reads all of the lines from a file. The lines do not include
    * line-termination characters, but do include other leading and
    * trailing whitespace.
+   *
+   * <p>This method returns a mutable {@code List}. For an
+   * {@code ImmutableList}, use
+   * {@code Files.asCharSource(file, charset).readLines()}.
    *
    * @param file the file to read from
    * @param charset the charset used to decode the input stream; see {@link
@@ -540,7 +530,22 @@ public final class Files {
    */
   public static List<String> readLines(File file, Charset charset)
       throws IOException {
-    return CharStreams.readLines(Files.newReaderSupplier(file, charset));
+    // don't use asCharSource(file, charset).readLines() because that returns
+    // an immutable list, which would change the behavior of this method
+    return readLines(file, charset, new LineProcessor<List<String>>() {
+      final List<String> result = Lists.newArrayList();
+
+      @Override
+      public boolean processLine(String line) {
+        result.add(line);
+        return true;
+      }
+
+      @Override
+      public List<String> getResult() {
+        return result;
+      }
+    });
   }
 
   /**
@@ -556,8 +561,7 @@ public final class Files {
    */
   public static <T> T readLines(File file, Charset charset,
       LineProcessor<T> callback) throws IOException {
-    return CharStreams.readLines(Files.newReaderSupplier(file, charset),
-        callback);
+    return asCharSource(file, charset).readLines(callback);
   }
 
   /**
@@ -573,22 +577,7 @@ public final class Files {
    */
   public static <T> T readBytes(File file, ByteProcessor<T> processor)
       throws IOException {
-    return ByteStreams.readBytes(newInputStreamSupplier(file), processor);
-  }
-
-  /**
-   * Computes and returns the checksum value for a file.
-   * The checksum object is reset when this method returns successfully.
-   *
-   * @param file the file to read
-   * @param checksum the checksum object
-   * @return the result of {@link Checksum#getValue} after updating the
-   *     checksum object with all of the bytes in the file
-   * @throws IOException if an I/O error occurs
-   */
-  public static long getChecksum(File file, Checksum checksum)
-      throws IOException {
-    return ByteStreams.getChecksum(newInputStreamSupplier(file), checksum);
+    return asByteSource(file).read(processor);
   }
 
   /**
@@ -602,7 +591,7 @@ public final class Files {
    */
   public static HashCode hash(File file, HashFunction hashFunction)
       throws IOException {
-    return ByteStreams.hash(newInputStreamSupplier(file), hashFunction);
+    return asByteSource(file).hash(hashFunction);
   }
 
   /**
@@ -622,6 +611,7 @@ public final class Files {
    * @since 2.0
    */
   public static MappedByteBuffer map(File file) throws IOException {
+    checkNotNull(file);
     return map(file, MapMode.READ_ONLY);
   }
 
@@ -645,6 +635,8 @@ public final class Files {
    */
   public static MappedByteBuffer map(File file, MapMode mode)
       throws IOException {
+    checkNotNull(file);
+    checkNotNull(mode);
     if (!file.exists()) {
       throw new FileNotFoundException(file.toString());
     }
@@ -674,30 +666,31 @@ public final class Files {
    */
   public static MappedByteBuffer map(File file, MapMode mode, long size)
       throws FileNotFoundException, IOException {
-    RandomAccessFile raf =
-        new RandomAccessFile(file, mode == MapMode.READ_ONLY ? "r" : "rw");
+    checkNotNull(file);
+    checkNotNull(mode);
 
-    boolean threw = true;
+    Closer closer = Closer.create();
     try {
-      MappedByteBuffer mbb = map(raf, mode, size);
-      threw = false;
-      return mbb;
+      RandomAccessFile raf = closer.register(
+          new RandomAccessFile(file, mode == MapMode.READ_ONLY ? "r" : "rw"));
+      return map(raf, mode, size);
+    } catch (Throwable e) {
+      throw closer.rethrow(e);
     } finally {
-      Closeables.close(raf, threw);
+      closer.close();
     }
   }
 
   private static MappedByteBuffer map(RandomAccessFile raf, MapMode mode,
       long size) throws IOException {
-    FileChannel channel = raf.getChannel();
-
-    boolean threw = true;
+    Closer closer = Closer.create();
     try {
-      MappedByteBuffer mbb = channel.map(mode, 0, size);
-      threw = false;
-      return mbb;
+      FileChannel channel = closer.register(raf.getChannel());
+      return channel.map(mode, 0, size);
+    } catch (Throwable e) {
+      throw closer.rethrow(e);
     } finally {
-      Closeables.close(channel, threw);
+      closer.close();
     }
   }
 
@@ -714,7 +707,7 @@ public final class Files {
    * <li>delete trailing slashes (unless the path is just "/")
    * </ul>
    *
-   * These heuristics do not always match the behavior of the filesystem. In
+   * <p>These heuristics do not always match the behavior of the filesystem. In
    * particular, consider the path {@code a/../b}, which {@code simplifyPath}
    * will change to {@code b}. If {@code a} is a symlink to {@code x}, {@code
    * a/../b} may refer to a sibling of {@code x}, rather than the sibling of
@@ -723,6 +716,7 @@ public final class Files {
    * @since 11.0
    */
   public static String simplifyPath(String pathname) {
+    checkNotNull(pathname);
     if (pathname.length() == 0) {
       return ".";
     }
@@ -772,9 +766,105 @@ public final class Files {
    *
    * @since 11.0
    */
-  public static String getFileExtension(String fileName) {
-    checkNotNull(fileName);
+  public static String getFileExtension(String fullName) {
+    checkNotNull(fullName);
+    String fileName = new File(fullName).getName();
     int dotIndex = fileName.lastIndexOf('.');
     return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+  }
+
+  /**
+   * Returns the file name without its
+   * <a href="http://en.wikipedia.org/wiki/Filename_extension">file extension</a> or path. This is
+   * similar to the {@code basename} unix command. The result does not include the '{@code .}'.
+   *
+   * @param file The name of the file to trim the extension from. This can be either a fully
+   *     qualified file name (including a path) or just a file name.
+   * @return The file name without its path or extension.
+   * @since 14.0
+   */
+  public static String getNameWithoutExtension(String file) {
+    checkNotNull(file);
+    String fileName = new File(file).getName();
+    int dotIndex = fileName.lastIndexOf('.');
+    return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+  }
+
+  /**
+   * Returns a {@link TreeTraverser} instance for {@link File} trees.
+   *
+   * <p><b>Warning:</b> {@code File} provides no support for symbolic links, and as such there is no
+   * way to ensure that a symbolic link to a directory is not followed when traversing the tree.
+   * In this case, iterables created by this traverser could contain files that are outside of the
+   * given directory or even be infinite if there is a symbolic link loop.
+   *
+   * @since 15.0
+   */
+  public static TreeTraverser<File> fileTreeTraverser() {
+    return FILE_TREE_TRAVERSER;
+  }
+
+  private static final TreeTraverser<File> FILE_TREE_TRAVERSER = new TreeTraverser<File>() {
+    @Override
+    public Iterable<File> children(File file) {
+      // check isDirectory() just because it may be faster than listFiles() on a non-directory
+      if (file.isDirectory()) {
+        File[] files = file.listFiles();
+        if (files != null) {
+          return Collections.unmodifiableList(Arrays.asList(files));
+        }
+      }
+
+      return Collections.emptyList();
+    }
+
+    @Override
+    public String toString() {
+      return "Files.fileTreeTraverser()";
+    }
+  };
+
+  /**
+   * Returns a predicate that returns the result of {@link File#isDirectory} on input files.
+   *
+   * @since 15.0
+   */
+  public static Predicate<File> isDirectory() {
+    return FilePredicate.IS_DIRECTORY;
+  }
+
+  /**
+   * Returns a predicate that returns the result of {@link File#isFile} on input files.
+   *
+   * @since 15.0
+   */
+  public static Predicate<File> isFile() {
+    return FilePredicate.IS_FILE;
+  }
+
+  private enum FilePredicate implements Predicate<File> {
+    IS_DIRECTORY {
+      @Override
+      public boolean apply(File file) {
+        return file.isDirectory();
+      }
+
+      @Override
+      public String toString() {
+        return "Files.isDirectory()";
+      }
+    },
+
+    IS_FILE {
+      @Override
+      public boolean apply(File file) {
+        return file.isFile();
+      }
+
+      @Override
+      public String toString() {
+        return "Files.isFile()";
+      }
+    };
   }
 }

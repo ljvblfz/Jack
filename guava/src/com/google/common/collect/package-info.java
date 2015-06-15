@@ -85,7 +85,7 @@
  * <ul>
  * <li>{@link com.google.common.collect.ImmutableSet}
  * <li>{@link com.google.common.collect.ImmutableSortedSet}
- * <li>{@link com.google.common.collect.ContiguousSet} (see {@code Ranges})
+ * <li>{@link com.google.common.collect.ContiguousSet} (see {@code Range})
  * </ul>
  *
  * <h3>of {@link java.util.Map}</h3>
@@ -176,9 +176,8 @@
  *
  * <ul>
  * <li>{@link com.google.common.collect.Range}
- * <li>{@link com.google.common.collect.Ranges}
+ * <li>{@link com.google.common.collect.RangeMap}
  * <li>{@link com.google.common.collect.DiscreteDomain}
- * <li>{@link com.google.common.collect.DiscreteDomains}
  * <li>{@link com.google.common.collect.ContiguousSet}
  * </ul>
  *
@@ -217,6 +216,7 @@
  * <li>{@link com.google.common.collect.ForwardingSet}
  * <li>{@link com.google.common.collect.ForwardingSetMultimap}
  * <li>{@link com.google.common.collect.ForwardingSortedMap}
+ * <li>{@link com.google.common.collect.ForwardingSortedMultiset}
  * <li>{@link com.google.common.collect.ForwardingSortedSet}
  * <li>{@link com.google.common.collect.ForwardingSortedSetMultimap}
  * <li>{@link com.google.common.collect.ForwardingTable}

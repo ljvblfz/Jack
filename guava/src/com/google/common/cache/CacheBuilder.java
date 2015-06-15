@@ -16,7 +16,6 @@
 
 package com.google.common.cache;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -26,7 +25,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Ascii;
 import com.google.common.base.Equivalence;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Ticker;
@@ -59,7 +58,7 @@ import javax.annotation.CheckReturnValue;
  * <li>accumulation of cache access statistics
  * </ul>
  *
- * These features are all optional; caches can be created using all or none of them. By default
+ * <p>These features are all optional; caches can be created using all or none of them. By default
  * cache instances created by {@code CacheBuilder} will not perform any type of eviction.
  *
  * <p>Usage example: <pre>   {@code
@@ -75,7 +74,7 @@ import javax.annotation.CheckReturnValue;
  *             }
  *           });}</pre>
  *
- * Or equivalently, <pre>   {@code
+ * <p>Or equivalently, <pre>   {@code
  *
  *   // In real life this would come from a command-line flag or config file
  *   String spec = "maximumSize=10000,expireAfterWrite=10m";
@@ -116,7 +115,7 @@ import javax.annotation.CheckReturnValue;
  * <p>If {@linkplain #expireAfterWrite expireAfterWrite} or
  * {@linkplain #expireAfterAccess expireAfterAccess} is requested entries may be evicted on each
  * cache modification, on occasional cache accesses, or on calls to {@link Cache#cleanUp}. Expired
- * entries may be counted in {@link Cache#size}, but will never be visible to read or write
+ * entries may be counted by {@link Cache#size}, but will never be visible to read or write
  * operations.
  *
  * <p>If {@linkplain #weakKeys weakKeys}, {@linkplain #weakValues weakValues}, or
@@ -127,7 +126,7 @@ import javax.annotation.CheckReturnValue;
  * visible to read or write operations.
  *
  * <p>Certain cache configurations will result in the accrual of periodic maintenance tasks which
- * will be performed during write operations, or during occasional read operations in the absense of
+ * will be performed during write operations, or during occasional read operations in the absence of
  * writes. The {@link Cache#cleanUp} method of the returned cache will also perform maintenance, but
  * calling it should not be necessary with a high throughput cache. Only caches built with
  * {@linkplain #removalListener removalListener}, {@linkplain #expireAfterWrite expireAfterWrite},
@@ -277,6 +276,7 @@ public final class CacheBuilder<K, V> {
   /**
    * Enables lenient parsing. Useful for tests and spec parsing.
    */
+  @GwtIncompatible("To be supported")
   CacheBuilder<K, V> lenientParsing() {
     strictParsing = false;
     return this;
@@ -288,6 +288,7 @@ public final class CacheBuilder<K, V> {
    * <p>By default, the cache uses {@link Equivalence#identity} to determine key equality when
    * {@link #weakKeys} is specified, and {@link Equivalence#equals()} otherwise.
    */
+  @GwtIncompatible("To be supported")
   CacheBuilder<K, V> keyEquivalence(Equivalence<Object> equivalence) {
     checkState(keyEquivalence == null, "key equivalence was already set to %s", keyEquivalence);
     keyEquivalence = checkNotNull(equivalence);
@@ -295,7 +296,7 @@ public final class CacheBuilder<K, V> {
   }
 
   Equivalence<Object> getKeyEquivalence() {
-    return firstNonNull(keyEquivalence, getKeyStrength().defaultEquivalence());
+    return MoreObjects.firstNonNull(keyEquivalence, getKeyStrength().defaultEquivalence());
   }
 
   /**
@@ -305,6 +306,7 @@ public final class CacheBuilder<K, V> {
    * {@link #weakValues} or {@link #softValues} is specified, and {@link Equivalence#equals()}
    * otherwise.
    */
+  @GwtIncompatible("To be supported")
   CacheBuilder<K, V> valueEquivalence(Equivalence<Object> equivalence) {
     checkState(valueEquivalence == null,
         "value equivalence was already set to %s", valueEquivalence);
@@ -313,7 +315,7 @@ public final class CacheBuilder<K, V> {
   }
 
   Equivalence<Object> getValueEquivalence() {
-    return firstNonNull(valueEquivalence, getValueStrength().defaultEquivalence());
+    return MoreObjects.firstNonNull(valueEquivalence, getValueStrength().defaultEquivalence());
   }
 
   /**
@@ -430,6 +432,7 @@ public final class CacheBuilder<K, V> {
    * @throws IllegalStateException if a maximum weight or size was already set
    * @since 11.0
    */
+  @GwtIncompatible("To be supported")
   public CacheBuilder<K, V> maximumWeight(long weight) {
     checkState(this.maximumWeight == UNSET_INT, "maximum weight was already set to %s",
         this.maximumWeight);
@@ -468,6 +471,7 @@ public final class CacheBuilder<K, V> {
    * @throws IllegalStateException if a maximum size was already set
    * @since 11.0
    */
+  @GwtIncompatible("To be supported")
   public <K1 extends K, V1 extends V> CacheBuilder<K1, V1> weigher(
       Weigher<? super K1, ? super V1> weigher) {
     checkState(this.weigher == null);
@@ -493,16 +497,7 @@ public final class CacheBuilder<K, V> {
   // Make a safe contravariant cast now so we don't have to do it over and over.
   @SuppressWarnings("unchecked")
   <K1 extends K, V1 extends V> Weigher<K1, V1> getWeigher() {
-    return (Weigher<K1, V1>) Objects.firstNonNull(weigher, OneWeigher.INSTANCE);
-  }
-
-  /**
-   * Specifies that each key (not value) stored in the cache should be strongly referenced.
-   *
-   * @throws IllegalStateException if the key strength was already set
-   */
-  CacheBuilder<K, V> strongKeys() {
-    return setKeyStrength(Strength.STRONG);
+    return (Weigher<K1, V1>) MoreObjects.firstNonNull(weigher, OneWeigher.INSTANCE);
   }
 
   /**
@@ -530,16 +525,7 @@ public final class CacheBuilder<K, V> {
   }
 
   Strength getKeyStrength() {
-    return firstNonNull(keyStrength, Strength.STRONG);
-  }
-
-  /**
-   * Specifies that each value (not key) stored in the cache should be strongly referenced.
-   *
-   * @throws IllegalStateException if the value strength was already set
-   */
-  CacheBuilder<K, V> strongValues() {
-    return setValueStrength(Strength.STRONG);
+    return MoreObjects.firstNonNull(keyStrength, Strength.STRONG);
   }
 
   /**
@@ -594,7 +580,7 @@ public final class CacheBuilder<K, V> {
   }
 
   Strength getValueStrength() {
-    return firstNonNull(valueStrength, Strength.STRONG);
+    return MoreObjects.firstNonNull(valueStrength, Strength.STRONG);
   }
 
   /**
@@ -689,7 +675,7 @@ public final class CacheBuilder<K, V> {
    * @since 11.0
    */
   @Beta
-  @GwtIncompatible("To be supported")
+  @GwtIncompatible("To be supported (synchronously).")
   public CacheBuilder<K, V> refreshAfterWrite(long duration, TimeUnit unit) {
     checkNotNull(unit);
     checkState(refreshNanos == UNSET_INT, "refresh was already set to %s ns", refreshNanos);
@@ -711,7 +697,6 @@ public final class CacheBuilder<K, V> {
    *
    * @throws IllegalStateException if a ticker was already set
    */
-  @GwtIncompatible("To be supported")
   public CacheBuilder<K, V> ticker(Ticker ticker) {
     checkState(this.ticker == null);
     this.ticker = checkNotNull(ticker);
@@ -726,34 +711,27 @@ public final class CacheBuilder<K, V> {
   }
 
   /**
-   * Specifies a listener instance, which all caches built using this {@code CacheBuilder} will
-   * notify each time an entry is removed from the cache by any means.
+   * Specifies a listener instance that caches should notify each time an entry is removed for any
+   * {@linkplain RemovalCause reason}. Each cache created by this builder will invoke this listener
+   * as part of the routine maintenance described in the class documentation above.
    *
-   * <p>Each cache built by this {@code CacheBuilder} after this method is called invokes the
-   * supplied listener after removing an element for any reason (see removal causes in {@link
-   * RemovalCause}). It will invoke the listener as part of the routine maintenance described
-   * in the class javadoc.
+   * <p><b>Warning:</b> after invoking this method, do not continue to use <i>this</i> cache
+   * builder reference; instead use the reference this method <i>returns</i>. At runtime, these
+   * point to the same instance, but only the returned reference has the correct generic type
+   * information so as to ensure type safety. For best results, use the standard method-chaining
+   * idiom illustrated in the class documentation above, configuring a builder and building your
+   * cache in a single statement. Failure to heed this advice can result in a {@link
+   * ClassCastException} being thrown by a cache operation at some <i>undefined</i> point in the
+   * future.
    *
-   * <p><b>Note:</b> <i>all exceptions thrown by {@code listener} will be logged (using
-   * {@link java.util.logging.Logger})and then swallowed</i>.
+   * <p><b>Warning:</b> any exception thrown by {@code listener} will <i>not</i> be propagated to
+   * the {@code Cache} user, only logged via a {@link Logger}.
    *
-   * <p><b>Important note:</b> Instead of returning <em>this</em> as a {@code CacheBuilder}
-   * instance, this method returns {@code CacheBuilder<K1, V1>}. From this point on, either the
-   * original reference or the returned reference may be used to complete configuration and build
-   * the cache, but only the "generic" one is type-safe. That is, it will properly prevent you from
-   * building caches whose key or value types are incompatible with the types accepted by the
-   * listener already provided; the {@code CacheBuilder} type cannot do this. For best results,
-   * simply use the standard method-chaining idiom, as illustrated in the documentation at top,
-   * configuring a {@code CacheBuilder} and building your {@link Cache} all in a single statement.
-   *
-   * <p><b>Warning:</b> if you ignore the above advice, and use this {@code CacheBuilder} to build
-   * a cache whose key or value type is incompatible with the listener, you will likely experience
-   * a {@link ClassCastException} at some <i>undefined</i> point in the future.
-   *
+   * @return the cache builder reference that should be used instead of {@code this} for any
+   *     remaining configuration and cache building
    * @throws IllegalStateException if a removal listener was already set
    */
   @CheckReturnValue
-  @GwtIncompatible("To be supported")
   public <K1 extends K, V1 extends V> CacheBuilder<K1, V1> removalListener(
       RemovalListener<? super K1, ? super V1> listener) {
     checkState(this.removalListener == null);
@@ -768,7 +746,8 @@ public final class CacheBuilder<K, V> {
   // Make a safe contravariant cast now so we don't have to do it over and over.
   @SuppressWarnings("unchecked")
   <K1 extends K, V1 extends V> RemovalListener<K1, V1> getRemovalListener() {
-    return (RemovalListener<K1, V1>) Objects.firstNonNull(removalListener, NullListener.INSTANCE);
+    return (RemovalListener<K1, V1>)
+        MoreObjects.firstNonNull(removalListener, NullListener.INSTANCE);
   }
 
   /**
@@ -782,6 +761,10 @@ public final class CacheBuilder<K, V> {
   public CacheBuilder<K, V> recordStats() {
     statsCounterSupplier = CACHE_STATS_COUNTER;
     return this;
+  }
+  
+  boolean isRecordingStats() {
+    return statsCounterSupplier == CACHE_STATS_COUNTER;
   }
 
   Supplier<? extends StatsCounter> getStatsCounterSupplier() {
@@ -848,19 +831,18 @@ public final class CacheBuilder<K, V> {
    */
   @Override
   public String toString() {
-    Objects.ToStringHelper s = Objects.toStringHelper(this);
+    MoreObjects.ToStringHelper s = MoreObjects.toStringHelper(this);
     if (initialCapacity != UNSET_INT) {
       s.add("initialCapacity", initialCapacity);
     }
     if (concurrencyLevel != UNSET_INT) {
       s.add("concurrencyLevel", concurrencyLevel);
     }
+    if (maximumSize != UNSET_INT) {
+      s.add("maximumSize", maximumSize);
+    }
     if (maximumWeight != UNSET_INT) {
-      if (weigher == null) {
-        s.add("maximumSize", maximumWeight);
-      } else {
-        s.add("maximumWeight", maximumWeight);
-      }
+      s.add("maximumWeight", maximumWeight);
     }
     if (expireAfterWriteNanos != UNSET_INT) {
       s.add("expireAfterWrite", expireAfterWriteNanos + "ns");

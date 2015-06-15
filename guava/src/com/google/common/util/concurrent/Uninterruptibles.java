@@ -22,9 +22,11 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -122,6 +124,9 @@ public final class Uninterruptibles {
    * <p>If instead, you wish to treat {@link InterruptedException} uniformly
    * with other exceptions, see {@link Futures#get(Future, Class) Futures.get}
    * or {@link Futures#makeChecked}.
+   *
+   * @throws ExecutionException if the computation threw an exception
+   * @throws CancellationException if the computation was cancelled
    */
   public static <V> V getUninterruptibly(Future<V> future)
       throws ExecutionException {
@@ -149,6 +154,10 @@ public final class Uninterruptibles {
    * <p>If instead, you wish to treat {@link InterruptedException} uniformly
    * with other exceptions, see {@link Futures#get(Future, Class) Futures.get}
    * or {@link Futures#makeChecked}.
+   *
+   * @throws ExecutionException if the computation threw an exception
+   * @throws CancellationException if the computation was cancelled
+   * @throws TimeoutException if the wait timed out
    */
   public static <V> V getUninterruptibly(
       Future<V> future, long timeout,  TimeUnit unit)
@@ -226,6 +235,11 @@ public final class Uninterruptibles {
   /**
    * Invokes {@code queue.}{@link BlockingQueue#put(Object) put(element)}
    * uninterruptibly.
+   *
+   * @throws ClassCastException if the class of the specified element prevents
+   *     it from being added to the given queue
+   * @throws IllegalArgumentException if some property of the specified element
+   *     prevents it from being added to the given queue
    */
   public static <E> void putUninterruptibly(BlockingQueue<E> queue, E element) {
     boolean interrupted = false;
@@ -260,6 +274,46 @@ public final class Uninterruptibles {
           // TimeUnit.sleep() treats negative timeouts just like zero.
           NANOSECONDS.sleep(remainingNanos);
           return;
+        } catch (InterruptedException e) {
+          interrupted = true;
+          remainingNanos = end - System.nanoTime();
+        }
+      }
+    } finally {
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
+    }
+  }
+
+  /**
+   * Invokes {@code semaphore.}{@link Semaphore#tryAcquire(int, long, TimeUnit)
+   * tryAcquire(1, timeout, unit)} uninterruptibly.
+   *
+   * @since 18.0
+   */
+  public static boolean tryAcquireUninterruptibly(
+      Semaphore semaphore, long timeout, TimeUnit unit) {
+    return tryAcquireUninterruptibly(semaphore, 1, timeout, unit);
+  }
+
+  /**
+   * Invokes {@code semaphore.}{@link Semaphore#tryAcquire(int, long, TimeUnit)
+   * tryAcquire(permits, timeout, unit)} uninterruptibly.
+   *
+   * @since 18.0
+   */
+  public static boolean tryAcquireUninterruptibly(
+      Semaphore semaphore, int permits, long timeout, TimeUnit unit) {
+    boolean interrupted = false;
+    try {
+      long remainingNanos = unit.toNanos(timeout);
+      long end = System.nanoTime() + remainingNanos;
+
+      while (true) {
+        try {
+          // Semaphore treats negative timeouts just like zero.
+          return semaphore.tryAcquire(permits, remainingNanos, NANOSECONDS);
         } catch (InterruptedException e) {
           interrupted = true;
           remainingNanos = end - System.nanoTime();

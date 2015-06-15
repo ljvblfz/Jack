@@ -17,8 +17,9 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.GwtCompatible;
+
 import java.util.Comparator;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -27,6 +28,7 @@ import javax.annotation.Nullable;
  *
  * @author Louis Wasserman
  */
+@GwtCompatible(emulated = true)
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 final class EmptyImmutableSortedMap<K, V> extends ImmutableSortedMap<K, V> {
   private final transient ImmutableSortedSet<K> keySet;
@@ -67,20 +69,6 @@ final class EmptyImmutableSortedMap<K, V> extends ImmutableSortedMap<K, V> {
   }
 
   @Override
-  public int hashCode() {
-    return 0;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object object) {
-    if (object instanceof Map) {
-      Map<?, ?> map = (Map<?, ?>) object;
-      return map.isEmpty();
-    }
-    return false;
-  }
-
-  @Override
   public String toString() {
     return "{}";
   }
@@ -98,6 +86,11 @@ final class EmptyImmutableSortedMap<K, V> extends ImmutableSortedMap<K, V> {
   @Override
   ImmutableSet<Entry<K, V>> createEntrySet() {
     throw new AssertionError("should never be called");
+  }
+
+  @Override
+  public ImmutableSetMultimap<K, V> asMultimap() {
+    return ImmutableSetMultimap.of();
   }
 
   @Override

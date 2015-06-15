@@ -86,17 +86,17 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
   }
 
   @Override
-  public boolean containsKey(Object key) {
+  public boolean containsKey(@Nullable Object key) {
     return delegate().containsKey(key);
   }
 
   @Override
-  public boolean containsValue(Object value) {
+  public boolean containsValue(@Nullable Object value) {
     return delegate().containsValue(value);
   }
 
   @Override
-  public V get(Object key) {
+  public V get(@Nullable Object key) {
     return delegate().get(key);
   }
 
@@ -141,7 +141,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected void standardPutAll(Map<? extends K, ? extends V> map) {
+  protected void standardPutAll(Map<? extends K, ? extends V> map) {
     Maps.putAllImpl(this, map);
   }
 
@@ -177,12 +177,8 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected void standardClear() {
-    Iterator<Entry<K, V>> entryIterator = entrySet().iterator();
-    while (entryIterator.hasNext()) {
-      entryIterator.next();
-      entryIterator.remove();
-    }
+  protected void standardClear() {
+    Iterators.clear(entrySet().iterator());
   }
 
   /**
@@ -199,11 +195,8 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
   @Beta
   protected class StandardKeySet extends Maps.KeySet<K, V> {
     /** Constructor for use by subclasses. */
-    public StandardKeySet() {}
-
-    @Override
-    Map<K, V> map() {
-      return ForwardingMap.this;
+    public StandardKeySet() {
+      super(ForwardingMap.this);
     }
   }
 
@@ -232,11 +225,8 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
   @Beta
   protected class StandardValues extends Maps.Values<K, V> {
     /** Constructor for use by subclasses. */
-    public StandardValues() {}
-
-    @Override
-    Map<K, V> map() {
-      return ForwardingMap.this;
+    public StandardValues() {
+      super(ForwardingMap.this);
     }
   }
 
@@ -248,7 +238,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected boolean standardContainsValue(@Nullable Object value) {
+  protected boolean standardContainsValue(@Nullable Object value) {
     return Maps.containsValueImpl(this, value);
   }
 
@@ -280,7 +270,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected boolean standardIsEmpty() {
+  protected boolean standardIsEmpty() {
     return !entrySet().iterator().hasNext();
   }
 
@@ -291,7 +281,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected boolean standardEquals(@Nullable Object object) {
+  protected boolean standardEquals(@Nullable Object object) {
     return Maps.equalsImpl(this, object);
   }
 
@@ -302,7 +292,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected int standardHashCode() {
+  protected int standardHashCode() {
     return Sets.hashCodeImpl(entrySet());
   }
 
@@ -313,7 +303,7 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * @since 7.0
    */
-  @Beta protected String standardToString() {
+  protected String standardToString() {
     return Maps.toStringImpl(this);
   }
 }

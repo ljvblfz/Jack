@@ -16,7 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -293,7 +293,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Nonnull
   public synchronized String getDigest() {
     if (digest == null) {
-      printDigest(new NullOutputStream());
+      printDigest(ByteStreams.nullOutputStream());
       assert digest != null;
     }
 

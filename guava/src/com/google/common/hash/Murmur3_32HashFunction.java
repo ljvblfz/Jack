@@ -12,6 +12,17 @@
  * the License.
  */
 
+/*
+ * MurmurHash3 was written by Austin Appleby, and is placed in the public
+ * domain. The author hereby disclaims copyright to this source code.
+ */
+
+/*
+ * Source:
+ * http://code.google.com/p/smhasher/source/browse/trunk/MurmurHash3.cpp
+ * (Modified to adapt to Guava coding conventions and to use the HashFunction interface)
+ */
+
 package com.google.common.hash;
 
 import static com.google.common.primitives.UnsignedBytes.toInt;
@@ -22,6 +33,8 @@ import com.google.common.primitives.Longs;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+
+import javax.annotation.Nullable;
 
 /**
  * See http://smhasher.googlecode.com/svn/trunk/MurmurHash3.cpp
@@ -49,6 +62,25 @@ final class Murmur3_32HashFunction extends AbstractStreamingHashFunction impleme
     return new Murmur3_32Hasher(seed);
   }
 
+  @Override
+  public String toString() {
+    return "Hashing.murmur3_32(" + seed + ")";
+  }
+
+  @Override
+  public boolean equals(@Nullable Object object) {
+    if (object instanceof Murmur3_32HashFunction) {
+      Murmur3_32HashFunction other = (Murmur3_32HashFunction) object;
+      return seed == other.seed;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode() ^ seed;
+  }
+
   @Override public HashCode hashInt(int input) {
     int k1 = mixK1(input);
     int h1 = mixH1(seed, k1);
@@ -70,7 +102,7 @@ final class Murmur3_32HashFunction extends AbstractStreamingHashFunction impleme
   }
 
   // TODO(user): Maybe implement #hashBytes instead?
-  @Override public HashCode hashString(CharSequence input) {
+  @Override public HashCode hashUnencodedChars(CharSequence input) {
     int h1 = seed;
 
     // step through the CharSequence 2 chars at a time
@@ -112,7 +144,7 @@ final class Murmur3_32HashFunction extends AbstractStreamingHashFunction impleme
     h1 ^= h1 >>> 13;
     h1 *= 0xc2b2ae35;
     h1 ^= h1 >>> 16;
-    return HashCodes.fromInt(h1);
+    return HashCode.fromInt(h1);
   }
 
   private static final class Murmur3_32Hasher extends AbstractStreamingHasher {
@@ -135,16 +167,8 @@ final class Murmur3_32HashFunction extends AbstractStreamingHashFunction impleme
     @Override protected void processRemaining(ByteBuffer bb) {
       length += bb.remaining();
       int k1 = 0;
-      switch (bb.remaining()) {
-        case 3:
-          k1 ^= toInt(bb.get(2)) << 16; // fall through
-        case 2:
-          k1 ^= toInt(bb.get(1)) << 8; // fall through
-        case 1:
-          k1 ^= toInt(bb.get(0));
-          break;
-        default:
-          throw new AssertionError("Should never get here.");
+      for (int i = 0; bb.hasRemaining(); i += 8) {
+        k1 ^= toInt(bb.get()) << i;
       }
       h1 ^= Murmur3_32HashFunction.mixK1(k1);
     }
