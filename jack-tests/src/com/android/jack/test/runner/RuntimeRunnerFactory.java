@@ -73,7 +73,16 @@ public class RuntimeRunnerFactory {
     } else if ("art".equals(rtEnvName)) {
       if ("host".equals(runnerKind)) {
         result = new ArtRunnerHost(AbstractTestTools.getRuntimeEnvironmentRootDir(rtName));
+        if ("debug".equals(variant)) {
+          ((ArtRunnerHost) result).setDebugMode(/* isDebugMode = */ true);
+        } else if (variant != null) {
+          throw new RuntimeRunnerException("Unkown target for ART: '" + rtName + "'");
+        }
+
       } else if ("device".equals(runnerKind)) {
+        if (variant != null) {
+          throw new RuntimeRunnerException("Unkown target for ART: '" + rtName + "'");
+        }
         result = new ArtRunnerDevice();
       } else {
         throw new RuntimeRunnerException("Unkown target for ART: '" + rtName + "'");

@@ -16,6 +16,11 @@
 
 package com.android.jack.test.runner;
 
+import com.google.common.base.Joiner;
+
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.sched.util.collect.Lists;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,13 +103,10 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
     }
 
     result.add("-classpath");
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < classpathFiles.length; i++) {
-      if (i > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(classpathFiles[i].getAbsolutePath());
-    }
-    result.add(sb.toString());
+
+    List<File> files =
+        AbstractTestTools.getFiles(new File(rtEnvironmentRootDir, "framework"), ".jar");
+    files.addAll(Lists.create(classpathFiles));
+    result.add(Joiner.on(File.pathSeparatorChar).join(files));
   }
 }
