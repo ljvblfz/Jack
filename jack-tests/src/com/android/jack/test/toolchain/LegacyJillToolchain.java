@@ -114,11 +114,23 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       if (resImport.size() > 0) {
         resDestDir = new File(classesDir, FileType.RSC.getPrefix());
         if (!resDestDir.exists() && !resDestDir.mkdir()) {
-          throw new AssertionError("Could not create rsc dir");
+          throw new AssertionError("Could not create resource dir");
         }
 
         for (File res : resImport) {
           AbstractTestTools.copyDirectory(res, resDestDir);
+        }
+      }
+
+      File metaDestDir;
+      if (metaImport.size() > 0) {
+        metaDestDir = new File(classesDir, FileType.JPP.getPrefix());
+        if (!metaDestDir.exists() && !metaDestDir.mkdir()) {
+          throw new AssertionError("Could not create meta dir");
+        }
+
+        for (File meta : metaImport) {
+          AbstractTestTools.copyDirectory(meta, metaDestDir);
         }
       }
 
