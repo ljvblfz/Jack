@@ -253,6 +253,7 @@ import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
 import com.android.sched.scheduler.TagOrMarkerOrComponentSet;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
@@ -272,7 +273,6 @@ import org.antlr.runtime.RecognitionException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -1257,19 +1257,16 @@ public abstract class Jack {
     }
   }
 
-  @Nonnull
-  private static final String PROPERTIES_FILE = "jack-version.properties";
   @CheckForNull
   private static Version version = null;
 
   @Nonnull
   public static Version getVersion() {
     if (version == null) {
-      InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-      if (is != null) {
-        version = new Version(is);
-      } else {
-        logger.log(Level.SEVERE, "Failed to open Jack properties file " + PROPERTIES_FILE);
+      try {
+        version = new Version("jack", Jack.class.getClassLoader());
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Failed to open Jack version file", e);
         throw new AssertionError();
       }
     }

@@ -19,6 +19,9 @@ package com.android.jack;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.android.sched.util.SubReleaseKind;
+import com.android.sched.util.Version;
+
 import org.junit.Test;
 
 public class VersionTest {
@@ -31,8 +34,6 @@ public class VersionTest {
     assertNotNull(version.getVersion());
     assertNotNull(version.getVerboseVersion());
     assertNotNull(version.getReleaseName());
-    assertTrue(version.getReleaseCode() > 0);
-    assertTrue(version.getSubReleaseCode() > 0);
 
     if (version.getBuildId() == null || version.getCodeBase() == null) {
       assertTrue(version.getSubReleaseKind() == SubReleaseKind.ENGINEERING);
