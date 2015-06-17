@@ -19,6 +19,7 @@ package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -27,6 +28,7 @@ import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
 
 import java.io.IOException;
+import java.security.Provider.Service;
 
 import javax.annotation.Nonnull;
 
@@ -35,6 +37,9 @@ import javax.annotation.Nonnull;
  * filesystem directory, which is then zipped when closed.
  */
 public class ZipFSCodec extends FileOrDirCodec<VFS> {
+
+  @Nonnull
+  private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
 
   public ZipFSCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);
@@ -92,8 +97,11 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
+      Service service = messageDigestCodec.checkString(context, "SHA");
       return new ReadWriteZipFS(
-          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change));
+          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change),
+          /* numGroups = */ 1, /* groupSize = */ 2,
+          new MessageDigestFactory(service), /* debug = */ false);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);
     }
