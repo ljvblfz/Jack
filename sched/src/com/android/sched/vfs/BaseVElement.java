@@ -45,4 +45,8 @@ public abstract class BaseVElement implements VElement {
   public String getName() {
     return name;
   }
+
+  BaseVFS<BaseVDir, BaseVFile> getVFS() {
+    return vfs;
+  }
 }

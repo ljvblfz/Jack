@@ -53,7 +53,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -691,6 +693,130 @@ public class VFSTest {
       }
       if (file != null) {
         Assert.assertTrue(file.delete());
+      }
+    }
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  public void testUnionVFS() throws IOException {
+    File zipFile = null;
+    File dir = null;
+    try {
+      zipFile = File.createTempFile("vfs", ".zip");
+      dir = File.createTempFile("vfs", "dir");
+      String dirPath = dir.getPath();
+      Assert.assertTrue(dir.delete());
+
+      // fill up zip
+      VFS writeZipVFS = new ReadWriteZipFS(
+          new OutputZipFile(zipFile.getPath(), null, Existence.MAY_EXIST,
+          ChangePermission.NOCHANGE), /* numGroups = */ 1, /* groupSize = */ 2,
+          new MessageDigestFactory(getSha1Service()), /* debug = */ false);
+      testOutputVFS(new GenericInputOutputVFS(writeZipVFS));
+      writeZipVFS.close();
+
+      // create Dir
+      VFS dirVFS = new CachedDirectFS(new Directory(dirPath, null, Existence.NOT_EXIST,
+          Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
+
+      // create UnionVFS with dir and read-only zip
+      List<VFS> vfsList = new ArrayList<VFS>(2);
+      vfsList.add(dirVFS);
+      vfsList.add(new ReadZipFS(new InputZipFile(zipFile.getPath(), null, Existence.MUST_EXIST,
+          ChangePermission.NOCHANGE)));
+      VFS unionVFS = new UnionVFS(vfsList);
+      testInputVFS(new GenericInputVFS(unionVFS));
+
+      // write new stuff to UnionVFS
+      InputOutputVFS outputUnionVFS = new GenericInputOutputVFS(unionVFS);
+      OutputVFile fileBA2 = outputUnionVFS.getRootOutputVDir().createOutputVFile(
+          new VPath("dirB/dirBA/fileBA2", '/'));
+      writeToFile(fileBA2, "dirB/dirBA/fileBA2");
+      InputOutputVDir dirA =
+          outputUnionVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
+      InputOutputVDir dirAA = dirA.getInputVDir(new VPath("dirAA", '/'));
+      InputOutputVDir dirAAB = (InputOutputVDir) dirAA.createOutputVDir(new VPath("dirAAB", '/'));
+      OutputVFile fileAAB2 = dirAAB.createOutputVFile(new VPath("fileAAB2", '/'));
+      writeToFile(fileAAB2, "dirA/dirAA/dirAAB/fileAAB2");
+      InputOutputVDir dirC =
+          outputUnionVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirC", '/'));
+      // write on top of an already existing file
+      OutputVFile fileC1 = dirC.getInputVFile(new VPath("fileC1", '/'));
+      writeToFile(fileC1, "dirC/fileC1v2");
+
+      // try deleting some old stuff from zip (which is not yet supported)
+      try {
+        outputUnionVFS.getRootInputOutputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
+            .delete();
+        Assert.fail();
+      } catch (AssertionError e) {
+        // expected because not yet supported
+      }
+
+      // read new stuff
+      InputVFS inputUnionVFS = new GenericInputVFS(unionVFS);
+      InputVFile readFileC1 = inputUnionVFS.getRootInputVDir().getInputVFile(
+          new VPath("dirC/fileC1", '/'));
+      Assert.assertEquals("dirC/fileC1v2", readFromFile(readFileC1));
+      Assert.assertTrue(
+          readFileC1.getPathFromRoot().equals(new VPath("dirC/fileC1", '/')));
+      InputVDir readDirA = inputUnionVFS.getRootInputVDir().getInputVDir(new VPath("dirA", '/'));
+      InputVDir readDirAA = readDirA.getInputVDir(new VPath("dirAA", '/'));
+      InputVDir readDirAAB = readDirAA.getInputVDir(new VPath("dirAAB", '/'));
+      InputVFile readFileAAB2 = readDirAAB.getInputVFile(new VPath("fileAAB2", '/'));
+      Assert.assertEquals("dirA/dirAA/dirAAB/fileAAB2", readFromFile(readFileAAB2));
+      Assert.assertTrue(
+          readFileAAB2.getPathFromRoot().equals(new VPath("dirA/dirAA/dirAAB/fileAAB2", '/')));
+
+      // delete some new stuff
+      readFileAAB2.delete();
+      try {
+        readDirAAB.getInputVFile(new VPath("fileAAB2", '/'));
+        Assert.fail();
+      } catch (NoSuchFileException e) {
+        // expected
+      }
+
+      // try to delete a file that is in the dir and the zip (which is not yet supported)
+      try {
+        inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
+        Assert.fail();
+      } catch (AssertionError e) {
+        // expected because not yet supported
+      }
+
+      // list contents of "dirB/dirBA", which has files in the dir and in the zip
+      InputVDir dirBA = inputUnionVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBA", '/'));
+      Collection<? extends InputVElement> dirBAList = dirBA.list();
+      Assert.assertEquals(2, dirBAList.size());
+      for (InputVElement subElement : dirBAList) {
+        if (subElement.getName().equals("fileBA2")) {
+          InputVFile readFileBA22 = (InputVFile) subElement;
+          Assert.assertEquals("dirB/dirBA/fileBA2", readFromFile(readFileBA22));
+          Assert.assertTrue(
+              readFileBA22.getPathFromRoot().equals(new VPath("dirB/dirBA/fileBA2", '/')));
+        } else if (subElement.getName().equals("fileBA1")) {
+          InputVFile readFileBA1 = (InputVFile) subElement;
+          Assert.assertEquals("dirB/dirBA/fileBA1", readFromFile(readFileBA1));
+          Assert.assertTrue(
+              readFileBA1.getPathFromRoot().equals(new VPath("dirB/dirBA/fileBA1", '/')));
+        } else {
+          throw new AssertionError();
+        }
+      }
+
+      // retest input
+      testInputVFS(new GenericInputVFS(unionVFS));
+
+      outputUnionVFS.close();
+
+    } finally {
+      if (zipFile != null) {
+        Assert.assertTrue(zipFile.delete());
+      }
+      if (dir != null) {
+        FileUtils.deleteDir(dir);
       }
     }
   }
