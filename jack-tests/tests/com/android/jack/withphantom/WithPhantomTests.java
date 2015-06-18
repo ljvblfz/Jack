@@ -157,8 +157,10 @@ public class WithPhantomTests {
   @Test
   public void testPhantomLocal() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyJillToolchain.class);
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
