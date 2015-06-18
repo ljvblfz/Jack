@@ -1035,8 +1035,18 @@ public class Options {
     this.workingDirectory = workingDirectory;
   }
 
+  @CheckForNull
+  public File getWorkingDirectory() {
+    return workingDirectory;
+  }
+
   public void setStandardError(@Nonnull PrintStream standardError) {
     this.standardError = standardError;
+  }
+
+  @CheckForNull
+  public PrintStream getStandardError() {
+    return standardError;
   }
 
   public void setStandardOutput(@Nonnull PrintStream standardOutput) {
