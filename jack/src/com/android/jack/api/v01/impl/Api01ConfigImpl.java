@@ -76,23 +76,26 @@ public class Api01ConfigImpl implements Api01Config {
       throw new ConfigurationException(e.getMessage(), e);
     }
 
-    return new Api01CompilationTaskImpl(options);
+    return new Api01CompilationTaskImpl(options, configHooks);
   }
 
   private static class Api01CompilationTaskImpl implements Api01CompilationTask {
 
     @Nonnull
     private final Options options;
+    @Nonnull
+    private final RunnableHooks runSessionHooks;
 
-    public Api01CompilationTaskImpl(@Nonnull Options options) {
+    public Api01CompilationTaskImpl(@Nonnull Options options,
+        @Nonnull RunnableHooks runSessionHooks) {
       this.options = options;
+      this.runSessionHooks = runSessionHooks;
     }
 
     @Override
     public void run() throws CompilationException, UnrecoverableException {
       ProcessException pe = null;
 
-      RunnableHooks runSessionHooks = new RunnableHooks();
       try {
         try {
           Jack.run(options, runSessionHooks);
