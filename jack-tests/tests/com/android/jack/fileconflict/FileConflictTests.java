@@ -70,11 +70,11 @@ public class FileConflictTests {
   private static final VPath TYPE3_PATH =
       new VPath("com/android/jack/fileconflict/test001/jack/MyClass3", '/');
   @Nonnull
-  private static final VPath RESOURCE1_PATH = new VPath("Resource1", '/');
+  private static final VPath RESOURCE1_PATH = new VPath("rsc/Resource1", '/');
   @Nonnull
-  private static final VPath RESOURCE2_PATH = new VPath("Resource2", '/');
+  private static final VPath RESOURCE2_PATH = new VPath("rsc/Resource2", '/');
   @Nonnull
-  private static final VPath RESOURCE3_PATH = new VPath("Resource3", '/');
+  private static final VPath RESOURCE3_PATH = new VPath("rsc/Resource3", '/');
 
   @Nonnull
   private static final File TEST001_DIR =
@@ -220,7 +220,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -243,7 +242,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -292,7 +290,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -315,7 +312,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -372,7 +368,6 @@ public class FileConflictTests {
       }
     }
     String errString = errOut.toString();
-    Assert.assertTrue(errString.contains("Resource in"));
     Assert.assertTrue(errString.contains("rsc/Resource1"));
     Assert.assertTrue(errString.contains("has already been imported"));
   }
