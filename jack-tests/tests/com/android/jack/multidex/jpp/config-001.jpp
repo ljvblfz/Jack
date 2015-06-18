@@ -1,4 +1,4 @@
-multidexInstanciable:
+multidexInstantiable:
   @@com.android.jack.annotations.MultiDexInstaller
   class *
     is {
