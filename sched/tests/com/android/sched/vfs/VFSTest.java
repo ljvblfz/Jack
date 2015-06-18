@@ -269,19 +269,11 @@ public class VFSTest {
       String path = file.getAbsolutePath();
       Assert.assertTrue(file.delete());
 
-      Provider.Service sha1 = null;
-      for (Provider provider : Security.getProviders()) {
-        for (Provider.Service service : provider.getServices()) {
-          if (service.getType().equals("MessageDigest") && service.getAlgorithm().equals("SHA")) {
-            sha1 = service;
-          }
-        }
-      }
-      Assert.assertNotNull(sha1);
+      Provider.Service sha1 = getSha1Service();
 
       ioVFS1 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
           null, Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
-          Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
+          Permission.READ | Permission.WRITE), new MessageDigestFactory(getSha1Service())));
 
       testOutputVFS(ioVFS1);
       testDelete(ioVFS1);
@@ -787,8 +779,11 @@ public class VFSTest {
     try {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
+      Provider.Service sha1 = getSha1Service();
       zipVFS = new GenericInputOutputVFS(new ReadWriteZipFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
+          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE),
+          /* numGroups = */ 1, /* groupSize = */ 2,
+          new MessageDigestFactory(sha1), /* debug = */ false));
       testOutputVFS(zipVFS);
       testDelete(zipVFS);
 //      checkZipLocations(zipVFS);
@@ -995,6 +990,20 @@ public class VFSTest {
     Assert.assertNull(reader.readLine());
     reader.close();
     return string;
+  }
+
+  @Nonnull
+  private static Provider.Service getSha1Service() {
+    Provider.Service sha1 = null;
+    for (Provider provider : Security.getProviders()) {
+      for (Provider.Service service : provider.getServices()) {
+        if (service.getType().equals("MessageDigest") && service.getAlgorithm().equals("SHA")) {
+          sha1 = service;
+        }
+      }
+    }
+    Assert.assertNotNull(sha1);
+    return sha1;
   }
 
 }

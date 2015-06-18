@@ -47,6 +47,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -81,8 +82,10 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       "sched.vfs.case-insensitive.debug",
       "generate an index file '" + DEBUG_NAME + "' for debugging purpose").addDefaultValue(false);
 
-  private final int nbGroup;
-  private final int szGroup;
+  @Nonnegative
+  private final int numGroups;
+  @Nonnegative
+  private final int groupSize;
   @Nonnull
   private final MessageDigestFactory mdf;
   private final boolean debug;
@@ -198,7 +201,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   }
 
   @SuppressWarnings("unchecked")
-  public CaseInsensitiveFS(@Nonnull VFS vfs, int nbGroup, int szGroup,
+  public CaseInsensitiveFS(@Nonnull VFS vfs, int numGroups, int groupSize,
       @Nonnull MessageDigestFactory mdf, boolean debug) throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
@@ -207,8 +210,8 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     capabilities.add(Capabilities.UNIQUE_ELEMENT);
     this.capabilities = Collections.unmodifiableSet(capabilities);
 
-    this.nbGroup = nbGroup;
-    this.szGroup = szGroup;
+    this.numGroups = numGroups;
+    this.groupSize = groupSize;
     this.mdf = mdf;
     this.debug = debug;
 
@@ -568,8 +571,8 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     StringBuffer sb = new StringBuffer();
     int idx = 0;
     try {
-      for (int groupIdx = 0; groupIdx < nbGroup; groupIdx++) {
-        for (int letterIdx = 0; letterIdx < szGroup; letterIdx++) {
+      for (int groupIdx = 0; groupIdx < numGroups; groupIdx++) {
+        for (int letterIdx = 0; letterIdx < groupSize; letterIdx++) {
           sb.append(digest[idx++]);
         }
         sb.append('/');
