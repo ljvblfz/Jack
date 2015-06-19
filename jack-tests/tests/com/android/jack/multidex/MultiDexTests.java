@@ -419,7 +419,7 @@ public class MultiDexTests {
     File out = AbstractTestTools.createTempDir();
 
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackCliToolchain.class);
-    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"config-001.jpp"));
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"../../jpp/config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
     toolchain.addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "true");
@@ -446,7 +446,7 @@ public class MultiDexTests {
     File out = AbstractTestTools.createTempDir();
 
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackCliToolchain.class);
-    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"config-001.jpp"));
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder,"../../jpp/config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addStaticLibs(library);
