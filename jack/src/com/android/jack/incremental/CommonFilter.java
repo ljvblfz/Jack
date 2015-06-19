@@ -187,10 +187,17 @@ public abstract class CommonFilter {
         String path = subFile.getPath();
         if (subFile.getName().endsWith(fileExt)) {
           try {
-            // File contained into folder are not checked by codec
-            FileOrDirectory.checkPermissions(subFile, new FileLocation(subFile), Permission.READ);
+            // Let's check the files contained in the folder since they have not checked by codec
+            FileLocation location = new FileLocation(subFile);
+            // We still need to check existence, because of non-existing symbolic link targets
+            AbstractStreamFile.check(subFile, location);
+            FileOrDirectory.checkPermissions(subFile, location, Permission.READ);
             fileNames.add(path);
           } catch (WrongPermissionException e) {
+            throw new JackUserException(e);
+          } catch (NotFileException e) {
+            throw new JackUserException(e);
+          } catch (NoSuchFileException e) {
             throw new JackUserException(e);
           }
         }
