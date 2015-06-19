@@ -17,7 +17,11 @@
 
 <project name="jack" default="all">
 
-  <target name="all" depends="dexcomparator-lib,
+  <description>
+    This buildfile is used to build all Jack projects and run tests.
+  </description>
+
+  <target name="all" description="build all Jack projects" depends="dexcomparator-lib,
     jack,
     jack-api,
     jack-api-src,
@@ -106,7 +110,8 @@
     <delete dir="${jack-top-dist.dir}"/>
   </target>
 
-  <target name="dist" depends="jack,
+  <target name="dist"
+    description="package a Jack distribution" depends="jack,
     jack-api,
     jack-api-src,
     jack-annotations-lib,
@@ -1877,7 +1882,8 @@
     <fail message="test.name is undefined" unless="test.name" />
   </target>
 
-  <target name="test-jack-by-name" depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
+  <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
+  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
   </target>
 
   <target name="test-jack-by-name-no-dep">
@@ -1902,7 +1908,8 @@
     <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep">
+  <target name="test-jack" description="run Jack tests that must pass before submitting a change"
+    depends="tests-check-config, jack-tests, test-jack-nodep">
   </target>
 
   <target name="test-jack-nodep">
@@ -1927,7 +1934,8 @@
     <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-   <target name="test-jack-long" depends="tests-check-config, jack-tests, test-jack-long-nodep">
+   <target name="test-jack-long" description="run long lasting Jack tests"
+     depends="tests-check-config, jack-tests, test-jack-long-nodep">
    </target>
 
   <target name="test-jack-long-nodep">
@@ -1952,7 +1960,8 @@
      <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-  <target name="test-jack-all" depends="tests-check-config, jack-tests, test-jack-all-nodep">
+  <target name="test-jack-all" description="runs all Jack tests"
+    depends="tests-check-config, jack-tests, test-jack-all-nodep">
   </target>
 
   <target name="test-jack-all-nodep">
@@ -1977,7 +1986,8 @@
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
 
-  <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
+  <target name="test-sched" description="run schedlib tests"
+    depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib, test-sched-nodep">
   </target>
 
