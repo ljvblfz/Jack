@@ -11,10 +11,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Scheduler"/>
 	<classpathentry kind="lib" path="libs/guava-lib.jar"/>
 	<classpathentry kind="lib" path="libs/dex-lib.jar"/>
-	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
 	<classpathentry kind="lib" path="libs/ddmlib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jack-api"/>
+	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

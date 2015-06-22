@@ -16,6 +16,11 @@
 
 package com.android.jack.test.runner;
 
+import com.google.common.base.Joiner;
+
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.sched.util.collect.Lists;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +33,15 @@ import javax.annotation.Nonnull;
  */
 public class ArtRunnerHost extends HostRunner {
 
+  private boolean isDebugMode = false;
+
   public ArtRunnerHost(@Nonnull File rtEnvironmentRootDir) {
     super(rtEnvironmentRootDir);
+  }
+
+  public ArtRunnerHost setDebugMode(boolean isDebugMode) {
+    this.isDebugMode = isDebugMode;
+    return this;
   }
 
   @Override
@@ -75,23 +87,24 @@ public class ArtRunnerHost extends HostRunner {
     return args;
   }
 
-  private void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
+  protected void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
       @Nonnull List<String> result) {
     result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
+
+    if (isDebugMode) {
+      result.add("-d");
+    }
 
     for (String option : options) {
       result.add(option);
     }
 
     result.add("-classpath");
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < classpathFiles.length; i++) {
-      if (i > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(classpathFiles[i].getAbsolutePath());
-    }
-    result.add(sb.toString());
+
+    List<File> files =
+        AbstractTestTools.getFiles(new File(rtEnvironmentRootDir, "framework"), ".jar");
+    files.addAll(Lists.create(classpathFiles));
+    result.add(Joiner.on(File.pathSeparatorChar).join(files));
   }
 
 }
