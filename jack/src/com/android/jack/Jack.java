@@ -1258,7 +1258,7 @@ public abstract class Jack {
   }
 
   @Nonnull
-  private static final String PROPERTIES_FILE = "jack.properties";
+  private static final String PROPERTIES_FILE = "jack-version.properties";
   @CheckForNull
   private static Version version = null;
 

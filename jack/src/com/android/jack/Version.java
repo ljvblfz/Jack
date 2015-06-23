@@ -55,23 +55,23 @@ public class Version {
     try {
       prop.load(is);
 
-      version = prop.getProperty("jack.version");
+      version = prop.getProperty("version");
       assert version != null;
 
-      releaseName = prop.getProperty("jack.version.release.name");
+      releaseName = prop.getProperty("version.release.name");
       assert releaseName != null;
 
-      releaseCode = Integer.parseInt(prop.getProperty("jack.version.release.code"));
+      releaseCode = Integer.parseInt(prop.getProperty("version.release.code"));
       assert releaseCode >= 1;
 
-      subReleaseCode = Integer.parseInt(prop.getProperty("jack.version.sub-release.code"));
-      assert subReleaseCode >= 1;
+      subReleaseCode = Integer.parseInt(prop.getProperty("version.sub-release.code"));
+      assert subReleaseCode >= 0;
 
       subReleaseKind =
           SubReleaseKind.valueOf(SubReleaseKind.class,
-              prop.getProperty("jack.version.sub-release.kind"));
-      buildId = prop.getProperty("jack.version.buildid");
-      codeBase = prop.getProperty("jack.version.sha");
+              prop.getProperty("version.sub-release.kind"));
+      buildId = prop.getProperty("version.buildid");
+      codeBase = prop.getProperty("version.sha");
 
       if (codeBase == null || buildId == null) {
         subReleaseKind = SubReleaseKind.ENGINEERING;

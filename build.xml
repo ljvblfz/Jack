@@ -106,7 +106,15 @@
     <delete dir="${jack-top-dist.dir}"/>
   </target>
 
-  <target name="dist" depends="jack,
+  <target name="dist-check">
+    <fail message="jack.dist.sha is undefined" unless="dist.sha" />
+    <fail message="jack.dist.build-id is undefined" unless="dist.build-id" />
+  </target>
+
+  <target name="dist"
+    description="package a Jack distribution" depends="
+    dist-check,
+    jack,
     jack-api,
     jack-api-src,
     jack-annotations-lib,
@@ -123,7 +131,51 @@
         <file name="${jack.dist.dir}/${jack-annotations.libname}" />
       </filelist>
     </copy>
+
+    <mkdir dir="${jack-top-dist.dir}/tmp"/>
+
+    <property file="${jack-project.dir}/version.properties"/>
+
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
+    <propertyfile file="${jack-top-dist.dir}/tmp/version.properties">
+      <entry key="version.sha" value="${dist.sha}"/>
+      <entry key="version.buildid" value="${dist.build-id}"/>
+    </propertyfile>
+
+    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
+      basedir="${jack-top-dist.dir}/tmp"
+      includes="jack-version.properties"/>
+
+    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-api-version.properties"/>
+     <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
+       basedir="${jack-top-dist.dir}/tmp"
+       includes="jack-api-version.properties"/>
+
+    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-launcher-version.properties"/>
+     <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
+       basedir="${jack-top-dist.dir}/tmp"
+       includes="jack-launcher-version.properties"/>
+
+    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-annotations-version.properties"/>
+     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
+       basedir="${jack-top-dist.dir}/tmp"
+       includes="jack-annotations-version.properties"/>
+
+    <replace file="${jack-top-dist.dir}/jack"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <replace file="${jack-top-dist.dir}/jack-admin"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <delete dir="${jack-top-dist.dir}/tmp"/>
+
   </target>
+
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
@@ -262,6 +314,7 @@
     <copy todir="${jack.build.outdir}">
       <fileset dir="${jack.dir}/rsc" includes="**"/>
     </copy>
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack.build.outdir}/jack-version.properties"/>
     <jar destfile="${jack.dist.dir}/${jack.libname}"
       basedir="${jack.build.outdir}" includes="**"/>
   </target>
@@ -468,9 +521,6 @@
          </classpath>
        </javac>
     <unzip dest="${jack-launcher.build.outdir}" src="${jack-launcher.libs.dir}/${jsr305.libname}" />
-    <copy todir="${jack-launcher.build.outdir}">
-      <fileset dir="${jack-launcher.dir}/rsc" includes="**"/>
-    </copy>
     <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}" manifest="${jack-launcher.dir}/etc/manifest.txt">
       <fileset dir="${jack-launcher.build.outdir}"/>
     </jar>
