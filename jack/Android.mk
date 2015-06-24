@@ -122,7 +122,15 @@ LOCAL_JAVA_LIBRARIES := \
   allocation-jack \
   $(JACK_STATIC_JAVA_LIBRARIES)
 
+JACK_VERSION_FILE := $(call local-intermediates-dir,COMMON)/generated.version/jack-version.properties
+LOCAL_JAVA_RESOURCE_FILES += $(JACK_VERSION_FILE)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(JACK_VERSION_FILE)
+
 include $(BUILD_HOST_JAVA_LIBRARY)
+
+$(JACK_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties
+	$(copy-file-to-target)
+
 $(LOCAL_INSTALLED_MODULE) : $(jack_script) $(jack_admin_script)
 INSTALLED_JACK_NOSERVER := $(LOCAL_INSTALLED_MODULE)
 JACK_JAR_INTERMEDIATE:=$(LOCAL_BUILT_MODULE).intermediate.jar
