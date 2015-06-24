@@ -62,7 +62,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := jack-no-server
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 proguard_intermediates := \
   $(call local-intermediates-dir,COMMON)/grammar/com/android/jack/shrob/proguard
