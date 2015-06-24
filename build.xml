@@ -111,8 +111,8 @@
   </target>
 
   <target name="dist-check">
-    <fail message="jack.dist.sha is undefined" unless="dist.sha" />
-    <fail message="jack.dist.build-id is undefined" unless="dist.build-id" />
+    <fail message="dist.sha is undefined" unless="dist.sha" />
+    <fail message="dist.build-id is undefined" unless="dist.build-id" />
   </target>
 
   <target name="dist"
