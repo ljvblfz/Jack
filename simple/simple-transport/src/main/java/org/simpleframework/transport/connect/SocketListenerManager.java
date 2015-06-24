@@ -101,8 +101,8 @@ class SocketListenerManager implements Closeable {
       SocketListener listener = new SocketListener(address, processor, analyzer, context);
       
       if(processor != null) {
-         listener.process();
          listeners.add(listener); 
+         listener.process();
       }
       return listener.getAddress();   
    }
