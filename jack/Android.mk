@@ -128,7 +128,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES += $(JACK_VERSION_FILE)
 
 include $(BUILD_HOST_JAVA_LIBRARY)
 
-$(JACK_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties
+$(JACK_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
 	$(copy-file-to-target)
 
 $(LOCAL_INSTALLED_MODULE) : $(jack_script) $(jack_admin_script)
