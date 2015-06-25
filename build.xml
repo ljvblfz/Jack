@@ -187,6 +187,10 @@
                    value="${version}"
                    encoding="UTF-8"/>
 
+    <!-- <copy> and <replace> do not retain file permissions -->
+    <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
+    <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
+
     <delete dir="${jack-top-dist.dir}/tmp"/>
 
   </target>
