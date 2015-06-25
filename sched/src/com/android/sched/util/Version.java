@@ -201,13 +201,14 @@ public class Version {
         ^ (codeBase != null ? codeBase.hashCode() : 0);
   }
 
-  int compareTo(@Nonnull Version other) throws UncomparableVersion {
-    if (subReleaseKind == SubReleaseKind.ENGINEERING
+  public boolean isComparable() {
+    return !(subReleaseKind == SubReleaseKind.ENGINEERING
         || releaseCode <= 0
-        || subReleaseCode <= 0
-        || other.getSubReleaseKind() == SubReleaseKind.ENGINEERING
-        || other.getReleaseCode() <= 0
-        || other.getSubReleaseCode() <= 0) {
+        || subReleaseCode <= 0);
+  }
+
+  int compareTo(@Nonnull Version other) throws UncomparableVersion {
+    if (!isComparable() || !other.isComparable()) {
       throw new UncomparableVersion(
           getVerboseVersion() + " is not comparable with " + other.getVerboseVersion());
     }
