@@ -202,14 +202,12 @@ public class Version {
   }
 
   int compareTo(@Nonnull Version other) throws UncomparableVersion {
-    if ((subReleaseKind == SubReleaseKind.ENGINEERING
-        && other.getSubReleaseKind() != SubReleaseKind.ENGINEERING)
-        || releaseCode < 0
-        || subReleaseCode < 0
-        || (subReleaseKind != SubReleaseKind.ENGINEERING
-            && other.getSubReleaseKind() == SubReleaseKind.ENGINEERING)
-        || other.getReleaseCode() < 0
-        || other.getSubReleaseCode() < 0) {
+    if (subReleaseKind == SubReleaseKind.ENGINEERING
+        || releaseCode <= 0
+        || subReleaseCode <= 0
+        || other.getSubReleaseKind() == SubReleaseKind.ENGINEERING
+        || other.getReleaseCode() <= 0
+        || other.getSubReleaseCode() <= 0) {
       throw new UncomparableVersion(
           getVerboseVersion() + " is not comparable with " + other.getVerboseVersion());
     }
