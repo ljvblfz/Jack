@@ -376,6 +376,8 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         }
 
         getEnumSwitchValues.addMarker(emm);
+        bodyBlock.addStmt(new JAsgOperation(dbgInfo, new JFieldRef(dbgInfo, null /* instance */,
+            enumSwitchValuesId, currentClass), new JLocalRef(dbgInfo, arrayVar)).makeStatement());
         bodyBlock.addStmt(new JReturnStatement(dbgInfo, new JLocalRef(dbgInfo, arrayVar)));
 
         localTr.commit();
