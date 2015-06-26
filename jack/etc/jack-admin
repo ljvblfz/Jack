@@ -124,6 +124,8 @@ updateProgram () {
     exec 3>&-
   done
 
+  echo "Server updated, waiting for restart"
+
   if [ "$1" == server ]; then
     waitServerStarted
   fi
@@ -194,7 +196,7 @@ startServer () {
 }
 
 waitServerStarted () {
-  RETRY_SESSION=6
+  RETRY_SESSION=30
   DONE=1
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
