@@ -16,7 +16,7 @@
 
 package com.android.jack.library.v0001;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableSet;
 
 import com.android.jack.library.CommonJackLibrary;
 import com.android.jack.library.FileType;
@@ -231,7 +231,7 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     if (!containsFileType(fileType)) {
-      return Iterators.emptyIterator();
+      return ImmutableSet.<InputVFile>of().iterator();
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();

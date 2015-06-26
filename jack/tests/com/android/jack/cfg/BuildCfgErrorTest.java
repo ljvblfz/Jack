@@ -19,7 +19,6 @@ package com.android.jack.cfg;
 import static org.junit.Assert.fail;
 
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.util.graph.GraphException;
 
 import org.junit.Test;
@@ -36,10 +35,8 @@ public class BuildCfgErrorTest {
    */
   @Test
   public void cfgError001() throws Exception {
-    JMethod method =
-        TestTools.getJMethodWithRejectAllFilter(
-            TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME), "L" + CLASS_BINARY_NAME + ";",
-            "fibonacci(I)I");
+    TestTools.getJMethodWithRejectAllFilter(TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME),
+        "L" + CLASS_BINARY_NAME + ";", "fibonacci(I)I");
     ArrayList<BasicBlock> blocks = new ArrayList<BasicBlock>();
     EntryBlock entryBlock = new EntryBlock(0);
     blocks.add(entryBlock);
@@ -47,7 +44,6 @@ public class BuildCfgErrorTest {
     blocks.add(b0);
     NormalBasicBlock b1 = new NormalBasicBlock(2, BasicBlock.EMPTY_STATEMENT_LIST);
     blocks.add(b1);
-    ControlFlowGraph cfg = new ControlFlowGraph(method, 3, entryBlock, new ExitBlock(), blocks);
     b0.setTarget(b1);
     try {
       b0.setTarget(b1);
