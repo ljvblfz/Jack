@@ -36,13 +36,12 @@ public class VersionTest {
       Assert.assertTrue(v31a.compareTo(v32e) < 0);
       Assert.fail();
     } catch (UncomparableVersion e) {
-      // Ok, versions are not comparable
     }
     try {
       Assert.assertTrue(v31e.compareTo(v32e) < 0);
-    } catch (UncomparableVersion e) {
-      // Two ENGINEERING version are comparable
       Assert.fail();
+    } catch (UncomparableVersion e) {
+      // Ok, versions are not comparable
     }
 
     Version v33p = new Version(3, 3, SubReleaseKind.PRE_ALPHA);
@@ -75,20 +74,44 @@ public class VersionTest {
     Version v31a = new Version(3, 1, SubReleaseKind.ALPHA);
     Version v30a = new Version(3, 0, SubReleaseKind.ALPHA);
     Version v25a = new Version(2, 5, SubReleaseKind.ALPHA);
-    Version v40a = new Version(4, 0, SubReleaseKind.ALPHA);
+    Version v04a = new Version(0, 4, SubReleaseKind.ALPHA);
     Version v32a = new Version(3, 2, SubReleaseKind.ALPHA);
 
     try {
-      Assert.assertTrue(v31a.isNewerOrEqualsThan(v31a));
       Assert.assertTrue(v31a.isNewerOrEqualsThan(v30a));
+      Assert.fail();
+    } catch (UncomparableVersion e) {
+      // 0 as subrelease code is reserved
+    }
+
+    try {
+      Assert.assertTrue(v31a.isNewerThan(v30a));
+      Assert.fail();
+    } catch (UncomparableVersion e) {
+      // 0 as subrelease code is reserved
+    }
+
+    try {
+      Assert.assertFalse(v31a.isNewerOrEqualsThan(v04a));
+      Assert.fail();
+    } catch (UncomparableVersion e) {
+      // 0 as release code is reserved
+    }
+
+    try {
+      Assert.assertFalse(v31a.isNewerThan(v04a));
+      Assert.fail();
+    } catch (UncomparableVersion e) {
+      // 0 as release code is reserved
+    }
+
+    try {
+      Assert.assertTrue(v31a.isNewerOrEqualsThan(v31a));
       Assert.assertTrue(v31a.isNewerOrEqualsThan(v25a));
-      Assert.assertFalse(v31a.isNewerOrEqualsThan(v40a));
       Assert.assertFalse(v31a.isNewerOrEqualsThan(v32a));
 
       Assert.assertFalse(v31a.isNewerThan(v31a));
-      Assert.assertTrue(v31a.isNewerThan(v30a));
       Assert.assertTrue(v31a.isNewerThan(v25a));
-      Assert.assertFalse(v31a.isNewerThan(v40a));
       Assert.assertFalse(v31a.isNewerThan(v32a));
     } catch (UncomparableVersion e) {
       Assert.fail();
