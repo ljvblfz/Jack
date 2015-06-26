@@ -2048,7 +2048,7 @@
     freemarker-lib,maths-lib">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
-        <jvmarg value="-Dtests.config=${tests.config}"/>
+        <jvmarg value="${jack.tests.assertions}"/>
         <formatter type="xml"/>
         <classpath>
           <filelist dir="/">
