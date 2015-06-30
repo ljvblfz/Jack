@@ -278,9 +278,6 @@ set +o errexit
 
 FORCE_INSTALLATION=false
 case $1 in
-  force-install-server)
-    FORCE_INSTALLATION=true
-    COMMAND=install-server;;
   force-update)
     FORCE_INSTALLATION=true
     COMMAND=update;;
@@ -315,13 +312,9 @@ case $COMMAND in
       cp $2 "$LAUNCHER_JAR"
       cp $3 "$JACK_HOME/server-1.jar"
       mkdir "$JACK_HOME"/logs
-      startServer
-      waitServerStarted
     else
-      echo \"$JACK_HOME\" already exists. Skipping installation of launcher
-      startServer
-      waitServerStarted
-      updateProgram server $3
+      echo "ERROR: \"$JACK_HOME\" already exists" 1>&2
+      abort
     fi
     exit 0 ;;
 
