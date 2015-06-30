@@ -854,6 +854,11 @@ public class JackHttpServer implements HasVersion {
     new Directory(jackDir.getPath(), null, Existence.MAY_EXIST,
         Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.OWNER);
     File[] deletedFiles = jackDir.listFiles(DELETED_FILTER);
+    if (deletedFiles == null) {
+      throw new IOException("Failed to list Jack installation directory '"
+          + jackDir + "'");
+    }
+
     for (File deleteMarker : deletedFiles) {
       String path = deleteMarker.getPath();
       File marked = new File(path.substring(0, path.length() - DELETED_SUFFIX.length()));

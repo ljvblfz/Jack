@@ -69,8 +69,6 @@ public class ExactCodeVersionFinder implements VersionFinder {
       SubReleaseKind minKind = SubReleaseKind.valueOf(
           versionString.substring(kindSeparatorIndex + 1));
       return new ExactCodeVersionFinder(major, minor, minKind);
-    } catch (NumberFormatException e) {
-      throw new ParsingException("Failed to parse version from '" + versionString + "'", e);
     } catch (IllegalArgumentException e) {
       throw new ParsingException("Failed to parse version from '" + versionString + "'", e);
     }
