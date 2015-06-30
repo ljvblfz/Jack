@@ -83,14 +83,14 @@ for i in "$@"; do
   ARGS="$ARGS $i"
 done
 
-exec 3>&1
-exec 4>&2
 
 RETRY_LAUNCH=1
 RETRY_SESSION=3
 # Launch compilation
 while true; do
 
+  exec 3>&1
+  exec 4>&2
   HTTP_CODE=$(curl -f \
        --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
        --no-buffer --write-out '%{http_code}\n' --silent --connect-timeout 10 \
@@ -104,6 +104,8 @@ while true; do
        )
 
   CURL_CODE=$?
+  exec 3>&-
+  exec 4>&-
   JACK_CODE=$(cat "$JACK_EXIT")
   if [ $CURL_CODE -eq 0 ]; then
     # No problem, let's go

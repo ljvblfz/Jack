@@ -109,6 +109,7 @@ installProgram () {
   RETRY_SESSION=3
   DONE=1
   while [ "$DONE" -ne 0 ]; do
+    exec 3>&1
     HTTP_CODE=$(curl -f \
          --output >(cat >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
@@ -120,6 +121,7 @@ installProgram () {
          )
     handleHttpErrors $? $HTTP_CODE
     DONE=$?
+    exec 3>&-
   done
 
   if [ "$1" == server ]; then
@@ -180,7 +182,7 @@ startServer () {
   else
     JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR $JACK_SERVER_VM_ARGUMENTS -cp $LAUNCHER_JAR $LAUNCHER_NAME"
     echo "Launching Jack server" $JACK_SERVER_COMMAND
-    $JACK_SERVER_COMMAND &
+    nohup $JACK_SERVER_COMMAND >/dev/null 2>/dev/null &
   fi
 }
 
@@ -241,6 +243,7 @@ listProgramVersion () {
   RETRY_SESSION=3
   DONE=1
   while [ "$DONE" -ne 0 ]; do
+    exec 3>&1
     HTTP_CODE=$(curl -f \
          --output >(cat >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
@@ -251,6 +254,7 @@ listProgramVersion () {
          )
     handleHttpErrors $? $HTTP_CODE
     DONE=$?
+    exec 3>&-
   done
 }
 
@@ -264,8 +268,6 @@ then
 fi
 
 set +o errexit
-
-exec 3>&1
 
 FORCE_INSTALLATION=false
 case $1 in
@@ -347,6 +349,7 @@ case $COMMAND in
     RETRY_SESSION=3
     DONE=1
     while [ "$DONE" -ne 0 ]; do
+      exec 3>&1
       HTTP_CODE=$(curl -f \
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
@@ -356,6 +359,7 @@ case $COMMAND in
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
+      exec 3>&-
     done ;;
 
 
@@ -365,6 +369,7 @@ case $COMMAND in
     RETRY_SESSION=3
     DONE=1
     while [ "$DONE" -ne 0 ]; do
+      exec 3>&1
       HTTP_CODE=$(curl -f \
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
@@ -375,6 +380,7 @@ case $COMMAND in
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
+      exec 3>&-
     done ;;
 
 
