@@ -58,7 +58,7 @@ EOT
 fi
 
 usage () {
-  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | list <program> | install <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat ]"
+  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat ]"
 }
 
 abort () { exit 255; }
@@ -105,7 +105,7 @@ handleHttpErrors() {
 # $1: program name
 # $2: jar of the program
 #
-installProgram () {
+updateProgram () {
   RETRY_SESSION=3
   DONE=1
   while [ "$DONE" -ne 0 ]; do
@@ -281,9 +281,9 @@ case $1 in
   force-install-server)
     FORCE_INSTALLATION=true
     COMMAND=install-server;;
-  force-install)
+  force-update)
     FORCE_INSTALLATION=true
-    COMMAND=install;;
+    COMMAND=update;;
   *)
     COMMAND=$1;;
 esac
@@ -321,7 +321,7 @@ case $COMMAND in
       echo \"$JACK_HOME\" already exists. Skipping installation of launcher
       startServer
       waitServerStarted
-      installProgram server $3
+      updateProgram server $3
     fi
     exit 0 ;;
 
@@ -336,7 +336,7 @@ case $COMMAND in
     listProgramVersion $2 ;;
 
 
-  install)
+  update)
     if [ $# -ne 3 ]; then
       usage
       abort
@@ -347,7 +347,7 @@ case $COMMAND in
       usage
       abort
     fi
-    installProgram $2 $3 ;;
+    updateProgram $2 $3 ;;
 
 
   stop-server)
