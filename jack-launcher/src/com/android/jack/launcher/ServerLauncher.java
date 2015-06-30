@@ -60,12 +60,12 @@ import javax.annotation.Nonnull;
 public final class ServerLauncher {
 
   private static class ServerInfo {
-    private final long id;
+    private final int id;
 
     @Nonnull
     private final Version version;
 
-    public ServerInfo(long id, @Nonnull Version version) {
+    public ServerInfo(int id, @Nonnull Version version) {
       this.id = id;
       this.version = version;
     }
@@ -275,10 +275,10 @@ public final class ServerLauncher {
       throw new ServerException("Failed to list server install directory '" + serverDir + "'");
     }
 
-    List<Long> serverIds = new LinkedList<Long>();
+    List<Integer> serverIds = new LinkedList<Integer>();
     for (File candidate : serverDirFiles) {
       try {
-        serverIds.add(Long.valueOf(getServerId(candidate)));
+        serverIds.add(Integer.valueOf(getServerId(candidate)));
       } catch (NotAServerJarFileName e) {
         // Not a server jar, is it a forgotten tmp?
         if (candidate.getName().endsWith(TMP_SUFFIX)) {
@@ -290,13 +290,13 @@ public final class ServerLauncher {
       throw new ServerException("No installed Jack server");
     }
     Collections.sort(serverIds);
-    Iterator<Long> iteratorAll = serverIds.iterator();
-    Iterator<Long> toDeleteIterator = Iterators.limit(iteratorAll, serverIds.size() - 1);
+    Iterator<Integer> iteratorAll = serverIds.iterator();
+    Iterator<Integer> toDeleteIterator = Iterators.limit(iteratorAll, serverIds.size() - 1);
     while (toDeleteIterator.hasNext()) {
-      deleteFile(getServerJar(serverDir, toDeleteIterator.next().longValue()));
+      deleteFile(getServerJar(serverDir, toDeleteIterator.next().intValue()));
     }
 
-    long serverId = iteratorAll.next().longValue();
+    int serverId = iteratorAll.next().intValue();
     try {
       startInitialServer(serverDir, serverId);
     } catch (IOException e) {
@@ -317,7 +317,7 @@ public final class ServerLauncher {
     logger.log(Level.FINE, "Last server exited");
   }
 
-  private void startInitialServer(@Nonnull File serverDir, @Nonnegative final long serverId)
+  private void startInitialServer(@Nonnull File serverDir, @Nonnegative final int serverId)
       throws ServerException, IOException {
     // Don't inline in long living method, it could prevent the server to be garbaged because of
     // locals
@@ -352,7 +352,7 @@ public final class ServerLauncher {
     });
   }
 
-  private static File getServerJar(@Nonnull File serverDir, @Nonnegative long serverId) {
+  private static File getServerJar(@Nonnull File serverDir, @Nonnegative int serverId) {
     return new File(serverDir, "server-" + serverId + ".jar");
   }
 
@@ -389,12 +389,12 @@ public final class ServerLauncher {
     System.exit(ABORT_EXIT_CODE);
   }
 
-  private static long getServerId(File serverJar) throws NotAServerJarFileName {
+  private static int getServerId(File serverJar) throws NotAServerJarFileName {
     Matcher matcher = SERVER_JAR_PATTERN.matcher(serverJar.getName());
     if (!matcher.matches()) {
       throw new NotAServerJarFileName();
     }
-    return Long.parseLong(matcher.group(1));
+    return Integer.parseInt(matcher.group(1));
   }
 
   @Nonnull
@@ -451,7 +451,7 @@ public final class ServerLauncher {
         }
 
         assert currentServerInfo != null;
-        long newServerId = currentServerInfo.id + 1;
+        int newServerId = currentServerInfo.id + 1;
         File newInstalledServer = getServerJar(serverDir, newServerId);
         if (!tmpInstall.renameTo(newInstalledServer)) {
           throw new IOException("Failed to rename '" + tmpInstall + "' to '" + newInstalledServer
