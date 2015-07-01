@@ -35,6 +35,8 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.TextUtils;
 
@@ -176,8 +178,10 @@ public class MultiDexTests {
   public void versionedTest001a_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
     JackCliToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackCliToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackCliToolchain.class, exclude);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
@@ -196,7 +200,9 @@ public class MultiDexTests {
   public void versionedTest001b_minimal_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
-    JackCliToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackCliToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackCliToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackCliToolchain.class, exclude);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
@@ -217,8 +223,10 @@ public class MultiDexTests {
   public void versionedTest001c_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test001.jack");
     File out = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
     JackCliToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackCliToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackCliToolchain.class, exclude);
     addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-003.jpp"));
 
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
@@ -464,7 +472,7 @@ public class MultiDexTests {
 
     File out = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackCliToolchain.class, exclude);
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
@@ -494,7 +502,9 @@ public class MultiDexTests {
   public void annotatedTest003() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test003.jack");
     File out = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProperty(MultiDexLegacy.MULTIDEX_LEGACY.getName(), "true");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex");
     toolchain.addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");

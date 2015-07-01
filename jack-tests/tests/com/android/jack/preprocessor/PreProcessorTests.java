@@ -26,6 +26,7 @@ import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.RunnableHooks;
 
@@ -66,7 +67,7 @@ public class PreProcessorTests {
     File testDir = AbstractTestTools.getTestRootDir("com.android.jack.preprocessor.test001.jack");
     File tempDir = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(tempDir,

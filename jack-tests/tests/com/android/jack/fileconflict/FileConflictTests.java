@@ -33,6 +33,7 @@ import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.vfs.InputVFile;
@@ -382,7 +383,7 @@ public class FileConflictTests {
     File tempJackFolder = AbstractTestTools.createTempDir();
 
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addResourceDir(new File(testSrcDir, "jack/rsc1"))

@@ -22,8 +22,10 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -38,6 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -113,7 +117,10 @@ public class ResourceTests {
   public void testJackDirToDexArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class,exclude);
     toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -168,7 +175,9 @@ public class ResourceTests {
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -177,7 +186,7 @@ public class ResourceTests {
         FILE);
 
     // run shrobbing from Jack dir to Jack archive
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File shrobbedJackAr =
         AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
@@ -230,7 +239,9 @@ public class ResourceTests {
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -265,7 +276,9 @@ public class ResourceTests {
   public void testJackDirToDexDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -275,7 +288,7 @@ public class ResourceTests {
 
     // compile Jack dir to a dex dir
     File dexDir = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
@@ -290,7 +303,9 @@ public class ResourceTests {
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -300,7 +315,7 @@ public class ResourceTests {
 
     // compile Jack dir to same dir
     File dexDir = jackFolder;
-    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude)
       .libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir

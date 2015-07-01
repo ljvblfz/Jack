@@ -20,6 +20,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class ShrobRuntimeTests extends RuntimeTest {
 
   @Test
   public void test011_2() throws Exception {
-    new RuntimeTestHelper(TEST011_2).addIgnoredCandidateToolchain(LegacyJillToolchain.class)
+    new RuntimeTestHelper(TEST011_2).addIgnoredCandidateToolchain(JillBasedToolchain.class)
      .compileAndRunTest();
   }
 

@@ -16,6 +16,8 @@
 
 package com.android.jack.switchstatement;
 
+import com.google.common.collect.Maps;
+
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.category.RuntimeRegressionTest;
@@ -26,8 +28,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.google.common.collect.Maps;
 
 import junit.framework.Assert;
 
@@ -181,10 +183,12 @@ public class SwitchstatementTests extends RuntimeTest {
   @Test
   public void testCompile002AsJackThenDex() throws Exception {
     File outJackTmp = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
     {
       // build as jack
       JackBasedToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(outJackTmp,
           /* zipFiles = */false,
@@ -194,7 +198,7 @@ public class SwitchstatementTests extends RuntimeTest {
     {
       // build dex from jack
       JackBasedToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
       toolchain.libToExe(outJackTmp, AbstractTestTools.createTempDir(), /* zipFile = */false);
     }
   }

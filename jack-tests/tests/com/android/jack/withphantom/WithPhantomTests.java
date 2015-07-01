@@ -22,6 +22,7 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -52,7 +53,7 @@ public class WithPhantomTests {
   public void testPhantomOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -104,7 +105,7 @@ public class WithPhantomTests {
   public void testPhantomInner() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -127,29 +128,29 @@ public class WithPhantomTests {
     File testFolder = AbstractTestTools.getTestRootDir(TEST001);
 
     File tempOut1 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink1.flags"))
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
     File tempOut2 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "shrink2.flags"))
     .libToLib(tempJackFolder, tempOut2, /* zipFiles = */ false);
 
     File tempOut3 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
     .libToLib(tempJackFolder, tempOut3, /* zipFiles = */ false);
 
     File tempOut4 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf2.flags"))
     .libToLib(tempJackFolder, tempOut4, /* zipFiles = */ false);
 
     File tempOutFolder = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.libToExe(tempJackFolder, tempOutFolder, /* zipFile = */ false);
   }
 
@@ -157,7 +158,7 @@ public class WithPhantomTests {
   public void testPhantomLocal() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -186,13 +187,13 @@ public class WithPhantomTests {
     File testFolder = AbstractTestTools.getTestRootDir(TEST002);
 
     File tempOut1 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class,exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.addProguardFlags(new ProguardFlags(testFolder, "obf1.flags"))
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
     File tempOutFolder = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.libToExe(tempJackFolder, tempOutFolder, /* zipFile = */ false);
   }
 
@@ -200,7 +201,7 @@ public class WithPhantomTests {
   public void testPhantomLocalOuter() throws Exception {
     File tempJackFolder = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -228,7 +229,7 @@ public class WithPhantomTests {
     .libToLib(tempJackFolder, tempOut1, /* zipFiles = */ false);
 
     File tempOutFolder = AbstractTestTools.createTempDir();
-    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude)
     .libToExe(tempJackFolder, tempOutFolder, /* zipFile = */ false);
   }
 

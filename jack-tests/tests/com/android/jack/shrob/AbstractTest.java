@@ -23,6 +23,7 @@ import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
@@ -602,7 +603,7 @@ public abstract class AbstractTest {
 
   protected void checkToolchainIsNotJillBased() {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(LegacyJillToolchain.class);
+    excludeList.add(JillBasedToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, excludeList);
   }
 }

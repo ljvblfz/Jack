@@ -18,16 +18,21 @@ package com.android.jack.lookup;
 
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
 
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LookupTests {
 
   @Test
   public void test001() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     File lib = AbstractTestTools.createTempDir();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
@@ -36,7 +41,7 @@ public class LookupTests {
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.lib"));
 
     File libOverride = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         libOverride,
@@ -44,13 +49,13 @@ public class LookupTests {
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.liboverride"));
 
     File jacks = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(lib)
     .srcToLib(jacks, /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.lookup.test001.jack"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.libToLib(
         new File [] {jacks, libOverride},
         AbstractTestTools.createTempFile("Lookup001", toolchain.getLibraryExtension()),

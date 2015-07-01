@@ -726,7 +726,7 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests">
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api">
     <!-- project layout -->
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
@@ -807,6 +807,7 @@
       <exclude name="com/android/jack/frontend/test007/**"/>
       <classpath>
         <filelist dir="/">
+          <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
           <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
@@ -824,6 +825,7 @@
       <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
+      <arg line="${jill-api.dist.dir}/${jill-api.lib.name}"/>
       <arg line="${jack.static.libs.list}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>

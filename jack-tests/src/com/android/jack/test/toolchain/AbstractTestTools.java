@@ -92,13 +92,14 @@ public abstract class AbstractTestTools {
 
   static {
 
-toolchainBuilders = new HashMap<String, ToolchainBuilder>();
+    toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
     toolchainBuilders.put("jack-api-inc-v01", new JackApiV01IncrementalToolchainBuilder());
     toolchainBuilders.put("jack-api-2steps-v01", new JackApiV01TwoStepsToolchainBuilder());
     toolchainBuilders.put("legacy", new LegacyToolchainBuilder());
     toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
+    toolchainBuilders.put("jill-api-v01", new JillApiV01ToolchainBuilder());
 
     try {
       runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
@@ -168,6 +169,15 @@ toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     public IToolchain build() {
       return new LegacyJillToolchain(getPrebuilt("legacy-java-compiler"), getPrebuilt("jill"),
           getPrebuilt("jack"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
+    }
+  }
+
+  private static class JillApiV01ToolchainBuilder implements ToolchainBuilder {
+
+@Override
+    public IToolchain build() {
+      return new JillApiV01Toolchain(getPrebuilt("jill"), getPrebuilt("jack"),
+          getPrebuilt("legacy-java-compiler"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
     }
   }
 

@@ -16,5 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jack-api"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jill-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
