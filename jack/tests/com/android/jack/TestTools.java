@@ -182,6 +182,9 @@ public class TestTools {
   public static void getJavaFiles(@Nonnull File fileObject, @Nonnull List<File> filePaths) throws IOException {
     if (fileObject.isDirectory()) {
       File allFiles[] = fileObject.listFiles();
+      if (allFiles == null) {
+        throw new IOException("Failed to list dir '" + fileObject.getPath() + "'");
+      }
       for (File aFile : allFiles) {
         getJavaFiles(aFile, filePaths);
       }

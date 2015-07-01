@@ -23,8 +23,6 @@ import com.android.jack.util.graph.GraphException;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 public class BuildCfgErrorTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
@@ -37,13 +35,9 @@ public class BuildCfgErrorTest {
   public void cfgError001() throws Exception {
     TestTools.getJMethodWithRejectAllFilter(TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME),
         "L" + CLASS_BINARY_NAME + ";", "fibonacci(I)I");
-    ArrayList<BasicBlock> blocks = new ArrayList<BasicBlock>();
-    EntryBlock entryBlock = new EntryBlock(0);
-    blocks.add(entryBlock);
     NormalBasicBlock b0 = new NormalBasicBlock(1, BasicBlock.EMPTY_STATEMENT_LIST);
-    blocks.add(b0);
     NormalBasicBlock b1 = new NormalBasicBlock(2, BasicBlock.EMPTY_STATEMENT_LIST);
-    blocks.add(b1);
+
     b0.setTarget(b1);
     try {
       b0.setTarget(b1);
