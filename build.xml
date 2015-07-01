@@ -144,6 +144,8 @@
 
     <mkdir dir="${jack-top-dist.dir}/tmp"/>
 
+    <property file="${jack-project.dir}/version.properties"/>
+
     <copy file="${jack-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
     <propertyfile file="${jack-top-dist.dir}/tmp/version.properties">
       <entry key="version.sha" value="${dist.sha}"/>
@@ -175,13 +177,15 @@
        basedir="${jack-top-dist.dir}/tmp"
        includes="jack-annotations-version.properties"/>
 
-    <property file="${jack-project.dir}/version.properties"/>
-    <antcall target="dist-property-replace">
-      <param name="dist-property-replace-file" value="${jack-top-dist.dir}/jack" />
-    </antcall>
-    <antcall target="dist-property-replace">
-       <param name="dist-property-replace-file" value="${jack-top-dist.dir}/jack-admin" />
-    </antcall>
+    <replace file="${jack-top-dist.dir}/jack"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <replace file="${jack-top-dist.dir}/jack-admin"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
 
     <!-- <copy> and <replace> do not retain file permissions -->
     <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
@@ -190,30 +194,6 @@
     <delete dir="${jack-top-dist.dir}/tmp"/>
 
   </target>
-
-  <target name="dist-property-replace">
-    <replace file="${dist-property-replace-file}"
-                   token="%%VERSION%%"
-                   value="${version}"
-                   encoding="UTF-8"/>
-    <replace file="${dist-property-replace-file}"
-                   token="%%VERSION_RELEASE_NAME%%"
-                   value="${version.release.name}"
-                   encoding="UTF-8"/>
-    <replace file="${dist-property-replace-file}"
-                   token="%%VERSION_RELEASE_CODE%%"
-                   value="${version.release.code}"
-                   encoding="UTF-8"/>
-      <replace file="${dist-property-replace-file}"
-                     token="%%VERSION_SUBRELEASE_KIND%%"
-                     value="${version.sub-release.kind}"
-                     encoding="UTF-8"/>
-      <replace file="${dist-property-replace-file}"
-                     token="%%VERSION_SUBRELEASE_CODE%%"
-                     value="${version.sub-release.code}"
-                     encoding="UTF-8"/>
-  </target>
-
 
 
   <!-- ******************* -->
@@ -253,14 +233,8 @@
     </copy>
   </target>
 
-  <target name="jack-create-version-file">
-    <!-- create symlink to ensure consistency between version.properties and jack-version.properties -->
-    <symlink link="${jack.dir}/rsc/jack-version.properties"
-      resource="${jack-project.dir}/version.properties" overwrite="true"/>
-  </target>
-
   <target name="jack-lib-compile-step1"
-    depends="jack-copy-libs,jack-create-version-file,sched-build,antlr,sched-build-lib,allocation-lib,
+    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,
     dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
@@ -494,16 +468,13 @@
   <!-- jack-api            -->
   <!-- ******************* -->
   <property name="jack-api.build.dir" value="${jack-api.dir}/build/exec" />
+  <property name="jack-api.build.outdir" value="${jack-api.build.dir}/classes" />
   <property name="jack-api.name" value="jack-api.jar" />
-
-  <copy file="${jack-project.dir}/version.properties"
-        tofile="${jack-api.build.dir}/jack-api-version.properties"/>
 
   <target name="jack-api" depends="jack-api-lib">
     <jar destfile="${jack-api.dist.dir}/${jack-api.name}">
       <fileset dir="${jsr305.build.outdir}"/>
       <fileset dir="${jack-api.lib.build.outdir}"/>
-      <fileset dir="${jack-api.build.dir}" file="jack-api-version.properties"/>
     </jar>
   </target>
 
@@ -629,8 +600,6 @@
     <unzip dest="${jack-launcher.build.outdir}">
       <filelist refid="jack-launcher.static.libs.fileset"/>
     </unzip>
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-launcher.build.outdir}/jack-launcher-version.properties"/>
     <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}.initial" manifest="${jack-launcher.dir}/etc/manifest.txt">
       <fileset dir="${jack-launcher.build.outdir}"/>
     </jar>
@@ -792,10 +761,6 @@
           destdir="${jack-annotations.build.outdir}"
           source="1.6" target="1.6" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
-
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-annotations.build.outdir}/jack-annotations-version.properties"/>
-
     <jar destfile="${jack.dist.dir}/${jack-annotations.libname}">
       <fileset dir="${jack-annotations.build.outdir}"/>
     </jar>
@@ -1587,7 +1552,7 @@
         <fileset dir="${watchmaker.build.outdir}"/>
       </targets>
     </dependset>
-    <javac encoding="UTF-8"
+    <javac encoding="UTF-8" 
       srcdir="${watchmaker.dir}/framework/src/java/main"
       destdir="${watchmaker.build.outdir}"
       source="1.6" target="1.6"
