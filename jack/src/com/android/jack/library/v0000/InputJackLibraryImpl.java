@@ -16,7 +16,7 @@
 
 package com.android.jack.library.v0000;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableSet;
 
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -117,7 +117,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     if (!containsFileType(fileType)) {
-      return Iterators.emptyIterator();
+      return ImmutableSet.<InputVFile>of().iterator();
     }
 
     // Reuse resources found when we have detected that they existed.
