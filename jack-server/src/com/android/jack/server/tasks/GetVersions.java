@@ -18,18 +18,15 @@ package com.android.jack.server.tasks;
 
 import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
+import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.Version;
 
-import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
-import org.simpleframework.http.parse.ContentTypeParser;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintStream;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -52,15 +49,11 @@ abstract class GetVersions extends SynchronousAdministrativeTask {
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     logger.log(Level.INFO, "Get " + name + " version(s)");
-    ContentType expectedContentType = new ContentTypeParser(request.getValue("accept"));
-    String charset = expectedContentType.getParameter("charset");
-    if (charset == null) {
-      charset = StandardCharsets.US_ASCII.name();
-    }
-    response.setContentType("text/plain; Charset=" + charset);
-    OutputStreamWriter out = null;
+    PrintStream out = null;
     try {
-      out = new OutputStreamWriter(response.getOutputStream(), Charset.forName(charset));
+      response.setContentType(TextPlain.CONTENT_TYPE_NAME + "; Charset="
+          + TextPlain.getPreferredTextPlainCharset(request).name());
+      out = response.getPrintStream();
       for (HasVersion versioned : getVersionnedElements()) {
         Version version = versioned.getVersion();
         out.append(version.getReleaseCode() + "." + version.getSubReleaseCode() + "."
@@ -68,20 +61,14 @@ abstract class GetVersions extends SynchronousAdministrativeTask {
       }
       response.setStatus(Status.OK);
     } catch (UnsupportedCharsetException e) {
-      logger.log(Level.WARNING,
-          "Unsupported charset for content type '" + expectedContentType + "'", e);
+      logger.log(Level.SEVERE, "Unsupported charset", e);
       response.setStatus(Status.NOT_ACCEPTABLE);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to write response", e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     } finally {
-      try {
-        if (out != null) {
-          out.close();
-        }
-      } catch (IOException e) {
-        logger.log(Level.SEVERE, "Failed to close response body", e);
-        response.setStatus(Status.INTERNAL_SERVER_ERROR);
+      if (out != null) {
+        out.close();
       }
     }
   }

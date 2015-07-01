@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.ServerInfo;
+import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.log.tracer.probe.TimeNanosProbe;
 
@@ -29,6 +30,7 @@ import org.simpleframework.http.Status;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -62,6 +64,8 @@ public class Stat extends SynchronousAdministrativeTask {
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     try {
+      response.setContentType(TextPlain.CONTENT_TYPE_NAME + "; Charset="
+          + TextPlain.getPreferredTextPlainCharset(request).name());
       response.setStatus(Status.OK);
       PrintStream printer = response.getPrintStream();
 
@@ -230,10 +234,15 @@ public class Stat extends SynchronousAdministrativeTask {
           // Best effort
         }
       } catch (Throwable e) {
-        logger.log(Level.SEVERE, "Unexpected exception: ", e);
+        logger.log(Level.SEVERE, "Unexpected exception", e);
+        response.setStatus(Status.INTERNAL_SERVER_ERROR);
       }
+    } catch (UnsupportedEncodingException e) {
+      logger.log(Level.SEVERE, "Unsupported charset", e);
+      response.setStatus(Status.NOT_ACCEPTABLE);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Exception during IO: ", e);
+      logger.log(Level.SEVERE, "Exception during IO", e);
+      response.setStatus(Status.INTERNAL_SERVER_ERROR);
     }
   }
 

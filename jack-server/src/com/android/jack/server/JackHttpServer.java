@@ -52,6 +52,7 @@ import com.android.jack.server.tasks.Stop;
 import com.android.jack.server.tasks.TestServerVersion;
 import com.android.jack.server.type.CommandOutPrintStream;
 import com.android.jack.server.type.ExactCodeVersionFinder;
+import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.IntCodec;
 import com.android.sched.util.codec.LongCodec;
@@ -494,7 +495,7 @@ public class JackHttpServer implements HasVersion {
           new MethodRouter()
             .add(Method.GET,
               new AcceptContentTypeRouter()
-                .add("text/plain", new Stat(this))))
+                .add(TextPlain.CONTENT_TYPE_NAME, new Stat(this))))
 
         .add("/server/stop",
             new MethodRouter()
@@ -510,7 +511,7 @@ public class JackHttpServer implements HasVersion {
               new ContentTypeRouter()
                 .add("multipart/form-data",
                   new PartContentTypeRouter("force")
-                    .add("text/plain",
+                    .add(TextPlain.CONTENT_TYPE_NAME,
                       new PartContentTypeRouter("jar")
                         .add("application/octet-stream", new InstallJack(this)))))
             .add(Method.HEAD,
@@ -520,7 +521,7 @@ public class JackHttpServer implements HasVersion {
                     .add("1", new QueryJackVersion(this))))
             .add(Method.GET,
               new AcceptContentTypeRouter()
-                .add("text/plain", new GetJackVersions(this))))
+                .add(TextPlain.CONTENT_TYPE_NAME, new GetJackVersions(this))))
 
         .add("/server",
           new MethodRouter()
@@ -528,7 +529,7 @@ public class JackHttpServer implements HasVersion {
               new ContentTypeRouter()
                 .add("multipart/form-data",
                     new PartContentTypeRouter("force")
-                      .add("text/plain",
+                      .add(TextPlain.CONTENT_TYPE_NAME,
                         new PartContentTypeRouter("jar")
                           .add("application/octet-stream", new InstallServer(this)))))
             .add(Method.HEAD,
@@ -538,7 +539,7 @@ public class JackHttpServer implements HasVersion {
                    .add("1", new TestServerVersion(this))))
             .add(Method.GET,
               new AcceptContentTypeRouter()
-                .add("text/plain", new GetServerVersion(this))))
+                .add(TextPlain.CONTENT_TYPE_NAME, new GetServerVersion(this))))
 
         .add("/launcher",
           new MethodRouter()
@@ -546,13 +547,13 @@ public class JackHttpServer implements HasVersion {
               new ErrorContainer(Status.BAD_REQUEST))
             .add(Method.GET,
               new AcceptContentTypeRouter()
-                .add("text/plain", new GetLauncherVersion(this))))
+                .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherVersion(this))))
 
         .add("/launcher/home",
             new MethodRouter()
               .add(Method.GET,
                   new AcceptContentTypeRouter()
-                    .add("text/plain", new GetLauncherHome(this))));
+                    .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))));
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), 1);
