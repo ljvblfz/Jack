@@ -102,7 +102,7 @@
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
 
   <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
-      classpath="jarjar/jarjar.jar"/>
+      classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
 
   <!-- ******************* -->
   <!-- Distributed files   -->
