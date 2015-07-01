@@ -47,7 +47,6 @@ import com.android.jack.server.tasks.JackTask;
 import com.android.jack.server.tasks.JillTask;
 import com.android.jack.server.tasks.QueryJackVersion;
 import com.android.jack.server.tasks.ReloadConfig;
-import com.android.jack.server.tasks.Shutdown;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
 import com.android.jack.server.tasks.TestServerVersion;
@@ -471,10 +470,6 @@ public class JackHttpServer implements HasVersion {
         .add("/server/stop",
             new MethodRouter()
               .add(Method.POST, new Stop(this)))
-
-        .add("/server/shutdown",
-          new MethodRouter()
-            .add(Method.POST, new Shutdown(this)))
 
         .add("/server/reload",
           new MethodRouter()
