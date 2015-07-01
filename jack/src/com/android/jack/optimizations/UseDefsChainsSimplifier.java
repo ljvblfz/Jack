@@ -20,7 +20,9 @@ import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
 import com.android.jack.analysis.UsedVariableMarker;
+import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsMarker;
 import com.android.jack.cfg.BasicBlock;
+import com.android.jack.cfg.BasicBlockMarker;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
@@ -82,9 +84,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
            *
            * The transformation can be apply only if a statement used only one definition of a
            * variable, for instance it could not be possible to optimize the code if m(a) use
-           * two definitions of a (for instance a=b and a=true). Moreover, used variable
-           * (in the above sample, variable b) must not be redefine between his usage (a=b) and
-           * the statement that will be optimize.
+           * two definitions of a (for instance a=b and a=true).
            */
           if (usedDefsMarker.size() == 1) {
             DefinitionMarker defMarker = usedDefsMarker.get(0);
@@ -94,11 +94,21 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
                 && defMarker.getValue() instanceof JVariableRef) {
               JVariableRef defValue = (JVariableRef) defMarker.getValue();
               JVariable var = defValue.getTarget();
+              BasicBlockMarker bbm = stmt.getMarker(BasicBlockMarker.class);
+              assert bbm != null;
 
-              if (!hasDefBetweenStatement(
-                  var, (JStatement) defMarker.getDefinition().getParent(), stmt)) {
+              /* Optimization to be valid must check that:
+               * - Used variable (in the above sample, variable b) must not be redefine
+               * between his usage (a=b) and the statement that will be optimize
+               * - There is only one definition of the used variable (b in the above sample)
+               * reaching the basic block of the statement to optimize, otherwise b could contains
+               * an unexpected value
+               */
+              if (hasOnlyOneDefinition(var, bbm.getBasicBlock()) && !hasDefBetweenStatement(var,
+                  (JStatement) defMarker.getDefinition().getParent(), stmt)) {
 
                 JVariableRef newVarRef = getNewVarRef(defValue);
+
                 UseDefsMarker newUdm = new UseDefsMarker();
                 newVarRef.addMarker(newUdm);
 
@@ -132,6 +142,28 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       }
 
       return super.visit(stmt);
+    }
+
+    /**
+     * Check that there is only one definition of {@code var} reaching {@code bb}.
+     * @param var Check that {@code var} is defined only one time.
+     * @param bb Check that {@code var} is defined only one time at {@code bb}.
+     * @return true if only one definition of {@code var} reaching {@code bb}, false otherwise.
+     */
+    private boolean hasOnlyOneDefinition(@Nonnull JVariable var, @Nonnull BasicBlock bb) {
+      ReachingDefsMarker rdm = bb.getMarker(ReachingDefsMarker.class);
+      assert rdm != null;
+      boolean alreadyDefined = false;
+
+      for (DefinitionMarker dm : rdm.getReachingDefs()) {
+        if (dm.getDefinedVariable() == var) {
+          if (alreadyDefined) {
+            return false;
+          }
+          alreadyDefined = true;
+        }
+      }
+      return true;
     }
 
     @Override
