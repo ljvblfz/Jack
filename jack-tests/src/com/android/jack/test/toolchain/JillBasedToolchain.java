@@ -40,8 +40,12 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
   }
 
   protected void executeJill(@Nonnull File in, @Nonnull File out) {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
     List<String> args = new ArrayList<String>();
     args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
     args.add("-jar");
     args.add(jillPrebuilt.getAbsolutePath());
     if (isVerbose) {
