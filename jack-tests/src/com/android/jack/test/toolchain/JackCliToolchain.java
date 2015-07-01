@@ -134,7 +134,11 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
     args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 
@@ -249,7 +253,11 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,
       @Nonnull File[] in) throws Exception {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
     args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
     args.add("-cp");
     args.add(jackPrebuilt.getAbsolutePath());
 

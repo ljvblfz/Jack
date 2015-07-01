@@ -161,9 +161,13 @@ public class LegacyToolchain extends AndroidToolchain {
 
   private void processWithJarJar(@Nonnull File jarjarRules,
       @Nonnull File inJar, @Nonnull File outJar) {
-    String[] args = new String[]{"java", "-Dverbose=" + String.valueOf(isVerbose), "-jar",
-        jarjarPrebuilt.getAbsolutePath(), "process", jarjarRules.getAbsolutePath(),
-        inJar.getAbsolutePath(), outJar.getAbsolutePath()};
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
+    String[] args = new String[] {"java", (assertEnable ? "-ea" : "-da"),
+        "-Dverbose=" + String.valueOf(isVerbose), "-jar", jarjarPrebuilt.getAbsolutePath(),
+        "process", jarjarRules.getAbsolutePath(), inJar.getAbsolutePath(),
+        outJar.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(args);
     execFile.setOut(outRedirectStream);
@@ -181,9 +185,12 @@ public class LegacyToolchain extends AndroidToolchain {
 
   private void processWithProguard(@Nonnull String bootclasspathStr,
       @Nonnull List<File> proguardFlags, @Nonnull File inJar, @Nonnull File outJar) {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
 
     List<String> args = new ArrayList<String>();
     args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
     args.add("-jar");
     args.add(proguardPrebuilt.getAbsolutePath());
     args.add("-injar");
