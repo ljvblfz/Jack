@@ -37,8 +37,9 @@ public class GetServerVersion extends GetVersions {
     super("server", jackServer);
   }
 
+  @Nonnull
   @Override
-  protected Collection<? extends HasVersion> getVersionnedElements() {
+  protected Collection<? extends HasVersion> getVersionedElements() {
     return Collections.singleton(jackServer);
   }
 

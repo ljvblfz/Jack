@@ -54,7 +54,7 @@ abstract class GetVersions extends SynchronousAdministrativeTask {
       response.setContentType(TextPlain.CONTENT_TYPE_NAME + "; Charset="
           + TextPlain.getPreferredTextPlainCharset(request).name());
       out = response.getPrintStream();
-      for (HasVersion versioned : getVersionnedElements()) {
+      for (HasVersion versioned : getVersionedElements()) {
         Version version = versioned.getVersion();
         out.append(version.getReleaseCode() + "." + version.getSubReleaseCode() + "."
             + version.getSubReleaseKind().name() + TextPlain.EOL);
@@ -75,5 +75,5 @@ abstract class GetVersions extends SynchronousAdministrativeTask {
     }
   }
 
-  protected abstract Collection<? extends HasVersion> getVersionnedElements();
+  protected abstract Collection<? extends HasVersion> getVersionedElements();
 }

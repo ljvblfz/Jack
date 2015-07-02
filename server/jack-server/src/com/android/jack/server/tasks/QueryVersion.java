@@ -27,34 +27,30 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-/**
- * Administrative task: Test if a specific version of Jack is available.
- */
-public class TestServerVersion extends SynchronousAdministrativeTask {
+abstract class QueryVersion extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(TestServerVersion.class.getName());
+  private static Logger logger = Logger.getLogger(QueryVersion.class.getName());
 
-  public TestServerVersion(@Nonnull JackHttpServer jackServer) {
+  public QueryVersion(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
   }
 
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     VersionFinder versionFinder;
+    response.setContentLength(0);
     try {
-      response.setContentLength(0);
       versionFinder =
-          this.jackServer.parseVersionFinder(request.getContentType(), request.getContent());
-      HasVersion foundVersion =
-          versionFinder.select(Collections.singletonList(jackServer));
-      if (foundVersion != null) {
+          jackServer.parseVersionFinder(request.getContentType(), request.getContent());
+      HasVersion found = versionFinder.select(getVersionedElements());
+      if (found != null) {
         response.setStatus(Status.OK);
       } else {
         response.setStatus(Status.NOT_FOUND);
@@ -70,4 +66,7 @@ public class TestServerVersion extends SynchronousAdministrativeTask {
       response.setStatus(Status.NOT_IMPLEMENTED);
     }
   }
+
+  @Nonnull
+  protected abstract Collection<? extends HasVersion> getVersionedElements();
 }

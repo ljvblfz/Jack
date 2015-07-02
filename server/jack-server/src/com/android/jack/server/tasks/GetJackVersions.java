@@ -36,8 +36,9 @@ public class GetJackVersions extends GetVersions {
     super("Jack", jackServer);
   }
 
+  @Nonnull
   @Override
-  protected Collection<? extends HasVersion> getVersionnedElements() {
+  protected Collection<? extends HasVersion> getVersionedElements() {
     return jackServer.getInstalledJacks();
   }
 

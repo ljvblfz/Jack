@@ -16,56 +16,26 @@
 
 package com.android.jack.server.tasks;
 
+import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
-import com.android.jack.server.NoSuchVersionException;
-import com.android.jack.server.TypeNotSupportedException;
-import com.android.jack.server.VersionFinder;
-import com.android.sched.util.codec.ParsingException;
 
-import org.simpleframework.http.Request;
-import org.simpleframework.http.Response;
-import org.simpleframework.http.Status;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
 /**
  * Administrative task: Test if a specific version of Jack is available.
  */
-public class QueryJackVersion extends SynchronousAdministrativeTask {
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(QueryJackVersion.class.getName());
+public class QueryJackVersion extends QueryVersion {
 
   public QueryJackVersion(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
   }
 
+  @Nonnull
   @Override
-  protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
-    VersionFinder versionFinder;
-    response.setContentLength(0);
-    try {
-      versionFinder =
-          jackServer.parseVersionFinder(request.getContentType(), request.getContent());
-      try {
-        jackServer.selectJack(versionFinder);
-        response.setStatus(Status.OK);
-      } catch (NoSuchVersionException e) {
-        response.setStatus(Status.NOT_FOUND);
-      }
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Failed to read request", e);
-      response.setStatus(Status.BAD_REQUEST);
-    } catch (ParsingException e) {
-      logger.log(Level.WARNING, "Failed to parse request", e);
-      response.setStatus(Status.BAD_REQUEST);
-    } catch (TypeNotSupportedException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      response.setStatus(Status.NOT_IMPLEMENTED);
-    }
+  protected Collection<? extends HasVersion> getVersionedElements() {
+    return jackServer.getInstalledJacks();
   }
+
 }

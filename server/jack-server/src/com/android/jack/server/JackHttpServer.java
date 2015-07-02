@@ -47,11 +47,11 @@ import com.android.jack.server.tasks.InstallServer;
 import com.android.jack.server.tasks.JackTask;
 import com.android.jack.server.tasks.JillTask;
 import com.android.jack.server.tasks.QueryJackVersion;
+import com.android.jack.server.tasks.QueryServerVersion;
 import com.android.jack.server.tasks.ReloadConfig;
 import com.android.jack.server.tasks.SetLoggerParameters;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
-import com.android.jack.server.tasks.TestServerVersion;
 import com.android.jack.server.type.CommandOut;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
@@ -1050,7 +1050,7 @@ public class JackHttpServer implements HasVersion {
             new ContentTypeRouter()
               .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
                 new ContentTypeParameterRouter("version")
-                 .add("1", new TestServerVersion(this))))
+                 .add("1", new QueryServerVersion(this))))
           .add(Method.GET,
             new AcceptContentTypeRouter()
               .add(TextPlain.CONTENT_TYPE_NAME, new GetServerVersion(this))))

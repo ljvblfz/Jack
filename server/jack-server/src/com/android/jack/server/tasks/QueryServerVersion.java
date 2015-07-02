@@ -18,46 +18,25 @@ package com.android.jack.server.tasks;
 
 import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
-import com.android.sched.util.Version;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 /**
- * Administrative task: Returns launcher version.
+ * Administrative task: Test if a specific version is current server version.
  */
-public class GetLauncherVersion extends GetVersions {
+public class QueryServerVersion extends QueryVersion {
 
-  @Nonnull
-  private static final Logger logger = Logger.getLogger(GetLauncherVersion.class.getName());
-
-  public GetLauncherVersion(@Nonnull JackHttpServer jackServer) {
-    super("server", jackServer);
+  public QueryServerVersion(@Nonnull JackHttpServer jackServer) {
+    super(jackServer);
   }
 
   @Nonnull
   @Override
   protected Collection<? extends HasVersion> getVersionedElements() {
-    final Version version;
-    try {
-      version = new Version("jack-launcher",
-          jackServer.getLauncherHandle().getLauncherClassLoader());
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Failed to read Jack-launcher version properties", e);
-      throw new AssertionError();
-    }
-    return Collections.singleton(new HasVersion() {
-      @Override
-      @Nonnull
-      public Version getVersion() {
-          return version;
-      }
-    });
+    return Collections.singleton(jackServer);
   }
 
 }
