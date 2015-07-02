@@ -38,6 +38,7 @@
     jack-api-src-clean,
     jack-launcher-clean,
     jack-server-clean,
+    jack-server-api-lib-clean,
     jack-annotations-lib-clean,
     jack-intermediate-clean,
     jackunittests-lib-clean,
@@ -234,8 +235,14 @@
     </copy>
   </target>
 
+  <target name="jack-create-version-file">
+    <!-- create symlink to ensure consistency between version.properties and jack-version.properties -->
+    <symlink link="${jack.dir}/rsc/jack-version.properties"
+      resource="${jack-project.dir}/version.properties" overwrite="true"/>
+  </target>
+
   <target name="jack-lib-compile-step1"
-    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,
+    depends="jack-copy-libs,jack-create-version-file,sched-build,antlr,sched-build-lib,allocation-lib,
     dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
@@ -469,13 +476,15 @@
   <!-- jack-api            -->
   <!-- ******************* -->
   <property name="jack-api.build.dir" value="${jack-api.dir}/build/exec" />
-  <property name="jack-api.build.outdir" value="${jack-api.build.dir}/classes" />
   <property name="jack-api.name" value="jack-api.jar" />
 
   <target name="jack-api" depends="jack-api-lib">
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-api.build.dir}/jack-api-version.properties"/>
     <jar destfile="${jack-api.dist.dir}/${jack-api.name}">
       <fileset dir="${jsr305.build.outdir}"/>
       <fileset dir="${jack-api.lib.build.outdir}"/>
+      <fileset dir="${jack-api.build.dir}" includes="jack-api-version.properties"/>
     </jar>
   </target>
 
@@ -601,6 +610,8 @@
     <unzip dest="${jack-launcher.build.outdir}">
       <filelist refid="jack-launcher.static.libs.fileset"/>
     </unzip>
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-launcher.build.outdir}/jack-launcher-version.properties"/>
     <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}.initial" manifest="${jack-launcher.dir}/etc/manifest.txt">
       <fileset dir="${jack-launcher.build.outdir}"/>
     </jar>
@@ -647,7 +658,8 @@
   <property name="jack-server.dist.dir" value="${jack-server.dir}/dist" />
 
   <target name="jack-server-clean">
-    <delete dir="${jack-server.build.outdir}"/>
+    <delete dir="${jack-server.build.dir}"/>
+    <delete dir="${jack-server.dist.dir}"/>
   </target>
 
   <target name="jack-server-copy-libs" depends="jsr305-lib,simple-lib,guava-lib,
@@ -698,6 +710,8 @@
     <copy todir="${jack-server.build.outdir}">
       <fileset dir="${jack-server.dir}/rsc" includes="**"/>
     </copy>
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-server.build.outdir}/jack-server-version.properties"/>
     <jar destfile="${jack-server.dist.dir}/${jack-server.name}.initial">
       <fileset dir="${jack-server.build.outdir}"/>
     </jar>
@@ -762,6 +776,10 @@
           destdir="${jack-annotations.build.outdir}"
           source="1.6" target="1.6" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
+
+     <copy file="${jack-project.dir}/version.properties"
+            tofile="${jack-annotations.build.outdir}/jack-annotations-version.properties"/>
+
     <jar destfile="${jack.dist.dir}/${jack-annotations.libname}">
       <fileset dir="${jack-annotations.build.outdir}"/>
     </jar>
