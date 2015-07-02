@@ -45,6 +45,7 @@ public class ErrorContainer implements Container {
   @Override
   public void handle(@Nonnull Request request, @Nonnull Response response) {
     logger.log(Level.WARNING, "Unknown request: '" + request.toString() + "'");
+    response.setContentLength(0);
     response.setStatus(status);
     try {
       response.close();

@@ -235,13 +235,16 @@ public class Stat extends SynchronousAdministrativeTask {
         }
       } catch (Throwable e) {
         logger.log(Level.SEVERE, "Unexpected exception", e);
+        response.setContentLength(0);
         response.setStatus(Status.INTERNAL_SERVER_ERROR);
       }
     } catch (UnsupportedEncodingException e) {
       logger.log(Level.SEVERE, "Unsupported charset", e);
+      response.setContentLength(0);
       response.setStatus(Status.NOT_ACCEPTABLE);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Exception during IO", e);
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     }
   }

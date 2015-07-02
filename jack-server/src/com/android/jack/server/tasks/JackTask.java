@@ -92,14 +92,17 @@ public class JackTask extends SynchronousServiceTask {
 
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to read request", e);
+      response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
       return;
     } catch (ParsingException e) {
       logger.log(Level.WARNING, "Failed to parse request", e);
+      response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
       return;
     } catch (TypeNotSupportedException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
+      response.setContentLength(0);
       response.setStatus(Status.NOT_IMPLEMENTED);
       return;
     }
@@ -110,6 +113,7 @@ public class JackTask extends SynchronousServiceTask {
       program = jackServer.selectJack(versionFinder);
     } catch (NoSuchVersionException e) {
       logger.log(Level.SEVERE, "Failed to load Jack", e);
+      response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
       return;
     }
@@ -118,10 +122,12 @@ public class JackTask extends SynchronousServiceTask {
       jack = jackProvider.createConfig(Cli01Config.class);
     } catch (ConfigNotSupportedException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
+      response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
       return;
     } catch (UnsupportedProgramException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
     }
@@ -139,6 +145,7 @@ public class JackTask extends SynchronousServiceTask {
       commandOut = new CommandOut(response.getByteChannel(), outCharset);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Exception while opening response: ", e);
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
     }
@@ -173,6 +180,7 @@ public class JackTask extends SynchronousServiceTask {
         commandOut.close(commandStatus);
       } catch (IOException e) {
         logger.log(Level.SEVERE, "Exception while writing response: ", e);
+        response.setContentLength(0);
         response.setStatus(Status.INTERNAL_SERVER_ERROR);
         return;
       }

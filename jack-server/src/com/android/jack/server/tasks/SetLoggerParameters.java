@@ -47,6 +47,7 @@ public class SetLoggerParameters extends SynchronousAdministrativeTask {
   @Override
   protected void handle(long taskId, Request request, Response response) {
     logger.log(Level.INFO, "Updating logger parameters");
+    response.setContentLength(0);
 
     ServerLogConfiguration logConfig = jackServer.getLogConfiguration();
     try {

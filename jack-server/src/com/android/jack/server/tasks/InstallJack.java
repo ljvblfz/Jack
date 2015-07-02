@@ -59,6 +59,8 @@ public class InstallJack extends SynchronousAdministrativeTask {
   @SuppressFBWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
+    response.setContentLength(0);
+
     String programName = request.getPath().getName();
     Part jarPart = request.getPart("jar");
     assert jarPart != null && jarPart.getContentType() != null

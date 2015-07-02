@@ -55,9 +55,11 @@ public class GetLauncherHome extends SynchronousServiceTask {
       response.setStatus(Status.OK);
     } catch (UnsupportedCharsetException e) {
       logger.log(Level.SEVERE, "Unsupported charset", e);
+      response.setContentLength(0);
       response.setStatus(Status.NOT_ACCEPTABLE);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to write response", e);
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     } finally {
       if (out != null) {

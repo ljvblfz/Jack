@@ -44,6 +44,7 @@ public class ReloadConfig extends SynchronousAdministrativeTask {
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     logger.log(Level.INFO, "Reloading configuration");
+    response.setContentLength(0);
     try {
       jackServer.reloadConfig();
       response.setStatus(Status.OK);

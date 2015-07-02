@@ -39,6 +39,7 @@ public class JillTask extends SynchronousServiceTask {
 
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
+    response.setContentLength(0);
     response.setStatus(Status.NOT_IMPLEMENTED);
   }
 }
