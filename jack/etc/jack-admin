@@ -182,8 +182,14 @@ startServer () {
   else
     JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR $JACK_SERVER_VM_ARGUMENTS -cp $LAUNCHER_JAR $LAUNCHER_NAME"
     echo "Launching Jack server" $JACK_SERVER_COMMAND
-    exec 4>&-
-    nohup $JACK_SERVER_COMMAND >/dev/null 2>/dev/null &
+    (
+      trap "" SIGHUP
+      for i in $(seq 3 255); do
+        eval exec "$i"'>&-'
+      done
+      exec $JACK_SERVER_COMMAND
+      abort
+    ) >/dev/null 2>/dev/null &
   fi
 }
 
