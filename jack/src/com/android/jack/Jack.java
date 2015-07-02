@@ -628,8 +628,8 @@ public abstract class Jack {
         }
       }
     } finally {
-      ThreadConfig.unsetConfig();
       event.end();
+      ThreadConfig.unsetConfig();
     }
   }
 
