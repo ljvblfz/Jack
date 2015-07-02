@@ -66,7 +66,7 @@ public class RuntimeTestHelper {
   private SourceLevel level = SourceLevel.JAVA_6;
 
   @Nonnull
-  private List<FileChecker> testExeCheckers = new ArrayList<FileChecker>(0);
+  private List<FileChecker> fileCheckers = new ArrayList<FileChecker>(0);
 
   @Nonnull
   private Map<String, String> runtimeProperties = new HashMap<String, String>(0);
@@ -76,6 +76,10 @@ public class RuntimeTestHelper {
 
     for (RuntimeTestInfo info : rtTestInfos) {
       jUnitClasses.add(info.jUnit);
+
+      for (FileChecker checker : info.checkers) {
+        fileCheckers.add(checker);
+      }
     }
   }
 
@@ -94,12 +98,6 @@ public class RuntimeTestHelper {
   @Nonnull
   public RuntimeTestHelper setSourceLevel(@Nonnull SourceLevel level) {
     this.level = level;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper addTestExeFileChecker(@Nonnull FileChecker checker) {
-    this.testExeCheckers.add(checker);
     return this;
   }
 
@@ -219,7 +217,7 @@ public class RuntimeTestHelper {
           getSrcDir());
     }
 
-    for (FileChecker checker : testExeCheckers) {
+    for (FileChecker checker : fileCheckers) {
       checker.check(testBinary);
     }
 

@@ -16,6 +16,8 @@
 
 package com.android.jack.test.runtime;
 
+import com.android.jack.test.helper.FileChecker;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,8 @@ public class RuntimeTestInfo {
   public List<String> proguardFilesNames = new ArrayList<String>();
   @Nonnull
   public List<File> referenceExtraSources = new ArrayList<File>();
+  @Nonnull
+  public List<FileChecker> checkers = new ArrayList<FileChecker>(0);
 
   public RuntimeTestInfo(@Nonnull File directory, @Nonnull String jUnit) {
     this.directory = directory;
@@ -99,6 +103,12 @@ public class RuntimeTestInfo {
   @Nonnull
   public RuntimeTestInfo addReferenceExtraSources(File file) {
     referenceExtraSources.add(file);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo addFileChecker(@Nonnull FileChecker checker) {
+    checkers.add(checker);
     return this;
   }
 

@@ -55,7 +55,33 @@ public class DxTests extends RuntimeTest {
 
   private RuntimeTestInfo OVERLAPPING = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.dx.overlapping"),
-    "com.android.jack.dx.overlapping.dx.Tests");
+    "com.android.jack.dx.overlapping.dx.Tests").addFileChecker(new FileChecker() {
+
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        EncodedMethod em =
+            TestTools.getEncodedMethod(dexFile,
+                "Lcom/android/jack/dx/overlapping/jack/Data;", "test002",
+                "(IJJ)J");
+
+        checkThatRegistersDoesNotOverlap(em);
+      }
+
+    }).addFileChecker(new FileChecker() {
+
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        EncodedMethod em =
+            TestTools.getEncodedMethod(dexFile,
+                "Lcom/android/jack/dx/overlapping/jack/Data;", "test001",
+                "(IJJ)J");
+
+        checkThatRegistersDoesNotOverlap(em);
+      }
+
+    });
 
   @Test
   @Category(RuntimeRegressionTest.class)
@@ -73,34 +99,6 @@ public class DxTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void overlapping() throws Exception {
     new RuntimeTestHelper(OVERLAPPING)
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        EncodedMethod em =
-            TestTools.getEncodedMethod(dexFile,
-                "Lcom/android/jack/dx/overlapping/jack/Data;", "test002",
-                "(IJJ)J");
-
-        checkThatRegistersDoesNotOverlap(em);
-      }
-
-    })
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        EncodedMethod em =
-            TestTools.getEncodedMethod(dexFile,
-                "Lcom/android/jack/dx/overlapping/jack/Data;", "test001",
-                "(IJJ)J");
-
-        checkThatRegistersDoesNotOverlap(em);
-      }
-
-    })
     .compileAndRunTest();
   }
 
