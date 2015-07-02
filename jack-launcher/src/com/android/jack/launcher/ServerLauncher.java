@@ -424,10 +424,16 @@ public final class ServerLauncher {
         if (!forced) {
           try {
             if (!candidateVersion.isNewerThan(currentVerion)) {
-              throw new NotInstalledException("Not installing server "
-                  + candidateVersion.getVerboseVersion()
-                  + " since it is not newer than current server "
-                  + currentServerInfo.version.getVerboseVersion());
+              if (candidateVersion.equals(currentVerion)) {
+                logger.log(Level.INFO, "Server version "
+                    + currentVerion.getVerboseVersion() + " was already installed");
+                return;
+              } else {
+                throw new NotInstalledException("Not installing server "
+                    + candidateVersion.getVerboseVersion()
+                    + " since it is not newer than current server "
+                    + currentServerInfo.version.getVerboseVersion());
+              }
             }
           } catch (UncomparableVersion e) {
             if (!candidateVersion.isComparable()) {

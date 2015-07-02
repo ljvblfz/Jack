@@ -103,7 +103,7 @@ public class InstallJack extends SynchronousAdministrativeTask {
                 SubReleaseKind.ENGINEERING));
         if (alreadyInstalled.getVersion().getSubReleaseKind() != SubReleaseKind.ENGINEERING) {
           logger.log(Level.INFO,
-              "Jack of version " + version.getVerboseVersion() + " was already installed");
+              "Jack version " + version.getVerboseVersion() + " was already installed");
           response.setStatus(Status.OK);
           return;
         } else {
