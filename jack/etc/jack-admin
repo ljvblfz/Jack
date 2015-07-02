@@ -330,7 +330,12 @@ case $COMMAND in
 
 
   update)
-    if [ $# -ne 3 ]; then
+    if [ $# -lt 3 ]; then
+      usage
+      abort
+    fi
+
+    if [ $# -gt 4 ]; then
       usage
       abort
     fi
@@ -340,8 +345,64 @@ case $COMMAND in
       usage
       abort
     fi
-    updateProgram $2 $3 ;;
 
+    if [ $FORCE_INSTALLATION = true ]; then
+      updateProgram $2 $3
+    else
+      if [ $# -eq 4 ]; then
+        RETRY_SESSION=3
+        DONE=1
+        while [ "$DONE" -ne 0 ]; do
+          HTTP_CODE=$(curl -f \
+               --output >(cat >/dev/null) \
+               --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
+               -X HEAD \
+               --data "$4" \
+               -H "Content-Type:application/vnd.jack.select-exact;version=1" \
+               --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+               http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
+               )
+          CURL_CODE=$?
+          if [ $CURL_CODE -eq 0 ]; then
+            echo $2 version $4 is already installed
+            exit 0;
+          elif [ $CURL_CODE -eq 7 ]; then
+            echo "ERROR: No Jack server running" &>2
+            abort
+          elif  [ $CURL_CODE -eq 22 ]; then
+            # Http code not OK, let's decode and abort
+            if [ $HTTP_CODE -eq 404 ]; then
+              # version not found, proceed to installation
+              updateProgram $2 $3
+            elif [ $HTTP_CODE -eq 401 ]; then
+              # 401: Unauthorized
+              echo "ERROR: Security problem, see Jack server log" >&2
+              abort
+            elif [ $HTTP_CODE -eq 400 ]; then
+              # 400: Bad request
+              echo "ERROR: Bad request, see Jack server log" >&2
+              abort
+            else
+              # Other
+              echo "ERROR: Internal unknown error $HTTP_CODE, try other ports in ~/.jack, or see Jack server log" >&2
+              abort
+            fi
+          else
+            # In case of partial, timeout, empty respond, network error, let's retry
+            if [ $RETRY_SESSION -eq 0 ]; then
+              echo "ERROR: Communication error with Jack server $CURL_CODE" >&2
+              abort
+            else
+              let RETRY_SESSION=RETRY_SESSION-1
+            fi
+          fi
+        done
+      else
+        # No version provided, proceed directly without testing
+        updateProgram $2 $3
+      fi
+    fi
+    exit 0;;
 
   stop-server)
     echo "Stopping background server"
