@@ -126,7 +126,7 @@ while true; do
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports in $CLIENT_SETTING, or see Jack server log" >&2
+      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
       abort
     fi
   else

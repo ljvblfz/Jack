@@ -86,7 +86,7 @@ handleHttpErrors() {
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error $HTTP_CODE, try other ports in ~/.jack, or see Jack server log" >&2
+      echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
       abort
     fi
   else
@@ -159,7 +159,7 @@ isServerRunning () {
         abort
       else
         # Other
-        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports in ~/.jack, or see Jack server log" >&2
+        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
         abort
       fi
     else
@@ -229,7 +229,7 @@ waitServerStarted () {
         abort
       else
         # Other
-        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports in ~/.jack, or see Jack server log" >&2
+        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
         abort
       fi
     else
@@ -384,7 +384,7 @@ case $COMMAND in
               abort
             else
               # Other
-              echo "ERROR: Internal unknown error $HTTP_CODE, try other ports in ~/.jack, or see Jack server log" >&2
+              echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
               abort
             fi
           else
