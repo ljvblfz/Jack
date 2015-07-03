@@ -15,7 +15,9 @@
    limitations under the License.
 -->
 
-<project name="jack" default="all">
+<project name="jack" default="all"
+  xmlns:if="ant:if"
+  xmlns:unless="ant:unless">
 
   <description>
     This buildfile is used to build all Jack projects and run tests.
@@ -117,13 +119,19 @@
   </target>
 
   <target name="dist-check">
-    <fail message="dist.sha is undefined" unless="dist.sha" />
-    <fail message="dist.build-id is undefined" unless="dist.build-id" />
+    <condition property="dist-check-only-one-defined">
+      <xor>
+       <isset property="dist.sha"/>
+       <isset property="dist.build-id"/>
+      </xor>
+    </condition>
+    <fail if:true="${dist-check-only-one-defined}"
+      message="Only one of dist.sha and dist.build-id properties has been set"/>
   </target>
 
   <target name="dist"
-    description="package a Jack distribution" depends="
-    dist-check,
+    description="package a Jack distribution"
+    depends="dist-check,
     jack,
     jack-api,
     jack-api-src,
@@ -150,8 +158,8 @@
 
     <copy file="${jack-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
     <propertyfile file="${jack-top-dist.dir}/tmp/version.properties">
-      <entry key="version.sha" value="${dist.sha}"/>
-      <entry key="version.buildid" value="${dist.build-id}"/>
+      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
+      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
     </propertyfile>
 
     <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-version.properties"/>
