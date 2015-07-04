@@ -174,9 +174,12 @@ $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
 	$(hide) unzip -qd $<.tmp $<
 	$(hide) unzip -qd $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
+	$(hide) $(jack_admin_script) stop-server || (exit 0)
 	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (exit 0)
 	$(hide) $(jack_admin_script) start-server || (exit 0)
+	$(hide) sleep 1
 	$(hide) $(jack_admin_script) force-update server $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (rm $@; exit 47)
+	$(hide) sleep 1
 	$(hide) $(jack_admin_script) force-update jack $@ || (rm $@; exit 47)
 
 # Include this library in the build server's output directory
