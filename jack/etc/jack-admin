@@ -92,7 +92,7 @@ handleHttpErrors() {
   else
     # In case of partial, timeout, empty respond, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
-      echo "ERROR: Communication error with Jack server $CURL_CODE" >&2
+      echo "ERROR: Communication error with Jack server $1" >&2
       abort
     else
       let RETRY_SESSION=RETRY_SESSION-1
