@@ -91,6 +91,11 @@ public class LoggerFactory  {
     while (names.hasMoreElements()) {
       String loggerName = names.nextElement();
       Logger logger = manager.getLogger(loggerName);
+
+      if (logger == null) {
+        continue;
+      }
+
       for (Handler handler : handlers) {
         logger.addHandler(handler);
       }
