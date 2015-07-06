@@ -16,33 +16,36 @@
 
 package com.android.jack.java7;
 
+import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 /**
  * JUnit test for compilation of try-with-resources.
  */
 public class TryWithResourcesTests {
 
+  @Nonnull
+  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test001"),
+      "com.android.jack.java7.trywithresources.test001.dx.Tests");
 
+  @Nonnull
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test002"),
+      "com.android.jack.java7.trywithresources.test002.dx.Tests");
 
   /**
    * Verifies that the test source can compiled from source to dex file.
    */
   @Test
   public void testCompile() throws Exception {
-    IToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test001.jack"));
+    new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   /**
@@ -50,13 +53,6 @@ public class TryWithResourcesTests {
    */
   @Test
   public void testCompile2() throws Exception {
-    IToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.java7.trywithresources.test002.jack"));
+    new RuntimeTestHelper(TEST002).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 }
