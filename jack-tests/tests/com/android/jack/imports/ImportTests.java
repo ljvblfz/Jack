@@ -27,7 +27,6 @@ import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

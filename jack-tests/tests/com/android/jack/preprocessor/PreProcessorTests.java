@@ -16,7 +16,6 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAnnotationType;

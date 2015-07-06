@@ -59,7 +59,6 @@ import com.android.jack.type.TypeTests;
 import com.android.jack.unary.UnaryTests;
 import com.android.jack.verify.VerifyTests;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;

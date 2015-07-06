@@ -16,11 +16,9 @@
 
 package com.android.jack.clinit;
 
-import com.android.jack.Main;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ClinitTests {

@@ -20,14 +20,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.tonicsystems.jarjar.PackageRemapper;
-import com.tonicsystems.jarjar.PatternElement;
-import com.tonicsystems.jarjar.Rule;
-import com.tonicsystems.jarjar.Wildcard;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -46,11 +39,6 @@ public class JarjarTests {
   private RuntimeTestInfo JARJAR003 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test003"),
       "com.android.jack.jarjar.test003.dx.Tests");
-
-  @Before
-  public void setUp() {
-
-  }
 
   @Test
   public void jarjar001() throws Exception {

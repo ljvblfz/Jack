@@ -16,7 +16,6 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -28,7 +27,6 @@ import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;

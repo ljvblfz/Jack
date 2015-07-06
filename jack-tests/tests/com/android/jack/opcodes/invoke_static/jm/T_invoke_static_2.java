@@ -16,8 +16,6 @@
 
 package com.android.jack.opcodes.invoke_static.jm;
 
-import com.android.jack.opcodes.invoke_static.jm.TestClass;
-
 public class T_invoke_static_2  {
 
     public int run() {

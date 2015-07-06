@@ -16,9 +16,6 @@
 
 package com.android.jack.opcodes.invoke_virtual.jm;
 
-import com.android.jack.opcodes.invoke_virtual.jm.TSuper;
-
-
 public class T_invoke_virtual_7 extends TSuper {
 
     public int run() {

@@ -32,7 +32,6 @@ import com.android.sched.vfs.VFS;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;

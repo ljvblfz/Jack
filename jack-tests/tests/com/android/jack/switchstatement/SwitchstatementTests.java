@@ -40,7 +40,6 @@ import org.jf.dexlib.Code.Analysis.AnalyzedInstruction;
 import org.jf.dexlib.Code.Analysis.MethodAnalyzer;
 import org.jf.dexlib.Code.Format.PackedSwitchDataPseudoInstruction;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.internal.AssumptionViolatedException;
@@ -160,11 +159,6 @@ public class SwitchstatementTests extends RuntimeTest {
 
   @Nonnull
   private Map<String, String> properties = Maps.newHashMap();
-
-  @BeforeClass
-  public static void setUpClass() {
-    SwitchstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Before
   public void setupTest() {

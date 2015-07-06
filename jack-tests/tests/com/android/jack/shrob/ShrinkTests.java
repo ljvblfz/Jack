@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
@@ -29,7 +28,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.util.TextUtils;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

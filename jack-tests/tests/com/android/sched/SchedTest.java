@@ -20,7 +20,6 @@ import com.android.jack.TestTools;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;

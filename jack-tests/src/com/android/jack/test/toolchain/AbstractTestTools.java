@@ -18,7 +18,6 @@ package com.android.jack.test.toolchain;
 
 import com.google.common.base.Splitter;
 
-
 import com.android.jack.Sourcelist;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;

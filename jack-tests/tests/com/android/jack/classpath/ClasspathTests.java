@@ -32,7 +32,6 @@ import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

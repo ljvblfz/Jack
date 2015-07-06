@@ -26,7 +26,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MethodIdOverflowException;
-import com.android.sched.scheduler.ProcessException;
 
 import junit.framework.Assert;
 

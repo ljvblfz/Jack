@@ -19,7 +19,6 @@ package com.android.jack.generic.basic;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**

@@ -18,7 +18,6 @@ package com.android.jack.shrob;
 
 import com.google.common.io.Files;
 
-import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.junit.KnownIssue;
@@ -26,7 +25,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
