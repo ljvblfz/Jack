@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
@@ -106,6 +107,21 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public JMethod exportAsJast(@Nonnull ExportSession exportSession,
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
+    JMethod jMethod = exportMethodAsJAst(exportSession, enclosingLoader);
+    clearBodyResolvers(exportSession);
+    return jMethod;
+  }
+
+  @Nonnull
+  public JMethod exportLambdaMethodAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
+      JMethodLookupException {
+    return exportMethodAsJAst(exportSession, enclosingLoader);
+  }
+
+  @Nonnull
+  private JMethod exportMethodAsJAst(@Nonnull ExportSession exportSession,
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) {
     assert name != null;
     assert returnType != null;
     assert methodKind != null;
@@ -133,7 +149,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     for (NMarker marker : markers) {
       jMethod.addMarker(marker.exportAsJast(exportSession));
     }
-    clearBodyResolvers(exportSession);
     return jMethod;
   }
 
@@ -142,10 +157,11 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public JAbstractMethodBody loadBody(@Nonnull JMethod method) throws JTypeLookupException,
       JMethodLookupException {
     if (body != null) {
-      JSession session = method.getParent(JSession.class);
+      JSession session = Jack.getSession();
       ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
           NodeLevel.FULL);
       exportSession.setCurrentMethod(method);
+      exportSession.setCurrentType(method.getEnclosingType());
 
       Iterator<JParameter> iter = method.getParams().iterator();
       for (NParameter parameter : parameters) {
@@ -156,6 +172,26 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       JAbstractMethodBody jBody = body.exportAsJast(exportSession);
       method.setBody(jBody);
       clearBodyResolvers(exportSession);
+      return jBody;
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public JAbstractMethodBody loadBody(@Nonnull JMethod method, @Nonnull ExportSession exportSession)
+      throws JTypeLookupException, JMethodLookupException {
+    if (body != null) {
+      exportSession.setCurrentMethod(method);
+      exportSession.setCurrentType(method.getEnclosingType());
+
+      Iterator<JParameter> iter = method.getParams().iterator();
+      for (NParameter parameter : parameters) {
+        assert parameter.id != null;
+        exportSession.getVariableResolver().addTarget(parameter.id, iter.next());
+      }
+
+      JAbstractMethodBody jBody = body.exportAsJast(exportSession);
+      method.setBody(jBody);
       return jBody;
     }
     return null;

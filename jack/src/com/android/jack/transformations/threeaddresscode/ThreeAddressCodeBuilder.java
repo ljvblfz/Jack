@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JIfStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLoop;
@@ -156,7 +157,8 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
       // - JVariableRef, no need to put variables into temporary variables except if they are
       // redefined by the sibling of expr. No need to move variable if it is the left part of an
       // assignment.
-      if (expr instanceof JConditionalExpression
+      if (expr instanceof JLambda
+          || expr instanceof JConditionalExpression
           || (expr instanceof JValueLiteral && !expr.canThrow())
           || (expr instanceof JVariableRef && !isRedefineVariable(
               expr.getSubTreeMarkersOnNextSibling(defMarkerCollector),

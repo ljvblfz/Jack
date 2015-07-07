@@ -27,6 +27,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JGoto;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
@@ -239,6 +240,13 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
       addFinallyBeforeBranching(returnStmt);
 
       return super.visit(returnStmt);
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLambda x) {
+      // Body of lambda expression must not be visited into the context of the method that contains
+      // the lambda expression.
+      return false;
     }
 
     @Override

@@ -82,6 +82,7 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLock;
@@ -196,6 +197,7 @@ import com.android.jack.jayce.v0003.nodes.NInstanceOf;
 import com.android.jack.jayce.v0003.nodes.NIntLiteral;
 import com.android.jack.jayce.v0003.nodes.NInterfaceType;
 import com.android.jack.jayce.v0003.nodes.NLabeledStatement;
+import com.android.jack.jayce.v0003.nodes.NLambda;
 import com.android.jack.jayce.v0003.nodes.NLocal;
 import com.android.jack.jayce.v0003.nodes.NLocalRef;
 import com.android.jack.jayce.v0003.nodes.NLock;
@@ -563,6 +565,12 @@ public class NodeFactory {
     @Override
     public boolean visit(@Nonnull JLabeledStatement x) {
       newNode = new NLabeledStatement();
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLambda x) {
+      newNode = new NLambda();
       return false;
     }
 

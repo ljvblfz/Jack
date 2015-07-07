@@ -60,8 +60,7 @@ public class ExportSession {
       new SymbolResolver<JLabeledStatement>();
 
   @Nonnull
-  private final SymbolResolver<JVariable> variableResolver =
-      new SymbolResolver<JVariable>();
+  private final SymbolResolver<JVariable> variableResolver;
 
   @Nonnull
   private final SymbolResolver<JCaseStatement> caseResolver =
@@ -82,11 +81,19 @@ public class ExportSession {
   @Nonnull
   private final JSession session;
 
+  public ExportSession(@Nonnull ExportSession exportSession) {
+    this.session = exportSession.getSession();
+    this.lookup = exportSession.getLookup();
+    this.nodeLevel = exportSession.getNodeLevel();
+    variableResolver =  exportSession.getVariableResolver();
+  }
+
   public ExportSession(
        @Nonnull JLookup lookup, @Nonnull JSession session, @Nonnull NodeLevel nodeLevel) {
     this.session = session;
     this.lookup = lookup;
     this.nodeLevel = nodeLevel;
+    variableResolver =  new SymbolResolver<JVariable>();
   }
 
   @Nonnull

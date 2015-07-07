@@ -72,6 +72,7 @@ public class MethodIdMerger extends JVisitor {
     ensureHierarchyVisited(node);
     return super.visit(node);
   }
+
   @Override
   public boolean visit(@Nonnull JMethod x) {
     return false;

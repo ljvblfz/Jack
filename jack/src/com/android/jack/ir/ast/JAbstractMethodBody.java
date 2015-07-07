@@ -43,7 +43,7 @@ public abstract class JAbstractMethodBody extends JNode {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JMethod)) {
+    if (!(parent instanceof JMethod || parent instanceof JLambda)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

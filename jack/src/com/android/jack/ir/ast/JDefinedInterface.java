@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 @Description("Java interface type definition")
 public class JDefinedInterface extends JDefinedClassOrInterface implements JInterface {
 
-  private class SamNotFoundException extends Exception {
+  private static class SamNotFoundException extends Exception {
     private static final long serialVersionUID = 1L;
   }
 

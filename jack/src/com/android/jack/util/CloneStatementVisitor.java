@@ -31,6 +31,7 @@ import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -48,9 +49,12 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
+import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
 import com.android.jack.transformations.request.AddJLocalInMethodBody;
+import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.marker.Marker;
 import com.android.sched.schedulable.Constraint;
@@ -471,6 +475,44 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     expression = new JParameterRef(parameterRef.getSourceInfo(),
         getNewParameter(parameterRef.getParameter()));
     return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda lambda) {
+    JLambda clonedLambda = new JLambda(lambda.getSourceInfo(), lambda.getMethod(), lambda.getType(),
+        lambda.needToCaptureInstance());
+
+    for (JVariable capturedVar : lambda.getCapturedVariables()) {
+      JVariable clonedVar = null;
+      if (capturedVar instanceof JLocal) {
+        clonedVar = clonedLocals.get(capturedVar);
+        if (clonedVar == null) {
+          clonedVar = cloneLocal((JLocal) capturedVar);
+        }
+      } else {
+        assert capturedVar instanceof JParameter;
+        clonedVar = getNewParameter((JParameter) capturedVar);
+      }
+      assert clonedVar != null;
+      clonedLambda.addCapturedVariable(clonedVar);
+    }
+
+    expression = clonedLambda;
+
+    new RewriteThisRefOfLambda().accept(lambda.getMethod());
+
+    return false;
+  }
+
+  private class RewriteThisRefOfLambda extends JVisitor {
+    @Override
+    public boolean visit(@Nonnull JThisRef jThisRef) {
+      JThis jThis = targetMethod.getThis();
+      assert jThis != null;
+      assert jThis.getType().isSameType(jThisRef.getType());
+      trRequest.append(new Replace(jThisRef, new JThisRef(jThisRef.getSourceInfo(), jThis)));
+      return false;
+    }
   }
 
   @Nonnull

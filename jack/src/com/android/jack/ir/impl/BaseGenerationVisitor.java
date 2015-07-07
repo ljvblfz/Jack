@@ -68,6 +68,7 @@ import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -741,6 +742,16 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   public boolean visit(@Nonnull JLabeledStatement x) {
     accept(x.getLabel());
     print(" : ");
+    accept(x.getBody());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda x) {
+    lparen();
+    visitCollectionWithCommas(x.getParameters().iterator());
+    rparen();
+    print(" -> ");
     accept(x.getBody());
     return false;
   }

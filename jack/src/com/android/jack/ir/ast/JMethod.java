@@ -47,7 +47,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    */
   @CheckForNull
   private JAbstractMethodBody body = null;
-  @Nonnull
+  @CheckForNull
   private JDefinedClassOrInterface enclosingType;
   private int modifier;
 
@@ -63,14 +63,14 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private JMethodId methodId;
 
   @CheckForNull
-  private final JThis jThis;
+  private JThis jThis;
 
   @Nonnull
   private MethodLoader loader;
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
-      @Nonnull JDefinedClassOrInterface enclosingType,
+      @CheckForNull JDefinedClassOrInterface enclosingType,
       @Nonnull JType returnType,
       int modifier) {
     this(info, methodId, enclosingType, returnType, modifier, NopMethodLoader.INSTANCE);
@@ -78,7 +78,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public JMethod(@Nonnull SourceInfo info,
         @Nonnull JMethodId methodId,
-        @Nonnull JDefinedClassOrInterface enclosingType,
+        @CheckForNull JDefinedClassOrInterface enclosingType,
         @Nonnull JType returnType,
         int modifier,
         @Nonnull MethodLoader loader) {
@@ -144,6 +144,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   @Override
   public JDefinedClassOrInterface getEnclosingType() {
+    assert enclosingType != null;
     return enclosingType;
   }
 
@@ -234,7 +235,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     }
   }
 
-  public void setEnclosingType(@Nonnull JDefinedClassOrInterface enclosingType) {
+  public void setEnclosingType(@CheckForNull JDefinedClassOrInterface enclosingType) {
     this.enclosingType = enclosingType;
   }
 
@@ -408,6 +409,10 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @CheckForNull
   public JThis getThis() {
     return jThis;
+  }
+
+  public void setThis(@CheckForNull JThis jThis) {
+    this.jThis = jThis;
   }
 
   public static boolean isClinit(@Nonnull JMethod method) {

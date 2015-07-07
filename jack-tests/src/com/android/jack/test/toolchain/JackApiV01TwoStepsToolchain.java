@@ -54,6 +54,7 @@ public class JackApiV01TwoStepsToolchain extends JackApiV01Toolchain implements 
     secondStep.setOutputStream(outRedirectStream);
     secondStep.setErrorStream(errRedirectStream);
     secondStep.setWithDebugInfos(withDebugInfos);
+    secondStep.addToClasspath(classpath.toArray(new File[classpath.size()]));
 
     for (Entry<String, String> entry : getProperties().entrySet()) {
       secondStep.addProperty(entry.getKey(), entry.getValue());

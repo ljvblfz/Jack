@@ -39,6 +39,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
@@ -338,6 +339,13 @@ public class CloneExpressionVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JThisRef x) {
     expression = new JThisRef(x.getSourceInfo(), x.getTarget());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda x) {
+    expression =
+        new JLambda(x.getSourceInfo(), x.getMethod(), x.getType(), x.needToCaptureInstance());
     return false;
   }
 }

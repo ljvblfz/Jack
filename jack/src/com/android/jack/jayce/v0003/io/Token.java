@@ -83,6 +83,7 @@ import com.android.jack.jayce.v0003.nodes.NInstanceOf;
 import com.android.jack.jayce.v0003.nodes.NIntLiteral;
 import com.android.jack.jayce.v0003.nodes.NInterfaceType;
 import com.android.jack.jayce.v0003.nodes.NLabeledStatement;
+import com.android.jack.jayce.v0003.nodes.NLambda;
 import com.android.jack.jayce.v0003.nodes.NLocal;
 import com.android.jack.jayce.v0003.nodes.NLocalRef;
 import com.android.jack.jayce.v0003.nodes.NLock;
@@ -602,6 +603,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLabeledStatement();
+    }
+  },
+  LAMBDA("lambda") {
+    @Nonnull
+    @Override
+    public NNode newNode() {
+      return new NLambda();
     }
   },
   LOCAL("local") {

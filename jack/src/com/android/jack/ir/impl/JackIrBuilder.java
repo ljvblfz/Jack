@@ -51,6 +51,7 @@ import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
@@ -69,6 +70,7 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -172,6 +174,7 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -1235,6 +1238,131 @@ public class JackIrBuilder {
       }
     }
 
+    @Nonnull
+    private MethodInfo createMethodInfoForLambda(@Nonnull MethodBinding lambdaMethodBinding,
+        @CheckForNull Argument[] arguments, @Nonnull MethodScope methodScope)
+            throws JTypeLookupException {
+      assert methodScope != null;
+      SourceInfo info = SourceInfo.UNKNOWN;
+
+      // MethodId requires kind that is not needed for lambda
+      JMethodId methodId = new JMethodId(ReferenceMapper.intern(lambdaMethodBinding.selector),
+          MethodKind.INSTANCE_VIRTUAL);
+
+      // JMethod requires an enclosing type that is not required for lambda method,
+      // modifier is also useless. Enclosing type is also use to define type of JThis.
+      JMethod lambdaMethod = new JMethod(info, methodId, curClass.type,
+          getTypeMap().get(lambdaMethodBinding.returnType), JModifier.DEFAULT);
+      int pIndex = 0;
+      for (TypeBinding argType : lambdaMethodBinding.parameters) {
+        JType type = getTypeMap().get(argType);
+        JParameter param = new JParameter(info,
+            arguments == null ? "arg" + (pIndex++) : new String(arguments[pIndex++].name), type,
+            JModifier.SYNTHETIC, lambdaMethod);
+        lambdaMethod.addParam(param);
+        lambdaMethod.getMethodId().addParam(type);
+      }
+
+      // No enclosing type for method used by JLambda
+      lambdaMethod.setEnclosingType(null);
+
+      JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
+      lambdaMethod.setBody(lambdaMethodBody);
+      MethodInfo newMethodInfo = new MethodInfo(this, lambdaMethod, lambdaMethodBody, null);
+
+      // lambda method does not have his own 'this', it reuse the enclosing 'this' when it exist
+      if (curMethod.method.getThis() != null) {
+        newMethodInfo.method.setThis(curMethod.method.getThis());
+      }
+
+      return newMethodInfo;
+    }
+
+    @Override
+    public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+      MethodInfo lambdaMethodInfo = createMethodInfoForLambda(lambdaExpression.descriptor,
+          lambdaExpression.arguments, lambdaExpression.scope);
+
+      // Matching field of outer local variables of lambda are uninitialized, initialize them
+      // accordingly to the current class. If a synthetic argument of the current class target
+      // the same local than the synthetic argument of the lambda then use the same matching field.
+      SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
+          curClass.typeDecl.binding.syntheticOuterLocalVariables();
+      if (curClassSyntheticOuterLocalVariables != null) {
+        for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
+          for (SyntheticArgumentBinding lambdaSynthArg : lambdaExpression.outerLocalVariables) {
+            if (curClassSynthArg.actualOuterLocalVariable
+                == lambdaSynthArg.actualOuterLocalVariable) {
+              assert curClassSynthArg.matchingField != null;
+              lambdaSynthArg.matchingField = curClassSynthArg.matchingField;
+              break;
+            }
+          }
+        }
+      }
+
+      for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
+        if (synthArg.matchingField == null) {
+          JVariable outerVar = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+          assert outerVar != null;
+          lambdaMethodInfo.addVariableMapping(synthArg.actualOuterLocalVariable, outerVar);
+        }
+      }
+
+      // Map user arguments.
+      Iterator<JParameter> it = lambdaMethodInfo.method.getParams().iterator();
+      if (lambdaExpression.arguments != null) {
+        for (Argument argument : lambdaExpression.arguments) {
+          JParameter jparameter = it.next();
+          jparameter.setName(new String(argument.name));
+          lambdaMethodInfo.addVariableMapping(argument.binding, jparameter);
+        }
+      }
+
+      pushMethodInfo(lambdaMethodInfo);
+
+      return true;
+    }
+
+    @Override
+    public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+      JBlock bodyBlock = curMethod.body.getBlock();
+
+      if (lambdaExpression.body instanceof Expression) {
+        JExpression bodyExpression = pop((Expression) lambdaExpression.body);
+        if (!curMethod.method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+          bodyBlock.addStmt(new JReturnStatement(bodyExpression.getSourceInfo(), bodyExpression));
+        } else {
+          bodyBlock.addStmt(bodyExpression.makeStatement());
+          generateImplicitReturn();
+        }
+      } else {
+        assert lambdaExpression.body instanceof Block;
+        JStatement block = pop(lambdaExpression.body);
+        bodyBlock.addStmts(((JBlock) block).getStatements());
+
+        if ((lambdaExpression.bits & ASTNode.NeedFreeReturn) != 0) {
+          generateImplicitReturn();
+        }
+      }
+
+      JLambda lambda = new JLambda(makeSourceInfo(lambdaExpression), curMethod.method,
+          (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
+          lambdaExpression.shouldCaptureInstance);
+
+      // Capture all local variable that are not already moved into fields
+      for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
+        if (synthArg.matchingField == null) {
+          JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+          assert var != null;
+          lambda.addCapturedVariable(var);
+        }
+      }
+
+      push(lambda);
+      popMethodInfo();
+    }
+
     @Override
     public void endVisit(LocalDeclaration x, BlockScope scope) {
       try {
@@ -1289,7 +1417,8 @@ public class JackIrBuilder {
 
         JType jType = getTypeMap().get(x.actualReceiverType);
         if (jType instanceof JClassOrInterface) {
-          if (jType instanceof JInterface && method.getEnclosingType().isSameType(javaLangObject)) {
+          if (jType instanceof JInterface && method.getEnclosingType() != null
+              && method.getEnclosingType().isSameType(javaLangObject)) {
             receiverType = method.getEnclosingType();
           } else {
             receiverType = (JDefinedClassOrInterface) jType;
