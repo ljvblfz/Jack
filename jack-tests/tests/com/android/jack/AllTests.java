@@ -47,6 +47,7 @@ import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
+import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
@@ -134,6 +135,7 @@ import org.junit.runners.Suite.SuiteClasses;
     TryfinallyTests.class,
     TypeTests.class,
     UnaryTests.class,
+    UnusedDefTest.class,
     UselessVariableCopyTest.class,
     VerifyTests.class,
     WithPhantomTests.class,
