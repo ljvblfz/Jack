@@ -104,6 +104,7 @@
   <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
 
+
   <!-- ******************* -->
   <!-- Distributed files   -->
   <!-- ******************* -->
@@ -2191,12 +2192,11 @@
     </target>
 
   <target name="test-sched" description="run schedlib tests"
-    depends="junit4,schedtests-lib,sched-lib,guava-lib,
+    depends="test-sched-nodep,junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib, test-sched-nodep">
   </target>
 
-  <target name="test-sched-nodep" depends="junit4,schedtests-lib,sched-lib,guava-lib,
-    freemarker-lib,maths-lib">
+  <target name="test-sched-nodep">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <jvmarg value="${jack.tests.assertions}"/>
