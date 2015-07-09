@@ -86,6 +86,7 @@ trap 'rm -f "$JACK_OUT" "$JACK_ERR" "$JACK_CLI" "$JACK_EXIT" 2>>$SERVER_LOG; rmd
 set -o errexit
 
 # Create fifos and files for a task
+rm -rf "$JACK_DIR"
 mkdir  "$JACK_DIR"
 mkfifo "$JACK_OUT"
 mkfifo "$JACK_ERR"
