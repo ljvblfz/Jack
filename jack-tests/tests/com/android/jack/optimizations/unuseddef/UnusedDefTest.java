@@ -17,7 +17,6 @@
 package com.android.jack.optimizations.unuseddef;
 
 import com.android.jack.TestTools;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
@@ -40,7 +39,6 @@ public class UnusedDefTest {
    * instruction.
    */
   @Test
-  @KnownIssue
   public void test001() throws Exception {
     File out = AbstractTestTools.createTempDir();
     File outDex = new File(out, "classes.dex");
