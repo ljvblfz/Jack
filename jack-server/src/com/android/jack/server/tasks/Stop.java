@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * Administrative task: initiate server shutdown and return immediately.
+ * Administrative task: initiate server shutdown and return connections are closed.
  */
 public class Stop extends SynchronousAdministrativeTask {
 
@@ -43,14 +43,7 @@ public class Stop extends SynchronousAdministrativeTask {
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     logger.log(Level.INFO, "Force stop");
 
-    Thread thread = new Thread() {
-      @Override
-      public void run() {
-        jackServer.shutdown();
-      }
-    };
-    thread.setName("jack-server-shutdown");
-    thread.start();
+    jackServer.shutdown();
     response.setStatus(Status.OK);
   }
 }
