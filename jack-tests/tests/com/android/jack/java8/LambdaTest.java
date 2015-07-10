@@ -105,6 +105,18 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test018"),
       "com.android.jack.java8.lambda.test018.jack.Tests");
 
+  private RuntimeTestInfo LAMBDA019 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test019"),
+      "com.android.jack.java8.lambda.test019.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA020 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test020"),
+      "com.android.jack.java8.lambda.test020.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA021 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test021"),
+      "com.android.jack.java8.lambda.test021.jack.Tests");
+
   /**
    * Verifies that the test source can compiled from source to dex file.
    */
@@ -241,6 +253,27 @@ public class LambdaTest {
   @Test
   public void testLamba018() throws Exception {
     new RuntimeTestHelper(LAMBDA018)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba019() throws Exception {
+    new RuntimeTestHelper(LAMBDA019)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba020() throws Exception {
+    new RuntimeTestHelper(LAMBDA020)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba021() throws Exception {
+    new RuntimeTestHelper(LAMBDA021)
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
