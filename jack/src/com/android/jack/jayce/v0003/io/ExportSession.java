@@ -24,13 +24,12 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JLabeledStatement;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.SymbolResolver;
 import com.android.jack.lookup.JLookup;
@@ -61,12 +60,8 @@ public class ExportSession {
       new SymbolResolver<JLabeledStatement>();
 
   @Nonnull
-  private final SymbolResolver<JLocal> localResolver =
-      new SymbolResolver<JLocal>();
-
-  @Nonnull
-  private final SymbolResolver<JParameter> parameterResolver =
-      new SymbolResolver<JParameter>();
+  private final SymbolResolver<JVariable> variableResolver =
+      new SymbolResolver<JVariable>();
 
   @Nonnull
   private final SymbolResolver<JCaseStatement> caseResolver =
@@ -150,13 +145,8 @@ public class ExportSession {
   }
 
   @Nonnull
-  public SymbolResolver<JLocal> getLocalResolver() {
-    return localResolver;
-  }
-
-  @Nonnull
-  public SymbolResolver<JParameter> getParameterResolver() {
-    return parameterResolver;
+  public SymbolResolver<JVariable> getVariableResolver() {
+    return variableResolver;
   }
 
   @Nonnull

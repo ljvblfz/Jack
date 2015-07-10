@@ -150,7 +150,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       Iterator<JParameter> iter = method.getParams().iterator();
       for (NParameter parameter : parameters) {
         assert parameter.id != null;
-        exportSession.getParameterResolver().addTarget(parameter.id, iter.next());
+        exportSession.getVariableResolver().addTarget(parameter.id, iter.next());
       }
 
       JAbstractMethodBody jBody = body.exportAsJast(exportSession);
@@ -206,10 +206,9 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   }
 
   protected static void clearBodyResolvers(ExportSession exportSession) {
-    exportSession.getLocalResolver().clear();
+    exportSession.getVariableResolver().clear();
     exportSession.getCaseResolver().clear();
     exportSession.getCatchBlockResolver().clear();
     exportSession.getLabelResolver().clear();
-    exportSession.getParameterResolver().clear();
   }
 }

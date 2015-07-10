@@ -21,11 +21,10 @@ import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.SymbolManager;
 import com.android.jack.jayce.v0003.NNode;
@@ -59,10 +58,7 @@ public class ImportHelper {
   private final SymbolManager<JField> fieldSymbols = new SymbolManager<JField>();
 
   @Nonnull
-  private final SymbolManager<JLocal> localSymbols = new SymbolManager<JLocal>();
-
-  @Nonnull
-  private final SymbolManager<JParameter> parameterSymbols = new SymbolManager<JParameter>();
+  private final SymbolManager<JVariable> variableSymbols = new SymbolManager<JVariable>();
 
   @Nonnull
   private final SymbolManager<JLabeledStatement> labelSymbols =
@@ -167,14 +163,8 @@ public class ImportHelper {
   }
 
   @Nonnull
-  public SymbolManager<JParameter> getParameterSymbols() {
-    return parameterSymbols;
-  }
-
-
-  @Nonnull
-  public SymbolManager<JLocal> getLocalSymbols() {
-    return localSymbols;
+  public SymbolManager<JVariable> getVariableSymbols() {
+    return variableSymbols;
   }
 
   @Nonnull
