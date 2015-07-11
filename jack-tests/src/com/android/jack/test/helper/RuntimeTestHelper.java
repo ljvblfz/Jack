@@ -26,6 +26,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -37,7 +38,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.CheckForNull;
@@ -64,6 +67,9 @@ public class RuntimeTestHelper {
 
   @Nonnull
   private List<FileChecker> testExeCheckers = new ArrayList<FileChecker>(0);
+
+  @Nonnull
+  private Map<String, String> runtimeProperties = new HashMap<String, String>(0);
 
   public RuntimeTestHelper(@Nonnull RuntimeTestInfo... rtTestInfos) {
     runtimeTestInfos = Arrays.copyOf(rtTestInfos, rtTestInfos.length);
@@ -94,6 +100,17 @@ public class RuntimeTestHelper {
   @Nonnull
   public RuntimeTestHelper addTestExeFileChecker(@Nonnull FileChecker checker) {
     this.testExeCheckers.add(checker);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestHelper addProperty(@Nonnull String key, @Nonnull String value) {
+    String oldValue = runtimeProperties.get(key);
+    if (oldValue != null && !oldValue.equals(value)) {
+      throw new AssertionError("property: " + key + " with value: " + oldValue
+          + " is already defined");
+    }
+    runtimeProperties.put(key, value);
     return this;
   }
 
@@ -289,6 +306,14 @@ public class RuntimeTestHelper {
         AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, ignoredCandidateToolchains);
     candidateTestTools.setSourceLevel(level);
     candidateTestTools.setWithDebugInfos(withDebugInfos);
+    if (!runtimeProperties.isEmpty() && candidateTestTools instanceof JackBasedToolchain) {
+      // if the tool chain is type of JackBasedToolchain and the customized properties are set,
+      // configure the runtime testing properties
+      JackBasedToolchain jackBasedToolchain = (JackBasedToolchain) candidateTestTools;
+      for (Map.Entry<String, String> entry : runtimeProperties.entrySet()) {
+        jackBasedToolchain.addProperty(entry.getKey(), entry.getValue());
+      }
+    }
     return candidateTestTools;
   }
 
@@ -298,6 +323,14 @@ public class RuntimeTestHelper {
         AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
     referenceTestTools.setSourceLevel(level);
     referenceTestTools.setWithDebugInfos(withDebugInfos);
+    if (!runtimeProperties.isEmpty() && referenceTestTools instanceof JackBasedToolchain) {
+      // if the tool chain is type of JackBasedToolchain and the customized properties are set,
+      // configure the runtime testing properties
+      JackBasedToolchain jackBasedToolchain = (JackBasedToolchain) referenceTestTools;
+      for (Map.Entry<String, String> entry : runtimeProperties.entrySet()) {
+        jackBasedToolchain.addProperty(entry.getKey(), entry.getValue());
+      }
+    }
     return referenceTestTools;
   }
 
