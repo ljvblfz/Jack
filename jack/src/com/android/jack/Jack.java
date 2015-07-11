@@ -181,6 +181,7 @@ import com.android.jack.transformations.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
+import com.android.jack.transformations.OptimizedSwitchEnumFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
@@ -232,6 +233,9 @@ import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.jack.transformations.enums.UsedEnumFieldCollector;
 import com.android.jack.transformations.enums.UsedEnumFieldMarkerRemover;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
+import com.android.jack.transformations.enums.opt.ShrinkMarker;
+import com.android.jack.transformations.enums.opt.SwitchEnumUsageCollector;
 import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
 import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparator;
@@ -541,6 +545,10 @@ public abstract class Jack {
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
+        }
+
+        if (config.get(Options.OPTIMIZED_ENUM_SWITCH).booleanValue()) {
+          request.addFeature(OptimizedSwitchEnumFeature.class);
         }
 
         if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
@@ -1002,11 +1010,36 @@ public abstract class Jack {
       }
     }
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+    if (features.contains(OptimizedSwitchEnumFeature.class)) {
+      // add one more traversal to collect the usage of each enum
+      // figure out how many classes use enum in switch statement
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(SwitchEnumSupport.class);
+      if (features.contains(Shrinking.class)) {
+        // since we don't have access to Options from RunnableScheduable, additional marker
+        // is attached to JSession
+        getSession().addMarker(new ShrinkMarker());
+      }
+      methodPlan.append(SwitchEnumUsageCollector.class);
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      if (features.contains(OptimizedSwitchEnumFeature.class)) {
+        // use optimized switch enum support
+        methodPlan.append(OptimizedSwitchEnumSupport.class);
+      } else {
+        methodPlan.append(SwitchEnumSupport.class);
+      }
+    }
+
+    if (features.contains(OptimizedSwitchEnumFeature.class) && hasSanityChecks) {
+      // check the validity of instrumentation if optimized switch enum feature and
+      // hasSanityCheck are both turn on
+      planBuilder.append(AstChecker.class);
     }
 
     planBuilder.append(InnerAccessorSchedulingSeparator.class);

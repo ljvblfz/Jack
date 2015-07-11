@@ -170,6 +170,11 @@ public class Options {
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
       .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
+  // property used to indicate if switch enum optimization is enabled
+  @Nonnull
+  public static final BooleanPropertyId OPTIMIZED_ENUM_SWITCH = BooleanPropertyId.create(
+      "jack.optimization.enum.switch", "Optimize enum switch").addDefaultValue(Boolean.TRUE);
+
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
       .create("jack.library.dex", "Generate dex files in library").addDefaultValue(Boolean.TRUE)
