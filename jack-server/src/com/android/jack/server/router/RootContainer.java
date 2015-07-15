@@ -43,7 +43,8 @@ public class RootContainer implements Container {
 
   @Override
   public void handle(Request request, Response response) {
-    logger.log(Level.INFO, "Route request for " + request.toString());
+    logger.log(Level.INFO, "Route request for " + request.getMethod() + " " +
+        request.getAddress().toString());
     try {
       guarded.handle(request, response);
     } catch (Error | RuntimeException e) {
