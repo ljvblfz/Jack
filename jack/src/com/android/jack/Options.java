@@ -123,6 +123,11 @@ import javax.annotation.Nonnull;
 public class Options {
 
   @Nonnull
+  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
+      .create("jack.lambda.converter", "Enable lambda to anonymous converter")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
       .create("jack.incremental", "Enable incremental mode")
       .addDefaultValue(Boolean.FALSE);

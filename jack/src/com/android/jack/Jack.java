@@ -234,6 +234,8 @@ import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparat
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
+import com.android.jack.transformations.lambda.LambdaConverter;
+import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
@@ -537,6 +539,9 @@ public abstract class Jack {
         request.addProduction(DexInLibraryProduct.class);
       }
 
+      if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+        request.addFeature(LambdaToAnonymousConverter.class);
+      }
       if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
         request.addProduction(DexFileProduct.class);
         session.addGeneratedFileType(FileType.DEX);
@@ -596,9 +601,10 @@ public abstract class Jack {
         assert !targetProduction.contains(JayceInLibraryProduct.class)
             || targetProduction.contains(DexFileProduct.class) || (plan.computeFinalTagsOrMarkers(
                 request.getInitialTags()).contains(JackFormatIr.class)
-                && !targetProduction.contains(DexInLibraryProduct.class)) || (
-                targetProduction.contains(DexInLibraryProduct.class)
-                && targetProduction.contains(JayceInLibraryProduct.class));
+                && !targetProduction.contains(DexInLibraryProduct.class)) || ((
+                    targetProduction.contains(DexInLibraryProduct.class)
+                    && targetProduction.contains(JayceInLibraryProduct.class))
+                    || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
       }
 
       PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -887,7 +893,8 @@ public abstract class Jack {
       }
     }
     if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)
-        || features.contains(Shrinking.class)) {
+        || features.contains(Shrinking.class)
+        || features.contains(LambdaToAnonymousConverter.class)) {
       for (InputLibrary il : getSession().getImportedLibraries()) {
         ((InputJackLibrary) il).fileTypes.remove(FileType.DEX);
       }
@@ -974,10 +981,12 @@ public abstract class Jack {
           methodPlan2.append(IncDecRemover.class);
           methodPlan2.append(CompoundAssignmentRemover.class);
           methodPlan2.append(ConcatRemover.class);
-          if (features.contains(AvoidSynthethicAccessors.class)) {
-            methodPlan2.append(OptimizedInnerAccessorGenerator.class);
-          } else {
-            methodPlan2.append(InnerAccessorGenerator.class);
+          if (!features.contains(LambdaToAnonymousConverter.class)) {
+            if (features.contains(AvoidSynthethicAccessors.class)) {
+              methodPlan2.append(OptimizedInnerAccessorGenerator.class);
+            } else {
+              methodPlan2.append(InnerAccessorGenerator.class);
+            }
           }
         }
       }
@@ -990,17 +999,21 @@ public abstract class Jack {
       methodPlan.append(SwitchEnumSupport.class);
     }
 
-    planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    if (!features.contains(LambdaToAnonymousConverter.class)) {
+      planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    }
     planBuilder.append(TryStatementSchedulingSeparator.class);
     planBuilder.append(EnumMappingSchedulingSeparator.class);
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (features.contains(AvoidSynthethicAccessors.class)) {
-        typePlan4.append(ReferencedOuterFieldsExposer.class);
+      if (!features.contains(LambdaToAnonymousConverter.class)) {
+        if (features.contains(AvoidSynthethicAccessors.class)) {
+          typePlan4.append(ReferencedOuterFieldsExposer.class);
+        }
+        typePlan4.append(InnerAccessorAdder.class);
       }
-      typePlan4.append(InnerAccessorAdder.class);
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
@@ -1039,6 +1052,35 @@ public abstract class Jack {
       }
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
+      }
+    }
+
+
+    if (features.contains(LambdaToAnonymousConverter.class)) {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(LambdaConverter.class);
+      }
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        if (features.contains(AvoidSynthethicAccessors.class)) {
+          methodPlan.append(OptimizedInnerAccessorGenerator.class);
+        } else {
+          methodPlan.append(InnerAccessorGenerator.class);
+        }
+      }
+      planBuilder.append(InnerAccessorSchedulingSeparator.class);
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        if (features.contains(AvoidSynthethicAccessors.class)) {
+          typePlan.append(ReferencedOuterFieldsExposer.class);
+        }
+        typePlan.append(InnerAccessorAdder.class);
       }
     }
 

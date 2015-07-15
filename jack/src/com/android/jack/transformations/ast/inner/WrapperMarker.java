@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -34,7 +33,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.formatter.SourceFormatter;
+import com.android.jack.ir.formatter.IdentifierFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
@@ -46,7 +45,6 @@ import com.android.sched.marker.ValidOn;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -66,58 +64,7 @@ public class WrapperMarker implements Marker {
   private final HashMap<MethodCallDescriptor, JMethod> wrappers =
     new HashMap<MethodCallDescriptor, JMethod>();
 
-  private static class WrapperFormatter extends SourceFormatter {
-
-    @Nonnull
-    private static final WrapperFormatter formatter = new WrapperFormatter();
-
-    private static final char separator = '_';
-
-    private WrapperFormatter() {
-    }
-
-    @Nonnull
-    public static WrapperFormatter getFormatter() {
-      return formatter;
-    }
-
-    @Override
-    protected char getPackageSeparator() {
-      return separator;
-    }
-
-    @Override
-    @Nonnull
-    public String getName(@Nonnull JType type) {
-      if (type instanceof JArrayType) {
-        return getName(((JArrayType) type).getElementType()) + separator;
-      }
-      return super.getName(type);
-    }
-
-    @Override
-    @Nonnull
-    public String getName(@Nonnull JMethod method) {
-      StringBuilder sb = new StringBuilder(getName(method.getType()));
-      sb.append(separator);
-      sb.append(method.getName());
-      sb.append(separator);
-      Iterator<JParameter> argumentIterator = method.getParams().iterator();
-      while (argumentIterator.hasNext()) {
-        JParameter argument = argumentIterator.next();
-        sb.append(getName(argument.getType()));
-        sb.append(separator);
-        sb.append(argument.getName());
-        if (argumentIterator.hasNext()) {
-          sb.append(separator);
-        }
-      }
-      sb.append(separator);
-      return sb.toString();
-    }
-  }
-
-  private static class MethodCallDescriptor {
+   private static class MethodCallDescriptor {
 
     @Nonnull
     private final JMethod method;
@@ -207,7 +154,7 @@ public class WrapperMarker implements Marker {
         String wrapperName = WRAPPER_PREFIX;
         // It is a temporary deterministic name that will be replace by an index into
         // InnerAccessorAdder
-        wrapperName += WrapperFormatter.getFormatter().getName(method) + isSuper;
+        wrapperName += IdentifierFormatter.getFormatter().getName(method) + isSuper;
         wrapper =
             new JMethod(sourceInfo, new JMethodId(wrapperName, MethodKind.STATIC), accessorClass,
                 method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);

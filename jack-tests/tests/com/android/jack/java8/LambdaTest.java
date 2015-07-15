@@ -16,16 +16,14 @@
 
 package com.android.jack.java8;
 
+import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.annotation.Nonnull;
 
 /**
  * JUnit test for compilation of lambda expressions.
@@ -117,24 +115,11 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test021"),
       "com.android.jack.java8.lambda.test021.jack.Tests");
 
-  /**
-   * Verifies that the test source can compiled from source to dex file.
-   */
-  public void testCompile(@Nonnull String testRootDir) throws Exception {
-    IToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir(testRootDir));
-  }
-
   @Test
   public void testLamba001() throws Exception {
     new RuntimeTestHelper(LAMBDA001)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -142,6 +127,7 @@ public class LambdaTest {
   public void testLamba002() throws Exception {
     new RuntimeTestHelper(LAMBDA002)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -149,6 +135,7 @@ public class LambdaTest {
   public void testLamba003() throws Exception {
     new RuntimeTestHelper(LAMBDA003)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -156,6 +143,7 @@ public class LambdaTest {
   public void testLamba004() throws Exception {
     new RuntimeTestHelper(LAMBDA004)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -163,6 +151,7 @@ public class LambdaTest {
   public void testLamba005() throws Exception {
     new RuntimeTestHelper(LAMBDA005)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -170,6 +159,7 @@ public class LambdaTest {
   public void testLamba006() throws Exception {
     new RuntimeTestHelper(LAMBDA006)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -177,6 +167,7 @@ public class LambdaTest {
   public void testLamba007() throws Exception {
     new RuntimeTestHelper(LAMBDA007)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -184,6 +175,7 @@ public class LambdaTest {
   public void testLamba008() throws Exception {
     new RuntimeTestHelper(LAMBDA008)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -191,6 +183,7 @@ public class LambdaTest {
   public void testLamba009() throws Exception {
     new RuntimeTestHelper(LAMBDA009)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -198,6 +191,7 @@ public class LambdaTest {
   public void testLamba010() throws Exception {
     new RuntimeTestHelper(LAMBDA010)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -205,6 +199,7 @@ public class LambdaTest {
   public void testLamba011() throws Exception {
     new RuntimeTestHelper(LAMBDA011)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -212,6 +207,7 @@ public class LambdaTest {
   public void testLamba012() throws Exception {
     new RuntimeTestHelper(LAMBDA012)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -219,6 +215,7 @@ public class LambdaTest {
   public void testLamba013() throws Exception {
     new RuntimeTestHelper(LAMBDA013)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -226,6 +223,7 @@ public class LambdaTest {
   public void testLamba014() throws Exception {
     new RuntimeTestHelper(LAMBDA014)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -233,6 +231,7 @@ public class LambdaTest {
   public void testLamba015() throws Exception {
     new RuntimeTestHelper(LAMBDA015)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -240,6 +239,7 @@ public class LambdaTest {
   public void testLamba016() throws Exception {
     new RuntimeTestHelper(LAMBDA016)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -247,6 +247,7 @@ public class LambdaTest {
   public void testLamba017() throws Exception {
     new RuntimeTestHelper(LAMBDA017)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -254,6 +255,7 @@ public class LambdaTest {
   public void testLamba018() throws Exception {
     new RuntimeTestHelper(LAMBDA018)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -261,6 +263,7 @@ public class LambdaTest {
   public void testLamba019() throws Exception {
     new RuntimeTestHelper(LAMBDA019)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -268,6 +271,7 @@ public class LambdaTest {
   public void testLamba020() throws Exception {
     new RuntimeTestHelper(LAMBDA020)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -275,7 +279,7 @@ public class LambdaTest {
   public void testLamba021() throws Exception {
     new RuntimeTestHelper(LAMBDA021)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
-
 }
