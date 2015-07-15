@@ -112,13 +112,13 @@ while true; do
     break;
   elif [ $CURL_CODE -eq 7 ]; then
     # Failed to connect
-    echo "ERROR: Cannot connect to Jack server" >&2
+    echo "No Jack server running. Try 'jack-admin start-server'" >&2
     abort
   elif  [ $CURL_CODE -eq 22 ]; then
     # Http code not OK, let's decode and abort
     if [ $HTTP_CODE -eq 401 ]; then
       # 401: Unauthorized
-      echo "ERROR: Security problem, see Jack server log" >&2
+      echo "Security problem, see Jack server log" >&2
       abort
     elif [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
@@ -126,13 +126,13 @@ while true; do
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
+      echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
       abort
     fi
   else
     # In case of partial, timeout, empty respond, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
-      echo "ERROR: Communication error with Jack server ($CURL_CODE)" >&2
+      echo "Communication error with Jack server ($CURL_CODE)" >&2
       abort
     else
       let RETRY_SESSION=RETRY_SESSION-1

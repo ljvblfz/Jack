@@ -72,27 +72,27 @@ handleHttpErrors() {
     # No problem, let's go
     return 0;
   elif [ $1 -eq 7 ]; then
-    echo "ERROR: No Jack server running" >&2
+    echo "No Jack server running. Try 'jack-admin start-server'" >&2
     abort
   elif  [ $1 -eq 22 ]; then
     # Http code not OK, let's decode and abort
     if [ $2 -eq 401 ]; then
       # 401: Unauthorized
-      echo "ERROR: Security problem, see Jack server log" >&2
+      echo "Security problem, see Jack server log" >&2
       abort
     elif [ $2 -eq 400 ]; then
       # 400: Bad request
-      echo "ERROR: Bad request, see Jack server log" >&2
+      echo "Bad request, see Jack server log" >&2
       abort
     else
       # Other
-      echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
+      echo "Internal unknown error ($2), try other ports or see Jack server log" >&2
       abort
     fi
   else
     # In case of partial, timeout, empty respond, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
-      echo "ERROR: Communication error with Jack server $1" >&2
+      echo "Communication error with Jack server $1" >&2
       abort
     else
       let RETRY_SESSION=RETRY_SESSION-1
@@ -124,9 +124,9 @@ updateProgram () {
     exec 3>&-
   done
 
-  echo "Server updated, waiting for restart"
 
   if [ "$1" == server ]; then
+    echo "Server updated, waiting for restart"
     waitServerStarted
   fi
 }
@@ -153,21 +153,21 @@ isServerRunning () {
       # Http code not OK, let's decode and abort
       if [ $HTTP_CODE -eq 401 ]; then
         # 401: Unauthorized
-        echo "ERROR: Security problem, see Jack server log" >&2
+        echo "Security problem, see Jack server log" >&2
         abort
       elif [ $HTTP_CODE -eq 400 ]; then
         # 400: Bad request
-        echo "ERROR: Bad request, see Jack server log" >&2
+        echo "Bad request, see Jack server log" >&2
         abort
       else
         # Other
-        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
+        echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
         abort
       fi
     else
       # In case of partial, timeout, empty respond, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "ERROR: Communication error with Jack server $CURL_CODE" >&2
+        echo "Communication error with Jack server $CURL_CODE" >&2
         abort
       else
         let RETRY_SESSION=RETRY_SESSION-1
@@ -213,7 +213,7 @@ waitServerStarted () {
       DONE=0;
     elif [ $CURL_CODE -eq 7 ]; then
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "ERROR: No Jack server running" &>2
+        echo "Jack server failed to (re)start, see Jack server log" >&2
         abort
       else
         let RETRY_SESSION=RETRY_SESSION-1
@@ -223,21 +223,21 @@ waitServerStarted () {
       # Http code not OK, let's decode and abort
       if [ $HTTP_CODE -eq 401 ]; then
         # 401: Unauthorized
-        echo "ERROR: Security problem, see Jack server log" >&2
+        echo "Security problem, see Jack server log" >&2
         abort
       elif [ $HTTP_CODE -eq 400 ]; then
         # 400: Bad request
-        echo "ERROR: Bad request, see Jack server log" >&2
+        echo "Bad request, see Jack server log" >&2
         abort
       else
         # Other
-        echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
+        echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
         abort
       fi
     else
       # In case of partial, timeout, empty respond, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "ERROR: Communication error with Jack server $CURL_CODE" >&2
+        echo "Communication error with Jack server $CURL_CODE" >&2
         abort
       else
         let RETRY_SESSION=RETRY_SESSION-1
@@ -298,13 +298,11 @@ case $COMMAND in
       abort
     fi
     if [ ! -r "$2" ]; then
-      echo "ERROR: \"$2\" is not a readable file" 1>&2
-      usage
+      echo "Jack server launcher jar \"$2\" is not readable" >&2
       abort
     fi
      if [ ! -r "$3" ]; then
-      echo "ERROR: \"$3\" is not a readable file" 1>&2
-      usage
+      echo "Jack server jar \"$3\" is not readable" >&2
       abort
     fi
 
@@ -315,7 +313,7 @@ case $COMMAND in
       cp $3 "$JACK_HOME/server-1.jar"
       mkdir "$JACK_HOME"/logs
     else
-      echo "ERROR: \"$JACK_HOME\" already exists" 1>&2
+      echo "Jack server already installed in \"$JACK_HOME\"" >&2
       abort
     fi
     exit 0 ;;
@@ -343,8 +341,7 @@ case $COMMAND in
     fi
 
     if [ ! -r "$3" ]; then
-      echo "ERROR: \"$3\" is not a readable file" 1>&2
-      usage
+      echo "Failed to update $2 of Jack server: \"$3\" is not readable" >&2
       abort
     fi
 
@@ -369,7 +366,7 @@ case $COMMAND in
             echo $2 version $4 is already installed
             exit 0;
           elif [ $CURL_CODE -eq 7 ]; then
-            echo "ERROR: No Jack server running" &>2
+            echo "No Jack server running. Try 'jack-admin start-server'" &>2
             abort
           elif  [ $CURL_CODE -eq 22 ]; then
             # Http code not OK, let's decode and abort
@@ -378,21 +375,21 @@ case $COMMAND in
               updateProgram $2 $3
             elif [ $HTTP_CODE -eq 401 ]; then
               # 401: Unauthorized
-              echo "ERROR: Security problem, see Jack server log" >&2
+              echo "Security problem, see Jack server log" >&2
               abort
             elif [ $HTTP_CODE -eq 400 ]; then
               # 400: Bad request
-              echo "ERROR: Bad request, see Jack server log" >&2
+              echo "Bad request, see Jack server log" >&2
               abort
             else
               # Other
-              echo "ERROR: Internal unknown error $HTTP_CODE, try other ports or see Jack server log" >&2
+              echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
               abort
             fi
           else
             # In case of partial, timeout, empty respond, network error, let's retry
             if [ $RETRY_SESSION -eq 0 ]; then
-              echo "ERROR: Communication error with Jack server $CURL_CODE" >&2
+              echo "Communication error with Jack server $CURL_CODE" >&2
               abort
             else
               let RETRY_SESSION=RETRY_SESSION-1
@@ -448,7 +445,7 @@ case $COMMAND in
 
 
   server-log)
-    echo "Command server-log is not supported any more" 1>&2
+    echo "Command server-log is not supported any more" >&2
     abort ;;
 
 
@@ -456,7 +453,7 @@ case $COMMAND in
     echo "Killing background server"
     kill $(ps aux | grep $LAUNCHER_NAME | grep -v grep | awk '{print $2}') 2>/dev/null
     if [ $? -ne 0 ]; then
-      echo "ERROR: No Jack server to kill" >&2
+      echo "No Jack server to kill" >&2
       exit 2
     else
       exit 0
