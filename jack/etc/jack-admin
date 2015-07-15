@@ -196,7 +196,7 @@ startServer () {
 }
 
 waitServerStarted () {
-  RETRY_SESSION=30
+  RETRY_CONNECT=30
   DONE=1
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
@@ -208,43 +208,21 @@ waitServerStarted () {
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
-    if [ $CURL_CODE -eq 0 ]; then
-      # No problem, let's go
-      DONE=0;
-    elif [ $CURL_CODE -eq 7 ]; then
-      if [ $RETRY_SESSION -eq 0 ]; then
+    if [ $CURL_CODE -eq 7 ]; then
+      if [ $RETRY_CONNECT -eq 0 ]; then
         echo "Jack server failed to (re)start, see Jack server log" >&2
         abort
       else
-        let RETRY_SESSION=RETRY_SESSION-1
+        let RETRY_CONNECT=RETRY_CONNECT-1
         sleep 1;
       fi
-    elif  [ $CURL_CODE -eq 22 ]; then
-      # Http code not OK, let's decode and abort
-      if [ $HTTP_CODE -eq 401 ]; then
-        # 401: Unauthorized
-        echo "Security problem, see Jack server log" >&2
-        abort
-      elif [ $HTTP_CODE -eq 400 ]; then
-        # 400: Bad request
-        echo "Bad request, see Jack server log" >&2
-        abort
-      else
-        # Other
-        echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
-        abort
-      fi
     else
-      # In case of partial, timeout, empty respond, network error, let's retry
-      if [ $RETRY_SESSION -eq 0 ]; then
-        echo "Communication error with Jack server $CURL_CODE" >&2
-        abort
-      else
-        let RETRY_SESSION=RETRY_SESSION-1
-      fi
+      # A connection was opened, no need to know if it went well
+      DONE=0;
     fi
   done
 }
+
 #
 # $1: program name
 #
