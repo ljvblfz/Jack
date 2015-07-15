@@ -173,14 +173,14 @@ $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
 	$(hide) unzip -qd $<.tmp $<
 	$(hide) unzip -qd $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
-	$(hide) $(jack_admin_script) stop-server || (exit 0)
+	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
 	$(hide) sleep 5
-	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (exit 0)
+	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar 2>&1 || (exit 0)
 ifneq ($(dist_goal),)
 	mkdir -p "$(DIST_DIR)/logs/jack/"
-	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(DIST_DIR)/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server || (exit 0)
+	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(DIST_DIR)/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || (exit 0)
 else
-	$(hide) $(jack_admin_script) start-server || (exit 0)
+	$(hide) $(jack_admin_script) start-server 2>&1 || (exit 0)
 endif
 	$(hide) sleep 5
 	$(hide) $(jack_admin_script) force-update server $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (rm $@; exit 47)
