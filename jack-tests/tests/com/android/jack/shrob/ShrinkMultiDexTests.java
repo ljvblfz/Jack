@@ -28,13 +28,18 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.TwoStepsToolchain;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -61,8 +66,10 @@ public class ShrinkMultiDexTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
     File testFolder = new File(shrobTestsDir, "test" + testNumber);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
+    exclude.add(TwoStepsToolchain.class);
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
 
     File refFolder = new File(testFolder, "refsShrinking");
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");

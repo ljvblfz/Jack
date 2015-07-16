@@ -110,7 +110,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
 
   @Override
   @Nonnull
-  public final JackApiV01Toolchain addProperty(@Nonnull String propertyName,
+  public JackApiV01Toolchain addProperty(@Nonnull String propertyName,
       @Nonnull String propertyValue) {
     try {
       apiV01Config.setProperty(propertyName, propertyValue);
