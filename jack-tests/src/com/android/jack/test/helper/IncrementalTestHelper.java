@@ -28,6 +28,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.jack.test.toolchain.TwoStepsToolchain;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -193,6 +194,7 @@ public class IncrementalTestHelper {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(LegacyJillToolchain.class);
     excludeList.add(IncrementalToolchain.class);
+    excludeList.add(TwoStepsToolchain.class);
     if (isApiTest) {
       excludeList.add(JackCliToolchain.class);
     }
