@@ -35,9 +35,11 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
@@ -108,8 +110,13 @@ public final class ServerLauncher {
     @Nonnull
     private final ServerInfo serverInfo;
 
-    public RunServerTask(@Nonnull ServerInfo serverInfo) {
+    @Nonnull
+    private final Map<String, Object> parameters;
+
+    public RunServerTask(@Nonnull ServerInfo serverInfo,
+        @Nonnull Map<String, Object> parameters) {
       this.serverInfo = serverInfo;
+      this.parameters = parameters;
     }
 
     @Override
@@ -124,7 +131,7 @@ public final class ServerLauncher {
         logger.log(Level.FINE, "Starting server " + serverInfo.version.getVerboseVersion() +
             " from " + serverJar.getName());
         server.setHandle(new ServerLauncherHandle());
-        server.run();
+        server.run(parameters);
         logger.log(Level.FINE, "Server " + serverInfo.version.getVerboseVersion() +
             " from " + serverJar.getName() + " ended");
       } catch (ServerException e) {
@@ -173,9 +180,10 @@ public final class ServerLauncher {
     }
 
     @Override
-    public void replaceServer(@Nonnull InputStream newServer, boolean forced)
+    public void replaceServer(@Nonnull InputStream newServer,
+        @Nonnull Map<String, Object> parameters, boolean forced)
         throws IOException, ServerException, NotInstalledException {
-      ServerLauncher.this.replaceServer(newServer, forced);
+      ServerLauncher.this.replaceServer(newServer, parameters, forced);
     }
 
     @Override
@@ -333,7 +341,7 @@ public final class ServerLauncher {
         logger.log(Level.FINE, "Starting server " + serverId);
         try {
           server.onSystemStart();
-          server.run();
+          server.run(new HashMap<String, Object>());
           logger.log(Level.FINE, "Server " + serverId + " ended");
         } catch (ServerException e) {
           logger.log(Level.SEVERE, "Server " + serverId + " Exception", e);
@@ -397,7 +405,8 @@ public final class ServerLauncher {
     return serverDir;
   }
 
-  private void replaceServer(@Nonnull InputStream jarIn, boolean forced)
+  private void replaceServer(@Nonnull InputStream jarIn, @Nonnull Map<String, Object> parameters,
+      boolean forced)
       throws IOException, ServerException, NotInstalledException {
     FileOutputStream out = null;
     File tmpInstall = null;
@@ -478,7 +487,7 @@ public final class ServerLauncher {
         incrementServerCount();
         assert currentServerInfo != null;
         taskRunner.executeTask("Server " + currentServerInfo.id,
-            new RunServerTask(currentServerInfo));
+            new RunServerTask(currentServerInfo, parameters));
       }
     }
   }

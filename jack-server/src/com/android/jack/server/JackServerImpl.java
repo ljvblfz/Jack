@@ -22,6 +22,7 @@ import com.android.jack.server.api.v01.LauncherHandle;
 import com.android.jack.server.api.v01.ServerException;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,12 +59,13 @@ public class JackServerImpl implements JackServer {
   }
 
   @Override
-  public void run() throws ServerException, InterruptedException {
+  public void run(@Nonnull Map<String, Object> parameters)
+      throws ServerException, InterruptedException {
     assert launcherHandle != null;
     assert jackServer == null;
     try {
       jackServer = new JackHttpServer(launcherHandle);
-      jackServer.start();
+      jackServer.start(parameters);
       jackServer.waitServerShutdown();
     } catch (IOException | ServerLogConfigurationException e) {
       throw new ServerException(e.getMessage(), e);

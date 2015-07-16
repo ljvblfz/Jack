@@ -83,6 +83,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
@@ -359,7 +361,7 @@ public class JackHttpServer implements HasVersion {
     try {
       loadConfig();
       buildInstalledJackCache();
-      start();
+      start(new HashMap<String, Object>());
     } catch (IOException e) {
       shutdown();
       throw e;
@@ -413,7 +415,8 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
-  void start() throws ServerException {
+  void start(@SuppressWarnings("unused") @Nonnull Map<String, ?> parameters)
+      throws ServerException {
     InetSocketAddress serviceSocket = new InetSocketAddress("127.0.0.1", portService);
     InetSocketAddress adminSocket   = new InetSocketAddress("127.0.0.1", portAdmin);
 
