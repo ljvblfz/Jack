@@ -18,7 +18,9 @@ package com.android.jack.optimizations.unuseddef;
 
 import com.android.jack.TestTools;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -29,6 +31,8 @@ import org.jf.dexlib.Code.Opcode;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +46,10 @@ public class UnusedDefTest {
   public void test001() throws Exception {
     File out = AbstractTestTools.createTempDir();
     File outDex = new File(out, "classes.dex");
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.disableDxOptimizations();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(out, /* zipFile = */ false,

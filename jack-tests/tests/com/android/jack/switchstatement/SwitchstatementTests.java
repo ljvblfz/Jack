@@ -25,6 +25,8 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
+
 import com.google.common.collect.Maps;
 
 import junit.framework.Assert;
@@ -43,6 +45,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -304,7 +307,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun012() throws Exception {
     runTestCase(TEST012);
   }
 
@@ -332,7 +338,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun013() throws Exception {
     runTestCase(TEST013);
   }
 
@@ -367,7 +376,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun014() throws Exception {
     runTestCase(TEST014);
   }
 
@@ -397,7 +409,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun015() throws Exception {
     runTestCase(TEST015);
   }
 
@@ -425,7 +440,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
 
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun016() throws Exception {
     runTestCase(TEST016);
   }
 
@@ -448,7 +466,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
 
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun017() throws Exception {
     runTestCase(TEST017);
   }
 
@@ -476,7 +497,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun018() throws Exception {
     runTestCase(TEST018);
   }
 
@@ -500,10 +524,12 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
-    runTestCase(TEST019);
   }
 
+  @Test
+  public void testRun019() throws Exception {
+    runTestCase(TEST019);
+  }
 
   /**
    * Test if the optimized enum support is enabled when the number of time enum used
@@ -522,7 +548,10 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo("java_lang_Thread$State", /*contains State*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun020() throws Exception {
     runTestCase(TEST020);
   }
 
@@ -539,7 +568,10 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo("java_lang_Thread$State", /*contains State*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun021() throws Exception {
     runTestCase(TEST021);
   }
 
@@ -556,7 +588,10 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo("java_lang_Thread$State", /*contains State*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun022() throws Exception {
     runTestCase(TEST022);
   }
 
@@ -590,7 +625,10 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum2$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun023() throws Exception {
     runTestCase(TEST023);
   }
 
@@ -618,7 +656,11 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
     input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
-    // compile the code then run it
+    checkCompiledCode(packageName, input);
+  }
+
+  @Test
+  public void testRun024() throws Exception {
     runTestCase(TEST024);
   }
 
@@ -645,7 +687,10 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum1$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
+  }
+
+  @Test
+  public void testRun025() throws Exception {
     runTestCase(TEST025);
   }
 
@@ -668,10 +713,12 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
     checkCompiledCode(packageName, input);
-    // compile the code then run it
-    runTestCase(TEST026);
   }
 
+  @Test
+  public void testRun026() throws Exception {
+    runTestCase(TEST026);
+  }
 
   /**
    * Compile the code with our analysis enabled, then check if it is successful.
@@ -682,7 +729,10 @@ public class SwitchstatementTests extends RuntimeTest {
       @Nonnull String packageName, @Nonnull Map<String, VerifierInfo> classMap) throws Exception {
     File outFolder = AbstractTestTools.createTempDir();
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       toolchain.addProperty(entry.getKey(), entry.getValue());
     }
