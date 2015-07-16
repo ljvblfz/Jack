@@ -43,13 +43,13 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNeqOperation;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.obfuscation.OriginalNames;
-import com.android.jack.shrob.shrink.KeepMarker;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.enums.EnumMappingMarker;
 import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
@@ -73,6 +73,7 @@ import com.android.sched.util.config.id.IntegerPropertyId;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -110,8 +111,8 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
    */
   @Nonnull
   public static final IntegerPropertyId OPTIMIZED_ENUM_SWITCH_THRESHOLD = IntegerPropertyId
-  .create("jack.optimization.enum.switch.threshold", "Threshold trigger enum optimization")
-        .addDefaultValue(0);
+    .create("jack.optimization.enum.switch.threshold", "Threshold trigger enum optimization")
+    .addDefaultValue(0);
 
   // read specified threshold enabling enum switch optimization defined above
   private final int threshold = ThreadConfig.get(OPTIMIZED_ENUM_SWITCH_THRESHOLD).intValue();
@@ -135,13 +136,6 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
 
   @Override
   public synchronized void run(@Nonnull JMethod method) {
-    if (Jack.getSession().containsMarker(ShrinkMarker.class)
-        && !method.containsMarker(KeepMarker.class)) {
-      // if shrinking is enabled and current method is not reachable, don't optimize it since
-      // Jack thinks it is dead code will drop it while dumping it to dex file
-      return;
-    }
-
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if the method and enclosing class are both concrete
     if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal() || method.isNative()
@@ -201,8 +195,8 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         // method after another. We don't have to worry too much about concurrency issue
         // in creating synthetic class. The synthetic class related to enum may be null
         // because it may be worthless to optimize it using synthetic class
-        JDefinedClass switchMapClass = manager.getOrCreateRelatedSyntheticClass(enumType,
-            true /*create class if not found*/);
+        JDefinedClass switchMapClass = getSwitchMapClass(enumType, true
+            /*create class if not found*/);
         if (switchMapClass == null) {
           // at this point, synthetic switch map class is null meaning it is worthless
           // to do optimization. Thus, insert switch map initializer method inside of
@@ -220,7 +214,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
             enumType);
 
         JMethod syntheticSwitchmapInitializer = switchMapClass.getMethod(
-            syntheticInitializerName, supportUtil.getPrimitiveIntType().getArray());
+            syntheticInitializerName, JPrimitiveTypeEnum.INT.getType().getArray());
 
         // create expression representing call to synthetic switch map initializer
         JExpression getSwitchMapInvocExpr = new JMethodCall(switchStmt.getSourceInfo(),
@@ -230,7 +224,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
 
         // get the method id of Enum.oridinal()
         JMethod ordinalMethod = supportUtil.getEnumType().getMethod(OptimizationUtil.Ordinal,
-            supportUtil.getPrimitiveIntType(), Collections.<JType>emptyList());
+            JPrimitiveTypeEnum.INT.getType(), Collections.<JType>emptyList());
 
         // replace switch statement with switch map
         transformRequest.append(new Replace(switchExpr,
@@ -259,8 +253,8 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         JDefinedEnum enumType = (JDefinedEnum) enumLiteral.getType();
 
         // at this point, synthetic method should already be created, get it
-        JDefinedClass switchmapClass = manager.getOrCreateRelatedSyntheticClass(enumType,
-            false /*not create class if not found*/);
+        JDefinedClass switchmapClass = getSwitchMapClass(enumType, false
+            /*not create class if not found*/);
         if (switchmapClass == null) {
           switchmapClass = enclosingClass;
         }
@@ -268,29 +262,21 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         String syntheticInitializerName = OptimizationUtil.getSyntheticSwitchMapInitializerName(
             enumType);
         JMethod syntheticInitializer = switchmapClass.getMethod(syntheticInitializerName,
-            supportUtil.getPrimitiveIntType().getArray());
+            JPrimitiveTypeEnum.INT.getType().getArray());
 
         // since EnumMappingMarker is attached to each synthetic switch map initializer, retrieve
         // it then map the enum literal to the compile-time ordinal
         EnumMappingMarker ordinalMapping = syntheticInitializer.getMarker(EnumMappingMarker.class);
 
         // this must hold true otherwise synthetic switch map class creation fails
-        if (ordinalMapping == null) {
-          throw new AssertionError(
-              "No EnumMappingMarker is attached to synthetic switch map initializer:"
-                  + syntheticInitializer);
-        }
+        assert ordinalMapping != null;
 
         JFieldId enumFieldId = enumLiteral.getFieldId();
 
         Map<JFieldId, Integer> ordinalMap = ordinalMapping.getMapping();
 
         Integer compileTimeOrdinal = ordinalMap.get(enumFieldId);
-        if (compileTimeOrdinal == null) {
-          // throw exception if the ordinal mapping cannot be found
-          throw new AssertionError(
-              "CompileTime ordinal is null for the enum field: " + enumLiteral);
-        }
+        assert compileTimeOrdinal != null;
         // replace the case statement with
         // case T1 ===> getSwitchMap(Enum.O1.ordinal()) == T1
         Replace replace = new Replace(caseExpr, new JIntLiteral(caseStmt.getSourceInfo(),
@@ -299,6 +285,31 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
       }
       // keep traversing the rest of statements
       return super.visit(caseStmt);
+    }
+
+    /**
+     * Get the switch map class related to given type. If the enclosing class already
+     * defines switch map initializer, don't optimize it because the time to re-generate
+     * code is more important.
+     * @param enumType The enum type
+     * @param createIfNotExist True means synthetic class will be created if not found
+     *
+     * @return synthetic switch map class
+     */
+    @CheckForNull
+    private JDefinedClass getSwitchMapClass(
+        @Nonnull JDefinedEnum enumType, boolean createIfNotExist) {
+      for (JField field : enclosingClass.getFields()) {
+        // if enclosing class already contains switch map field, don't
+        // bother optimizing it. We do this because we don't want to
+        // re-generate code again at compile time
+        if (supportUtil.isSyntheticSwitchMapField(field)
+            && field.getName().equals(OptimizationUtil.getSyntheticSwitchMapFieldName(enumType))) {
+          return enclosingClass;
+        }
+      }
+
+      return manager.getOrCreateSyntheticClass(enumType, createIfNotExist);
     }
   }
 }

@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.jack.transformations.enums.opt;
+package com.android.jack.transformations;
 
-import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
-import com.android.sched.marker.Marker;
-import com.android.sched.marker.ValidOn;
-
-import javax.annotation.Nonnull;
+import com.android.sched.item.Feature;
+import com.android.sched.item.Name;
 
 /**
- * Marker indicate if shrinking is enabled during this compilation.
+ * Feature used to indicate if {@link OptimizedSwithEnumSupport} is
+ * turned on.
  */
-@Description("A marker which specifies if shrink is enabled in the settings.")
-@ValidOn({JSession.class})
-public final class ShrinkMarker implements Marker {
-  @Override
-  @Nonnull
-  public Marker cloneIfNeeded() {
-    return this;
-  }
+@Name("OptimizedSwitchEnumFeature")
+@Description("Feature turning on OptimizedSwitchEnumSupport")
+public class OptimizedSwitchEnumNonFeedbackFeature implements Feature {
 }

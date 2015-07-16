@@ -22,24 +22,24 @@ package com.android.jack.switchstatement.test016.jack;
  * using synthetic class.
  */
 public class Enum1 {
-  private enum Enum1_ {
+  private enum Enum11 {
     VALUE1, VALUE2, VALUE3, VALUE4, VALUE5;
   }
 
   public static int switch1(Object o1) {
-    Enum1.Enum1_ enum1 = (Enum1.Enum1_) o1;
+    Enum1.Enum11 enum1 = (Enum1.Enum11) o1;
     Enum1 instance = new Enum1();
     return instance.new Switch1().switch1(enum1);
   }
 
   public static int switch2(Object o1) {
-    Enum1.Enum1_ enum1 = (Enum1.Enum1_) o1;
+    Enum1.Enum11 enum1 = (Enum1.Enum11) o1;
     Enum1 instance = new Enum1();
     return instance.new Switch2().switch2(enum1);
   }
 
   class Switch1 {
-    public int switch1(Enum1.Enum1_ enum1) {
+    public int switch1(Enum1.Enum11 enum1) {
       switch (enum1) {
         case VALUE1:
           return 1;
@@ -53,7 +53,7 @@ public class Enum1 {
     }
   }
   class Switch2 {
-    public int switch2(Enum1.Enum1_ enum1) {
+    public int switch2(Enum1.Enum11 enum1) {
       switch (enum1) {
         case VALUE2:
           return 2;

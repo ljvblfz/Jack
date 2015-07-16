@@ -23,7 +23,7 @@ package com.android.jack.switchstatement.test015.jack;
  */
 public class Switch2 {
   public static int switch2(Object o2) {
-    Enum2.Enum2_ enum2 = (Enum2.Enum2_) o2;
+    Enum2.Enum22 enum2 = (Enum2.Enum22) o2;
     switch (enum2) {
       case VALUE2:
         return 2;

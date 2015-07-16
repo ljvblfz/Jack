@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
 import com.android.jack.analysis.UsedVariableAdder;
@@ -181,7 +182,8 @@ import com.android.jack.transformations.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
-import com.android.jack.transformations.OptimizedSwitchEnumFeature;
+import com.android.jack.transformations.OptimizedSwitchEnumFeedbackFeature;
+import com.android.jack.transformations.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
@@ -234,7 +236,6 @@ import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.jack.transformations.enums.UsedEnumFieldCollector;
 import com.android.jack.transformations.enums.UsedEnumFieldMarkerRemover;
 import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
-import com.android.jack.transformations.enums.opt.ShrinkMarker;
 import com.android.jack.transformations.enums.opt.SwitchEnumUsageCollector;
 import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
@@ -549,8 +550,18 @@ public abstract class Jack {
           session.addGeneratedFileType(FileType.DEX);
         }
 
-        if (config.get(Options.OPTIMIZED_ENUM_SWITCH).booleanValue()) {
-          request.addFeature(OptimizedSwitchEnumFeature.class);
+        if (!config.get(Options.INCREMENTAL_MODE).booleanValue()) {
+          // if the incremental compilation is enabled, the switch enum optimization cannot
+          // be enabled because it will generates non-deterministic code. It has to wait till
+          // -D options have been set
+          LoggerFactory.getLogger().log(Level.WARNING,
+              "Switch enum optimization is diabled during incremental compilation");
+          if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
+            request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
+          } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy
+              .NON_FEEDBACK) {
+            request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
+          }
         }
 
         if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
@@ -1014,17 +1025,13 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(OptimizedSwitchEnumFeature.class)) {
+    if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)) {
       // add one more traversal to collect the usage of each enum
       // figure out how many classes use enum in switch statement
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
           ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      if (features.contains(Shrinking.class)) {
-        // since we don't have access to Options from RunnableScheduable, additional marker
-        // is attached to JSession
-        getSession().addMarker(new ShrinkMarker());
-      }
+      // if it is feedback based optimization, pre-collect the usage information
       methodPlan.append(SwitchEnumUsageCollector.class);
     }
 
@@ -1032,7 +1039,8 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
           ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      if (features.contains(OptimizedSwitchEnumFeature.class)) {
+      if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
+          || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
         // use optimized switch enum support
         methodPlan.append(OptimizedSwitchEnumSupport.class);
       } else {
@@ -1040,7 +1048,9 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(OptimizedSwitchEnumFeature.class) && hasSanityChecks) {
+    if ((features.contains(OptimizedSwitchEnumFeedbackFeature.class)
+        || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class))
+        && hasSanityChecks) {
       // check the validity of instrumentation if optimized switch enum feature and
       // hasSanityCheck are both turn on
       planBuilder.append(AstChecker.class);

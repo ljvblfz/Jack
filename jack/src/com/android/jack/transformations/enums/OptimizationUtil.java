@@ -17,26 +17,19 @@
 package com.android.jack.transformations.enums;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
-import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.JLocal;
-import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JModifier;
-import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JNodeLookup;
-import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
-import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.NamingTools;
 
 import javax.annotation.Nonnull;
 
@@ -74,17 +67,8 @@ public class OptimizationUtil {
   // field not found exception type (java.lang.NoSuchFieldError)
   private JDefinedClass noSuchFieldErrorType;
 
-  // class not found exception type (java.lang.ClassNotFoundException)
-  private JDefinedClass classNotFoundExceptionType;
-
-  // runtime exception type (java.lang.RuntimeException)
-  private JDefinedClass runtimeExceptionType;
-
   // java/lang/Object type (java.lang.Object)
   private JDefinedClass objectType;
-
-  // java/lang/Class type (java.lang.Class)
-  private JDefinedClass classType;
 
   // java/lang/String type (java.lang.String)
   private JDefinedClass stringType;
@@ -92,14 +76,8 @@ public class OptimizationUtil {
   // java/lang/Enum type (java.lang.Enum)
   private JDefinedClass enumType;
 
-  // int primitive type
-  private JPrimitiveType primitiveIntType;
-
-  // boolean primitive type
-  private JPrimitiveType primitiveBooleanType;
-
-  // void type
-  private JPrimitiveType voidType;
+  // java/lang/Class type
+  private JClass javaLangClass;
 
   /**
    * Constructor.
@@ -114,11 +92,9 @@ public class OptimizationUtil {
    *
    * @return JNodeLookup
    */
+  @Nonnull
   public JNodeLookup getLookup() {
-    if (nodeLookup == null) {
-      // lookup is not ready yet
-      throw new AssertionError();
-    }
+    assert nodeLookup != null;
     return nodeLookup;
   }
 
@@ -127,6 +103,7 @@ public class OptimizationUtil {
    *
    * @return Type of NoSuchFieldError
    */
+  @Nonnull
   public synchronized JDefinedClass getNoSuchFieldErrorType() {
     if (noSuchFieldErrorType == null) {
       noSuchFieldErrorType = nodeLookup.getClass("Ljava/lang/NoSuchFieldError;");
@@ -135,34 +112,11 @@ public class OptimizationUtil {
   }
 
   /**
-   * Get the internal data structure representing the type of ClassNotFoundException.
-   *
-   * @return Type of ClassNotFoundException
-   */
-  public synchronized JDefinedClass getClassNotFoundExceptionType() {
-    if (classNotFoundExceptionType == null) {
-      classNotFoundExceptionType = nodeLookup.getClass("Ljava/lang/ClassNotFoundException;");
-    }
-    return classNotFoundExceptionType;
-  }
-
-  /**
-   * Get the internal data structure representing the type of RuntimeException.
-   *
-   * @return Type of RuntimeException
-   */
-  public synchronized JDefinedClass getRuntimeExceptionErrorType() {
-    if (runtimeExceptionType == null) {
-      runtimeExceptionType =  nodeLookup.getClass("Ljava/lang/RuntimeException;");
-    }
-    return runtimeExceptionType;
-  }
-
-  /**
    * Get the internal data structure representing the type of java.lang.Object.
    *
    * @return Type of java.lang.Object
    */
+  @Nonnull
   public synchronized JDefinedClass getObjectType() {
     if (objectType == null) {
       objectType = nodeLookup.getClass("Ljava/lang/Object;");
@@ -171,22 +125,11 @@ public class OptimizationUtil {
   }
 
   /**
-   * Get the internal data structure representing the type of java.lang.Class.
-   *
-   * @return Type of java.lang.Class
-   */
-  public synchronized JDefinedClass getClassType() {
-    if (classType == null) {
-      classType = nodeLookup.getClass("Ljava/lang/Class;");
-    }
-    return classType;
-  }
-
-  /**
    * Get the internal data structure representing the type of java.lang.String.
    *
    * @return Type of java.lang.String
    */
+  @Nonnull
   public synchronized JDefinedClass getStringType() {
     if (stringType == null) {
       stringType = nodeLookup.getClass("Ljava/lang/String;");
@@ -199,6 +142,7 @@ public class OptimizationUtil {
    *
    * @return Type of java.lang.Enum
    */
+  @Nonnull
   public synchronized JDefinedClass getEnumType() {
     if (enumType == null) {
       enumType = nodeLookup.getClass("Ljava/lang/Enum;");
@@ -207,39 +151,15 @@ public class OptimizationUtil {
   }
 
   /**
-   * Get the internal data structure representing the type of primitive int.
-   *
-   * @return Type of primitive int
+   * Get the internal data structure representing the type of java.lang.Class.
+   * @return Type of java.lang.Class
    */
-  public synchronized JPrimitiveType getPrimitiveIntType() {
-    if (primitiveIntType == null) {
-      primitiveIntType = JPrimitiveTypeEnum.INT.getType();
+  public synchronized JClass getJavaLangClass() {
+    if (javaLangClass == null) {
+      javaLangClass = Jack.getSession().getPhantomLookup().getClass(
+          CommonTypes.JAVA_LANG_CLASS);
     }
-    return primitiveIntType;
-  }
-
-  /**
-   * Get the internal data structure representing the type of primitive boolean.
-   *
-   * @return Type of primitive boolean
-   */
-  public synchronized JPrimitiveType getPrimitiveBooleanType() {
-    if (primitiveBooleanType == null) {
-      primitiveBooleanType = JPrimitiveTypeEnum.BOOLEAN.getType();
-    }
-    return primitiveBooleanType;
-  }
-
-  /**
-   * Get the internal data structure representing the type of void.
-   *
-   * @return Type of void
-   */
-  public synchronized JPrimitiveType getPrimitiveVoidType() {
-    if (voidType == null) {
-      voidType = JPrimitiveTypeEnum.VOID.getType();
-    }
-    return voidType;
+    return javaLangClass;
   }
 
   /**
@@ -254,7 +174,7 @@ public class OptimizationUtil {
     return methodName.startsWith(LongerPrefix) && methodName.endsWith(Suffix)
         && method.getParams().isEmpty() && JModifier.isSynthetic(modifier)
         && JModifier.isPublic(modifier) && JModifier.isStatic(modifier)
-        && method.getType().isSameType(getPrimitiveIntType().getArray());
+        && method.getType().isSameType(JPrimitiveTypeEnum.INT.getType().getArray());
   }
 
   /**
@@ -268,7 +188,7 @@ public class OptimizationUtil {
     int modifier = field.getModifier();
     return fieldName.endsWith(Suffix) && JModifier.isSynthetic(modifier)
         && JModifier.isPrivate(modifier) && JModifier.isStatic(modifier)
-        && field.getType().isSameType(getPrimitiveIntType().getArray());
+        && field.getType().isSameType(JPrimitiveTypeEnum.INT.getType().getArray());
   }
 
   /**
@@ -278,11 +198,12 @@ public class OptimizationUtil {
    *
    * @return The synthetic initializer method name
    */
-  public static String getSyntheticSwitchMapInitializerName(JDefinedEnum enumType) {
-    String enumName = Jack.getLookupFormatter().getName(enumType);
-    // remove the first char 'L' and last one ';'
-    enumName = enumName.substring(1, enumName.length() - 1).replace('/', '_');
-    return LongerPrefix + enumName + Suffix;
+  @Nonnull
+  public static String getSyntheticSwitchMapInitializerName(@Nonnull JDefinedEnum enumType) {
+    String enumName = NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter()
+        .getName(enumType));
+    String methodName = NamingTools.getNonSourceConflictingName("get" + enumName + Suffix);
+    return methodName;
   }
 
   /**
@@ -292,13 +213,12 @@ public class OptimizationUtil {
    *
    * @return The synthetic field name
    */
-  public static String getSyntheticSwitchMapFieldName(JDefinedEnum enumType) {
+  @Nonnull
+  public static String getSyntheticSwitchMapFieldName(@Nonnull JDefinedEnum enumType) {
     // full class name including package, e.g., LA/B/EnumSwitchesValues;
-    String fullEnumName = Jack.getLookupFormatter().getName(enumType);
-    fullEnumName = fullEnumName.substring(1, fullEnumName.length() - 1);
-    // get the field name e.g., -A_B_EnumSwitchesValues
-    String fieldName = OptimizationUtil.ShorterPrefix + fullEnumName.replace('/', '_')
-        + OptimizationUtil.Suffix;
+    String enumName = NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter()
+        .getName(enumType));
+    String fieldName = NamingTools.getNonSourceConflictingName(enumName + Suffix);
     return fieldName;
   }
 
@@ -313,42 +233,5 @@ public class OptimizationUtil {
     method.setBody(body);
     body.updateParents(method);
     return true;
-  }
-
-  /**
-   * Always create new local with specified type, and add it into local set of body.
-   * @param localCreator The local creator
-   * @param transformRequest Transformation request used to add/delete/modify code
-   * @param localType The type local is attached to
-   *
-   * @return The newly created local
-   */
-  public static JLocal newLocal(@Nonnull LocalVarCreator localCreator,
-      @Nonnull TransformationRequest transformRequest, @Nonnull JType localType) {
-    return localCreator.createTempLocal(localType, SourceInfo.UNKNOWN, transformRequest);
-  }
-
-  /**
-   * Get the left hand side local variable of given statement. Throw exception if it
-   * doesn't have.
-   * @param stmt The target statement
-   *
-   * @return The lhs variable of given stmt
-   * @throws RunTimeException if current statement doesn't have lhs local variable
-   */
-  public static JLocal getLhs(@Nonnull JStatement stmt) {
-    if (!(stmt instanceof JExpressionStatement)) {
-      throw new AssertionError("Cannot get the lhs local from non-expression stmt: " + stmt);
-    }
-    JExpression expr = ((JExpressionStatement) stmt).getExpr();
-    if (!(expr instanceof JAsgOperation)) {
-      throw new AssertionError("Cannot get the lhs local from non-assignment expr: " + expr);
-    }
-    JExpression lhsExpr = ((JAsgOperation) expr).getLhs();
-    if (!(lhsExpr instanceof JLocalRef)) {
-      throw new AssertionError("Cannot get the lhs local from expr whose lhs is not local: "
-          + expr);
-    }
-    return ((JLocalRef) lhsExpr).getLocal();
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.switchstatement.test024.dx;
+package com.android.jack.switchstatement.test027.dx;
 
 import java.lang.reflect.Field;
 
@@ -22,8 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.android.jack.switchstatement.test024.jack.Switch1;
-import com.android.jack.switchstatement.test024.jack.Switch2;
+import com.android.jack.switchstatement.test027.jack.Switch1;
 
 /**
  * Tests about switches. Running instrument code to see if it is executable.
@@ -44,7 +43,8 @@ public class Tests {
   @Before
   public void init() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     {
-      Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test024.jack.Enum1$Enum11");
+      Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test027.jack."
+              + "Switch1$InnerClass1$Enum1");
       Assert.assertTrue(enum1Class.isEnum());
       Assert.assertEquals(5, enum1Class.getFields().length);
       Field enum1Value1 = enum1Class.getField("VALUE1");
@@ -58,8 +58,10 @@ public class Tests {
       e1v4 = enum1Value4.get(null);
       e1v5 = enum1Value5.get(null);
     }
+
     {
-      Class<? extends Object> enum2Class = Class.forName("com.android.jack.switchstatement.test024.jack.Enum2$Enum22");
+      Class<? extends Object> enum2Class = Class.forName("com.android.jack.switchstatement.test027.jack."
+              + "Switch1$InnerClass1$InnerClass2$Enum2");
       Assert.assertTrue(enum2Class.isEnum());
       Assert.assertEquals(5, enum2Class.getFields().length);
       Field enum2Value1 = enum2Class.getField("VALUE1");
@@ -67,7 +69,6 @@ public class Tests {
       Field enum2Value3 = enum2Class.getField("VALUE3");
       Field enum2Value4 = enum2Class.getField("VALUE4");
       Field enum2Value5 = enum2Class.getField("VALUE5");
-
       e2v1 = enum2Value1.get(null);
       e2v2 = enum2Value2.get(null);
       e2v3 = enum2Value3.get(null);
@@ -78,20 +79,19 @@ public class Tests {
 
   @Test
   public void test1() {
-
-    Assert.assertEquals(1, Switch1.switch1(e1v1));
-    Assert.assertEquals(0, Switch1.switch1(e1v2));
-    Assert.assertEquals(3, Switch1.switch1(e1v3));
-    Assert.assertEquals(0, Switch1.switch1(e1v4));
-    Assert.assertEquals(5, Switch1.switch1(e1v5));
+    Assert.assertTrue(Switch1.switch1(e1v1));
+    Assert.assertTrue(Switch1.switch1(e1v2));
+    Assert.assertTrue(Switch1.switch1(e1v3));
+    Assert.assertTrue(Switch1.switch1(e1v4));
+    Assert.assertTrue(Switch1.switch1(e1v5));
   }
 
   @Test
   public void test2() {
-    Assert.assertEquals(0, Switch2.switch2(e2v1));
-    Assert.assertEquals(2, Switch2.switch2(e2v2));
-    Assert.assertEquals(0, Switch2.switch2(e2v3));
-    Assert.assertEquals(4, Switch2.switch2(e2v4));
-    Assert.assertEquals(0, Switch2.switch2(e2v5));
+    Assert.assertTrue(Switch1.switch2(e2v1));
+    Assert.assertTrue(Switch1.switch2(e2v2));
+    Assert.assertTrue(Switch1.switch2(e2v3));
+    Assert.assertTrue(Switch1.switch2(e2v4));
+    Assert.assertTrue(Switch1.switch2(e2v5));
   }
 }

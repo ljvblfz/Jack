@@ -170,10 +170,12 @@ public class Options {
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
       .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
-  // property used to indicate if switch enum optimization is enabled
+  // property used to specify what kind of switch enum optimization is enabled
   @Nonnull
-  public static final BooleanPropertyId OPTIMIZED_ENUM_SWITCH = BooleanPropertyId.create(
-      "jack.optimization.enum.switch", "Optimize enum switch").addDefaultValue(Boolean.TRUE);
+  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH = EnumPropertyId
+      .create("jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class,
+          SwitchEnumOptStrategy.values())
+      .addDefaultValue(SwitchEnumOptStrategy.FEEDBACK).ignoreCase();
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -312,6 +314,23 @@ public class Options {
     public String getId() {
       return id;
     }
+  }
+
+  /**
+   * Types of switch enum optimization strategies.
+   * 1. feedback
+   * 2. non-feeback
+   * 3. disable
+   */
+  @VariableName("strategy")
+  public enum SwitchEnumOptStrategy {
+    // feedback based optimization could reduce more space but it is non-deterministic
+    // if incremental compilation is applied
+    FEEDBACK(),
+    // non_feedback based optimization is deterministic but may generate bigger dex file
+    NON_FEEDBACK(),
+    // no switch enum optimization
+    DISABLE_OPTIMIZATION();
   }
 
   @Nonnull

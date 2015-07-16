@@ -23,12 +23,10 @@ import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.shrob.shrink.KeepMarker;
-import com.android.jack.transformations.enums.OptimizationUtil;
+import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -54,8 +52,8 @@ import javax.annotation.Nonnull;
 @Description("Collect the number of classes using each enum in switch statements.")
 @Name("SwitchEnumUsageCollector")
 @Synchronized
-@Constraint(need = {JSession.class, JDefinedClass.class, JDefinedEnum.class})
-@Transform(add = {SwitchEnumUsageMarker.class})
+@Constraint(need = {JSwitchStatement.class, JDefinedClass.class, JDefinedEnum.class})
+@Transform(add = {SwitchEnumUsageMarker.class, EnumOptimizationMarker.class})
 
 public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   // the statistic counting the number of synthetic switch map initializer eliminated during
@@ -70,19 +68,10 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Tracer statisticTracer = TracerFactory.getTracer();
 
-  @Nonnull
-  private final OptimizationUtil supportUtil = new OptimizationUtil(Jack.getSession().getLookup());
-
   public SwitchEnumUsageCollector() {}
 
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
-    if (Jack.getSession().containsMarker(ShrinkMarker.class)
-        && !method.containsMarker(KeepMarker.class)) {
-      // if shrinking is enabled and current method is not reachable, don't optimize it since
-      // Jack thinks it is dead code
-      return;
-    }
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if both the method and enclosing class are concrete
     if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal() || method.isNative()
@@ -111,8 +100,9 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
         JDefinedEnum enumType = (JDefinedEnum) switchExprType;
         JPackage enclosingPackage;
         if (enumType.isPublic()) {
-          enclosingPackage = supportUtil.getLookup().getOrCreatePackage(
-          SyntheticClassManager.PublicSyntheticSwitchmapClassPkgName);
+          JNodeLookup lookup = Jack.getSession().getLookup();
+          enclosingPackage = lookup.getOrCreatePackage(
+              SyntheticClassManager.PublicSyntheticSwitchmapClassPkgName);
         } else {
           enclosingPackage = enumType.getEnclosingPackage();
         }

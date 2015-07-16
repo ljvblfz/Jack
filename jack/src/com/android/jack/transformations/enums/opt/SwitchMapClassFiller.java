@@ -17,8 +17,10 @@
 package com.android.jack.transformations.enums.opt;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
-import com.android.jack.ir.ast.JAbstractMethodBody;
+import com.android.jack.Jack;
+import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
@@ -48,16 +50,19 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.enums.EnumMappingMarker;
 import com.android.jack.transformations.enums.OptimizationUtil;
+import com.android.jack.transformations.enums.SwitchEnumSupport.UsedEnumField;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.AppendStatement;
@@ -67,6 +72,7 @@ import com.android.jack.util.NamingTools;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -118,6 +124,9 @@ public class SwitchMapClassFiller {
   // the synthetic switch map int[] field corresponding to exactly a initializer
   private JField syntheticSwitchMapField;
 
+  @Nonnull
+  private final JSession session = Jack.getSession();
+
   public SwitchMapClassFiller() {}
 
   /**
@@ -130,10 +139,10 @@ public class SwitchMapClassFiller {
    * @param enumType The enum type
    * @param switchMapClass The synthetic switch map class to which the code will be emit
    *
-   * @throws RuntimeException if this process fails
    */
   public synchronized void fillSwitchMapClass(
-      @Nonnull OptimizationUtil supportUtil, @Nonnull JDefinedEnum enumType,
+      @Nonnull OptimizationUtil supportUtil,
+      @Nonnull JDefinedEnum enumType,
       @Nonnull JDefinedClass switchMapClass) {
     // set the input before generating the synthetic class
     this.enumType = enumType;
@@ -149,45 +158,10 @@ public class SwitchMapClassFiller {
     }
 
     // add switch map initializer
-    if (!createOrUpdateSyntheticInitializer(transformRequest)) {
-      // fail the execution if adding synthetic initializer fails
-      throw new AssertionError("Fails adding synthetic switch map initializer to class: "
-          + switchMapClass);
-    }
+    createOrUpdateSyntheticInitializer(transformRequest);
 
     // flush all the modified code
     transformRequest.commit();
-  }
-
-  /**
-   * Add the synthetic switch map field to the synthetic class.
-   * @param transformRequest Transformation request used to add/delete/modify code
-   *
-   * @return The created field
-   */
-  private JField addSyntheticField(@Nonnull TransformationRequest transformRequest) {
-    String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
-    List<JField> switchMapFields = switchMapClass.getFields(fieldName);
-    if (!switchMapFields.isEmpty()) {
-      throw new AssertionError("Pre-defined synthetic field: " + fieldName);
-    }
-    // if such field is never defined before, initialize it
-    JField syntheticMapField = createSyntheticField();
-    // add this field to synthetic class
-    transformRequest.append(new AppendField(switchMapClass, syntheticMapField));
-    return syntheticMapField;
-  }
-
-  /**
-   * Create synthetic switch map field. At this time it hasn't been added into class yet.
-   *
-   * @return The created synthetic field
-   */
-  private JField createSyntheticField() {
-    String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
-    return new JField(SourceInfo.UNKNOWN, fieldName, switchMapClass,
-        supportUtil.getPrimitiveIntType().getArray(),
-        JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC);
   }
 
   /**
@@ -200,8 +174,8 @@ public class SwitchMapClassFiller {
    */
   private JMethod createInstanceInitIfNotExists(@Nonnull TransformationRequest transformRequest) {
     try {
-      initMethod = switchMapClass.getMethod(NamingTools.INIT_NAME, supportUtil
-          .getPrimitiveVoidType());
+      initMethod = switchMapClass.getMethod(NamingTools.INIT_NAME,
+          JPrimitiveTypeEnum.VOID.getType());
     } catch (JMethodLookupException ex) {
       // create the empty constructor
       initMethod = new JConstructor(SourceInfo.UNKNOWN, switchMapClass, JModifier.PUBLIC);
@@ -213,19 +187,17 @@ public class SwitchMapClassFiller {
 
       // call to super class, as the super class is java/lang/Object
       JMethod superConstruct = supportUtil.getObjectType().getMethod(NamingTools.INIT_NAME,
-          supportUtil.getPrimitiveVoidType());
+          JPrimitiveTypeEnum.VOID.getType());
 
       // get this local reference
       JThis thisLocal = initMethod.getThis();
-      if (thisLocal == null) {
-        throw new AssertionError("Cannot get 'this' local of method: " + initMethod);
-      }
+      assert thisLocal != null;
       JThisRef thisRef = new JThisRef(SourceInfo.UNKNOWN, thisLocal);
 
       // create method call to super class default constructor
       JMethodCall superCall = new JMethodCall(SourceInfo.UNKNOWN, thisRef,
           supportUtil.getObjectType(), superConstruct.getMethodId(),
-          supportUtil.getPrimitiveVoidType(), superConstruct.canBePolymorphic());
+          JPrimitiveTypeEnum.VOID.getType(), superConstruct.canBePolymorphic());
       transformRequest.append(new AppendStatement(block, superCall.makeStatement()));
 
       // add a simple return void statement into the block
@@ -241,109 +213,104 @@ public class SwitchMapClassFiller {
   /**
    * Add synthetic switch map method which initializes switch map.
    * @param transformRequest Transformation request used to add/delete/modify code
-   *
-   * @return true if it is created successfully, otherwise false
    */
-  private boolean createOrUpdateSyntheticInitializer(@Nonnull TransformationRequest
-      transformRequest) {
+  private void createOrUpdateSyntheticInitializer(@Nonnull TransformationRequest transformRequest) {
+    assert enumType.containsMarker(EnumOptimizationMarker.class);
     // search for the correct name of initializer
-    boolean needNewSwitchMapInitializer = false;
     String methodName = OptimizationUtil.getSyntheticSwitchMapInitializerName(enumType);
     try {
-      switchMapClass.getMethod(methodName, supportUtil.getPrimitiveIntType().getArray());
+      syntheticSwitchMapInitializer = switchMapClass.getMethod(methodName,
+          JPrimitiveTypeEnum.INT.getType().getArray());
+      String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
+      JFieldId syntheticSwitchMapFieldId = switchMapClass.getFieldId(fieldName,
+          JPrimitiveTypeEnum.INT.getType().getArray(), FieldKind.STATIC);
+      assert syntheticSwitchMapFieldId != null;
+      syntheticSwitchMapField = syntheticSwitchMapFieldId.getField();
     } catch (JMethodLookupException ex) {
       // insert the switch map field into enum
-      syntheticSwitchMapField = addSyntheticField(transformRequest);
-      // if this method cannot be identified, create the method first
-      syntheticSwitchMapInitializer = createSyntheticSwitchMapInitializer(transformRequest);
-      needNewSwitchMapInitializer = true;
+      String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
+      syntheticSwitchMapField = new JField(SourceInfo.UNKNOWN, fieldName, switchMapClass,
+          JPrimitiveTypeEnum.INT.getType().getArray(),
+          JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC);
+      // add this field to synthetic class
+      transformRequest.append(new AppendField(switchMapClass, syntheticSwitchMapField));
+      // create synthetic switch map initializer
+      syntheticSwitchMapInitializer = new JMethod(SourceInfo.UNKNOWN,
+          new JMethodId(methodName, MethodKind.STATIC), switchMapClass,
+          JPrimitiveTypeEnum.INT.getType().getArray(),
+          JModifier.PUBLIC | JModifier.STATIC | JModifier.SYNTHETIC);
+      // add this new method into AST
+      transformRequest.append(new AppendMethod(switchMapClass, syntheticSwitchMapInitializer));
     }
-    if (needNewSwitchMapInitializer) {
-      // make sure all the enum literals are sorted by alphabetic order because we want to
-      // ensure the switch map array is always the same even in different synthetic class
-      createOrdinalMapping();
-      // add statements into this method
-      if (!fillSyntheticSwitchMapInitializer(transformRequest)) {
-        return false;
+    if (!syntheticSwitchMapInitializer.containsMarker(EnumMappingMarker.class)) {
+      // if the switch map class is not the user class, make sure all the enum literals are
+      // sorted by alphabetic order because we want to ensure the switch map array is always
+      // the same even in different synthetic class.
+      // if the switch map class is the user class, we can use packed switch statement
+      createOrdinalMapping(!SyntheticClassManager.isSyntheticSwitchMapClass(switchMapClass));
+
+      if (!(switchMapClass.getLocation() instanceof TypeInInputLibraryLocation)) {
+        syntheticSwitchMapInitializer.setBody(null);
+        // add statements into this method if the synthetic class is not defined inside of
+        // library because we cannot modify library class at all
+        fillSyntheticSwitchMapInitializer(transformRequest);
       }
     }
-    return true;
   }
 
   /**
    * Create the mapping relationship between static enum field to a random integer called
    * compile-time ordinal.
+   * @param packedSwitch is packed switch statement applied
    */
-  private void createOrdinalMapping() {
-    // calculate which enum member (fields) the class is using
+  private void createOrdinalMapping(boolean packedSwitch) {
+    assert !syntheticSwitchMapInitializer.containsMarker(EnumMappingMarker.class);
+    assert enumType.containsMarker(EnumOptimizationMarker.class);
+    int packedCompileTimeOrdinal = 1;
+    int unpackedCompileTimeOrdinal = 1;
+    Set<JFieldId> usedEnumFields = Sets.newHashSet();
     EnumOptimizationMarker enumOptMarker = enumType.getMarker(EnumOptimizationMarker.class);
-    assert enumOptMarker != null;
-    List<JEnumField> enumLiterals = enumOptMarker.sortEnumFields();
-    EnumMappingMarker mappingMarker =
-        syntheticSwitchMapInitializer.getMarker(EnumMappingMarker.class);
-    if (mappingMarker == null) {
-      mappingMarker = new EnumMappingMarker();
-      syntheticSwitchMapInitializer.addMarker(mappingMarker);
+    if (packedSwitch && switchMapClass.containsMarker(UsedEnumField.class)) {
+      // if packed switch statement is enabled, try packed switch approach
+      UsedEnumField usedFieldMarker = switchMapClass.getMarker(UsedEnumField.class);
+      usedEnumFields.addAll(usedFieldMarker.getEnumFields());
+      unpackedCompileTimeOrdinal = usedEnumFields.size() + 1;
+    } else {
+      // if the packed switch statement is disabled, we have to make sure the dynamic ordinal
+      // is assigned incrementally by the enum fields alphabetical order
+      enumOptMarker.sortEnumFields();
     }
-    for (int i = 0; i < enumLiterals.size(); i++) {
-      JField enumField = enumLiterals.get(i);
+    // calculate which enum member (fields) the class is using
+    EnumMappingMarker mappingMarker = new EnumMappingMarker();
+    syntheticSwitchMapInitializer.addMarker(mappingMarker);
+    for (JEnumField enumField : enumOptMarker.getEnumFields()) {
       // compile time ordinal starts from 1
-      mappingMarker.addMapping(enumField.getId(), i + 1);
+      JFieldId enumFieldId = enumField.getId();
+      if (usedEnumFields.contains(enumField.getId())) {
+        // at this point, usedEnumFields is known, assign continuous ordinal
+        mappingMarker.addMapping(enumFieldId, packedCompileTimeOrdinal++);
+      } else {
+        // at this point, usedEnumFields is known, but current field is not used
+        // thus, we unpacked ordinal instead
+        mappingMarker.addMapping(enumFieldId, unpackedCompileTimeOrdinal++);
+      }
     }
-  }
-
-  /**
-   * Create the synthetic method corresponding with the type of enum. At this point,
-   * the method has no statement.
-   * @param transformRequest Transformation request used to add/delete/modify code
-   *
-   * @return The created synthetic switch map method
-   */
-  private JMethod createSyntheticSwitchMapInitializer(@Nonnull TransformationRequest
-      transformRequest) {
-    // search for the correct name of initializer
-    String syntheticMethodName = OptimizationUtil.getSyntheticSwitchMapInitializerName(enumType);
-    JMethod syntheticMapInitializer = null;
-    try {
-      syntheticMapInitializer = switchMapClass.getMethod(syntheticMethodName,
-          supportUtil.getPrimitiveIntType().getArray());
-
-    } catch (JMethodLookupException e) {
-    }
-    if (syntheticMapInitializer != null) {
-      throw new AssertionError("synthetic switch map method: " + syntheticMethodName
-          + " already exists");
-    }
-
-    // create synthetic switch map initializer
-    syntheticMapInitializer = new JMethod(SourceInfo.UNKNOWN, new JMethodId(
-        syntheticMethodName, MethodKind.STATIC), switchMapClass,
-        supportUtil.getPrimitiveIntType().getArray(),
-        JModifier.PUBLIC | JModifier.STATIC | JModifier.SYNTHETIC);
-    // add this new method into AST
-    transformRequest.append(new AppendMethod(switchMapClass, syntheticMapInitializer));
-    return syntheticMapInitializer;
   }
 
   /**
    * Fill statements into the newly created synthetic switch map initializer.
    * @param transformRequest Transformation request used to add/delete/modify code
-   *
-   * @return true if this process is successful, otherwise false
    */
-  private boolean fillSyntheticSwitchMapInitializer(@Nonnull TransformationRequest
+  private void fillSyntheticSwitchMapInitializer(@Nonnull TransformationRequest
       transformRequest) {
-    if (syntheticSwitchMapInitializer.getBody() != null) {
-      throw new AssertionError("Body already be added into synthetic switch map initializer: "
-         + syntheticSwitchMapInitializer.getBody());
-    }
+    assert syntheticSwitchMapInitializer.getBody() == null;
     // create body block
     JBlock bodyBlock = new JBlock(SourceInfo.UNKNOWN);
     JMethodBody methodBody = new JMethodBody(SourceInfo.UNKNOWN, bodyBlock);
     OptimizationUtil.setMethodBody(syntheticSwitchMapInitializer, methodBody);
 
     // create transformation request with this method. They will be used to create locals
-    LocalVarCreator localVarCreator = new LocalVarCreator(syntheticSwitchMapInitializer, "tac");
+    LocalVarCreator localVarCreator = new LocalVarCreator(syntheticSwitchMapInitializer, "loc");
 
     /**create the outer most if-else statement
      * {@code
@@ -351,13 +318,11 @@ public class SwitchMapClassFiller {
      *  if (switchmap != null) {
      *    return switchmap;
      *  }
-     *  else {
-     *    switchmap = new int[enum.values().length];
-     *    switchmap[Enum1.ordinal()] = compileTimeOrdinal1;
-     *    switchmap[Enum2.ordinal()] = compileTimeOrdinal2;
-     *    ...
-     *    return switchmap;
-     *  }
+     *  switchmap = new int[enum.values().length];
+     *  switchmap[Enum1.ordinal()] = compileTimeOrdinal1;
+     *  switchmap[Enum2.ordinal()] = compileTimeOrdinal2;
+     *  ...
+     *  return switchmap;
      * }
      */
     // load the static field into local variable
@@ -377,49 +342,36 @@ public class SwitchMapClassFiller {
     transformRequest.append(new AppendStatement(bodyBlock, ifStmt));
 
     // otherwise, create switch map initializing function to initialize it
-    createSwitchMapInitializerBlock(transformRequest, localVarCreator);
-    return true;
+    createSwitchMapInitializerBlock(transformRequest, localVarCreator, bodyBlock);
   }
 
   /**
    * Emit code for the block in synthetic method, which will initialize the switch map.
    * @param transformRequest Transformation request used to add/delete/modify code
    * @param localVarCreator JLocal creator
-   *
-   * @return The block initialize synthetic switch map int[] field
+   * @param initializerMethodBlock synthetic switch map initializer method body block
    */
-  private JBlock createSwitchMapInitializerBlock(
+  private void createSwitchMapInitializerBlock(
       @Nonnull TransformationRequest transformRequest,
-      @Nonnull LocalVarCreator localVarCreator) {
-    // create else block
-    JAbstractMethodBody body = syntheticSwitchMapInitializer.getBody();
-    if (!(body instanceof JMethodBody)) {
-      // synthetic method does not have method body
-      throw new AssertionError("Method body is not initialized inside of method: "
-          + syntheticSwitchMapInitializer);
-    }
-    JBlock block = ((JMethodBody) body).getBlock();
+      @Nonnull LocalVarCreator localVarCreator,
+      @Nonnull JBlock initializerMethodBlock) {
     // initialize switch map int array
     JMethod valuesMethod = enumType.getMethod(OptimizationUtil.Values, enumType.getArray());
-    JExpression valuesLength =
-        new JArrayLength(SourceInfo.UNKNOWN, new JMethodCall(SourceInfo.UNKNOWN,
-            null /* instance */, enumType, valuesMethod.getMethodId(), valuesMethod.getType(),
-            valuesMethod.canBePolymorphic()));
-    JStatement newSwitchmapArrayStmt = createSwitchmapArrayStatement(localVarCreator,
-        transformRequest, block, valuesLength);
-    JLocal switchmapLocal = OptimizationUtil.getLhs(newSwitchmapArrayStmt);
+    JExpression valuesLength = new JArrayLength(SourceInfo.UNKNOWN, new JMethodCall(
+        SourceInfo.UNKNOWN, null /* instance */, enumType, valuesMethod.getMethodId(),
+        valuesMethod.getType(), valuesMethod.canBePolymorphic()));
+    JLocal switchmapLocal = createSwitchmapArrayStatement(localVarCreator, transformRequest,
+        initializerMethodBlock, valuesLength);
 
-    createPutStaticFieldStatement(transformRequest, block, switchmapLocal);
+    createPutStaticFieldStatement(transformRequest, initializerMethodBlock, switchmapLocal);
 
     // fill the switch map array
-    createStatementsInitializingSwitchMapArrayField(transformRequest, localVarCreator, block,
-        switchmapLocal);
+    createStatementsInitializingSwitchMapArrayField(transformRequest, localVarCreator,
+        initializerMethodBlock, switchmapLocal);
 
     // add the return statement in the end
-    transformRequest.append(new AppendStatement(block, new JReturnStatement(SourceInfo.UNKNOWN,
-        new JLocalRef(SourceInfo.UNKNOWN, switchmapLocal))));
-
-    return block;
+    transformRequest.append(new AppendStatement(initializerMethodBlock, new JReturnStatement(
+        SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, switchmapLocal))));
   }
 
   /**
@@ -428,10 +380,8 @@ public class SwitchMapClassFiller {
    * @param localVarCreator JLocal creator
    * @param block Current block to emit code to
    * @param switchmapLocal Switch map int[] local
-   *
-   * @return The block of instructions initialize switch map int[] field
    */
-  private JBlock createStatementsInitializingSwitchMapArrayField(
+  private void createStatementsInitializingSwitchMapArrayField(
       @Nonnull TransformationRequest transformRequest,
       @Nonnull LocalVarCreator localVarCreator,
       @Nonnull JBlock block,
@@ -440,12 +390,7 @@ public class SwitchMapClassFiller {
     // name to compile-time ordinal
     EnumMappingMarker enumMappingMarker = syntheticSwitchMapInitializer.getMarker(
         EnumMappingMarker.class);
-    if (enumMappingMarker == null) {
-      // enum mapping marker is not set yet
-      throw new AssertionError(
-          "EnumMappingMarker is not attached to synthetic switch map initializer: "
-              + syntheticSwitchMapInitializer);
-    }
+    assert enumMappingMarker != null;
     Map<JFieldId, Integer> enumFieldsMap = enumMappingMarker.getMapping();
     // for each field inside of map, emit code to explicitly map it to compile time ordinal
     for (Map.Entry<JFieldId, Integer> enumFieldEntry : enumFieldsMap.entrySet()) {
@@ -459,7 +404,7 @@ public class SwitchMapClassFiller {
       JExpression enumFieldExpr = new JFieldRef(SourceInfo.UNKNOWN, null /*static field*/,
           enumFieldId, enumType);
       JMethod ordinalMethod = supportUtil.getEnumType().getMethod(OptimizationUtil.Ordinal,
-          supportUtil.getPrimitiveIntType());
+          JPrimitiveTypeEnum.INT.getType());
       JExpression invocOrdinalExpr = new JMethodCall(SourceInfo.UNKNOWN, enumFieldExpr, enumType,
           ordinalMethod.getMethodId(), JPrimitiveTypeEnum.INT.getType(),
           ordinalMethod.canBePolymorphic());
@@ -474,7 +419,6 @@ public class SwitchMapClassFiller {
           Collections.<JStatement>emptyList(), tryBlock, Lists.newArrayList(
               noSuchFieldExCatchBlock), null)));
     }
-    return block;
   }
 
   /**
@@ -486,26 +430,27 @@ public class SwitchMapClassFiller {
    * @param block Current block
    * @param capacityExpr The expression indicating the initial capacity of array
    *
-   * @return The statement initializing the array of certain length
+   * @return the switch map int array local variable
    */
-  private JStatement createSwitchmapArrayStatement(
-      @Nonnull LocalVarCreator localVarCreator, @Nonnull TransformationRequest transformRequest,
-      @Nonnull JBlock block, @Nonnull JExpression capacityExpr) {
+  private JLocal createSwitchmapArrayStatement(
+      @Nonnull LocalVarCreator localVarCreator,
+      @Nonnull TransformationRequest transformRequest,
+      @Nonnull JBlock block,
+      @Nonnull JExpression capacityExpr) {
     // new-array v0, v0, [I
-    List<JExpression> dims = Lists.newArrayList();
-    dims.add(capacityExpr);
-    JExpression newArrayExpr = JNewArray.createWithDims(SourceInfo.UNKNOWN, supportUtil
-        .getPrimitiveIntType().getArray(), dims);
-
-    JLocal intArrayLocal = OptimizationUtil.newLocal(localVarCreator, transformRequest, supportUtil
-        .getPrimitiveIntType().getArray());
+    List<JExpression> dims = Lists.newArrayList(capacityExpr);
+    JExpression newArrayExpr = JNewArray.createWithDims(SourceInfo.UNKNOWN,
+        JPrimitiveTypeEnum.INT.getType().getArray(), dims);
+    JLocal switchMapLocal = localVarCreator.createTempLocal(
+        JPrimitiveTypeEnum.INT.getType().getArray(), SourceInfo.UNKNOWN, transformRequest);
 
     JStatement newArrayStmt = new JExpressionStatement(SourceInfo.UNKNOWN, JBinaryOperation.create(
-        SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JLocalRef(SourceInfo.UNKNOWN, intArrayLocal),
+        SourceInfo.UNKNOWN, JBinaryOperator.ASG, new JLocalRef(SourceInfo.UNKNOWN, switchMapLocal),
         newArrayExpr));
 
     transformRequest.append(new AppendStatement(block, newArrayStmt));
-    return newArrayStmt;
+
+    return switchMapLocal;
   }
 
   /**

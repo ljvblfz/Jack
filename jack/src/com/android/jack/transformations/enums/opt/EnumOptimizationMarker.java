@@ -45,9 +45,6 @@ public final class EnumOptimizationMarker implements Marker {
   // are the fields already sorted
   private boolean areFieldsSorted = false;
 
- // is the synthetic method corresponding to the enum type is already created
-  private boolean isSyntheticInitializerCreated = false;
-
   public EnumOptimizationMarker() {}
 
   /**
@@ -56,7 +53,7 @@ public final class EnumOptimizationMarker implements Marker {
    */
   public void addEnumField(@Nonnull JEnumField enumField) {
     assert !enumFields.contains(enumField);
-   enumFields.add(enumField);
+    enumFields.add(enumField);
   }
 
   /**
@@ -66,7 +63,7 @@ public final class EnumOptimizationMarker implements Marker {
   public List<JEnumField> sortEnumFields() {
     if (!areFieldsSorted) {
       Collections.sort(enumFields, new Comparator<JEnumField>() {
-       @Override
+        @Override
         public int compare(JEnumField field1, JEnumField field2) {
           return field1.getName().compareTo(field2.getName());
         }
@@ -74,7 +71,7 @@ public final class EnumOptimizationMarker implements Marker {
       areFieldsSorted = true;
     }
     return enumFields;
- }
+  }
 
   /**
    * Get the enum literals.
@@ -85,24 +82,6 @@ public final class EnumOptimizationMarker implements Marker {
     return enumFields;
   }
 
- /**
-   * Set the flag if the related synthetic switch map initializer is already
-   * created.
-   * @param flag indicate if the synthetic initializer is already created during current
-   * compilation
-   */
-  public void setSyntheticInitializerCreationFlag(boolean flag) {
-    this.isSyntheticInitializerCreated = flag;
-  }
-
-  /**
-   * Get if the synthetic initializer is created already.
-   *
-   * @return true if the corresponding synthetic switch map initializer is already created
-   */
-  public boolean isSyntheticInitializerCreated() {
-    return isSyntheticInitializerCreated;
-  }
   @Override
   public Marker cloneIfNeeded() {
     return this;

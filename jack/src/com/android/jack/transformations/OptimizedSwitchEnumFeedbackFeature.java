@@ -26,5 +26,5 @@ import com.android.sched.item.Name;
  */
 @Name("OptimizedSwitchEnumFeature")
 @Description("Feature turning on OptimizedSwitchEnumSupport")
-public class OptimizedSwitchEnumFeature implements Feature {
+public class OptimizedSwitchEnumFeedbackFeature implements Feature {
 }
