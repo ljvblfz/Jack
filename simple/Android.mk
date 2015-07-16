@@ -39,7 +39,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_PREBUILT_JAVA_LIBRARIES := \
-	simple-common-jack:simple-common-6.0.1$(COMMON_JAVA_PACKAGE_SUFFIX)
+	simple-common-jack:simple-common-6.0.1-jack$(COMMON_JAVA_PACKAGE_SUFFIX)
 
 include $(BUILD_HOST_PREBUILT)
 
@@ -52,7 +52,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_PREBUILT_JAVA_LIBRARIES := \
-	simple-http-jack:simple-http-6.0.1$(COMMON_JAVA_PACKAGE_SUFFIX)
+	simple-http-jack:simple-http-6.0.1-jack$(COMMON_JAVA_PACKAGE_SUFFIX)
 
 include $(BUILD_HOST_PREBUILT)
 
@@ -65,6 +65,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_PREBUILT_JAVA_LIBRARIES := \
-	simple-transport-jack:simple-transport-6.0.1$(COMMON_JAVA_PACKAGE_SUFFIX)
+	simple-transport-jack:simple-transport-6.0.1-jack$(COMMON_JAVA_PACKAGE_SUFFIX)
 
 include $(BUILD_HOST_PREBUILT)

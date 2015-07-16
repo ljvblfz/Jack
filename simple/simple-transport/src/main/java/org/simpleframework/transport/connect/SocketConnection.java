@@ -18,13 +18,14 @@
   
 package org.simpleframework.transport.connect;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-
-import javax.net.ssl.SSLContext;
-
 import org.simpleframework.transport.SocketProcessor;
 import org.simpleframework.transport.trace.TraceAnalyzer;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.channels.ServerSocketChannel;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * The <code>SocketConnection</code>is used to manage connections
@@ -102,6 +103,23 @@ public class SocketConnection implements Connection {
          throw new ConnectionException("Connection is closed");
       }
       return manager.listen(address);  
+   }
+
+   /**
+    * This creates a new background task that will listen to the
+    * specified <code>SocketChannel</code> for incoming TCP connect
+    * requests. When an connection is accepted it is handed to the
+    * internal socket connector.
+    *
+    * @param address this is the address used to accept connections
+    *
+    * @return this returns the actual local address that is used
+    */
+   public SocketAddress connect(ServerSocketChannel channel) throws IOException {
+      if(closed) {
+         throw new ConnectionException("Connection is closed");
+      }
+      return manager.listen(channel);
    }
    
    /**

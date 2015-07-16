@@ -126,6 +126,27 @@ class SocketAcceptor implements Operation {
    }
 
    /**
+    * Constructor for the <code>SocketAcceptor</code> object. This
+    * accepts new TCP connections from the specified server socket.
+    * Each of the connections that is accepted is configured for
+    * performance for the applications.
+    *
+    * @param channel this is the address to accept connections from
+    * @param processor this is used to initiate the HTTP processing
+    * @param analyzer this is the tracing analyzer to be used
+    * @param context this is the SSL context used for secure HTTPS
+    */
+   protected SocketAcceptor(ServerSocketChannel channel, SocketProcessor processor, TraceAnalyzer analyzer, SSLContext context) throws IOException {
+      this.listener = channel;
+      this.trace = analyzer.attach(listener);
+      this.socket = listener.socket();
+      this.context = context;
+      this.analyzer = analyzer;
+      this.processor = processor;
+      this.address = channel.getLocalAddress();
+   }
+
+   /**
     * This is used to acquire the local socket address that this is
     * listening to. This required in case the socket address that
     * is specified is an emphemeral address, that is an address that
