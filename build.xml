@@ -705,7 +705,7 @@
       <rule pattern="com.android.sched.**" result="com.android.jack.server.sched.@1" />
       <rule pattern="com.google.**" result="com.android.jack.server.google.@1"/>
       <rule pattern="javax.annotation.**" result="com.android.jack.server.@0"/>
-      <rule pattern="org.**" result="com.android.jack.server.@0"/>
+      <rule pattern="org.uncommons.**" result="com.android.jack.server.@0"/>
       <rule pattern="freemarker.**" result="com.android.jack.server.@0"/>
     </jarjar>
     <!-- The jar produced by jarjar is filled with empty dirs, lets clean it -->
