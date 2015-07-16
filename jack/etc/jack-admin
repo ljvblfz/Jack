@@ -58,7 +58,7 @@ EOT
 fi
 
 usage () {
-  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat ]"
+  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat ]"
 }
 
 abort () { exit 255; }
@@ -293,6 +293,17 @@ case $COMMAND in
     else
       echo "Jack server already installed in \"$JACK_HOME\"" >&2
       abort
+    fi
+    exit 0 ;;
+
+
+  uninstall-server)
+    if [ ! -d "$JACK_HOME" ]; then
+      echo "Jack server in \"$JACK_HOME\" not found" >&2
+      abort
+    else
+      echo "Removing jack server from \"$JACK_HOME\""
+      rm -rf "$JACK_HOME"
     fi
     exit 0 ;;
 
