@@ -21,6 +21,8 @@ package org.simpleframework.transport.connect;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -105,6 +107,26 @@ class SocketListenerManager implements Closeable {
          listener.process();
       }
       return listener.getAddress();   
+   }
+
+   /**
+    * This creates a new background task that will listen to the
+    * specified <code>ServerAddress</code> for incoming TCP connect
+    * requests. When an connection is accepted it is handed to the
+    * internal socket connector.
+    *
+    * @param channel this is the channel used to accept connections
+    *
+    * @return this returns the actual local address that is used
+    */
+   public SocketAddress listen(ServerSocketChannel channel) throws IOException {
+      SocketListener listener = new SocketListener(channel, processor, analyzer, null);
+
+      if(processor != null) {
+         listeners.add(listener);
+         listener.process();
+      }
+      return listener.getAddress();
    }
    
    /**

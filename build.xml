@@ -1152,9 +1152,9 @@
   <target name="simple-lib">
     <mkdir dir="${simple.dist.dir}"/>
     <mkdir dir="${simple.build.outdir}"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-common-6.0.1.jar"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-http-6.0.1.jar"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-transport-6.0.1.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-common-6.0.1-jack.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-http-6.0.1-jack.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-transport-6.0.1-jack.jar"/>
     <jar basedir="${simple.build.outdir}" destfile="${simple.dist.dir}/${simple.libname}"/>
   </target>
 

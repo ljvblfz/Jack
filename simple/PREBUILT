@@ -1,5 +1,5 @@
 Prebuilts (simple-common-6.0.1.jar, simple-http-6.0.1.jar, simple-transport-6.0.1.jar) can be rebuilt by using the following command lines:
 mvn install
-cp simple-http/target/simple-http-6.0.1.jar simple-http-6.0.1.jar
-cp simple-common/target/simple-common-6.0.1.jar simple-common-6.0.1.jar
-cp simple-transport/target/simple-transport-6.0.1.jar simple-transport-6.0.1.jar
+cp simple-http/target/simple-http-6.0.1.jar simple-http-6.0.1-jack.jar
+cp simple-common/target/simple-common-6.0.1.jar simple-common-6.0.1-jack.jar
+cp simple-transport/target/simple-transport-6.0.1.jar simple-transport-6.0.1-jack.jar

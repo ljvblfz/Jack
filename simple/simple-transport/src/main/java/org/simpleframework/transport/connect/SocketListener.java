@@ -23,6 +23,7 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.ServerSocketChannel;
 
 import javax.net.ssl.SSLContext;
 
@@ -79,6 +80,22 @@ class SocketListener implements Closeable {
     */
    public SocketListener(SocketAddress address, SocketProcessor processor, TraceAnalyzer analyzer, SSLContext context) throws IOException {
       this.acceptor = new SocketAcceptor(address, processor, analyzer, context);
+      this.reactor = new SynchronousReactor();
+   }
+
+   /**
+    * Constructor for the <code>SocketListener</code> object. This
+    * needs a socket address and a processor to hand created sockets
+    * to. This creates a <code>Reactor</code> which will notify the
+    * acceptor when there is a new connection waiting to be accepted.
+    *
+    * @param channel this is the channel to listen for new sockets
+    * @param processor this is the processor that sockets are handed to
+    * @param analyzer this is used to create a trace to monitor events
+    * @param context this is the SSL context used for secure HTTPS
+    */
+   public SocketListener(ServerSocketChannel channel, SocketProcessor processor, TraceAnalyzer analyzer, SSLContext context) throws IOException {
+      this.acceptor = new ReusedSocketAcceptor(channel, processor, analyzer, context);
       this.reactor = new SynchronousReactor();
    }
    
