@@ -90,7 +90,7 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
     JField field = fieldRef.getFieldId().getField();
     assert(field != null);
     if (!field.isPrivate() || !field.getAnnotations(annotationType).isEmpty()
-        || !accessorClass.getAnnotations(annotationType).isEmpty()) {
+        || !field.getEnclosingType().getAnnotations(annotationType).isEmpty()) {
       super.handleOuterFieldWrite(tr, fieldRef, accessorClass);
       return;
     }
@@ -103,7 +103,7 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
     JField field = fieldRef.getFieldId().getField();
     assert(field != null);
     if (!field.isPrivate() || !field.getAnnotations(annotationType).isEmpty()
-        || !accessorClass.getAnnotations(annotationType).isEmpty()) {
+        || !field.getEnclosingType().getAnnotations(annotationType).isEmpty()) {
       super.handleOuterFieldRead(tr, fieldRef, accessorClass);
       return;
     }
@@ -115,7 +115,7 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
       @Nonnull JMethodCall methodCall, @Nonnull JMethod method,
       @Nonnull JDefinedClassOrInterface accessorClass, boolean isSuper) {
     if (!method.isPrivate() || method.isNative() || !method.getAnnotations(annotationType).isEmpty()
-        || !accessorClass.getAnnotations(annotationType).isEmpty()) {
+        || !method.getEnclosingType().getAnnotations(annotationType).isEmpty()) {
       super.handleOuterMethodCall(tr, methodCall, method, accessorClass, isSuper);
       return;
     }
