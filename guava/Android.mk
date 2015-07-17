@@ -1,4 +1,4 @@
-# Copyright (C) 2012 The Android Open Source Project
+# Copyright (C) 2015 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,27 +14,17 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+
+#
+# guava-jack
+#
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := $(call all-java-files-under, src/)
 
-LOCAL_MODULE := guava-jack
+LOCAL_PREBUILT_JAVA_LIBRARIES := \
+	guava-jack:guava-18.0$(COMMON_JAVA_PACKAGE_SUFFIX)
 
-LOCAL_JAVA_LIBRARIES := jsr305lib-jack
+include $(BUILD_HOST_PREBUILT)
 
-LOCAL_MODULE_TAGS := optional
-
-include $(BUILD_HOST_JAVA_LIBRARY)
-
-#
-# Build guava for java-allocation-tracker
-#
-include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(call all-java-files-under, src/)
-LOCAL_MODULE := guava-collect-jack
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/collect-jarjar-rules.txt
-LOCAL_STATIC_JAVA_LIBRARIES := jsr305lib-jack
-
-include $(BUILD_HOST_JAVA_LIBRARY)

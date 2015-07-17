@@ -5,4 +5,8 @@ Description: The Guava project contains several of Google's core libraries that
 we rely on in our Java-based projects: collections, caching, primitives
 support, concurrency libraries, common annotations, string processing, I/O, and
 so forth.
-Local Modifications: only library sources were imported.
+Local Modifications: none
+
+How to fetch:
+git clone --branch v18.0  https://github.com/google/guava.git
+

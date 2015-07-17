@@ -1213,43 +1213,16 @@
   <!-- ******************* -->
   <!-- guava-lib           -->
   <!-- ******************* -->
-  <property name="guava.build.dir" value="${guava.dir}/build"/>
-  <property name="guava.build.outdir" value="${guava.build.dir}/classes"/>
   <property name="guava.dist.dir" value="${guava.dir}/dist"/>
   <property name="guava.libname" value="guava-lib.jar"/>
 
   <target name="guava-lib-clean">
-    <delete dir="${guava.build.dir}"/>
     <delete dir="${guava.dist.dir}"/>
   </target>
 
-  <target name="guava-lib" depends="jsr305-lib">
-    <!-- project layout -->
-    <mkdir dir="${guava.build.outdir}"/>
+  <target name="guava-lib">
     <mkdir dir="${guava.dist.dir}"/>
-    <dependset>
-      <sources>
-        <fileset dir="${guava.dir}/src" />
-        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
-      </sources>
-      <targets>
-        <fileset dir="${guava.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" source="1.6" target="1.6"
-      srcdir="${guava.dir}/src"
-      destdir="${guava.build.outdir}"
-      debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist dir="/">
-          <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-        </filelist>
-      </classpath>
-    </javac>
-    <!-- package -->
-    <jar destfile="${guava.dist.dir}/${guava.libname}"
-      basedir="${guava.build.outdir}"
-      includes="**"/>
+    <copy file="${guava.dir}/guava-18.0.jar" tofile="${guava.dist.dir}/${guava.libname}"/>
   </target>
 
 
