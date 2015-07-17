@@ -16,6 +16,8 @@
 
 package com.android.jack.server.api.v01;
 
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 public interface JackServer {
@@ -24,5 +26,5 @@ public interface JackServer {
 
   void onSystemStart() throws ServerException;
 
-  void run() throws ServerException, InterruptedException;
+  void run(@Nonnull Map<String, Object> parameters) throws ServerException, InterruptedException;
 }

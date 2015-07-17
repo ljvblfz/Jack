@@ -19,6 +19,7 @@ package com.android.jack.server.api.v01;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -30,11 +31,12 @@ public interface LauncherHandle {
   @Nonnull
   File getServerDir();
 
-  void replaceServer(@Nonnull InputStream newServer, boolean forced)
-      throws IOException, ServerException, NotInstalledException;
+  void replaceServer(@Nonnull InputStream newServer, @Nonnull Map<String, Object> parameters,
+      boolean forced) throws IOException, ServerException, NotInstalledException;
 
   @Nonnull
   ClassLoader getLauncherClassLoader();
 
   void deleteFilesOnGarbage(@Nonnull File[] filesToDelete, @Nonnull Object watched);
+
 }

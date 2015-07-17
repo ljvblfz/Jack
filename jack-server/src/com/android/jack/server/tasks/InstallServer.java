@@ -27,6 +27,7 @@ import org.simpleframework.http.Status;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +57,8 @@ public class InstallServer extends SynchronousAdministrativeTask {
       boolean force = "true".equals(forcePart.getContent());
       jarIn = jarPart.getInputStream();
       jackServer.shutdown();
-      jackServer.getLauncherHandle().replaceServer(jarIn, force);
+      jackServer.getLauncherHandle().replaceServer(jarIn, new HashMap<String, Object>(),
+          force);
     } catch (ServerException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
