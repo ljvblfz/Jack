@@ -27,7 +27,6 @@ import org.simpleframework.http.Status;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,11 +39,6 @@ public class InstallServer extends SynchronousAdministrativeTask {
 
   @Nonnull
   private static final Logger logger = Logger.getLogger(InstallServer.class.getName());
-  @Nonnull
-  public static final String SERVICE_CHANNEL_PARAMETER = "service.channel";
-  @Nonnull
-  public static final String ADMIN_CHANNEL_PARAMETER = "admin.channel";
-
   public InstallServer(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
   }
@@ -62,10 +56,10 @@ public class InstallServer extends SynchronousAdministrativeTask {
       boolean force = "true".equals(forcePart.getContent());
       jarIn = jarPart.getInputStream();
       jackServer.shutdownServerOnly();
-      HashMap<String, Object> parameters = new HashMap<String, Object>(2);
-      parameters.put(SERVICE_CHANNEL_PARAMETER, jackServer.getServiceChannel());
-      parameters.put(ADMIN_CHANNEL_PARAMETER, jackServer.getAdminChannel());
-      jackServer.getLauncherHandle().replaceServer(jarIn, parameters, force);
+      jackServer.getLauncherHandle().replaceServer(
+          jarIn,
+          jackServer.getServerParameters().asMap(),
+          force);
     } catch (ServerException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);

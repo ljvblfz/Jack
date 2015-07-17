@@ -280,6 +280,9 @@ public class JackHttpServer implements HasVersion {
   @CheckForNull
   private Connection adminConnection;
   @CheckForNull
+  private ServerParameters serverParameters;
+
+  @CheckForNull
   private Timer timer;
   @Nonnull
   private final Object lock = new Object();
@@ -309,6 +312,17 @@ public class JackHttpServer implements HasVersion {
 
   @Nonnull
   private final String currentUser;
+
+  @Nonnull
+  public static Version getServerVersion() {
+    try {
+      return new Version("jack-server", JackHttpServer.class.getClassLoader());
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Failed to read Jack-server version properties", e);
+      throw new AssertionError();
+    }
+  }
+
 
   // random does not need to be strong, it's just an help for debugging
   @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
@@ -389,15 +403,9 @@ public class JackHttpServer implements HasVersion {
   }
 
   @Nonnull
-  public ServerSocketChannel getAdminChannel() {
-    assert adminChannel != null;
-    return adminChannel;
-  }
-
-  @Nonnull
-  public ServerSocketChannel getServiceChannel() {
-    assert serviceChannel != null;
-    return serviceChannel;
+  public ServerParameters getServerParameters() {
+    assert serverParameters != null;
+    return serverParameters;
   }
 
   public void addInstalledJack(@Nonnull Program<JackProvider> jack) {
@@ -507,18 +515,15 @@ public class JackHttpServer implements HasVersion {
   @Override
   @Nonnull
   public Version getVersion() {
-    try {
-      return new Version("jack-server", JackHttpServer.class.getClassLoader());
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Failed to read Jack-server version properties", e);
-      throw new AssertionError();
-    }
+    return getServerVersion();
   }
 
-  void start(@Nonnull Map<String, ?> parameters)
+  void start(@Nonnull Map<String, Object> parameters)
       throws ServerException {
     InetSocketAddress serviceAddress = new InetSocketAddress("127.0.0.1", portService);
     InetSocketAddress adminAddress   = new InetSocketAddress("127.0.0.1", portAdmin);
+
+    serverParameters = new ServerParameters(parameters);
 
     FileInputStream keystoreServerIn = null;
     FileInputStream keystoreClientIn = null;
@@ -572,7 +577,6 @@ public class JackHttpServer implements HasVersion {
       }
     }
 
-
     logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
     try {
 
@@ -606,8 +610,8 @@ public class JackHttpServer implements HasVersion {
       };
       SocketConnection connection = new SocketConnection(processor);
       serviceConnection = connection;
-      serviceChannel = openSocket(serviceAddress,
-          parameters.get(InstallServer.SERVICE_CHANNEL_PARAMETER));
+      assert serverParameters != null;
+      serviceChannel = serverParameters.getServiceSocket(serviceAddress);
       connection.connect(serviceChannel, sslContext);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
@@ -712,8 +716,8 @@ public class JackHttpServer implements HasVersion {
           };
       SocketConnection connection = new SocketConnection(processor);
       adminConnection = connection;
-      adminChannel =
-          openSocket(adminAddress, parameters.get(InstallServer.ADMIN_CHANNEL_PARAMETER));
+      assert serverParameters != null;
+      adminChannel = serverParameters.getAdminSocket(adminAddress);
       connection.connect(adminChannel, sslContext);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
