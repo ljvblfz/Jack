@@ -17,12 +17,25 @@
 package com.android.jack.java8;
 
 import com.android.jack.Options;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
+import junit.framework.Assert;
+
+import org.jf.dexlib.ClassDefItem;
+import org.jf.dexlib.DexFile;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -122,6 +135,24 @@ public class LambdaTest {
   private RuntimeTestInfo LAMBDA023 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test023"),
       "com.android.jack.java8.lambda.test023.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA024 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test024"),
+          "com.android.jack.java8.lambda.test024.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags");
+
+  private RuntimeTestInfo LAMBDA025 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test025"),
+          "com.android.jack.java8.lambda.test025.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags");
+
+  private RuntimeTestInfo LAMBDA026 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test026"),
+          "com.android.jack.java8.lambda.test026.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags");
 
   @Test
   public void testLamba001() throws Exception {
@@ -299,6 +330,7 @@ public class LambdaTest {
     .compileAndRunTest();
   }
 
+
   @Test
   public void testLamba023() throws Exception {
     new RuntimeTestHelper(LAMBDA023)
@@ -306,4 +338,69 @@ public class LambdaTest {
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
+
+  @Test
+  public void testLamba024() throws Exception {
+    new RuntimeTestHelper(LAMBDA024)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"))
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba025() throws Exception {
+    new RuntimeTestHelper(LAMBDA025)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addKeptFile("I2.java"))
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba026() throws Exception {
+    new RuntimeTestHelper(LAMBDA026)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"))
+    .compileAndRunTest();
+  }
+
+  private class ShrinkFileChecker implements FileChecker {
+
+    @Nonnull
+    private List<String> keptFiles = new ArrayList<String>();
+
+    @Nonnull
+    private List<String> removedFiles = new ArrayList<String>();
+
+    public ShrinkFileChecker addKeptFile(@Nonnull String fileName) {
+      keptFiles.add(fileName);
+      return this;
+    }
+
+    public ShrinkFileChecker addRemovedFile(@Nonnull String fileName) {
+      removedFiles.add(fileName);
+      return this;
+    }
+
+    @Override
+    public void check(@Nonnull File file) throws Exception {
+      DexFile dexFile = new DexFile(file);
+      Set<String> sourceFileInDex = new HashSet<String>();
+
+      for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
+        sourceFileInDex.add(classDef.getSourceFile().getStringValue());
+      }
+
+      for (String keptFile : keptFiles) {
+        Assert.assertTrue(sourceFileInDex.contains(keptFile));
+      }
+
+      for (String removedFile : removedFiles) {
+        Assert.assertTrue(!sourceFileInDex.contains(removedFile));
+      }
+    }
+  }
+
 }
