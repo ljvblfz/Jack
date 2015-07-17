@@ -79,8 +79,11 @@ import java.lang.ref.SoftReference;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -253,6 +256,12 @@ public class JackHttpServer implements HasVersion {
 
   private Cache<VersionKey, Program<JackProvider>> installedJack = null;
 
+  @CheckForNull
+  private ServerSocketChannel adminChannel;
+
+  @CheckForNull
+  private ServerSocketChannel serviceChannel;
+
   // random does not need to be strong, it's just an help for debugging
   @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
@@ -316,6 +325,18 @@ public class JackHttpServer implements HasVersion {
     if (previousInstalledJack != null) {
       installedJack.putAll(previousInstalledJack.asMap());
     }
+  }
+
+  @Nonnull
+  public ServerSocketChannel getAdminChannel() {
+    assert adminChannel != null;
+    return adminChannel;
+  }
+
+  @Nonnull
+  public ServerSocketChannel getServiceChannel() {
+    assert serviceChannel != null;
+    return serviceChannel;
   }
 
   public void addInstalledJack(@Nonnull Program<JackProvider> jack) {
@@ -415,13 +436,15 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
-  void start(@SuppressWarnings("unused") @Nonnull Map<String, ?> parameters)
+  void start(@Nonnull Map<String, ?> parameters)
       throws ServerException {
-    InetSocketAddress serviceSocket = new InetSocketAddress("127.0.0.1", portService);
-    InetSocketAddress adminSocket   = new InetSocketAddress("127.0.0.1", portAdmin);
+    InetSocketAddress serviceAddress = new InetSocketAddress("127.0.0.1", portService);
+    InetSocketAddress adminAddress   = new InetSocketAddress("127.0.0.1", portAdmin);
 
-    logger.log(Level.INFO, "Starting service connection server on " + serviceSocket);
+
+    logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
     try {
+
       MethodRouter router = new MethodRouter()
         .add(Method.POST,
           new ContentTypeRouter()
@@ -444,9 +467,10 @@ public class JackHttpServer implements HasVersion {
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), maxServices);
-      serviceConnection = new SocketConnection(processor);
-      assert serviceConnection != null;
-      serviceConnection.connect(serviceSocket);
+      SocketConnection connection = new SocketConnection(processor);
+      serviceConnection = connection;
+      serviceChannel = openSocket(serviceAddress, parameters.get(InstallServer.SERVICE_CHANNEL_PARAMETER));
+      connection.connect(serviceChannel);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
         throw new ServerException("Problem during service connection: "
@@ -456,7 +480,7 @@ public class JackHttpServer implements HasVersion {
       }
     }
 
-    logger.log(Level.INFO, "Starting admin connection on " + adminSocket);
+    logger.log(Level.INFO, "Starting admin connection on " + adminAddress);
     try {
       PathRouter router = new PathRouter()
 
@@ -530,9 +554,11 @@ public class JackHttpServer implements HasVersion {
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), 1);
-      adminConnection = new SocketConnection(processor);
-      assert adminConnection != null;
-      adminConnection.connect(adminSocket);
+      SocketConnection connection = new SocketConnection(processor);
+      adminConnection = connection;
+      adminChannel =
+          openSocket(adminAddress, parameters.get(InstallServer.ADMIN_CHANNEL_PARAMETER));
+      connection.connect(adminChannel);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
         throw new ServerException("Problem during service connection: "
@@ -546,6 +572,22 @@ public class JackHttpServer implements HasVersion {
 
     synchronized (lock) {
       isAcceptingRequests = true;
+    }
+  }
+
+  @Nonnull
+  private ServerSocketChannel openSocket(@Nonnull InetSocketAddress serviceAddress,
+      @CheckForNull Object existingChannel) throws IOException,
+      SocketException {
+    if (existingChannel instanceof ServerSocketChannel) {
+      return (ServerSocketChannel) existingChannel;
+    } else {
+      ServerSocketChannel channel = ServerSocketChannel.open();
+      channel.configureBlocking(false);
+      ServerSocket socket = channel.socket();
+      socket.setReuseAddress(true);
+      socket.bind(serviceAddress, 100);
+      return channel;
     }
   }
 
@@ -648,12 +690,25 @@ public class JackHttpServer implements HasVersion {
   }
 
   public void shutdown() {
+    synchronized (lock) {
+      if (isAcceptingRequests) {
+        shutdownConnections();
 
-    shutdownConnections();
+        isAcceptingRequests = false;
+        lock.notifyAll();
+      }
+    }
+  }
+
+  public void shutdownServerOnly() {
 
     synchronized (lock) {
-      isAcceptingRequests = false;
-      lock.notifyAll();
+      if (isAcceptingRequests) {
+        shutdownSimpleServer();
+
+        isAcceptingRequests = false;
+        lock.notifyAll();
+      }
     }
   }
 
@@ -670,6 +725,30 @@ public class JackHttpServer implements HasVersion {
   }
 
   private void shutdownConnections() {
+    shutdownSimpleServer();
+
+    try {
+      if (serviceChannel != null) {
+        logger.log(Level.FINE, "Closing service server socket");
+        serviceChannel.close();
+      }
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Cannot close the service server socket: ", e);
+    }
+    serviceChannel = null;
+
+    try {
+      if (adminChannel != null) {
+        logger.log(Level.FINE, "Closing admin server socket");
+        adminChannel.close();
+      }
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Cannot close the admin server socket: ", e);
+    }
+    adminChannel = null;
+  }
+
+  private void shutdownSimpleServer() {
     cancelTimer();
 
     Connection conn = serviceConnection;

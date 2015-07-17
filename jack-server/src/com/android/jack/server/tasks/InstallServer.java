@@ -40,6 +40,10 @@ public class InstallServer extends SynchronousAdministrativeTask {
 
   @Nonnull
   private static final Logger logger = Logger.getLogger(InstallServer.class.getName());
+  @Nonnull
+  public static final String SERVICE_CHANNEL_PARAMETER = "service.channel";
+  @Nonnull
+  public static final String ADMIN_CHANNEL_PARAMETER = "admin.channel";
 
   public InstallServer(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
@@ -56,9 +60,11 @@ public class InstallServer extends SynchronousAdministrativeTask {
     try {
       boolean force = "true".equals(forcePart.getContent());
       jarIn = jarPart.getInputStream();
-      jackServer.shutdown();
-      jackServer.getLauncherHandle().replaceServer(jarIn, new HashMap<String, Object>(),
-          force);
+      jackServer.shutdownServerOnly();
+      HashMap<String, Object> parameters = new HashMap<String, Object>(2);
+      parameters.put(SERVICE_CHANNEL_PARAMETER, jackServer.getServiceChannel());
+      parameters.put(ADMIN_CHANNEL_PARAMETER, jackServer.getAdminChannel());
+      jackServer.getLauncherHandle().replaceServer(jarIn, parameters, force);
     } catch (ServerException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
