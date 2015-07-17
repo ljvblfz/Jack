@@ -483,7 +483,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId OPTIMIZE_INNER_CLASSES_ACCESSORS = BooleanPropertyId.create(
       "jack.optimization.inner-class.accessors",
-      "Avoid creating synthethic accessors for outer class private fields")
+      "Avoid creating synthethic accessors for outer class private fields and methods")
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
