@@ -63,7 +63,19 @@ public class ConstantTests extends RuntimeTest {
 
   private RuntimeTestInfo TEST005 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test005"),
-    "com.android.jack.constant.test005.dx.Tests");
+    "com.android.jack.constant.test005.dx.Tests").addFileChecker(new FileChecker() {
+
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        CodeItem ci =
+            TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/constant/test005/jack/Constant005;",
+                "test", "()I").codeItem;
+
+        Assert.assertEquals(7, countOpcode(ci, Opcode.CONST_4));
+      }
+    }
+    );
 
   private RuntimeTestInfo TEST006 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test006"),
@@ -106,19 +118,7 @@ public class ConstantTests extends RuntimeTest {
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test005() throws Exception {
-    new RuntimeTestHelper(TEST005)
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        CodeItem ci =
-            TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/constant/test005/jack/Constant005;",
-                "test", "()I").codeItem;
-
-        Assert.assertEquals(7, countOpcode(ci, Opcode.CONST_4));
-      }
-    }).compileAndRunTest();
+    new RuntimeTestHelper(TEST005).compileAndRunTest();
   }
 
   @Nonnegative
