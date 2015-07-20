@@ -2192,7 +2192,7 @@
     </target>
 
   <target name="test-sched" description="run schedlib tests"
-    depends="test-sched-nodep,junit4,schedtests-lib,sched-lib,guava-lib,
+    depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib, test-sched-nodep">
   </target>
 
