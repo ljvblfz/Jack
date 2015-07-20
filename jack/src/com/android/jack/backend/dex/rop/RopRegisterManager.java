@@ -132,7 +132,7 @@ class RopRegisterManager {
     JType type = var.getType();
     Type dexRegType = RopHelper.convertTypeToDx(type);
     RegisterSpec reg;
-    if (emitDebugInfo && (emitSyntheticDebugInfo || !var.isSynthetic()) && var.getName() != null) {
+    if (emitDebugInfo && var.getName() != null && (emitSyntheticDebugInfo || !isSynthetic(var))) {
       CstString cstSignature = null;
       GenericSignature infoMarker = var.getMarker(GenericSignature.class);
       if (infoMarker != null) {
@@ -149,6 +149,12 @@ class RopRegisterManager {
     variableToRegister.put(var, reg);
 
     return (reg);
+  }
+
+  private boolean isSynthetic(@Nonnull JVariable var) {
+    return var.isSynthetic()
+        || var.getName().startsWith("-p_") || var.getName().startsWith("-l_")
+        || var.getName().startsWith("-s_") || var.getName().startsWith("-e_");
   }
 
   /**
