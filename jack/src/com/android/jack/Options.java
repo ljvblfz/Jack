@@ -722,6 +722,10 @@ public class Options {
       configBuilder.setString(SOURCES, Joiner.on(File.pathSeparator).join(inputSources));
     }
 
+    if (emitLocalDebugInfo != null) {
+      configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
+    }
+
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
@@ -734,8 +738,12 @@ public class Options {
           flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
       configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
           flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
-      configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO,
-          flags.keepAttribute("LineNumberTable"));
+
+      if (flags.obfuscate()) { // do not override debug info config when shrinking
+        configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
+        configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));
+      }
+
       configBuilder.set(Options.FLAGS, flags);
       configBuilder.set(
           Options.USE_MIXED_CASE_CLASSNAME, flags.getUseMixedCaseClassName());
@@ -823,9 +831,6 @@ public class Options {
 
     configBuilder.popDefaultLocation();
 
-    if (emitLocalDebugInfo != null) {
-      configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
-    }
     if (importedLibraries != null) {
       configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
     }
