@@ -198,6 +198,8 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private static final String DELETED_SUFFIX = ".deleted";
 
+  private static final int TIMEOUT_DISABLED = -1;
+
   @Nonnull
   private static final String DELETED_JAR_SUFFIX = JAR_SUFFIX + DELETED_SUFFIX;
 
@@ -403,10 +405,10 @@ public class JackHttpServer implements HasVersion {
         new IntCodec()).intValue();
     timeout = config.getProperty(ConfigFile.TIME_OUT_PROPERTY, Integer.valueOf(7200),
         new IntCodec()).intValue();
-    if (timeout < -1) {
+    if (timeout < 0 && timeout != TIMEOUT_DISABLED) {
       logger.log(Level.WARNING,
           "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + maxJarSize);
-      timeout = -1;
+      timeout = TIMEOUT_DISABLED;
     }
     maxJarSize = config.getProperty(
         ConfigFile.MAX_JAR_SIZE_PROPERTY, Long.valueOf(100 * 1024 * 1024),
@@ -668,10 +670,10 @@ public class JackHttpServer implements HasVersion {
   }
 
   private void startTimer() {
-    if (timeout == -1) {
-      return;
-    }
     synchronized (lock) {
+      if (timeout == TIMEOUT_DISABLED) {
+        return;
+      }
       if (timer != null) {
         cancelTimer();
       }
@@ -750,7 +752,10 @@ public class JackHttpServer implements HasVersion {
   }
 
   private void shutdownSimpleServer() {
-    cancelTimer();
+    synchronized (lock) {
+      timeout = TIMEOUT_DISABLED;
+      cancelTimer();
+    }
 
     Connection conn = serviceConnection;
     if (conn != null) {
