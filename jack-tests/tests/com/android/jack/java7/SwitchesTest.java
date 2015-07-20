@@ -16,12 +16,12 @@
 
 package com.android.jack.java7;
 
-import com.android.jack.Main;
+import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -33,21 +33,34 @@ import javax.annotation.Nonnull;
  */
 public class SwitchesTest {
 
+  @Nonnull
+  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test001"),
+      "com.android.jack.java7.switches.test001.dx.Tests");
 
+  @Nonnull
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test002"),
+      "com.android.jack.java7.switches.test002.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo TEST003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test003"),
+      "com.android.jack.java7.switches.test003.dx.Tests");
 
   @Test
   public void java7Switches001() throws Exception {
-    compileJava7Test("test001");
+    new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Switches002() throws Exception {
-    compileJava7Test("test002");
+    new RuntimeTestHelper(TEST002).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Switches003() throws Exception {
-    compileJava7Test("test003");
+    new RuntimeTestHelper(TEST003).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
@@ -70,16 +83,6 @@ public class SwitchesTest {
         jackZipFile,
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false);
-  }
-
-  private void compileJava7Test(@Nonnull String name) throws Exception {
-    IToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(), /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.java7.switches." + name + ".jack"));
   }
 
 }
