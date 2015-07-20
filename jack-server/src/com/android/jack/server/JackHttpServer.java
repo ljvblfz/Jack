@@ -683,6 +683,7 @@ public class JackHttpServer implements HasVersion {
       timer.schedule(new TimerTask() {
         @Override
         public void run() {
+          cancelTimer();
           freeLoadedPrograms();
         }
       }, timeout * 1000L);
