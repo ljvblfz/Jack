@@ -473,36 +473,37 @@ public abstract class Jack {
           }
           if (options.flags.obfuscate()) {
             request.addFeature(Obfuscation.class);
+
+            if (!options.flags.keepAttribute("EnclosingMethod")) {
+              request.addFeature(RemoveEnclosingMethod.class);
+            }
+            if (!options.flags.keepAttribute("InnerClasses")) {
+              request.addFeature(RemoveEnclosingType.class);
+            }
+            if (!options.flags.keepAttribute("Signature")) {
+              request.addFeature(RemoveGenericSignature.class);
+            }
+            if (!options.flags.keepAttribute("AnnotationDefault")) {
+              request.addFeature(RemoveAnnotationDefaultValue.class);
+            }
+            if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
+              request.addFeature(RemoveLocalVariableGenericSignature.class);
+            }
+            if (!options.flags.keepAttribute("Exceptions")) {
+              request.addFeature(RemoveThrownException.class);
+            }
+            if (!options.flags.keepAttribute("SourceFile")) {
+              request.addFeature(RemoveSourceFile.class);
+            }
+            if (!options.flags.keepAttribute("LineNumberTable")) {
+              request.addFeature(RemoveLineNumber.class);
+            }
+            if (!options.flags.getKeepParameterNames()) {
+              request.addFeature(RemoveParameterName.class);
+            }
           }
           if (options.flags.printSeeds()) {
             request.addProduction(SeedFile.class);
-          }
-          if (!options.flags.keepAttribute("EnclosingMethod")) {
-            request.addFeature(RemoveEnclosingMethod.class);
-          }
-          if (!options.flags.keepAttribute("InnerClasses")) {
-            request.addFeature(RemoveEnclosingType.class);
-          }
-          if (!options.flags.keepAttribute("Signature")) {
-            request.addFeature(RemoveGenericSignature.class);
-          }
-          if (!options.flags.keepAttribute("AnnotationDefault")) {
-            request.addFeature(RemoveAnnotationDefaultValue.class);
-          }
-          if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
-            request.addFeature(RemoveLocalVariableGenericSignature.class);
-          }
-          if (!options.flags.keepAttribute("Exceptions")) {
-            request.addFeature(RemoveThrownException.class);
-          }
-          if (!options.flags.keepAttribute("SourceFile")) {
-            request.addFeature(RemoveSourceFile.class);
-          }
-          if (!options.flags.keepAttribute("LineNumberTable")) {
-            request.addFeature(RemoveLineNumber.class);
-          }
-          if (!options.flags.getKeepParameterNames()) {
-            request.addFeature(RemoveParameterName.class);
           }
           if (options.flags.getRenameSourceFileAttribute() != null) {
             request.addFeature(SourceFileRenaming.class);

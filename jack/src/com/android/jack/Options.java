@@ -730,16 +730,17 @@ public class Options {
 
     if (flags != null) {
       configBuilder.set(SHROB_ENABLED, true);
-      configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
-          flags.keepAttribute("RuntimeInvisibleAnnotations"));
-      configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
-          flags.keepAttribute("RuntimeVisibleAnnotations"));
-      configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
-          flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
-      configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
-          flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
 
-      if (flags.obfuscate()) { // do not override debug info config when shrinking
+      if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
+        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
+            flags.keepAttribute("RuntimeInvisibleAnnotations"));
+        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
+            flags.keepAttribute("RuntimeVisibleAnnotations"));
+        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
+            flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
+        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
+            flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
+
         configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
         configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));
       }
