@@ -57,10 +57,13 @@ public class CommandOutPrintStream extends PrintStream {
       buffer.put((byte) b);
       if (b == '\n') {
         synchronized (out) {
-          writeBuffer(prefix, out);
-          buffer.flip();
-          writeBuffer(buffer, out);
-          buffer.clear();
+          try {
+            writeBuffer(prefix, out);
+            buffer.flip();
+            writeBuffer(buffer, out);
+          } finally {
+            buffer.clear();
+          }
         }
       }
       if (buffer.remaining() == 1) {
