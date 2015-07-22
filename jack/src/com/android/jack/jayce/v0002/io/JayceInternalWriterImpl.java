@@ -17,7 +17,11 @@
 package com.android.jack.jayce.v0002.io;
 
 import com.android.jack.JackEventType;
+import com.android.jack.ir.ast.FieldKind;
+import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.JayceInternalWriter;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.NodeFactory;
@@ -25,6 +29,7 @@ import com.android.jack.jayce.v0002.Version;
 import com.android.jack.jayce.v0002.nodes.HasCatchBlockIds;
 import com.android.jack.jayce.v0002.nodes.HasSourceInfo;
 import com.android.jack.jayce.v0002.nodes.NMethod;
+import com.android.jack.jayce.v0002.nodes.NMethodCall.ReceiverKind;
 import com.android.jack.jayce.v0002.nodes.NSourceInfo;
 import com.android.jack.jayce.v0002.util.DispatchKindIdHelper;
 import com.android.jack.jayce.v0002.util.FieldRefKindIdHelper;
@@ -218,23 +223,23 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
     writeString(id);
   }
 
-  public void writeRetentionPolicyEnum(@Nonnull Enum<?> enumValue) throws IOException {
+  public void writeRetentionPolicyEnum(@Nonnull JRetentionPolicy enumValue) throws IOException {
     writeByte(RetentionPolicyIdHelper.getId(enumValue));
   }
 
-  public void writeFieldRefKindEnum(@Nonnull Enum<?> enumValue) throws IOException {
+  public void writeFieldRefKindEnum(@Nonnull FieldKind enumValue) throws IOException {
     writeByte(FieldRefKindIdHelper.getId(enumValue));
   }
 
-  public void writeMethodKindEnum(@Nonnull Enum<?> enumValue) throws IOException {
+  public void writeMethodKindEnum(@Nonnull MethodKind enumValue) throws IOException {
     writeByte(MethodKindIdHelper.getId(enumValue));
   }
 
-  public void writeReceiverKindEnum(@Nonnull Enum<?> enumValue) throws IOException {
+  public void writeReceiverKindEnum(@Nonnull ReceiverKind enumValue) throws IOException {
     writeByte(ReceiverKindIdHelper.getId(enumValue));
   }
 
-  public void writeDispatchKindEnum(@Nonnull Enum<?> enumValue) throws IOException {
+  public void writeDispatchKindEnum(@Nonnull DispatchKind enumValue) throws IOException {
     writeByte(DispatchKindIdHelper.getId(enumValue));
   }
 
