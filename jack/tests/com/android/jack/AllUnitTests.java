@@ -20,7 +20,6 @@ import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
 import com.android.jack.ir.ast.JDefinedInterfaceTest;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.ir.impl.ReferenceMapperTest;
-import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.preprocessor.PreProcessorTest;
 import com.android.jack.reporting.ProblemLevelTest;
@@ -45,7 +44,8 @@ import org.junit.runners.Suite.SuiteClasses;
     com.android.jack.shrob.AllTests.class,
     com.android.jack.transformations.ast.AllTests.class,
     ConditionalTest.class,
-    EscapeStringTest.class,
+    com.android.jack.jayce.v0002.io.EscapeStringTest.class,
+    com.android.jack.jayce.v0003.io.EscapeStringTest.class,
     ExpressionSimplifierTest.class,
     FibonacciThreeAddressTest.class,
     FinallyTest.class,

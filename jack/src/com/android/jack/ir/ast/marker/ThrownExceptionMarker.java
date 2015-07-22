@@ -19,7 +19,6 @@ package com.android.jack.ir.ast.marker;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.jayce.v0002.nodes.NMarker;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
@@ -30,7 +29,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link NMarker} holds the thrown exception types.
+ * This {@link Marker} holds the thrown exception types.
  */
 @Description("Holds the thrown exception types")
 @ValidOn(JMethod.class)
