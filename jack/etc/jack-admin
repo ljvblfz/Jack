@@ -406,8 +406,39 @@ case $COMMAND in
            --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
            http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
            )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
+      CURL_CODE=$?
+
+      if [ $CURL_CODE -eq 0 ]; then
+        # No problem, let's go
+        DONE=0
+      elif [ $CURL_CODE -eq 7 ]; then
+        echo "No Jack server running" >&2
+        abort
+      elif  [ $CURL_CODE -eq 22 ]; then
+        # Http code not OK, let's decode and abort
+        if [ $2 -eq 401 ]; then
+          # 401: Unauthorized
+          echo "Security problem, see Jack server log" >&2
+          abort
+        elif [ $HTTP_CODE -eq 400 ]; then
+          # 400: Bad request
+          echo "Bad request, see Jack server log" >&2
+          abort
+        else
+          # Other
+          echo "Internal unknown error ($2), see Jack server log" >&2
+          abort
+        fi
+      else
+        # In case of partial, timeout, empty respond, network error, let's retry
+        if [ $RETRY_SESSION -eq 0 ]; then
+          echo "Communication error with Jack server $CURL_CODE" >&2
+          abort
+        else
+          let RETRY_SESSION=RETRY_SESSION-1
+          DONE=1
+        fi
+      fi
       exec 3>&-
     done ;;
 
