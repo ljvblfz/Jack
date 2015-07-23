@@ -8,9 +8,8 @@ toolchain.prebuilt.jack=jack/dist/jack.jar
 toolchain.prebuilt.jill=../jill/jill/dist/jill.jar
 toolchain.prebuilt.jarjar=jack-tests/prebuilts/jarjar.jar
 toolchain.prebuilt.proguard=jack-tests/prebuilts/proguard.jar
-toolchain.prebuilt.dexdump=jack-tests/prebuilts/dexdump
 
-# dalvik-fast-host, dalvik-jit-host, art-host,
+# dalvik-fast-host, dalvik-jit-host, art-host
 runtime.list=
 runtime.location.dalvik-fast-host=
 runtime.location.dalvik-jit-host=
