@@ -250,8 +250,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       JAnnotation annotation =
           createAnnotation(innerType, enclosingClassAnnotationType, info);
       JLiteral newValue = new JClassLiteral(info, innerType.getEnclosingType(), javaLangClass);
-      List<JLiteral> literals = new ArrayList<JLiteral>();
-      literals.add(newValue);
       JMethodId methodId = getOrCreateMethodId(enclosingClassAnnotationType, ELT_VALUE);
       JNameValuePair valuePair = new JNameValuePair(info, methodId, newValue);
       request.append(new PutNameValuePair(annotation, valuePair));

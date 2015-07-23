@@ -48,6 +48,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
@@ -59,6 +60,7 @@ import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.ZipUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -180,7 +182,12 @@ public abstract class CommonFilter {
 
   protected void fillFiles(@Nonnull File folder, @Nonnull String fileExt,
       @Nonnull Set<String> fileNames) {
-    for (File subFile : folder.listFiles()) {
+    File[] fileList = folder.listFiles();
+    if (fileList == null) {
+      throw new JackUserException(new IOException("Failed to list "
+          + new DirectoryLocation(folder).getDescription()));
+    }
+    for (File subFile : fileList) {
       if (subFile.isDirectory()) {
         fillFiles(subFile, fileExt, fileNames);
       } else {
