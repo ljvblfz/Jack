@@ -352,7 +352,7 @@ public class JackHttpServer implements HasVersion {
   private void loadInstalledJacks() throws IOException {
     File jackDir = new File(serverDir, "jack");
     new Directory(jackDir.getPath(), null, Existence.MAY_EXIST,
-        Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.OWNER);
+        Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.NOCHANGE);
     File[] jars = jackDir.listFiles(JAR_FILTER);
     if (jars == null) {
       throw new IOException("Failed to list Jack installation directory '"
