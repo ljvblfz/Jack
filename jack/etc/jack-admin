@@ -156,52 +156,16 @@ isServerRunning () {
       return 0;
     elif [ $CURL_CODE -eq 7 ]; then
       return 1
-    elif  [ $CURL_CODE -eq 22 ]; then
-      # Http code not OK, let's decode and abort
-      if [ $HTTP_CODE -eq 401 ]; then
-        # 401: Unauthorized
-        echo "Security problem, see Jack server log" >&2
-        abort
-      elif [ $HTTP_CODE -eq 400 ]; then
-        # 400: Bad request
-        echo "Bad request, see Jack server log" >&2
-        abort
-      else
-        # Other
-        echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
-        abort
-      fi
     else
       # In case of partial, timeout, empty response, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "Communication error with Jack server $CURL_CODE" >&2
+        echo "Communication error with Jack server $CURL_CODE, try other ports or see Jack server log"  >&2
         abort
       else
         let RETRY_SESSION=RETRY_SESSION-1
       fi
     fi
   done
-}
-
-startServer () {
-  isServerRunning
-  RUNNING=$?
-  if [ "$RUNNING" = 0 ]; then
-    echo "Server is already running"
-  else
-    JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR $JACK_SERVER_VM_ARGUMENTS -cp $LAUNCHER_JAR $LAUNCHER_NAME"
-    echo "Launching Jack server" $JACK_SERVER_COMMAND
-    (
-      trap "" SIGHUP
-      for i in $(seq 3 255); do
-        eval exec "$i"'>&-'
-      done
-      cd "$JACK_HOME"
-      umask $BASE_UMASK
-      exec $JACK_SERVER_COMMAND
-      abort
-    ) >"$JACK_OUT_ERR" 2>&1 &
-  fi
 }
 
 waitServerStarted () {
@@ -507,7 +471,25 @@ case $COMMAND in
 
 
   start-server)
-    startServer
+    isServerRunning
+    RUNNING=$?
+    if [ "$RUNNING" = 0 ]; then
+      echo "Server is already running"
+    else
+      JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR $JACK_SERVER_VM_ARGUMENTS -cp $LAUNCHER_JAR $LAUNCHER_NAME"
+      echo "Launching Jack server" $JACK_SERVER_COMMAND
+      (
+        trap "" SIGHUP
+        for i in $(seq 3 255); do
+          eval exec "$i"'>&-'
+        done
+        cd "$JACK_HOME"
+        umask $BASE_UMASK
+        exec $JACK_SERVER_COMMAND
+        abort
+      ) >"$JACK_OUT_ERR" 2>&1 &
+    fi
+
     waitServerStarted
     exit 0 ;;
 
