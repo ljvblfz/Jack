@@ -263,7 +263,7 @@ public class SwitchstatementTests extends RuntimeTest {
     for (AnalyzedInstruction ai : ma.getInstructions()) {
       if (ai.getInstruction() instanceof PackedSwitchDataPseudoInstruction) {
         packedSwitchDataPseudo = true;
-        Assert.assertEquals(5,
+        Assert.assertEquals(7,
             ((PackedSwitchDataPseudoInstruction) ai.getInstruction()).getTargetCount());
       }
     }
