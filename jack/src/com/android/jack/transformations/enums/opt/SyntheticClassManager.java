@@ -16,17 +16,21 @@
 
 package com.android.jack.transformations.enums.opt;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClass;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JEnumField;
+import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JPackageLookupException;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.transformations.enums.OptimizationUtil;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
@@ -36,11 +40,16 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 /**
  * This class is used to manage the synthetic class, as multiple synthetic switch map
  * classes are created. The idea behind the scene is that if it is decided that creating
@@ -52,7 +61,9 @@ public class SyntheticClassManager {
   public static final String SyntheticSwitchmapClassNamePrefix = "SyntheticSwitchmapClass-";
 
   // the package name of synthetic switch map class
-  public static final String SyntheticSwitchmapClassPkgName = "com/android/jack/enums/synthetic/";
+  @Nonnull
+  public static final String PublicSyntheticSwitchmapClassPkgName =
+      "com/android/jack/enums/synthetic";
 
   // the statistic counting the number of synthetic switch map class created during current
   // compilation.
@@ -62,37 +73,30 @@ public class SyntheticClassManager {
       "Total number of synthetic class created",
       CounterImpl.class, Counter.class);
 
-  // this map represents relationship from the prefix to synthetic class. There should only be
-  // one synthetic class at most per prefix. Synthetic class cannot be located anywhere because
+  //this map represents relationship from the package to synthetic class. There should only be
+  // one synthetic class at most per package. Synthetic class cannot be located anywhere because
   // the enum field may not be visible to it
-  private final Map<String, JDefinedClass> syntheticClassMap = Maps.newHashMap();
-
-  // support utility provides basic APIs to use
-  private final OptimizationUtil supportUtil;
-
-  /**
-   * Minimal number of user classes to enable enum optimization. If it is less or equals than 0,
-   * use the default algorithm {@link #isOptimizationWorthwhile(JDefinedEnum)}
-   */
-  private final int optimizeThreshold;
+  @Nonnull
+  private final Map<JPackage, JDefinedClass> syntheticClassMap = Maps.newHashMap();
 
   // statistic tracer. It will be used to collect statistic measurement
   @Nonnull
   private final Tracer statisticTracer = TracerFactory.getTracer();
 
-  // total number of classes using public enum
-  private int publicEnumUsedClasses = -1; // initialize it with meaningless value
+  // global session, which will be used later
+  @Nonnull
+  private final JSession session = Jack.getSession();
 
-  /**
-   * Determine if the given class is synthetic switch map class.
-   * @param cls The class to check
-   *
-   * @return true if given class is synthetic class
-   */
-  public static boolean isSyntheticSwitchMapClass(@Nonnull JDefinedClass cls) {
-    String shortName = cls.getName();
-    return shortName.contains(SyntheticClassManager.SyntheticSwitchmapClassNamePrefix);
-  }
+  // support utility provides basic APIs to use
+  @Nonnull
+  private final OptimizationUtil supportUtil;
+
+  // if the type cache is allowed to reload. True means it can be reloaded
+  private boolean reloadTypeCache = true;
+
+  // Minimal number of user classes to enable enum optimization. If it is less or equals than 0,
+  // use the default algorithm {@link #isOptimizationWorthwhile(JDefinedEnum)}
+  private final int optimizeThreshold;
 
   /**
    * Constructor.
@@ -133,50 +137,63 @@ public class SyntheticClassManager {
    * @return The synthetic class to create
    * @throws AssertionError
    */
-  @Nullable
+  @CheckForNull
   public JDefinedClass getOrCreateRelatedSyntheticClass(@Nonnull JDefinedEnum enumType,
       boolean createIfNotExist) {
-    String syntheticClassFullNamePrefix;
-    if (!isOptimizationWorthwhile(enumType)) {
-      // if optimization is not worth, don't optimize it because of class overhead
-      return null;
-    } else if (enumType.isPublic()) {
+    JPackage syntheticClassPackage;
+    if (enumType.isPublic()) {
       // create synthetic class at a specific package if the enum is public. We can access
       // it from anywhere
-      syntheticClassFullNamePrefix = "L" + SyntheticSwitchmapClassPkgName;
+      syntheticClassPackage = supportUtil.getLookup().getOrCreatePackage(
+          PublicSyntheticSwitchmapClassPkgName);
     } else {
-      syntheticClassFullNamePrefix = Jack.getLookupFormatter().getName(enumType);
-      // search for class that can access enum. The class should be at the same package
-      // level or inner class level as enum does. Search '$' or '/' whichever comes last
-      int index = syntheticClassFullNamePrefix.length() - 1;
-      while (index >= 0) {
-        char charAtPos = syntheticClassFullNamePrefix.charAt(index);
-        if (charAtPos == '/' || charAtPos == '$') {
-          break;
-        }
-        index--;
-      }
-      // create synthetic class at this level could access to the enum constant fields
-      syntheticClassFullNamePrefix = syntheticClassFullNamePrefix.substring(0, index + 1);
+      syntheticClassPackage = enumType.getEnclosingPackage();
+    }
+    SwitchEnumUsageMarker enumUsageMarker = syntheticClassPackage.getMarker(
+        SwitchEnumUsageMarker.class);
+    assert enumUsageMarker != null;
+    Set<JDefinedEnum> usedEnumsType = Sets.newHashSet(enumUsageMarker.getUsedEnumsType());
+    // init the markers correspondingly
+    initEnumOptimizationMarkers(usedEnumsType);
+    boolean isOptWorth = isOptimizationWorthwhile(enumUsageMarker.getUses(), usedEnumsType);
+    if (!isOptWorth) {
+      // if optimization is not worth, don't optimize it because of class overhead
+      return null;
     }
     // make sure only one synthetic class is created every prefix
-    JDefinedClass syntheticClass = syntheticClassMap.get(syntheticClassFullNamePrefix);
+    JDefinedClass syntheticClass = syntheticClassMap.get(syntheticClassPackage);
     if (syntheticClass != null) {
+      // do nothing
       return syntheticClass;
     } else if (!createIfNotExist) {
       // if synthetic class is not found and createIfNotExist is set to false
-      throw new AssertionError("Not found synthetic class under prefix: "
-          + syntheticClassFullNamePrefix);
+      throw new AssertionError("Not found synthetic class under prefix: " + syntheticClassPackage);
+
     }
     // if there is no synthetic class existed, create one. Note each synthetic switch map
-    // class will have a unique name
-    String syntheticClassFullName = syntheticClassFullNamePrefix +
-         SyntheticSwitchmapClassNamePrefix + UUID.randomUUID().toString() + ";";
+    // class will have a unique name base on the related enums inside it
+    String uuid = getSyntheticClassUUID(usedEnumsType);
+    // if something new, make sure all the references to the old class must be changed
+    // correspondingly
+    String syntheticClassFullName = "L" + Jack.getLookupFormatter().getName(syntheticClassPackage)
+        + "/" + SyntheticSwitchmapClassNamePrefix + uuid + ";";
     syntheticClass = checkAndInitializeSyntheticClass(syntheticClassFullName);
-    syntheticClassMap.put(syntheticClassFullNamePrefix, syntheticClass);
+
+    syntheticClassMap.put(syntheticClassPackage, syntheticClass);
     // increase the statistic measurement for synthetic class created
     statisticTracer.getStatistic(SYNTHETIC_SWITCHMAP_CLASS).incValue();
     return syntheticClass;
+  }
+
+  /**
+   * Determine if the given class is synthetic switch map class.
+   * @param cls The class to check
+   *
+   * @return true if given class is synthetic class
+   */
+  public static boolean isSyntheticSwitchMapClass(@Nonnull JDefinedClass cls) {
+    String shortName = cls.getName();
+    return shortName.startsWith(SyntheticSwitchmapClassNamePrefix);
   }
 
   /**
@@ -186,20 +203,36 @@ public class SyntheticClassManager {
    *
    * @return The created synthetic switch map class
    */
-  private JDefinedClass checkAndInitializeSyntheticClass(String syntheticClassFullName) {
-    JDefinedClass syntheticClass;
+  @Nonnull
+  private JDefinedClass checkAndInitializeSyntheticClass(@Nonnull String syntheticClassFullName) {
+    JDefinedClass sourceSyntheticClass = null;
+    boolean needCreateSyntheticClass = false;
     try {
-      syntheticClass = supportUtil.getLookup().getClass(syntheticClassFullName);
-      throw new AssertionError("Duplicated initialize synthetic switch map class: "
-          + syntheticClass);
-    } catch (JPackageLookupException e) {
-      // if the package cannot be found, create it and the synthetic switch map class
-      syntheticClass = initializeSyntheticClass(syntheticClassFullName);
+      sourceSyntheticClass = supportUtil.getLookup().getClass(syntheticClassFullName);
+      if (sourceSyntheticClass.getLocation() instanceof TypeInInputLibraryLocation) {
+        // if the class exists inside of library, remove it first. Because we want to
+        // avoid the dependencies between libraries and source. For each source, if
+        // the synthetic class is required, then we generate it. We cannot rely on
+        // library even it may have the same synthetic class
+        JPackage enclosingPackage = sourceSyntheticClass.getEnclosingPackage();
+        enclosingPackage.getLoadedTypes().remove(sourceSyntheticClass);
+        // because we don't have API to remove type cache, we have to clear all the
+        // types inside of lookup node once per compilation
+        if (reloadTypeCache) {
+          supportUtil.getLookup().clear();
+          reloadTypeCache = false;
+        }
+        needCreateSyntheticClass = true;
+      }
     } catch (JTypeLookupException e){
       // if the synthetic switch map class cannot be found, create it
-      syntheticClass = initializeSyntheticClass(syntheticClassFullName);
+      needCreateSyntheticClass = true;
     }
-    return syntheticClass;
+    if (needCreateSyntheticClass) {
+      sourceSyntheticClass = initializeSyntheticClass(syntheticClassFullName);
+    }
+    assert sourceSyntheticClass != null;
+    return sourceSyntheticClass;
   }
 
   /**
@@ -258,7 +291,8 @@ public class SyntheticClassManager {
 
     // create the class under current package
     JDefinedClass syntheticSwitchmapClass = new JDefinedClass(SourceInfo.UNKNOWN,
-        classShortName, JModifier.PUBLIC, currentPackage, NopClassOrInterfaceLoader.INSTANCE);
+        classShortName, JModifier.PUBLIC | JModifier.FINAL | JModifier.SYNTHETIC,
+        currentPackage, NopClassOrInterfaceLoader.INSTANCE);
 
     return syntheticSwitchmapClass;
   }
@@ -266,36 +300,24 @@ public class SyntheticClassManager {
   /**
    * This function to determine if optimization is worth is based on experiment. The metric
    * may vary slightly across different versions of Jack.
-   * @param enumType Enum to be optimized
+   * @param uses the number of uses under the related package
+   * @param enumsType the set of enum inside of synthetic class under a specific package
    *
    * @return true if it is worth optimization
    */
-  private boolean isOptimizationWorthwhile(JDefinedEnum enumType) {
-    SwitchEnumUsageMarker usageMarker = enumType.getMarker(SwitchEnumUsageMarker.class);
-    if (usageMarker == null) {
-      throw new AssertionError("No EnumUsageMarker is attached to enum: " + enumType);
-    }
-    int uses = 0;
-    if (enumType.isPublic()) {
-      // for public enum we count the cumulative number of uses
-      uses = getPublicEnumUsesInApp();
-    } else {
-      uses = usageMarker.getUses();
-    }
-    if (enumType.isExternal()) {
-      // if the enum is external, e.g., library, we should count its own uses
-      uses += usageMarker.getUses();
-    }
-
+  private boolean isOptimizationWorthwhile(int uses, @Nonnull Set<JDefinedEnum> enumsType) {
     if (optimizeThreshold > 0) {
       // simply metric could be used here like number of user classes is more than 2.
       return uses >= optimizeThreshold;
     } else {
-      EnumFieldMarker enumFieldMarker = enumType.getMarker(EnumFieldMarker.class);
-      if (enumFieldMarker == null) {
-        throw new AssertionError();
+      // calculate the average of enum fields
+      int enumFields = 0;
+      for (JDefinedEnum enumType : enumsType) {
+        EnumOptimizationMarker enumOptMarker = enumType.getMarker(EnumOptimizationMarker.class);
+        assert enumOptMarker != null;
+        enumFields += enumOptMarker.getEnumFields().size();
       }
-      int enumFields = enumFieldMarker.getEnumLiterals();
+      enumFields = enumFields / enumsType.size();
       // try a little complicated algorithm
       // the observation is that if an enum has
       // 1 constant enum fields, 3 user classes is enough to observe space reduction
@@ -311,28 +333,80 @@ public class SyntheticClassManager {
   }
 
   /**
-   * Compute the total number of classes using public enum in switch statements across the
-   * whole compilation.
+   * Generate the UUID based on the given set of enum types. The basic idea is
+   * to concatenate all the enum's full class name and enum field together,
+   * e.g., $FULL_CLASS_OF_ENUM1$:Field1,Field2,Field3.$FULL_CLASS_OF_ENUM2$:Field1,
+   * Field2,Field3.
    *
-   * @return The total number of classes using public enum in switch statements
+   * Please keep in mind that both the enums type and enum fields are first sorted in
+   * alphabetic order, then concatenate them together. Then based on this string,
+   * generate SHA-256 and use it as UUID.
+   *
+   * @param enumsType the set of enums type
+   *
+   * @return UUID
    */
-  private int getPublicEnumUsesInApp() {
-    if (publicEnumUsedClasses >= 0) {
-      return publicEnumUsedClasses;
+  @Nonnull
+  private String getSyntheticClassUUID(@Nonnull Set<JDefinedEnum> enumsType) {
+    List<JDefinedEnum> sortedEnumsType = Lists.newArrayList(enumsType);
+    Collections.sort(sortedEnumsType, new Comparator<JDefinedEnum>() {
+      @Override
+      public int compare(JDefinedEnum enum1, JDefinedEnum enum2) {
+        return enum1.getName().compareTo(enum2.getName());
+      }
+    });
+
+    StringBuffer sb = new StringBuffer();
+    for (JDefinedEnum sortedEnumType : sortedEnumsType) {
+      EnumOptimizationMarker enumOptMarker = sortedEnumType.getMarker(EnumOptimizationMarker.class);
+      assert enumOptMarker != null;
+      sb.append(Jack.getLookupFormatter().getName(sortedEnumType));
+      sb.append(":");
+      List<JEnumField> sortedEnumFields = enumOptMarker.sortEnumFields();
+      for (JEnumField enumField : sortedEnumFields) {
+        sb.append(enumField.getName());
+        sb.append(",");
+      }
+      sb.append(".");
     }
-    int counts = 0;
-    for (JDefinedClassOrInterface classOrInterface : Jack.getSession().getTypesToEmit()) {
-      if (classOrInterface instanceof JDefinedEnum && classOrInterface.isPublic()) {
-        JDefinedEnum enumType = (JDefinedEnum) classOrInterface;
-        SwitchEnumUsageMarker usageMarker = enumType.getMarker(SwitchEnumUsageMarker.class);
-        if (usageMarker == null) {
-          // if the enum is not reachable during shrinking
+    String sig = sb.toString();
+    sb.delete(0, sb.length());
+    MessageDigest md;
+    try {
+      // can use either MD5, SHA-256, SHA-512, unless it is deterministic
+      md = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new AssertionError();
+    }
+    byte[] uuid = md.digest(sig.getBytes());
+    for (int i = 0; i < uuid.length; i++) {
+      String hexString = Integer.toHexString(0xff & uuid[i]);
+      if (hexString.length() == 1) {
+        sb.append('0');
+      }
+      sb.append(hexString);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Initialize the EnumOptimizationMarker for all the enum types.
+   * @param enumsType the set of enums
+   */
+  private void initEnumOptimizationMarkers(@Nonnull Set<JDefinedEnum> enumsType) {
+    for (JDefinedEnum enumType : enumsType) {
+      if (enumType.containsMarker(EnumOptimizationMarker.class)) {
+        continue;
+      }
+      // count the total number of enum literals defined inside
+      EnumOptimizationMarker enumOptMarker = new EnumOptimizationMarker();
+      enumType.addMarker(enumOptMarker);
+      for (JField enumField : enumType.getFields()) {
+        if (!(enumField instanceof JEnumField)) {
           continue;
         }
-        counts += usageMarker.getUses();
+        enumOptMarker.addEnumField((JEnumField) enumField);
       }
     }
-    publicEnumUsedClasses = counts;
-    return counts;
   }
 }

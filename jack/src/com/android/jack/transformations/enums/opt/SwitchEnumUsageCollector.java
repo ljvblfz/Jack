@@ -20,15 +20,15 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
-import com.android.jack.ir.ast.JEnumField;
 import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.shrink.KeepMarker;
+import com.android.jack.transformations.enums.OptimizationUtil;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -66,17 +66,12 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
       "Total number of synthetic method eliminated",
       CounterImpl.class, Counter.class);
 
-  // the statistic counting the number of synthetic switch map field eliminated in the
-  // initialization.
-  @Nonnull
-  public static final StatisticId<Counter> SYNTHETIC_SWITCHMAP_FIELD = new StatisticId<Counter>(
-      "jack.optimization.enum.switch.synthetic.field.decrease",
-      "Total number of synthetic field initialization eliminated",
-      CounterImpl.class, Counter.class);
-
   // statistic tracer. It will be used to collect statistic measurement
   @Nonnull
   private final Tracer statisticTracer = TracerFactory.getTracer();
+
+  @Nonnull
+  private final OptimizationUtil supportUtil = new OptimizationUtil(Jack.getSession().getLookup());
 
   public SwitchEnumUsageCollector() {}
 
@@ -114,40 +109,26 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
 
       if (switchExprType instanceof JDefinedEnum) {
         JDefinedEnum enumType = (JDefinedEnum) switchExprType;
-        SwitchEnumUsageMarker usageMarker = null;
-        if (!enumType.containsMarker(SwitchEnumUsageMarker.class)) {
-          usageMarker = new SwitchEnumUsageMarker(enumType);
-          enumType.addMarker(usageMarker);
+        JPackage enclosingPackage;
+        if (enumType.isPublic()) {
+          enclosingPackage = supportUtil.getLookup().getOrCreatePackage(
+          SyntheticClassManager.PublicSyntheticSwitchmapClassPkgName);
         } else {
-          usageMarker = enumType.getMarker(SwitchEnumUsageMarker.class);
+          enclosingPackage = enumType.getEnclosingPackage();
         }
-        if (!enumType.containsMarker(EnumFieldMarker.class)) {
-          // count the total number of enum literals defined inside
-          int numEnumFields = 0;
-          for (JField enumField : enumType.getFields()) {
-            if (!(enumField instanceof JEnumField)) {
-              continue;
-            }
-            numEnumFields++;
-          }
-          enumType.addMarker(new EnumFieldMarker(numEnumFields));
+        SwitchEnumUsageMarker usageMarker = null;
+        if (!enclosingPackage.containsMarker(SwitchEnumUsageMarker.class)) {
+          usageMarker = new SwitchEnumUsageMarker(enclosingPackage);
+          enclosingPackage.addMarker(usageMarker);
+        } else {
+          usageMarker = enclosingPackage.getMarker(SwitchEnumUsageMarker.class);
         }
-        if (usageMarker == null) {
-          throw new AssertionError();
-        }
+        assert usageMarker != null;
         // add the enclosing class into user set. This information will be used later
-        if (usageMarker.incrementUses(enclosingClass) && usageMarker.getUses() > 1) {
+        if (usageMarker.addEnumUsage(enclosingClass, enumType) && usageMarker.getUses() > 1) {
           // presumably, the number of eliminated synthetic switch map initializer
           // is total number of uses - 1
           statisticTracer.getStatistic(SYNTHETIC_SWITCHMAP_METHOD).incValue();
-
-          // increment the total number of field initialization reduction
-          EnumFieldMarker enumFieldMarker = enumType.getMarker(EnumFieldMarker.class);
-          if (enumFieldMarker == null) {
-            throw new AssertionError();
-          }
-          int numEnumFields = enumFieldMarker.getEnumLiterals();
-          statisticTracer.getStatistic(SYNTHETIC_SWITCHMAP_FIELD).incValue(numEnumFields);
         }
       }
       // keep traversing because there may be additional switch statement

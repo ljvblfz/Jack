@@ -16,10 +16,13 @@
 
 package com.android.jack.transformations.enums.opt;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JPackage;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -34,32 +37,34 @@ import javax.annotation.Nonnull;
  * and finally used in {@link SyntheticClassManager}.
  */
 @Description("Marker specifies how many user classes uses an enum in switch statements.")
-@ValidOn(JDefinedEnum.class)
+@ValidOn(JPackage.class)
 public final class SwitchEnumUsageMarker implements Marker {
 
   // set of classes using enum in switch statements
   @Nonnull
-  private final Set<JDefinedClass> userClasses = Sets.newHashSet();
+  private final Multimap<JDefinedClass, JDefinedEnum> userClasses = HashMultimap.create();
 
-  // related enum
-  private final JDefinedEnum enumType;
+  // related package under which classes will use enum inside of switch
+  @Nonnull
+  private final JPackage enclosingPackage;
 
   /**
    * Constructor.
-   * @param enumType The enum to count the uses
+   * @param enclosingPackage The package to count the uses
    */
-  public SwitchEnumUsageMarker(@Nonnull JDefinedEnum enumType) {
-    this.enumType = enumType;
+  public SwitchEnumUsageMarker(@Nonnull JPackage enclosingPackage) {
+    this.enclosingPackage = enclosingPackage;
   }
 
   /**
    * Add the user class into the set to avoid counting duplicated user classes.
    * @param userClass The class in which enum is used inside of switch statement
+   * @param enumType The enum to count for
    *
    * @return true if userClass is never counted yet, otherwise return false
    */
-  public boolean incrementUses(@Nonnull JDefinedClass userClass) {
-    return userClasses.add(userClass);
+  public boolean addEnumUsage(@Nonnull JDefinedClass userClass, @Nonnull JDefinedEnum enumType) {
+    return userClasses.put(userClass, enumType);
   }
   /**
    * Get the total number of classes associated enum is used on switch statement.
@@ -72,13 +77,25 @@ public final class SwitchEnumUsageMarker implements Marker {
   }
 
   /**
-   * Get the associated enum.
-   *
-   * @return The associated enum
+   * Get the set of used enums type.
+   * @return The set of enums used in switch statement
    */
+  public Set<JDefinedEnum> getUsedEnumsType() {
+    Set<JDefinedEnum> usedEnumsType = Sets.newHashSet();
+    for (JDefinedEnum enumType : userClasses.values()) {
+      usedEnumsType.add(enumType);
+    }
+    return usedEnumsType;
+  }
+
+  /**
+   * Get the associated package.
+   *
+   * @return The associated package
+  */
   @Nonnull
-  public JDefinedEnum getEnum() {
-    return enumType;
+  public JPackage getPackage() {
+    return enclosingPackage;
   }
 
   @Override

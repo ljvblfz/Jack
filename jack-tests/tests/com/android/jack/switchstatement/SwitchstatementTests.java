@@ -263,7 +263,7 @@ public class SwitchstatementTests extends RuntimeTest {
     for (AnalyzedInstruction ai : ma.getInstructions()) {
       if (ai.getInstruction() instanceof PackedSwitchDataPseudoInstruction) {
         packedSwitchDataPseudo = true;
-        Assert.assertEquals(5,
+        Assert.assertEquals(7,
             ((PackedSwitchDataPseudoInstruction) ai.getInstruction()).getTargetCount());
       }
     }
@@ -283,10 +283,6 @@ public class SwitchstatementTests extends RuntimeTest {
     new RuntimeTestHelper(TEST011).compileAndRunTest();
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile012() throws Exception {
     String packageName = "com.android.jack.switchstatement.test012.jack";
@@ -314,10 +310,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST012);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile013() throws Exception {
     String packageName = "com.android.jack.switchstatement.test013.jack";
@@ -345,10 +337,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST013);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile014() throws Exception {
     String packageName = "com.android.jack.switchstatement.test014.jack";
@@ -370,9 +358,8 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-    input.put("Enum1$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-    input.put("Enum2$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
     checkCompiledCode(packageName, input);
@@ -383,10 +370,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST014);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile015() throws Exception {
     String packageName = "com.android.jack.switchstatement.test015.jack";
@@ -404,8 +387,12 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
     input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
     input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
     checkCompiledCode(packageName, input);
@@ -415,11 +402,6 @@ public class SwitchstatementTests extends RuntimeTest {
   public void testRun015() throws Exception {
     runTestCase(TEST015);
   }
-
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile016() throws Exception {
     String packageName = "com.android.jack.switchstatement.test016.jack";
@@ -436,7 +418,7 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-    input.put("Enum1$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
 
     checkCompiledCode(packageName, input);
@@ -447,10 +429,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST016);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile017() throws Exception {
     String packageName = "com.android.jack.switchstatement.test017.jack";
@@ -473,10 +451,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST017);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile018() throws Exception {
     String packageName = "com.android.jack.switchstatement.test018.jack";
@@ -504,10 +478,7 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST018);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
+
   @Test
   public void testCompile019() throws Exception {
     String packageName = "com.android.jack.switchstatement.test019.jack";
@@ -520,8 +491,12 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
     input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
     input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
         specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
   }
@@ -531,10 +506,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST019);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile020() throws Exception {
     String packageName = "com.android.jack.switchstatement.test020.jack";
@@ -555,10 +526,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST020);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile021() throws Exception {
     String packageName = "com.android.jack.switchstatement.test021.jack";
@@ -575,10 +542,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST021);
   }
 
-  /**
-   * Test if the optimized enum support is not enabled when enum is used in multiple switch
-   * statements of a class.
-   */
   @Test
   public void testCompile022() throws Exception {
     String packageName = "com.android.jack.switchstatement.test022.jack";
@@ -595,10 +558,7 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST022);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
+
   @Test
   public void testCompile023() throws Exception {
     String packageName = "com.android.jack.switchstatement.test023.jack";
@@ -620,10 +580,9 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-    input.put("Enum1$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true));
-    input.put("Enum2$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
   }
 
@@ -632,10 +591,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST023);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile024() throws Exception {
     String packageName = "com.android.jack.switchstatement.test024.jack";
@@ -643,9 +598,9 @@ public class SwitchstatementTests extends RuntimeTest {
     Map<String, VerifierInfo> input = Maps.newHashMap();
 
     input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
     input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
     input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
@@ -656,6 +611,10 @@ public class SwitchstatementTests extends RuntimeTest {
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
     input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
     checkCompiledCode(packageName, input);
   }
 
@@ -664,10 +623,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST024);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement reaches the threshold.
-   */
   @Test
   public void testCompile025() throws Exception {
     String packageName = "com.android.jack.switchstatement.test025.jack";
@@ -684,8 +639,8 @@ public class SwitchstatementTests extends RuntimeTest {
     input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
         specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-    input.put("Enum1$SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
     checkCompiledCode(packageName, input);
   }
 
@@ -694,10 +649,6 @@ public class SwitchstatementTests extends RuntimeTest {
     runTestCase(TEST025);
   }
 
-  /**
-   * Test if the optimized enum support is enabled when the number of time enum used
-   * on switch statement does NOT reach the threshold.
-   */
   @Test
   public void testCompile026() throws Exception {
     String packageName = "com.android.jack.switchstatement.test026.jack";
