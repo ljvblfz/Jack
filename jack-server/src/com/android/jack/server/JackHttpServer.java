@@ -451,11 +451,11 @@ public class JackHttpServer implements HasVersion {
           PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
 
       loadConfig();
-      start(new HashMap<String, Object>());
     } catch (IOException e) {
       shutdown();
       throw e;
     }
+    start(new HashMap<String, Object>());
   }
 
   private void loadConfig() throws IOException,
@@ -528,65 +528,94 @@ public class JackHttpServer implements HasVersion {
 
     serverParameters = new ServerParameters(parameters);
 
-    SSLContext sslContext = setupSsl();
-
-    logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
+    ContainerSocketProcessor adminProcessor =  null;
+    ContainerSocketProcessor serviceProcessor =  null;
     try {
+      synchronized (lock) {
+        shuttingDown = false;
+      }
 
-      Container router = createServiceRouter();
-
-      ContainerSocketProcessor processor =
-          new ContainerSocketProcessor(new RootContainer(router), maxServices) {
-        @Override
-        public void process(Socket socket) throws IOException {
-          socket.getEngine().setNeedClientAuth(true);
-          super.process(socket);
+      logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
+      try {
+        assert serverParameters != null;
+        serviceChannel = serverParameters.getServiceSocket(serviceAddress);
+      } catch (IOException e) {
+        if (e.getCause() instanceof BindException) {
+          throw new ServerException("Problem while opening service port: "
+              + e.getCause().getMessage());
+        } else {
+          throw new ServerException("Problem while opening service port", e);
         }
-      };
-      SocketConnection connection = new SocketConnection(processor);
-      serviceConnection = connection;
-      assert serverParameters != null;
-      serviceChannel = serverParameters.getServiceSocket(serviceAddress);
-      connection.connect(serviceChannel, sslContext);
-    } catch (IOException e) {
-      if (e.getCause() instanceof BindException) {
-        throw new ServerException("Problem during service connection: "
-            + e.getCause().getMessage());
-      } else {
+      }
+      logger.log(Level.INFO, "Starting admin connection on " + adminAddress);
+      try {
+        assert serverParameters != null;
+        adminChannel = serverParameters.getAdminSocket(adminAddress);
+      } catch (IOException e) {
+        if (e.getCause() instanceof BindException) {
+          throw new ServerException("Problem while opening admin port: "
+              + e.getCause().getMessage());
+        } else {
+          throw new ServerException("Problem while opening admin port", e);
+        }
+      }
+
+      SSLContext sslContext = setupSsl();
+
+      try {
+        Container router = createServiceRouter();
+
+        serviceProcessor = new ContainerSocketProcessor(new RootContainer(router), maxServices) {
+          @Override
+          public void process(Socket socket) throws IOException {
+            socket.getEngine().setNeedClientAuth(true);
+            super.process(socket);
+          }
+        };
+        SocketConnection connection = new SocketConnection(serviceProcessor);
+        serviceConnection = connection;
+        connection.connect(serviceChannel, sslContext);
+      } catch (IOException e) {
         throw new ServerException("Problem during service connection ", e);
       }
-    }
 
-    logger.log(Level.INFO, "Starting admin connection on " + adminAddress);
-    try {
-      Container router = createAdminRouter();
+      try {
+        Container router = createAdminRouter();
 
-      ContainerSocketProcessor processor =
-          new ContainerSocketProcessor(new RootContainer(router), 1) {
-            @Override
-            public void process(Socket socket) throws IOException {
-              socket.getEngine().setNeedClientAuth(true);
-              super.process(socket);
-            }
-          };
-      SocketConnection connection = new SocketConnection(processor);
-      adminConnection = connection;
-      assert serverParameters != null;
-      adminChannel = serverParameters.getAdminSocket(adminAddress);
-      connection.connect(adminChannel, sslContext);
-    } catch (IOException e) {
-      if (e.getCause() instanceof BindException) {
-        throw new ServerException("Problem during service connection: "
-            + e.getCause().getMessage());
-      } else {
-        throw new ServerException("Problem during service connection ", e);
+        adminProcessor = new ContainerSocketProcessor(new RootContainer(router), 1) {
+          @Override
+          public void process(Socket socket) throws IOException {
+            socket.getEngine().setNeedClientAuth(true);
+            super.process(socket);
+          }
+        };
+        SocketConnection connection = new SocketConnection(adminProcessor);
+        adminConnection = connection;
+        connection.connect(adminChannel, sslContext);
+      } catch (IOException e) {
+        throw new ServerException("Problem during admin connection ", e);
       }
-    }
 
-    startTimer();
+      startTimer();
+    } catch (ServerException e) {
+      if (serviceProcessor != null) {
+        try {
+          serviceProcessor.stop();
+        } catch (IOException stopException) {
+          logger.log(Level.SEVERE, "Cannot close the service processor: ", stopException);
+        }
+      }
 
-    synchronized (lock) {
-      shuttingDown = false;
+      if (adminProcessor != null) {
+        try {
+          adminProcessor.stop();
+        } catch (IOException stopException) {
+          logger.log(Level.SEVERE, "Cannot close the admin processor: ", stopException);
+        }
+      }
+
+      shutdown();
+      throw e;
     }
   }
 
