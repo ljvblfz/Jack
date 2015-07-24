@@ -61,7 +61,7 @@ EOT
 fi
 
 usage () {
-  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-log ]"
+  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-log | cleanup-server]"
 }
 
 abort () { exit 255; }
@@ -504,6 +504,19 @@ case $COMMAND in
       DONE=$?
       exec 3>&-
     done ;;
+
+
+#
+# Should be run when server is off. Allows to clean files that could be forgotten on disk in case of
+# server VM crash after an update.
+#
+  cleanup-server)
+    shopt -s nullglob
+    for file in $JACK_HOME/jack/*.deleted; do
+      rm "${file%.deleted}"
+      rm "$file"
+    done
+    exit 0 ;;
 
 
   *)

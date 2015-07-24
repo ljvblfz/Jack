@@ -256,13 +256,6 @@ public class JackHttpServer implements HasVersion {
     }
   };
 
-  private static final FileFilter DELETED_FILTER = new FileFilter() {
-    @Override
-    public boolean accept(File pathname) {
-      return pathname.isFile() && pathname.getName().endsWith(DELETED_JAR_SUFFIX);
-    }
-  };
-
   @Nonnull
   private static Logger logger = Logger.getLogger(JackHttpServer.class.getName());
 
@@ -325,9 +318,6 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
-
-  // random does not need to be strong, it's just an help for debugging
-  @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
       throws IOException, ServerLogConfigurationException {
     this.launcherHandle = launcherHandle;
@@ -339,10 +329,6 @@ public class JackHttpServer implements HasVersion {
     currentUser = getCurrentUser(serverDir);
 
     loadConfig();
-
-    buildInstalledJackCache();
-
-    loadInstalledJacks();
   }
 
   @Nonnull
@@ -362,7 +348,7 @@ public class JackHttpServer implements HasVersion {
         serverDir.getAbsolutePath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
   }
 
-  private void buildInstalledJackCache() {
+  private void buildInstalledJackCache() throws IOException {
     Cache<VersionKey, Program<JackProvider>> previousInstalledJack = installedJack;
     installedJack = CacheBuilder.newBuilder()
         .weigher(new Weigher<VersionKey, Program<JackProvider>>() {
@@ -395,6 +381,8 @@ public class JackHttpServer implements HasVersion {
               }
               getLauncherHandle().deleteFilesOnGarbage(new File[]{deleteMarker, jar},
                   provider.getClass().getClassLoader());
+              deleteMarker.deleteOnExit();
+              jar.deleteOnExit();
             } else {
               logger.info("Deleting " + jar.getPath() + " immediatly");
               if (!jar.delete()) {
@@ -407,6 +395,8 @@ public class JackHttpServer implements HasVersion {
         .build();
     if (previousInstalledJack != null) {
       installedJack.putAll(previousInstalledJack.asMap());
+    } else {
+      loadInstalledJacks();
     }
   }
 
@@ -461,7 +451,6 @@ public class JackHttpServer implements HasVersion {
           PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
 
       loadConfig();
-      buildInstalledJackCache();
       start(new HashMap<String, Object>());
     } catch (IOException e) {
       shutdown();
@@ -526,8 +515,14 @@ public class JackHttpServer implements HasVersion {
     return getServerVersion();
   }
 
-  void start(@Nonnull Map<String, Object> parameters)
-      throws ServerException {
+  void start(@Nonnull Map<String, Object> parameters) throws ServerException {
+
+    try {
+      buildInstalledJackCache();
+    } catch (IOException e) {
+      throw new ServerException("Problem while loading installed Jack", e);
+    }
+
     InetSocketAddress serviceAddress = new InetSocketAddress("127.0.0.1", portService);
     InetSocketAddress adminAddress   = new InetSocketAddress("127.0.0.1", portAdmin);
 
@@ -917,29 +912,6 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   public LauncherHandle getLauncherHandle() {
     return launcherHandle;
-  }
-
-  static void cleanUp(@Nonnull LauncherHandle launcherHandle) throws IOException {
-    File serverDir = launcherHandle.getServerDir();
-    File jackDir = new File(serverDir, "jack");
-    new Directory(jackDir.getPath(), null, Existence.MAY_EXIST,
-        Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.OWNER);
-    File[] deletedFiles = jackDir.listFiles(DELETED_FILTER);
-    if (deletedFiles == null) {
-      throw new IOException("Failed to list Jack installation directory '"
-          + jackDir + "'");
-    }
-
-    for (File deleteMarker : deletedFiles) {
-      String path = deleteMarker.getPath();
-      File marked = new File(path.substring(0, path.length() - DELETED_SUFFIX.length()));
-      if (!marked.delete()) {
-        logger.log(Level.SEVERE, "Failed to delete file '" + marked + "'");
-      } else if (!deleteMarker.delete()) {
-        logger.log(Level.SEVERE, "Failed to delete file '" + deleteMarker + "'");
-      }
-    }
-
   }
 
   @Nonnull

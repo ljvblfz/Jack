@@ -48,14 +48,8 @@ public class JackServerImpl implements JackServer {
   }
 
   @Override
-  public void onSystemStart() throws ServerException {
-    assert launcherHandle != null;
-    assert jackServer == null;
-    try {
-      JackHttpServer.cleanUp(launcherHandle);
-    } catch (IOException e) {
-      throw new ServerException(e.getMessage(), e);
-    }
+  public void onSystemStart() {
+    // Nothing to do
   }
 
   @Override
