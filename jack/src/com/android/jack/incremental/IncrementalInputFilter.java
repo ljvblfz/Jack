@@ -343,10 +343,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
    * was modified or that the library representing incremental state does not exists.
    */
   private boolean needFullBuild() {
-    JSession session = Jack.getSession();
+    /*JSession session = Jack.getSession();
     return incrementalInputLibrary == null ||
         !libraryDependencies.hasSameLibraryOnClasspath(session.getLibraryDependencies())
-        || !libraryDependencies.hasSameImportedLibrary(session.getLibraryDependencies());
+        || !libraryDependencies.hasSameImportedLibrary(session.getLibraryDependencies());*/
+    // STOPSHIP
+    // temporarily disable incremental compilation
+    return true;
   }
 
   @Nonnull
