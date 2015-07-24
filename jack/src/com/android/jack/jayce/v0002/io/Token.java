@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0002.io;
 
+import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.nodes.NAbsentArrayDimension;
@@ -810,7 +811,7 @@ public enum Token {
     @Nonnull
     @Override
     public NNode newNode() {
-      throw new AssertionError();
+      throw new JayceFormatException("Unexpected node '" + toString() + "'");
     }
   },
   REINTERPRETCAST_OPERATION("reinterpret-cast") {

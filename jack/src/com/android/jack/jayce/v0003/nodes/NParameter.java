@@ -64,7 +64,7 @@ public class NParameter extends NVariable {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JParameter jParameter = (JParameter) node;
-    id = loader.getParameterSymbols().getId(jParameter);
+    id = loader.getVariableSymbols().getId(jParameter);
     modifiers = jParameter.getModifier();
     type = ImportHelper.getSignatureName(jParameter.getType());
     name = jParameter.getName();
@@ -86,7 +86,7 @@ public class NParameter extends NVariable {
         modifiers,
         exportSession.getCurrentMethod());
     assert id != null;
-    exportSession.getParameterResolver().addTarget(id, jParameter);
+    exportSession.getVariableResolver().addTarget(id, jParameter);
     for (NAnnotation annotation : annotations) {
       jParameter.addAnnotation(annotation.exportAsJast(exportSession));
     }

@@ -18,7 +18,7 @@ package com.android.jack.jayce.v0003.nodes;
 
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLocalUnresolved;
-import com.android.jack.jayce.linker.LocalRefLinker;
+import com.android.jack.jayce.linker.VariableRefLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
@@ -47,7 +47,7 @@ public class NLocalRef extends NExpression {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLocalRef jLocalRef = (JLocalRef) node;
-    localId = loader.getLocalSymbols().getId(jLocalRef.getLocal());
+    localId = loader.getVariableSymbols().getId(jLocalRef.getLocal());
     sourceInfo = loader.load(jLocalRef.getSourceInfo());
   }
 
@@ -58,7 +58,7 @@ public class NLocalRef extends NExpression {
     assert localId != null;
     JLocalRef jLocalRef =
         new JLocalRef(sourceInfo.exportAsJast(exportSession), JLocalUnresolved.INSTANCE);
-    exportSession.getLocalResolver().addLink(localId, new LocalRefLinker(jLocalRef));
+    exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jLocalRef));
     return jLocalRef;
   }
 

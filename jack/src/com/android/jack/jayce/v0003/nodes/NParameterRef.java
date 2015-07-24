@@ -18,7 +18,7 @@ package com.android.jack.jayce.v0003.nodes;
 
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JParameterUnresolved;
-import com.android.jack.jayce.linker.ParameterRefLinker;
+import com.android.jack.jayce.linker.VariableRefLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
@@ -47,7 +47,7 @@ public class NParameterRef extends NExpression {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JParameterRef jRef = (JParameterRef) node;
-    localId = loader.getParameterSymbols().getId(jRef.getParameter());
+    localId = loader.getVariableSymbols().getId(jRef.getParameter());
     sourceInfo = loader.load(jRef.getSourceInfo());
   }
 
@@ -58,7 +58,7 @@ public class NParameterRef extends NExpression {
     assert localId != null;
     JParameterRef jRef = new JParameterRef(sourceInfo.exportAsJast(exportSession),
         JParameterUnresolved.INSTANCE);
-    exportSession.getParameterResolver().addLink(localId, new ParameterRefLinker(jRef));
+    exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jRef));
     return jRef;
   }
 
@@ -70,7 +70,7 @@ public class NParameterRef extends NExpression {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     localId = in.readId();
-    
+
   }
 
   @Override

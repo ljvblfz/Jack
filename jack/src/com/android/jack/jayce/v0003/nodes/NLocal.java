@@ -64,7 +64,7 @@ public class NLocal extends NVariable {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLocal jLocal = (JLocal) node;
-    id = loader.getLocalSymbols().getId(jLocal);
+    id = loader.getVariableSymbols().getId(jLocal);
     modifiers = jLocal.getModifier();
     type = ImportHelper.getSignatureName(jLocal.getType());
     name = jLocal.getName();
@@ -86,7 +86,7 @@ public class NLocal extends NVariable {
         exportSession.getLookup().getType(type),
         modifiers,
         null); /* methodBody */
-    exportSession.getLocalResolver().addTarget(id, jLocal);
+    exportSession.getVariableResolver().addTarget(id, jLocal);
     for (NAnnotation annotation : annotationSet) {
       jLocal.addAnnotation(annotation.exportAsJast(exportSession));
     }

@@ -69,7 +69,7 @@ public class NConstructor extends NMethod {
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
     assert sourceInfo != null;
-    exportSession.getLocalResolver().clear();
+    exportSession.getVariableResolver().clear();
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
