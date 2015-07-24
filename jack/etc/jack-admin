@@ -90,7 +90,7 @@ handleHttpErrors() {
       abort
     fi
   else
-    # In case of partial, timeout, empty respond, network error, let's retry
+    # In case of partial, timeout, empty response, network error, let's retry
     if [ $RETRY_SESSION -eq 0 ]; then
       echo "Communication error with Jack server $1" >&2
       abort
@@ -165,7 +165,7 @@ isServerRunning () {
         abort
       fi
     else
-      # In case of partial, timeout, empty respond, network error, let's retry
+      # In case of partial, timeout, empty response, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
         echo "Communication error with Jack server $CURL_CODE" >&2
         abort
@@ -376,7 +376,7 @@ case $COMMAND in
               abort
             fi
           else
-            # In case of partial, timeout, empty respond, network error, let's retry
+            # In case of partial, timeout, empty response, network error, let's retry
             if [ $RETRY_SESSION -eq 0 ]; then
               echo "Communication error with Jack server $CURL_CODE" >&2
               abort
@@ -430,7 +430,7 @@ case $COMMAND in
           abort
         fi
       else
-        # In case of partial, timeout, empty respond, network error, let's retry
+        # In case of partial, timeout, empty response, network error, let's retry
         if [ $RETRY_SESSION -eq 0 ]; then
           echo "Communication error with Jack server $CURL_CODE" >&2
           abort
