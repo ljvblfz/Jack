@@ -39,6 +39,7 @@ import com.android.jack.server.router.RootContainer;
 import com.android.jack.server.tasks.GC;
 import com.android.jack.server.tasks.GetJackVersions;
 import com.android.jack.server.tasks.GetLauncherHome;
+import com.android.jack.server.tasks.GetLauncherLog;
 import com.android.jack.server.tasks.GetLauncherVersion;
 import com.android.jack.server.tasks.GetServerVersion;
 import com.android.jack.server.tasks.InstallJack;
@@ -353,6 +354,12 @@ public class JackHttpServer implements HasVersion {
       throws IOException {
     logConfiguration.apply();
     this.logConfiguration = logConfiguration;
+  }
+
+  @Nonnull
+  public String getLogPattern() {
+    return ServerLogConfiguration.getLogFilePattern(
+        serverDir.getAbsolutePath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
   }
 
   private void buildInstalledJackCache() {
@@ -1049,6 +1056,12 @@ public class JackHttpServer implements HasVersion {
           .add(Method.GET,
              new AcceptContentTypeRouter()
                .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))))
+
+      .add("/launcher/log",
+          new MethodRouter()
+            .add(Method.GET,
+                new AcceptContentTypeRouter()
+                  .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherLog(this))))
 
       .add("/launcher/log/level",
         new MethodRouter()

@@ -182,10 +182,10 @@ public class ServerLogConfiguration implements Cloneable {
   }
 
   @Nonnull
-  public static ServerLogConfiguration setupLog(String defaultLogPattern)
+  public static ServerLogConfiguration setupLog(@Nonnull String defaultLogPattern)
       throws ServerLogConfigurationException {
     String stringLevel = System.getProperty(LOG_LEVEL_PROPERTY, LogLevel.WARNING.name());
-    String logFilePattern = System.getProperty(LOG_FILE_PROPERTY, defaultLogPattern);
+    String logFilePattern = getLogFilePattern(defaultLogPattern);
     try {
       ServerLogConfiguration config = new ServerLogConfiguration(stringLevel, logFilePattern);
       config.apply();
@@ -206,5 +206,10 @@ public class ServerLogConfiguration implements Cloneable {
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
     }
+  }
+
+  @Nonnull
+  static String getLogFilePattern(@Nonnull String defaultLogPattern) {
+    return System.getProperty(LOG_FILE_PROPERTY, defaultLogPattern);
   }
 }
