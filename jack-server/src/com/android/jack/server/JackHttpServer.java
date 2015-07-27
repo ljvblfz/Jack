@@ -51,7 +51,7 @@ import com.android.jack.server.tasks.SetLoggerParameters;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
 import com.android.jack.server.tasks.TestServerVersion;
-import com.android.jack.server.type.CommandOutPrintStream;
+import com.android.jack.server.type.CommandOut;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.Version;
@@ -581,7 +581,7 @@ public class JackHttpServer implements HasVersion {
           new ContentTypeRouter()
             .add("multipart/form-data",
               new AcceptContentTypeRouter()
-                .add(CommandOutPrintStream.JACK_COMMAND_OUT_CONTENT_TYPE,
+                .add(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE,
                   new AcceptContentTypeParameterRouter("version")
                     .add("1",
                       new PartContentTypeRouter("cli")

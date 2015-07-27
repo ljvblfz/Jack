@@ -29,7 +29,7 @@ import com.android.jack.server.NoSuchVersionException;
 import com.android.jack.server.TypeNotSupportedException;
 import com.android.jack.server.UnsupportedProgramException;
 import com.android.jack.server.VersionFinder;
-import com.android.jack.server.type.CommandOutPrintStream;
+import com.android.jack.server.type.CommandOut;
 import com.android.sched.util.codec.ParsingException;
 
 import org.simpleframework.http.ContentType;
@@ -37,10 +37,12 @@ import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
+import org.simpleframework.http.parse.ContentTypeParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +64,16 @@ public class JackTask extends SynchronousServiceTask {
 
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
+
+    ContentType accept = new ContentTypeParser(request.getValue("accept"));
+    String charsetName = accept.getCharset();
+    Charset outCharset;
+    if (charsetName == null) {
+      outCharset = CommandOut.DEFAULT_COMMAND_OUT_CHARSET;
+    } else {
+      outCharset = Charset.forName(charsetName);
+    }
+
     String cli;
     VersionFinder versionFinder;
     File pwd;
@@ -120,25 +132,25 @@ public class JackTask extends SynchronousServiceTask {
 
     logger.log(Level.INFO, "Read command '" + cli + "', pwd: '" + pwd.getPath() + "'");
 
-    response.setContentType(CommandOutPrintStream.JACK_COMMAND_OUT_CONTENT_TYPE + "; version=1");
-    PrintStream out = null;
-    PrintStream err = null;
+    response.setContentType(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE + "; version=1");
     int commandStatus = JACK_STATUS_ERROR;
+    CommandOut commandOut;
     try {
-      try {
-        out = CommandOutPrintStream.newInstance(response.getByteChannel(), "O|");
-        err = CommandOutPrintStream.newInstance(response.getByteChannel(), "E|");
-      } catch (IOException e) {
-        logger.log(Level.SEVERE, "Exception while opening response: ", e);
-        response.setStatus(Status.INTERNAL_SERVER_ERROR);
-        return;
-      }
+      commandOut = new CommandOut(response.getByteChannel(), outCharset);
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Exception while opening response: ", e);
+      response.setStatus(Status.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    try {
+      PrintStream err = commandOut.getErr();
       long start = System.currentTimeMillis();
 
       try {
         logger.log(Level.INFO, "Run Compilation #" + taskId);
         jack.setStandardError(err);
-        jack.setStandardOutput(out);
+        jack.setStandardOutput(commandOut.getOut());
         jack.setWorkingDirectory(pwd);
         start = System.currentTimeMillis();
         commandStatus = jack.getTask(command).run();
@@ -157,24 +169,12 @@ public class JackTask extends SynchronousServiceTask {
         logger.log(Level.INFO, "Compilation #" + taskId + " run in " + (stop - start) + " ms");
       }
     } finally {
-      if (out != null) {
-        out.close();
-      }
-      if (err != null) {
-        err.close();
-      }
-    }
-    PrintStream exit = null;
-    try {
-      exit = CommandOutPrintStream.newInstance(response.getByteChannel(), "X|");
-      exit.print(commandStatus);
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "Exception while opening response: ", e);
-      response.setStatus(Status.INTERNAL_SERVER_ERROR);
-      return;
-    } finally {
-      if (exit != null) {
-        exit.close();
+      try {
+        commandOut.close(commandStatus);
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Exception while writing response: ", e);
+        response.setStatus(Status.INTERNAL_SERVER_ERROR);
+        return;
       }
     }
     response.setStatus(Status.OK);
