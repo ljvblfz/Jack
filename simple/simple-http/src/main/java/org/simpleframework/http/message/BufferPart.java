@@ -105,9 +105,35 @@ class BufferPart implements Part {
     * @throws IOException thrown if the content can not be created
     */
    public String getContent() throws IOException {
-      return body.getContent();
+     ContentType type = getContentType();
+
+     if(type == null) {
+        return body.getContent("ISO-8859-1");
+     }
+     return getContent(type);
    }
-   
+
+   /**
+    * This is used to acquire the content of the part as a string.
+    * The encoding of the string is taken from the content type.
+    * If no content type is sent the content is decoded in the
+    * standard default of ISO-8859-1.
+    *
+    * @param type this is the content type used with the request
+    *
+    * @return this returns a string representing the content
+    *
+    * @throws IOException thrown if the content can not be created
+    */
+   private String getContent(ContentType type) throws IOException {
+      String charset = type.getCharset();
+
+      if(charset == null) {
+         charset = "ISO-8859-1";
+      }
+      return body.getContent(charset);
+   }
+
    /**
     * This is used to acquire an <code>InputStream</code> for the
     * part. Acquiring the stream allows the content of the part to
