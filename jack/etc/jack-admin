@@ -29,7 +29,7 @@ JACK_SERVER_VM_ARGUMENTS="${JACK_SERVER_VM_ARGUMENTS:=-Dfile.encoding=UTF-8 -XX:
 
 LAUNCHER_JAR="$JACK_HOME/launcher.jar"
 LAUNCHER_NAME=com.android.jack.launcher.ServerLauncher
-
+CURRENT_CHARSET=$(locale charmap)
 
 #
 # Load client settings
@@ -115,7 +115,7 @@ updateProgram () {
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X PUT \
          -F "jar=@$2;type=application/octet-stream" \
-         -F "force=$FORCE_INSTALLATION;type=text/plain" \
+         -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
          --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
@@ -139,7 +139,7 @@ isServerRunning () {
          --output >(cat >/dev/null) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
-         -H "Accept: text/plain" \
+         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
@@ -203,7 +203,7 @@ waitServerStarted () {
          --output >(cat >/dev/null) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
-         -H "Accept: text/plain" \
+         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
@@ -235,7 +235,7 @@ listProgramVersion () {
          --output >(cat >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
-         -H "Accept: text/plain" \
+         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
@@ -454,7 +454,7 @@ case $COMMAND in
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X GET \
-           -H "Accept: text/plain" \
+           -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
            --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
            http://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
            )
