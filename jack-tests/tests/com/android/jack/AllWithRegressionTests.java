@@ -18,8 +18,8 @@ package com.android.jack;
 
 
 import com.android.jack.test.category.RuntimeRegressionTest;
+import com.android.jack.test.junit.JackTestRunner;
 
-import org.junit.experimental.categories.Categories;
 import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
@@ -28,7 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * Test suite containing tests that are too time-consuming and cannot be run before submitting each
  * CL.
  */
-@RunWith(Categories.class)
+@RunWith(JackTestRunner.class)
 @ExcludeCategory(RuntimeRegressionTest.class)
 @SuiteClasses(value = {AllTests.class, RegressionTests.class})
 public class AllWithRegressionTests {

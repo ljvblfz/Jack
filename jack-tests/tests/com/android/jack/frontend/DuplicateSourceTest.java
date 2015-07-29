@@ -16,14 +16,12 @@
 
 package com.android.jack.frontend;
 
-import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

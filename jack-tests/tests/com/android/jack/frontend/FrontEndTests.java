@@ -18,7 +18,7 @@ package com.android.jack.frontend;
 
 import com.android.jack.Options;
 import com.android.jack.category.ExtraTests;
-import com.android.jack.test.category.KnownBugs;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
@@ -38,7 +38,7 @@ import java.util.List;
 public class FrontEndTests {
 
   @Test
-  @Category(KnownBugs.class)
+  @KnownIssue
   public void testMissingClass001() throws Exception {
     File outJackTmpMissing = AbstractTestTools.createTempDir();
     File outJackTmpSuper = AbstractTestTools.createTempDir();
