@@ -1087,23 +1087,19 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     print('(');
   }
 
-  protected boolean nestedStatementPop(JStatement statement) {
-    boolean pop = !(statement instanceof JBlock);
-    if (pop) {
+  protected void nestedStatementPop(JStatement statement) {
+    if (!(statement instanceof JBlock)) {
       indentOut();
     }
-    return pop;
   }
 
-  protected boolean nestedStatementPush(JStatement statement) {
-    boolean push = !(statement instanceof JBlock);
-    if (push) {
+  protected void nestedStatementPush(JStatement statement) {
+    if (!(statement instanceof JBlock)) {
       indentIn();
       newline();
     } else {
       space();
     }
-    return push;
   }
 
   protected void openBlock() {
