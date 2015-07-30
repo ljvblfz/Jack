@@ -394,7 +394,6 @@ public abstract class Jack {
 
     Config config = options.getConfig();
 
-    ThreadConfig.setConfig(config);
 
     boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
 
@@ -412,11 +411,13 @@ public abstract class Jack {
   public static void run(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws JackUserException, ProcessException {
 
-    Event event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
+    Event event = null;
 
     try {
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
+
+      event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
 
       ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
@@ -613,8 +614,10 @@ public abstract class Jack {
         }
       }
     } finally {
+      if (event != null) {
+        event.end();
+      }
       ThreadConfig.unsetConfig();
-      event.end();
     }
   }
 
