@@ -49,7 +49,7 @@ public abstract class Main extends CommandLine {
     }
 
     if (args.length == 0) {
-      printVersion();
+      printVersion(System.out);
       System.err.println("Try --help for help.");
       System.exit(ExitStatus.SUCCESS);
     }
@@ -68,12 +68,12 @@ public abstract class Main extends CommandLine {
       }
 
       if (options.askForPropertiesHelp()) {
-        printHelpProperties(options);
+        printHelpProperties(System.out, options);
         System.exit(ExitStatus.SUCCESS);
       }
 
       if (options.askForVersion()) {
-        printVersion();
+        printVersion(System.out);
         System.exit(ExitStatus.SUCCESS);
       }
 

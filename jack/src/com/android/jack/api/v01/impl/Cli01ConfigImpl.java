@@ -82,7 +82,7 @@ public class Cli01ConfigImpl implements Cli01Config {
       throw new ConfigurationException(e.getMessage(), e);
     }
 
-    return new Cli01CompilationTaskImpl(this, options);
+    return new Cli01CompilationTaskImpl(this, options, args);
   }
 
   @Override

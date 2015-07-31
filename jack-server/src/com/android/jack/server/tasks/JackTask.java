@@ -16,6 +16,8 @@
 
 package com.android.jack.server.tasks;
 
+import com.google.common.base.Splitter;
+
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackProvider;
 import com.android.jack.api.v01.Cli01Config;
@@ -111,7 +113,8 @@ public class JackTask extends SynchronousServiceTask {
     }
 
     // split is only skipping trailing empty string not heading
-    String[] command = cli.trim().split(" +");
+    String[] command = Splitter.on(" ").trimResults().omitEmptyStrings().splitToList(cli)
+        .toArray(new String[0]);
 
     logger.log(Level.INFO, "Read command '" + cli + "', pwd: '" + pwd.getPath() + "'");
 

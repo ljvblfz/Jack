@@ -17,10 +17,15 @@
 package com.android.jack.api.v01.impl;
 
 import com.android.jack.CommandLine;
+import com.android.jack.ExitStatus;
 import com.android.jack.Options;
 import com.android.jack.api.v01.Cli01CompilationTask;
+import com.android.sched.util.log.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -29,17 +34,54 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
 
   @Nonnull
   private final PrintStream standardError;
+  @Nonnull
+  private final PrintStream standardOutput;
+
+  @Nonnull
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Options options;
+  private final String[] args;
 
-  public Cli01CompilationTaskImpl(@Nonnull Cli01ConfigImpl config, @Nonnull Options options) {
+  public Cli01CompilationTaskImpl(@Nonnull Cli01ConfigImpl config, @Nonnull Options options,
+      @Nonnull String[] args) {
     this.options = options;
     this.standardError = config.getStandardError();
+    this.standardOutput = config.getStandardOutput();
+    this.args = args;
   }
 
   @Override
   public int run() {
+
+    if (args.length == 0) {
+      printVersion(standardOutput);
+      standardError.println("Try --help for help.");
+      return ExitStatus.SUCCESS;
+    }
+
+    if (options.askForHelp()) {
+      printUsage(standardOutput);
+      return ExitStatus.SUCCESS;
+    }
+
+    if (options.askForPropertiesHelp()) {
+      try {
+        printHelpProperties(standardOutput, options);
+        return ExitStatus.SUCCESS;
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, e.getMessage(), e);
+        return ExitStatus.FAILURE_UNKNOWN;
+      }
+    }
+
+    if (options.askForVersion()) {
+      printVersion(standardOutput);
+      return ExitStatus.SUCCESS;
+    }
+
+
     return runJack(standardError, options);
   }
 
