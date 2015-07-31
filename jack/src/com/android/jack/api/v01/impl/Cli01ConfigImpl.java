@@ -44,22 +44,23 @@ import javax.annotation.Nonnull;
 public class Cli01ConfigImpl implements Cli01Config {
 
   @Nonnull
-  protected final Options options;
-
-  public Cli01ConfigImpl() {
-    options = new Options();
-  }
+  private PrintStream standardOutput = System.out;
+  @Nonnull
+  private PrintStream standardError = System.err;
+  @Nonnull
+  private File workingDirectory = new File(".");
 
   @Override
   @Nonnull
   public Cli01CompilationTask getTask(@Nonnull String[] args) throws ConfigurationException {
+    Options options = new Options();
+    options.setWorkingDirectory(workingDirectory);
+    options.setStandardError(standardError);
+    options.setStandardOutput(standardOutput);
     RunnableHooks configHooks = new RunnableHooks();
     try {
       TokenIterator iterator = new TokenIterator(new NoLocation(), args);
-      File workingDirectory = options.getWorkingDirectory();
-      if (workingDirectory != null) {
-        iterator = iterator.withFileRelativeTo(workingDirectory);
-      }
+      iterator = iterator.withFileRelativeTo(workingDirectory);
       List<String> list = new ArrayList<String>();
       while (iterator.hasNext()) {
         list.add(iterator.next());
@@ -81,22 +82,36 @@ public class Cli01ConfigImpl implements Cli01Config {
       throw new ConfigurationException(e.getMessage(), e);
     }
 
-    return new Cli01CompilationTaskImpl(options);
+    return new Cli01CompilationTaskImpl(this, options);
   }
 
   @Override
   public void setStandardError(@Nonnull PrintStream standardError) {
-    options.setStandardError(standardError);
+    this.standardError = standardError;
+  }
+
+  @Nonnull
+  public PrintStream getStandardError() {
+    return standardError;
   }
 
   @Override
   public void setStandardOutput(@Nonnull PrintStream standardOutput) {
-    options.setStandardOutput(standardOutput);
+    this.standardOutput = standardOutput;
+  }
+
+  @Nonnull
+  public PrintStream getStandardOutput() {
+    return standardOutput;
   }
 
   @Override
   public void setWorkingDirectory(@Nonnull File workingDirectory) {
-    options.setWorkingDirectory(workingDirectory);
+    this.workingDirectory = workingDirectory;
   }
 
+  @Nonnull
+  public File getWorkingDirectory() {
+    return workingDirectory;
+  }
 }

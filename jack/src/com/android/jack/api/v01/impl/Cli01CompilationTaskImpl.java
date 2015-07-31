@@ -28,19 +28,19 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
 
 
   @Nonnull
+  private final PrintStream standardError;
+
+  @Nonnull
   private final Options options;
 
-  public Cli01CompilationTaskImpl(@Nonnull Options options) {
+  public Cli01CompilationTaskImpl(@Nonnull Cli01ConfigImpl config, @Nonnull Options options) {
     this.options = options;
+    this.standardError = config.getStandardError();
   }
 
   @Override
   public int run() {
-    PrintStream err = options.getStandardError();
-    if (err == null) {
-      err = System.err;
-    }
-    return runJack(err, options);
+    return runJack(standardError, options);
   }
 
 }
