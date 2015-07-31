@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.IgnoringImportMessage;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
@@ -45,6 +46,7 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.GenericInputVFile;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -125,9 +127,9 @@ public class JayceFileImporter {
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();
-        String name = jayceFile.getPathFromRoot().getPathAsString('/');
+
         try {
-          addImportedTypes(session, name, jackLibrary);
+          addImportedTypes(session, jayceFile, jackLibrary);
         } catch (JLookupException e) {
           throw new LibraryReadingException(e);
         } catch (TypeImportConflictException e) {
@@ -163,10 +165,11 @@ public class JayceFileImporter {
     }
   }
 
-  private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
+  private void addImportedTypes(@Nonnull JSession session, @Nonnull InputVFile jayceFile,
       @Nonnull InputLibrary intendedInputLibrary) throws TypeImportConflictException,
       JTypeLookupException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
+    String path = jayceFile.getPathFromRoot().getPathAsString('/');
     try {
       logger.log(Level.FINEST, "Importing jayce file ''{0}'' from {1}", new Object[] {path,
           intendedInputLibrary.getLocation().getDescription()});
@@ -174,6 +177,27 @@ public class JayceFileImporter {
       JDefinedClassOrInterface declaredType =
           (JDefinedClassOrInterface) session.getLookup().getType(signature);
       if (!isTypeFromLibrary(declaredType, intendedInputLibrary)) {
+        Location previousLocation = declaredType.getLocation();
+        if (previousLocation instanceof TypeInInputLibraryLocation) {
+          InputLibrary previousInputLibrary =
+              ((TypeInInputLibraryLocation) previousLocation)
+                  .getInputLibraryLocation()
+                  .getInputLibrary();
+          String pathWithoutExt =
+              path.substring(0, path.lastIndexOf(FileType.JAYCE.getFileExtension()));
+          try {
+            String previousDigest =
+                ((GenericInputVFile)
+                    previousInputLibrary.getFile(
+                        FileType.DEX, new VPath(pathWithoutExt, '/'))).getDigest();
+            if (previousDigest != null
+                && previousDigest.equals(((GenericInputVFile) jayceFile).getDigest())) {
+              return; // both types are identical, ignore
+            }
+          } catch (FileTypeDoesNotExistException e) {
+            // best effort, throw the conflict exception
+          }
+        }
         throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
       } else {
         session.addTypeToEmit(declaredType);
