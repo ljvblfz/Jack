@@ -36,7 +36,7 @@ public class Tests {
 
   @Before
   public void init() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test026.jack.Enum1$Enum11");
+    Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test026.jack.Enum1$Enum1_");
     Assert.assertTrue(enum1Class.isEnum());
     Assert.assertEquals(5, enum1Class.getFields().length);
     Field enum1Value1 = enum1Class.getField("VALUE1");

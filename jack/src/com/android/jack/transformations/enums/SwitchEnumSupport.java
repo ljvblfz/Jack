@@ -244,12 +244,12 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
     @Nonnull
     private JMethod getSwitchValuesMethod(@Nonnull JDefinedEnum enumType) {
       SourceInfo dbgInfo = SourceInfo.UNKNOWN;
-      String enumName =
-          NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter().getName(enumType));
+      String enumName = BinaryQualifiedNameFormatter.getFormatter().getName(enumType);
       String methodName =
-          NamingTools.getNonSourceConflictingName("get" + enumName + "SwitchesValues");
+          NamingTools.getStrictNonSourceConflictingName("get" + enumName + "SwitchesValues");
+
       String fieldName =
-          NamingTools.getNonSourceConflictingName(enumName + "SwitchesValues");
+          NamingTools.getStrictNonSourceConflictingName(enumName + "SwitchesValues");
 
       JArrayType switchValuesArrayType = JPrimitiveTypeEnum.INT.getType().getArray();
       JArrayType enumArrayType = enumType.getArray();

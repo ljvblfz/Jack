@@ -17,7 +17,7 @@
 package com.android.jack.switchstatement.test023.jack;
 
 public class Enum2 {
-  protected static enum Enum22 {
+  protected static enum Enum2_ {
     VALUE1, VALUE2, VALUE3, VALUE4, VALUE5;
   }
 }

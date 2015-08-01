@@ -24,8 +24,8 @@ package com.android.jack.switchstatement.test023.jack;
 public class Switch2 {
   @SuppressWarnings("incomplete-switch")
   public static int switch2(Object o1, Object o2) {
-    Enum1.Enum11 enum1 = (Enum1.Enum11) o1;
-    Enum2.Enum22 enum2 = (Enum2.Enum22) o2;
+    Enum1.Enum1_ enum1 = (Enum1.Enum1_) o1;
+    Enum2.Enum2_ enum2 = (Enum2.Enum2_) o2;
     switch (enum1) {
       case VALUE1:
         return 1;

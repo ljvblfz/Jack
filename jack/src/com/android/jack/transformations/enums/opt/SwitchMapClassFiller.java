@@ -97,12 +97,12 @@ import javax.annotation.Nonnull;
  * }
  *
  * <br> switch map initializer is of type:
- * {@code -getA_B_EnumSwitchesValues() {...} }
+ * {@code -getA-B-EnumSwitchesValues() {...} }
  *
  * It is defined as synchronized method because it may be accessed in parallel.
  *
  * <li> 3. switch map field. This field is set as a field of this class, e.g., private
- * static synthetic int[] -A_B_EnumSwitchesValues. It follows the pattern of A/B/Enum is the
+ * static synthetic int[] -A-B-EnumSwitchesValues. It follows the pattern of A/B/Enum is the
  * full class name for Enum, where A and B are packages' name. </li>
  */
 public class SwitchMapClassFiller {

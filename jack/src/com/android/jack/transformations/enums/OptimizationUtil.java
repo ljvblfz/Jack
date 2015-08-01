@@ -38,28 +38,19 @@ import javax.annotation.Nonnull;
  */
 public class OptimizationUtil {
   // prefix for the name of synthetic switch map field
-  public static final String ShorterPrefix = "-";
+  private static final char ShorterPrefix = '-';
 
   // prefix for the name of synthetic switch map initializing method
-  public static final String LongerPrefix = "-get";
+  private static final String LongerPrefix = "-get";
 
   // suffix for both the synthetic switch map field and initializing method
-  public static final String Suffix = "SwitchesValues";
-
-  // the method name of Enum.name()
-  public static final String Name = "name";
-
-  // the method name of Object.equals()
-  public static final String Equals = "equals";
+  private static final String Suffix = "SwitchesValues";
 
   // the method name of Enum.ordinal()
   public static final String Ordinal = "ordinal";
 
   // the method name of Enum.values()
   public static final String Values = "values";
-
-  // the method name of Enum.valueOf()
-  public static final String ValueOf = "valueOf";
 
   // node lookup utility used to lookup a type in current execution
   private final JNodeLookup nodeLookup;
@@ -193,22 +184,20 @@ public class OptimizationUtil {
 
   /**
    * Get the method name initializing switch map, e.g., given A/B/C/Enum1, the method
-   * will return the method name -getA_B_C_Enum1SwitchValues.
+   * will return the method name -getA-B-C-Enum1SwitchValues.
    * @param enumType The enum the synthetic method is associated with
    *
    * @return The synthetic initializer method name
    */
   @Nonnull
   public static String getSyntheticSwitchMapInitializerName(@Nonnull JDefinedEnum enumType) {
-    String enumName = NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter()
-        .getName(enumType));
-    String methodName = NamingTools.getNonSourceConflictingName("get" + enumName + Suffix);
-    return methodName;
+    String enumName = BinaryQualifiedNameFormatter.getFormatter().getName(enumType);
+    return NamingTools.getStrictNonSourceConflictingName("get" + enumName + Suffix);
   }
 
   /**
    * The field name of switch map, e.g., given enum A/B/C/Enum1, the method will
-   * return the method name -A_B_C_Enum1SwitchValues.
+   * return the method name -A-B-C-Enum1SwitchValues.
    * @param enumType The enum to which switch map is associated
    *
    * @return The synthetic field name
@@ -216,10 +205,21 @@ public class OptimizationUtil {
   @Nonnull
   public static String getSyntheticSwitchMapFieldName(@Nonnull JDefinedEnum enumType) {
     // full class name including package, e.g., LA/B/EnumSwitchesValues;
-    String enumName = NamingTools.getValidName(BinaryQualifiedNameFormatter.getFormatter()
-        .getName(enumType));
-    String fieldName = NamingTools.getNonSourceConflictingName(enumName + Suffix);
-    return fieldName;
+    String enumName = BinaryQualifiedNameFormatter.getFormatter().getName(enumType);
+    return NamingTools.getStrictNonSourceConflictingName(enumName + Suffix);
+  }
+
+  /**
+   * Given a synthetic field, this method will return the enum type string related to this
+   * field.
+   * @param syntheticField the int[] field in synthetic switch map class
+   *
+   * @return the corresponding enum type
+   */
+  public static String getEnumNameFromSyntheticField(@Nonnull JField syntheticField) {
+    String fieldName = syntheticField.getName().replace(ShorterPrefix, '/');
+    return "L" + fieldName.substring(1,
+        fieldName.length() - OptimizationUtil.Suffix.length()) + ";";
   }
 
   /**

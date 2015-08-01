@@ -354,11 +354,13 @@ public class SyntheticClassManager {
       if (!supportUtil.isSyntheticSwitchMapField(definedField)) {
         continue;
       }
-      String fieldName = definedField.getName();
-      fieldName = fieldName.replace('_', '/');
-      fieldName = "L" + fieldName.substring(OptimizationUtil.ShorterPrefix.length(),
-          fieldName.length() - OptimizationUtil.Suffix.length()) + ";";
-      JDefinedClass enumType = supportUtil.getLookup().getClass(fieldName);
+      String enumName = OptimizationUtil.getEnumNameFromSyntheticField(definedField);
+      JDefinedClass enumType = null;
+      try {
+        enumType = supportUtil.getLookup().getClass(enumName);
+      } catch (JTypeLookupException e) {
+        continue;
+      }
       assert enumType instanceof JDefinedEnum;
       enumsType.add((JDefinedEnum) enumType);
     }

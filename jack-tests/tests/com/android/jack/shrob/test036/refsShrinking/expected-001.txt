@@ -1,8 +1,8 @@
 Lcom/android/jack/shrob/test036/jack/Kept;:
-[I -com_android_jack_shrob_test036_jack_ESwitchesValues
+[I -com-android-jack-shrob-test036-jack-ESwitchesValues
 <init>()V
 kept(Lcom/android/jack/shrob/test036/jack/E;)I
--getcom_android_jack_shrob_test036_jack_ESwitchesValues()[I
+-getcom-android-jack-shrob-test036-jack-ESwitchesValues()[I
 Lcom/android/jack/shrob/test036/jack/E;:
 Lcom/android/jack/shrob/test036/jack/E; A
 Lcom/android/jack/shrob/test036/jack/E; B

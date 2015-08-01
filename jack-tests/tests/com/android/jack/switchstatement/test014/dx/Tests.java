@@ -44,7 +44,7 @@ public class Tests {
   @Before
   public void init() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     {
-      Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test014.jack.Enum1$Enum11");
+      Class<? extends Object> enum1Class = Class.forName("com.android.jack.switchstatement.test014.jack.Enum1$Enum1_");
       Assert.assertTrue(enum1Class.isEnum());
       Assert.assertEquals(5, enum1Class.getFields().length);
       Field enum1Value1 = enum1Class.getField("VALUE1");
@@ -59,7 +59,7 @@ public class Tests {
       e1v5 = enum1Value5.get(null);
     }
     {
-      Class<? extends Object> enum2Class = Class.forName("com.android.jack.switchstatement.test014.jack.Enum2$Enum22");
+      Class<? extends Object> enum2Class = Class.forName("com.android.jack.switchstatement.test014.jack.Enum2$Enum2_");
       Assert.assertTrue(enum2Class.isEnum());
       Assert.assertEquals(5, enum2Class.getFields().length);
       Field enum2Value1 = enum2Class.getField("VALUE1");
