@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -53,7 +52,7 @@ import javax.annotation.Nonnull;
 @Name("SwitchEnumUsageCollector")
 @Synchronized
 @Constraint(need = {JSwitchStatement.class, JDefinedClass.class, JDefinedEnum.class})
-@Transform(add = {SwitchEnumUsageMarker.class, EnumOptimizationMarker.class})
+@Transform(add = {SwitchEnumUsageMarker.class, EnumFieldMarker.class})
 
 public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   // the statistic counting the number of synthetic switch map initializer eliminated during
@@ -61,10 +60,8 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   @Nonnull
   public static final StatisticId<Counter> SYNTHETIC_SWITCHMAP_METHOD = new StatisticId<Counter>(
       "jack.optimization.enum.switch.synthetic.method.decrease",
-      "Total number of synthetic method eliminated",
-      CounterImpl.class, Counter.class);
+      "Total number of synthetic method eliminated", CounterImpl.class, Counter.class);
 
-  // statistic tracer. It will be used to collect statistic measurement
   @Nonnull
   private final Tracer statisticTracer = TracerFactory.getTracer();
 
@@ -74,8 +71,8 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if both the method and enclosing class are concrete
-    if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal() || method.isNative()
-        || method.isAbstract()) {
+    if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal()
+        || method.isNative() || method.isAbstract()) {
       return;
     }
     Visitor visitor = new Visitor((JDefinedClass) definedClass);
@@ -83,7 +80,6 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   }
 
   private class Visitor extends JVisitor {
-    // enclosing class of the method start traversing from
     @Nonnull
     private final JDefinedClass enclosingClass;
 
@@ -100,12 +96,12 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
         JDefinedEnum enumType = (JDefinedEnum) switchExprType;
         JPackage enclosingPackage;
         if (enumType.isPublic()) {
-          JNodeLookup lookup = Jack.getSession().getLookup();
-          enclosingPackage = lookup.getOrCreatePackage(
+          enclosingPackage = Jack.getSession().getLookup().getOrCreatePackage(
               SyntheticClassManager.PublicSyntheticSwitchmapClassPkgName);
         } else {
           enclosingPackage = enumType.getEnclosingPackage();
         }
+        // the enum usage marker is used to tell the usage of enum under a package
         SwitchEnumUsageMarker usageMarker = null;
         if (!enclosingPackage.containsMarker(SwitchEnumUsageMarker.class)) {
           usageMarker = new SwitchEnumUsageMarker(enclosingPackage);
@@ -114,15 +110,14 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
           usageMarker = enclosingPackage.getMarker(SwitchEnumUsageMarker.class);
         }
         assert usageMarker != null;
-        // add the enclosing class into user set. This information will be used later
+        // add the enclosing class into user set. This information will be used during
+        // optimization stage
         if (usageMarker.addEnumUsage(enclosingClass, enumType) && usageMarker.getUses() > 1) {
-          // presumably, the number of eliminated synthetic switch map initializer
-          // is total number of uses - 1
+          // the number of eliminated synthetic switch map initializer is total number of
+          // uses - 1
           statisticTracer.getStatistic(SYNTHETIC_SWITCHMAP_METHOD).incValue();
         }
       }
-      // keep traversing because there may be additional switch statement
-      // in the body of this switch statement
       return super.visit(switchStmt);
     }
   }

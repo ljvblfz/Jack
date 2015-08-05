@@ -170,11 +170,14 @@ public class Options {
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
       .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
 
-  // property used to specify what kind of switch enum optimization is enabled
+  /**
+   * property used to specify the kind of switch enum optimization that is enabled.
+   * See(@link SwitchEnumOptStrategy)
+   */
   @Nonnull
-  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH = EnumPropertyId
-      .create("jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class,
-          SwitchEnumOptStrategy.values())
+  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
+      EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
+          SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
       .addDefaultValue(SwitchEnumOptStrategy.FEEDBACK).ignoreCase();
 
   @Nonnull
@@ -318,19 +321,26 @@ public class Options {
 
   /**
    * Types of switch enum optimization strategies.
-   * 1. feedback
-   * 2. non-feeback
-   * 3. disable
+   * 1. feedback (set on by default)
+   * 2. always
+   * 3. never
    */
   @VariableName("strategy")
   public enum SwitchEnumOptStrategy {
-    // feedback based optimization could reduce more space but it is non-deterministic
-    // if incremental compilation is applied
+    // feedback-based optimization: this strategy will be enabled/disabled based on the
+    // compile time information collected, e.g., if it is detected that an enum is only
+    // used in one/few switch statements, it is useless to optimize it. Potentially enable
+    // this strategy will cost more compilation time, but save more dex code
     FEEDBACK(),
-    // non_feedback based optimization is deterministic but may generate bigger dex file
-    NON_FEEDBACK(),
-    // no switch enum optimization
-    DISABLE_OPTIMIZATION();
+    // different from feedback-based optimization, always strategy doesn't collect compile-
+    // time information to guide switch enum optimization. It will always enable switch enum
+    // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
+    // compile code quicker than feedback-based strategy does, but the generated dex may be
+    // larger than feedback strategy
+    ALWAYS(),
+    // this actually is not real strategy, but we still need it because switch enum
+    // optimization is disabled when incremental compilation is triggered
+    NEVER();
   }
 
   @Nonnull
@@ -903,6 +913,9 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
     }
 
+    // use a variable to keep record of whether incremental compilation is enabled or not,
+    // because we cannot check the value through configBuilder
+    boolean isIncrementalEnabled = false;
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
         LoggerFactory.getLogger().log(Level.WARNING,
@@ -924,6 +937,7 @@ public class Options {
         if (libraryOutZip != null) {
           configBuilder.set(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER, true);
         }
+        isIncrementalEnabled = true;
       }
     }
 
@@ -940,6 +954,15 @@ public class Options {
 
     for (Entry<String, String> entry : properties.entrySet()) {
       configBuilder.setString(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
+    }
+
+    if (isIncrementalEnabled) {
+      // if the incremental compilation is enabled, the switch enum optimization cannot
+      // be enabled because it will generates non-deterministic code. This has to be done after
+      // -D options are set
+      configBuilder.set(OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
+      LoggerFactory.getLogger().log(
+          Level.WARNING, "Switch enum optimization is disabled due to incremental compilation");
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");

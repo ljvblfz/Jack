@@ -31,24 +31,22 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * A marker which records the total number of enum literals in the attached enum. Since this
- * information doesn't exist for library enum, we have to compute on our own.
+ * A marker which records the enum fields related to an enum.
  */
-@Description("A marker which records the total number of enum literals in the attached enum.")
+@Description("A marker which records the enum fields related to an enum.")
 @ValidOn({JDefinedEnum.class})
-public final class EnumOptimizationMarker implements Marker {
+public final class EnumFieldMarker implements Marker {
 
-  // the set of enum fields of attached enum
   @Nonnull
   private final List<JEnumField> enumFields = Lists.newArrayList();
 
-  // are the fields already sorted
+  // are the fields already sorted by alphabetical order
   private boolean areFieldsSorted = false;
 
-  public EnumOptimizationMarker() {}
+  public EnumFieldMarker() {}
 
   /**
-   * Add enum field.
+   * Attach an enum field to the related enum.
    * @param enumField the enum field to be added
    */
   public void addEnumField(@Nonnull JEnumField enumField) {
@@ -58,9 +56,8 @@ public final class EnumOptimizationMarker implements Marker {
 
   /**
    * Sort enum fields based on their name alphabetically.
-   * @return the sorted enum literals
    */
-  public List<JEnumField> sortEnumFields() {
+  public void sortEnumFields() {
     if (!areFieldsSorted) {
       Collections.sort(enumFields, new Comparator<JEnumField>() {
         @Override
@@ -70,12 +67,11 @@ public final class EnumOptimizationMarker implements Marker {
       });
       areFieldsSorted = true;
     }
-    return enumFields;
   }
 
   /**
-   * Get the enum literals.
-   * @return the enum literals
+   * Get the enum fields no matter they are sorted or not.
+   * @return the enum fields
    */
   @Nonnull
   public List<JEnumField> getEnumFields() {
