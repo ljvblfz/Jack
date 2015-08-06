@@ -85,11 +85,6 @@ public class JackTask extends SynchronousServiceTask {
       return;
     }
 
-    if (cli == null) {
-      logger.log(Level.SEVERE, "Command error: nothing to read");
-      response.setStatus(Status.BAD_REQUEST);
-      return;
-    }
     Cli01Config jack;
     Program<JackProvider> program;
     try {
