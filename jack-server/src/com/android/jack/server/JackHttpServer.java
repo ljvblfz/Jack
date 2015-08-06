@@ -47,6 +47,7 @@ import com.android.jack.server.tasks.JackTask;
 import com.android.jack.server.tasks.JillTask;
 import com.android.jack.server.tasks.QueryJackVersion;
 import com.android.jack.server.tasks.ReloadConfig;
+import com.android.jack.server.tasks.SetLoggerParameters;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
 import com.android.jack.server.tasks.TestServerVersion;
@@ -265,6 +266,9 @@ public class JackHttpServer implements HasVersion {
   @CheckForNull
   private ServerSocketChannel serviceChannel;
 
+  @Nonnull
+  private ServerLogConfiguration logConfiguration;
+
   // random does not need to be strong, it's just an help for debugging
   @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
@@ -272,7 +276,7 @@ public class JackHttpServer implements HasVersion {
     this.launcherHandle = launcherHandle;
     serverDir = launcherHandle.getServerDir();
 
-    ServerLogConfiguration.setupLog(
+    logConfiguration = ServerLogConfiguration.setupLog(
         serverDir.getPath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
 
     loadConfig();
@@ -280,6 +284,17 @@ public class JackHttpServer implements HasVersion {
     buildInstalledJackCache();
 
     loadInstalledJacks();
+  }
+
+  @Nonnull
+  public ServerLogConfiguration getLogConfiguration() {
+    return logConfiguration.clone();
+  }
+
+  public void setLogConfiguration(ServerLogConfiguration logConfiguration)
+      throws IOException {
+    logConfiguration.apply();
+    this.logConfiguration = logConfiguration;
   }
 
   private void buildInstalledJackCache() {
@@ -550,10 +565,22 @@ public class JackHttpServer implements HasVersion {
                 .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherVersion(this))))
 
         .add("/launcher/home",
-            new MethodRouter()
-              .add(Method.GET,
-                  new AcceptContentTypeRouter()
-                    .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))));
+          new MethodRouter()
+            .add(Method.GET,
+               new AcceptContentTypeRouter()
+                 .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))))
+
+        .add("/launcher/log/level",
+          new MethodRouter()
+            .add(Method.PUT,
+              new ContentTypeRouter()
+                .add("multipart/form-data",
+                   new PartContentTypeRouter("level")
+                     .add(TextPlain.CONTENT_TYPE_NAME,
+                       new PartContentTypeRouter("limit")
+                         .add(TextPlain.CONTENT_TYPE_NAME,
+                           new PartContentTypeRouter("count")
+                             .add(TextPlain.CONTENT_TYPE_NAME, new SetLoggerParameters(this)))))));
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), 1);

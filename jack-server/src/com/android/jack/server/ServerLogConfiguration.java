@@ -22,6 +22,7 @@ import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.log.LogFormatter;
 import com.android.sched.util.log.LoggerConfiguration;
+import com.android.sched.util.log.LoggerConfiguration.PackageLevel;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ import javax.annotation.Nonnull;
 /**
  * Configure Logging for the server.
  */
-public class ServerLogConfiguration implements LoggerConfiguration {
+public class ServerLogConfiguration implements Cloneable {
 
   /**
    * Thrown when logging can't be configured.
@@ -100,21 +101,20 @@ public class ServerLogConfiguration implements LoggerConfiguration {
   private static final String LOG_LEVEL_PROPERTY = "com.android.jack.server.log";
 
   @Nonnegative
-  private static final int MAX_LOG_FILE_SIZE = 1 * 1024 * 1024;
+  private static final int DEFAULT_MAX_LOG_FILE_SIZE = 1 * 1024 * 1024;
   @Nonnegative
-  private static final int LOG_FILE_COUNT = 2;
+  private static final int DEFAULT_LOG_FILE_COUNT = 2;
 
-
+  private static class FileHandlerLogConfiguration implements LoggerConfiguration {
     @Nonnull
     private final Handler handler;
 
     @Nonnull
     private final LogLevel level;
 
-    private ServerLogConfiguration(@Nonnull LogLevel level, @Nonnull String logFilePattern)
-        throws IOException {
+    private FileHandlerLogConfiguration(@Nonnull LogLevel level, @Nonnull FileHandler handler) {
       this.level = level;
-      handler = new FileHandler(logFilePattern, MAX_LOG_FILE_SIZE, LOG_FILE_COUNT);
+      this.handler = handler;
       handler.setFormatter(new LogFormatter());
       handler.setLevel(Level.FINEST);
 
@@ -132,20 +132,79 @@ public class ServerLogConfiguration implements LoggerConfiguration {
     public List<PackageLevel> getLevels() {
       return level.getLevels();
     }
+  }
+
+  @Nonnegative
+  private int maxLogFileSize = DEFAULT_MAX_LOG_FILE_SIZE;
+  @Nonnegative
+  private int logFileCount = DEFAULT_LOG_FILE_COUNT;
+  @Nonnull
+  private String logFilePattern;
+  @Nonnull
+  private LogLevel level;
+
+  private ServerLogConfiguration(@Nonnull String stringLevel, @Nonnull String logFilePattern)
+      throws ParsingException {
+    this.logFilePattern = logFilePattern;
+    level = parseLevel(stringLevel);
+  }
+
+  void apply() throws IOException {
+    LoggerFactory.configure(new FileHandlerLogConfiguration(level,
+        new FileHandler(logFilePattern, maxLogFileSize, logFileCount)));
+  }
+
+  public void setLogFileCount(@Nonnegative int logFileCount) {
+    this.logFileCount = logFileCount;
+  }
+
+  public void setLogFilePattern(String logFilePattern) {
+    this.logFilePattern = logFilePattern;
+  }
 
   @Nonnull
-  public static void setupLog(String defaultLogPattern) throws ServerLogConfigurationException {
+  public String getLogFilePattern() {
+    return logFilePattern;
+  }
+
+  public void setMaxLogFileSize(@Nonnegative int maxLogFileSize) {
+    this.maxLogFileSize = maxLogFileSize;
+  }
+
+  public void setLevel(@Nonnull String stringLevel) throws ParsingException {
+    this.level = parseLevel(stringLevel);
+  }
+
+  @Nonnull
+  private LogLevel parseLevel(@Nonnull String stringLevel) throws ParsingException {
+    return new EnumCodec<>(LogLevel.class, LogLevel.values()).checkString(
+        new CodecContext(), stringLevel);
+  }
+
+  @Nonnull
+  public static ServerLogConfiguration setupLog(String defaultLogPattern)
+      throws ServerLogConfigurationException {
     String stringLevel = System.getProperty(LOG_LEVEL_PROPERTY, LogLevel.WARNING.name());
     String logFilePattern = System.getProperty(LOG_FILE_PROPERTY, defaultLogPattern);
     try {
-      LogLevel level = new EnumCodec<>(LogLevel.class, LogLevel.values()).checkString(
-          new CodecContext(), stringLevel);
-      LoggerFactory.configure(new ServerLogConfiguration(level, logFilePattern));
+      ServerLogConfiguration config = new ServerLogConfiguration(stringLevel, logFilePattern);
+      config.apply();
+      return config;
     } catch (IOException e) {
       throw new ServerLogConfigurationException(
           "Failed to open log file(s)");
     } catch (ParsingException e) {
       throw new ServerLogConfigurationException(e.getMessage());
+    }
+  }
+
+  @Nonnull
+  @Override
+  public ServerLogConfiguration clone() {
+    try {
+      return (ServerLogConfiguration) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
     }
   }
 }
