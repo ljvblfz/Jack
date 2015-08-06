@@ -1,0 +1,5 @@
+To import the eclipse project you have to define one "Classpath variable" in
+your workspace:
+Window->Preferences->Java->Build Path->Classpath Variables
+Create a variable named "ANDROID_BUILD_TOP" pointing to your android source
+folder.
