@@ -493,6 +493,47 @@ case $COMMAND in
     exit 0 ;;
 
 
+  server-log-level)
+    if [ $# -eq 4 ]
+    then
+      LIMIT=$3
+      COUNT=$4
+    elif [ $# -eq 2 ]
+    then
+      COUNT=2
+      if [ \( "$2" = "ERROR" \) -o \( "$2" = "WARNING" \) ]
+      then
+        LIMIT=1048576
+      else
+        LIMIT=10485760
+      fi
+    else
+      usage
+      abort
+    fi
+
+    echo "Setting logging parameters of background server"
+
+    RETRY_SESSION=3
+    DONE=1
+    while [ "$DONE" -ne 0 ]; do
+      exec 3>&1
+      HTTP_CODE=$(curl --fail \
+           --output >(cat >&3) \
+           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
+           --request PUT \
+           --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
+           --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
+           --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
+           --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+           http://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
+           )
+      handleHttpErrors $? $HTTP_CODE
+      DONE=$?
+      exec 3>&-
+    done ;;
+
+
   *)
     usage
     abort ;;
