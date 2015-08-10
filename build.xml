@@ -40,6 +40,7 @@
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
+    jack-api-clean,
     jack-api-src-clean,
     jack-launcher-clean,
     jack-server-clean,
@@ -489,7 +490,7 @@
 
   <target name="jack-api-lib-clean">
     <delete dir="${jack-api.lib.build.dir}"/>
-    <delete dir="${jack-api.dist.dir}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api.lib.name}"/>
     <delete dir="${jack-api.libs.dir}"/>
   </target>
 
@@ -532,6 +533,11 @@
   <!-- ******************* -->
   <property name="jack-api.build.dir" value="${jack-api.dir}/build/exec" />
   <property name="jack-api.name" value="jack-api.jar" />
+
+  <target name="jack-api-clean">
+    <delete dir="${jack-api.build.dir}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api.name}"/>
+  </target>
 
   <target name="jack-api" depends="jack-api-lib">
     <copy file="${jack-project.dir}/version.properties"
@@ -599,7 +605,7 @@
   <property name="jack-api-src.name" value="jack-api-src.zip" />
 
   <target name="jack-api-src-clean">
-    <delete dir="${jack-api.dist.dir}/${jack-api-src.name}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api-src.name}"/>
   </target>
 
   <target name="jack-api-src">
@@ -619,7 +625,7 @@
 
   <target name="jack-launcher-clean">
     <delete dir="${jack-launcher.build.outdir}"/>
-    <delete dir="${jack-launcher.dist.dir}/${jack-launcher.name}"/>
+    <delete file="${jack-launcher.dist.dir}/${jack-launcher.name}"/>
   </target>
 
   <target name="jack-launcher-copy-libs" depends="jsr305-lib,guava-lib,jack-server-api-lib">
@@ -812,6 +818,7 @@
   <property name="jack-annotations.libname" value="jack-annotations.jar" />
 
   <target name="jack-annotations-lib-clean">
+    <delete dir="${jack-annotations.build.dir}" />
     <delete file="${jack.dist.dir}/${jack-annotations.libname}" />
     <delete dir="${jack-annotations.build.outdir}" />
   </target>
@@ -914,6 +921,7 @@
   <property name="jackunittests.execname" value="jackunittests.jar"/>
 
   <target name="jackunittests-clean">
+    <delete dir="${jackunittests.exec.build.dir}" />
     <delete file="${jackunittests.dist.dir}/${jackunittests.execname}" />
   </target>
 
@@ -1447,6 +1455,7 @@
 
   <target name="simple-lib-clean">
     <delete dir="${simple.dist.dir}"/>
+    <delete dir="${simple.build.outdir}"/>
   </target>
 
   <target name="simple-lib">
