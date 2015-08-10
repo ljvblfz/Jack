@@ -30,6 +30,8 @@ JACK_SERVER_VM_ARGUMENTS="${JACK_SERVER_VM_ARGUMENTS:=-Dfile.encoding=UTF-8 -XX:
 LAUNCHER_JAR="$JACK_HOME/launcher.jar"
 LAUNCHER_NAME=com.android.jack.launcher.ServerLauncher
 CURRENT_CHARSET=$(locale charmap)
+JACK_LOGS_DIR="$JACK_HOME"/logs
+JACK_OUT_ERR="$JACK_LOGS_DIR"/outputs.txt
 
 #
 # Load client settings
@@ -191,7 +193,7 @@ startServer () {
       done
       exec $JACK_SERVER_COMMAND
       abort
-    ) >/dev/null 2>/dev/null &
+    ) >"$JACK_OUT_ERR" 2>&1 &
   fi
 }
 
@@ -289,7 +291,7 @@ case $COMMAND in
       mkdir -p "$JACK_HOME"
       cp $2 "$LAUNCHER_JAR"
       cp $3 "$JACK_HOME/server-1.jar"
-      mkdir "$JACK_HOME"/logs
+      mkdir "$JACK_LOGS_DIR"
     else
       echo "Jack server already installed in \"$JACK_HOME\"" >&2
       abort
