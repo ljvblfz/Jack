@@ -24,12 +24,12 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.google.common.collect.Maps;
 
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
 
 import org.jf.dexlib.ClassDataItem.EncodedField;
 import org.jf.dexlib.ClassDataItem.EncodedMethod;
@@ -43,6 +43,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.internal.AssumptionViolatedException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -287,40 +288,44 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile012() throws Exception {
+  public void testCompile012a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test012.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
+    compileCode(packageName, input);
+  }
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+  @Test
+  public void testCompile012b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test012.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
 
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
-    compileCode(packageName, input1, input2);
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -329,41 +334,46 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile013() throws Exception {
+  public void testCompile013a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test013.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
 
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
+    compileCode(packageName, input);
+  }
 
-    compileCode(packageName, input1, input2);
+  @Test
+  public void testCompile013b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test013.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -372,51 +382,55 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile014() throws Exception {
+  public void testCompile014a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test014.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    compileCode(packageName, input);
+  }
 
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+  @Test
+  public void testCompile014b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test014.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
-    }
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-    compileCode(packageName, input1, input2);
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -425,51 +439,57 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile015() throws Exception {
+  public void testCompile015a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test015.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
-    }
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
 
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    compileCode(packageName, input);
+  }
 
-      input2.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
-    }
+  @Test
+  public void testCompile015b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test015.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
 
-    compileCode(packageName, input1, input2);
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -478,39 +498,43 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile016() throws Exception {
+  public void testCompile016a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test016.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-      input1.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-    }
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    compileCode(packageName, input);
+  }
 
-      input2.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-    }
-    compileCode(packageName, input1, input2);
+  @Test
+  public void testCompile016b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test016.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -519,21 +543,37 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile017() throws Exception {
+  public void testCompile017a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test017.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
     Map<String, VerifierInfo> input = Maps.newHashMap();
-    {
-      input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-    }
 
-    checkCompiledCode(packageName, input);
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile017b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test017.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -542,40 +582,47 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile018() throws Exception {
+  public void testCompile018a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test018.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
 
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
 
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
-    compileCode(packageName, input1, input2);
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile018b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test018.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -584,39 +631,43 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile019() throws Exception {
+  public void testCompile019a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test019.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ true));
-    }
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ true));
+    compileCode(packageName, input);
+  }
 
-      input2.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
-    }
-    compileCode(packageName, input1, input2);
+  @Test
+  public void testCompile019b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test019.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2", /*not contains Enum2*/ false));
+
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2", /*contains Enum2*/ true));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -625,25 +676,29 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile020() throws Exception {
+  public void testCompile020a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test020.jack";
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*not contains State*/ false));
-      input1.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*not contains State*/ false));
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*contains State*/ true));
-    }
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*contains State*/ true));
-      input2.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*contains State*/ true));
-    }
-    compileCode(packageName, input1, input2);
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*not contains State*/ false));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*not contains State*/ false));
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contains State*/ true));
+
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile020b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test020.jack";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contains State*/ true));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contains State*/ true));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -652,14 +707,25 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile021() throws Exception {
+  public void testCompile021a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test021.jack";
     Map<String, VerifierInfo> input = Maps.newHashMap();
-    {
-      input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*contain State*/ true));
-    }
-    checkCompiledCode(packageName, input);
+
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contain State*/ true));
+
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile021b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test021.jack";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contain State*/ true));
+
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -668,14 +734,21 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile022() throws Exception {
+  public void testCompile022a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test022.jack";
     Map<String, VerifierInfo> input = Maps.newHashMap();
-    {
-      input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo("java-lang-Thread$State", /*contain State*/ true));
-    }
-    checkCompiledCode(packageName, input);
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contain State*/ true));
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile022b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test022.jack";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo("java-lang-Thread$State", /*contain State*/ true));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -684,50 +757,53 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile023() throws Exception {
+  public void testCompile023a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test023.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ true));
+    compileCode(packageName, input);
+  }
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+  @Test
+  public void testCompile023b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test023.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
 
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
-    }
-    compileCode(packageName, input1, input2);
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -736,49 +812,51 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile024() throws Exception {
+  public void testCompile024a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test024.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+    compileCode(packageName, input);
+  }
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
+  @Test
+  public void testCompile024b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test024.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Switch2", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*contains Enum2*/ true));
 
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
 
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
-    }
-    compileCode(packageName, input1, input2);
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum2$Enum2_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum2$Enum2_", /*not contains Enum2*/ false));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -787,39 +865,42 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile025() throws Exception {
+  public void testCompile025a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test025.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-      input1.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input1.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    compileCode(packageName, input);
+  }
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
-      input2.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+  @Test
+  public void testCompile025b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test025.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
 
-      input2.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-      input2.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-    }
-    compileCode(packageName, input1, input2);
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Enum1$Switch2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -828,22 +909,36 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile026() throws Exception {
+  public void testCompile026a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test026.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
     Map<String, VerifierInfo> input = Maps.newHashMap();
-    {
-      input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
 
-      input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
 
-      input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
-    }
-    checkCompiledCode(packageName, input);
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    compileCode(packageName, input);
+  }
+
+  @Test
+  public void testCompile026b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test026.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Enum1$Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*contains Enum1*/ true));
+
+    input.put("Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+
+    input.put("Enum1$Enum1_", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Enum1$Enum1_", /*not contains Enum1*/ false));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -852,52 +947,55 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  public void testCompile027() throws Exception {
+  public void testCompile027a() throws Exception {
     String packageName = "com.android.jack.switchstatement.test027.jack";
     String classPrefix = packageName.replace('.', '-') + "-";
 
-    Map<String, VerifierInfo> input1 = Maps.newHashMap();
-    {
-      input1.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
 
-      input1.put("Switch1$InnerClass1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
+    input.put("Switch1$InnerClass1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
 
-      input1.put("Switch1$InnerClass1$InnerClass2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
+    input.put("Switch1$InnerClass1$InnerClass2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
 
-      input1.put("Switch1$InnerClass1$Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
+    input.put("Switch1$InnerClass1$Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
 
-      input1.put("Switch1$InnerClass1$InnerClass2$Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
+    input.put("Switch1$InnerClass1$InnerClass2$Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
 
-      input1.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*contains Enum1*/ true).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*contains Enum1*/ true));
-    }
+    input.put("SyntheticSwitchmapClass-*", new VerifierInfo(/*contains <init>*/ true).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*contains Enum1*/ true).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*contains Enum1*/ true));
+    compileCode(packageName, input);
+  }
 
-    Map<String, VerifierInfo> input2 = Maps.newHashMap();
-    {
-      input2.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
+  @Test
+  public void testCompile027b() throws Exception {
+    String packageName = "com.android.jack.switchstatement.test027.jack";
+    String classPrefix = packageName.replace('.', '-') + "-";
 
-      input2.put("Switch1$InnerClass1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*contains Enum1*/ true));
+    Map<String, VerifierInfo> input = Maps.newHashMap();
+    input.put("Switch1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
 
-      input2.put("Switch1$InnerClass1$InnerClass2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*contains Enum1*/ true));
+    input.put("Switch1$InnerClass1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*contains Enum1*/ true));
 
-      input2.put("Switch1$InnerClass1$Enum1", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
+    input.put("Switch1$InnerClass1$InnerClass2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*contains Enum1*/ true));
 
-      input2.put("Switch1$InnerClass1$InnerClass2$Enum2", new VerifierInfo(/*not contains <init>*/ false).
-          specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
-    }
-    compileCode(packageName, input1, input2);
+    input.put("Switch1$InnerClass1$Enum1", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$Enum1", /*not contains Enum1*/ false));
+
+    input.put("Switch1$InnerClass1$InnerClass2$Enum2", new VerifierInfo(/*not contains <init>*/ false).
+        specifyInfo(classPrefix + "Switch1$InnerClass1$InnerClass2$Enum2", /*not contains Enum1*/ false));
+    compileCodeIncremental(packageName, input);
   }
 
   @Test
@@ -907,39 +1005,36 @@ public class SwitchstatementTests extends RuntimeTest {
 
   private void compileCode(
       String packageName,
-      Map<String, VerifierInfo> input1,
-      Map<String, VerifierInfo> input2) throws Exception {
-    boolean succ = true;
-    try {
-      checkCompiledCode(packageName, input1);
-    } catch (AssertionFailedError e) {
-      succ = false;
-    }
-    if (succ) {
-      return;
-    }
-    succ = true;
-    try {
-      checkCompiledCode(packageName, input2);
-    } catch (AssertionFailedError e) {
-      succ = false;
-    }
-    Assert.assertTrue(succ);
+      Map<String, VerifierInfo> input) throws Exception {
+    // match the result with enum switch optimization enabled
+    List<Class<? extends IToolchain>> excludedToolchains = new ArrayList<Class<? extends IToolchain>>(2);
+    excludedToolchains.add(JillBasedToolchain.class);
+    excludedToolchains.add(IncrementalToolchain.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    checkCompiledCode(toolchain, packageName, input);
+  }
+
+  private void compileCodeIncremental(
+      String packageName,
+      Map<String, VerifierInfo> input) throws Exception {
+    // match the result when incremental compilation is enabled
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(IncrementalToolchain.class);
+    checkCompiledCode(toolchain, packageName, input);
   }
 
   /**
    * Compile the code with our analysis enabled, then check if it is successful.
-   * @param packageName The package name of test case
-   * @param classMap The map from class signature to its method signature
+   * @param toolchain the used toolchain. It must be set with correct candidates
+   * @param packageName the package name of test case
+   * @param classMap the map from class signature to its method signature
    */
   private void checkCompiledCode(
-      @Nonnull String packageName, @Nonnull Map<String, VerifierInfo> classMap) throws Exception {
+      @Nonnull JackBasedToolchain toolchain,
+      @Nonnull String packageName,
+      @Nonnull Map<String, VerifierInfo> classMap) throws Exception {
     File outFolder = AbstractTestTools.createTempDir();
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
-    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
-    exclude.add(JillBasedToolchain.class);
-    JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       toolchain.addProperty(entry.getKey(), entry.getValue());
     }

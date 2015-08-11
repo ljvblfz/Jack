@@ -550,18 +550,10 @@ public abstract class Jack {
           session.addGeneratedFileType(FileType.DEX);
         }
 
-        if (!config.get(Options.INCREMENTAL_MODE).booleanValue()) {
-          // if the incremental compilation is enabled, the switch enum optimization cannot
-          // be enabled because it will generates non-deterministic code. It has to wait till
-          // -D options have been set
-          LoggerFactory.getLogger().log(Level.WARNING,
-              "Switch enum optimization is diabled during incremental compilation");
-          if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
-            request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
-          } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy
-              .NON_FEEDBACK) {
-            request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
-          }
+        if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
+          request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
+        } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
+          request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
         }
 
         if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
@@ -1026,12 +1018,12 @@ public abstract class Jack {
     }
 
     if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)) {
-      // add one more traversal to collect the usage of each enum
-      // figure out how many classes use enum in switch statement
+      // add one more traversal at compile-time to collect the usage for each enum,
+      // figure out how many classes use enum in switch statement.
+      // this step is enabled only when feedback-based optimization is enabled
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
           ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      // if it is feedback based optimization, pre-collect the usage information
       methodPlan.append(SwitchEnumUsageCollector.class);
     }
 
@@ -1041,7 +1033,6 @@ public abstract class Jack {
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
           || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
-        // use optimized switch enum support
         methodPlan.append(OptimizedSwitchEnumSupport.class);
       } else {
         methodPlan.append(SwitchEnumSupport.class);
@@ -1051,8 +1042,8 @@ public abstract class Jack {
     if ((features.contains(OptimizedSwitchEnumFeedbackFeature.class)
         || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class))
         && hasSanityChecks) {
-      // check the validity of instrumentation if optimized switch enum feature and
-      // hasSanityCheck are both turn on
+      // check the validity of instrumentation if switch enum optimization and
+      // hasSanityCheck are both set
       planBuilder.append(AstChecker.class);
     }
 
