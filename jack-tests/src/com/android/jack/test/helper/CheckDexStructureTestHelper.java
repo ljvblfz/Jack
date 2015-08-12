@@ -99,7 +99,7 @@ public class CheckDexStructureTestHelper extends SourceToDexComparisonTestHelper
   }
 
   public void compare() throws Exception {
-    runTest(createDexFileComparator());
+    runTest(createDexFileComparator().setWithDebugInfo(withDebugInfos));
   }
 
 }

@@ -16,19 +16,16 @@
 
 package com.android.jack.debug;
 
-import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import javax.annotation.Nonnull;
 
-public class DebugTests extends RuntimeTest {
+public class DebugTests {
 
   private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.debug.test001"),
@@ -43,14 +40,12 @@ public class DebugTests extends RuntimeTest {
     "com.android.jack.debug.test004.dx.Tests");
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001)
         .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
   }
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002)
         .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
@@ -62,7 +57,6 @@ public class DebugTests extends RuntimeTest {
   }
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004)
         .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
@@ -129,10 +123,4 @@ public class DebugTests extends RuntimeTest {
     helper.setWithDebugInfo(true).compare();
   }
 
-  @Override
-  protected void fillRtTestInfos() {
-    rtTestInfos.add(TEST001);
-    rtTestInfos.add(TEST002);
-    rtTestInfos.add(TEST004);
-  }
 }
