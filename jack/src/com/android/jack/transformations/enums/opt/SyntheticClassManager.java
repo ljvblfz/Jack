@@ -36,6 +36,7 @@ import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.NopClassOrInterfaceLoader;
+import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
@@ -96,6 +97,7 @@ public class SyntheticClassManager {
   private final OptimizationUtil supportUtil;
 
   // temporarily deleted library synthetic class during the step while merging synthetic classes
+  @Nonnull
   private final Map<String, JDefinedClass> deletedLibSyntheticClasses = Maps.newHashMap();
 
   /**
@@ -111,7 +113,7 @@ public class SyntheticClassManager {
    * the profiling of given enum:
    * <li> enumType is public </li>
    * In this case, only a synthetic class is created at SyntheticSwitchmapClassPkgName if
-   * the optimizing condition is met {@link #isOptimizationWorthwhile(JDefinedEnum)}.
+   * the optimizing condition is met {@link #isOptimizationWorthwhile(int, Set)}.
    * Otherwise switch map initializer will be created inside of user class like what is
    * done in {@link SwitchEnumSupport}.
    *
@@ -267,7 +269,8 @@ public class SyntheticClassManager {
         syntheticClassShortName, JModifier.PUBLIC | JModifier.FINAL | JModifier.SYNTHETIC,
         enclosingPackage, NopClassOrInterfaceLoader.INSTANCE);
 
-    syntheticSwitchmapClass.setSuperClass(session.getLookup().getClass("Ljava/lang/Object;"));
+    syntheticSwitchmapClass.setSuperClass(
+        session.getLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
     syntheticSwitchmapClass.setExternal(false);
     // make sure the future instrumentation knows this class
     session.addTypeToEmit(syntheticSwitchmapClass);

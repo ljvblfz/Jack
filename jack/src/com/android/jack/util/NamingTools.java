@@ -49,7 +49,7 @@ public class NamingTools {
   /**
    * Return a string representing the strict valid name for generated files and which does not
    * conflict with name coming from Java source files. The difference between this API and
-   * {@link getNonSourceConflictingName} is this API replaces '/' with '-'.
+   * {@link #getNonSourceConflictingName} is this API replaces '/' with '-'.
    */
   @Nonnull
   public static String getStrictNonSourceConflictingName(@Nonnull String name) {
