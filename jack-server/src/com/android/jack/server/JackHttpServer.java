@@ -70,11 +70,13 @@ import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Method;
 import org.simpleframework.http.Status;
 import org.simpleframework.http.core.ContainerSocketProcessor;
+import org.simpleframework.transport.Socket;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -86,13 +88,25 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileOwnerAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -100,6 +114,9 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Server controlling the number of Jack compilations that are executed simultaneously.
@@ -208,6 +225,27 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private static final String LOG_FILE_PATTERN = "logs/jack-server-%u-%g.log";
 
+  @Nonnull
+  private static final String KEYSTORE_SERVER = "server.jks";
+
+  @Nonnull
+  private static final String KEYSTORE_CLIENT = "client.jks";
+
+  @Nonnull
+  private static final String SERVER_KEY_ALIAS = "server";
+
+  @Nonnull
+  private static final String CLIENT_KEY_ALIAS = "client";
+
+  @Nonnull
+  private static final char[] KEYSTORE_PASSWORD = "Jack-Server".toCharArray();
+
+  @Nonnull
+  private static final String PEM_CLIENT = "client.pem";
+
+  @Nonnull
+  private static final String PEM_SERVER = "server.pem";
+
   private static final FileFilter JAR_FILTER = new FileFilter() {
     @Override
     public boolean accept(File pathname) {
@@ -269,6 +307,9 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private ServerLogConfiguration logConfiguration;
 
+  @Nonnull
+  private final String currentUser;
+
   // random does not need to be strong, it's just an help for debugging
   @SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
@@ -278,6 +319,8 @@ public class JackHttpServer implements HasVersion {
 
     logConfiguration = ServerLogConfiguration.setupLog(
         serverDir.getPath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
+
+    currentUser = getCurrentUser(serverDir);
 
     loadConfig();
 
@@ -398,6 +441,9 @@ public class JackHttpServer implements HasVersion {
       ServerException {
     shutdownConnections();
     try {
+      checkAccess(serverDir, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+
       loadConfig();
       buildInstalledJackCache();
       start(new HashMap<String, Object>());
@@ -410,14 +456,29 @@ public class JackHttpServer implements HasVersion {
   private void loadConfig() throws IOException,
       WrongPermissionException, NotFileException {
     File configFile = new File(serverDir, ConfigFile.CONFIG_FILE_NAME);
+    if (configFile.exists()) {
+      checkAccess(configFile, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE));
+    } else {
+      if (!(configFile.createNewFile())) {
+        throw new IOException("Failed to create '" + configFile.getPath() + "'");
+      }
+      if (!(configFile.setExecutable(false, false)
+         && configFile.setWritable(false, false)
+         && configFile.setReadable(false, false)
+         && configFile.setWritable(true, true)
+         && configFile.setReadable(true, true))) {
+        throw new IOException("Failed to set permissions of '" + configFile.getPath() + "'");
+      }
+    }
     ConfigFile config = new ConfigFile();
     config.loadIfPossible(configFile);
 
     logger.log(Level.INFO, "Starting jack server version: " + getVersion().getVerboseVersion());
 
-    portService = config.getProperty(ConfigFile.SERVICE_PORT_PROPERTY, Integer.valueOf(8074),
+    portService = config.getProperty(ConfigFile.SERVICE_PORT_PROPERTY, Integer.valueOf(8076),
         new IntCodec()).intValue();
-    portAdmin = config.getProperty(ConfigFile.ADMIN_PORT_PROPERTY, Integer.valueOf(8075),
+    portAdmin = config.getProperty(ConfigFile.ADMIN_PORT_PROPERTY, Integer.valueOf(8077),
         new IntCodec()).intValue();
     timeout = config.getProperty(ConfigFile.TIME_OUT_PROPERTY, Integer.valueOf(7200),
         new IntCodec()).intValue();
@@ -459,6 +520,58 @@ public class JackHttpServer implements HasVersion {
     InetSocketAddress serviceAddress = new InetSocketAddress("127.0.0.1", portService);
     InetSocketAddress adminAddress   = new InetSocketAddress("127.0.0.1", portAdmin);
 
+    FileInputStream keystoreServerIn = null;
+    FileInputStream keystoreClientIn = null;
+    SSLContext sslContext = null;
+
+    try {
+      File keystoreServerFile = new File(serverDir, KEYSTORE_SERVER);
+      File keystoreClientFile = new File(serverDir, KEYSTORE_CLIENT);
+      checkAccess(keystoreServerFile, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE));
+      checkAccess(keystoreClientFile, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE));
+
+      keystoreServerIn = new FileInputStream(keystoreServerFile);
+      KeyStore keystoreServer = KeyStore.getInstance("jks");
+      keystoreServer.load(keystoreServerIn, KEYSTORE_PASSWORD);
+
+      keystoreClientIn = new FileInputStream(keystoreClientFile);
+      KeyStore keystoreClient = KeyStore.getInstance("jks");
+      keystoreClient.load(keystoreClientIn, KEYSTORE_PASSWORD);
+
+      refreshPEMFiles(keystoreServer, keystoreClient);
+
+      KeyManagerFactory keyManagerFactory =
+          KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keystoreServer, KEYSTORE_PASSWORD);
+
+      TrustManagerFactory tm =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tm.init(keystoreClient);
+
+      sslContext = SSLContext.getInstance("SSLv3");
+      sslContext.init(keyManagerFactory.getKeyManagers(), tm.getTrustManagers(), null);
+    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
+        | UnrecoverableKeyException | KeyManagementException e) {
+      throw new ServerException("Failed to setup ssl context", e);
+    } finally {
+      if (keystoreClientIn != null) {
+        try {
+          keystoreClientIn.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+      if (keystoreServerIn != null) {
+        try {
+          keystoreServerIn.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+    }
+
 
     logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
     try {
@@ -484,11 +597,18 @@ public class JackHttpServer implements HasVersion {
                                           .add("/jill", new JillTask(this))))))))));
 
       ContainerSocketProcessor processor =
-          new ContainerSocketProcessor(new RootContainer(router), maxServices);
+          new ContainerSocketProcessor(new RootContainer(router), maxServices) {
+        @Override
+        public void process(Socket socket) throws IOException {
+          socket.getEngine().setNeedClientAuth(true);
+          super.process(socket);
+        }
+      };
       SocketConnection connection = new SocketConnection(processor);
       serviceConnection = connection;
-      serviceChannel = openSocket(serviceAddress, parameters.get(InstallServer.SERVICE_CHANNEL_PARAMETER));
-      connection.connect(serviceChannel);
+      serviceChannel = openSocket(serviceAddress,
+          parameters.get(InstallServer.SERVICE_CHANNEL_PARAMETER));
+      connection.connect(serviceChannel, sslContext);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
         throw new ServerException("Problem during service connection: "
@@ -583,12 +703,18 @@ public class JackHttpServer implements HasVersion {
                              .add(TextPlain.CONTENT_TYPE_NAME, new SetLoggerParameters(this)))))));
 
       ContainerSocketProcessor processor =
-          new ContainerSocketProcessor(new RootContainer(router), 1);
+          new ContainerSocketProcessor(new RootContainer(router), 1) {
+            @Override
+            public void process(Socket socket) throws IOException {
+              socket.getEngine().setNeedClientAuth(true);
+              super.process(socket);
+            }
+          };
       SocketConnection connection = new SocketConnection(processor);
       adminConnection = connection;
       adminChannel =
           openSocket(adminAddress, parameters.get(InstallServer.ADMIN_CHANNEL_PARAMETER));
-      connection.connect(adminChannel);
+      connection.connect(adminChannel, sslContext);
     } catch (IOException e) {
       if (e.getCause() instanceof BindException) {
         throw new ServerException("Problem during service connection: "
@@ -602,6 +728,53 @@ public class JackHttpServer implements HasVersion {
 
     synchronized (lock) {
       isAcceptingRequests = true;
+    }
+  }
+
+  private void checkAccess(@Nonnull File file, @Nonnull Set<PosixFilePermission> check)
+      throws IOException {
+    FileOwnerAttributeView ownerAttribute =
+        Files.getFileAttributeView(file.toPath(), FileOwnerAttributeView.class);
+    if (!currentUser.equals(ownerAttribute.getOwner().getName())) {
+      throw new IOException("'" + file.getPath() + "' is not owned by '" + currentUser
+          + "' but by '" + ownerAttribute.getOwner().getName() + "'");
+    }
+    Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file.toPath());
+    if (!check.equals(permissions)) {
+      throw new IOException("'" + file.getPath() + "' must have permission "
+          + PosixFilePermissions.toString(check) + " but have "
+          + PosixFilePermissions.toString(permissions));
+    }
+  }
+
+  private void refreshPEMFiles(@Nonnull KeyStore keystoreServer, @Nonnull KeyStore keystoreClient)
+      throws IOException, UnrecoverableKeyException, KeyStoreException,
+      NoSuchAlgorithmException {
+    {
+      File clientPEM = new File(getServerDir(), PEM_CLIENT);
+      if (clientPEM.exists() && !clientPEM.delete()) {
+        throw new IOException("Failed to delete '" + clientPEM.getPath() + "'");
+      }
+
+      PEMWriter pem = new PEMWriter(clientPEM);
+      try {
+        pem.writeKey(keystoreClient.getKey(CLIENT_KEY_ALIAS, KEYSTORE_PASSWORD));
+        pem.writeCertificate(keystoreClient.getCertificate(CLIENT_KEY_ALIAS));
+      } finally {
+        pem.close();
+      }
+    }
+    {
+      File serverPEM = new File(getServerDir(), PEM_SERVER);
+      if (serverPEM.exists() && !serverPEM.delete()) {
+        throw new IOException("Failed to delete '" + serverPEM.getPath() + "'");
+      }
+      PEMWriter pem = new PEMWriter(serverPEM);
+      try {
+        pem.writeCertificate(keystoreServer.getCertificate(SERVER_KEY_ALIAS));
+      } finally {
+        pem.close();
+      }
     }
   }
 
@@ -916,4 +1089,35 @@ public class JackHttpServer implements HasVersion {
     installedJack.invalidate(existingJack.getVersion());
   }
 
+  @Nonnull
+  private static String getCurrentUser(@Nonnull File serverDir) throws IOException {
+    Set<PosixFilePermission> check = EnumSet.of(PosixFilePermission.OWNER_READ,
+        PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+    Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(serverDir.toPath());
+    if (!check.equals(permissions)) {
+      throw new IOException("'" + serverDir.getPath() + "' must have permission "
+          + PosixFilePermissions.toString(check) + " but have "
+          + PosixFilePermissions.toString(permissions));
+    }
+
+    File tmp = File.createTempFile("serverUserId", ".tmp", serverDir);
+    try {
+      String tmpUser = Files.getFileAttributeView(tmp.toPath(),
+          FileOwnerAttributeView.class).getOwner().getName();
+
+      FileOwnerAttributeView ownerAttribute =
+          Files.getFileAttributeView(serverDir.toPath(), FileOwnerAttributeView.class);
+      if (!tmpUser.equals(ownerAttribute.getOwner().getName())) {
+        throw new IOException("'" + serverDir.getPath() + "' is not owned by '" + tmpUser
+            + "' but by '" + ownerAttribute.getOwner().getName() + "'");
+      }
+
+      return tmpUser;
+    } finally {
+      if (!tmp.delete()) {
+        logger.log(Level.WARNING, "Failed to delete temp file '" + tmp.getPath() + "'");
+      }
+    }
+
+  }
 }

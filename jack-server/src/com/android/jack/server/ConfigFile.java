@@ -109,6 +109,13 @@ class ConfigFile extends Properties {
     new OutputStreamFile(configFile.getPath(), null, Existence.MAY_EXIST,
         ChangePermission.NOCHANGE, /* append = */ false);
     File tmpOut = File.createTempFile(configFile.getName(), ".tmp", configFile.getParentFile());
+    if (!(tmpOut.setExecutable(false, false)
+        && tmpOut.setWritable(false, false)
+        && tmpOut.setReadable(false, false)
+        && tmpOut.setWritable(true, true)
+        && tmpOut.setReadable(true, true))) {
+       throw new IOException("Failed to set permissions of '" + tmpOut.getPath() + "'");
+     }
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
       store(writer, "");
     }

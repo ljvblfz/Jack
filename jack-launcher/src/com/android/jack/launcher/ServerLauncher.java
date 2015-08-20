@@ -208,7 +208,7 @@ public final class ServerLauncher {
   private static final int ABORT_EXIT_CODE = 255;
 
   @Nonnull
-  private static final String JACK_DIR = ".jack-home";
+  private static final String DEFAULT_JACK_DIR = ".";
 
   @Nonnull
   private static final Pattern SERVER_JAR_PATTERN = Pattern.compile("server-(\\d+)\\.jar");
@@ -246,12 +246,9 @@ public final class ServerLauncher {
         abort("Internal error");
       }
     });
-    String homeDir = System.getProperty("user.home");
-    if (homeDir == null) {
-      abort("Failed to locate home directory");
-    }
+    String jackDir = System.getProperty("jack.home", DEFAULT_JACK_DIR);
     try {
-      new ServerLauncher(new File(homeDir, JACK_DIR)).run();
+      new ServerLauncher(new File(jackDir)).run();
     } catch (ServerException e) {
       abort("Failed to start server: " + e.getMessage());
     } catch (InterruptedException e) {
