@@ -99,7 +99,7 @@ while true; do
        -F "cli=$ARGS;type=plain/text" \
        -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
        -F "pwd=$JACK_PWD;type=plain/text" \
-       --no-proxy ${SERVER_HOST}:$SERVER_PORT_SERVICE \
+       --noproxy ${SERVER_HOST} \
        http://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
 
