@@ -120,7 +120,22 @@ class SocketListenerManager implements Closeable {
     * @return this returns the actual local address that is used
     */
    public SocketAddress listen(ServerSocketChannel channel) throws IOException {
-      SocketListener listener = new SocketListener(channel, processor, analyzer, null);
+      return listen(channel, null);
+   }
+
+   /**
+    * This creates a new background task that will listen to the
+    * specified <code>ServerAddress</code> for incoming TCP connect
+    * requests. When an connection is accepted it is handed to the
+    * internal socket connector.
+    *
+    * @param channel this is the channel used to accept connections
+    * @param context this is used for secure SSL connections
+    *
+    * @return this returns the actual local address that is used
+    */
+   public SocketAddress listen(ServerSocketChannel channel, SSLContext context) throws IOException {
+      SocketListener listener = new SocketListener(channel, processor, analyzer, context);
 
       if(processor != null) {
          listeners.add(listener);
