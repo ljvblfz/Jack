@@ -23,6 +23,7 @@ import org.simpleframework.http.parse.ContentTypeParser;
 
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -42,8 +43,9 @@ public class AcceptContentTypeParameterRouter extends ContentTypeParameterRouter
   }
 
   @Override
-  @Nonnull
+  @CheckForNull
   protected ContentType getContentType(@Nonnull Request request) {
-    return new ContentTypeParser(request.getValue("accept"));
+    String accept = request.getValue("accept");
+    return accept != null ? new ContentTypeParser(accept) : null;
   }
 }

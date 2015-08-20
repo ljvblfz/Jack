@@ -23,6 +23,7 @@ import org.simpleframework.http.core.Container;
 
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,9 +48,9 @@ public class PartContentTypeRouter extends ContentTypeRouter {
   }
 
   @Override
-  @Nonnull
+  @CheckForNull
   protected ContentType getContentType(@Nonnull Request request) {
-    Part versionPart = request.getPart(partName);
-    return versionPart.getContentType();
+    Part part = request.getPart(partName);
+    return part == null ? null : part.getContentType();
   }
 }

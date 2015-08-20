@@ -20,6 +20,7 @@ import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.ServerLogConfiguration;
 import com.android.sched.util.codec.ParsingException;
 
+import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
@@ -49,15 +50,21 @@ public class SetLoggerParameters extends SynchronousAdministrativeTask {
 
     ServerLogConfiguration logConfig = jackServer.getLogConfiguration();
     try {
-      logConfig.setLevel(request.getPart("level").getContent());
-      int limit = Integer.parseInt(request.getPart("limit").getContent());
+      Part levelPart = request.getPart("level");
+      assert levelPart != null;
+      logConfig.setLevel(levelPart.getContent());
+      Part limitPart = request.getPart("limit");
+      assert limitPart != null;
+      int limit = Integer.parseInt(limitPart.getContent());
       if (limit < 0) {
         logger.log(Level.WARNING, "Invalid limit value " + limit);
         response.setStatus(Status.BAD_REQUEST);
         return;
       }
       logConfig.setMaxLogFileSize(limit);
-      int count = Integer.parseInt(request.getPart("count").getContent());
+      Part countPart = request.getPart("count");
+      assert countPart != null;
+      int count = Integer.parseInt(countPart.getContent());
       if (count < 1) {
         logger.log(Level.WARNING, "Invalid count value " + count);
         response.setStatus(Status.BAD_REQUEST);

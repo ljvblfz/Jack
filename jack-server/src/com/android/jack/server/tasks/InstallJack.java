@@ -61,7 +61,8 @@ public class InstallJack extends SynchronousAdministrativeTask {
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     String programName = request.getPath().getName();
     Part jarPart = request.getPart("jar");
-    assert jarPart.getContentType().getType().equals("application/octet-stream");
+    assert jarPart != null && jarPart.getContentType() != null
+        && jarPart.getContentType().getType().equals("application/octet-stream");
 
     Part forcePart = request.getPart("force");
     assert forcePart != null;

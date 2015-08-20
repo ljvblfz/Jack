@@ -32,6 +32,7 @@ import com.android.jack.server.VersionFinder;
 import com.android.jack.server.type.CommandOutPrintStream;
 import com.android.sched.util.codec.ParsingException;
 
+import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -65,11 +66,17 @@ public class JackTask extends SynchronousServiceTask {
     VersionFinder versionFinder;
     File pwd;
     try {
-      cli = request.getPart("cli").getContent();
+      Part cliPart = request.getPart("cli");
+      assert cliPart != null;
+      cli = cliPart.getContent();
       Part versionPart = request.getPart("version");
-      versionFinder = jackServer.parseVersionFinder(versionPart.getContentType(),
-          versionPart.getContent());
-      pwd = new File(request.getPart("pwd").getContent());
+      assert versionPart != null;
+      ContentType versionType = versionPart.getContentType();
+      assert versionType != null;
+      versionFinder = jackServer.parseVersionFinder(versionType, versionPart.getContent());
+      Part pwdPart = request.getPart("pwd");
+      assert pwdPart != null;
+      pwd = new File(pwdPart.getContent());
 
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to read request", e);

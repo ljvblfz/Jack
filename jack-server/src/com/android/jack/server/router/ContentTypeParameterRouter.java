@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -63,20 +64,27 @@ public class ContentTypeParameterRouter implements Container {
 
   @Override
   public void handle(@Nonnull Request request, @Nonnull Response response) {
-    String value = getContentType(request).getParameter(parameter);
-
-    logger.log(Level.FINE, "Route request from parameter '" + parameter
-        + "' with value '" + value + "'");
-
-    Container container = registry.get(value);
-    if (container != null) {
-      container.handle(request, response);
+    ContentType contentType = getContentType(request);
+    Container container;
+    if (contentType == null) {
+      logger.log(Level.FINE, "Route request for no content type");
+      container = primaryContainer;
     } else {
-      primaryContainer.handle(request, response);
+      String value = contentType.getParameter(parameter);
+
+      logger.log(Level.FINE, "Route request from parameter '" + parameter
+          + "' with value '" + value + "'");
+
+      container = registry.get(value);
+      if (container == null) {
+        logger.log(Level.FINE, "No route for '" + parameter + "' with value '" + value + "'");
+        container = primaryContainer;
+      }
     }
+    container.handle(request, response);
   }
 
-  @Nonnull
+  @CheckForNull
   protected ContentType getContentType(@Nonnull Request request) {
     return request.getContentType();
   }
