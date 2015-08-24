@@ -16,12 +16,13 @@
 
 package com.android.jack.transformations;
 
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
 
 /**
- * Feature used to indicate if {@link OptimizedSwithEnumSupport} is
+ * Feature used to indicate if {@link OptimizedSwitchEnumSupport} is
  * turned on.
  */
 @Name("OptimizedSwitchEnumFeature")

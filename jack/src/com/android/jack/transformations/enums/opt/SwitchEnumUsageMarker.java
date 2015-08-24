@@ -29,6 +29,7 @@ import com.android.sched.marker.ValidOn;
 
 import java.util.Set;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -73,6 +74,7 @@ public final class SwitchEnumUsageMarker implements Marker {
    *
    * @return the total number of enum uses
    */
+  @Nonnegative
   public int getUses() {
     return userClasses.size();
   }

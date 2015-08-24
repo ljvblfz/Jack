@@ -99,11 +99,14 @@ import javax.annotation.Nonnull;
 
 public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> {
   // switch map filler which will fills synthetic switch map field and initializer
+  @Nonnull
   private final SwitchMapClassFiller classFiller = new SwitchMapClassFiller();
 
+  @Nonnull
   private final OptimizationUtil supportUtil;
 
   // synthetic class manager which is responsible for creating synthetic class
+  @Nonnull
   private final SyntheticClassManager manager;
 
   public OptimizedSwitchEnumSupport() {

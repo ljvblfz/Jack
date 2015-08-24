@@ -37,9 +37,11 @@ public class OptimizationUtil {
   // prefix for the name of synthetic switch map initializing method. The
   // switch map initializer name follows the style:
   // static int[] -get$PACKAGE$-$SUBPACKAGE4-$SUBSUBPACKAGE$SwitchesValues()
+  @Nonnull
   private static final String LongerPrefix = "-get";
 
   // suffix for both the synthetic switch map field and initializing method
+  @Nonnull
   private static final String Suffix = "SwitchesValues";
 
   public OptimizationUtil() {}
@@ -108,6 +110,7 @@ public class OptimizationUtil {
    *
    * @return the related enum type
    */
+  @Nonnull
   public static String getEnumNameFromSyntheticField(@Nonnull JField syntheticField) {
     String fieldName = syntheticField.getName().replace(ShorterPrefix, '/');
     return "L" + fieldName.substring(1, fieldName.length() - Suffix.length()) + ";";
