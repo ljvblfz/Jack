@@ -78,7 +78,6 @@ public class RegressionTests {
       new ComparisonTests(),
       new ConditionalTests(),
       new ConstantTests(),
-      new DebugTests(),
       new DxTests(),
       new EnumsTests(),
       new ExprsimplifierTests(),
