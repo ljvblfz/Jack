@@ -192,6 +192,7 @@ public class RuntimeTestHelper {
       if (jarjarRules != null) {
         helper.setJarjarRulesFile(jarjarRules);
       }
+      helper.setWithDebugInfo(withDebugInfos);
       helper.setProguardFlags(proguargFlags.toArray(new File[proguargFlags.size()]));
       helper.compare();
       Files.copy(helper.getCandidateDex(),
