@@ -134,6 +134,9 @@ public class InnerTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.inner.test026"),
     "com.android.jack.inner.test026.dx.Tests");
 
+  private RuntimeTestInfo TEST027 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.inner.test027"),
+      "com.android.jack.inner.test027.dx.Tests");
 
   @Test
   @Category(RuntimeRegressionTest.class)
@@ -296,6 +299,12 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test027() throws Exception {
+    new RuntimeTestHelper(TEST027).compileAndRunTest();
+  }
+
+  @Test
   public void testCheckStructure20() throws Exception {
     //TODO: find out why debug info check fails
     checkStructure("test020");
@@ -340,5 +349,6 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST023);
     rtTestInfos.add(TEST024);
     rtTestInfos.add(TEST026);
+    rtTestInfos.add(TEST027);
   }
 }

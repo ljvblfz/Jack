@@ -55,6 +55,7 @@ import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.sched.marker.Marker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +83,10 @@ public class CloneExpressionVisitor extends JVisitor {
 
     if (expression == null) {
       throw new AssertionError("Unable to clone expression " + expr);
+    }
+
+    for (Marker m : expr.getAllMarkers()) {
+      expression.addMarker(m.cloneIfNeeded());
     }
 
     assert expression != null;
