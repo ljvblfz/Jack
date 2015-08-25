@@ -102,7 +102,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private final JSession session;
 
   @Nonnull
-  private static final Tracer tracer = TracerFactory.getTracer();
+  private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private final List<PackageLoader> loaders =

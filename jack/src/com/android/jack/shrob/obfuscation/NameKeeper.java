@@ -166,7 +166,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   }
 
   @Nonnull
-  protected static final Tracer tracer = TracerFactory.getTracer();
+  protected final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private final Flags flags = ThreadConfig.get(Options.FLAGS);

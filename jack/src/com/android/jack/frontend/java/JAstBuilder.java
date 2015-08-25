@@ -58,7 +58,7 @@ import javax.annotation.Nonnull;
 class JAstBuilder extends JavaParser {
 
   @Nonnull
-  private static final Tracer tracer = TracerFactory.getTracer();
+  private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private final JSession session;
