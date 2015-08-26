@@ -78,7 +78,7 @@ import javax.annotation.Nonnull;
 public class Tracer extends JVisitor {
 
   @Nonnull
-  protected static final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
+  protected final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   public Logger logger = LoggerFactory.getLogger();
