@@ -20,6 +20,7 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -86,7 +87,7 @@ public class OutputZipFile extends OutputStreamFile {
     assert file != null;
     clearRemover();
     try {
-      return new CustomZipOutputStream(new FileOutputStream(file));
+      return new CustomZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
     } catch (FileNotFoundException e) {
       throw new ConcurrentIOException(e);
     }
