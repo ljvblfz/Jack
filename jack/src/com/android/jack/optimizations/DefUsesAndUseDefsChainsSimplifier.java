@@ -36,10 +36,8 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Use;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -51,33 +49,6 @@ import javax.annotation.Nonnull;
 @Use(ThreeAddressCodeFormUtils.class)
 @Constraint(need = {BasicBlockMarker.class})
 public abstract class DefUsesAndUseDefsChainsSimplifier {
-
-  /**
-   * Check if a definition of {@code var} appears between the statement {@code fromStmt} and the
-   * statement {@code toStmt}.
-   *
-   * @param var Check that a definition of this variable exists.
-   * @param fromStmt Statement where the search start
-   * @param toStmt Statement where the search end.
-   * @return true if a definition exists, false otherwise.
-   */
-  protected boolean hasDefBetweenStatement(
-      @Nonnull JVariable var, @Nonnull JStatement fromStmt, @Nonnull JStatement toStmt) {
-    BasicBlockMarker startBbm = fromStmt.getMarker(BasicBlockMarker.class);
-    assert startBbm != null;
-
-    BasicBlockMarker endBbm = toStmt.getMarker(BasicBlockMarker.class);
-    assert endBbm != null;
-
-    HashMap<BasicBlock, Boolean> bbCanReachEndBb = new HashMap<BasicBlock, Boolean>();
-    BasicBlock endBb = endBbm.getBasicBlock();
-    bbCanReachEndBb.put(endBb, Boolean.valueOf(true));
-
-    return (hasDefBetweenNodes(startBbm.getBasicBlock(), endBb,
-    /* path */ new Stack<BasicBlock>(),
-    /* bbCanReachToBb */ bbCanReachEndBb,
-    /* hasLocalDefOnPreviousBlocks */ false, var, fromStmt, toStmt));
-  }
 
   @Nonnull
   protected JVariableRef getNewVarRef(@Nonnull JNode defExpr) {
@@ -100,62 +71,15 @@ public abstract class DefUsesAndUseDefsChainsSimplifier {
     return newVarAccess;
   }
 
-  private boolean hasDefBetweenNodes(@Nonnull BasicBlock from,
-      @Nonnull BasicBlock to,
-      @Nonnull Stack<BasicBlock> currentPath,
-      @Nonnull HashMap<BasicBlock, Boolean> bbCanReachToBb,
-      boolean hasLocalDefOnPreviousBlocks,
-      @Nonnull JVariable var,
-      @CheckForNull JStatement beginAfterStmt,
-      @Nonnull JStatement end) {
-
-    // There is a definition if previous definition already exist on the path or
-    // if a definition exist into the 'from' basic block.
-    boolean hasDef =
-         hasLocalDefOnPreviousBlocks || hasLocalDef(var, from, beginAfterStmt, end);
-
-    // A definition exists if the 'from' basic block can reach the 'to' basic block and that a
-    // definition exists.
-    // 'bbCanReachToBb' is used to speed-up analysis by reusing information previously
-    // computed
-    Boolean fromBbCanReachToBb = bbCanReachToBb.get(from);
-    if (fromBbCanReachToBb != null && fromBbCanReachToBb.booleanValue() == true && hasDef == true) {
-      return true;
-    }
-
-    if (from != to && bbCanReachToBb.get(from) == null) {
-
-      currentPath.push(from);
-
-      boolean hasEndIntoSucc = false;
-      for (BasicBlock succ : from.getSuccessors()) {
-        // 'currentPath' avoid to cycle by skipping basic blocks that are already into the
-        // current path.
-        if (!currentPath.contains(succ)) {
-          if (hasDefBetweenNodes(succ, to, currentPath, bbCanReachToBb,
-              hasDef, var, null, end)) {
-            return true;
-          }
-        }
-        Boolean hasPathtoDest = bbCanReachToBb.get(succ);
-        if (succ == to ||  (hasPathtoDest != null && hasPathtoDest.booleanValue() == true)) {
-          hasEndIntoSucc = true;
-        }
-      }
-
-      // All successors of 'from' are analyzed, in order to speed-up analysis we save if the
-      // 'from' basic block can reach the 'to' basic block.
-      bbCanReachToBb.put(from, Boolean.valueOf(hasEndIntoSucc));
-
-      currentPath.pop();
-    }
-
-    return false;
+  protected boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,
+      @CheckForNull JStatement beginAfterStmt, @CheckForNull JStatement end) {
+    return getLastLocalDef(var, basicBlock, beginAfterStmt, end) != null;
   }
 
-  protected boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,
-      @CheckForNull JStatement beginAfterStmt, @Nonnull JStatement end) {
-
+  @CheckForNull
+  protected DefinitionMarker getLastLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,
+      @CheckForNull JStatement beginAfterStmt, @CheckForNull JStatement end) {
+    DefinitionMarker lastDefinition = null;
     List<JStatement> statements = basicBlock.getStatements();
 
     if (!statements.isEmpty()) {
@@ -183,11 +107,11 @@ public abstract class DefUsesAndUseDefsChainsSimplifier {
         assert stmt != null;
         DefinitionMarker dm = ThreeAddressCodeFormUtils.getDefinitionMarker(stmt);
         if (dm != null && dm.getDefinedVariable() == var) {
-          return true;
+          lastDefinition = dm;
         }
       }
     }
 
-    return false;
+    return lastDefinition;
   }
 }
