@@ -28,6 +28,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -54,6 +55,16 @@ class ConfigDebug extends ConfigImpl {
       @Nonnull Map<KeyId<?, ?>, Object> instances,
       @Nonnull Map<KeyId<?, ?>, String> dropCauses) {
     super(context, values, instances);
+
+    this.dropCauses = new HashMap<KeyId<?, ?>, String>(dropCauses);
+  }
+
+  ConfigDebug(@Nonnull CodecContext context,
+      @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
+      @Nonnull Map<KeyId<?, ?>, Object> instances,
+      @Nonnull Map<KeyId<?, ?>, String> dropCauses,
+      @CheckForNull String name) {
+    super(context, values, instances, name);
 
     this.dropCauses = new HashMap<KeyId<?, ?>, String>(dropCauses);
   }

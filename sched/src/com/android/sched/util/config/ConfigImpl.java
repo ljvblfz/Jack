@@ -25,14 +25,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Implementation of a fully built {@code Config}.
  */
 class ConfigImpl implements Config, InternalConfig {
+  @Nonnegative
+  private static final AtomicInteger currentIndex = new AtomicInteger(0);
+  @Nonnull
+  private String name;
+
   @Nonnull
   private final CodecContext context;
   @Nonnull
@@ -48,9 +55,21 @@ class ConfigImpl implements Config, InternalConfig {
    */
   ConfigImpl(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
       @Nonnull Map<KeyId<?, ?>, Object> instances) {
+    this(context, values, instances, "config-" + currentIndex.getAndIncrement());
+  }
+
+  /**
+   * @param context Context for parsers
+   * @param values All the property values as {@code String} objects.
+   * @param instances All the property values as objects.
+   * @param name Name of the config object
+   */
+  ConfigImpl(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
+      @Nonnull Map<KeyId<?, ?>, Object> instances, @CheckForNull String name) {
     this.context = context;
     this.valuesById.putAll(values);
     this.instancesById.putAll(instances);
+    this.name = name;
   }
 
   @Override
@@ -135,5 +154,21 @@ class ConfigImpl implements Config, InternalConfig {
     }
 
     return result;
+  }
+
+  @Override
+  @Nonnull
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public void setName(@Nonnull String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 }

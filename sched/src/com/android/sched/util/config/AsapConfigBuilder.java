@@ -99,6 +99,9 @@ public class AsapConfigBuilder {
 
   private boolean strict = false;
 
+  @CheckForNull
+  private String name;
+
   public AsapConfigBuilder() {
     defaultLocations.push(NO_LOCATION);
   }
@@ -336,6 +339,12 @@ public class AsapConfigBuilder {
     return this;
   }
 
+  @Nonnull
+  public AsapConfigBuilder setName(@Nonnull String name) {
+    this.name = name;
+
+    return this;
+  }
 
   @Nonnull
   public AsapConfigBuilder setHooks(@Nonnull RunnableHooks hooks) {
@@ -343,6 +352,9 @@ public class AsapConfigBuilder {
 
     return this;
   }
+
+
+
 
   /**
    * Builds the {@link Config} with all defined property values.
@@ -418,12 +430,19 @@ public class AsapConfigBuilder {
 
     exceptions.throwIfNecessary();
 
+    Config config;
     if (context.isDebug()) {
-      return new ConfigDebug(
+      config = new ConfigDebug(
           context, checker.getValues(), checker.getInstances(), checker.getDropCauses());
     } else {
-      return new ConfigImpl(context, checker.getValues(), checker.getInstances());
+      config = new ConfigImpl(context, checker.getValues(), checker.getInstances());
     }
+
+    if (name != null) {
+      config.setName(name);
+    }
+
+    return config;
   }
 
   @Nonnull
