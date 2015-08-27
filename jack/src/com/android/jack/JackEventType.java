@@ -41,7 +41,10 @@ public enum JackEventType implements EventType {
   REMOVE_DEAD_CODE("Remove dead code"),
   DOP_CREATION("Dop creation"),
   ZIP_JACK_LIBRARY_IN_INCREMENTAL("Zip jack library in incremental mode"),
-  JACK_RUN("Jack run");
+  JACK_RUN("Jack run"),
+  ALL_JACK_SCHEDULABLES("All Jack schedulables"),
+  DX_BACKEND("Dx backend"),
+  DEX_MERGER("Dex merger");
 
   @Nonnull
   private final String name;

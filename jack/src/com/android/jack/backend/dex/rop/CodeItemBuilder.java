@@ -189,202 +189,209 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    RopRegisterManager ropReg =
-        new RopRegisterManager(emitLocalDebugInfo, emitSyntheticLocalDebugInfo);
-
-    ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
-    assert cfg != null;
-
-    RopBasicBlockManager ropBb = new RopBasicBlockManager(getMaxLabel(cfg));
-    assert cfg.getEntryNode().getSuccessors().size() == 1;
-    BasicBlock firstBlockOfCode = cfg.getEntryNode().getSuccessors().get(0);
-    assert firstBlockOfCode != null;
-    addSetupBlocks(method, ropReg, ropBb, firstBlockOfCode.getId());
-
-    JAbstractMethodBody body = method.getBody();
-    assert body instanceof JMethodBody;
-
-    if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
-      ropReg.createReturnReg(method.getType());
-    }
-
-    for (BasicBlock bb : cfg.getNodes()) {
-      if (bb == cfg.getEntryNode()) {
-        continue;
-      }
-      RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
-
-      assert !bb.getStatements().isEmpty();
-
-      ropBuilder.accept(bb.getStatements());
-      List<Insn> instructions = ropBuilder.getInstructions();
-      assert instructions != null;
-      JStatement lastStmt = bb.getLastInstruction();
-      SourcePosition lastStmtsourcePosition = RopHelper.getSourcePosition(lastStmt);
-
-      // TODO(mikaelpeltier) Think about a better solution to take into account control flow
-      // (perhaps with meta on cfg).
-      if (bb instanceof ReturnBasicBlock) {
-        InsnList il = createInsnList(instructions, 0);
-        il.setImmutable();
-        ropBb.createBasicBlock(bb.getId(), il, IntList.EMPTY, -1);
-      } else if (bb instanceof ConditionalBasicBlock) {
-        InsnList il = createInsnList(instructions, 0);
-        il.setImmutable();
-        BasicBlock primary = ((ConditionalBasicBlock) bb).getThenBlock();
-        BasicBlock secondary = ((ConditionalBasicBlock) bb).getElseBlock();
-
-        FallThroughMarker ftm = lastStmt.getMarker(FallThroughMarker.class);
-        if (ftm != null) {
-          switch (ftm.getFallThrough()) {
-            case ELSE: {
-              primary = ((ConditionalBasicBlock) bb).getElseBlock();
-              secondary = ((ConditionalBasicBlock) bb).getThenBlock();
-              break;
-            }
-            case THEN: {
-              primary = ((ConditionalBasicBlock) bb).getThenBlock();
-              secondary = ((ConditionalBasicBlock) bb).getElseBlock();
-              break;
-            }
-            default: {
-              throw new AssertionError();
-            }
-          }
-        } else {
-          primary = ((ConditionalBasicBlock) bb).getThenBlock();
-          secondary = ((ConditionalBasicBlock) bb).getElseBlock();
-        }
-
-        assert primary != null;
-        assert secondary != null;
-        int primarySuccessor = primary.getId();
-        IntList successors = IntList.makeImmutable(primarySuccessor, secondary.getId());
-
-        ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
-      } else if (bb instanceof ThrowBasicBlock) {
-        assert bb.getSuccessors().size() >= 1;
-        ThrowBasicBlock throwBlock = (ThrowBasicBlock) bb;
-        InsnList il = createInsnList(instructions, 0);
-        il.setImmutable();
-
-        IntList successors = new IntList();
-        int primarySuccessor = -1;
-
-        if (!throwBlock.getExceptionBlocks().isEmpty()) {
-          addCatchBlockSuccessors(throwBlock.getExceptionBlocks(), successors);
-        }
-        successors.setImmutable();
-
-        ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
-
-      } else if (bb instanceof PeiBasicBlock) {
-        assert bb.getSuccessors().size() >= 2;
-        PeiBasicBlock peiBlock = (PeiBasicBlock) bb;
-        Insn lastInstruction = instructions.get(instructions.size() - 1);
-
-        List<Insn> extraInstructions = ropBuilder.getExtraInstructions();
-        assert extraInstructions != null;
-
-        InsnList il = createInsnList(instructions, 0);
-        il.setImmutable();
-
-        int extraBlockLabel = ropBb.getAvailableLabel();
-
-        IntList successors = new IntList();
-        addCatchBlockSuccessors(peiBlock.getExceptionBlocks(), successors);
-
-        successors.add(extraBlockLabel);
-        successors.setImmutable();
-
-        ropBb.createBasicBlock(bb.getId(), il, successors, extraBlockLabel);
-
-        int indexInstruction = 0;
-        boolean needsGoto;
-        SourcePosition sourcePosition;
-        if (extraInstructions.isEmpty()) {
-          needsGoto = true;
-          sourcePosition = lastInstruction.getPosition();
-          il = new InsnList(1);
-        } else {
-          Insn extraInsn = extraInstructions.get(0);
-          needsGoto =
-              extraInstructions.get(extraInstructions.size() - 1).getOpcode().getBranchingness()
-              == Rop.BRANCH_NONE;
-          il = new InsnList(extraInstructions.size() + (needsGoto ? 1 : 0));
-          for (Insn inst : extraInstructions) {
-            il.set(indexInstruction++, inst);
-          }
-          sourcePosition = extraInsn.getPosition();
-        }
-
-        if (needsGoto) {
-          il.set(indexInstruction++, new PlainInsn(Rops.GOTO, sourcePosition, null,
-              RegisterSpecList.EMPTY));
-        }
-
-        il.setImmutable();
-        BasicBlock primarySuccessor = ((PeiBasicBlock) bb).getTarget();
-        assert primarySuccessor != null;
-
-        successors = IntList.makeImmutable(primarySuccessor.getId());
-
-        ropBb.createBasicBlock(extraBlockLabel, il, successors, primarySuccessor.getId());
-      } else if (bb instanceof SwitchBasicBlock) {
-        IntList successors = new IntList();
-        for (BasicBlock succ : ((SwitchBasicBlock) bb).getCasesBlock()) {
-          successors.add(succ.getId());
-        }
-
-        int defaultIdBlock = ((SwitchBasicBlock) bb).getDefaultBlock().getId();
-        successors.add(defaultIdBlock);
-
-        successors.setImmutable();
-        InsnList il = createInsnList(instructions, 0);
-        il.setImmutable();
-        ropBb.createBasicBlock(bb.getId(), il, successors, successors.get(successors.size() - 1));
-      } else if (bb instanceof NormalBasicBlock) {
-        List<BasicBlock> bbSuccessors = bb.getSuccessors();
-        assert bbSuccessors.size() == 1;
-        int primarySuccessor = bbSuccessors.get(0).getId();
-        IntList successors = IntList.makeImmutable(primarySuccessor);
-        InsnList il = createInsnList(instructions, 1);
-        Insn gotoInstruction =
-            new PlainInsn(Rops.GOTO, lastStmtsourcePosition, null, RegisterSpecList.EMPTY);
-        il.set(instructions.size(), gotoInstruction);
-        il.setImmutable();
-        ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
-      } else {
-        throw new AssertionError("Not yet supported");
-      }
-    }
-
-    RopMethod ropMethod =
-        new RopMethod(ropBb.getBasicBlockList(),
-            ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
-
-    if (runDxOptimizations) {
-      Event optEvent = tracer.start(JackEventType.DX_OPTIMIZATION);
-
-      try {
-        ropMethod =
-            Optimizer.optimize(ropMethod, getParameterWordCount(method), method.isStatic(),
-                true /* inPreserveLocals */, DexTranslationAdvice.THE_ONE);
-      } finally {
-        optEvent.end();
-      }
-    }
-
-    Event dopEvent = tracer.start(JackEventType.DOP_CREATION);
-    DalvCode dalvCode;
+    Tracer tracer = TracerFactory.getTracer();
+    Event event = tracer.start(JackEventType.DX_BACKEND);
     try {
-      dalvCode = createCode(method, ropMethod);
-    } finally {
-      dopEvent.end();
-    }
 
-    method.addMarker(new DexCodeMarker(new CodeItem(RopHelper.createMethodRef(method), dalvCode,
-        method.isStatic(), createThrows(method))));
+      RopRegisterManager ropReg =
+          new RopRegisterManager(emitLocalDebugInfo, emitSyntheticLocalDebugInfo);
+
+      ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
+      assert cfg != null;
+
+      RopBasicBlockManager ropBb = new RopBasicBlockManager(getMaxLabel(cfg));
+      assert cfg.getEntryNode().getSuccessors().size() == 1;
+      BasicBlock firstBlockOfCode = cfg.getEntryNode().getSuccessors().get(0);
+      assert firstBlockOfCode != null;
+      addSetupBlocks(method, ropReg, ropBb, firstBlockOfCode.getId());
+
+      JAbstractMethodBody body = method.getBody();
+      assert body instanceof JMethodBody;
+
+      if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
+        ropReg.createReturnReg(method.getType());
+      }
+
+      for (BasicBlock bb : cfg.getNodes()) {
+        if (bb == cfg.getEntryNode()) {
+          continue;
+        }
+        RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
+
+        assert !bb.getStatements().isEmpty();
+
+        ropBuilder.accept(bb.getStatements());
+        List<Insn> instructions = ropBuilder.getInstructions();
+        assert instructions != null;
+        JStatement lastStmt = bb.getLastInstruction();
+        SourcePosition lastStmtsourcePosition = RopHelper.getSourcePosition(lastStmt);
+
+        // TODO(mikaelpeltier) Think about a better solution to take into account control flow
+        // (perhaps with meta on cfg).
+        if (bb instanceof ReturnBasicBlock) {
+          InsnList il = createInsnList(instructions, 0);
+          il.setImmutable();
+          ropBb.createBasicBlock(bb.getId(), il, IntList.EMPTY, -1);
+        } else if (bb instanceof ConditionalBasicBlock) {
+          InsnList il = createInsnList(instructions, 0);
+          il.setImmutable();
+          BasicBlock primary = ((ConditionalBasicBlock) bb).getThenBlock();
+          BasicBlock secondary = ((ConditionalBasicBlock) bb).getElseBlock();
+
+          FallThroughMarker ftm = lastStmt.getMarker(FallThroughMarker.class);
+          if (ftm != null) {
+            switch (ftm.getFallThrough()) {
+              case ELSE: {
+                primary = ((ConditionalBasicBlock) bb).getElseBlock();
+                secondary = ((ConditionalBasicBlock) bb).getThenBlock();
+                break;
+              }
+              case THEN: {
+                primary = ((ConditionalBasicBlock) bb).getThenBlock();
+                secondary = ((ConditionalBasicBlock) bb).getElseBlock();
+                break;
+              }
+              default: {
+                throw new AssertionError();
+              }
+            }
+          } else {
+            primary = ((ConditionalBasicBlock) bb).getThenBlock();
+            secondary = ((ConditionalBasicBlock) bb).getElseBlock();
+          }
+
+          assert primary != null;
+          assert secondary != null;
+          int primarySuccessor = primary.getId();
+          IntList successors = IntList.makeImmutable(primarySuccessor, secondary.getId());
+
+          ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
+        } else if (bb instanceof ThrowBasicBlock) {
+          assert bb.getSuccessors().size() >= 1;
+          ThrowBasicBlock throwBlock = (ThrowBasicBlock) bb;
+          InsnList il = createInsnList(instructions, 0);
+          il.setImmutable();
+
+          IntList successors = new IntList();
+          int primarySuccessor = -1;
+
+          if (!throwBlock.getExceptionBlocks().isEmpty()) {
+            addCatchBlockSuccessors(throwBlock.getExceptionBlocks(), successors);
+          }
+          successors.setImmutable();
+
+          ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
+
+        } else if (bb instanceof PeiBasicBlock) {
+          assert bb.getSuccessors().size() >= 2;
+          PeiBasicBlock peiBlock = (PeiBasicBlock) bb;
+          Insn lastInstruction = instructions.get(instructions.size() - 1);
+
+          List<Insn> extraInstructions = ropBuilder.getExtraInstructions();
+          assert extraInstructions != null;
+
+          InsnList il = createInsnList(instructions, 0);
+          il.setImmutable();
+
+          int extraBlockLabel = ropBb.getAvailableLabel();
+
+          IntList successors = new IntList();
+          addCatchBlockSuccessors(peiBlock.getExceptionBlocks(), successors);
+
+          successors.add(extraBlockLabel);
+          successors.setImmutable();
+
+          ropBb.createBasicBlock(bb.getId(), il, successors, extraBlockLabel);
+
+          int indexInstruction = 0;
+          boolean needsGoto;
+          SourcePosition sourcePosition;
+          if (extraInstructions.isEmpty()) {
+            needsGoto = true;
+            sourcePosition = lastInstruction.getPosition();
+            il = new InsnList(1);
+          } else {
+            Insn extraInsn = extraInstructions.get(0);
+            needsGoto =
+                extraInstructions.get(extraInstructions.size() - 1).getOpcode().getBranchingness()
+                == Rop.BRANCH_NONE;
+            il = new InsnList(extraInstructions.size() + (needsGoto ? 1 : 0));
+            for (Insn inst : extraInstructions) {
+              il.set(indexInstruction++, inst);
+            }
+            sourcePosition = extraInsn.getPosition();
+          }
+
+          if (needsGoto) {
+            il.set(indexInstruction++, new PlainInsn(Rops.GOTO, sourcePosition, null,
+                RegisterSpecList.EMPTY));
+          }
+
+          il.setImmutable();
+          BasicBlock primarySuccessor = ((PeiBasicBlock) bb).getTarget();
+          assert primarySuccessor != null;
+
+          successors = IntList.makeImmutable(primarySuccessor.getId());
+
+          ropBb.createBasicBlock(extraBlockLabel, il, successors, primarySuccessor.getId());
+        } else if (bb instanceof SwitchBasicBlock) {
+          IntList successors = new IntList();
+          for (BasicBlock succ : ((SwitchBasicBlock) bb).getCasesBlock()) {
+            successors.add(succ.getId());
+          }
+
+          int defaultIdBlock = ((SwitchBasicBlock) bb).getDefaultBlock().getId();
+          successors.add(defaultIdBlock);
+
+          successors.setImmutable();
+          InsnList il = createInsnList(instructions, 0);
+          il.setImmutable();
+          ropBb.createBasicBlock(bb.getId(), il, successors, successors.get(successors.size() - 1));
+        } else if (bb instanceof NormalBasicBlock) {
+          List<BasicBlock> bbSuccessors = bb.getSuccessors();
+          assert bbSuccessors.size() == 1;
+          int primarySuccessor = bbSuccessors.get(0).getId();
+          IntList successors = IntList.makeImmutable(primarySuccessor);
+          InsnList il = createInsnList(instructions, 1);
+          Insn gotoInstruction =
+              new PlainInsn(Rops.GOTO, lastStmtsourcePosition, null, RegisterSpecList.EMPTY);
+          il.set(instructions.size(), gotoInstruction);
+          il.setImmutable();
+          ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
+        } else {
+          throw new AssertionError("Not yet supported");
+        }
+      }
+
+      RopMethod ropMethod =
+          new RopMethod(ropBb.getBasicBlockList(),
+              ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
+
+      if (runDxOptimizations) {
+        Event optEvent = tracer.start(JackEventType.DX_OPTIMIZATION);
+
+        try {
+          ropMethod =
+              Optimizer.optimize(ropMethod, getParameterWordCount(method), method.isStatic(),
+                  true /* inPreserveLocals */, DexTranslationAdvice.THE_ONE);
+        } finally {
+          optEvent.end();
+        }
+      }
+
+      Event dopEvent = tracer.start(JackEventType.DOP_CREATION);
+      DalvCode dalvCode;
+      try {
+        dalvCode = createCode(method, ropMethod);
+      } finally {
+        dopEvent.end();
+      }
+
+      method.addMarker(new DexCodeMarker(new CodeItem(RopHelper.createMethodRef(method), dalvCode,
+          method.isStatic(), createThrows(method))));
+    } finally {
+      event.end();
+    }
   }
 
   private void addCatchBlockSuccessors(@Nonnull List<CatchBasicBlock> catchBlocks,

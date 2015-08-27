@@ -832,7 +832,12 @@ public abstract class Jack {
           }
 
           assert plan != null;
-          plan.getScheduleInstance().process(session);
+          Event allJackSchedulablesEvent = tracer.start(JackEventType.ALL_JACK_SCHEDULABLES);
+          try {
+            plan.getScheduleInstance().process(session);
+          } finally {
+            allJackSchedulablesEvent.end();
+          }
         } finally {
             if (outputJackLibrary != null) {
               try {
