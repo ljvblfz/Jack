@@ -21,6 +21,7 @@ import com.android.jack.TestTools;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -93,6 +94,13 @@ public class JDefinedInterfaceTest {
   @Nonnull
   private static final File TEST9_FILE = TestTools.getJackUnitTestFromBinaryName(TEST9_CLASS_BINARY_NAME);
 
+  @Nonnull
+  private static final String TEST10_CLASS_BINARY_NAME = "com/android/jack/ir/ast/sam/Test010";
+  @Nonnull
+  private static final String TEST10_CLASS_SIGNATURE = "L" + TEST10_CLASS_BINARY_NAME + ";";
+  @Nonnull
+  private static final File TEST10_FILE = TestTools.getJackUnitTestFromBinaryName(TEST10_CLASS_BINARY_NAME);
+
   @Test
   public void testSam1() throws Exception {
     JDefinedInterface type = getType(TEST1_FILE, TEST1_CLASS_SIGNATURE);
@@ -156,6 +164,14 @@ public class JDefinedInterfaceTest {
   @Test
   public void testSam9() throws Exception {
     checkIsNoSam(TEST9_FILE, TEST9_CLASS_SIGNATURE);
+  }
+
+  @Test
+  @Ignore
+  public void testSam10() throws Exception {
+    JDefinedInterface type = getType(TEST10_FILE, TEST10_CLASS_SIGNATURE);
+    Assert.assertTrue(type.isSingleAbstractMethodType());
+    Assert.assertEquals("sam", type.getSingleAbstractMethod().getName());
   }
 
   @Nonnull
