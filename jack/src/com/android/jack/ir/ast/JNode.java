@@ -107,13 +107,16 @@ public abstract class JNode extends LocalMarkerManager
   @SuppressWarnings("unchecked")
   @Nonnull
   public <T extends JNode> T getParent(@Nonnull Class<T> classToSearch) {
-    JNode result = this;
-    while (!(classToSearch.isAssignableFrom(result.getClass()))) {
+    JNode result = getParent();
+
+    while (result != null && !(classToSearch.isAssignableFrom(result.getClass()))) {
       result = result.getParent();
-      if (result == null) {
-        throw new NoSuchElementException();
-      }
     }
+
+    if (result == null) {
+      throw new NoSuchElementException();
+    }
+
     return (T) result;
   }
 
