@@ -16,6 +16,8 @@
 
 package com.android.jack.util;
 
+import com.android.jack.cfg.BasicBlock;
+import com.android.jack.cfg.BasicBlockMarker;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JIfStatement;
@@ -95,5 +97,12 @@ public class ControlFlowHelper {
     }
 
     return (nextStmt);
+  }
+
+  @Nonnull
+  public static BasicBlock getBasicBlock(@Nonnull JStatement stmt) {
+    BasicBlockMarker bbm = stmt.getMarker(BasicBlockMarker.class);
+    assert bbm != null;
+    return (bbm.getBasicBlock());
   }
 }
