@@ -34,6 +34,10 @@ public final class Integer extends java.lang.Number implements
     throw new RuntimeException("Stub!");
   }
 
+  public static int compare(int lhs, int rhs) {
+    throw new RuntimeException("Stub!");
+  }
+
   public static java.lang.Integer decode(java.lang.String string)
       throws java.lang.NumberFormatException {
     throw new RuntimeException("Stub!");
