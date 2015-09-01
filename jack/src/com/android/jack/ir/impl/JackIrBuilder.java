@@ -215,6 +215,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -2224,9 +2225,15 @@ public class JackIrBuilder {
          */
         SourceTypeBinding binding = x.binding;
         if (isNested(binding)) {
+
           // add synthetic fields for outer this and locals
           assert (type instanceof JDefinedClass);
           NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
+
+          if (!binding.isMemberType() && binding.isLocalType()
+              && ((LocalTypeBinding) binding).enclosingMethod != null) {
+            ((JDefinedClass) type).setEnclosingMethod(curMethod.method);
+          }
 
           if (x.binding.syntheticFields() != null) {
             for (FieldBinding fieldBinding : x.binding.syntheticFields()) {

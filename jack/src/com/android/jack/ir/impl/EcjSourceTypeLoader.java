@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JDefinedInterface;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JType;
@@ -122,13 +121,6 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     int accessFlags = binding.getAccessFlags();
     if (binding.isClass()) {
       type = new JDefinedClass(info, name, accessFlags, enclosingPackage, loader);
-      if (binding.isNestedType()
-          && !binding.isMemberType()
-          && ((LocalTypeBinding) binding).enclosingMethod != null) {
-        MethodBinding methodBinding = ((LocalTypeBinding) binding).enclosingMethod;
-        JMethod jMethod = refMap.get(methodBinding);
-        ((JDefinedClass) type).setEnclosingMethod(jMethod);
-      }
     } else if (binding.isInterface()) {
       if (binding.isAnnotationType()) {
         assert JModifier.isAnnotation(accessFlags);
