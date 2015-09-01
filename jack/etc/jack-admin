@@ -17,6 +17,7 @@
 # Version: %%VERSION%%
 #
 set -o nounset
+BASE_UMASK=$(umask)
 umask 077
 
 #
@@ -191,6 +192,7 @@ startServer () {
       for i in $(seq 3 255); do
         eval exec "$i"'>&-'
       done
+      umask $BASE_UMASK
       exec $JACK_SERVER_COMMAND
       abort
     ) >"$JACK_OUT_ERR" 2>&1 &
