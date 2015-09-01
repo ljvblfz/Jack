@@ -38,6 +38,8 @@ import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
@@ -464,4 +466,20 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     return false;
   }
 
+  @Override
+  public boolean visit(@Nonnull JParameterRef parameterRef) {
+    expression = new JParameterRef(parameterRef.getSourceInfo(),
+        getNewParameter(parameterRef.getParameter()));
+    return false;
+  }
+
+  @Nonnull
+  private JParameter getNewParameter(@Nonnull JParameter oldParameter) {
+    for (JParameter newParameter : targetMethod.getParams()) {
+      if (newParameter.getName().equals(oldParameter.getName())) {
+        return newParameter;
+      }
+    }
+    throw new AssertionError();
+  }
 }
