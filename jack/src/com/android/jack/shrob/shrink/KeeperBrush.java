@@ -99,14 +99,19 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
 
   @Override
   protected boolean markIfNecessary(@Nonnull JNode node) {
-    if (node instanceof JDefinedClassOrInterface
-        && ((JDefinedClassOrInterface) node).isExternal()) {
-      return false;
-    } else if (node.getParent(JDefinedClassOrInterface.class).isExternal()) {
-      return false;
+    JDefinedClassOrInterface jdcoi;
+
+    if (node instanceof JDefinedClassOrInterface) {
+      jdcoi = (JDefinedClassOrInterface) node;
     } else {
-      return super.markIfNecessary(node);
+      jdcoi = node.getParent(JDefinedClassOrInterface.class);
     }
+
+    if (jdcoi.isExternal()) {
+      return false;
+    }
+
+    return super.markIfNecessary(node);
   }
 
   @Override
