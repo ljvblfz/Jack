@@ -25,6 +25,7 @@ import com.android.jill.utils.FileUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -116,13 +117,13 @@ public class JavaTransformer {
       if (options.getOutputContainer() == ContainerType.ZIP) {
         zos = new ZipOutputStream(new FileOutputStream(options.getOutput()));
         for (File fileToTransform : javaBinaryFiles) {
-          FileInputStream fis = new FileInputStream(fileToTransform);
+          InputStream is = new BufferedInputStream(new FileInputStream(fileToTransform));
           try {
-            transformToZip(fis, zos, null);
+            transformToZip(is, zos, null);
           } catch (DuplicateJackFileException e) {
             System.err.println(e.getMessage());
           } finally {
-            fis.close();
+            is.close();
           }
         }
       } else {
