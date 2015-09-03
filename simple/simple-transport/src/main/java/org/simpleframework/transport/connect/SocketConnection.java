@@ -121,6 +121,25 @@ public class SocketConnection implements Connection {
       }
       return manager.listen(channel);
    }
+
+   /**
+    * This creates a new background task that will listen to the
+    * specified <code>SocketChannel</code> for incoming TCP connect
+    * requests. When an connection is accepted it is handed to the
+    * internal socket connector.
+    *
+    * @param address this is the address used to accept connections
+    * @param context this is used for secure SSL connections
+    *
+    * @return this returns the actual local address that is used
+    */
+   public SocketAddress connect(ServerSocketChannel channel, SSLContext context)
+       throws IOException {
+      if(closed) {
+         throw new ConnectionException("Connection is closed");
+      }
+      return manager.listen(channel, context);
+   }
    
    /**
     * This creates a new background task that will listen to the 
