@@ -118,7 +118,7 @@ updateProgram () {
          -X PUT \
          -F "jar=@$2;type=application/octet-stream" \
          -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
-         --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+         --noproxy ${SERVER_HOST} \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
     handleHttpErrors $? $HTTP_CODE
@@ -142,7 +142,7 @@ isServerRunning () {
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-         --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+         --noproxy ${SERVER_HOST} \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
@@ -206,7 +206,7 @@ waitServerStarted () {
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-         --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+         --noproxy ${SERVER_HOST} \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
@@ -238,7 +238,7 @@ listProgramVersion () {
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-         --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+         --noproxy ${SERVER_HOST} \
          http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
     handleHttpErrors $? $HTTP_CODE
@@ -349,7 +349,7 @@ case $COMMAND in
                -X HEAD \
                --data "$4" \
                -H "Content-Type:application/vnd.jack.select-exact;version=1" \
-               --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+               --noproxy ${SERVER_HOST} \
                http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
                )
           CURL_CODE=$?
@@ -405,7 +405,7 @@ case $COMMAND in
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X POST \
-           --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+           --noproxy ${SERVER_HOST} \
            http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
            )
       CURL_CODE=$?
@@ -457,7 +457,7 @@ case $COMMAND in
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X GET \
            -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-           --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+           --noproxy ${SERVER_HOST} \
            http://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
            )
       handleHttpErrors $? $HTTP_CODE
@@ -525,7 +525,7 @@ case $COMMAND in
            --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
            --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
            --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
-           --no-proxy ${SERVER_HOST}:$SERVER_PORT_ADMIN \
+           --noproxy ${SERVER_HOST} \
            http://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
            )
       handleHttpErrors $? $HTTP_CODE
