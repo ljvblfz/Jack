@@ -2228,11 +2228,23 @@ public class JackIrBuilder {
 
           // add synthetic fields for outer this and locals
           assert (type instanceof JDefinedClass);
-          NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
 
           if (!binding.isMemberType() && binding.isLocalType()
               && ((LocalTypeBinding) binding).enclosingMethod != null) {
             ((JDefinedClass) type).setEnclosingMethod(curMethod.method);
+          }
+
+          NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
+          if (nestedBinding.outerLocalVariables != null) {
+            for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
+              SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
+              // Force creation of synthetic arg even if normally it is useless since a local should
+              // be used directly. Nevertheless, $init method could requires it because it does not
+              // have access to the local.
+              if (arg.matchingField == null) {
+                nestedBinding.addSyntheticArgumentAndField(arg.actualOuterLocalVariable);
+              }
+            }
           }
 
           if (x.binding.syntheticFields() != null) {
@@ -2245,17 +2257,6 @@ public class JackIrBuilder {
               type.addField(field);
               getTypeMap().setField(fieldBinding, field);
               field.updateParents(type);
-            }
-          }
-
-          if (nestedBinding.outerLocalVariables != null) {
-            for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
-              SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
-              if (arg.matchingField == null) {
-                // Create a field is not required, need works to remove them due to $init
-                createSyntheticField(arg, type, JModifier.FINAL | JModifier.SYNTHETIC);
-              }
-
             }
           }
         }
@@ -2314,14 +2315,9 @@ public class JackIrBuilder {
       JParameter param = (JParameter) curMethod.getJVariable(arg);
       assert param != null;
 
-      JField field = null;
-      if (arg.matchingField == null) {
-        field = curClass.syntheticArgToFields.get(arg);
-      } else {
-        field = typeMap.get(arg.matchingField);
-      }
-
+      JField field = typeMap.get(arg.matchingField);
       assert field != null;
+
       JFieldRef lhs = makeInstanceFieldRef(info, field);
       JParameterRef rhs = new JParameterRef(info, param);
       JBinaryOperation asg = new JAsgOperation(info, lhs, rhs);
@@ -2440,22 +2436,6 @@ public class JackIrBuilder {
       return newLocal;
     }
 
-    private JField createSyntheticField(SyntheticArgumentBinding arg,
-        JDefinedClassOrInterface enclosingType, int modifier) throws JTypeLookupException {
-      JType type = getTypeMap().get(arg.type);
-      SourceInfo info = enclosingType.getSourceInfo();
-      JField field =
-          new JField(info, ReferenceMapper.intern(arg.name), enclosingType, type,
-              modifier | JModifier.SYNTHETIC);
-      enclosingType.addField(field);
-      curClass.syntheticArgToFields.put(arg, field);
-      if (arg.matchingField != null) {
-        getTypeMap().setField(arg.matchingField, field);
-      }
-      field.updateParents(enclosingType);
-      return field;
-    }
-
     /**
      * Get a new label of a particular name, or create a new one if it doesn't
      * exist already.
@@ -2556,8 +2536,14 @@ public class JackIrBuilder {
       }
       JExpression ref;
       ReferenceBinding type;
-      if (curMethod.scope.isInsideInitializer() && path[0] instanceof SyntheticArgumentBinding) {
+      // Field representing synthetic arg must not be used into constructor because this field could
+      // not be initialized when constructor call another constructor through 'this' (See
+      // InnerTest.test021). In this case (see the condition) use directly the parameter
+      // representing the synthetic arg.
+      if (!(curMethod.method instanceof JConstructor) &&
+          path[0] instanceof SyntheticArgumentBinding) {
         SyntheticArgumentBinding b = (SyntheticArgumentBinding) path[0];
+        assert b.matchingField != null;
         JField field = typeMap.get(b.matchingField);
         assert field != null;
         ref = makeInstanceFieldRef(info, field);
@@ -2881,33 +2867,43 @@ public class JackIrBuilder {
           for (SyntheticArgumentBinding arg : targetBinding.syntheticOuterLocalVariables()) {
             LocalVariableBinding targetVariable = arg.actualOuterLocalVariable;
             VariableBinding[] path = scope.getEmulationPath(targetVariable);
-            assert path.length == 1;
-            if (curMethod.scope.isInsideInitializer()
-                && path[0] instanceof SyntheticArgumentBinding) {
-              SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path[0];
-              JField field;
-              if (sb.matchingField == null) {
-                field = curClass.syntheticArgToFields.get(sb);
-              } else {
-                field = typeMap.get(sb.matchingField);
-              }
-              assert field != null;
-              call.addArg(makeInstanceFieldRef(info, field));
-            } else if (path[0] instanceof LocalVariableBinding) {
-              JExpression localRef = makeLocalRef(info, (LocalVariableBinding) path[0]);
-              call.addArg(localRef);
-            } else if (path[0] instanceof FieldBinding) {
-              JField field = getTypeMap().get((FieldBinding) path[0]);
-              assert field != null;
-              call.addArg(makeInstanceFieldRef(info, field));
-            } else {
-              throw new AssertionError("Unknown emulation path.");
-            }
+            call.addArg(generateEmulationPath(info, path));
           }
         }
       }
 
       push(call);
+    }
+
+    @Nonnull
+    private JExpression generateEmulationPath(@Nonnull SourceInfo info,
+        @Nonnull VariableBinding[] paths) {
+      assert paths.length == 1;
+      VariableBinding path = paths[0];
+      JExpression result;
+
+      // Field representing synthetic arg must not be used into constructor because this field could
+      // not be initialized when constructor call another constructor through 'this' (See
+      // InnerTest.test021). In this case (see the condition) use directly the parameter
+      // representing the synthetic arg.
+      if (!(curMethod.method instanceof JConstructor)
+          && path instanceof SyntheticArgumentBinding) {
+        SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path;
+        assert sb.matchingField != null;
+        JField field = typeMap.get(sb.matchingField);
+        assert field != null;
+        result = makeInstanceFieldRef(info, field);
+      } else if (path instanceof LocalVariableBinding) {
+        result = makeLocalRef(info, (LocalVariableBinding) path);
+      } else if (path instanceof FieldBinding) {
+        JField field = getTypeMap().get((FieldBinding) path);
+        assert field != null;
+        result = makeInstanceFieldRef(info, field);
+      } else {
+        throw new AssertionError("Unknown emulation path.");
+      }
+
+      return result;
     }
 
     /**
@@ -2960,30 +2956,7 @@ public class JackIrBuilder {
         LocalVariableBinding b = (LocalVariableBinding) binding;
         if ((x.bits & ASTNode.DepthMASK) != 0) {
           VariableBinding[] path = getEmulationPath(scope, b, x);
-          assert path.length == 1;
-          if (curMethod.scope.isInsideInitializer()
-              && path[0] instanceof SyntheticArgumentBinding) {
-            SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path[0];
-            JField field = null;
-            if (sb.matchingField == null) {
-              field = curClass.syntheticArgToFields.get(sb);
-            } else {
-              field = typeMap.get(sb.matchingField);
-            }
-            assert field != null;
-            result = makeInstanceFieldRef(info, field);
-          } else if (path[0] instanceof LocalVariableBinding) {
-            result = makeLocalRef(info, (LocalVariableBinding) path[0]);
-          } else if (path[0] instanceof FieldBinding) {
-            FieldBinding fb = (FieldBinding) path[0];
-            assert curClass.typeDecl.binding != null;
-            assert curClass.typeDecl.binding.isCompatibleWith(x.actualReceiverType.erasure());
-            JField field = getTypeMap().get(fb);
-            assert field != null;
-            result = makeInstanceFieldRef(info, field);
-          } else {
-            throw new AssertionError("Unknown emulation path.");
-          }
+          result = generateEmulationPath(info, path);
         } else {
           result = makeLocalRef(info, b);
         }
@@ -3109,10 +3082,6 @@ public class JackIrBuilder {
   static class ClassInfo {
     public final JDefinedClass classType;
     public final ClassScope scope;
-    // This should be remove, since it keeps a mapping between SyntheticArgumentBinding and useless
-    // JField. Nevertheless, until $init exists it must be kept
-    public final Map<SyntheticArgumentBinding, JField> syntheticArgToFields =
-        new IdentityHashMap<SyntheticArgumentBinding, JField>();
     public final JDefinedClassOrInterface type;
     public final TypeDeclaration typeDecl;
 
