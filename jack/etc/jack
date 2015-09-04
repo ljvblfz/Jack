@@ -23,8 +23,8 @@ umask 077
 # Settings
 #
 JACK_VERSION=${JACK_VERSION:=3.7.ENGINEERING}
-JACK_HOME="${JACK_HOME:=$HOME/.jack-home}"
-CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-client}"
+JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
+CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 
@@ -43,8 +43,8 @@ if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
   cat >"$CLIENT_SETTING.$$" <<-EOT
 	# Server settings
 	SERVER_HOST=${SERVER_HOST:=127.0.0.1}
-	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8074}
-	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8075}
+	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8076}
+	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8077}
 
 	# Internal, do not touch
 	SETTING_VERSION=4
@@ -92,6 +92,8 @@ while true; do
   exec 3>&1
   exec 4>&2
   HTTP_CODE=$(curl -f \
+       --cert "${JACK_HOME}/client.pem" \
+       --cacert "${JACK_HOME}/server.pem" \
        --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
        -X POST \
@@ -100,7 +102,7 @@ while true; do
        -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
        -F "pwd=$JACK_PWD;type=plain/text" \
        --noproxy ${SERVER_HOST} \
-       http://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
+       https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
 
   CURL_CODE=$?

@@ -23,8 +23,8 @@ umask 077
 #
 # Settings
 #
-JACK_HOME="${JACK_HOME:=$HOME/.jack-home}"
-CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-client}"
+JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
+CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 JACK_SERVER_VM_ARGUMENTS="${JACK_SERVER_VM_ARGUMENTS:=-Dfile.encoding=UTF-8 -XX:+TieredCompilation}"
 
@@ -49,8 +49,8 @@ if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
   cat >"$CLIENT_SETTING.$$" <<-EOT
 	# Server settings
 	SERVER_HOST=${SERVER_HOST:=127.0.0.1}
-	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8074}
-	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8075}
+	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8076}
+	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8077}
 
 	# Internal, do not touch
 	SETTING_VERSION=4
@@ -114,13 +114,15 @@ updateProgram () {
   while [ "$DONE" -ne 0 ]; do
     exec 3>&1
     HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X PUT \
          -F "jar=@$2;type=application/octet-stream" \
          -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
-         http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
     handleHttpErrors $? $HTTP_CODE
     DONE=$?
@@ -139,12 +141,14 @@ isServerRunning () {
   DONE=1
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
-         http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
     if [ $CURL_CODE -eq 0 ]; then
@@ -192,6 +196,7 @@ startServer () {
       for i in $(seq 3 255); do
         eval exec "$i"'>&-'
       done
+      cd "$JACK_HOME"
       umask $BASE_UMASK
       exec $JACK_SERVER_COMMAND
       abort
@@ -204,12 +209,14 @@ waitServerStarted () {
   DONE=1
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
-         http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
     if [ $CURL_CODE -eq 7 ]; then
@@ -236,12 +243,14 @@ listProgramVersion () {
   while [ "$DONE" -ne 0 ]; do
     exec 3>&1
     HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
-         http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
          )
     handleHttpErrors $? $HTTP_CODE
     DONE=$?
@@ -294,6 +303,8 @@ case $COMMAND in
       cp $2 "$LAUNCHER_JAR"
       cp $3 "$JACK_HOME/server-1.jar"
       mkdir "$JACK_LOGS_DIR"
+      keytool -genkeypair -validity 3650 -alias server -keyalg RSA -keysize 2048 -keypass Jack-Server -storepass Jack-Server -dname "CN=$SERVER_HOST" -keystore "$JACK_HOME/server.jks"
+      keytool -genkeypair -validity 3650 -alias client -keyalg RSA -keysize 2048 -keypass Jack-Server -storepass Jack-Server -dname "CN=$(id -un)@$(uname -n)" -keystore "$JACK_HOME/client.jks"
     else
       echo "Jack server already installed in \"$JACK_HOME\"" >&2
       abort
@@ -346,13 +357,15 @@ case $COMMAND in
         DONE=1
         while [ "$DONE" -ne 0 ]; do
           HTTP_CODE=$(curl -f \
+               --cert "${JACK_HOME}/client.pem" \
+               --cacert "${JACK_HOME}/server.pem" \
                --output >(cat >/dev/null) \
                --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
                -X HEAD \
                --data "$4" \
                -H "Content-Type:application/vnd.jack.select-exact;version=1" \
                --noproxy ${SERVER_HOST} \
-               http://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
+               https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
                )
           CURL_CODE=$?
           if [ $CURL_CODE -eq 0 ]; then
@@ -404,11 +417,13 @@ case $COMMAND in
     while [ "$DONE" -ne 0 ]; do
       exec 3>&1
       HTTP_CODE=$(curl -f \
+           --cert "${JACK_HOME}/client.pem" \
+           --cacert "${JACK_HOME}/server.pem" \
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X POST \
            --noproxy ${SERVER_HOST} \
-           http://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
+           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
            )
       CURL_CODE=$?
 
@@ -455,12 +470,14 @@ case $COMMAND in
     while [ "$DONE" -ne 0 ]; do
       exec 3>&1
       HTTP_CODE=$(curl -f \
+           --cert "${JACK_HOME}/client.pem" \
+           --cacert "${JACK_HOME}/server.pem" \
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X GET \
            -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
            --noproxy ${SERVER_HOST} \
-           http://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
+           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
@@ -521,6 +538,8 @@ case $COMMAND in
     while [ "$DONE" -ne 0 ]; do
       exec 3>&1
       HTTP_CODE=$(curl --fail \
+           --cert "${JACK_HOME}/client.pem" \
+           --cacert "${JACK_HOME}/server.pem" \
            --output >(cat >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            --request PUT \
@@ -528,7 +547,7 @@ case $COMMAND in
            --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
            --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
            --noproxy ${SERVER_HOST} \
-           http://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
+           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
