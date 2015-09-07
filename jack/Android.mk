@@ -181,7 +181,7 @@ endif
 	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar 2>&1 || (exit 0)
 ifneq ($(dist_goal),)
 	mkdir -p "$(DIST_DIR)/logs/jack/"
-	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(DIST_DIR)/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || (exit 0)
+	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(abspath $(DIST_DIR))/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || (exit 0)
 else
 	$(hide) $(jack_admin_script) start-server 2>&1 || (exit 0)
 endif
