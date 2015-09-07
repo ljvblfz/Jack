@@ -723,10 +723,11 @@
           <exclude name="com/android/jack/java7/exceptions/**"/>
           <exclude name="com/android/jack/java7/trywithresources/**"/>
           <exclude name="com/android/jack/java7/parser/**"/>
-	  <exclude name="com/android/jack/java8/lambda/**"/>
-	  <exclude name="com/android/jack/java8/defaultmethod/**"/>
-	  <exclude name="com/android/jack/java8/staticmethod/**"/>
-	  <exclude name="com/android/jack/java8/methodref/**"/>
+          <exclude name="com/android/jack/java8/lambda/**"/>
+          <exclude name="com/android/jack/java8/defaultmethod/**"/>
+          <exclude name="com/android/jack/java8/staticmethod/**"/>
+          <exclude name="com/android/jack/java8/methodref/**"/>
+          <exclude name="com/android/jack/java8/inference/**"/>
           <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
           <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
           <exclude name="com/android/jack/frontend/test005/jack/**"/>
@@ -778,6 +779,7 @@
       <exclude name="com/android/jack/java8/defaultmethod/**"/>
       <exclude name="com/android/jack/java8/staticmethod/**"/>
       <exclude name="com/android/jack/java8/methodref/**"/>
+      <exclude name="com/android/jack/java8/inference/**"/>
       <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
       <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
       <exclude name="com/android/jack/frontend/test005/jack/**"/>
