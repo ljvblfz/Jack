@@ -2684,16 +2684,19 @@ public class JackIrBuilder {
 
     private void processSuperCallThisArgs(ReferenceBinding superClass, JMethodCall call,
         JExpression qualifier, ExplicitConstructorCall expression) throws JTypeLookupException {
-      if (superClass.syntheticEnclosingInstanceTypes() != null) {
+      ReferenceBinding[] syntheticEnclosingInstanceTypes =
+          superClass.syntheticEnclosingInstanceTypes();
+
+      if (syntheticEnclosingInstanceTypes != null) {
+        assert syntheticEnclosingInstanceTypes.length == 1;
         Expression qualification = expression.qualification;
-        for (ReferenceBinding targetType : superClass.syntheticEnclosingInstanceTypes()) {
-          if (qualification != null && superClass.enclosingType() == targetType) {
-            assert qualification.resolvedType.erasure().isCompatibleWith(targetType);
-            call.addArg(qualifier);
-          } else {
-            call.addArg(makeThisReference(call.getSourceInfo(), targetType, false,
-                curMethod.scope, expression));
-          }
+        ReferenceBinding targetType = syntheticEnclosingInstanceTypes[0];
+        if (qualification != null && superClass.enclosingType() == targetType) {
+          assert qualification.resolvedType.erasure().isCompatibleWith(targetType);
+          call.addArg(qualifier);
+        } else {
+          call.addArg(makeThisReference(call.getSourceInfo(), targetType, false, curMethod.scope,
+              expression));
         }
       }
     }
@@ -2710,17 +2713,21 @@ public class JackIrBuilder {
     }
 
     private void processThisCallThisArgs(ReferenceBinding binding, JMethodCall call) {
-      if (binding.syntheticEnclosingInstanceTypes() != null) {
+      ReferenceBinding[] syntheticEnclosingInstanceTypes =
+          binding.syntheticEnclosingInstanceTypes();
+
+      if (syntheticEnclosingInstanceTypes != null) {
+        assert syntheticEnclosingInstanceTypes.length == 1;
+
         Iterator<JParameter> paramIt = curMethod.method.getParams().iterator();
         if (getEnumSuperClass(curClass.classType) != null) {
           // Skip past the enum args.
           paramIt.next();
           paramIt.next();
         }
-        for (int i = 0; i < binding.syntheticEnclosingInstanceTypes().length; i++) {
-          JParameter param = paramIt.next();
-          call.addArg(new JParameterRef(call.getSourceInfo(), param));
-        }
+
+        JParameter param = paramIt.next();
+        call.addArg(new JParameterRef(call.getSourceInfo(), param));
       }
     }
 
@@ -2819,40 +2826,41 @@ public class JackIrBuilder {
 
       if (isNested) {
         // Synthetic this args for inner classes
-        if (targetBinding.syntheticEnclosingInstanceTypes() != null) {
+        ReferenceBinding[] syntheticEnclosingInstanceTypes =
+            targetBinding.syntheticEnclosingInstanceTypes();
+        if (syntheticEnclosingInstanceTypes != null) {
+          assert syntheticEnclosingInstanceTypes.length == 1;
           ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-          for (ReferenceBinding argType : targetBinding.syntheticEnclosingInstanceTypes()) {
-            argType = (ReferenceBinding) argType.erasure();
-            if (qualifier != null && argType == targetEnclosingType) {
-              // If the constructor has a qualifier, we have to check for a null pointer
-              // d.new A() => new A((tmp = d, tmp.getClass(), tmp));
-              List<JExpression> exprs = new ArrayList<JExpression>();
-              SourceInfo sourceInfo = qualExpr.getSourceInfo();
-              JLocal tmp = new JLocal(sourceInfo,
-                  ".newInstanceQualifier" + newInstanceQualifierSuffix++, qualExpr.getType(),
-                  JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
-              JAsgOperation asg = new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, tmp),
-                  new CloneExpressionVisitor().cloneExpression(qualExpr));
-              exprs.add(asg);
-              curMethod.body.addLocal(tmp);
+          ReferenceBinding argType = syntheticEnclosingInstanceTypes[0];
+          argType = (ReferenceBinding) argType.erasure();
+          if (qualifier != null && argType == targetEnclosingType) {
+            // If the constructor has a qualifier, we have to check for a null pointer
+            // d.new A() => new A((tmp = d, tmp.getClass(), tmp));
+            List<JExpression> exprs = new ArrayList<JExpression>();
+            SourceInfo sourceInfo = qualExpr.getSourceInfo();
+            JLocal tmp =
+                new JLocal(sourceInfo, ".newInstanceQualifier" + newInstanceQualifierSuffix++,
+                    qualExpr.getType(), JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
+            JAsgOperation asg = new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, tmp),
+                new CloneExpressionVisitor().cloneExpression(qualExpr));
+            exprs.add(asg);
+            curMethod.body.addLocal(tmp);
 
-              JMethodCall getClassCall = makeMethodCall(sourceInfo, new JLocalRef(sourceInfo, tmp),
-                  javaLangObject, getGetClassMethod());
-              exprs.add(getClassCall);
+            JMethodCall getClassCall = makeMethodCall(sourceInfo, new JLocalRef(sourceInfo, tmp),
+                javaLangObject, getGetClassMethod());
+            exprs.add(getClassCall);
 
-              exprs.add(new JLocalRef(sourceInfo, tmp));
+            exprs.add(new JLocalRef(sourceInfo, tmp));
 
-              JMultiExpression multiExpr = new JMultiExpression(info, exprs);
-              call.addArg(multiExpr);
-            } else {
-              JExpression thisRef = makeThisReference(info, argType, false, scope, x);
-              call.addArg(thisRef);
-              Object[] emulationPath = getEmulationPath(scope,
-                  argType,
-                  false /* onlyExactMatch */,
-                  true /* denyEnclosingArgInConstructorCall */,
-                  x);
-            }
+            JMultiExpression multiExpr = new JMultiExpression(info, exprs);
+            call.addArg(multiExpr);
+          } else {
+            JExpression thisRef = makeThisReference(info, argType, false, scope, x);
+            call.addArg(thisRef);
+            // just check
+            getEmulationPath(scope, argType, false /* onlyExactMatch */,
+                true /* denyEnclosingArgInConstructorCall */, x);
+
           }
         }
       }
