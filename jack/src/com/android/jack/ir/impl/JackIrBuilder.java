@@ -2855,12 +2855,12 @@ public class JackIrBuilder {
             JMultiExpression multiExpr = new JMultiExpression(info, exprs);
             call.addArg(multiExpr);
           } else {
-            JExpression thisRef = makeThisReference(info, argType, false, scope, x);
-            call.addArg(thisRef);
-            // just check
+            // check supplementary error
             getEmulationPath(scope, argType, false /* onlyExactMatch */,
                 true /* denyEnclosingArgInConstructorCall */, x);
 
+            JExpression thisRef = makeThisReference(info, argType, false, scope, x);
+            call.addArg(thisRef);
           }
         }
       }
@@ -3409,7 +3409,6 @@ public class JackIrBuilder {
     return (typeDeclaration.hasErrors()
     || (typeDeclaration.getCompilationUnitDeclaration() != null
         && typeDeclaration.getCompilationUnitDeclaration().hasErrors())
-    || typeDeclaration.compilationResult.hasErrors()
     // This should be redundant with typeDeclaration.getCompilationUnitDeclaration().hasErrors() but
     // since it could be null, lets be safe
     || typeDeclaration.binding == null);
@@ -3462,9 +3461,19 @@ public class JackIrBuilder {
       // Create fields and empty methods.
       createMembers(typeDecl);
     }
+
     boolean hasErrors = false;
+
     for (TypeDeclaration typeDecl : cud.types) {
       try {
+        // hasErrors of CompilationUnitDeclaration indicates if we should continue to investigate
+        // this compilation unit or not
+        if (typeDecl.getCompilationUnitDeclaration() != null
+            && typeDecl.getCompilationUnitDeclaration().hasErrors()) {
+          hasErrors = true;
+          break;
+        }
+
         // Build the code.
         typeDecl.traverse(astVisitor, cud.scope);
       } catch (FrontendCompilationError e) {

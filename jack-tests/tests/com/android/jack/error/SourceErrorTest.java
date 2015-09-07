@@ -348,6 +348,116 @@ public class SourceErrorTest {
     }
   }
 
+  /**
+   * Checks that compilation fails.
+   */
+  @Test
+  public void testInvalidSource011() throws Exception {
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java",
+        "package jack.invalidsource;\n"
+        + "public class A {"
+        + "class B {"
+        + "}"
+        + "public static void test() {"
+        + "new B();"
+        + "}"
+        + "}"
+        + "class Z{} \n");
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+
+    try {
+      compile(toolchain, helper);
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertTrue(
+          errOut.toString().contains("No enclosing instance of type A is accessible"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails.
+   */
+  @Test
+  public void testInvalidSource012() throws Exception {
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java",
+        "package jack.invalidsource;\n"
+        + "class D {"
+        + "   D(A.C c) {}"
+        + "}"
+        + "public class A {"
+        + "   static class B extends D{"
+        + "       B() {super (new C());}"
+        + "   }"
+        + "       class C {"
+        + "      }"
+        + "}\n");
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+
+    try {
+      compile(toolchain, helper);
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertTrue(errOut.toString().contains(
+          "No enclosing instance of type A is available due to some intermediate constructor invocation"));
+    }
+  }
+
+  /**
+   * Checks that compilation fails.
+   */
+  @Test
+  public void testInvalidSource013() throws Exception {
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    AbstractTestTools.createFile(helper.getSourceFolder(), "jack.invalidsource", "A.java",
+        "package jack.invalidsource;\n"
+        + "public class A {"
+        + "   A(B.E e) { }"
+        + "   class B { class E { } }"
+        + "   class C extends A {"
+        + "       C() { this(new B().new E()); }"
+        + "       C(B.E e) { super(e); }"
+        + "   }"
+        + "   void f() {"
+        + "       new B().new E();"
+        + "   }"
+        + "}\n");
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+
+    try {
+      compile(toolchain, helper);
+      Assert.fail();
+    } catch (FrontendCompilationException ex) {
+      // Failure is ok since source does not compile.
+    } finally {
+      Assert.assertTrue(errOut.toString().contains(
+          "No enclosing instance of type A is available due to some intermediate constructor invocation"));
+    }
+  }
+
   private void compile(@Nonnull IToolchain toolchain, @Nonnull ErrorTestHelper helper)
       throws Exception {
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
