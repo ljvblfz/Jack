@@ -175,7 +175,6 @@ $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
 	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
 	$(hide) $(jack_admin_script) kill-server 2>&1 || (exit 0)
-	$(hide) sleep 10
 ifneq ($(dist_goal),)
 	$(hide) $(jack_admin_script) uninstall-server 2>&1 || (exit 0)
 endif
