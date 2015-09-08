@@ -115,6 +115,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.Number;
@@ -141,6 +142,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
@@ -192,6 +194,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -1268,7 +1271,7 @@ public class JackIrBuilder {
 
       JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
       lambdaMethod.setBody(lambdaMethodBody);
-      MethodInfo newMethodInfo = new MethodInfo(this, lambdaMethod, lambdaMethodBody, null);
+      MethodInfo newMethodInfo = new MethodInfo(this, lambdaMethod, lambdaMethodBody, methodScope);
 
       // lambda method does not have his own 'this', it reuse the enclosing 'this' when it exist
       if (curMethod.method.getThis() != null) {
@@ -1276,6 +1279,238 @@ public class JackIrBuilder {
       }
 
       return newMethodInfo;
+    }
+
+    @Override
+    public void endVisit(ReferenceExpression referenceExpression, BlockScope blockScope) {
+      JExpression  exprRepresentingLambda = null;
+      SourceInfo sourceInfo = makeSourceInfo(referenceExpression);
+
+      // Pop visited items of ReferenceExpression, be careful some items are not pushed thus do not
+      // pop them
+      JExpression lhsExpr = null;
+      if (!(referenceExpression.lhs instanceof TypeReference)) {
+        lhsExpr = pop(referenceExpression.lhs);
+      }
+
+      MethodInfo newMethodInfo =
+          createMethodInfoForLambda(referenceExpression.descriptor, /* arguments = */ null,
+              /* (MethodScope) referenceExpression.enclosingScope */ curMethod.scope);
+      JType returnTypeOfLambdaMethod = newMethodInfo.method.getType();
+      JBlock bodyBlock = newMethodInfo.body.getBlock();
+      List<JParameter> args = newMethodInfo.method.getParams();
+
+      if (referenceExpression.isMethodReference()) {
+        boolean isSuperRef = referenceExpression.lhs instanceof SuperReference
+            || referenceExpression.lhs instanceof QualifiedSuperReference;
+        boolean isThisRef = referenceExpression.lhs instanceof ThisReference
+            || referenceExpression.lhs instanceof QualifiedThisReference;
+        boolean shouldCaptureInstance = isSuperRef || isThisRef;
+
+        exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
+          (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+          shouldCaptureInstance);
+
+        if (!(referenceExpression.lhs instanceof TypeReference)) {
+          if (lhsExpr != null && !shouldCaptureInstance) {
+            if (lhsExpr instanceof JVariableRef) {
+              ((JLambda) exprRepresentingLambda)
+                  .addCapturedVariable(((JVariableRef) lhsExpr).getTarget());
+            } else {
+              List<JExpression> exprs = new ArrayList<JExpression>();
+
+              JLocal tmp = new JLocal(sourceInfo, "-lambdaCtx", lhsExpr.getType(),
+                  JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
+              JAsgOperation asg =
+                  new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, tmp), lhsExpr);
+              exprs.add(asg);
+              curMethod.body.addLocal(tmp);
+              exprs.add(exprRepresentingLambda);
+              ((JLambda) exprRepresentingLambda).addCapturedVariable(tmp);
+
+              exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
+              lhsExpr = new JLocalRef(sourceInfo, tmp);
+            }
+          }
+        }
+
+        JMethod method = getTypeMap().get(referenceExpression.binding);
+
+        JExpression instanceExpr = null;
+
+        int firstParameter = 0;
+        if (!method.isStatic()) {
+          if (lhsExpr != null) {
+            instanceExpr = lhsExpr;
+          } else {
+            // In this case, instance expr is the first argument
+            instanceExpr = new JParameterRef(sourceInfo, args.get(0));
+            firstParameter = 1;
+          }
+        } else {
+          assert lhsExpr == null;
+        }
+
+        boolean isVirtualDispatch = method.getMethodId().canBeVirtual() && !isSuperRef;
+
+        JMethodCall methodCall = new JMethodCall(sourceInfo, instanceExpr,
+            method.getEnclosingType(), method.getMethodId(), method.getType(), isVirtualDispatch);
+
+        addArgToMethodCall(referenceExpression, args, method,
+            methodCall, method.getParams().size(), firstParameter);
+
+        if (returnTypeOfLambdaMethod.isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+          bodyBlock.addStmt(methodCall.makeStatement());
+          bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
+        } else {
+          bodyBlock.addStmt(
+              new JReturnStatement(sourceInfo, maybeCast(returnTypeOfLambdaMethod, methodCall)));
+        }
+      } else if (referenceExpression.isArrayConstructorReference()) {
+        assert args.size() == 1;
+
+        exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
+            (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+            /*shouldCaptureInstance=*/ false);
+
+        Expression lhs = referenceExpression.lhs;
+        JArrayType arrayType = (JArrayType) getTypeMap().get(lhs.resolvedType);
+        List<JExpression> dims = new ArrayList<JExpression>();
+
+        dims.add(new JParameterRef(sourceInfo, args.get(0)));
+        for (int dim = 0; dim < ((ArrayTypeReference) lhs).dimensions - 1; dim++) {
+          dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
+        }
+
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo,
+            JNewArray.createWithDims(sourceInfo, arrayType, dims)));
+      } else {
+        assert referenceExpression.isConstructorReference();
+        exprRepresentingLambda = constructorMethodReference(referenceExpression, blockScope,
+            newMethodInfo, returnTypeOfLambdaMethod, sourceInfo, bodyBlock, args);
+      }
+
+      push(exprRepresentingLambda);
+    }
+
+    // Transform method references to constructor into lambda
+    // A::new
+    // will be transform to:
+    // (parameters) -> return new A(parameters);
+    private JLambda constructorMethodReference(ReferenceExpression referenceExpression,
+        BlockScope blockScope, MethodInfo newMethodInfo, JType returnTypeOfLambdaMethod,
+        SourceInfo sourceInfo, JBlock bodyBlock, List<JParameter> argsOfLambdaMth) {
+      boolean shouldCaptureInstance = false;
+      JType type = getTypeMap().get(referenceExpression.lhs.resolvedType);
+      assert type instanceof JClassOrInterface;
+
+      JMethod constructor = getTypeMap().get(referenceExpression.binding);
+      assert constructor instanceof JConstructor;
+
+      JNewInstance newInstance =
+          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodId());
+
+      int paramCountCons = constructor.getParams().size();
+      boolean isNestedType = referenceExpression.receiverType.isNestedType();
+
+      if (isNestedType) {
+        ReferenceBinding[] syntheticEnclosingInstanceTypes =
+            ((ReferenceBinding) referenceExpression.receiverType).syntheticEnclosingInstanceTypes();
+
+        if (syntheticEnclosingInstanceTypes != null) {
+          assert syntheticEnclosingInstanceTypes.length == 1;
+          JExpression thisRef = makeThisReference(sourceInfo, syntheticEnclosingInstanceTypes[0],
+              false, blockScope, referenceExpression);
+          shouldCaptureInstance = true;
+          newInstance.addArg(thisRef);
+          paramCountCons--;
+        }
+      }
+
+      JLambda lambda = new JLambda(sourceInfo, newMethodInfo.method,
+          (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+          shouldCaptureInstance);
+
+      addArgToMethodCall(referenceExpression, argsOfLambdaMth, constructor,
+          newInstance, paramCountCons, 0);
+
+      // Add outer variables as argument of constructor when they are needed
+      if (isNestedType) {
+        ReferenceBinding nestedType = (ReferenceBinding) referenceExpression.receiverType;
+        if (nestedType.syntheticOuterLocalVariables() != null) {
+          for (SyntheticArgumentBinding arg : nestedType.syntheticOuterLocalVariables()) {
+            VariableBinding[] paths = blockScope.getEmulationPath(arg.actualOuterLocalVariable);
+            JExpression exprPath = generateEmulationPath(sourceInfo, paths);
+            if (exprPath instanceof JLocalRef) {
+              lambda.addCapturedVariable(((JVariableRef) exprPath).getTarget());
+            }
+            newInstance.addArg(exprPath);
+          }
+        }
+      }
+
+      if (returnTypeOfLambdaMethod.isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+        bodyBlock.addStmt(newInstance.makeStatement());
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
+      } else {
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, newInstance));
+      }
+      return lambda;
+    }
+
+    private void addArgToMethodCall(@Nonnull ReferenceExpression referenceExpression,
+        @Nonnull List<JParameter> argsOfLambdaMth, JMethod calledMethod,
+        JMethodCall mthCall, int paramCountCons, int firstParameter) {
+      SourceInfo sourceInfo = makeSourceInfo(referenceExpression);
+      int argCountLambdaMth = argsOfLambdaMth.size();
+      int lastNormalParamIdx;
+      if (referenceExpression.binding.isVarargs()) {
+        lastNormalParamIdx = paramCountCons - 1; // Var arg is the last parameter
+      } else {
+        // arg of lambda method can be smaller than invoked constructor due to captured variable
+        // that can be passed to the constructor
+        lastNormalParamIdx =
+            argCountLambdaMth < paramCountCons ? argCountLambdaMth : paramCountCons;
+      }
+      lastNormalParamIdx += firstParameter;
+
+      // copy parameters until varArg if it exists or to the end otherwise
+      for (int pIndex = firstParameter; pIndex < lastNormalParamIdx; pIndex++) {
+        mthCall.addArg(new JParameterRef(sourceInfo, argsOfLambdaMth.get(pIndex)));
+      }
+
+      if (referenceExpression.binding.isVarargs()) {
+        // Manage additional parameters
+        boolean needArrayForVarArg = true;
+
+        if (argCountLambdaMth == paramCountCons) {
+          JType lastArgType = argsOfLambdaMth.get(argCountLambdaMth - 1).getType();
+          JType lastParameterType = calledMethod.getParams().get(paramCountCons - 1).getType();
+          if (lastParameterType instanceof JArrayType && lastArgType instanceof JArrayType) {
+            JType lastArgElementType = ((JArrayType) lastParameterType).getElementType();
+            JType lastParameterElementType = ((JArrayType) lastArgType).getElementType();
+            if (!((lastArgElementType instanceof JPrimitiveType
+                && !(lastParameterElementType instanceof JPrimitiveType))
+                || (!(lastArgElementType instanceof JPrimitiveType)
+                    && lastParameterElementType instanceof JPrimitiveType))) {
+              needArrayForVarArg = false;
+              mthCall
+                  .addArg(new JParameterRef(sourceInfo, argsOfLambdaMth.get(lastNormalParamIdx)));
+            }
+          }
+        }
+
+        if (needArrayForVarArg) {
+          ArrayList<JExpression> initializers = new ArrayList<JExpression>();
+
+          for (int pIndex = lastNormalParamIdx; pIndex < argCountLambdaMth; pIndex++) {
+            initializers.add(new JParameterRef(sourceInfo, argsOfLambdaMth.get(pIndex)));
+          }
+          JArrayType arrayType = (JArrayType) calledMethod.getParams()
+              .get(calledMethod.getParams().size() - 1).getType();
+          mthCall.addArg(JNewArray.createWithInits(sourceInfo, arrayType, initializers));
+        }
+      }
     }
 
     @Override
