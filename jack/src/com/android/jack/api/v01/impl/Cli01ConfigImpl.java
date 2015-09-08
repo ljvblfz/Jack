@@ -16,13 +16,10 @@
 
 package com.android.jack.api.v01.impl;
 
-import com.android.jack.IllegalOptionsException;
-import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.api.v01.Cli01CompilationTask;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.ConfigurationException;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 
@@ -53,7 +50,6 @@ public class Cli01ConfigImpl implements Cli01Config {
   @Override
   @Nonnull
   public Cli01CompilationTask getTask(@Nonnull String[] args) throws ConfigurationException {
-    RunnableHooks configHooks = new RunnableHooks();
     try {
       TokenIterator iterator = new TokenIterator(new NoLocation(), args);
       File workingDirectory = options.getWorkingDirectory();
@@ -70,11 +66,6 @@ public class Cli01ConfigImpl implements Cli01Config {
       parser.parseArgument(list);
       parser.stopOptionParsing();
 
-      Jack.check(options, configHooks);
-    } catch (com.android.sched.util.config.ConfigurationException e) {
-      throw new ConfigurationException(e.getMessage(), e);
-    } catch (IllegalOptionsException e) {
-      throw new ConfigurationException(e.getMessage(), e);
     } catch (CmdLineException e) {
       throw new ConfigurationException(e.getMessage(), e);
     } catch (IOException e) {
