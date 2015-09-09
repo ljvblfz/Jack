@@ -47,10 +47,6 @@ public class FieldAnnotationBuilder implements RunnableSchedulable<JField> {
   @Override
   public synchronized void run(@Nonnull JField field) throws Exception {
     JDefinedClassOrInterface declaringClass = field.getEnclosingType();
-    // Ignore field declared by external type
-    if (declaringClass.isExternal()) {
-      return;
-    }
 
     Collection<JAnnotation> annotations = field.getAnnotations();
     if (!annotations.isEmpty()) {

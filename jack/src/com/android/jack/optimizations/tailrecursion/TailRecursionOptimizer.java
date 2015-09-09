@@ -234,7 +234,7 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
+    if (method.isNative() || method.isAbstract()
         || method.isSynthetic() || !filter.accept(this.getClass(), method)
         || !method.getAnnotations(annotationType).isEmpty()
         || !method.getEnclosingType().getAnnotations(annotationType).isEmpty()) {

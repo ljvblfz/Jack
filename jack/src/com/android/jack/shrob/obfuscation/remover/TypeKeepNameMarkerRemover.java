@@ -33,9 +33,6 @@ public class TypeKeepNameMarkerRemover implements RunnableSchedulable<JDefinedCl
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal()) {
-      return;
-    }
     type.removeMarker(KeepNameMarker.class);
   }
 

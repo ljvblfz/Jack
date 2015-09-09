@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations;
 
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
@@ -46,12 +45,6 @@ public class FieldInitializer implements RunnableSchedulable<JField> {
 
   @Override
   public void run(@Nonnull JField field) throws Exception {
-    JDefinedClassOrInterface declaringClass = field.getEnclosingType();
-    // Ignore field declared by external type
-    if (declaringClass.isExternal()) {
-      return;
-    }
-
     InitializationExpression marker = field.getMarker(InitializationExpression.class);
     if (marker != null) {
       assert field.isStatic() : "Not yet supported";

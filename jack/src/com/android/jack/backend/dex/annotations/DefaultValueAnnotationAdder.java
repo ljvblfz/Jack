@@ -87,8 +87,8 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     final JDefinedClassOrInterface enclosingType = method.getEnclosingType();
-    if (enclosingType.isExternal()
-        || !filter.accept(this.getClass(), method)) {
+
+    if (!filter.accept(this.getClass(), method)) {
       return;
     }
 

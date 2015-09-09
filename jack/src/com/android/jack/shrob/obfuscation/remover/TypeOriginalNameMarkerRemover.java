@@ -34,9 +34,6 @@ public class TypeOriginalNameMarkerRemover
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal()) {
-      return;
-    }
     type.removeMarker(OriginalNameMarker.class);
   }
 

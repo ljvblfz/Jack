@@ -107,8 +107,7 @@ public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> 
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 

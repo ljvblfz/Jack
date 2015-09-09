@@ -63,7 +63,7 @@ public class MethodStats implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || !filter.accept(this.getClass(), method)) {
+    if (!filter.accept(this.getClass(), method)) {
       return;
     }
     Tracer tracer = TracerFactory.getTracer();

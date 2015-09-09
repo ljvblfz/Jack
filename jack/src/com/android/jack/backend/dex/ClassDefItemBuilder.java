@@ -87,11 +87,6 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
    */
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
-    // Ignore external types
-    if (declaredType.isExternal()) {
-      return;
-    }
-
     ClassDefItem classDefItem = createClassDefItem(declaredType);
     ClassDefItemMarker classDefItemMarker = new ClassDefItemMarker(classDefItem);
     declaredType.addMarker(classDefItemMarker);

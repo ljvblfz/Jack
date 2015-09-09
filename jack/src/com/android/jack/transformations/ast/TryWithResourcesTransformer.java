@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JEqOperation;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JIfStatement;
@@ -362,9 +361,7 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
-    if (enclosingType.isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 

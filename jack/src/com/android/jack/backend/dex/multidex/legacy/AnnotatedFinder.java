@@ -45,11 +45,6 @@ public class AnnotatedFinder implements RunnableSchedulable<JDefinedClassOrInter
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    // Ignore external types
-    if (type.isExternal()) {
-      return;
-    }
-
     if (hasRuntimeAnnotation(type)) {
       type.addMarker(MainDexMarker.INSTANCE);
     }
