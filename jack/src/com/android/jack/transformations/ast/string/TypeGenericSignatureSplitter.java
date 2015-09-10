@@ -42,10 +42,6 @@ public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefine
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
-    if (declaredType.isExternal()) {
-      return;
-    }
-
     GenericSignature marker = declaredType.getMarker(GenericSignature.class);
     if (marker != null) {
       CharSequence newSignature = getSplittedSignature(marker.getGenericSignature());

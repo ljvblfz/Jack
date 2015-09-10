@@ -21,7 +21,6 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JFieldLookupException;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
@@ -120,9 +119,7 @@ public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
-    if (enclosingType.isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 

@@ -71,8 +71,7 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if both the method and enclosing class are concrete
-    if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal()
-        || method.isNative() || method.isAbstract()) {
+    if (!(definedClass instanceof JDefinedClass) || method.isNative() || method.isAbstract()) {
       return;
     }
     Visitor visitor = new Visitor((JDefinedClass) definedClass);

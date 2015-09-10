@@ -74,10 +74,6 @@ public class EncodedMethodBuilder implements RunnableSchedulable<JMethod> {
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface declaringClass = method.getEnclosingType();
-    // Ignore method declared by external type
-    if (declaringClass.isExternal()) {
-      return;
-    }
 
     ClassDefItemMarker classDefItemMarker =
         declaringClass.getMarker(ClassDefItemMarker.class);

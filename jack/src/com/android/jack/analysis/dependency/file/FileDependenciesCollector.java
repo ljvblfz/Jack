@@ -37,7 +37,7 @@ public class FileDependenciesCollector implements
 
   @Override
   public synchronized void run(JDefinedClassOrInterface declaredType) throws Exception {
-    if (declaredType.isExternal() || declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
+    if (declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return;
     }
 

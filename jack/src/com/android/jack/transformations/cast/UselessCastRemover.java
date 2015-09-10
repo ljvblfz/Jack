@@ -75,7 +75,7 @@ public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
+    if (method.isNative() || method.isAbstract()
         || !filter.accept(UselessCastRemover.class, method)) {
       return;
     }

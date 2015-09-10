@@ -45,11 +45,6 @@ public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClass
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
-    // Ignore external types
-    if (declaredType.isExternal()) {
-      return;
-    }
-
     Collection<JAnnotation> annotations = declaredType.getAnnotations();
     if (!annotations.isEmpty()) {
       Annotations classAnnotations = new AnnotationBuilder().createAnnotations(annotations);

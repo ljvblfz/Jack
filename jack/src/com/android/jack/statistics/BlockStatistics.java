@@ -115,7 +115,7 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
 
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()) {
+    if (method.isNative() || method.isAbstract()) {
       return;
     }
 

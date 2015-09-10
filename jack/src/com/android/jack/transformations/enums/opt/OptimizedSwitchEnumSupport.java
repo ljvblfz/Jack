@@ -117,8 +117,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
   @Override
   public synchronized void run(@Nonnull JMethod method) {
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
-    if (!(definedClass instanceof JDefinedClass) || definedClass.isExternal()
-        || method.isNative() || method.isAbstract()) {
+    if (!(definedClass instanceof JDefinedClass) || method.isNative() || method.isAbstract()) {
       return;
     }
 

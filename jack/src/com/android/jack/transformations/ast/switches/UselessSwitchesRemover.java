@@ -20,7 +20,6 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JBreakStatement;
 import com.android.jack.ir.ast.JCaseStatement;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JForStatement;
@@ -198,9 +197,7 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
-    if (enclosingType.isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 
