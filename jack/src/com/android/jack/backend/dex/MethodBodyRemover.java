@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Options;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.scheduling.feature.DropMethodBody;
@@ -43,9 +42,7 @@ public class MethodBodyRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface declaringClass = method.getEnclosingType();
-    // Ignore method declared by external type
-    if (declaringClass.isExternal() || !filter.accept(this.getClass(), method)) {
+    if (!filter.accept(this.getClass(), method)) {
       return;
     }
 

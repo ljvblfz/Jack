@@ -88,10 +88,6 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    // Ignore external types
-    if (type.isExternal()) {
-      return;
-    }
     visitor.accept(type);
 
     if (!type.getAnnotations(mainDexAnnotationType).isEmpty()) {

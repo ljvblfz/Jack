@@ -389,8 +389,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface enclosingType = method.getEnclosingType();
 
-    if (enclosingType.isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 

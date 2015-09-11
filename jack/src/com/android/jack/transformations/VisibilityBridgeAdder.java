@@ -68,9 +68,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
-    if (declaredType.isExternal()
-        || !declaredType.isPublic()
-        || !(declaredType instanceof JDefinedClass)) {
+    if (!declaredType.isPublic() || !(declaredType instanceof JDefinedClass)) {
       return;
     }
     JDefinedClass superClass = (JDefinedClass) declaredType.getSuperClass();

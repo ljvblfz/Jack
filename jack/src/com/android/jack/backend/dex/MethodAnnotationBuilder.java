@@ -55,8 +55,7 @@ public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface declaringClass = method.getEnclosingType();
-    // Ignore method declared by external type
-    if (declaringClass.isExternal() || !filter.accept(this.getClass(), method)) {
+    if (!filter.accept(this.getClass(), method)) {
       return;
     }
 

@@ -39,7 +39,7 @@ public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefine
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal() || type instanceof JDefinedInterface) {
+    if (type instanceof JDefinedInterface) {
       return;
     }
 

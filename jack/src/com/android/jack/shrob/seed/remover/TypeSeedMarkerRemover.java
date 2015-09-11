@@ -33,9 +33,6 @@ public class TypeSeedMarkerRemover implements RunnableSchedulable<JDefinedClassO
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal()) {
-      return;
-    }
     type.removeMarker(SeedMarker.class);
   }
 

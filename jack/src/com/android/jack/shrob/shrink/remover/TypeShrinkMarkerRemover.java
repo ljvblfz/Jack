@@ -34,9 +34,6 @@ public class TypeShrinkMarkerRemover implements RunnableSchedulable<JDefinedClas
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal()) {
-      return;
-    }
     type.removeMarker(KeepMarker.class);
     type.removeMarker(ExtendingOrImplementingClassMarker.class);
   }

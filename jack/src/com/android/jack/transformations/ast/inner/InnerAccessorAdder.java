@@ -48,7 +48,7 @@ public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrIn
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    if (type.isExternal() || type instanceof JDefinedInterface) {
+    if (type instanceof JDefinedInterface) {
       return;
     }
 
