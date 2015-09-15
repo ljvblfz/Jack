@@ -162,6 +162,10 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test028"),
       "com.android.jack.java8.lambda.test028.jack.Tests");
 
+  private RuntimeTestInfo LAMBDA029 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test029"),
+      "com.android.jack.java8.lambda.test029.jack.Tests");
+
   @Test
   public void testLamba001() throws Exception {
     new RuntimeTestHelper(LAMBDA001)
@@ -422,6 +426,14 @@ public class LambdaTest {
   @Test
   public void testLamba028() throws Exception {
     new RuntimeTestHelper(LAMBDA028)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba029() throws Exception {
+    new RuntimeTestHelper(LAMBDA029)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
