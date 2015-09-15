@@ -297,7 +297,7 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private final ServerInfo adminInfo = new ServerInfo();
 
-  private boolean isAcceptingRequests = false;
+  private boolean shuttingDown;
 
   private Cache<VersionKey, Program<JackProvider>> installedJack = null;
 
@@ -731,7 +731,7 @@ public class JackHttpServer implements HasVersion {
     startTimer();
 
     synchronized (lock) {
-      isAcceptingRequests = true;
+      shuttingDown = false;
     }
   }
 
@@ -800,7 +800,7 @@ public class JackHttpServer implements HasVersion {
 
   public void waitServerShutdown() throws InterruptedException {
     synchronized (lock) {
-      while (isAcceptingRequests || serviceInfo.currentLocal > 0 || adminInfo.currentLocal > 0) {
+      while ((!shuttingDown) || serviceInfo.currentLocal > 0 || adminInfo.currentLocal > 0) {
         lock.wait();
       }
     }
@@ -899,10 +899,10 @@ public class JackHttpServer implements HasVersion {
 
   public void shutdown() {
     synchronized (lock) {
-      if (isAcceptingRequests) {
+      if (!shuttingDown) {
         shutdownConnections();
 
-        isAcceptingRequests = false;
+        shuttingDown = true;
         lock.notifyAll();
       }
     }
@@ -911,10 +911,10 @@ public class JackHttpServer implements HasVersion {
   public void shutdownServerOnly() {
 
     synchronized (lock) {
-      if (isAcceptingRequests) {
+      if (!shuttingDown) {
         shutdownSimpleServer();
 
-        isAcceptingRequests = false;
+        shuttingDown = true;
         lock.notifyAll();
       }
     }
@@ -1021,7 +1021,7 @@ public class JackHttpServer implements HasVersion {
     long id;
 
     synchronized (lock) {
-      if (!isAcceptingRequests) {
+      if (shuttingDown) {
         throw new ServerClosedException();
       }
       id = info.totalLocal;
