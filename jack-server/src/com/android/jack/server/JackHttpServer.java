@@ -69,6 +69,7 @@ import com.android.sched.util.findbugs.SuppressFBWarnings;
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Method;
 import org.simpleframework.http.Status;
+import org.simpleframework.http.core.Container;
 import org.simpleframework.http.core.ContainerSocketProcessor;
 import org.simpleframework.transport.Socket;
 import org.simpleframework.transport.connect.Connection;
@@ -525,80 +526,12 @@ public class JackHttpServer implements HasVersion {
 
     serverParameters = new ServerParameters(parameters);
 
-    FileInputStream keystoreServerIn = null;
-    FileInputStream keystoreClientIn = null;
-    SSLContext sslContext = null;
-
-    try {
-      File keystoreServerFile = new File(serverDir, KEYSTORE_SERVER);
-      File keystoreClientFile = new File(serverDir, KEYSTORE_CLIENT);
-      checkAccess(keystoreServerFile, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE));
-      checkAccess(keystoreClientFile, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE));
-
-      keystoreServerIn = new FileInputStream(keystoreServerFile);
-      KeyStore keystoreServer = KeyStore.getInstance("jks");
-      keystoreServer.load(keystoreServerIn, KEYSTORE_PASSWORD);
-
-      keystoreClientIn = new FileInputStream(keystoreClientFile);
-      KeyStore keystoreClient = KeyStore.getInstance("jks");
-      keystoreClient.load(keystoreClientIn, KEYSTORE_PASSWORD);
-
-      refreshPEMFiles(keystoreServer, keystoreClient);
-
-      KeyManagerFactory keyManagerFactory =
-          KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-      keyManagerFactory.init(keystoreServer, KEYSTORE_PASSWORD);
-
-      TrustManagerFactory tm =
-          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-      tm.init(keystoreClient);
-
-      sslContext = SSLContext.getInstance("SSLv3");
-      sslContext.init(keyManagerFactory.getKeyManagers(), tm.getTrustManagers(), null);
-    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
-        | UnrecoverableKeyException | KeyManagementException e) {
-      throw new ServerException("Failed to setup ssl context", e);
-    } finally {
-      if (keystoreClientIn != null) {
-        try {
-          keystoreClientIn.close();
-        } catch (IOException e) {
-          // ignore
-        }
-      }
-      if (keystoreServerIn != null) {
-        try {
-          keystoreServerIn.close();
-        } catch (IOException e) {
-          // ignore
-        }
-      }
-    }
+    SSLContext sslContext = setupSsl();
 
     logger.log(Level.INFO, "Starting service connection server on " + serviceAddress);
     try {
 
-      MethodRouter router = new MethodRouter()
-        .add(Method.POST,
-          new ContentTypeRouter()
-            .add("multipart/form-data",
-              new AcceptContentTypeRouter()
-                .add(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE,
-                  new AcceptContentTypeParameterRouter("version")
-                    .add("1",
-                      new PartContentTypeRouter("cli")
-                        .add("plain/text",
-                          new PartContentTypeRouter("pwd")
-                            .add("plain/text",
-                              new PartContentTypeRouter("version")
-                                .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
-                                  new PartContentTypeParameterRouter("version", "version")
-                                    .add("1",
-                                        new PathRouter()
-                                          .add("/jack", new JackTask(this))
-                                          .add("/jill", new JillTask(this))))))))));
+      Container router = createServiceRouter();
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), maxServices) {
@@ -624,87 +557,7 @@ public class JackHttpServer implements HasVersion {
 
     logger.log(Level.INFO, "Starting admin connection on " + adminAddress);
     try {
-      PathRouter router = new PathRouter()
-
-        .add("/gc",
-          new MethodRouter()
-            .add(Method.POST, new GC(this)))
-
-        .add("/stat",
-          new MethodRouter()
-            .add(Method.GET,
-              new AcceptContentTypeRouter()
-                .add(TextPlain.CONTENT_TYPE_NAME, new Stat(this))))
-
-        .add("/server/stop",
-            new MethodRouter()
-              .add(Method.POST, new Stop(this)))
-
-        .add("/server/reload",
-          new MethodRouter()
-            .add(Method.POST, new ReloadConfig(this)))
-
-        .add("/jack",
-          new MethodRouter()
-            .add(Method.PUT,
-              new ContentTypeRouter()
-                .add("multipart/form-data",
-                  new PartContentTypeRouter("force")
-                    .add(TextPlain.CONTENT_TYPE_NAME,
-                      new PartContentTypeRouter("jar")
-                        .add("application/octet-stream", new InstallJack(this)))))
-            .add(Method.HEAD,
-              new ContentTypeRouter()
-                .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
-                  new ContentTypeParameterRouter("version")
-                    .add("1", new QueryJackVersion(this))))
-            .add(Method.GET,
-              new AcceptContentTypeRouter()
-                .add(TextPlain.CONTENT_TYPE_NAME, new GetJackVersions(this))))
-
-        .add("/server",
-          new MethodRouter()
-            .add(Method.PUT,
-              new ContentTypeRouter()
-                .add("multipart/form-data",
-                    new PartContentTypeRouter("force")
-                      .add(TextPlain.CONTENT_TYPE_NAME,
-                        new PartContentTypeRouter("jar")
-                          .add("application/octet-stream", new InstallServer(this)))))
-            .add(Method.HEAD,
-              new ContentTypeRouter()
-                .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
-                  new ContentTypeParameterRouter("version")
-                   .add("1", new TestServerVersion(this))))
-            .add(Method.GET,
-              new AcceptContentTypeRouter()
-                .add(TextPlain.CONTENT_TYPE_NAME, new GetServerVersion(this))))
-
-        .add("/launcher",
-          new MethodRouter()
-            .add(Method.PUT,
-              new ErrorContainer(Status.BAD_REQUEST))
-            .add(Method.GET,
-              new AcceptContentTypeRouter()
-                .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherVersion(this))))
-
-        .add("/launcher/home",
-          new MethodRouter()
-            .add(Method.GET,
-               new AcceptContentTypeRouter()
-                 .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))))
-
-        .add("/launcher/log/level",
-          new MethodRouter()
-            .add(Method.PUT,
-              new ContentTypeRouter()
-                .add("multipart/form-data",
-                   new PartContentTypeRouter("level")
-                     .add(TextPlain.CONTENT_TYPE_NAME,
-                       new PartContentTypeRouter("limit")
-                         .add(TextPlain.CONTENT_TYPE_NAME,
-                           new PartContentTypeRouter("count")
-                             .add(TextPlain.CONTENT_TYPE_NAME, new SetLoggerParameters(this)))))));
+      Container router = createAdminRouter();
 
       ContainerSocketProcessor processor =
           new ContainerSocketProcessor(new RootContainer(router), 1) {
@@ -1123,5 +976,169 @@ public class JackHttpServer implements HasVersion {
       }
     }
 
+  }
+
+  @Nonnull
+  private PathRouter createAdminRouter() {
+    return new PathRouter()
+
+      .add("/gc",
+        new MethodRouter()
+          .add(Method.POST, new GC(this)))
+
+      .add("/stat",
+        new MethodRouter()
+          .add(Method.GET,
+            new AcceptContentTypeRouter()
+              .add(TextPlain.CONTENT_TYPE_NAME, new Stat(this))))
+
+      .add("/server/stop",
+          new MethodRouter()
+            .add(Method.POST, new Stop(this)))
+
+      .add("/server/reload",
+        new MethodRouter()
+          .add(Method.POST, new ReloadConfig(this)))
+
+      .add("/jack",
+        new MethodRouter()
+          .add(Method.PUT,
+            new ContentTypeRouter()
+              .add("multipart/form-data",
+                new PartContentTypeRouter("force")
+                  .add(TextPlain.CONTENT_TYPE_NAME,
+                    new PartContentTypeRouter("jar")
+                      .add("application/octet-stream", new InstallJack(this)))))
+          .add(Method.HEAD,
+            new ContentTypeRouter()
+              .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
+                new ContentTypeParameterRouter("version")
+                  .add("1", new QueryJackVersion(this))))
+          .add(Method.GET,
+            new AcceptContentTypeRouter()
+              .add(TextPlain.CONTENT_TYPE_NAME, new GetJackVersions(this))))
+
+      .add("/server",
+        new MethodRouter()
+          .add(Method.PUT,
+            new ContentTypeRouter()
+              .add("multipart/form-data",
+                  new PartContentTypeRouter("force")
+                    .add(TextPlain.CONTENT_TYPE_NAME,
+                      new PartContentTypeRouter("jar")
+                        .add("application/octet-stream", new InstallServer(this)))))
+          .add(Method.HEAD,
+            new ContentTypeRouter()
+              .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
+                new ContentTypeParameterRouter("version")
+                 .add("1", new TestServerVersion(this))))
+          .add(Method.GET,
+            new AcceptContentTypeRouter()
+              .add(TextPlain.CONTENT_TYPE_NAME, new GetServerVersion(this))))
+
+      .add("/launcher",
+        new MethodRouter()
+          .add(Method.PUT,
+            new ErrorContainer(Status.BAD_REQUEST))
+          .add(Method.GET,
+            new AcceptContentTypeRouter()
+              .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherVersion(this))))
+
+      .add("/launcher/home",
+        new MethodRouter()
+          .add(Method.GET,
+             new AcceptContentTypeRouter()
+               .add(TextPlain.CONTENT_TYPE_NAME, new GetLauncherHome(this))))
+
+      .add("/launcher/log/level",
+        new MethodRouter()
+          .add(Method.PUT,
+            new ContentTypeRouter()
+              .add("multipart/form-data",
+                 new PartContentTypeRouter("level")
+                   .add(TextPlain.CONTENT_TYPE_NAME,
+                     new PartContentTypeRouter("limit")
+                       .add(TextPlain.CONTENT_TYPE_NAME,
+                         new PartContentTypeRouter("count")
+                           .add(TextPlain.CONTENT_TYPE_NAME, new SetLoggerParameters(this)))))));
+  }
+
+  @Nonnull
+  private Container createServiceRouter() {
+    return new MethodRouter()
+      .add(Method.POST,
+        new ContentTypeRouter()
+          .add("multipart/form-data",
+            new AcceptContentTypeRouter()
+              .add(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE,
+                new AcceptContentTypeParameterRouter("version")
+                  .add("1",
+                    new PartContentTypeRouter("cli")
+                      .add("plain/text",
+                        new PartContentTypeRouter("pwd")
+                          .add("plain/text",
+                            new PartContentTypeRouter("version")
+                              .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
+                                new PartContentTypeParameterRouter("version", "version")
+                                  .add("1",
+                                      new PathRouter()
+                                        .add("/jack", new JackTask(this))
+                                        .add("/jill", new JillTask(this))))))))));
+  }
+
+  @Nonnull
+  private SSLContext setupSsl() throws ServerException {
+    FileInputStream keystoreServerIn = null;
+    FileInputStream keystoreClientIn = null;
+    SSLContext sslContext = null;
+
+    try {
+      File keystoreServerFile = new File(serverDir, KEYSTORE_SERVER);
+      File keystoreClientFile = new File(serverDir, KEYSTORE_CLIENT);
+      checkAccess(keystoreServerFile, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE));
+      checkAccess(keystoreClientFile, EnumSet.of(PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE));
+
+      keystoreServerIn = new FileInputStream(keystoreServerFile);
+      KeyStore keystoreServer = KeyStore.getInstance("jks");
+      keystoreServer.load(keystoreServerIn, KEYSTORE_PASSWORD);
+
+      keystoreClientIn = new FileInputStream(keystoreClientFile);
+      KeyStore keystoreClient = KeyStore.getInstance("jks");
+      keystoreClient.load(keystoreClientIn, KEYSTORE_PASSWORD);
+
+      refreshPEMFiles(keystoreServer, keystoreClient);
+
+      KeyManagerFactory keyManagerFactory =
+          KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keystoreServer, KEYSTORE_PASSWORD);
+
+      TrustManagerFactory tm =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tm.init(keystoreClient);
+
+      sslContext = SSLContext.getInstance("SSLv3");
+      sslContext.init(keyManagerFactory.getKeyManagers(), tm.getTrustManagers(), null);
+    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
+        | UnrecoverableKeyException | KeyManagementException e) {
+      throw new ServerException("Failed to setup ssl context", e);
+    } finally {
+      if (keystoreClientIn != null) {
+        try {
+          keystoreClientIn.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+      if (keystoreServerIn != null) {
+        try {
+          keystoreServerIn.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+    }
+    return sslContext;
   }
 }
