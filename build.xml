@@ -2405,6 +2405,43 @@
     <fail message="test.name is undefined" unless="test.name" />
   </target>
 
+  <target name="test-jack-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <echo file="${jack-tests.dir}/dump/PreSubmitTests.js">{
+</echo>
+    <java fork="true"
+      output="${jack-tests.dir}/dump/PreSubmitTests.js" append="true"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="com.android.jack.PreSubmitTests"/>
+    </java>
+    <echo file="${jack-tests.dir}/dump/PreSubmitTests.js" append="true">  "empty":{}
+</echo>
+    <echo file="${jack-tests.dir}/dump/PreSubmitTests.js" append="true">}</echo>
+
+    <echo file="${jack-tests.dir}/dump/LongLastingTests.js">{
+</echo>
+    <java fork="true"
+      output="${jack-tests.dir}/dump/LongLastingTests.js" append="true"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+       <jvmarg value="-Dtests.dump=true" />
+       <jvmarg value="-Dtests.config=${tests.config}"/>
+       <classpath>
+        <filelist refid="jack.junit.tests.classpath"/>
+       </classpath>
+       <arg value="com.android.jack.LongLastingTests"/>
+     </java>
+     <echo file="${jack-tests.dir}/dump/LongLastingTests.js" append="true">  "empty":{}
+ </echo>
+     <echo file="${jack-tests.dir}/dump/LongLastingTests.js" append="true">}</echo>
+
+  </target>
+
   <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
   depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
   </target>

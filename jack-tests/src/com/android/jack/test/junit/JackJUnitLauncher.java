@@ -89,7 +89,10 @@ public class JackJUnitLauncher {
       }
     }
 
-    core.addListener(new TextListener(new RealSystem()));
+    // tests dump mode => don't print anything else
+    if (!System.getProperty("tests.dump", "false").toLowerCase().equals("true")) {
+      core.addListener(new TextListener(new RealSystem()));
+    }
 
     int failureCount = 0;
     for (Request req : requests) {
