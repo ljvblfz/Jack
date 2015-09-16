@@ -77,13 +77,21 @@ handleHttpErrors() {
   elif [ $1 -eq 7 ]; then
     echo "No Jack server running. Try 'jack-admin start-server'" >&2
     abort
+  elif [ $1 -eq 35 ]; then
+    echo "SSL error when connecting to the Jack server" >&2
+    abort
+  elif [ $1 -eq 58 ]; then
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem" >&2
+    abort
+  elif [ $1 -eq 60 ]; then
+    echo "Failed to authenticate Jack server certificate" >&2
+    abort
+   elif [ $1 -eq 77 ]; then
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem" >&2
+    abort
   elif  [ $1 -eq 22 ]; then
     # Http code not OK, let's decode and abort
-    if [ $2 -eq 401 ]; then
-      # 401: Unauthorized
-      echo "Security problem, see Jack server log" >&2
-      abort
-    elif [ $2 -eq 400 ]; then
+    if [ $2 -eq 400 ]; then
       # 400: Bad request
       echo "Bad request, see Jack server log" >&2
       abort
@@ -332,39 +340,15 @@ case $COMMAND in
                https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
                )
           CURL_CODE=$?
-          if [ $CURL_CODE -eq 0 ]; then
-            echo $2 version $4 is already installed
-            exit 0;
-          elif [ $CURL_CODE -eq 7 ]; then
-            echo "No Jack server running. Try 'jack-admin start-server'" &>2
-            abort
-          elif  [ $CURL_CODE -eq 22 ]; then
-            # Http code not OK, let's decode and abort
+          if [ $CURL_CODE -eq 22 ]; then
             if [ $HTTP_CODE -eq 404 ]; then
               # version not found, proceed to installation
               updateProgram $2 $3
-            elif [ $HTTP_CODE -eq 401 ]; then
-              # 401: Unauthorized
-              echo "Security problem, see Jack server log" >&2
-              abort
-            elif [ $HTTP_CODE -eq 400 ]; then
-              # 400: Bad request
-              echo "Bad request, see Jack server log" >&2
-              abort
-            else
-              # Other
-              echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
-              abort
-            fi
-          else
-            # In case of partial, timeout, empty response, network error, let's retry
-            if [ $RETRY_SESSION -eq 0 ]; then
-              echo "Communication error with Jack server $CURL_CODE" >&2
-              abort
-            else
-              let RETRY_SESSION=RETRY_SESSION-1
+              exit 0
             fi
           fi
+          handleHttpErrors $CURL_CODE $HTTP_CODE
+          DONE=$?
         done
       else
         # No version provided, proceed directly without testing
@@ -389,39 +373,8 @@ case $COMMAND in
            --noproxy ${SERVER_HOST} \
            https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
            )
-      CURL_CODE=$?
-
-      if [ $CURL_CODE -eq 0 ]; then
-        # No problem, let's go
-        DONE=0
-      elif [ $CURL_CODE -eq 7 ]; then
-        echo "No Jack server running" >&2
-        abort
-      elif  [ $CURL_CODE -eq 22 ]; then
-        # Http code not OK, let's decode and abort
-        if [ $2 -eq 401 ]; then
-          # 401: Unauthorized
-          echo "Security problem, see Jack server log" >&2
-          abort
-        elif [ $HTTP_CODE -eq 400 ]; then
-          # 400: Bad request
-          echo "Bad request, see Jack server log" >&2
-          abort
-        else
-          # Other
-          echo "Internal unknown error ($2), see Jack server log" >&2
-          abort
-        fi
-      else
-        # In case of partial, timeout, empty response, network error, let's retry
-        if [ $RETRY_SESSION -eq 0 ]; then
-          echo "Communication error with Jack server $CURL_CODE" >&2
-          abort
-        else
-          let RETRY_SESSION=RETRY_SESSION-1
-          DONE=1
-        fi
-      fi
+      handleHttpErrors $? $HTTP_CODE
+      DONE=$?
       exec 3>&-
     done ;;
 
