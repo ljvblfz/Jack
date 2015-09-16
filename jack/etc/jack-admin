@@ -120,11 +120,10 @@ updateProgram () {
   RETRY_SESSION=3
   DONE=1
   while [ "$DONE" -ne 0 ]; do
-    exec 3>&1
     HTTP_CODE=$(curl -f \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >&3) \
+         --output >(cat >/dev/null) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X PUT \
          -F "jar=@$2;type=application/octet-stream" \
@@ -134,7 +133,6 @@ updateProgram () {
          )
     handleHttpErrors $? $HTTP_CODE
     DONE=$?
-    exec 3>&-
   done
 
 
@@ -217,7 +215,7 @@ listProgramVersion () {
     HTTP_CODE=$(curl -f \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >&3) \
+         --output >(tr -d '\015' >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
@@ -363,11 +361,10 @@ case $COMMAND in
     RETRY_SESSION=3
     DONE=1
     while [ "$DONE" -ne 0 ]; do
-      exec 3>&1
       HTTP_CODE=$(curl -f \
            --cert "${JACK_HOME}/client.pem" \
            --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >&3) \
+           --output >(cat >/dev/null) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X POST \
            --noproxy ${SERVER_HOST} \
@@ -375,7 +372,6 @@ case $COMMAND in
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
-      exec 3>&-
     done ;;
 
 
@@ -389,7 +385,7 @@ case $COMMAND in
       HTTP_CODE=$(curl -f \
            --cert "${JACK_HOME}/client.pem" \
            --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >&3) \
+           --output >(tr -d '\015' >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X GET \
            -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
@@ -410,7 +406,7 @@ case $COMMAND in
       HTTP_CODE=$(curl -f \
            --cert "${JACK_HOME}/client.pem" \
            --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >&3) \
+           --output >(tr -d '\015' >&3) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            -X GET \
            -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
@@ -487,11 +483,10 @@ case $COMMAND in
     RETRY_SESSION=3
     DONE=1
     while [ "$DONE" -ne 0 ]; do
-      exec 3>&1
       HTTP_CODE=$(curl --fail \
            --cert "${JACK_HOME}/client.pem" \
            --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >&3) \
+           --output >(cat >/dev/null) \
            --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
            --request PUT \
            --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
@@ -502,7 +497,6 @@ case $COMMAND in
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
-      exec 3>&-
     done ;;
 
 

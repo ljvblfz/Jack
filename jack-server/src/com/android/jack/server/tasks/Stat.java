@@ -71,36 +71,36 @@ public class Stat extends SynchronousAdministrativeTask {
 
       long time = System.currentTimeMillis();
       Date date = new Date(time);
-      printer.println("date: " + time + " [" + date + "]");
+      println(printer, "date: " + time + " [" + date + "]");
 
       try {
         ServerInfo stat = jackServer.getServiceStat();
-        printer.println("server.compilation: " + stat.getTotalLocal());
-        printer.println("server.compilation.max: " + stat.getMaxLocal());
-        printer.println("server.compilation.current: " + stat.getCurrentLocal());
-        printer.println("server.forward: " + stat.getTotalForward());
-        printer.println("server.forward.max: " + stat.getMaxForward());
-        printer.println("server.forward.current: " + stat.getCurrentForward());
+        println(printer, "server.compilation: " + stat.getTotalLocal());
+        println(printer, "server.compilation.max: " + stat.getMaxLocal());
+        println(printer, "server.compilation.current: " + stat.getCurrentLocal());
+        println(printer, "server.forward: " + stat.getTotalForward());
+        println(printer, "server.forward.max: " + stat.getMaxForward());
+        println(printer, "server.forward.current: " + stat.getCurrentForward());
 
         OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
-        printer.println("os.arch: " + os.getArch());
-        printer.println("os.proc.nb: " + Integer.valueOf(os.getAvailableProcessors()));
-        printer.println("os.name: " + os.getName());
-        printer.println("os.version: " + os.getVersion());
+        println(printer, "os.arch: " + os.getArch());
+        println(printer, "os.proc.nb: " + Integer.valueOf(os.getAvailableProcessors()));
+        println(printer, "os.name: " + os.getName());
+        println(printer, "os.version: " + os.getVersion());
 
         RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
-        printer.println("vm.name: " + runtime.getVmName());
-        printer.println("vm.vendor: " + runtime.getVmVendor());
-        printer.println("vm.version: " + runtime.getVmVersion());
-        printer.println("vm_options: "
+        println(printer, "vm.name: " + runtime.getVmName());
+        println(printer, "vm.vendor: " + runtime.getVmVendor());
+        println(printer, "vm.version: " + runtime.getVmVersion());
+        println(printer, "vm_options: "
             + Joiner.on(' ').skipNulls().join(runtime.getInputArguments()));
-        printer.println("vm.memory.max: " + formatQuatity(Runtime.getRuntime().maxMemory()));
-        printer.println("vm.memory.free: " + formatQuatity(Runtime.getRuntime().freeMemory()));
-        printer.println("vm.memory.total: " + formatQuatity(Runtime.getRuntime().totalMemory()));
+        println(printer, "vm.memory.max: " + formatQuatity(Runtime.getRuntime().maxMemory()));
+        println(printer, "vm.memory.free: " + formatQuatity(Runtime.getRuntime().freeMemory()));
+        println(printer, "vm.memory.total: " + formatQuatity(Runtime.getRuntime().totalMemory()));
 
         try {
           CompilationMXBean compilation = ManagementFactory.getCompilationMXBean();
-          printer.println("vm.jit.time: "
+          println(printer, "vm.jit.time: "
               + formatDuration(compilation.getTotalCompilationTime(), TimeUnit.MILLISECONDS));
         } catch (UnsupportedOperationException e) {
           // Do the best
@@ -108,25 +108,25 @@ public class Stat extends SynchronousAdministrativeTask {
 
         for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
           String suffix = "vm.collector." + tranformString(gc.getName()) + ".";
-          printer.println(suffix + "time: "
+          println(printer, suffix + "time: "
               + formatDuration(gc.getCollectionTime(), TimeUnit.MILLISECONDS));
-          printer.println(suffix + "count: " + gc.getCollectionCount());
+          println(printer, suffix + "count: " + gc.getCollectionCount());
         }
 
         for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
           String suffix = "vm.pool." + tranformString(pool.getName()) + ".";
-          printer.println(suffix + "type: " + pool.getType().name());
+          println(printer, suffix + "type: " + pool.getType().name());
 
           printMemoryUsage(printer, suffix + "collection.", pool.getCollectionUsage());
           try {
-            printer.println(suffix + "collection.threshold: "
+            println(printer, suffix + "collection.threshold: "
                 + formatQuatity(pool.getCollectionUsageThreshold()));
           } catch (UnsupportedOperationException e) {
             // Best effort
           }
 
           try {
-            printer.println(suffix + "collection.threshold.count: "
+            println(printer, suffix + "collection.threshold.count: "
                 + pool.getCollectionUsageThresholdCount());
           } catch (UnsupportedOperationException e) {
             // Best effort
@@ -136,20 +136,20 @@ public class Stat extends SynchronousAdministrativeTask {
 
           printMemoryUsage(printer, suffix + "usage.", pool.getUsage());
           try {
-            printer.println(suffix + "usage.threshold: "
+            println(printer, suffix + "usage.threshold: "
                 + formatQuatity(pool.getUsageThreshold()));
           } catch (UnsupportedOperationException e) {
             // Best effort
           }
           try {
-            printer.println(suffix + "usage.threshold.count: " + pool.getUsageThresholdCount());
+            println(printer, suffix + "usage.threshold.count: " + pool.getUsageThresholdCount());
           } catch (UnsupportedOperationException e) {
             // Best effort
           }
         }
 
         try {
-          printer.println("host.name: " + InetAddress.getLocalHost().getHostName());
+          println(printer, "host.name: " + InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException e1) {
           // Best effort
         }
@@ -158,7 +158,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getCommittedVirtualMemorySize");
           method.setAccessible(true);
-          printer.println("os.memory.virtual.committed: "
+          println(printer, "os.memory.virtual.committed: "
               + formatQuatity(((Long) method.invoke(os)).longValue()));
         } catch (Throwable t) {
           // Best effort
@@ -167,7 +167,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getTotalPhysicalMemorySize");
           method.setAccessible(true);
-          printer.println("os.memory.physical.total: "
+          println(printer, "os.memory.physical.total: "
               + formatQuatity(((Long) method.invoke(os)).longValue()));
         } catch (Throwable t) {
           // Best effort
@@ -176,7 +176,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getFreePhysicalMemorySize");
           method.setAccessible(true);
-          printer.println("os.memory.physical.free: "
+          println(printer, "os.memory.physical.free: "
               + formatQuatity(((Long) method.invoke(os)).longValue()));
         } catch (Throwable t) {
           // Best effort
@@ -185,7 +185,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getTotalSwapSpaceSize");
           method.setAccessible(true);
-          printer.println("os.memory.swap.total: "
+          println(printer, "os.memory.swap.total: "
               + formatQuatity(((Long) method.invoke(os)).longValue()));
         } catch (Throwable t) {
           // Best effort
@@ -194,7 +194,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getFreeSwapSpaceSize");
           method.setAccessible(true);
-          printer.println("os.memory.swap.free: "
+          println(printer, "os.memory.swap.free: "
               + formatQuatity(((Long) method.invoke(os)).longValue()));
         } catch (Throwable t) {
           // Best effort
@@ -203,7 +203,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getOpenFileDescriptorCount");
           method.setAccessible(true);
-          printer.println("os.fd.open: " + ((Long) method.invoke(os)).longValue());
+          println(printer, "os.fd.open: " + ((Long) method.invoke(os)).longValue());
         } catch (Throwable t) {
           // Best effort
         }
@@ -212,7 +212,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getProcessCpuLoad");
           method.setAccessible(true);
-          printer.println("os.process.cpu.load: " + ((Double) method.invoke(os)).doubleValue());
+          println(printer, "os.process.cpu.load: " + ((Double) method.invoke(os)).doubleValue());
         } catch (Throwable t) {
           // Best effort
         }
@@ -220,7 +220,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getProcessCpuTime");
           method.setAccessible(true);
-          printer.println("os.process.cpu.time: "
+          println(printer, "os.process.cpu.time: "
               + formatDuration(((Long) method.invoke(os)).longValue(), TimeUnit.NANOSECONDS));
         } catch (Throwable t) {
           // Best effort
@@ -229,7 +229,7 @@ public class Stat extends SynchronousAdministrativeTask {
         try {
           method = os.getClass().getMethod("getSystemCpuLoad");
           method.setAccessible(true);
-          printer.println("os.system.cpu.load: " + ((Double) method.invoke(os)).doubleValue());
+          println(printer, "os.system.cpu.load: " + ((Double) method.invoke(os)).doubleValue());
         } catch (Throwable t) {
           // Best effort
         }
@@ -247,6 +247,11 @@ public class Stat extends SynchronousAdministrativeTask {
       response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private static void println(@Nonnull PrintStream printer, @Nonnull String string) {
+    printer.print(string);
+    printer.print(TextPlain.EOL);
   }
 
   @Nonnull
@@ -279,10 +284,10 @@ public class Stat extends SynchronousAdministrativeTask {
   private static void printMemoryUsage(@Nonnull PrintStream printer, @Nonnull String suffix,
       @CheckForNull MemoryUsage usage) {
     if (usage != null) {
-      printer.println(suffix + "commited: " + formatQuatity(usage.getCommitted()));
-      printer.println(suffix + "init: " + formatQuatity(usage.getInit()));
-      printer.println(suffix + "max: " + formatQuatity(usage.getMax()));
-      printer.println(suffix + "used: " + formatQuatity(usage.getUsed()));
+      println(printer, suffix + "commited: " + formatQuatity(usage.getCommitted()));
+      println(printer, suffix + "init: " + formatQuatity(usage.getInit()));
+      println(printer, suffix + "max: " + formatQuatity(usage.getMax()));
+      println(printer, suffix + "used: " + formatQuatity(usage.getUsed()));
     }
   }
 }

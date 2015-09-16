@@ -40,6 +40,10 @@ public class TextPlain {
   @Nonnull
   public static final String CONTENT_TYPE_NAME = "text/plain";
 
+  // See RFC 2046 4.1.1 and RFC 2616 3.7.1
+  @Nonnull
+  public static final String EOL = "\r\n";
+
   @Nonnull
   private static final Charset DEFAULT_CHARSET = StandardCharsets.US_ASCII;
 

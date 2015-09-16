@@ -51,7 +51,7 @@ public class GetLauncherHome extends SynchronousServiceTask {
           + TextPlain.getPreferredTextPlainCharset(request).name());
       out = response.getPrintStream();
       out.append(jackServer.getLauncherHandle().getServerDir().getAbsolutePath());
-      out.append('\n');
+      out.append(TextPlain.EOL);
       response.setStatus(Status.OK);
     } catch (UnsupportedCharsetException e) {
       logger.log(Level.SEVERE, "Unsupported charset", e);

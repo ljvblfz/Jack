@@ -59,7 +59,7 @@ public class GetLauncherLog extends SynchronousServiceTask {
     try {
       out = new OutputStreamWriter(response.getOutputStream(), Charset.forName(charset));
       out.append(jackServer.getLogPattern());
-      out.append('\n');
+      out.append(TextPlain.EOL);
       response.setStatus(Status.OK);
     } catch (UnsupportedCharsetException e) {
       logger.log(Level.SEVERE, "Unsupported charset for content type '" + expectedContentType + "'",

@@ -57,7 +57,7 @@ abstract class GetVersions extends SynchronousAdministrativeTask {
       for (HasVersion versioned : getVersionnedElements()) {
         Version version = versioned.getVersion();
         out.append(version.getReleaseCode() + "." + version.getSubReleaseCode() + "."
-            + version.getSubReleaseKind().name() + "\n");
+            + version.getSubReleaseKind().name() + TextPlain.EOL);
       }
       response.setStatus(Status.OK);
     } catch (UnsupportedCharsetException e) {
