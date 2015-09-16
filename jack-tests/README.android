@@ -36,3 +36,12 @@ Retrolambda tests were splitted into several files, the original source files ca
 
 https://github.com/orfjackal/retrolambda/tree/3701dd546cff67ac8bad0cb8e6d50ca0704265bd/end-to-end-tests/src/test/java/net/orfjackal/retrolambda/test
 
+* Ant JUnit XML report
+
+Snippets have been taken from Ant 1.9.6 to write a JUnit Launcher that
+produces an XML report compatible with Ant <junitreport> task.
+Original sources can be downloaded from:
+http://archive.apache.org/dist/ant/source/apache-ant-1.9.6-src.zip
+
+
+
