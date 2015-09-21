@@ -54,6 +54,12 @@ public class JackJUnitLauncher {
 
     List<Request> requests = new ArrayList<Request>(args.length);
 
+    boolean dumpTests = Boolean.parseBoolean(System.getProperty("tests.dump", "false"));
+
+    if (dumpTests) {
+      System.out.println('{');
+    }
+
     // build all requests at once to check validity of args before running any tests
     for (String test : args) {
       String[] classMethodPair = test.split("#");
@@ -90,7 +96,7 @@ public class JackJUnitLauncher {
     }
 
     // tests dump mode => don't print anything else
-    if (!System.getProperty("tests.dump", "false").toLowerCase().equals("true")) {
+    if (!dumpTests) {
       core.addListener(new TextListener(new RealSystem()));
     }
 
@@ -98,6 +104,11 @@ public class JackJUnitLauncher {
     for (Request req : requests) {
       Result result = core.run(req);
       failureCount += result.getFailureCount();
+    }
+
+    if (dumpTests) {
+      System.out.println("  \"empty\": {}");
+      System.out.println("}");
     }
 
     System.exit((failureCount == 0) ? ExitStatus.SUCCESS : ExitStatus.TEST_FAILURE);
