@@ -117,13 +117,21 @@ while true; do
     # Failed to connect
     echo "No Jack server running. Try 'jack-admin start-server'" >&2
     abort
+  elif [ $CURL_CODE -eq 35 ]; then
+    echo "SSL error when connecting to the Jack server" >&2
+    abort
+  elif [ $CURL_CODE -eq 58 ]; then
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem" >&2
+    abort
+  elif [ $CURL_CODE -eq 60 ]; then
+    echo "Failed to authenticate Jack server certificate" >&2
+    abort
+   elif [ $CURL_CODE -eq 77 ]; then
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem" >&2
+    abort
   elif  [ $CURL_CODE -eq 22 ]; then
     # Http code not OK, let's decode and abort
-    if [ $HTTP_CODE -eq 401 ]; then
-      # 401: Unauthorized
-      echo "Security problem, see Jack server log" >&2
-      abort
-    elif [ $HTTP_CODE -eq 400 ]; then
+    if [ $HTTP_CODE -eq 400 ]; then
       # 400: Bad request
       echo "Bad request, see server log" >&2
       abort
