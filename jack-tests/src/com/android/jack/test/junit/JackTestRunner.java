@@ -51,7 +51,7 @@ public class JackTestRunner extends Categories {
         @Nonnull IToolchain candidate, @Nonnull IToolchain reference, boolean dumpTest) {
       this.candidate = candidate;
       this.reference = reference;
-      this.dumpTests = true;
+      this.dumpTests = dumpTest;
     }
 
     @Override
