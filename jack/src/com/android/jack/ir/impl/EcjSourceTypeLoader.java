@@ -132,6 +132,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (binding.isAnonymousType()) {
         // Don't model an enum subclass as a JEnumType.
         assert JModifier.isEnum(accessFlags);
+        accessFlags |= JModifier.ANONYMOUS_TYPE;
         type = new JDefinedClass(info, name, accessFlags, enclosingPackage, loader);
       } else {
         type = new JDefinedEnum(info, name, accessFlags, enclosingPackage, loader);
