@@ -154,6 +154,14 @@ public class LambdaTest {
           "com.android.jack.java8.lambda.test026.jack.Tests")
           .addProguardFlagsFileName("proguard.flags");
 
+  private RuntimeTestInfo LAMBDA027 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test027"),
+      "com.android.jack.java8.lambda.test027.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA028 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test028"),
+      "com.android.jack.java8.lambda.test028.jack.Tests");
+
   @Test
   public void testLamba001() throws Exception {
     new RuntimeTestHelper(LAMBDA001)
@@ -403,4 +411,19 @@ public class LambdaTest {
     }
   }
 
+  @Test
+  public void testLamba027() throws Exception {
+    new RuntimeTestHelper(LAMBDA027)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testLamba028() throws Exception {
+    new RuntimeTestHelper(LAMBDA028)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .compileAndRunTest();
+  }
 }
