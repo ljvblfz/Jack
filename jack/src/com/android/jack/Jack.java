@@ -63,6 +63,12 @@ import com.android.jack.backend.jayce.JayceInLibraryWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.coverage.CodeCoverage;
+import com.android.jack.coverage.CodeCoverageAnalyzer;
+import com.android.jack.coverage.CodeCoverageMetadataFile;
+import com.android.jack.coverage.CodeCoverageMetadataFileWriter;
+import com.android.jack.coverage.CodeCoverageSelector;
+import com.android.jack.coverage.CodeCoverageTransformer;
 import com.android.jack.digest.OriginDigestAdder;
 import com.android.jack.digest.OriginDigestFeature;
 import com.android.jack.frontend.FrontendCompilationException;
@@ -628,6 +634,10 @@ public abstract class Jack {
         if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
           request.addFeature(TypeDefRemover.RemoveTypeDef.class);
         }
+        if (config.get(Options.CODE_COVERVAGE).booleanValue()) {
+          request.addFeature(CodeCoverage.class);
+          request.addProduction(CodeCoverageMetadataFile.class);
+        }
 
         // TODO(jack-team): Remove this hack
         boolean preDexing = !getSession().getImportedLibraries().isEmpty();
@@ -1015,6 +1025,9 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      if (features.contains(CodeCoverage.class)) {
+        typePlan.append(CodeCoverageSelector.class);
+      }
       {
         if (features.contains(CompiledTypeStats.class)) {
           SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
@@ -1340,54 +1353,76 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       {
-        SubPlanBuilder<JMethod> methodPlan4 =
-            typePlan5.appendSubPlan(JMethodAdapter.class);
-        methodPlan4.append(RefAsStatementRemover.class);
-        methodPlan4.append(CfgBuilder.class);
-        methodPlan4.append(DefinitionMarkerAdder.class);
-        methodPlan4.append(ReachingDefinitions.class);
-        methodPlan4.append(UsedVariableAdder.class);
-        methodPlan4.append(DefUsesAndUseDefsChainComputation.class);
-        if (hasSanityChecks) {
-          methodPlan4.append(UseDefsChecker.class);
+        {
+          SubPlanBuilder<JMethod> methodPlan4 =
+              typePlan5.appendSubPlan(JMethodAdapter.class);
+          methodPlan4.append(RefAsStatementRemover.class);
+          methodPlan4.append(CfgBuilder.class);
+          methodPlan4.append(DefinitionMarkerAdder.class);
+          methodPlan4.append(ReachingDefinitions.class);
+          methodPlan4.append(UsedVariableAdder.class);
+          methodPlan4.append(DefUsesAndUseDefsChainComputation.class);
+          if (hasSanityChecks) {
+            methodPlan4.append(UseDefsChecker.class);
+          }
+          methodPlan4.append(ConstantRefinerAndVariableRemover.class);
+          if (features.contains(Optimizations.UseDefSimplifier.class)) {
+            methodPlan4.append(UseDefsChainsSimplifier.class);
+          }
+          if (features.contains(Optimizations.DefUseSimplifier.class)) {
+            methodPlan4.append(DefUsesChainsSimplifier.class);
+          }
+          // Instructions are removed by DefUsesChainsSimplifier thus rebuild the cfg.
+          methodPlan4.append(CfgMarkerRemover.class);
+          methodPlan4.append(CfgBuilder.class);
+          methodPlan4.append(UnusedDefinitionRemover.class);
+          methodPlan4.append(RefAsStatementRemover.class);
+          methodPlan4.append(CfgMarkerRemover.class);
+          methodPlan4.append(CfgBuilder.class);
+          if (features.contains(Optimizations.IfSimplifier.class)) {
+            methodPlan4.append(IfWithConstantSimplifier.class);
+          }
+          methodPlan4.append(UnusedLocalRemover.class);
+          methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
+          methodPlan4.append(DefinitionMarkerRemover.class);
+          methodPlan4.append(UsedVariableRemover.class);
+          methodPlan4.append(ReachingDefinitionsRemover.class);
+          if (features.contains(Optimizations.ExpressionSimplifier.class)) {
+            methodPlan4.append(ExpressionSimplifier.class);
+          }
+          methodPlan4.append(UselessIfRemover.class);
+          methodPlan4.append(CfgMarkerRemover.class);
+          methodPlan4.append(CfgBuilder.class);
+          if (features.contains(CodeCoverage.class)) {
+            methodPlan4.append(CodeCoverageAnalyzer.class);
+          }
         }
-        methodPlan4.append(ConstantRefinerAndVariableRemover.class);
-        if (features.contains(Optimizations.UseDefSimplifier.class)) {
-          methodPlan4.append(UseDefsChainsSimplifier.class);
+
+        // Apply code coverage on the whole class (after CodeCoverageAnalyzer has processed all
+        // methods of the class).
+        if (features.contains(CodeCoverage.class)) {
+          typePlan5.append(CodeCoverageTransformer.class);
         }
-        if (features.contains(Optimizations.DefUseSimplifier.class)) {
-          methodPlan4.append(DefUsesChainsSimplifier.class);
-        }
-        // Instructions are removed by DefUsesChainsSimplifier thus rebuild the cfg.
-        methodPlan4.append(CfgMarkerRemover.class);
-        methodPlan4.append(CfgBuilder.class);
-        methodPlan4.append(UnusedDefinitionRemover.class);
-        methodPlan4.append(RefAsStatementRemover.class);
-        methodPlan4.append(CfgMarkerRemover.class);
-        methodPlan4.append(CfgBuilder.class);
-        if (features.contains(Optimizations.IfSimplifier.class)) {
-          methodPlan4.append(IfWithConstantSimplifier.class);
-        }
-        methodPlan4.append(UnusedLocalRemover.class);
-        methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
-        methodPlan4.append(DefinitionMarkerRemover.class);
-        methodPlan4.append(UsedVariableRemover.class);
-        methodPlan4.append(ReachingDefinitionsRemover.class);
-        if (features.contains(Optimizations.ExpressionSimplifier.class)) {
-          methodPlan4.append(ExpressionSimplifier.class);
-        }
-        methodPlan4.append(UselessIfRemover.class);
-        methodPlan4.append(CfgMarkerRemover.class);
-        methodPlan4.append(CfgBuilder.class);
-        methodPlan4.append(CodeItemBuilder.class);
-        methodPlan4.append(CfgMarkerRemover.class);
-        methodPlan4.append(EncodedMethodBuilder.class);
-        if (features.contains(SourceVersion8.class)) {
-          methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
-        }
-        methodPlan4.append(MethodAnnotationBuilder.class);
-        if (features.contains(DropMethodBody.class)) {
-          methodPlan4.append(MethodBodyRemover.class);
+
+        {
+          SubPlanBuilder<JMethod> methodPlan5 =
+              typePlan5.appendSubPlan(JMethodAdapter.class);
+          if (features.contains(CodeCoverage.class)) {
+            // We instrumented the code with CodeCoverageTransformer so we need to update the
+            // control flow graph.
+            methodPlan5.append(CfgMarkerRemover.class);
+            methodPlan5.append(CfgBuilder.class);
+          }
+          methodPlan5.append(CodeItemBuilder.class);
+          methodPlan5.append(CfgMarkerRemover.class);
+          methodPlan5.append(EncodedMethodBuilder.class);
+          if (features.contains(SourceVersion8.class)) {
+            methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
+          }
+          methodPlan5.append(MethodAnnotationBuilder.class);
+          if (features.contains(DropMethodBody.class)) {
+            methodPlan5.append(MethodBodyRemover.class);
+          }
         }
         {
           SubPlanBuilder<JField> fieldPlan2 =
@@ -1402,6 +1437,10 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
+    }
+
+    if (productions.contains(CodeCoverageMetadataFile.class)) {
+      planBuilder.append(CodeCoverageMetadataFileWriter.class);
     }
 
     {

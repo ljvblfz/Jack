@@ -220,7 +220,7 @@ public abstract class JNode extends LocalMarkerManager
       @Nonnull JNode existingNode,
       @CheckForNull JNode newNode,
       @Nonnull Transformation transformation) throws UnsupportedOperationException  {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(getClass().getName() + " does not support transform");
   }
 
   protected static <T> boolean transform(
