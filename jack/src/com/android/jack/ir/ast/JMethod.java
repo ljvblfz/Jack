@@ -425,4 +425,8 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+  public boolean isDefaultMethod() {
+    return JModifier.isDefaultMethod(modifier);
+  }
 }

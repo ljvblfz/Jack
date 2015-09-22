@@ -48,6 +48,7 @@ public class JModifier {
   // Extra Jack modifiers
   public static final int COMPILE_TIME_CONSTANT = 0x20000;
   public static final int ANONYMOUS_TYPE        = 0x40000;
+  public static final int DEFAULT_METHOD        = 0x200000;
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
       | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | ANONYMOUS_TYPE
@@ -58,9 +59,13 @@ public class JModifier {
 
   private static final int METHOD_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | NATIVE
       | ABSTRACT | FINAL | SYNCHRONIZED | BRIDGE | SYNTHETIC | STRICTFP | VARARGS | STATIC_INIT
-      | DEPRECATED;
+      | DEPRECATED | DEFAULT_METHOD;
 
   private static final int LOCAL_MODIFIER_MASK = FINAL | SYNTHETIC;
+
+  public static boolean isDefaultMethod(int modifier) {
+    return ((modifier & DEFAULT_METHOD) == DEFAULT_METHOD);
+  }
 
   public static boolean isPublic(int modifier) {
     return ((modifier & PUBLIC) == PUBLIC);
