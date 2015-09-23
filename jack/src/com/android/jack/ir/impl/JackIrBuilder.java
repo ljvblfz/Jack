@@ -1478,7 +1478,11 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         ReferenceBinding targetType = (ReferenceBinding) x.qualification.resolvedType;
-        push(makeThisReference(info, targetType, true, scope, x));
+        if ((x.bits & ASTNode.DepthMASK) == 0) {
+          push(makeThisRef(info));
+        } else {
+          push(makeThisReference(info, targetType, true, scope, x));
+        }
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
