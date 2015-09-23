@@ -180,7 +180,7 @@ $(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/$(LOCAL_SRC_FILES) $(HOST_OUT_JAVA_LIBRARIE
 ifneq ($(dist_goal),)
 	$(hide) $(jack_admin_script) uninstall-server 2>&1 || (exit 0)
 endif
-	$(hide) $(jack_admin_script) install-server $(jack_launcher_jar) $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar  2>&1 || (exit 0)
+	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar  2>&1 || (exit 0)
 ifneq ($(dist_goal),)
 	mkdir -p "$(DIST_DIR)/logs/jack/"
 	$(hide) JACK_SERVER_VM_ARGUMENTS="$(jack_vm_args) -Dcom.android.jack.server.log.file=$(abspath $(DIST_DIR))/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || exit 0
