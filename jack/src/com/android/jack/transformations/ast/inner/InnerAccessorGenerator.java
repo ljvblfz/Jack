@@ -100,11 +100,14 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
     @Nonnull
     private JDefinedClassOrInterface getAccessorClassForSuperCall(
         @Nonnull JDefinedClassOrInterface declaringType) {
+      JDefinedClassOrInterface enclosing = currentType;
 
-      // if the instance is the super of an enclosing class, we have to retrieve it
-      JDefinedClass enclosing = (JDefinedClass) currentType;
-      while (!isSuperClassOf((JDefinedClass) declaringType, enclosing)) {
-        enclosing = (JDefinedClass) enclosing.getEnclosingType();
+      // If declaringType is an interface, the accessor class is the first enclosing
+      // type implementing this interface.
+      // If declaringType is a class, the accessor is the first enclosing type
+      // extending this class.
+      while (!enclosing.canBeSafelyUpcast(declaringType)) {
+        enclosing = (JDefinedClassOrInterface) enclosing.getEnclosingType();
       }
 
       return enclosing;
@@ -152,8 +155,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
         return false;
       }
 
-      if (JModifier.isProtected(modifier) && type instanceof JDefinedClass
-          && isSuperClassOf((JDefinedClass) declaringType, (JDefinedClass) type)) {
+      if (JModifier.isProtected(modifier) && type.canBeSafelyUpcast(declaringType)) {
         return true;
       }
 
@@ -330,22 +332,4 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
     visitor.accept(method);
     tr.commit();
   }
-
-
-  /**
-   * @param type
-   * @return true if the instance is a superclass of type
-   */
-  static boolean isSuperClassOf(JDefinedClass possibleSuper, JDefinedClass type) {
-    JDefinedClassOrInterface superClass = (JDefinedClassOrInterface) type.getSuperClass();
-    while (superClass != null) {
-      if (possibleSuper.isSameType(superClass)) {
-        return true;
-      }
-      superClass = (JDefinedClassOrInterface) superClass.getSuperClass();
-    }
-    return false;
-  }
-
-
 }
