@@ -13,22 +13,6 @@
 # limitations under the License.
 
 LOCAL_PATH:= $(call my-dir)
-#
-# Build jack script
-#
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := jack
-LOCAL_SRC_FILES := etc/jack
-LOCAL_MODULE_CLASS := EXECUTABLES
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_SUFFIX := $(HOST_EXECUTABLE_SUFFIX)
-LOCAL_BUILT_MODULE_STEM := jack$(HOST_EXECUTABLE_SUFFIX)
-LOCAL_IS_HOST_MODULE := true
-
-include $(BUILD_PREBUILT)
-jack_script := $(LOCAL_INSTALLED_MODULE)
 
 #
 # Build jack-admin script
@@ -130,7 +114,6 @@ include $(BUILD_HOST_JAVA_LIBRARY)
 $(JACK_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
 	$(copy-file-to-target)
 
-$(LOCAL_INSTALLED_MODULE) : $(jack_script) $(jack_admin_script)
 JACK_JAR_INTERMEDIATE:=$(LOCAL_BUILT_MODULE).intermediate.jar
 
 # Merge with sched lib support
@@ -143,25 +126,17 @@ JACK_CORE_STUBS_MINI_SRC := $(addprefix $(TOP_DIR)$(LOCAL_PATH)/,$(call all-java
 
 JACK_DEFAULT_LIB := $(LOCAL_BUILT_MODULE).defaultlib.jack
 JACK_DEFAULT_LIB_SRC :=$(addprefix $(TOP_DIR)$(LOCAL_PATH)/,$(call all-java-files-under, src/com/android/jack/annotations))
-$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM_ARGS := $(DEFAULT_JACK_VM_ARGS)
-ifneq ($(ANDROID_JACK_VM_ARGS),)
-$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM_ARGS := $(ANDROID_JACK_VM_ARGS)
-endif
 $(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_EXTRA_ARGS := $(DEFAULT_JACK_EXTRA_ARGS)
 ifneq ($(ANDROID_JACK_EXTRA_ARGS),)
 $(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_EXTRA_ARGS := $(ANDROID_JACK_EXTRA_ARGS)
 endif
-$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM := $(DEFAULT_JACK_VM)
-ifneq ($(strip $(ANDROID_JACK_VM)),)
-$(JACK_CORE_STUBS_MINI) $(JACK_DEFAULT_LIB): PRIVATE_JACK_VM := $(ANDROID_JACK_VM)
-endif
 
 $(JACK_CORE_STUBS_MINI): $(JACK_CORE_STUBS_MINI_SRC) $(JACK_JAR_INTERMEDIATE)
-	$(PRIVATE_JACK_VM) $(PRIVATE_JACK_VM_ARGS) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
+	java -Dfile.encoding=UTF-8 -XX:+TieredCompilation $(JAVA_TMPDIR_ARG) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
 		-D jack.classpath.default-libraries=false --output-jack $(JACK_CORE_STUBS_MINI) $(JACK_CORE_STUBS_MINI_SRC)
 
 $(JACK_DEFAULT_LIB): $(JACK_DEFAULT_LIB_SRC) $(JACK_CORE_STUBS_MINI) $(JACK_JAR_INTERMEDIATE)
-	$(PRIVATE_JACK_VM) $(PRIVATE_JACK_VM_ARGS) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
+	java -Dfile.encoding=UTF-8 -XX:+TieredCompilation $(JAVA_TMPDIR_ARG) -cp $(JACK_JAR_INTERMEDIATE) com.android.jack.Main $(PRIVATE_JACK_EXTRA_ARGS) \
 		--classpath $(JACK_CORE_STUBS_MINI) -D jack.classpath.default-libraries=false --output-jack $(JACK_DEFAULT_LIB) $(JACK_DEFAULT_LIB_SRC)
 
 # overwrite install rule, using LOCAL_POST_INSTALL_CMD may cause the installed jar to be used before the post install command is completed
@@ -173,24 +148,49 @@ $(LOCAL_INSTALLED_MODULE): $(JACK_JAR_INTERMEDIATE) $(JACK_DEFAULT_LIB)
 	$(hide) unzip -qd $<.tmp $<
 	$(hide) unzip -qd $<.tmp/jack-default-lib $(JACK_DEFAULT_LIB)
 	$(hide) jar -cfm $@ $(PRIVATE_JAR_MANIFEST) -C $<.tmp .
-	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
-	$(hide) $(jack_admin_script) kill-server 2>&1 || (exit 0)
-	$(hide) sleep 10
-ifneq ($(dist_goal),)
-	$(hide) $(jack_admin_script) uninstall-server 2>&1 || (exit 0)
-endif
-	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar  $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar 2>&1 || (exit 0)
-ifneq ($(dist_goal),)
-	mkdir -p "$(DIST_DIR)/logs/jack/"
-	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(DIST_DIR)/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || (exit 0)
-else
-	$(hide) $(jack_admin_script) start-server 2>&1 || (exit 0)
-endif
-	$(hide) $(jack_admin_script) force-update server $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar || (rm $@; exit 47)
-	$(hide) $(jack_admin_script) force-update jack $@ || (rm $@; exit 47)
 
 # Include this library in the build server's output directory
 $(call dist-for-goals, dist_files, $(LOCAL_BUILT_MODULE):jack.jar)
+
+
+#
+# Build jack script
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := jack
+LOCAL_SRC_FILES := etc/jack
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_SUFFIX := $(HOST_EXECUTABLE_SUFFIX)
+LOCAL_BUILT_MODULE_STEM := jack$(HOST_EXECUTABLE_SUFFIX)
+LOCAL_IS_HOST_MODULE := true
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+ifneq ($(ANDROID_JACK_VM_ARGS),)
+jack_vm_args := $(ANDROID_JACK_VM_ARGS)
+else
+jack_vm_args := -Dfile.encoding=UTF-8 -XX:+TieredCompilation $(JAVA_TMPDIR_ARG)
+endif
+$(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/$(LOCAL_SRC_FILES) $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar $(jack_admin_script) $(JACK_JAR) | $(ACP)
+	@echo "Build: $@"
+	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
+ifneq ($(dist_goal),)
+	$(hide) $(jack_admin_script) uninstall-server 2>&1 || (exit 0)
+endif
+	$(hide) $(jack_admin_script) install-server $(jack_launcher_jar) $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar  2>&1 || (exit 0)
+ifneq ($(dist_goal),)
+	mkdir -p "$(DIST_DIR)/logs/jack/"
+	$(hide) JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Dcom.android.jack.server.log.file=$(DIST_DIR)/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || (exit 0)
+	$(hide) JACK_SERVER_VM_ARGUMENTS="$(jack_vm_args) -Dcom.android.jack.server.log.file=$(abspath $(DIST_DIR))/logs/jack/jack-server-%u-%g.log" $(jack_admin_script) start-server 2>&1 || exit 0
+else
+	$(hide) JACK_SERVER_VM_ARGUMENTS="$(jack_vm_args)" $(jack_admin_script) start-server 2>&1 || exit 0
+endif
+	$(hide) $(jack_admin_script) force-update server $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar
+	$(hide) $(jack_admin_script) force-update jack $(JACK_JAR) $(patsubst $(PRIVATE_PATH)/jacks/jack-%.jar,%,$(JACK_JAR)) || exit 47
+	$(copy-file-to-target)
 
 #
 # Build jack-annotations.jar
