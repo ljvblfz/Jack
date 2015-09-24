@@ -664,6 +664,13 @@
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
   <property name="jack-tests.execname" value="jack-tests.jar" />
 
+  <filelist id="ecj-test-libs" dir="${jack-tests.prebuilts.dir}">
+    <file name="org.eclipse.equinox.common_3.8.0.v20150911-2106.jar" />
+    <file name="org.eclipse.jdt.core_3.12.0.v20150913-1717.jar" />
+    <file name="org.eclipse.jdt.core.tests.compiler_3.12.0.v20150913-1717.jar" />
+    <file name="org.eclipse.test.performance_3.11.0.v20150223-0658.jar" />
+  </filelist>
+
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
     <delete dir="${jack-tests.build.outdir}" />
@@ -716,9 +723,9 @@
           <exclude name="com/android/jack/java7/exceptions/**"/>
           <exclude name="com/android/jack/java7/trywithresources/**"/>
           <exclude name="com/android/jack/java7/parser/**"/>
-	  <exclude name="com/android/jack/java8/lambda/**"/>
-	  <exclude name="com/android/jack/java8/defaultmethod/**"/>
-	  <exclude name="com/android/jack/java8/staticmethod/**"/>
+          <exclude name="com/android/jack/java8/lambda/**"/>
+          <exclude name="com/android/jack/java8/defaultmethod/**"/>
+          <exclude name="com/android/jack/java8/staticmethod/**"/>
           <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
           <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
           <exclude name="com/android/jack/frontend/test005/jack/**"/>
@@ -731,6 +738,7 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         </filelist>
+        <filelist refid="ecj-test-libs"/>
         <!-- static libs -->
         <filelist refid="jackunittests.static.libs.fileset" />
         <filelist refid="jack.static.libs.fileset" />
@@ -779,6 +787,7 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         </filelist>
+        <filelist refid="ecj-test-libs"/>
       </classpath>
     </javac>
     <!-- package -->
@@ -1877,8 +1886,7 @@
     <fail message="tests.config is undefined" unless="tests.config" />
   </target>
 
-  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep">
-  </target>
+  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep"/>
 
   <target name="test-jack-nodep">
     <mkdir dir="${jack.tests.output}/test-jack/html"/>
@@ -1888,6 +1896,7 @@
       <jvmarg value="-ea"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="ecj-test-libs"/>
        </classpath>
       <test name="com.android.jack.PreSubmitTests"
         todir="${jack.tests.output}/test-jack/"
@@ -1912,7 +1921,8 @@
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <jvmarg value="-ea"/>
        <classpath>
-         <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="ecj-test-libs"/>
        </classpath>
        <test name="com.android.jack.LongLastingTests"
          todir="${jack.tests.output}/test-jack-long/"
@@ -1927,8 +1937,7 @@
      <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-  <target name="test-jack-all" depends="tests-check-config, jack-tests, test-jack-all-nodep">
-  </target>
+  <target name="test-jack-all" depends="tests-check-config, jack-tests, test-jack-all-nodep"/>
 
   <target name="test-jack-all-nodep">
       <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
@@ -1938,6 +1947,7 @@
         <jvmarg value="-ea"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
+          <filelist refid="ecj-test-libs"/>
         </classpath>
         <test name="com.android.jack.AllWithJackTests"
           todir="${jack.tests.output}/test-jack-all/"
@@ -1953,8 +1963,7 @@
     </target>
 
   <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
-    freemarker-lib,maths-lib, test-sched-nodep">
-  </target>
+    freemarker-lib,maths-lib, test-sched-nodep"/>
 
   <target name="test-sched-nodep" depends="junit4,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib">
