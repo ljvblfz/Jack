@@ -22,7 +22,6 @@ import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.config.id.Private;
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JStatement;
@@ -104,7 +103,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
 
     BasicBlock entryBb = cfg.getEntryNode();
 
-    if (!method.isStatic() && method.getEnclosingType() instanceof JDefinedClass) {
+    if (method.getThis() != null) {
       DefinitionMarker dm = getDefinitionMarkerForThis(method);
       in[entryBb.getId()].set(dm.getBitSetIdx());
       out[entryBb.getId()].set(dm.getBitSetIdx());
@@ -216,7 +215,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
     List<DefinitionMarker> definitions = new ArrayList<DefinitionMarker>();
     int bitSetIdx = 0;
 
-    if (!method.isStatic() && method.getEnclosingType() instanceof JDefinedClass) {
+    if (method.getThis() != null) {
       DefinitionMarker dm = getDefinitionMarkerForThis(method);
       dm.setBitSetIdx(bitSetIdx++);
       definitions.add(dm);

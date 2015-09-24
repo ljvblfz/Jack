@@ -19,7 +19,6 @@ package com.android.jack.analysis;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
@@ -55,8 +54,8 @@ public class DefinitionMarkerAdder implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JMethod jmethod) {
-      if (!jmethod.isStatic() && jmethod.getEnclosingType() instanceof JDefinedClass) {
-        JVariable thisVar = jmethod.getThis();
+      JVariable thisVar = jmethod.getThis();
+      if (thisVar != null) {
         assert thisVar != null;
         if (thisVar.getMarker(DefinitionMarker.class) == null) {
           thisVar.addMarker(new DefinitionMarker(thisVar));

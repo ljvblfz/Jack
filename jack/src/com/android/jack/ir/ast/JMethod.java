@@ -90,8 +90,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     this.modifier = modifier;
     this.methodId = methodId; // FINDBUGS
     this.loader = loader;
-    if ((!JModifier.isStatic(modifier)) && (!JModifier.isAbstract(modifier))
-        && (!JModifier.isNative(modifier)) && enclosingType instanceof JDefinedClass) {
+    if (needThis(modifier)) {
       jThis = new JThis(this);
     } else {
       jThis = null;
@@ -424,5 +423,14 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     if (!(parent instanceof JDefinedClassOrInterface)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  public static boolean needThis(int modifier) {
+    if (JModifier.isStatic(modifier) || JModifier.isAbstract(modifier)
+        || JModifier.isNative(modifier)) {
+      return false;
+    }
+
+    return true;
   }
 }
