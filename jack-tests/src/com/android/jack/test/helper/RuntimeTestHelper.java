@@ -359,6 +359,14 @@ public class RuntimeTestHelper {
     return result.toArray(new String[result.size()]);
   }
 
+  @Nonnull
+  public static final String[] getRuntimeArgs(@Nonnull String rtName, @Nonnull File rtArgsFile)
+      throws FileNotFoundException, IOException {
+    Properties properties = new Properties();
+    loadTestProperties(rtArgsFile, properties);
+    return getRuntimeArgs(rtName, properties);
+  }
+
   private void loadTestProperties(@Nonnull Properties properties) throws FileNotFoundException,
       IOException {
     for (RuntimeTestInfo info : runtimeTestInfos) {
@@ -367,9 +375,19 @@ public class RuntimeTestHelper {
         if (runtimeTestInfos.length > 1) {
           throw new AssertionError("Not a regression test: " + info.directory.getAbsolutePath());
         }
-        properties.load(new FileInputStream(propertyFile));
+        loadTestProperties(propertyFile, properties);
         break;
       }
+    }
+  }
+
+  private static void loadTestProperties(@Nonnull File propertyFile, @Nonnull Properties properties)
+      throws FileNotFoundException, IOException {
+    FileInputStream fis = new FileInputStream(propertyFile);
+    try {
+      properties.load(fis);
+    } finally {
+      fis.close();
     }
   }
 
