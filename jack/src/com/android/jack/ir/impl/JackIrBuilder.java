@@ -2071,9 +2071,7 @@ public class JackIrBuilder {
           processEnumType((JDefinedEnum) type);
         }
 
-        if (type instanceof JDefinedClass) {
-          addBridgeMethods(x.binding);
-        }
+        addBridgeMethods(x.binding);
 
         JMethod method =
             type.getMethod(NamingTools.STATIC_INIT_NAME, JPrimitiveTypeEnum.VOID.getType());
