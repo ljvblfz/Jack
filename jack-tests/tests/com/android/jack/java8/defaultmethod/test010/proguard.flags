@@ -1,0 +1,7 @@
+-applymapping mapping.flags
+
+-keepattributes
+
+-keep public class com.android.jack.java8.defaultmethod.test010.jack.Tests {
+        *;
+}

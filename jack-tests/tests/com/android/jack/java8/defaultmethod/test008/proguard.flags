@@ -1,0 +1,4 @@
+-dontobfuscate
+-keep public class com.android.jack.java8.defaultmethod.test008.jack.Tests {
+        *;
+}
