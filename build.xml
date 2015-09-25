@@ -28,7 +28,6 @@
     jack-api,
     jack-api-src,
     jack-annotations-lib,
-    jack-launcher,
     jackunittests,
     jack-tests,
     dx-lib,
@@ -42,9 +41,6 @@
     jack-api-lib-clean,
     jack-api-clean,
     jack-api-src-clean,
-    jack-launcher-clean,
-    jack-server-clean,
-    jack-server-api-lib-clean,
     jack-annotations-lib-clean,
     jack-intermediate-clean,
     jackunittests-lib-clean,
@@ -87,9 +83,6 @@
 
   <property name="jack.dir" value="${jack-project.dir}/jack" />
   <property name="jack-api.dir" value="${jack-project.dir}/jack-api" />
-  <property name="jack-launcher.dir" value="${jack-project.dir}/jack-launcher" />
-  <property name="jack-server.dir" value="${jack-project.dir}/jack-server" />
-  <property name="jack-server-api.dir" value="${jack-project.dir}/jack-server-api" />
   <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
   <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
@@ -150,9 +143,7 @@
     jack,
     jack-api,
     jack-api-src,
-    jack-annotations-lib,
-    jack-launcher,
-    jack-server">
+    jack-annotations-lib">
     <mkdir dir="${jack-top-dist.dir}"/>
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
@@ -161,9 +152,7 @@
         <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
         <file name="${jack.dir}/etc/jack" />
         <file name="${jack.dir}/etc/jack-admin" />
-        <file name="${jack-launcher.dist.dir}/${jack-launcher.name}" />
         <file name="${jack.dist.dir}/${jack-annotations.libname}" />
-        <file name="${jack-server.dist.dir}/${jack-server.name}" />
       </filelist>
     </copy>
 
@@ -186,16 +175,6 @@
      <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
        basedir="${jack-top-dist.dir}/tmp"
        includes="jack-api-version.properties"/>
-
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-server-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-server.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jack-server-version.properties"/>
-
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-launcher-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jack-launcher-version.properties"/>
 
     <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-annotations-version.properties"/>
      <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
@@ -551,55 +530,6 @@
 
 
   <!-- ******************* -->
-  <!-- jack-server-api-lib -->
-  <!-- ******************* -->
-  <property name="jack-server-api.lib.build.dir" value="${jack-server-api.dir}/build/lib" />
-  <property name="jack-server-api.lib.build.outdir" value="${jack-server-api.lib.build.dir}/classes" />
-  <property name="jack-server-api.libs.dir" value="${jack-server-api.dir}/libs" />
-  <property name="jack-server-api.dist.dir" value="${jack-server-api.dir}/dist" />
-  <property name="jack-server-api.lib.name" value="jack-server-api-lib.jar" />
-
-  <target name="jack-server-api-lib-clean">
-    <delete dir="${jack-server-api.lib.build.dir}"/>
-    <delete dir="${jack-server-api.dist.dir}"/>
-    <delete dir="${jack-server-api.libs.dir}"/>
-  </target>
-
-  <target name="jack-server-api-lib-copy-libs" depends="jsr305-lib">
-    <copy todir="${jack-server-api.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-server-api-lib" depends="jack-server-api-lib-copy-libs">
-    <mkdir dir="${jack-server-api.lib.build.outdir}"/>
-    <dependset>
-      <sources>
-        <!-- All source files -->
-        <fileset dir="${jack-server-api.dir}/src" />
-        <fileset file="${jsr305.dist.dir}/${jsr305.libname}"/>
-      </sources>
-      <targets>
-        <fileset dir="${jack-server-api.lib.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${jack-server-api.dir}/src" destdir="${jack-server-api.lib.build.outdir}"
-          source="1.7" target="1.7" debug="true"
-          includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
-      </classpath>
-    </javac>
-    <unzip dest="${jack-server-api.lib.build.outdir}" src="${jsr305.dist.dir}/${jsr305.libname}" />
-    <jar destfile="${jack-server-api.dist.dir}/${jack-server-api.lib.name}">
-      <fileset dir="${jack-server-api.lib.build.outdir}"/>
-    </jar>
-  </target>
-
-
-  <!-- ******************* -->
   <!-- jack-api-src        -->
   <!-- ******************* -->
   <property name="jack-api-src.name" value="jack-api-src.zip" />
@@ -611,202 +541,6 @@
   <target name="jack-api-src">
    <zip destfile="${jack-api.dist.dir}/${jack-api-src.name}"
         basedir="${jack-api.dir}/src" />
-  </target>
-
-
-  <!-- ******************* -->
-  <!-- jack-launcher       -->
-  <!-- ******************* -->
-  <property name="jack-launcher.build.dir" value="${jack-launcher.dir}/build" />
-  <property name="jack-launcher.dist.dir" value="${jack-launcher.dir}/dist" />
-  <property name="jack-launcher.libs.dir" value="${jack-launcher.dir}/libs" />
-  <property name="jack-launcher.build.outdir" value="${jack-launcher.build.dir}/classes" />
-  <property name="jack-launcher.name" value="jack-launcher.jar" />
-
-  <target name="jack-launcher-clean">
-    <delete dir="${jack-launcher.build.outdir}"/>
-    <delete file="${jack-launcher.dist.dir}/${jack-launcher.name}"/>
-  </target>
-
-  <target name="jack-launcher-copy-libs" depends="jsr305-lib,guava-lib,jack-server-api-lib">
-    <copy todir="${jack-launcher.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        <file name="${jack-server-api.dist.dir}/${jack-server-api.lib.name}"/>
-        <file name="${guava.dist.dir}/${guava.libname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-launcher"
-      depends="jack-launcher-copy-libs,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
-    <mkdir dir="${jack-launcher.build.outdir}"/>
-    <filelist id="jack-launcher.static.libs.fileset" dir="/">
-      <file name="${jack-server-api.dist.dir}/${jack-server-api.lib.name}" />
-      <file name="${guava.dist.dir}/${guava.libname}" />
-      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
-      <file name="${freemarker.dist.dir}/${freemarker.libname}" />
-      <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
-      <file name="${maths.dist.dir}/${maths.libname}" />
-    </filelist>
-    <dependset>
-      <sources>
-          <fileset dir="${jack-launcher.dir}/src" />
-          <fileset dir="${jack-server-api.dir}/src" />
-          <filelist refid="jack-launcher.static.libs.fileset" />
-        </sources>
-      <targets>
-        <fileset dir="${jack-launcher.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${jack-launcher.dir}/src" destdir="${jack-launcher.build.outdir}"
-         source="1.7" target="1.7" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist refid="jack-launcher.static.libs.fileset"/>
-      </classpath>
-      <src path="${jack-launcher.dir}/src"/>
-    </javac>
-    <unzip dest="${jack-launcher.build.outdir}">
-      <filelist refid="jack-launcher.static.libs.fileset"/>
-    </unzip>
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-launcher.build.outdir}/jack-launcher-version.properties"/>
-    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}.initial" manifest="${jack-launcher.dir}/etc/manifest.txt">
-      <fileset dir="${jack-launcher.build.outdir}"/>
-    </jar>
-    <jarjar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}.polluted">
-      <zipfileset src="${jack-launcher.dist.dir}/${jack-launcher.name}.initial" />
-      <rule pattern="com.android.sched.**" result="com.android.jack.launcher.sched.@1" />
-      <rule pattern="com.google.**" result="com.android.jack.launcher.google.@1"/>
-      <rule pattern="javax.annotation.**" result="com.android.jack.launcher.@0"/>
-      <rule pattern="org.**" result="com.android.jack.launcher.@0"/>
-      <rule pattern="freemarker.**" result="com.android.jack.launcher.@0"/>
-    </jarjar>
-    <!-- The jar produced by jarjar is filled with empty dirs, lets clean it -->
-    <mkdir dir="${jack-launcher.dist.dir}/${jack-launcher.name}.polluteddir"/>
-    <unzip src="${jack-launcher.dist.dir}/${jack-launcher.name}.polluted"
-           dest="${jack-launcher.dist.dir}/${jack-launcher.name}.polluteddir"/>
-    <mkdir dir="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir"/>
-    <copy includeemptydirs="false"
-          todir="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir">
-      <fileset dir="${jack-launcher.dist.dir}/${jack-launcher.name}.polluteddir"/>
-    </copy>
-    <!-- Ugly but required workaround to avoid shadowing those resources -->
-    <delete>
-      <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir/default.sched.logging.properties"/>
-      <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir/com.android.sched.discover"/>
-    </delete>
-    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}">
-      <fileset dir="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir"/>
-    </jar>
-    <delete>
-      <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.initial"/>
-      <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.polluted"/>
-    </delete>
-    <delete dir="${jack-launcher.dist.dir}/${jack-launcher.name}.polluteddir"/>
-    <delete dir="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir"/>
-  </target>
-
-  <!-- ******************* -->
-  <!-- jack-server     -->
-  <!-- ******************* -->
-  <property name="jack-server.build.dir" value="${jack-server.dir}/build" />
-  <property name="jack-server.libs.dir" value="${jack-server.dir}/libs" />
-  <property name="jack-server.build.outdir" value="${jack-server.build.dir}/classes" />
-  <property name="jack-server.name" value="jack-server.jar" />
-  <property name="jack-server.dist.dir" value="${jack-server.dir}/dist" />
-
-  <target name="jack-server-clean">
-    <delete dir="${jack-server.build.dir}"/>
-    <delete dir="${jack-server.dist.dir}"/>
-  </target>
-
-  <target name="jack-server-copy-libs" depends="jsr305-lib,simple-lib,guava-lib,
-      jack-server-api-lib">
-    <copy todir="${jack-server.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jack-server-api.dist.dir}/${jack-server-api.lib.name}"/>
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        <file name="${simple.dist.dir}/${simple.libname}"/>
-        <file name="${guava.dist.dir}/${guava.libname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-server"
-      depends="jack-server-copy-libs,jack-api-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
-    <filelist id="jack-server.static.libs.fileset" dir="/" >
-      <file name="${jack-server-api.dist.dir}/${jack-server-api.lib.name}"/>
-      <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
-      <file name="${simple.dist.dir}/${simple.libname}"/>
-      <file name="${guava.dist.dir}/${guava.libname}" />
-      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
-      <file name="${freemarker.dist.dir}/${freemarker.libname}" />
-      <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
-      <file name="${maths.dist.dir}/${maths.libname}" />
-    </filelist>
-    <mkdir dir="${jack-server.build.outdir}"/>
-    <dependset>
-      <sources>
-        <fileset dir="${jack-server.dir}/src" />
-        <filelist refid="jack-server.static.libs.fileset" />
-      </sources>
-      <targets>
-        <fileset dir="${jack-server.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${jack-server.dir}/src" destdir="${jack-server.build.outdir}"
-         source="1.7" target="1.7" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-         <classpath>
-           <filelist refid="jack-server.static.libs.fileset"/>
-         </classpath>
-    </javac>
-    <unzip dest="${jack-server.build.outdir}">
-      <filelist refid="jack-server.static.libs.fileset"/>
-    </unzip>
-    <copy todir="${jack-server.build.outdir}">
-      <fileset dir="${jack-server.dir}/rsc" includes="**"/>
-    </copy>
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-server.build.outdir}/jack-server-version.properties"/>
-    <jar destfile="${jack-server.dist.dir}/${jack-server.name}.initial">
-      <fileset dir="${jack-server.build.outdir}"/>
-    </jar>
-    <jarjar destfile="${jack-server.dist.dir}/${jack-server.name}.polluted">
-      <zipfileset src="${jack-server.dist.dir}/${jack-server.name}.initial" />
-      <rule pattern="com.android.sched.**" result="com.android.jack.server.sched.@1" />
-      <rule pattern="com.google.**" result="com.android.jack.server.google.@1"/>
-      <rule pattern="javax.annotation.**" result="com.android.jack.server.@0"/>
-      <rule pattern="org.uncommons.**" result="com.android.jack.server.@0"/>
-      <rule pattern="freemarker.**" result="com.android.jack.server.@0"/>
-    </jarjar>
-    <!-- The jar produced by jarjar is filled with empty dirs, lets clean it -->
-    <mkdir dir="${jack-server.dist.dir}/${jack-server.name}.polluteddir"/>
-    <unzip src="${jack-server.dist.dir}/${jack-server.name}.polluted"
-           dest="${jack-server.dist.dir}/${jack-server.name}.polluteddir"/>
-    <mkdir dir="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir"/>
-    <copy includeemptydirs="false"
-          todir="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir">
-      <fileset dir="${jack-server.dist.dir}/${jack-server.name}.polluteddir"/>
-    </copy>
-    <!-- Ugly but required workaround to avoid shadowing those resources -->
-    <delete>
-      <fileset file="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir/default.sched.logging.properties"/>
-      <fileset file="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir/com.android.sched.discover"/>
-    </delete>
-    <jar destfile="${jack-server.dist.dir}/${jack-server.name}">
-      <fileset dir="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir"/>
-    </jar>
-    <delete>
-      <fileset file="${jack-server.dist.dir}/${jack-server.name}.initial"/>
-      <fileset file="${jack-server.dist.dir}/${jack-server.name}.polluted"/>
-    </delete>
-    <delete dir="${jack-server.dist.dir}/${jack-server.name}.polluteddir"/>
-    <delete dir="${jack-server.dist.dir}/${jack-server.name}.unpolluteddir"/>
   </target>
 
 
