@@ -64,9 +64,11 @@ public class GetLauncherLog extends SynchronousServiceTask {
     } catch (UnsupportedCharsetException e) {
       logger.log(Level.SEVERE, "Unsupported charset for content type '" + expectedContentType + "'",
           e);
+      response.setContentLength(0);
       response.setStatus(Status.NOT_ACCEPTABLE);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to write response", e);
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     } finally {
       try {
@@ -75,6 +77,7 @@ public class GetLauncherLog extends SynchronousServiceTask {
         }
       } catch (IOException e) {
         logger.log(Level.SEVERE, "Failed to close response body", e);
+        response.setContentLength(0);
         response.setStatus(Status.INTERNAL_SERVER_ERROR);
       }
     }

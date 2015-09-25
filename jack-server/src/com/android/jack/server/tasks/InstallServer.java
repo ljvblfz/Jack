@@ -45,6 +45,8 @@ public class InstallServer extends SynchronousAdministrativeTask {
 
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
+    response.setContentLength(0);
+
     Part jarPart = request.getPart("jar");
     assert jarPart != null && jarPart.getContentType() != null
         && jarPart.getContentType().getType().equals("application/octet-stream");

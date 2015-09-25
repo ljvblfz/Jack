@@ -42,6 +42,7 @@ public class Stop extends SynchronousAdministrativeTask {
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
     logger.log(Level.INFO, "Force stop");
+    response.setContentLength(0);
 
     jackServer.shutdown();
     response.setStatus(Status.OK);

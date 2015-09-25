@@ -50,6 +50,7 @@ public class RootContainer implements Container {
     } catch (Error | RuntimeException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       // response may be closed but lets try anyway
+      response.setContentLength(0);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       try {
         response.close();
