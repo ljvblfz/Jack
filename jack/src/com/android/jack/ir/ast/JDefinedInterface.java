@@ -125,9 +125,7 @@ public class JDefinedInterface extends JDefinedClassOrInterface implements JInte
   private JMethod getSamMethod(@Nonnull JClass jlo) throws SamNotFoundException {
     JMethod samMethod = null;
     for (JMethod mth : getMethods()) {
-      if (mth.isStatic()) {
-        // Do not take clinit into account
-        assert JMethod.isClinit(mth);
+      if (!mth.isAbstract()) {
         continue;
       }
       try {
