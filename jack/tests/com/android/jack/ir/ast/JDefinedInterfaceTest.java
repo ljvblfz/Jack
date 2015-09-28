@@ -101,6 +101,20 @@ public class JDefinedInterfaceTest {
   @Nonnull
   private static final File TEST10_FILE = TestTools.getJackUnitTestFromBinaryName(TEST10_CLASS_BINARY_NAME);
 
+  @Nonnull
+  private static final String TEST11_CLASS_BINARY_NAME = "com/android/jack/ir/ast/sam/Test011";
+  @Nonnull
+  private static final String TEST11_CLASS_SIGNATURE = "L" + TEST11_CLASS_BINARY_NAME + ";";
+  @Nonnull
+  private static final File TEST11_FILE = TestTools.getJackUnitTestFromBinaryName(TEST11_CLASS_BINARY_NAME);
+
+  @Nonnull
+  private static final String TEST12_CLASS_BINARY_NAME = "com/android/jack/ir/ast/sam/Test012";
+  @Nonnull
+  private static final String TEST12_CLASS_SIGNATURE = "L" + TEST12_CLASS_BINARY_NAME + ";";
+  @Nonnull
+  private static final File TEST12_FILE = TestTools.getJackUnitTestFromBinaryName(TEST12_CLASS_BINARY_NAME);
+
   @Test
   public void testSam1() throws Exception {
     JDefinedInterface type = getType(TEST1_FILE, TEST1_CLASS_SIGNATURE);
@@ -172,6 +186,19 @@ public class JDefinedInterfaceTest {
     JDefinedInterface type = getType(TEST10_FILE, TEST10_CLASS_SIGNATURE);
     Assert.assertTrue(type.isSingleAbstractMethodType());
     Assert.assertEquals("sam", type.getSingleAbstractMethod().getName());
+  }
+
+  @Test
+  public void testSam11() throws Exception {
+    checkIsNoSam(TEST11_FILE, TEST11_CLASS_SIGNATURE);
+  }
+
+  @Test
+  public void testSam12() throws Exception {
+    JDefinedInterface type = getType(TEST12_FILE, TEST12_CLASS_SIGNATURE);
+    Assert.assertTrue(type.isSingleAbstractMethodType());
+    Assert.assertEquals("sam", type.getSingleAbstractMethod().getName());
+    Assert.assertEquals("Test012", type.getSingleAbstractMethod().getType().getName());
   }
 
   @Nonnull
