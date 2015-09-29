@@ -113,6 +113,16 @@ public class DefaultMethodTest {
           AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test015"),
           "com.android.jack.java8.defaultmethod.test015.jack.Tests");
 
+  private RuntimeTestInfo DEFAULTMETHOD016 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test016"),
+          "com.android.jack.java8.defaultmethod.test016.jack.Tests");
+
+  private RuntimeTestInfo DEFAULTMETHOD017 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test017"),
+          "com.android.jack.java8.defaultmethod.test017.jack.Tests");
+
   @Test
   public void testDefaultMethod001() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD001)
@@ -252,6 +262,20 @@ public class DefaultMethodTest {
   @Test
   public void testDefaultMethod015() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD015)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testDefaultMethod016() throws Exception {
+    new RuntimeTestHelper(DEFAULTMETHOD016)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
+  }
+
+  @Test
+  public void testDefaultMethod017() throws Exception {
+    new RuntimeTestHelper(DEFAULTMETHOD017)
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
