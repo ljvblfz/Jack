@@ -157,7 +157,7 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   public ReadZipFS(@Nonnull InputZipFile zipFile) {
     this.inputZipFile = zipFile;
     this.zipFile = zipFile.getZipFile();
-    fillSubElements();
+    loadSubElements();
   }
 
   @Override
@@ -266,38 +266,33 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
 
   @Override
   @Nonnull
-  synchronized ZipVDir createVDir(@Nonnull ZipVDir parent, @Nonnull String name)
-      throws CannotCreateFileException {
-    assert !isClosed();
-
-    try {
-      return getVDir(parent, name);
-    } catch (NoSuchFileException e) {
-      ZipVDir vDir =
-          new ZipVDir(this, new ZipEntry(parent.getZipEntry().getName() + name + '/'), name);
-      parent.putInCache(name, vDir);
-      return vDir;
-    } catch (NotDirectoryException e) {
-      throw new CannotCreateFileException(getVDirLocation(parent, name));
-    }
+  ZipVDir createVDir(@Nonnull ZipVDir parent, @Nonnull String name) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @Nonnull
-  synchronized ZipVFile createVFile(@Nonnull ZipVDir parent, @Nonnull String name)
-      throws CannotCreateFileException {
-    assert !isClosed();
+  ZipVFile createVFile(@Nonnull ZipVDir parent, @Nonnull String name) {
+    throw new UnsupportedOperationException();
+  }
 
-    try {
-      return getVFile(parent, name);
-    } catch (NoSuchFileException e) {
-      ZipVFile vFile =
-          new ZipVFile(this, zipFile.getEntry(parent.getZipEntry().getName() + name), name);
-      parent.putInCache(name, vFile);
-      return vFile;
-    } catch (NotFileException e) {
-      throw new CannotCreateFileException(getVFileLocation(parent, name));
+  @Nonnull
+  private synchronized ZipVDir loadVDir(@Nonnull ZipVDir parent, @Nonnull String name) {
+    // synchronized to make "get" and "put" cache accesses atomic
+    ZipVDir vDir = (ZipVDir) parent.getFromCache(name);
+    if (vDir == null) {
+      vDir = new ZipVDir(this, new ZipEntry(parent.getZipEntry().getName() + name + '/'), name);
+      parent.putInCache(name, vDir);
     }
+    return vDir;
+  }
+
+  @Nonnull
+  private ZipVFile loadVFile(@Nonnull ZipVDir parent, @Nonnull String name) {
+    ZipVFile vFile =
+        new ZipVFile(this, zipFile.getEntry(parent.getZipEntry().getName() + name), name);
+    parent.putInCache(name, vFile);
+    return vFile;
   }
 
   @Override
@@ -381,31 +376,26 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     return CAPABILITIES;
   }
 
-  private void fillSubElements() {
+  private void loadSubElements() {
 
-    try {
-      for (Enumeration<? extends ZipEntry> entries = zipFile.entries();
-          entries.hasMoreElements();) {
-        ZipEntry entry = entries.nextElement();
-        if (!entry.isDirectory()) {
-          String entryName = entry.getName();
-          ZipVDir currentDir = getRootDir();
-          Iterator<String> names = splitter.split(entryName).iterator();
+    for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
+      ZipEntry entry = entries.nextElement();
+      if (!entry.isDirectory()) {
+        String entryName = entry.getName();
+        ZipVDir currentDir = getRootDir();
+        Iterator<String> names = splitter.split(entryName).iterator();
 
-          String simpleName = null;
-          while (names.hasNext()) {
-            simpleName = names.next();
-            assert !simpleName.isEmpty();
-            if (names.hasNext()) {
-              // simpleName is a dir name
-              currentDir = (ZipVDir) currentDir.createVDir(simpleName);
-            }
+        String simpleName = null;
+        while (names.hasNext()) {
+          simpleName = names.next();
+          assert !simpleName.isEmpty();
+          if (names.hasNext()) {
+            // simpleName is a dir name
+            currentDir = loadVDir(currentDir, simpleName);
           }
-          currentDir.createVFile(simpleName);
         }
+        loadVFile(currentDir, simpleName);
       }
-    } catch (CannotCreateFileException e) {
-      throw new AssertionError(e);
     }
   }
 
