@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Copyright © 2013-2015 Esko Luontola <www.orfjackal.net>
+// This software is released under the Apache License 2.0.
+// The license text is at http://www.apache.org/licenses/LICENSE-2.0
 
-package com.android.jack.java8;
+package com.android.jack.java8.retrolambda.anotherpackage.jack;
 
+import java.util.concurrent.Callable;
 
-import com.android.jack.test.junit.JackTestRunner;
+public interface UsesLambdasInAnotherPackage {
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+    default Callable<String> stateless() {
+        return () -> "foo";
+    }
 
-/**
- * JUnit test for compilation of Java 8 features
- */
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    DefaultMethodTest.class,
-    EcjInterfaceMethodsTest.class,
-    EcjLambdaTest.class,
-    GwtTest.class,
-    LambdaTest.class,
-    MethodRefTest.class,
-    RetroLambdaTests.class,
-    StaticMethodTest.class
-    })
-public class Java8AllTest {
+    default Callable<String> captureThis() {
+        return () -> stateless().call();
+    }
 }

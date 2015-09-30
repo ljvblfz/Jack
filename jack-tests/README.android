@@ -30,5 +30,9 @@ Tests into the package com.android.jack.java8.gwt come from the GWT project on G
 GWT tests were splitted into several files, the original source files can be download from:
 https://github.com/gwtproject/gwt/tree/7129828214a32d0f3d386329acdd197be8dc505a/user/test-super/com/google/gwt/dev/jjs/super/com/google/gwt/dev/jjs/test
 
+* Retrolambda
+Tests in com.android.jack.java8.retrolambda come from the Retrolambda project on GitHub
+Retrolambda tests were splitted into several files, the original source files can be downloaded from:
 
+https://github.com/orfjackal/retrolambda/tree/3701dd546cff67ac8bad0cb8e6d50ca0704265bd/end-to-end-tests/src/test/java/net/orfjackal/retrolambda/test
 

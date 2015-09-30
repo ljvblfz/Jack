@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Copyright © 2013-2015 Esko Luontola <www.orfjackal.net>
+// This software is released under the Apache License 2.0.
+// The license text is at http://www.apache.org/licenses/LICENSE-2.0
 
-package com.android.jack.java8;
+package com.android.jack.java8.retrolambda.defaultmethods.test001.jack;
 
+import org.junit.Assert;
+import org.junit.Test;
 
-import com.android.jack.test.junit.JackTestRunner;
+public class Tests {
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-/**
- * JUnit test for compilation of Java 8 features
- */
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    DefaultMethodTest.class,
-    EcjInterfaceMethodsTest.class,
-    EcjLambdaTest.class,
-    GwtTest.class,
-    LambdaTest.class,
-    MethodRefTest.class,
-    RetroLambdaTests.class,
-    StaticMethodTest.class
-    })
-public class Java8AllTest {
+  private interface DefaultMethods {
+    default String foo() {
+        return "original";
+    }
 }
+
+  @Test
+  public void default_method_inherited_from_interface() {
+      DefaultMethods obj = new DefaultMethods() {
+      };
+      Assert.assertEquals(obj.foo(), "original");
+  }
+
+}
+
