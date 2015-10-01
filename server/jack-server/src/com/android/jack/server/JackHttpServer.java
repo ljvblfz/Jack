@@ -99,6 +99,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -201,6 +202,9 @@ public class JackHttpServer implements HasVersion {
   private static final String DELETED_SUFFIX = ".deleted";
 
   private static final int TIMEOUT_DISABLED = -1;
+
+  @Nonnegative
+  private static final int MINIMAL_TIMEOUT = 60 * 60 * 24 * 7 * 2;
 
   @Nonnull
   private static final String DELETED_JAR_SUFFIX = JAR_SUFFIX + DELETED_SUFFIX;
@@ -425,6 +429,11 @@ public class JackHttpServer implements HasVersion {
       logger.log(Level.WARNING,
           "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + maxJarSize);
       timeout = TIMEOUT_DISABLED;
+    } else {
+
+      // Impose a minimal timeout to reduce CodeCache / JIT pressure and frequency of VM getting
+      // nearly stuck in CodeCache / JIT operations.
+      timeout = Math.max(timeout, MINIMAL_TIMEOUT);
     }
     maxJarSize = config.getProperty(
         ConfigFile.MAX_JAR_SIZE_PROPERTY, Long.valueOf(100 * 1024 * 1024),
