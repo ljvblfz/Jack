@@ -496,9 +496,6 @@ public class JackHttpServer implements HasVersion {
           "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + maxJarSize);
       timeout = TIMEOUT_DISABLED;
     } else {
-
-      // Impose a minimal timeout to reduce CodeCache / JIT pressure and frequency of VM getting
-      // nearly stuck in CodeCache / JIT operations.
       timeout = Math.max(timeout, MINIMAL_TIMEOUT);
     }
     maxJarSize = config.getProperty(
