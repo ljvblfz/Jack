@@ -488,7 +488,8 @@ public abstract class Jack {
           if (!options.flags.keepAttribute("LineNumberTable")) {
             request.addFeature(RemoveLineNumber.class);
           }
-          if (!options.flags.getKeepParameterNames()) {
+          if (!options.flags.getKeepParameterNames()
+              && !options.flags.keepAttribute("LocalVariableTable")) {
             request.addFeature(RemoveParameterName.class);
           }
           if (options.flags.getRenameSourceFileAttribute() != null) {
