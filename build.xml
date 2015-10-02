@@ -147,39 +147,47 @@
     <mkdir dir="${jack-top-dist.dir}"/>
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
-        <file name="${jack.dist.dir}/${jack.execname}" />
-        <file name="${jack-api.dist.dir}/${jack-api.name}" />
         <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
         <file name="${jack.dir}/etc/jack" />
         <file name="${jack.dir}/etc/jack-admin" />
-        <file name="${jack.dist.dir}/${jack-annotations.libname}" />
       </filelist>
     </copy>
 
-    <mkdir dir="${jack-top-dist.dir}/tmp"/>
+    <tempfile property="jack-dist.tmp" prefix="jack-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${jack-dist.tmp}"/>
 
-    <property file="${jack-project.dir}/version.properties"/>
-
-    <copy file="${jack-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
-    <propertyfile file="${jack-top-dist.dir}/tmp/version.properties">
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack-dist.tmp}/version.properties"/>
+    <propertyfile file="${jack-dist.tmp}/version.properties">
       <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
       <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
     </propertyfile>
 
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-version.properties"/>
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack.execname}">
+      <zipfileset src="${jack.dist.dir}/${jack.execname}"
+      excludes="jack-version.properties"/>
+    </jar>
     <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
-      basedir="${jack-top-dist.dir}/tmp"
+      basedir="${jack-dist.tmp}"
       includes="jack-version.properties"/>
 
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-api-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jack-api-version.properties"/>
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-api-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-api.name}">
+      <zipfileset src="${jack-api.dist.dir}/${jack-api.name}"
+      excludes="jack-api-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
+      basedir="${jack-dist.tmp}"
+      includes="jack-api-version.properties"/>
 
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jack-annotations-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jack-annotations-version.properties"/>
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-annotations-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}">
+      <zipfileset src="${jack.dist.dir}/${jack-annotations.libname}"
+      excludes="jack-annotations-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
+      basedir="${jack-dist.tmp}"
+      includes="jack-annotations-version.properties"/>
 
     <replace file="${jack-top-dist.dir}/jack"
                    token="%%VERSION%%"
@@ -195,7 +203,7 @@
     <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
     <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
 
-    <delete dir="${jack-top-dist.dir}/tmp"/>
+    <delete dir="${jack-dist.tmp}"/>
 
   </target>
 
@@ -207,31 +215,38 @@
     <mkdir dir="${jack-top-dist.dir}"/>
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
-        <file name="${jill.dist.dir}/${jill.execname}" />
-        <file name="${jill-api.dist.dir}/${jill-api.name}" />
         <file name="${jill-api.dist.dir}/${jill-api-src.name}" />
       </filelist>
     </copy>
 
-    <mkdir dir="${jack-top-dist.dir}/tmp"/>
+    <tempfile property="jill-dist.tmp" prefix="jill-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${jill-dist.tmp}"/>
 
-    <copy file="${jack-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
-     <propertyfile file="${jack-top-dist.dir}/tmp/version.properties">
-       <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
-       <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
-     </propertyfile>
+    <copy file="${jack-project.dir}/version.properties" tofile="${jill-dist.tmp}/version.properties"/>
+    <propertyfile file="${jill-dist.tmp}/version.properties">
+      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
+      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
+    </propertyfile>
 
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jill-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jill-version.properties"/>
+    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}">
+      <zipfileset src="${jill.dist.dir}/${jill.execname}"
+      excludes="jill-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
+      basedir="${jill-dist.tmp}"
+      includes="jill-version.properties"/>
 
-    <copy file="${jack-top-dist.dir}/tmp/version.properties" tofile="${jack-top-dist.dir}/tmp/jill-api-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
-       includes="jill-api-version.properties"/>
+    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-api-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}">
+      <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
+      excludes="jill-api-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
+      basedir="${jill-dist.tmp}"
+      includes="jill-api-version.properties"/>
 
-    <delete dir="${jack-top-dist.dir}/tmp"/>
+    <delete dir="${jill-dist.tmp}"/>
 
   </target>
 
