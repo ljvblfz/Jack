@@ -18,10 +18,13 @@ package com.android.jack.shrob.obfuscation.nameprovider;
 
 import com.android.jack.JackIOException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.FileReader;
+import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -32,28 +35,75 @@ public class DictionaryNameProvider implements NameProvider {
   @Nonnull
   private final NameProvider defaultNameProvider;
 
-  @Nonnull
-  private final Scanner scanner;
+  @CheckForNull
+  private BufferedReader br;
 
   public DictionaryNameProvider(@Nonnull File dictionary, @Nonnull NameProvider defaultNameProvider)
       throws JackIOException {
     this.defaultNameProvider = defaultNameProvider;
     try {
-      scanner = new Scanner(dictionary);
+      br = new BufferedReader(new FileReader(dictionary));
     } catch (FileNotFoundException e) {
       throw new JackIOException("Dictionary " + dictionary.getPath() + " not found", e);
     }
-    scanner.useDelimiter("?|,|;|'|\"|-|(|)|{|}");
-    scanner.skip("^#.*$");
   }
 
   @Override
   @Nonnull
   public String getNewName(@Nonnull String oldName) {
-    if (scanner.hasNext()) {
-      return scanner.next();
+    if (br != null) {
+      String nameFromDict = getNameFromDictionary();
+      if (!nameFromDict.isEmpty()) {
+        return nameFromDict;
+      }
     }
+
     return defaultNameProvider.getNewName(oldName);
   }
 
+  @Nonnull
+  private String getNameFromDictionary() {
+    assert br != null;
+
+    StringBuffer name = new StringBuffer();
+    int readCharAsInt;
+
+    try {
+      while ((readCharAsInt = br.read()) != -1) {
+        char readChar = (char) readCharAsInt;
+
+        if ((name.length() != 0 && Character.isJavaIdentifierPart(readChar))
+            || (name.length() == 0 && Character.isJavaIdentifierStart(readChar))) {
+          name.append(readChar);
+        } else {
+          if (readChar == '#') {
+            br.readLine();
+          }
+
+          if (name.length() != 0) {
+            return name.toString();
+          }
+        }
+      }
+    } catch (IOException e) {
+      closeDictionary();
+      throw new JackIOException("Failed to read obfuscation dictionary", e);
+    }
+
+    closeDictionary();
+
+    return name.toString();
+  }
+
+  private void closeDictionary() {
+    assert br != null;
+
+    try {
+      br.close();
+    } catch (IOException e) {
+      // nothing to handle for inputs
+    } finally {
+      br = null;
+    }
+  }
 }
