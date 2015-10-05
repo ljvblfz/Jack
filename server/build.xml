@@ -33,7 +33,7 @@
     jack-server-clean,
     jack-server-api-clean" />
 
-  <dirname property="server-project.dir" file="${ant.file.jack}"/>
+  <dirname property="server-project.dir" file="${ant.file.server}"/>
   <import file="${server-project.dir}/../build.xml"/>
 
   <property name="jack-launcher.dir" value="${server-project.dir}/jack-launcher" />
@@ -81,6 +81,26 @@
     <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
        basedir="${jack-server-dist.tmp}"
        includes="jack-launcher-version.properties"/>
+
+    <copy todir="${jack-top-dist.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jack-server.dir}/etc/jack" />
+        <file name="${jack-server.dir}/etc/jack-admin" />
+      </filelist>
+    </copy>
+    <replace file="${jack-top-dist.dir}/jack"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <replace file="${jack-top-dist.dir}/jack-admin"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <!-- <copy> and <replace> do not retain file permissions -->
+    <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
+    <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
 
     <delete dir="${jack-server-dist.tmp}"/>
 
