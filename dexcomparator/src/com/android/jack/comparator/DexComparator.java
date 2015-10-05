@@ -887,8 +887,10 @@ public class DexComparator {
           candidateInfo);
     }
 
+    List<LocalVar> candidateLocals = new ArrayList<DebugInfo.LocalVar>(candidateInfo.getLocals());
     for (LocalVar refLocal : refInfo.getLocals()) {
       LocalVar candidateLocal = candidateInfo.getLocal(refLocal);
+
       if (candidateLocal == null) {
         if (!isTolerated(refLocal)) {
           throw getDifferenceFoundException(className, reference, referenceDexFile,
@@ -896,6 +898,7 @@ public class DexComparator {
               + refLocal.getName());
         }
       } else {
+        candidateLocals.remove(candidateLocal);
         if (!refLocal.getScope().equals(candidateLocal.getScope())) {
           throw getDifferenceFoundException(className, reference, referenceDexFile,
               "Scope differs for local: " + refLocal.getTypeSignature() + " " +
@@ -903,7 +906,12 @@ public class DexComparator {
                   ", candidate:" + candidateLocal.getScope());
         }
       }
-
+    }
+    if (strict && !candidateLocals.isEmpty()) {
+      LocalVar firstRemainingCandidate = candidateLocals.get(0);
+      throw getDifferenceFoundException(className, candidate, candidateDexFile,
+          "Unexpected local variable in candidate: " + firstRemainingCandidate.getTypeSignature()
+              + " " + firstRemainingCandidate.getName());
     }
   }
 

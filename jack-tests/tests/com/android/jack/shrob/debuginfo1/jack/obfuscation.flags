@@ -1,0 +1,5 @@
+-dontshrink
+-dontoptimize
+-keepnames class ** {
+  *;
+}

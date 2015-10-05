@@ -19,7 +19,12 @@ package com.android.jack.shrob;
 import com.android.jack.ProguardFlags;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+
+import org.junit.Test;
 
 import java.io.File;
 
@@ -46,5 +51,85 @@ public class ObfuscationWithDebugInfoTests extends AbstractTest {
             "keepDebugInfo.flags"), new ProguardFlags(testFolder, "proguard.flags" + flagNumber));
 
     env.runTest(new ComparatorDex(env.getReferenceDex(), env.getCandidateDex()));
+  }
+
+  @Test
+  @KnownIssue
+  public void testObfuscation() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.shrob.debuginfo1.jack");
+    SourceToDexComparisonTestHelper env = getComparisonHelper(testFolder);
+    env.setProguardFlags(new ProguardFlags(testFolder, "obfuscation.flags"));
+
+    ComparatorDex comparator = new ComparatorDex(env.getReferenceDex(), env.getCandidateDex());
+    comparator.setWithDebugInfo(true);
+    comparator.setStrict(true);
+
+    env.runTest(comparator);
+  }
+
+  @Test
+  @KnownIssue
+  public void testObfuscationKeepAttributes() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.shrob.debuginfo1.jack");
+    SourceToDexComparisonTestHelper env = getComparisonHelper(testFolder);
+    env.setProguardFlags(new ProguardFlags(testFolder, "obfuscation.flags"),
+        new ProguardFlags(testFolder, "keepattributes.flags"));
+
+    ComparatorDex comparator = new ComparatorDex(env.getReferenceDex(), env.getCandidateDex());
+    comparator.setWithDebugInfo(true);
+    comparator.setStrict(true);
+
+    env.runTest(comparator);
+  }
+
+  @Test
+  @KnownIssue
+  public void testObfuscationKeepParameterNames() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.shrob.debuginfo1.jack");
+    SourceToDexComparisonTestHelper env = getComparisonHelper(testFolder);
+    env.setProguardFlags(new ProguardFlags(testFolder, "obfuscation.flags"),
+        new ProguardFlags(testFolder, "keepparameternames.flags"));
+
+    ComparatorDex comparator = new ComparatorDex(env.getReferenceDex(), env.getCandidateDex());
+    comparator.setWithDebugInfo(true);
+    comparator.setStrict(true);
+
+    env.runTest(comparator);
+  }
+
+  @Test
+  @KnownIssue
+  public void testObfuscationKeepAttributesKeepParameterNames() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.shrob.debuginfo1.jack");
+    SourceToDexComparisonTestHelper env = getComparisonHelper(testFolder);
+    env.setProguardFlags(new ProguardFlags(testFolder, "obfuscation.flags"),
+        new ProguardFlags(testFolder, "keepattributes.flags"),
+        new ProguardFlags(testFolder, "keepparameternames.flags"));
+
+    ComparatorDex comparator = new ComparatorDex(env.getReferenceDex(), env.getCandidateDex());
+    comparator.setWithDebugInfo(true);
+    comparator.setStrict(true);
+
+    env.runTest(comparator);
+  }
+
+  private SourceToDexComparisonTestHelper getComparisonHelper(@Nonnull File testFolder) throws Exception {
+    JackBasedToolchain candToolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    AndroidToolchain refToolchain =
+        AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
+    candToolchain.disableDxOptimizations();
+    refToolchain.disableDxOptimizations();
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(testFolder);
+    env.setWithDebugInfo(true);
+    env.setCandidateTestTools(candToolchain);
+    env.setReferenceTestTools(refToolchain);
+    return env;
   }
 }
