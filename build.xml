@@ -148,8 +148,6 @@
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
-        <file name="${jack.dir}/etc/jack" />
-        <file name="${jack.dir}/etc/jack-admin" />
       </filelist>
     </copy>
 
@@ -188,20 +186,6 @@
     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
       basedir="${jack-dist.tmp}"
       includes="jack-annotations-version.properties"/>
-
-    <replace file="${jack-top-dist.dir}/jack"
-                   token="%%VERSION%%"
-                   value="${version}"
-                   encoding="UTF-8"/>
-
-    <replace file="${jack-top-dist.dir}/jack-admin"
-                   token="%%VERSION%%"
-                   value="${version}"
-                   encoding="UTF-8"/>
-
-    <!-- <copy> and <replace> do not retain file permissions -->
-    <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
-    <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
 
     <delete dir="${jack-dist.tmp}"/>
 
