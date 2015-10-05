@@ -22,35 +22,22 @@ import com.android.jack.comparator.util.BytesStreamSucker;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.CodecContext;
-import com.android.sched.util.codec.MessageDigestCodec;
 import com.android.sched.util.codec.ParsingException;
-import com.android.sched.util.config.MessageDigestFactory;
-import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
-import com.android.sched.vfs.CaseInsensitiveFS;
-import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.WrongVFSFormatException;
 import com.android.sched.vfs.ZipUtils;
 
 import junit.framework.Assert;
@@ -192,7 +179,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorAuto_classpath() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getAutoProcessors();
     jack.addToClasspath(jack.getDefaultBootClasspath());
@@ -208,7 +198,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorAuto_processorPath() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getAutoProcessors();
     jack.setAnnotationProcessorPath(processors.getPath());
@@ -225,7 +218,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorNoAuto_processorPath() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getNoConfigProcessors();
     jack.setAnnotationProcessorPath(processors.getPath());
@@ -249,7 +245,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorNoAutoNoClasses_processorPath() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getNoConfigProcessors();
     jack.setAnnotationProcessorPath(processors.getPath());
@@ -271,7 +270,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorNoAuto_classpath() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getNoConfigProcessors();
     jack.setAnnotationProcessorClasses(
@@ -289,7 +291,10 @@ public class AnnotationProcessorTests {
 
   @Test
   public void compileWithAnnotationProcessorOption() throws Exception {
-    JackBasedToolchain jack = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
     File processors = getAutoProcessors();
     jack.addAnnotationProcessorOption(
