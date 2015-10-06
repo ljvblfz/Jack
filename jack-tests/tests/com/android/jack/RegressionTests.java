@@ -27,7 +27,6 @@ import com.android.jack.cast.CastTests;
 import com.android.jack.comparison.ComparisonTests;
 import com.android.jack.conditional.ConditionalTests;
 import com.android.jack.constant.ConstantTests;
-import com.android.jack.debug.DebugTests;
 import com.android.jack.dx.DxTests;
 import com.android.jack.enums.EnumsTests;
 import com.android.jack.external.ExternalTests;

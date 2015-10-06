@@ -32,6 +32,7 @@ import com.android.jack.dx.util.ByteInput;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.ParserProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -1011,8 +1012,8 @@ public class DexComparator {
 
   public static void main(@Nonnull String[] args) {
     DexComparatorOptions options = new DexComparatorOptions();
-    CmdLineParser parser = new CmdLineParser(options);
-    parser.setUsageWidth(100);
+    CmdLineParser parser =
+        new CmdLineParser(options, ParserProperties.defaults().withUsageWidth(100));
 
     try {
       parser.parseArgument(args);
@@ -1021,7 +1022,8 @@ public class DexComparator {
       if (options.compareInstructionNumber) {
         if (options.enableBinaryCodeComparison) {
           throw new CmdLineException(parser,
-              "Instruction number comparison is not allowed with binary code comparison");
+              "Instruction number comparison is not allowed with binary code comparison",
+              null /* = cause */);
         }
         dc =
             new DexComparator(options.enableDebugInfoComparison, options.strict,
