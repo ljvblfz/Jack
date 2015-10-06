@@ -250,11 +250,7 @@ esac
 
 case $COMMAND in
   install-server)
-    if [ $# -lt 3 ]; then
-      usage
-      abort
-    fi
-    if [ $# -gt 4 ]; then
+    if [ $# -ne 3 ]; then
       usage
       abort
     fi
