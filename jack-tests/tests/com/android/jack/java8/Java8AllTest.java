@@ -17,19 +17,21 @@
 package com.android.jack.java8;
 
 
+import com.android.jack.test.junit.JackTestRunner;
+
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * JUnit test for compilation of Java 8 features
  */
-@RunWith(Suite.class)
+@RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
-    /* LambdaTest.class, */
+    DefaultMethodTest.class,
     EcjInterfaceMethodsTest.class,
+    EcjLambdaTest.class,
+    LambdaTest.class,
     StaticMethodTest.class,
-    DefaultMethodTest.class
     })
 public class Java8AllTest {
 }
