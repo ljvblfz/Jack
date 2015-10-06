@@ -125,7 +125,11 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
   @Nonnull
   public JackApiV01Toolchain setWithDebugInfos(boolean withDebugInfos) {
     try {
-      apiV01Config.setDebugInfoLevel(DebugInfoLevel.FULL);
+      if (withDebugInfos) {
+        apiV01Config.setDebugInfoLevel(DebugInfoLevel.FULL);
+      } else {
+        apiV01Config.setDebugInfoLevel(DebugInfoLevel.LINES);
+      }
       return this;
     } catch (ConfigurationException e) {
       throw new TestConfigurationException(e);
