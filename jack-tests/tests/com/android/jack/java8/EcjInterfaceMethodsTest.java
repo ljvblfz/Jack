@@ -16,6 +16,7 @@
 
 package com.android.jack.java8;
 
+import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -146,6 +147,8 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      jackToolchain.addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(),
+          Boolean.TRUE.toString());
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
       e.printStackTrace();
@@ -167,6 +170,8 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      jackToolchain.addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(),
+          Boolean.TRUE.toString());
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");

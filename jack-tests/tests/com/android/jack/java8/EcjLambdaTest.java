@@ -104,7 +104,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       "test445949a", "test447119", "test447119a", "test447119b", "test447119c", "test447119d",
       "test447119e", "test448802", "test449063", "test449063a", "test449063b", "test449063c",
       "test449063d", "test449063e", "test456395", "test459305", "test467825", "test467825a",
-      "testBug419048_1", "testBug419048_2", "testBug419048_3", "testreduced432605");
+      "testBug419048_1", "testBug419048_2", "testBug419048_3", "testreduced432605", "test461004");
 
   @Override
   protected void setUp() throws Exception {

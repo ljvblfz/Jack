@@ -21,5 +21,4 @@ public class Lambda {
   public int test() {
     return ((I2)(() -> 1)).m();
   }
-
 }

@@ -30,8 +30,10 @@ import org.junit.runners.Suite.SuiteClasses;
     DefaultMethodTest.class,
     EcjInterfaceMethodsTest.class,
     EcjLambdaTest.class,
+    GwtTest.class,
     LambdaTest.class,
-    StaticMethodTest.class,
+    MethodRefTest.class,
+    StaticMethodTest.class
     })
 public class Java8AllTest {
 }

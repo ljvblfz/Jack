@@ -25,5 +25,4 @@ public class Lambda {
   public String useI2() {
     return ((I2)(() -> "2")).m();
   }
-
 }
