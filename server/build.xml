@@ -48,41 +48,41 @@
   <target name="server-dist"
     description="package a Jack server distribution"
     depends="dist-check,
-    jack-launcher,
-    jack-server">
-    <mkdir dir="${jack-top-dist.dir}"/>
-    <copy todir="${jack-top-dist.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jack-launcher.dist.dir}/${jack-launcher.name}" />
-        <file name="${jack-server.dist.dir}/${jack-server.name}" />
-      </filelist>
-    </copy>
+    jack-server,
+    jack-launcher">
 
-    <mkdir dir="${jack-top-dist.dir}/tmp"/>
+    <tempfile property="jack-server-dist.tmp" prefix="jack-server-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${jack-top-dist.dir}"/>
+
+    <mkdir dir="${jack-server-dist.tmp}"/>
 
     <property file="${server-project.dir}/version.properties"/>
 
-    <copy file="${server-project.dir}/version.properties" tofile="${jack-top-dist.dir}/tmp/version.properties"/>
-    <propertyfile file="${jack-top-dist.dir}/tmp/serverversion.properties">
+    <copy file="${server-project.dir}/version.properties" tofile="${jack-server-dist.tmp}/version.properties"/>
+    <propertyfile file="${jack-server-dist.tmp}/version.properties">
       <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
       <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
     </propertyfile>
 
-    <copy file="${jack-top-dist.dir}/tmp/serverversion.properties" tofile="${jack-top-dist.dir}/tmp/jack-server-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-server.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
+    <copy file="${jack-server-dist.tmp}/version.properties" tofile="${jack-server-dist.tmp}/jack-server-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-server.name}">
+      <zipfileset src="${jack-server.dist.dir}/${jack-server.name}"
+      excludes="jack-server-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-server.name}" update="true"
+       basedir="${jack-server-dist.tmp}"
        includes="jack-server-version.properties"/>
 
-    <copy file="${jack-top-dist.dir}/tmp/serverversion.properties" tofile="${jack-top-dist.dir}/tmp/jack-launcher-version.properties"/>
-     <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
-       basedir="${jack-top-dist.dir}/tmp"
+    <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}">
+      <zipfileset src="${jack-launcher.dist.dir}/${jack-launcher.name}"
+      excludes="jack-launcher-version.properties"/>
+    </jar>
+    <copy file="${jack-server-dist.tmp}/version.properties" tofile="${jack-server-dist.tmp}/jack-launcher-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
+       basedir="${jack-server-dist.tmp}"
        includes="jack-launcher-version.properties"/>
 
-    <!-- <copy> and <replace> do not retain file permissions -->
-    <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
-    <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
-
-    <delete dir="${jack-top-dist.dir}/tmp"/>
+    <delete dir="${jack-server-dist.tmp}"/>
 
   </target>
 
