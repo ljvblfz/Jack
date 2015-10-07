@@ -65,7 +65,7 @@ class ConfigImpl implements Config, InternalConfig {
    * @param name Name of the config object
    */
   ConfigImpl(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
-      @Nonnull Map<KeyId<?, ?>, Object> instances, @CheckForNull String name) {
+      @Nonnull Map<KeyId<?, ?>, Object> instances, @Nonnull String name) {
     this.context = context;
     this.valuesById.putAll(values);
     this.instancesById.putAll(instances);

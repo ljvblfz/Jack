@@ -177,7 +177,9 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
-    return getNativeFile(dir.getPath()).listFiles().length == 0;
+    File[] fileList = getNativeFile(dir.getPath()).listFiles();
+    assert fileList != null;
+    return fileList.length == 0;
   }
 
   @Override

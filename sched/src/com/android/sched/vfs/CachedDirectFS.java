@@ -162,7 +162,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   private void fillVDirFromRealDirectory(@Nonnull File dir, @Nonnull VDir vDir) {
-    for (File element : dir.listFiles()) {
+    File[] fileList = dir.listFiles();
+    assert fileList != null;
+    for (File element : fileList) {
       try {
         if (element.isDirectory()) {
           VDir newVDir = vDir.createVDir(element.getName());
@@ -258,7 +260,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
-    return getNativeFile(dir.getPath()).listFiles().length == 0;
+    File[] fileList = getNativeFile(dir.getPath()).listFiles();
+    assert fileList != null;
+    return fileList.length == 0;
   }
 
   @Override
