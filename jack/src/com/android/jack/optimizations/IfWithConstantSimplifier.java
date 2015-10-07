@@ -67,10 +67,10 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  @Nonnegative
-  private static int count;
-
   private static class Visitor extends JVisitor {
+
+    @Nonnegative
+    private int count;
 
     @Nonnull
     private final JMethod method;
