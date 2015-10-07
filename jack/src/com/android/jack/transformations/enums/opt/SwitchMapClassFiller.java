@@ -94,12 +94,13 @@ import javax.annotation.Nonnull;
  * 2. methods. Two methods are required: switch map initializer and instance init.
  * </li>
  * <br> instance init method will be added if the enclosing class is synthetic class
- * {@code
+ * <pre><code>
  *   public init() {
  *     super.init();
  *     return;
  *   }
  * }
+ * </code></pre>
  *
  * <br> switch map initializer is of type: public static int[] -getA-B-EnumSwitchesValues(),
  * where A and B are the package and sub-package of Enum.

@@ -69,7 +69,6 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
     }
   }
 
-  @SuppressWarnings("resource")
   @Override
   @CheckForNull
   public InputJackLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
