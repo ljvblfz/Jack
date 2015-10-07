@@ -131,7 +131,7 @@ public abstract class ScheduleInstance<T extends Component> {
    * Runs all the {@link Schedulable}s of the {@link Plan} in the defined order.
    *
    * @param data the root <i>data</i> instance
-   * @throws Exception if an Exception is thrown by a {@code Schedulable}
+   * @throws ProcessException if an Exception is thrown by a {@code Schedulable}
    */
   public abstract <X extends VisitorSchedulable<T>, U extends Component> void process(
       @Nonnull T data) throws ProcessException;
