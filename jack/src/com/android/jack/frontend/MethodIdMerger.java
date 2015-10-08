@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNode;
@@ -74,8 +75,15 @@ public class MethodIdMerger extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JMethod x) {
-    return false;
+  public boolean visit(@Nonnull JLambda lambda) {
+    // Ensure that interface implemented by a lambda is already visited
+    JDefinedInterface type = lambda.getType();
+    accept(type);
+    VirtualMethodsMarker vmm = type.getMarker(VirtualMethodsMarker.class);
+    assert vmm != null;
+    addId(vmm, lambda.getMethod().getMethodId());
+    accept(lambda.getBody());
+    return super.visit(lambda);
   }
 
   private void ensureHierarchyVisited(@Nonnull JClassOrInterface node) {
@@ -118,6 +126,7 @@ public class MethodIdMerger extends JVisitor {
         addId(virtualMethods, method.getMethodId());
       }
     }
+
     node.addMarker(virtualMethods);
   }
 

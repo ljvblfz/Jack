@@ -1266,9 +1266,6 @@ public class JackIrBuilder {
         lambdaMethod.getMethodId().addParam(type);
       }
 
-      // No enclosing type for method used by JLambda
-      lambdaMethod.setEnclosingType(null);
-
       JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
       lambdaMethod.setBody(lambdaMethodBody);
       MethodInfo newMethodInfo = new MethodInfo(this, lambdaMethod, lambdaMethodBody, methodScope);
@@ -1296,6 +1293,8 @@ public class JackIrBuilder {
       MethodInfo newMethodInfo =
           createMethodInfoForLambda(referenceExpression.descriptor, /* arguments = */ null,
               /* (MethodScope) referenceExpression.enclosingScope */ curMethod.scope);
+      newMethodInfo.method.setThis(null);
+      newMethodInfo.method.setModifier(newMethodInfo.method.getModifier() & ~JModifier.STATIC);
       JType returnTypeOfLambdaMethod = newMethodInfo.method.getType();
       JBlock bodyBlock = newMethodInfo.body.getBlock();
       List<JParameter> args = newMethodInfo.method.getParams();
@@ -1371,7 +1370,7 @@ public class JackIrBuilder {
 
         exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
             (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-            /*shouldCaptureInstance=*/ false);
+            /*captureInstance=*/ false);
 
         Expression lhs = referenceExpression.lhs;
         JArrayType arrayType = (JArrayType) getTypeMap().get(lhs.resolvedType);
@@ -1561,11 +1560,16 @@ public class JackIrBuilder {
 
     @Override
     public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
-      JBlock bodyBlock = curMethod.body.getBlock();
+      MethodInfo lambdaMethodInfo = curMethod;
+      lambdaMethodInfo.method.setThis(null);
+      lambdaMethodInfo.method
+          .setModifier(lambdaMethodInfo.method.getModifier() & ~JModifier.STATIC);
+
+      JBlock bodyBlock = lambdaMethodInfo.body.getBlock();
 
       if (lambdaExpression.body instanceof Expression) {
         JExpression bodyExpression = pop((Expression) lambdaExpression.body);
-        if (!curMethod.method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+        if (!lambdaMethodInfo.method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
           bodyBlock.addStmt(new JReturnStatement(bodyExpression.getSourceInfo(), bodyExpression));
         } else {
           bodyBlock.addStmt(bodyExpression.makeStatement());
@@ -1581,21 +1585,29 @@ public class JackIrBuilder {
         }
       }
 
-      JLambda lambda = new JLambda(makeSourceInfo(lambdaExpression), curMethod.method,
+      // Do not move before generateImplicitReturn since the method need the method where return
+      // must be added
+      popMethodInfo();
+
+      JLambda lambda = new JLambda(makeSourceInfo(lambdaExpression), lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
           lambdaExpression.shouldCaptureInstance);
 
       // Capture all local variable that are not already moved into fields
       for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
         if (synthArg.matchingField == null) {
-          JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+          JVariable var = lambdaMethodInfo.getJVariable(synthArg.actualOuterLocalVariable);
           assert var != null;
           lambda.addCapturedVariable(var);
+        } else {
+          // Field is already into a field, thus Jack need to capture instance, it is the case when
+          // lambda are defined into anonymous, outer variable are already put into fields of the
+          // anonymous class.
+          lambda.setCaptureInstance(true);
         }
       }
 
       push(lambda);
-      popMethodInfo();
     }
 
     @Override
@@ -3259,10 +3271,16 @@ public class JackIrBuilder {
       if (!(curMethod.method instanceof JConstructor)
           && path instanceof SyntheticArgumentBinding) {
         SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path;
-        assert sb.matchingField != null;
-        JField field = typeMap.get(sb.matchingField);
-        assert field != null;
-        result = makeInstanceFieldRef(info, field);
+        if (sb.matchingField == null) {
+          // If matchingField is null, then it is a captured variable that can be retrieve into the
+          // JVariable of the current method
+          result = makeLocalRef(info, sb.actualOuterLocalVariable);
+        } else {
+
+          JField field = typeMap.get(sb.matchingField);
+          assert field != null;
+          result = makeInstanceFieldRef(info, field);
+        }
       } else if (path instanceof LocalVariableBinding) {
         result = makeLocalRef(info, (LocalVariableBinding) path);
       } else if (path instanceof FieldBinding) {

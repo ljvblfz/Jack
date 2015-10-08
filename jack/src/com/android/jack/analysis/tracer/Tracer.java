@@ -214,6 +214,12 @@ public class Tracer extends JVisitor {
         }
       }
 
+      // STOPSHIP: Need to adapt tracer to support lambda
+      for (JMethod method : t.getLambdaMethods()) {
+        // Force to keep lambda method
+        trace(method);
+      }
+
       brush.endTrace(t);
     }
   }

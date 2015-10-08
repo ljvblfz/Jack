@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,18 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on each
- * {@code JMethod} that can be called, this includes {@code JMethod} representing lambda bodies.
+ * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on
+ * each {@code JMethod} declared by this type.
  */
 @Description("Adapts process on JDefinedClassOrInterface to one or several processes on each of " +
     "its JMethod")
-public class JMethodAdapter
+public class JMethodOnlyAdapter
   implements AdapterSchedulable<JDefinedClassOrInterface, JMethod> {
 
   /**
@@ -41,6 +42,6 @@ public class JMethodAdapter
   @Nonnull
   public Iterator<JMethod> adapt(@Nonnull JDefinedClassOrInterface declaredType)
       throws Exception {
-    return declaredType.getCallables().iterator();
+    return new ArrayList<JMethod>(declaredType.getMethods()).iterator();
   }
 }

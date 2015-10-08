@@ -94,7 +94,11 @@ public class NLambda extends NExpression {
     ExportSession exportSessionForLambdaMethod = new ExportSession(exportSession);
     exportSessionForLambdaMethod.setCurrentType(exportSession.getCurrentType());
 
+    lambdaMethod.setThis(exportSession.getCurrentMethod().getThis());
+
     method.loadBody(lambdaMethod, exportSessionForLambdaMethod);
+
+    lambdaMethod.setThis(null);
 
     // Lambda method is already loaded
     lambdaMethod.removeLoader();

@@ -240,6 +240,32 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return enclosingPackage;
   }
 
+  @Nonnull
+  public List<JMethod> getLambdaMethods() {
+    final List<JMethod> lambdaMethods = new ArrayList<JMethod>();
+
+    class LambdaMethodCollector extends JVisitor {
+      @Override
+      public boolean visit(@Nonnull JLambda lambda) {
+        lambdaMethods.add(lambda.getMethod());
+        accept(lambda.getBody());
+        return false;
+      }
+    }
+
+
+    new LambdaMethodCollector().accept(this);
+
+    return lambdaMethods;
+  }
+
+  @Nonnull
+  public List<JMethod> getCallables() {
+    List<JMethod> callables = getLambdaMethods();
+    callables.addAll(getMethods());
+    return callables;
+  }
+
   /**
    * Returns this type's declared methods; does not include methods defined in a
    * super type unless they are overridden by this type.

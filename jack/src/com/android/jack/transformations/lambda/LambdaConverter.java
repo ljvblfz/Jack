@@ -62,6 +62,7 @@ import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -88,6 +89,9 @@ import javax.annotation.Nonnull;
         JFieldRef.class, JLocalRef.class, JMethod.class, JMethodBody.class, JMethodCall.class,
         JNewInstance.class, JParameter.class, JParameterRef.class, JReturnStatement.class,
         JThisRef.class})
+// Lambda converter must be synchronized, otherwise several schedulables can add member types to the
+// same class in the same time.
+@Synchronized
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
   /**
@@ -197,8 +201,8 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
         tr.append(new AppendMethod(lambdaImplClass, lambdaMethod));
         lambdaMethod.setModifier(JModifier.FINAL | JModifier.SYNTHETIC | JModifier.PUBLIC);
         lambdaMethod.setEnclosingType(lambdaImplClass);
-        lambdaMethod.setMethodId(samMethod.getMethodId());
         JThis thisOfLambdaImpl = new JThis(lambdaMethod);
+        assert lambdaMethod.getThis() == null;
         lambdaMethod.setThis(thisOfLambdaImpl);
         lambdaCtx = new LambdaCtx(thisOfLambdaImpl);
 
@@ -275,6 +279,8 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       tr.append(new Replace(lambdaExpr, newAnnonymous));
 
       lambdaCtxStack.push(lambdaCtx);
+
+      accept(lambdaExpr.getBody());
 
       return visitChild;
     }

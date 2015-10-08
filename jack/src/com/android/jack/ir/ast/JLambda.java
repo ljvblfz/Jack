@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 @Description("Lambda expression")
 public class JLambda extends JExpression {
 
-  private final  boolean captureInstance;
+  private boolean captureInstance;
 
   @Nonnull
   private final List<JVariable> capturedVariables = new ArrayList<JVariable>(0);
@@ -67,9 +67,7 @@ public class JLambda extends JExpression {
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
-    if (visitor.visit(this)) {
-      visitor.accept(body);
-    }
+    visitor.visit(this);
     visitor.endVisit(this);
   }
 
@@ -108,6 +106,10 @@ public class JLambda extends JExpression {
   @Nonnull
   public List<JVariable> getCapturedVariables() {
     return capturedVariables;
+  }
+
+  public void setCaptureInstance(boolean captureInstance) {
+    this.captureInstance = captureInstance;
   }
 
   public boolean needToCaptureInstance() {
