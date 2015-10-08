@@ -176,8 +176,9 @@ jack_vm_args := -Dfile.encoding=UTF-8 -XX:+TieredCompilation $(JAVA_TMPDIR_ARG)
 endif
 $(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/$(LOCAL_SRC_FILES) $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar $(jack_admin_script) $(JACK_JAR) | $(ACP)
 	@echo "Build: $@"
-	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
 ifneq ($(dist_goal),)
+	$(hide) $(jack_admin_script) stop-server 2>&1 || (exit 0)
+	$(hide) $(jack_admin_script) kill-server 2>&1 || (exit 0)
 	$(hide) $(jack_admin_script) uninstall-server 2>&1 || (exit 0)
 endif
 	$(hide) $(jack_admin_script) install-server $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar  2>&1 || (exit 0)
