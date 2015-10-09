@@ -1072,7 +1072,6 @@ public abstract class Jack {
         methodPlan.append(NestedAssignRemover.class);
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
-        methodPlan.append(UselessCastRemover.class);
         if (features.contains(CodeStats.class)) {
           methodPlan.append(BinaryOperationWithCst.class);
         }
@@ -1085,6 +1084,7 @@ public abstract class Jack {
         methodPlan.append(ExceptionRuntimeValueAdder.class);
         methodPlan.append(DefinitionMarkerAdder.class);
         methodPlan.append(ThreeAddressCodeBuilder.class);
+        methodPlan.append(UselessCastRemover.class);
         methodPlan.append(DefinitionMarkerRemover.class);
         methodPlan.append(TryCatchRemover.class);
         methodPlan.append(ExpressionStatementLegalizer.class);

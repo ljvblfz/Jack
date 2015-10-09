@@ -56,6 +56,7 @@ import com.android.jack.transformations.ast.InitInNewArray;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.ast.RefAsStatement;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
@@ -82,7 +83,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Transform body of a JMethod to into a three address form.")
 @Name("ThreeAddressCodeBuilder")
-@Constraint(need = {NoImplicitBlock.class}, no = {InitInNewArray.class,
+@Constraint(need = {NoImplicitBlock.class, SourceCast.class}, no = {InitInNewArray.class,
     JAssertStatement.class, JAsgOperation.class, JFieldInitializer.class,
     JConditionalOperation.class, JLoop.class})
 @Transform(add = {ThreeAddressCodeForm.class,

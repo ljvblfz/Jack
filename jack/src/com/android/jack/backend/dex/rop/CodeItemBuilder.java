@@ -83,6 +83,7 @@ import com.android.jack.transformations.ast.UnassignedValues;
 import com.android.jack.transformations.ast.inner.InnerAccessor;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
@@ -136,7 +137,8 @@ import javax.annotation.Nonnull;
     JAssertStatement.class,
     JConditionalOperation.class,
     EmptyClinit.class,
-    UselessSwitches.class})
+    UselessSwitches.class,
+    SourceCast.class})
 @Transform(add = DexCodeMarker.class)
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 

@@ -122,6 +122,7 @@ import com.android.jack.transformations.ast.MultiDimensionNewArray;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.ast.inner.InnerAccessor;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
+import com.android.jack.transformations.cast.SourceCast;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
@@ -238,6 +239,7 @@ import com.android.sched.item.Name;
     NotSimplifier.NotExpressionsSimplified.class,
     GenericSignature.class,
     SimpleName.class,
+    SourceCast.class,
     ThisRefTypeInfo.class,
     UselessSwitches.class})
 public class JackFormatIr implements AbstractComponent {

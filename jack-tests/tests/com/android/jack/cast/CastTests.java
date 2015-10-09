@@ -63,6 +63,10 @@ public class CastTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.cast.useless002"),
     "com.android.jack.cast.useless002.dx.Tests");
 
+  private RuntimeTestInfo USELESS004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.cast.useless004"),
+      "com.android.jack.cast.useless004.dx.Tests");
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void explicit001() throws Exception {
@@ -121,6 +125,13 @@ public class CastTests extends RuntimeTest {
     new RuntimeTestHelper(USELESS002).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void useless004() throws Exception {
+    new RuntimeTestHelper(USELESS004).compileAndRunTest();
+  }
+
+
   /**
    * Verifies that the test source can compile from source to dex file.
    */
@@ -142,5 +153,6 @@ public class CastTests extends RuntimeTest {
     rtTestInfos.add(IMPLICIT004);
     rtTestInfos.add(USELESS001);
     rtTestInfos.add(USELESS002);
+    rtTestInfos.add(USELESS004);
   }
 }
