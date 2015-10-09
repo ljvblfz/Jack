@@ -24,7 +24,6 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -599,6 +598,11 @@ public abstract class AbstractTest {
   @Test
   public void test44_001() throws Exception {
     runTest("044", "001", "");
+  }
+
+  @Test
+  public void test45_001() throws Exception {
+    runTest("045", "001", "");
   }
 
   @Test

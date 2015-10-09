@@ -1,0 +1,5 @@
+com.android.jack.shrob.test045.jack.A
+com.android.jack.shrob.test045.jack.A: A()
+com.android.jack.shrob.test045.jack.A: int methodWithFinally(int)
+com.android.jack.shrob.test045.jack.A: void <clinit>()
+com.android.jack.shrob.test045.jack.A: void $init()

@@ -74,6 +74,9 @@ import javax.annotation.Nonnull;
  * <p>
  * When cloning a block, the target of a {@code JGoto} or a {@code JLocalRef} is set to the cloned
  * version of the target if the target belongs to the group of statements.
+ *<p>
+ * Warning: The cloning of {@link JParameterRef} whose enclosing method is different than the target
+ * method is not supported.
  */
 @Constraint(no = {JLoop.class, JBreakStatement.class, JContinueStatement.class,
     JFieldInitializer.class})
@@ -473,7 +476,9 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
   @Override
   public boolean visit(@Nonnull JParameterRef parameterRef) {
-    expression = getNewParameter(parameterRef.getParameter()).makeRef(parameterRef.getSourceInfo());
+    JParameter parameter = parameterRef.getParameter();
+    assert parameter.getEnclosingMethod() == targetMethod;
+    expression = parameter.makeRef(parameterRef.getSourceInfo());
     return false;
   }
 

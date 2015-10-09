@@ -1,0 +1,2 @@
+com.android.jack.shrob.test045.jack.A -> renamedCom.renamedAndroid.renamedJack.renamedShrob.renamedTest045.renamedJack.renamedA:
+    int methodWithFinally(int) -> renamedMethodWithFinally

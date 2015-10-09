@@ -1,0 +1,3 @@
+Lcom/android/jack/shrob/test045/jack/A;:
+<init>()V
+methodWithFinally(I)I
