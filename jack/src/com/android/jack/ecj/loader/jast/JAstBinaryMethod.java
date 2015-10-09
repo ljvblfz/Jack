@@ -93,7 +93,8 @@ class JAstBinaryMethod implements IBinaryMethod {
     }
     int argIndex = 0;
     for (JParameter jParameter : params) {
-      argumentsNames[argIndex++] = jParameter.getName().toCharArray();
+      String name = jParameter.getName();
+      argumentsNames[argIndex++] = name == null ? null : name.toCharArray();
     }
     return argumentsNames;
   }
