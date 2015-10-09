@@ -17,7 +17,6 @@
 package com.android.jack.box.test001.dx;
 
 import com.android.jack.box.test001.jack.Box001;
-import com.android.jack.test.junit.KnownIssue;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -283,12 +282,5 @@ public class Tests {
     } catch (NullPointerException e) {
       // expected
     }
-  }
-
-  @Test
-  @KnownIssue
-  public void test49() {
-    Assert.assertEquals(1, Box001.get49(true));
-    Assert.assertEquals(2, Box001.get49(false));
   }
 }

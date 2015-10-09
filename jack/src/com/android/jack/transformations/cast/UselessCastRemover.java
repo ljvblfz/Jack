@@ -32,6 +32,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
@@ -41,6 +42,7 @@ import javax.annotation.Nonnull;
 @Description("Removes useless casts.")
 @Name("UselessCastRemover")
 @Constraint(need = JDynamicCastOperation.class)
+@Transform(remove = SourceCast.class)
 public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
