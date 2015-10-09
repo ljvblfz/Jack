@@ -335,4 +335,10 @@ public class Box001 {
     Integer integer = null;
     return integer;
   }
+
+  public static long get49(boolean b) {
+    Number result = (b) ? (Number)Integer.valueOf(1) : (Number)Long.valueOf(2);
+
+    return result.longValue();
+  }
 }
