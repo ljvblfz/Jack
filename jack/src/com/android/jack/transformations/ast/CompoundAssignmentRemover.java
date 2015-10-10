@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.CompoundAssignment;
 import com.android.jack.ir.ast.JAbstractMethodBody;
@@ -182,8 +183,8 @@ public class CompoundAssignmentRemover implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    JClass javaLangString = method.getEnclosingType()
-        .getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+    JClass javaLangString =
+        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
     TransformationRequest tr = new TransformationRequest(method);
     RemoveComplexAssignVisitor rca = new RemoveComplexAssignVisitor(tr, javaLangString);
     rca.accept(method);

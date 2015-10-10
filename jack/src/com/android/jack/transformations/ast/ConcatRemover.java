@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConcatOperation;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
@@ -94,7 +93,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   @CheckForNull
-  private JSession session;
+  private final JSession session = Jack.getSession();
   @CheckForNull
   private JClassOrInterface stringBuilder;
   @CheckForNull
@@ -169,12 +168,9 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
-
-    session = enclosingType.getSession();
 
     Visitor visitor = new Visitor(method);
     visitor.accept(method);

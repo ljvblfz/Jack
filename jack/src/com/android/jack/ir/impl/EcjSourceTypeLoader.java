@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.impl;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
@@ -207,7 +208,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding();
-      JPhantomLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
       if (loaded instanceof JDefinedClass) {
         ReferenceBinding superclass = binding.superclass();
         if (superclass != null) {

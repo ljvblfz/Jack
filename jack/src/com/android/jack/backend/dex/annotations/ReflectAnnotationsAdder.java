@@ -16,6 +16,7 @@
 
 package com.android.jack.backend.dex.annotations;
 
+import com.android.jack.Jack;
 import com.android.jack.backend.dex.DexAnnotations;
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.dx.rop.code.AccessFlags;
@@ -367,7 +368,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     TransformationRequest tr = new TransformationRequest(declaredType);
-    Visitor visitor = new Visitor(tr, declaredType.getSession().getPhantomLookup());
+    Visitor visitor = new Visitor(tr, Jack.getSession().getPhantomLookup());
     visitor.accept(declaredType);
     tr.commit();
   }

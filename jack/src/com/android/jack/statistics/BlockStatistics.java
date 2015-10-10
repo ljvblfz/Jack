@@ -16,6 +16,7 @@
 
 package com.android.jack.statistics;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JForStatement;
@@ -119,7 +120,7 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    JSession session = method.getEnclosingType().getSession();
+    JSession session = Jack.getSession();
     BlockCountMarker bcm = session.getMarker(BlockCountMarker.class);
     if (bcm == null) {
       bcm = new BlockCountMarker();

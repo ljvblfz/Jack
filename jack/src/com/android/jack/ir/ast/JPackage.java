@@ -99,9 +99,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private String name;
 
   @Nonnull
-  private final JSession session;
-
-  @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
@@ -111,15 +108,13 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   private OnPath isOnPath = OnPath.NOT_YET_AVAILABLE;
 
   public JPackage(
-      @Nonnull String name, @Nonnull JSession session, @CheckForNull JPackage enclosingPackage) {
-    this(name, session, enclosingPackage, Collections.<PackageLoader>emptyList());
+      @Nonnull String name, @CheckForNull JPackage enclosingPackage) {
+    this(name, enclosingPackage, Collections.<PackageLoader>emptyList());
   }
 
-  public JPackage(@Nonnull String name, @Nonnull JSession session,
-      @CheckForNull JPackage enclosingPackage,
+  public JPackage(@Nonnull String name, @CheckForNull JPackage enclosingPackage,
       @Nonnull List<PackageLoader> loaders) {
     super(SourceInfo.UNKNOWN);
-    this.session = session;
     this.name = StringInterner.get().intern(name);
     this.loaders.addAll(loaders);
     if (enclosingPackage != null) {
@@ -195,7 +190,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       return getSubPackage(packageName);
     } catch (JPackageLookupException e) {
       assert !packageName.isEmpty();
-      JPackage newPackage = new JPackage(packageName, session, this);
+      JPackage newPackage = new JPackage(packageName, this);
       newPackage.updateParents(this);
       return newPackage;
     }
@@ -346,11 +341,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     return name.equals("");
   }
 
-  @Nonnull
-  public JSession getSession() {
-    return session;
-  }
-
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     assert enclosingPackage == null || !enclosingPackage.deletedItems.contains(getName());
@@ -471,7 +461,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
       }
     }
     if (subLoaders != null) {
-      JPackage subPackage = new JPackage(simpleName, getSession(), this, subLoaders);
+      JPackage subPackage = new JPackage(simpleName, this, subLoaders);
       subPackage.updateParents(this);
       return subPackage;
     } else {

@@ -106,7 +106,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
         JDefinedClassOrInterface enclosingType = (JDefinedClassOrInterface) enclosing;
         enclosingType.removeMemberType(type);
       }
-      type.getSession().removeTypeToEmit(type);
+      Jack.getSession().removeTypeToEmit(type);
       request.commit();
     } else {
       updateSuperTypeList(type);

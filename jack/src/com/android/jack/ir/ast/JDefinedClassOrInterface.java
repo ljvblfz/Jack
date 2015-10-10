@@ -213,10 +213,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return enclosingType;
   }
 
-  public JSession getSession() {
-    return enclosingPackage.getSession();
-  }
-
   /**
    * Returns this type's fields;does not include fields defined in a super type
    * unless they are overridden by this type.

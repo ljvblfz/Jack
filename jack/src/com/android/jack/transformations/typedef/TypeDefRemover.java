@@ -120,7 +120,7 @@ public class TypeDefRemover extends TypeRemover {
       if ((!type.getAnnotations(stringDef).isEmpty()) || !type.getAnnotations(intDef).isEmpty()) {
         JDefinedAnnotationType typeDef = (JDefinedAnnotationType) type;
         if (typeDef.getRetentionPolicy() != JRetentionPolicy.SOURCE) {
-          type.getSession().getReporter().report(Severity.NON_FATAL,
+          Jack.getSession().getReporter().report(Severity.NON_FATAL,
               new InvalidRetentionForTypeDef(typeDef));
         }
         return true;
