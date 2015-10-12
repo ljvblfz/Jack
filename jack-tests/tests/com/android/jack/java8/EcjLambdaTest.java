@@ -32,6 +32,7 @@ import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
 
 import com.android.jack.Options;
+import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -60,8 +61,6 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
           public boolean shouldRun(Description description) {
             if (testWithApiUsage.contains(description.getMethodName())
                 || testWithOtherErrorMsg.contains(description.getMethodName())
-                || testWithDefaultMethod.contains(description.getMethodName())
-                || testWithStaticMethodInInterface.contains(description.getMethodName())
                 || knownBugs.contains(description.getMethodName())
                 || intersectionTypes.contains(description.getMethodName())) {
               return false;
@@ -84,16 +83,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       Arrays.asList("test426411", "test426411b", "test038", "test039");
 
   private static final List<String> knownBugs =
-      Arrays.asList("test430035c", "test430035d", "test430035e");
-
-  @Nonnull
-  private static final List<String> testWithDefaultMethod =
-      Arrays.asList("test027", "test421712", "test427744");
-
-  @Nonnull
-  private static final List<String> testWithStaticMethodInInterface = Arrays.asList(
-      "test406744d"
-  );
+      Arrays.asList("test430035c", "test430035d", "test430035e", "test428552", "test027");
 
   @Nonnull
   private static final List<String> testWithOtherErrorMsg =
@@ -187,7 +177,12 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ((AbstractRuntimeRunner) runner).setOutputStream(out);
         String mainClass = srcDescription[0].substring(0, srcDescription[0].lastIndexOf('.'));
-        Assert.assertEquals(0, runner.run(new String[0], mainClass, dexFile));
+        String[] trArgs = RuntimeTestHelper.getRuntimeArgs(
+            runner.getClass().getSimpleName(),
+            new File(
+                AbstractTestTools.getTestRootDir("com.android.jack.java8"),
+                "enableDefaultMethods.properties"));
+        Assert.assertEquals(0, runner.run(trArgs, mainClass, dexFile));
         Assert.assertEquals(expectedResult, out.toString().trim());
       }
     } catch (Exception e) {

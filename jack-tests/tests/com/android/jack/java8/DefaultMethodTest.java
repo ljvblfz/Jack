@@ -152,7 +152,6 @@ public class DefaultMethodTest {
   }
 
   @Test
-  @KnownIssue
   public void testDefaultMethod005() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD005)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -252,7 +251,6 @@ public class DefaultMethodTest {
   }
 
   @Test
-  @KnownIssue
   public void testDefaultMethod014() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD014)
     .setSourceLevel(SourceLevel.JAVA_8)
