@@ -1,0 +1,7 @@
+-keep,allowobfuscation class com.android.jack.shrob.annotatedmethod1.jack.MyClass {
+  *;
+}
+-keep class com.android.jack.shrob.annotatedmethod1.jack.MyMainClass {
+  *;
+}
+-keepattributes *Annotation*

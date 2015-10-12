@@ -17,11 +17,11 @@
 package com.android.jack.shrob;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
 
@@ -55,6 +55,12 @@ public class ShrobRuntimeTests extends RuntimeTest {
       "com.android.jack.shrob.test046.dx.Tests").addProguardFlagsFileName("proguard.flags001")
       .addProguardFlagsFileName("applyMapping.flags");
 
+  private RuntimeTestInfo ANNOTATEDMETHOD1 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.shrob.annotatedmethod1"),
+      "com.android.jack.shrob.annotatedmethod1.dx.Tests")
+          .addProguardFlagsFileName("proguard.flags001")
+          .addProguardFlagsFileName("applyMapping.flags");
+
   @Test
   public void test011_1() throws Exception {
     new RuntimeTestHelper(TEST011_1)
@@ -85,10 +91,16 @@ public class ShrobRuntimeTests extends RuntimeTest {
     .compileAndRunTest();
   }
 
-
   @Test
   public void test046() throws Exception {
     new RuntimeTestHelper(TEST046)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @KnownIssue
+  public void testAnnotatedMethod1() throws Exception {
+    new RuntimeTestHelper(ANNOTATEDMETHOD1)
     .compileAndRunTest();
   }
 
