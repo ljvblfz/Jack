@@ -144,7 +144,7 @@ public class JackTask extends SynchronousServiceTask {
     int commandStatus = JACK_STATUS_ERROR;
     CommandOut commandOut;
     try {
-      commandOut = new CommandOut(response.getByteChannel(), outCharset);
+      commandOut = new CommandOut(response.getByteChannel(), Charset.defaultCharset(), outCharset);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Exception while opening response: ", e);
       response.setContentLength(0);

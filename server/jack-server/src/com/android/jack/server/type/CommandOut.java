@@ -19,10 +19,12 @@ package com.android.jack.server.type;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.stream.UncloseableOutputStream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -65,20 +67,21 @@ public class CommandOut {
   private final OutputStream os;
 
   public CommandOut(@Nonnull WritableByteChannel channel,
-      @Nonnull Charset charset) {
+      @Nonnull Charset inputBinaryCharset,
+      @Nonnull Charset outputCharset) {
     os = Channels.newOutputStream(channel);
     OutputStream unclosable = new UncloseableOutputStream(os);
     try {
-      out = new CommantOutPrintStream(unclosable, charset, OUT_PREFIX);
-      err = new CommantOutPrintStream(unclosable, charset, ERR_PREFIX);
-      exit = new CommantOutPrintStream(unclosable, charset, EXIT_PREFIX);
+      out = new CommantOutPrintStream(unclosable, inputBinaryCharset, outputCharset, OUT_PREFIX);
+      err = new CommantOutPrintStream(unclosable, inputBinaryCharset, outputCharset, ERR_PREFIX);
+      exit = new CommantOutPrintStream(unclosable, inputBinaryCharset, outputCharset, EXIT_PREFIX);
     } catch (UnsupportedEncodingException e) {
       try {
         os.close();
       } catch (IOException e1) {
         logger.log(Level.SEVERE, "Failed to close", e);
       }
-      throw new AssertionError(charset);
+      throw new AssertionError(outputCharset);
     }
   }
 
@@ -108,30 +111,43 @@ public class CommandOut {
     private final byte[] outputEol;
     @Nonnull
     private final StringBuilder builder = new StringBuilder();
+    @Nonnull
+    private final ByteArrayOutputStream outputStreamBuffer = new ByteArrayOutputStream();
+    @Nonnull
+    private final Charset outputCharset;
+    @Nonnull
+    private final Charset inputBinaryCharset;
 
     CommantOutPrintStream(@Nonnull OutputStream out,
-        @Nonnull Charset charset,
+        @Nonnull Charset inputBinaryCharset,
+        @Nonnull Charset outputCharset,
         @Nonnull String prefix)
         throws UnsupportedEncodingException {
-      super(out, false, charset.name());
-      this.prefix = charset.encode(prefix).array();
-      this.outputEol = charset.encode(EOL).array();
+      super(out, false, outputCharset.name());
+      this.inputBinaryCharset = inputBinaryCharset;
+
+      this.outputCharset = outputCharset;
+      this.prefix = outputCharset.encode(prefix).array();
+      this.outputEol = outputCharset.encode(EOL).array();
     }
 
     @Override
     public synchronized void print(@CheckForNull String string) {
+      if (outputStreamBuffer.size() != 0) {
+        String toPrint =
+            inputBinaryCharset.decode(ByteBuffer.wrap(outputStreamBuffer.toByteArray())).toString();
+        outputStreamBuffer.reset();
+        print(toPrint);
+      }
       builder.append(string);
       int index = builder.indexOf(INPUT_EOL);
       while (index >= 0) {
-        try {
-          synchronized (out) {
-            super.write(prefix);
-            super.print(builder.subSequence(0, index));
-            super.write(outputEol);
-            super.flush();
-          }
-        } catch (IOException e) {
-          setError();
+        synchronized (out) {
+          super.write(prefix, 0, prefix.length);
+          byte[] line = outputCharset.encode(builder.substring(0, index)).array();
+          super.write(line, 0, line.length);
+          super.write(outputEol, 0, outputEol.length);
+          super.flush();
         }
         builder.delete(0, index + INPUT_EOL.length());
         index = builder.indexOf(INPUT_EOL);
@@ -288,12 +304,33 @@ public class CommandOut {
 
     @Override
     public synchronized void close() {
+      if (outputStreamBuffer.size() > 0) {
+        // Flush outputStreamBuffer
+        print("");
+      }
+      assert outputStreamBuffer.size() == 0;
       if (builder.length() > 0) {
         // Last line was not terminated but protocol does not support non terminated line.
         // Add a line termination to flush the buffer.
         println();
       }
       super.close();
+    }
+
+    @Override
+    public synchronized void write(int b) {
+
+      outputStreamBuffer.write(b);
+    }
+
+    @Override
+    public synchronized void write(@Nonnull byte[] bytes) throws IOException {
+      outputStreamBuffer.write(bytes);
+    }
+
+    @Override
+    public synchronized void write(byte[] buf, int off, int len) {
+      outputStreamBuffer.write(buf, off, len);
     }
   }
 
