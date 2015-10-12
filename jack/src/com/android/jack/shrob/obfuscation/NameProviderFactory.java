@@ -95,7 +95,7 @@ public class NameProviderFactory {
       @Nonnull Collection<String> existingNames) {
     for (HasName namedElement : namedElements) {
       if (!Renamer.mustBeRenamed((MarkerManager) namedElement)) {
-        existingNames.add(Renamer.getKey(namedElement));
+        existingNames.add(namedElement.getName());
       }
     }
   }
