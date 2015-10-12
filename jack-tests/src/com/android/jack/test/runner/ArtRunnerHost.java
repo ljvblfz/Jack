@@ -18,8 +18,6 @@ package com.android.jack.test.runner;
 
 import com.google.common.base.Joiner;
 
-import com.android.jack.test.toolchain.AbstractTestTools;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,10 +97,8 @@ public class ArtRunnerHost extends HostRunner {
     }
 
     File frameworkDir = new File(rtEnvironmentRootDir, "framework");
-    List<File> files = AbstractTestTools.getFiles(frameworkDir, ".jar");
-    String bootClasspath = Joiner.on(File.pathSeparatorChar).join(files);
-
-    result.add("-Xbootclasspath:" + bootClasspath);
+    File coreImage = new File(frameworkDir, "core.art");
+    result.add("-Ximage:" + coreImage.getAbsolutePath());
 
     result.add("-classpath");
 
