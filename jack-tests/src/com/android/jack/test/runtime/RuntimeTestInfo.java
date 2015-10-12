@@ -51,7 +51,10 @@ public class RuntimeTestInfo {
   @Nonnull
   public List<File> referenceExtraSources = new ArrayList<File>();
   @Nonnull
+  public List<File> candidateExtraSources = new ArrayList<File>();
+  @Nonnull
   public List<FileChecker> checkers = new ArrayList<FileChecker>(0);
+
 
   public RuntimeTestInfo(@Nonnull File directory, @Nonnull String jUnit) {
     this.directory = directory;
@@ -103,6 +106,12 @@ public class RuntimeTestInfo {
   @Nonnull
   public RuntimeTestInfo addReferenceExtraSources(File file) {
     referenceExtraSources.add(file);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo addCandidateExtraSources(File file) {
+    candidateExtraSources.add(file);
     return this;
   }
 
