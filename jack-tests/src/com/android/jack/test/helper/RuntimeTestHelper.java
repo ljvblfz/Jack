@@ -123,6 +123,14 @@ public class RuntimeTestHelper {
     return result;
   }
 
+  @Nonnull
+  List<File> getCandidateExtraSources() {
+    List<File> result = new ArrayList<File>();
+    for (RuntimeTestInfo info : runtimeTestInfos) {
+      result.addAll(info.candidateExtraSources);
+    }
+    return result;
+  }
 
   public void compileAndRunTest() throws Exception {
     compileAndRunTest(/* checkStructure = */ false);
@@ -198,8 +206,15 @@ public class RuntimeTestHelper {
     File testBinaryDir = AbstractTestTools.createTempDir();
     File testBinary = new File(testBinaryDir, candidateTestTools.getBinaryFileName());
 
+    File [] candSources = getSrcDir();
+    List<File> extras = getCandidateExtraSources();
+    List<File> sources = new ArrayList<File>(extras.size() + candSources.length);
+    Collections.addAll(sources, candSources);
+    sources.addAll(extras);
+    File[] sourcesAsArray = sources.toArray(new File[sources.size()]);
+
     if (checkStructure) {
-      CheckDexStructureTestHelper helper = new CheckDexStructureTestHelper(getSrcDir());
+      CheckDexStructureTestHelper helper = new CheckDexStructureTestHelper(sourcesAsArray);
       helper.setCandidateClasspath(candidateClassPath);
       helper.setCandidateTestTools(candidateTestTools);
       if (jarjarRules != null) {
@@ -215,8 +230,7 @@ public class RuntimeTestHelper {
       }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
       candidateTestTools.addToClasspath(candidateClassPath)
-      .srcToExe(testBinaryDir, /* zipFile = */ false,
-          getSrcDir());
+      .srcToExe(testBinaryDir, /* zipFile = */ false, sourcesAsArray);
     }
 
     for (FileChecker checker : testExeCheckers) {
@@ -238,8 +252,8 @@ public class RuntimeTestHelper {
 
     // Compile ref part src
     File [] refSources = getRefSrcDir();
-    List<File> extras = getReferenceExtraSources();
-    List<File> sources = new ArrayList<File>(extras.size() + refSources.length);
+    extras = getReferenceExtraSources();
+    sources = new ArrayList<File>(extras.size() + refSources.length);
     Collections.addAll(sources, refSources);
     sources.addAll(extras);
 

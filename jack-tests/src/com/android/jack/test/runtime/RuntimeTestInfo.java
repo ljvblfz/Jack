@@ -48,6 +48,8 @@ public class RuntimeTestInfo {
   public List<String> proguardFilesNames = new ArrayList<String>();
   @Nonnull
   public List<File> referenceExtraSources = new ArrayList<File>();
+  @Nonnull
+  public List<File> candidateExtraSources = new ArrayList<File>();
 
   public RuntimeTestInfo(@Nonnull File directory, @Nonnull String jUnit) {
     this.directory = directory;
@@ -99,6 +101,12 @@ public class RuntimeTestInfo {
   @Nonnull
   public RuntimeTestInfo addReferenceExtraSources(File file) {
     referenceExtraSources.add(file);
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestInfo addCandidateExtraSources(File file) {
+    candidateExtraSources.add(file);
     return this;
   }
 
