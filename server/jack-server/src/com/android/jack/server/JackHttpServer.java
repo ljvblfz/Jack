@@ -1094,9 +1094,9 @@ public class JackHttpServer implements HasVersion {
                 new AcceptContentTypeParameterRouter("version")
                   .add("1",
                     new PartContentTypeRouter("cli")
-                      .add("plain/text",
+                      .add(TextPlain.CONTENT_TYPE_NAME,
                         new PartContentTypeRouter("pwd")
-                          .add("plain/text",
+                          .add(TextPlain.CONTENT_TYPE_NAME,
                             new PartContentTypeRouter("version")
                               .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
                                 new PartContentTypeParameterRouter("version", "version")

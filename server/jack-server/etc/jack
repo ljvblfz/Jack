@@ -99,9 +99,9 @@ while true; do
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
        -X POST \
        -H "Accept: application/vnd.jack.command-out;version=1;charset=$CURRENT_CHARSET" \
-       -F "cli=$ARGS;type=plain/text" \
+       -F "cli=$ARGS;type=text/plain;charset=$CURRENT_CHARSET" \
        -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
-       -F "pwd=$JACK_PWD;type=plain/text" \
+       -F "pwd=$JACK_PWD;type=text/plain;charset=$CURRENT_CHARSET" \
        --noproxy ${SERVER_HOST} \
        https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
