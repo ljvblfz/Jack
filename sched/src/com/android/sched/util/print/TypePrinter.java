@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.table;
+package com.android.sched.util.print;
 
-import com.android.sched.util.codec.VariableName;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnull;
 
-
 /**
- * Interface to a {@link Report} printer
+ * Interface to a low level printer / formatter
  */
-@VariableName("printer")
-public interface ReportPrinter {
-  public void printReport(@Nonnull Report report);
+interface TypePrinter<T> {
+  public boolean print(@Nonnull PrintStream printer, @Nonnull T value);
 }

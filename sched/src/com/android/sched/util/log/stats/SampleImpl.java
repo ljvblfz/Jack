@@ -16,13 +16,7 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
 import com.android.sched.util.findbugs.SuppressFBWarnings;
-import com.android.sched.util.table.DataHeader;
-import com.android.sched.util.table.DataRow;
-
-import java.util.Iterator;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -33,7 +27,7 @@ import javax.annotation.Nonnull;
  */
 // Ignore: "Inconsistent synchronization"
 @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
-public class SampleImpl extends Sample implements DataRow, DataHeader {
+public class SampleImpl extends Sample {
   @Nonnegative
   private int    count;
 
@@ -48,6 +42,11 @@ public class SampleImpl extends Sample implements DataRow, DataHeader {
 
   protected SampleImpl(@Nonnull StatisticId<? extends Statistic> id) {
     super(id);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   @Override
@@ -122,18 +121,5 @@ public class SampleImpl extends Sample implements DataRow, DataHeader {
       this.max = samples.max;
       this.maxObject = samples.maxObject;
     }
-  }
-
-  @Nonnull
-  @Override
-  public synchronized Iterator<Object> iterator() {
-    return Iterators.forArray(
-        Integer.valueOf(getCount()),
-        Double.valueOf(getTotal()),
-        Double.valueOf(getMin()),
-        Double.valueOf(getAverage()),
-        Double.valueOf(getMax()),
-        getMinObject(),
-        getMaxObject());
   }
 }

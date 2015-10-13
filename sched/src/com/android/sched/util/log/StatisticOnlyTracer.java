@@ -16,9 +16,16 @@
 
 package com.android.sched.util.log;
 
+import com.google.common.collect.Iterators;
+
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.codec.ToStringFormatter;
+import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.util.log.tracer.AbstractTracer;
@@ -27,25 +34,24 @@ import com.android.sched.util.log.tracer.probe.HeapAllocationProbe;
 import com.android.sched.util.log.tracer.probe.Probe;
 import com.android.sched.util.log.tracer.watcher.ObjectWatcher;
 import com.android.sched.util.log.tracer.watcher.WatcherInstaller;
-import com.android.sched.util.table.ConcatTable;
-import com.android.sched.util.table.DataHeaderBuilder;
-import com.android.sched.util.table.DataRow;
-import com.android.sched.util.table.MultiDataRow;
-import com.android.sched.util.table.Report;
-import com.android.sched.util.table.ReportPrinterFactory;
-import com.android.sched.util.table.SimpleTable;
-import com.android.sched.util.table.Table;
+import com.android.sched.util.print.DataModel;
+import com.android.sched.util.print.DataModelListAdapter;
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+import com.android.sched.util.print.Printer;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +68,21 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = Tracer.class, name = "stat-only",
     description = "collect statistics without event information")
+@HasKeyId
 public final class StatisticOnlyTracer implements Tracer {
+  @Nonnull
+  private static final ReflectFactoryPropertyId<Printer> PRINTER = ReflectFactoryPropertyId
+      .create("sched.tracer.format", "Define which format to use", Printer.class)
+      .addArgType(PrintStream.class).addDefaultValue("text")
+      .requiredIf(TracerFactory.TRACER.getClazz().isSubClassOf(StatisticOnlyTracer.class));
+
+  @Nonnull
+  public static final PropertyId<OutputStreamFile> STREAM = PropertyId
+      .create("sched.tracer.file", "The file where to print statistics",
+          new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+      .addDefaultValue("-").requiredIf(TracerFactory.TRACER.getClazz()
+          .isSubClassOf(StatisticOnlyTracer.class));
+
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
@@ -77,6 +97,38 @@ public final class StatisticOnlyTracer implements Tracer {
       }
 
       HeapAllocationProbe.ensureInstall();
+    }
+  }
+
+  private static class StatisticModel implements DataModel {
+    private static final DataView STATISTIC_VIEW = DataViewBuilder.getStructure()
+        .addField("name", DataType.STRING)
+        .addField("description", DataType.STRING)
+        .addField("type", DataType.BUNDLE)
+        .addField("value", DataType.STRUCT)
+        .build();
+
+    @Nonnull
+    private final Statistic statistic;
+
+    public StatisticModel(@Nonnull Statistic statistic) {
+      this.statistic = statistic;
+    }
+
+    @Override
+    public Iterator<Object> iterator() {
+      return Iterators.<Object> forArray(
+            statistic.getId().getName(),
+            statistic.getId().getDescription(),
+            statistic.getClass().getCanonicalName(),
+            statistic
+          );
+    }
+
+    @Override
+    @Nonnull
+    public DataView getDataView() {
+      return STATISTIC_VIEW;
     }
   }
 
@@ -97,33 +149,30 @@ public final class StatisticOnlyTracer implements Tracer {
         try {
           enable.set(Boolean.FALSE);
 
-          Map<Class<? extends Statistic>, ConcatTable> tables =
-              new HashMap<Class<? extends Statistic>, ConcatTable>();
-          Report report = new Report(new Date().toString(), "");
+          DataModelListAdapter<Statistic> report =
+              new DataModelListAdapter<Statistic>(new DataModelListAdapter.Converter<Statistic>() {
+                @Override
+                @Nonnull
+                public StatisticModel apply(@Nonnull Statistic data) {
+                  return new StatisticModel(data);
+                }
+              });
 
           for (final Statistic statistic : statisticsById.values()) {
-            ConcatTable table = tables.get(statistic.getClass());
-
-            if (table == null) {
-              Table left = new SimpleTable("N/A", "N/A", DataHeaderBuilder.get()
-                  .addColumn("Name", new ToStringFormatter())
-                  .addColumn("Description", new ToStringFormatter()).build());
-              Table right = new SimpleTable("N/A", "N/A", statistic);
-
-              table = new ConcatTable(statistic.getDescription(), "", left, right);
-
-              tables.put(statistic.getClass(), table);
-              report.addTable(table);
-            }
-
-            if (statistic instanceof DataRow) {
-              table.addLeftRow(new MultiDataRow(statistic.getId().getName(),
-                  statistic.getId().getDescription()));
-              table.addRightRow(((DataRow) statistic));
+            if (statistic.isEnabled()) {
+              report.add(statistic);
             }
           }
 
-          ReportPrinterFactory.getReportPrinter().printReport(report);
+          PrintStream stream = ThreadConfig.get(STREAM).getPrintStream();
+          Printer printer = ThreadConfig.get(PRINTER).create(stream).addResourceBundles(
+              ResourceBundle.getBundle(Statistic.class.getCanonicalName()),
+              ResourceBundle.getBundle(StatisticOnlyTracer.class.getCanonicalName()));
+          try {
+            printer.print(report);
+          } finally {
+            stream.close();
+          }
         } finally {
           enable.set(Boolean.TRUE);
         }

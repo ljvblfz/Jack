@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.table;
+package com.android.sched.util.print;
 
 import com.android.sched.util.codec.Formatter;
 
+import java.io.PrintStream;
+
 import javax.annotation.Nonnull;
 
-/**
- * Interface of a {@link DataHeader} of a {@link Table}.
- */
-public interface DataHeader extends Data {
+class FormatterAdapter<T> implements TypePrinter<T> {
   @Nonnull
-  public String[] getHeader();
+  private final Formatter<T> formatter;
 
-  @Nonnull
-  public Formatter<?>[] getFormatters();
+  public FormatterAdapter(@Nonnull Formatter<T> formatter) {
+    this.formatter = formatter;
+  }
+
+  @Override
+  public boolean print(@Nonnull PrintStream printer, @Nonnull T value) {
+    String str = formatter.formatValue(value);
+    printer.print(str);
+
+    return str != null && !str.isEmpty();
+  }
 }

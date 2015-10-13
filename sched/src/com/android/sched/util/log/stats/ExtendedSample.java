@@ -16,9 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.android.sched.util.codec.DoubleCodec;
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.LongCodec;
+import com.google.common.collect.Iterators;
+
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+
+import java.util.Iterator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -79,53 +83,40 @@ public class ExtendedSample extends Statistic {
     return "Sample";
   }
 
-
-  @Nonnull
-  private static final String[] HEADER = new String[] {
-    "Count",
-    "Total",
-    "Min",
-    "Average",
-    "First Quartile",
-    "Median",
-    "Third Quartile",
-    "Max"
-  };
-
-  @Override
-  @Nonnull
-  public String[] getHeader() {
-    return HEADER.clone();
-  }
-
-  @Nonnull
-  public static String[] getStaticHeader() {
-    return HEADER.clone();
-  }
-
-  @Nonnull
-  public static Formatter<? extends Object>[] getStaticFormatters() {
-    return new Formatter<?>[] {
-        new LongCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec()
-    };
+  protected void ensureSorted() {
   }
 
   @Override
   @Nonnull
-  public Formatter<? extends Object>[] getFormatters() {
-    return getStaticFormatters();
+  public synchronized Iterator<Object> iterator() {
+    ensureSorted();
+
+    return Iterators.<Object>forArray(
+           Long.valueOf(getCount()),
+           Double.valueOf(getTotal()),
+           Double.valueOf(getMin()),
+           Double.valueOf(getAverage()),
+           Double.valueOf(getFirstQuartile()),
+           Double.valueOf(getMedian()),
+           Double.valueOf(getThirdQuartile()),
+           Double.valueOf(getMax()));
   }
 
+  @Nonnull
+  private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
+      .addField("sampleCount", DataType.NUMBER)
+      .addField("sampleTotal", DataType.NUMBER)
+      .addField("sampleMin", DataType.NUMBER)
+      .addField("sampleAverage", DataType.NUMBER)
+      .addField("sampleFirstQuartile", DataType.NUMBER)
+      .addField("sampleMedian", DataType.NUMBER)
+      .addField("sampleThirdQuartile", DataType.NUMBER)
+      .addField("sampleMax", DataType.NUMBER)
+      .build();
+
   @Override
-  @Nonnegative
-  public int getColumnCount() {
-    return HEADER.length;
+  @Nonnull
+  public DataView getDataView() {
+    return DATA_VIEW;
   }
 }

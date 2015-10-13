@@ -16,23 +16,22 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
-import com.android.sched.util.table.DataRow;
-
-import java.util.Iterator;
-
 import javax.annotation.Nonnull;
 
 
 /**
  * Represents a counter statistic.
  */
-public class CounterImpl extends Counter implements DataRow {
+public class CounterImpl extends Counter {
   private long value;
 
   protected CounterImpl(@Nonnull StatisticId<? extends Statistic> id) {
     super(id);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   @Override
@@ -77,11 +76,5 @@ public class CounterImpl extends Counter implements DataRow {
     synchronized (counter) {
       this.value += counter.value;
     }
-  }
-
-  @Override
-  @Nonnull
-  public synchronized Iterator<Object> iterator() {
-    return Iterators.<Object> forArray(Long.valueOf(value));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.table;
-
-import com.android.sched.util.codec.ImplementationName;
+package com.android.sched.util.print;
 
 import javax.annotation.Nonnull;
 
 /**
- * {@link ReportPrinter} implementation which do nothing.
+ * {@link DataModel} specifies value of an object.
  */
-@ImplementationName(iface = ReportPrinter.class, name = "none")
-public class NoReportPrinter implements ReportPrinter {
-  @Override
-  public void printReport(@Nonnull Report report) {
-  }
+public interface DataModel extends Iterable<Object> {
+  @Nonnull
+  public DataView getDataView();
 }

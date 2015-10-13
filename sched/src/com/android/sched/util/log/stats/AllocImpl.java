@@ -16,20 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
-import com.android.sched.util.table.DataHeader;
-import com.android.sched.util.table.DataRow;
-
-import java.util.Iterator;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Represents a statistic on object allocation.
  */
-public class AllocImpl extends Alloc implements DataRow, DataHeader {
+public class AllocImpl extends Alloc {
   @Nonnegative
   private long number;
   @Nonnegative
@@ -37,6 +30,11 @@ public class AllocImpl extends Alloc implements DataRow, DataHeader {
 
   protected AllocImpl(@Nonnull StatisticId<? extends Statistic> id) {
     super(id);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   /**
@@ -61,10 +59,14 @@ public class AllocImpl extends Alloc implements DataRow, DataHeader {
   }
 
   @Override
-  @Nonnull
-  public synchronized Iterator<Object> iterator() {
-    return Iterators.<Object> forArray(
-        Long.valueOf(number),
-        Long.valueOf(size));
+  @Nonnegative
+  public long getNumber() {
+    return number;
+  }
+
+  @Override
+  @Nonnegative
+  public long getSize() {
+    return size;
   }
 }

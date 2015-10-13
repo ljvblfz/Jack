@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.table;
-
-import com.google.common.collect.Iterators;
-
-import java.util.Iterator;
+package com.android.sched.util.print;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * A simple implementation of a {@link DataRow} which takes {@link Object}s as variable arguments.
+ * Data view interface for a {@link DataModel}.
  */
-public class MultiDataRow implements DataRow {
+public interface DataView {
   @Nonnull
-  private final Object[] objects;
-
-  public MultiDataRow(@Nonnull Object ... objects) {
-    this.objects = objects;
-  }
-
-  @Override
+  public DataType getDataType();
   @Nonnegative
-  public int getColumnCount() {
-    return objects.length;
-  }
-
-  @Override
+  public int getDataCount();
   @Nonnull
-  public Iterator<Object> iterator() {
-    return Iterators.forArray(objects);
-  }
+  public DataType[] getDataTypes();
+  @Nonnull
+  public String[] getDataNames();
 }
