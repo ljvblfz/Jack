@@ -34,21 +34,28 @@ import javax.annotation.Nonnull;
 @Description("Java class literal expression")
 public class JClassLiteral extends JLiteral {
 
+  @Nonnull
   private final JClass javaLangClass;
 
+  @Nonnull
   private final JType refType;
 
-  public JClassLiteral(SourceInfo sourceInfo, JType type, JClass javaLangClass) {
+  public JClassLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JType type,
+      @Nonnull JClass javaLangClass) {
     super(sourceInfo);
+    assert type != null;
+    assert javaLangClass != null;
     refType = type;
     this.javaLangClass = javaLangClass;
   }
 
+  @Nonnull
   public JType getRefType() {
     return refType;
   }
 
   @Override
+  @Nonnull
   public JType getType() {
     return javaLangClass;
   }
