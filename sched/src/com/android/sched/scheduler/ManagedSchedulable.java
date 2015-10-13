@@ -55,7 +55,6 @@ public abstract class ManagedSchedulable implements HasDescription {
   @CheckForNull
   private Method  dynamicIsSynchronized = null;
 
-
   /**
    * Creates a new instance of {@link ManagedSchedulable} from a {@link Schedulable}.
    *
@@ -117,6 +116,15 @@ public abstract class ManagedSchedulable implements HasDescription {
     }
 
     return false;
+  }
+
+  public boolean isStaticallySynchronized() {
+    return isSynchronized;
+  }
+
+  @CheckForNull
+  public Method getDynamicallySynchronizedMethod() {
+    return dynamicIsSynchronized;
   }
 
   /**
