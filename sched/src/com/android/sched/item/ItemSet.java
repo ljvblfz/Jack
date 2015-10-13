@@ -25,8 +25,10 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -274,20 +276,30 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
 
   @Nonnull
   public String toStringCompact() {
-    ItemSet<T> items = new ItemSet<T>(this);
+    List<String> names = new ArrayList<String>();
+
+    for (Class<? extends T> item : getCompactSet()) {
+      names.add(Items.getName(item));
+    }
+
     StringBuilder sb = new StringBuilder();
+    sb.append('[');
+    Joiner.on(", ")
+        .appendTo(sb, Ordering.from(String.CASE_INSENSITIVE_ORDER).immutableSortedCopy(names));
+    sb.append(']');
+
+    return sb.toString();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nonnull
+  public Set<Class<? extends T>> getCompactSet() {
+    ItemSet<T> items = new ItemSet<T>(this);
+    Set<Class<? extends T>> set = new HashSet<Class<? extends T>>();
     ManagedItem bestItem = null;
     int best = 0;
-    boolean first = true;
 
-    sb.append('[');
     while (!items.isEmpty()) {
-      if (!first) {
-        sb.append(", ");
-      } else {
-        first = false;
-      }
-
       for (ManagedItem item : manager.getManagedItems()) {
         assert item.bitmap != null;
 
@@ -302,7 +314,7 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
       }
 
       if (bestItem != null) {
-        sb.append(bestItem.getName());
+        set.add((Class<? extends T>) bestItem.getItem());
 
         assert bestItem.bitmap != null;
         items.remove(bestItem.bitmap);
@@ -312,9 +324,8 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
         throw new AssertionError();
       }
     }
-    sb.append(']');
 
-    return sb.toString();
+    return set;
   }
 
   @Nonnull
