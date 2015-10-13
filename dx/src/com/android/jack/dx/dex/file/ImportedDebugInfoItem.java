@@ -112,7 +112,7 @@ public class ImportedDebugInfoItem extends OffsettedItem {
    * @param prefix {@code null-ok;} prefix to attach to each line of output
    */
   public void annotateTo(DexFile file, AnnotatedOutput out, String prefix) {
-    throw new RuntimeException("unsupported");
+    out.annotate("  debug info not available (imported)");
   }
 
   /** {@inheritDoc} */
