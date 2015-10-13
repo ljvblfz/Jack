@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
+import com.android.sched.item.Component;
 import com.android.sched.marker.LocalMarkerManager;
 
 import javax.annotation.CheckForNull;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
  * Description of a field.
  */
 public class JFieldId extends LocalMarkerManager
-  implements HasName, CanBeRenamed, HasType {
+  implements HasName, CanBeRenamed, HasType, Component {
 
   @Nonnull
   private String name;

@@ -19,6 +19,7 @@ package com.android.jack.cfg;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.util.graph.GraphNode;
+import com.android.sched.item.Component;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
  * of predecessors and successors. Each {@link BasicBlock} has an unique id inside a
  * {@link ControlFlowGraph}.
  */
-public abstract class BasicBlock extends GraphNode<BasicBlock> {
+public abstract class BasicBlock extends GraphNode<BasicBlock> implements Component {
 
   @Nonnull
   private final List<JStatement> statements;

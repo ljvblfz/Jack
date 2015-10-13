@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.util.NamingTools;
+import com.android.sched.item.Component;
 import com.android.sched.marker.LocalMarkerManager;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
  * An identifier for methods. A JMethodId instance is shared between JMethods
  * that may share an overriding relation.
  */
-public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed {
+public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed, Component {
 
   /**
    * Method hierarchy filter.
