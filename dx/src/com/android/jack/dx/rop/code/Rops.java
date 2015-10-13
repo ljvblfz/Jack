@@ -915,7 +915,7 @@ public final class Rops {
   public static final Rop MARK_LOCAL_OBJECT =
       new Rop(RegOps.MARK_LOCAL, Type.VOID, StdTypeList.OBJECT, "mark-local-object");
 
-  /** {@code T: Any primitive type; v0..vx: T :: {v0, ..., vx}} */
+  /** <code>T: Any primitive type; v0..vx: T :: {v0, ..., vx}</code> */
   public static final Rop FILL_ARRAY_DATA =
       new Rop(RegOps.FILL_ARRAY_DATA, Type.VOID, StdTypeList.EMPTY, "fill-array-data");
 
