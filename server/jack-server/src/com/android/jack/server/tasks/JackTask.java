@@ -26,6 +26,7 @@ import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.UnrecoverableException;
 import com.android.jack.server.JackHttpServer;
+import com.android.jack.server.JackHttpServer.Assertion;
 import com.android.jack.server.JackHttpServer.Program;
 import com.android.jack.server.NoSuchVersionException;
 import com.android.jack.server.TypeNotSupportedException;
@@ -81,6 +82,8 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
     String cli;
     VersionFinder versionFinder;
     File pwd;
+    Assertion assertion = ((Boolean) request.getAttribute("assert")).booleanValue()
+        ? Assertion.ENABLED : Assertion.DISABLED;
     try {
       Part cliPart = request.getPart("cli");
       assert cliPart != null;
@@ -152,7 +155,7 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
 
         Cli01CompilationTask jackTask;
         try {
-          JackProvider jackProvider = jackServer.getProvider(program);
+          JackProvider jackProvider = jackServer.getProvider(program, assertion);
           try {
           Cli02Config jack = jackProvider.createConfig(Cli02Config.class);
           installJackOutErr(jack, commandOut);

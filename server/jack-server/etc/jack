@@ -29,6 +29,7 @@ TMPDIR=${TMPDIR:=/tmp}
 CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 JACK_CONNECTION_TIMEOUT=300
 JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
+JACK_ASSERTION_ENABLED="${JACK_ASSERTION_ENABLED:=false}"
 
 #
 # Load client settings
@@ -137,6 +138,7 @@ if [ "$BASE64_CHECK" = jack-server ]; then
        -F "cli=$ARGS;type=text/plain;charset=$CURRENT_CHARSET" \
        -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
        -F "pwd=$JACK_PWD;type=text/plain$CHARSET_ARGUMENT" \
+       -F "assert=$JACK_ASSERTION_ENABLED;type=text/plain;charset=$CURRENT_CHARSET" \
        --noproxy ${SERVER_HOST} \
        https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
@@ -151,6 +153,7 @@ else
        -F "cli=$ARGS;type=text/plain;charset=$CURRENT_CHARSET" \
        -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
        -F "pwd=$JACK_PWD;type=text/plain$CHARSET_ARGUMENT" \
+       -F "assert=$JACK_ASSERTION_ENABLED;type=text/plain;charset=$CURRENT_CHARSET" \
        --noproxy ${SERVER_HOST} \
        https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
