@@ -380,13 +380,13 @@ public class ManagedDataAsReport implements ManagedDataListener {
     @Override
     public Iterator<Object> iterator() {
       String dynamic = null;
-      Method method = schedulable.getDynamicSynchronizedMethod();
+      Method method = schedulable.getDynamicallySynchronizedMethod();
       if (method != null) {
         dynamic = method.getDeclaringClass().getCanonicalName() + "#" + method.getName();
       }
 
       return Iterators.<Object> forArray(
-          Boolean.valueOf(schedulable.isStaticSynchronized()),
+          Boolean.valueOf(schedulable.isStaticallySynchronized()),
           dynamic
       );
     }
