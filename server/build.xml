@@ -65,7 +65,7 @@
     </propertyfile>
 
     <copy file="${jack-server-dist.tmp}/version.properties" tofile="${jack-server-dist.tmp}/jack-server-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jack-server.name}">
+    <jar destfile="${jack-top-dist.dir}/${jack-server.name}" filesetmanifest="merge">
       <zipfileset src="${jack-server.dist.dir}/${jack-server.name}"
       excludes="jack-server-version.properties"/>
     </jar>
@@ -73,7 +73,7 @@
        basedir="${jack-server-dist.tmp}"
        includes="jack-server-version.properties"/>
 
-    <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}">
+    <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" filesetmanifest="merge">
       <zipfileset src="${jack-launcher.dist.dir}/${jack-launcher.name}"
       excludes="jack-launcher-version.properties"/>
     </jar>
