@@ -139,10 +139,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     args.add("java");
     args.add(assertEnable ? "-ea" : "-da");
-    args.add("-cp");
+    args.add("-jar");
     args.add(jackPrebuilt.getAbsolutePath());
-
-    args.add(com.android.jack.Main.class.getName());
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
@@ -258,10 +256,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     args.add("java");
     args.add(assertEnable ? "-ea" : "-da");
-    args.add("-cp");
+    args.add("-jar");
     args.add(jackPrebuilt.getAbsolutePath());
-
-    args.add(com.android.jack.Main.class.getName());
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
