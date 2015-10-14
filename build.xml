@@ -161,7 +161,7 @@
     </propertyfile>
 
     <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jack.execname}">
+    <jar destfile="${jack-top-dist.dir}/${jack.execname}" filesetmanifest="merge">
       <zipfileset src="${jack.dist.dir}/${jack.execname}"
       excludes="jack-version.properties"/>
     </jar>
@@ -170,7 +170,7 @@
       includes="jack-version.properties"/>
 
     <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-api-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jack-api.name}">
+    <jar destfile="${jack-top-dist.dir}/${jack-api.name}" filesetmanifest="merge">
       <zipfileset src="${jack-api.dist.dir}/${jack-api.name}"
       excludes="jack-api-version.properties"/>
     </jar>
@@ -179,7 +179,7 @@
       includes="jack-api-version.properties"/>
 
     <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-annotations-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}">
+    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" filesetmanifest="merge">
       <zipfileset src="${jack.dist.dir}/${jack-annotations.libname}"
       excludes="jack-annotations-version.properties"/>
     </jar>
@@ -213,7 +213,7 @@
     </propertyfile>
 
     <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jill.execname}">
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}" filesetmanifest="merge">
       <zipfileset src="${jill.dist.dir}/${jill.execname}"
       excludes="jill-version.properties"/>
     </jar>
@@ -222,7 +222,7 @@
       includes="jill-version.properties"/>
 
     <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-api-version.properties"/>
-    <jar destfile="${jack-top-dist.dir}/${jill-api.name}">
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" filesetmanifest="merge">
       <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
       excludes="jill-api-version.properties"/>
     </jar>
