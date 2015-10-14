@@ -46,6 +46,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.type.StdTypeList;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.ssa.Optimizer;
 import com.android.jack.dx.util.IntList;
@@ -67,7 +68,6 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -360,7 +360,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       try {
         ropMethod =
-            Optimizer.optimize(ropMethod, getParameterSize(method), method.isStatic(),
+            Optimizer.optimize(ropMethod, getParameterWordCount(method), method.isStatic(),
                 true /* inPreserveLocals */, DexTranslationAdvice.THE_ONE);
       } finally {
         optEvent.end();
@@ -398,22 +398,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     } else {
       return StdTypeList.EMPTY;
     }
-  }
-
-  private int getParameterSize(@Nonnull JMethod method) {
-    int paramSize = 0;
-    if (!method.isStatic()) {
-      paramSize += 1;
-    }
-    for (JParameter param : method.getParams()) {
-      if (param.getType() == JPrimitiveTypeEnum.LONG.getType()
-          || param.getType() == JPrimitiveTypeEnum.DOUBLE.getType()) {
-        paramSize += 2;
-      } else {
-        paramSize += 1;
-      }
-    }
-    return paramSize;
   }
 
   private int getMaxLabel(ControlFlowGraph cfg) {
@@ -506,20 +490,15 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     return RopTranslator.translate(ropMethod, positionListKind, lvInfo, paramSize, options);
   }
 
+  @Nonnegative
   private int getParameterWordCount(@Nonnull JMethod method) {
-    List<JParameter> parameters = method.getParams();
     // Add size in word (1) to represent 'this' parameter if method is not static.
-    int wordCount = method.isStatic() ? 0 : 1;
-    for (JParameter param : parameters) {
-      JType paramType = param.getType();
-      if (paramType == JPrimitiveTypeEnum.LONG.getType()) {
-        wordCount += 2;
-      } else if (paramType == JPrimitiveTypeEnum.DOUBLE.getType()) {
-        wordCount += 2;
-      } else {
-        wordCount++;
-      }
+    int wordCount = method.isStatic() ? 0 : Type.OBJECT.getWordCount();
+
+    for (JParameter param : method.getParams()) {
+      wordCount += RopHelper.convertTypeToDx(param.getType()).getWordCount();
     }
+
     return wordCount;
   }
 }

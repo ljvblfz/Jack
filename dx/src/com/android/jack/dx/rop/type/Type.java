@@ -20,6 +20,8 @@ import com.android.jack.dx.util.Hex;
 
 import java.util.HashMap;
 
+import javax.annotation.Nonnegative;
+
 /**
  * Representation of a value type, such as may appear in a field, in a
  * local, on a stack, or in a method descriptor. Instances of this
@@ -846,6 +848,14 @@ int limit = (length - 1); // Skip the final ';'.
     Type result = new Type(newDesc, BT_OBJECT, newAt);
     result.initializedType = this;
     return putIntern(result);
+  }
+
+  @Nonnegative
+  public int getWordCount() {
+    if (isCategory2()) {
+      return 2;
+    }
+    return 1;
   }
 
   /**
