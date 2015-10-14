@@ -252,7 +252,7 @@ public final class CstType extends TypedConstant {
     if (lastSlash == -1) {
       return "default";
     } else {
-      // +2 to skip the '[' and the 'L' prefix
+      // +2 to skip the '[' and the 'L' or '\\' prefix
       return descriptor.substring(lastLeftSquare + 2, lastSlash).replace('/', '.');
     }
   }

@@ -80,7 +80,7 @@ public final class Prototype implements Comparable<Prototype> {
         c = descriptor.charAt(at);
       }
 
-      if (c == 'L') {
+      if (c == 'L' || c == '\\') {
         // It looks like the start of a class name; find the end.
         int endAt = descriptor.indexOf(';', at);
         if (endAt == -1) {
@@ -135,7 +135,7 @@ public final class Prototype implements Comparable<Prototype> {
         closeAt = i;
         break;
       }
-      if ((c >= 'A') && (c <= 'Z')) {
+      if ((c >= 'A') && (c <= 'Z') || c == '\\') {
         maxParams++;
       }
     }
