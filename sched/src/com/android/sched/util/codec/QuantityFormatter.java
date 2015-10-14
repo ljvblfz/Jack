@@ -22,9 +22,9 @@ import java.text.NumberFormat;
 import javax.annotation.Nonnull;
 
 /**
- * Class to format a {@link Long} representing a quantity in bytes to a {@link String}.
+ * Class to format a {@link Long} representing a quantity in bytes as a {@link String}.
  */
-public class ByteFormatter implements Formatter<Long> {
+public class QuantityFormatter implements Formatter<Long> {
 
   @Nonnull
   private static final char[] UNIT_PREFIX_SI  = new char[]{'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
@@ -33,13 +33,15 @@ public class ByteFormatter implements Formatter<Long> {
 
   @Nonnull
   private char[]  prefix;
+  @Nonnull
+  private String unit = "";
   private boolean si;
   private int     base;
 
   @Nonnull
   private DecimalFormat formatter = (DecimalFormat) NumberFormat.getIntegerInstance();
 
-  public ByteFormatter() {
+  public QuantityFormatter() {
     si = true;
     prefix = UNIT_PREFIX_SI;
     base = 1000;
@@ -47,7 +49,7 @@ public class ByteFormatter implements Formatter<Long> {
   }
 
   @Nonnull
-  public ByteFormatter setSI() {
+  public QuantityFormatter setSI() {
     si = true;
     prefix = UNIT_PREFIX_SI;
     base = 1000;
@@ -56,10 +58,24 @@ public class ByteFormatter implements Formatter<Long> {
   }
 
   @Nonnull
-  public ByteFormatter setIEC() {
+  public QuantityFormatter setUnit(@Nonnull String unit) {
+    this.unit = unit;
+
+    return this;
+  }
+
+  @Nonnull
+  public QuantityFormatter setIEC() {
     si = false;
     prefix = UNIT_PREFIX_IEC;
     base = 1024;
+
+    return this;
+  }
+
+  @Nonnull
+  public QuantityFormatter setPrecise() {
+    this.formatter.setMaximumFractionDigits(340);
 
     return this;
   }
@@ -69,8 +85,11 @@ public class ByteFormatter implements Formatter<Long> {
     return formatter;
   }
 
-  public void setNumberFormatter(@Nonnull DecimalFormat formatter) {
+  @Nonnull
+  public QuantityFormatter setNumberFormatter(@Nonnull DecimalFormat formatter) {
     this.formatter = formatter;
+
+    return this;
   }
 
   @Override
@@ -87,7 +106,9 @@ public class ByteFormatter implements Formatter<Long> {
 
     if (value < base) {
       sb.append(value);
-      sb.append(' ');
+      if (!unit.isEmpty()) {
+        sb.append(' ');
+      }
     } else {
       int exp = (int) (Math.log(value) / Math.log(base));
       sb.append(formatter.format(Double.valueOf(value / Math.pow(base, exp))));
@@ -97,7 +118,7 @@ public class ByteFormatter implements Formatter<Long> {
         sb.append('i');
       }
     }
-    sb.append('B');
+    sb.append(unit);
 
     if (negative) {
       sb.append(formatter.getNegativeSuffix());

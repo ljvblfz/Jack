@@ -17,8 +17,8 @@
 package com.android.sched.util.config.id;
 
 
+import com.android.sched.util.codec.BooleanCodec;
 import com.android.sched.util.codec.KeyValueCodec;
-import com.android.sched.util.codec.KeyValueCodec.Entry;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  */
 public class BooleanPropertyId extends PropertyId<Boolean> {
   @Nonnull
-  private static KeyValueCodec<Boolean> parser;
+  private static KeyValueCodec<Boolean> parser = new BooleanCodec();
 
   @Nonnull
   public static BooleanPropertyId create(@Nonnull String name, @Nonnull String description) {
@@ -106,22 +106,5 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
   public BooleanPropertyId withCategory(@Nonnull Category category) {
     super.withCategory(category);
     return this;
-  }
-
-  static {
-    @SuppressWarnings("unchecked")
-    Entry<Boolean>[] elements =
-      new Entry[] {
-        new Entry<Boolean>("true",  Boolean.TRUE),
-        new Entry<Boolean>("yes",   Boolean.TRUE),
-        new Entry<Boolean>("on",    Boolean.TRUE),
-        new Entry<Boolean>("1",     Boolean.TRUE),
-        new Entry<Boolean>("false", Boolean.FALSE),
-        new Entry<Boolean>("no",    Boolean.FALSE),
-        new Entry<Boolean>("off",   Boolean.FALSE),
-        new Entry<Boolean>("0",     Boolean.FALSE)
-    };
-
-    parser = new KeyValueCodec<Boolean>("bool", elements).ignoreCase();
   }
 }
