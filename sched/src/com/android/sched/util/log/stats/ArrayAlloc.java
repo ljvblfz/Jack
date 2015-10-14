@@ -16,11 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.ObjectArrays;
+import com.google.common.collect.Iterators;
 
-import com.android.sched.util.codec.ByteFormatter;
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.LongCodec;
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+
+import java.util.Iterator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -53,34 +55,36 @@ public class ArrayAlloc extends Statistic {
     return "Array allocation";
   }
 
-  @Nonnull
-  private static final String[] HEADER;
-
-  static {
-    HEADER = ObjectArrays.concat(new String[] {
-        "Array count",
-        "Total size",
-      }, SampleImpl.getStaticHeader(), String.class);
-  }
-
-  @Override
-  @Nonnull
-  public String[] getHeader() {
-    return HEADER.clone();
-  }
-
-  @Override
-  @Nonnull
-  public Formatter<?>[] getFormatters() {
-    return ObjectArrays.concat(new Formatter<?>[] {
-        new LongCodec(),
-        new ByteFormatter()
-      }, SampleImpl.getStaticFormatters(), Formatter.class);
-  }
-
-  @Override
   @Nonnegative
-  public int getColumnCount() {
-    return HEADER.length;
+  public long getNumber() {
+    return 0;
+  }
+
+  @Nonnegative
+  public long getSize() {
+    return 0;
+  }
+
+  @Override
+  @Nonnull
+  public synchronized Iterator<Object> iterator() {
+    return Iterators.concat(
+        Iterators.forArray(
+            Long.valueOf(getNumber()),
+            Long.valueOf(getSize())),
+            new Sample(getId()).iterator());
+  }
+
+  @Nonnull
+  private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
+      .addField("arrayCount", DataType.NUMBER)
+      .addField("arrayTotalCount", DataType.QUANTITY)
+      .addDataView(SampleImpl.getStaticDataView())
+      .build();
+
+  @Override
+  @Nonnull
+  public DataView getDataView() {
+    return DATA_VIEW;
   }
 }

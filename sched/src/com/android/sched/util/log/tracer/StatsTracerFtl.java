@@ -564,7 +564,7 @@ public class StatsTracerFtl extends AbstractTracer {
       dmHeader.add("string");
 
       // Add value columns
-      for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+      for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
         dmHeader.add(dummy.getDescription(idx));
         dmHeader.add(dummy.getType(idx));
       }
@@ -583,7 +583,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
               dmData.add(statId.getName().replace("'", "\\'"));
               dmData.add(getStatFileName(statId));
-              for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+              for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
                 dmData.add(woStat.getValue(idx));
                 dmData.add(woStat.getHumanReadableValue(idx));
               }
@@ -612,7 +612,7 @@ public class StatsTracerFtl extends AbstractTracer {
         dmHeader.add("string");
 
         // Add value columns
-        for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+        for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
           dmHeader.add(dummy.getDescription(idx));
           dmHeader.add(dummy.getType(idx));
         }
@@ -632,7 +632,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
                 dmData.add(statId.getName().replace("'", "\\'"));
                 dmData.add(getStatFileName(statId));
-                for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+                for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
                   dmData.add(wStat.getValue(idx));
                   dmData.add(wStat.getHumanReadableValue(idx));
                 }
@@ -726,7 +726,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
     // Add value columns
     Statistic dummy = id.getDummyInstance();
-    for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+    for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
       dmHeader.add(dummy.getDescription(idx));
       dmHeader.add(dummy.getType(idx));
     }
@@ -741,7 +741,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
           dmData.add(total.type.getName().replace("'", "\\'"));
           dmData.add(getEventFileName(total.type));
-          for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+          for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
             dmData.add(woStat.getValue(idx));
             dmData.add(woStat.getHumanReadableValue(idx));
           }
@@ -763,7 +763,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
     // Add value columns
     dummy = id.getDummyInstance();
-    for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+    for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
       dmHeader.add(dummy.getDescription(idx));
       dmHeader.add(dummy.getType(idx));
     }
@@ -778,7 +778,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
           dmData.add(total.type.getName().replace("'", "\\'"));
           dmData.add(getEventFileName(total.type));
-          for (int idx = 0; idx < dummy.getColumnCount(); idx++) {
+          for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
             dmData.add(wStat.getValue(idx));
             dmData.add(wStat.getHumanReadableValue(idx));
           }

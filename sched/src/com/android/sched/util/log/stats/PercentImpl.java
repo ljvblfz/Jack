@@ -16,20 +16,14 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
-import com.android.sched.util.table.DataRow;
-
-import java.util.Iterator;
-
 import javax.annotation.Nonnull;
 
 
 /**
  * Represents a counter statistic.
  */
-public class PercentImpl extends Percent implements DataRow {
-  private long numTrue;
+public class PercentImpl extends Percent {
+  private long trueCount;
   private long total;
 
   protected PercentImpl(@Nonnull StatisticId<? extends Statistic> id) {
@@ -37,8 +31,13 @@ public class PercentImpl extends Percent implements DataRow {
   }
 
   @Override
+  public boolean isEnabled() {
+    return true;
+  }
+
+  @Override
   public synchronized void addTrue() {
-    this.numTrue++;
+    this.trueCount++;
     this.total++;
   }
 
@@ -58,7 +57,7 @@ public class PercentImpl extends Percent implements DataRow {
 
   @Override
   public synchronized void removeTrue() {
-    this.numTrue--;
+    this.trueCount--;
     this.total--;
   }
 
@@ -78,11 +77,21 @@ public class PercentImpl extends Percent implements DataRow {
 
   @Override
   public synchronized double getPercent() {
-    if (numTrue < 0 || total < 0) {
+    if (trueCount < 0 || total < 0) {
       return Double.NaN;
     }
 
-    return (double ) numTrue / (double) total;
+    return (double ) trueCount / (double) total;
+  }
+
+  @Override
+  public long getTotal() {
+    return total;
+  }
+
+  @Override
+  public long getTrueCount() {
+    return trueCount;
   }
 
   @Override
@@ -90,17 +99,8 @@ public class PercentImpl extends Percent implements DataRow {
     PercentImpl percent = (PercentImpl) statistic;
 
     synchronized (percent) {
-      this.numTrue += percent.numTrue;
+      this.trueCount += percent.trueCount;
       this.total   += percent.total;
     }
-  }
-
-  @Nonnull
-  @Override
-  public synchronized Iterator<Object> iterator() {
-    return Iterators.<Object>forArray(
-        Double.valueOf((double) numTrue / (double) total),
-        Long.valueOf(numTrue),
-        Long.valueOf(total));
   }
 }

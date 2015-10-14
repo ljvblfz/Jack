@@ -16,19 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
-import com.android.sched.util.table.DataRow;
-
-import java.util.Iterator;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Represents a statistic on array allocation.
  */
-public class ArrayAllocImpl extends ArrayAlloc implements DataRow {
+public class ArrayAllocImpl extends ArrayAlloc {
   @Nonnegative
   private long number;
   @Nonnull
@@ -40,6 +34,11 @@ public class ArrayAllocImpl extends ArrayAlloc implements DataRow {
     super(id);
 
     element = new SampleImpl(id);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   /**
@@ -67,9 +66,14 @@ public class ArrayAllocImpl extends ArrayAlloc implements DataRow {
   }
 
   @Override
-  @Nonnull
-  public synchronized Iterator<Object> iterator() {
-    return Iterators.concat(
-        Iterators.forArray(Long.valueOf(number), Long.valueOf(size)), element.iterator());
+  @Nonnegative
+  public long getNumber() {
+    return number;
+  }
+
+  @Override
+  @Nonnegative
+  public long getSize() {
+    return size;
   }
 }

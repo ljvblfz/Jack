@@ -16,11 +16,14 @@
 
 package com.android.sched.util.log.stats;
 
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.LongCodec;
-import com.android.sched.util.codec.PercentFormatter;
+import com.google.common.collect.Iterators;
 
-import javax.annotation.Nonnegative;
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+
+import java.util.Iterator;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -53,6 +56,14 @@ public class Percent extends Statistic {
     return Double.NaN;
   }
 
+  public long getTotal() {
+    return 0;
+  }
+
+  public long getTrueCount() {
+    return 0;
+  }
+
   @Override
   public void merge(@Nonnull Statistic statistic) {
   }
@@ -63,33 +74,25 @@ public class Percent extends Statistic {
     return "Percent";
   }
 
-
   @Nonnull
-  private static final String[] HEADER = new String[] {
-    "Percent",
-    "Number",
-    "Total"
-  };
-
   @Override
-  @Nonnegative
-  public int getColumnCount() {
-    return HEADER.length;
+  public synchronized Iterator<Object> iterator() {
+    return Iterators.<Object>forArray(
+        Double.valueOf(getPercent()),
+        Long.valueOf(getTrueCount()),
+        Long.valueOf(getTotal()));
   }
 
-  @Override
   @Nonnull
-  public String[] getHeader() {
-    return HEADER.clone();
-  }
+  private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
+      .addField("percent", DataType.PERCENT)
+      .addField("count", DataType.NUMBER)
+      .addField("total", DataType.NUMBER)
+      .build();
 
   @Override
   @Nonnull
-  public Formatter<?>[] getFormatters() {
-    return new Formatter<?>[] {
-        new PercentFormatter(),
-        new LongCodec(),
-        new LongCodec()
-    };
+  public DataView getDataView() {
+    return DATA_VIEW;
   }
 }

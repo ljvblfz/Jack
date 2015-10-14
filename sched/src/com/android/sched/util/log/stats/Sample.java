@@ -16,10 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.android.sched.util.codec.DoubleCodec;
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.LongCodec;
-import com.android.sched.util.codec.ToStringFormatter;
+import com.google.common.collect.Iterators;
+
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+
+import java.util.Iterator;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -81,49 +84,37 @@ public class Sample extends Statistic {
 
 
   @Nonnull
-  private static final String[] HEADER = new String[] {
-    "Count",
-    "Total",
-    "Min",
-    "Average",
-    "Max",
-    "Min Marker",
-    "Max Marker",
-  };
+  @Override
+  public synchronized Iterator<Object> iterator() {
+    return Iterators.forArray(
+        Integer.valueOf(getCount()),
+        Double.valueOf(getTotal()),
+        Double.valueOf(getMin()),
+        Double.valueOf(getAverage()),
+        Double.valueOf(getMax()),
+        getMinObject(),
+        getMaxObject());
+  }
+
+  @Nonnull
+  private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
+      .addField("sampleCount", DataType.NUMBER)
+      .addField("sampleTotal", DataType.NUMBER)
+      .addField("sampleMin", DataType.NUMBER)
+      .addField("sampleAverage", DataType.NUMBER)
+      .addField("sampleMax", DataType.NUMBER)
+      .addField("sampleMinMarker", DataType.STRING)
+      .addField("sampleMaxMarker", DataType.STRING)
+      .build();
 
   @Override
   @Nonnull
-  public String[] getHeader() {
-    return HEADER.clone();
+  public DataView getDataView() {
+    return DATA_VIEW;
   }
 
   @Nonnull
-  public static String[] getStaticHeader() {
-    return HEADER.clone();
-  }
-
-  @Nonnull
-  public static Formatter<? extends Object>[] getStaticFormatters() {
-    return new Formatter<?>[] {
-        new LongCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new DoubleCodec(),
-        new ToStringFormatter(),
-        new ToStringFormatter()
-    };
-  }
-
-  @Override
-  @Nonnull
-  public Formatter<? extends Object>[] getFormatters() {
-    return getStaticFormatters();
-  }
-
-  @Override
-  @Nonnegative
-  public int getColumnCount() {
-    return HEADER.length;
+  static DataView getStaticDataView() {
+    return DATA_VIEW;
   }
 }
