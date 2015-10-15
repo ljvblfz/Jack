@@ -349,11 +349,8 @@ public class GrammarActions {
   static void addKeepClassMembers(
       @Nonnull Flags flags,
       /*@Nonnull*/ ClassSpecification classSpecification,
-      @CheckForNull KeepModifier keepModifier) {
+      @Nonnull KeepModifier keepModifier) {
     assert classSpecification != null;
-    if (keepModifier == null) {
-      keepModifier = KeepModifier.NONE;
-    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassMembers(classSpecification);
   }
@@ -361,11 +358,8 @@ public class GrammarActions {
   static void addKeepClassSpecification(
       @Nonnull Flags flags,
       /*@Nonnull*/ ClassSpecification classSpecification,
-      @CheckForNull KeepModifier keepModifier) {
+      @Nonnull KeepModifier keepModifier) {
     assert classSpecification != null;
-    if (keepModifier == null) {
-      keepModifier = KeepModifier.NONE;
-    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassSpecification(classSpecification);
   }
@@ -373,11 +367,8 @@ public class GrammarActions {
   static void addKeepClassesWithMembers(
       @Nonnull Flags flags,
       /*@Nonnull*/ ClassSpecification classSpecification,
-      @CheckForNull KeepModifier keepModifier) {
+      @Nonnull KeepModifier keepModifier) {
     assert classSpecification != null;
-    if (keepModifier == null) {
-      keepModifier = KeepModifier.NONE;
-    }
     classSpecification.setKeepModifier(keepModifier);
     flags.addKeepClassesWithMembers(classSpecification);
   }

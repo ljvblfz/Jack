@@ -62,7 +62,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
     this.name = name;
     this.classType = classType;
     this.annotationType = annotation;
-    this.keepModifier = KeepModifier.NONE;
+    this.keepModifier = new KeepModifier();
   }
 
   @Nonnull

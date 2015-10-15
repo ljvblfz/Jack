@@ -16,9 +16,37 @@
 
 package com.android.jack.shrob.spec;
 
+import javax.annotation.Nonnull;
+
 /**
  * Modifier for keep rules
  */
-public enum KeepModifier {
-  ALLOW_SHRINKING, ALLOW_OBFUSCATION, NONE
+public class KeepModifier {
+
+  private static final int NONE = 0;
+
+  private static final int ALLOW_SHRINKING       = 0x0001;
+  private static final int ALLOW_OBFUSCATION      = 0x0002;
+
+  private int modifier = NONE;
+
+  public boolean allowShrinking() {
+    return ((modifier & ALLOW_SHRINKING) == ALLOW_SHRINKING);
+  }
+
+  public boolean allowObfuscation() {
+    return ((modifier & ALLOW_OBFUSCATION) == ALLOW_OBFUSCATION);
+  }
+
+  @Nonnull
+  public KeepModifier setAllowShrinking() {
+    modifier |= ALLOW_SHRINKING;
+    return this;
+  }
+
+  @Nonnull
+  public KeepModifier setAllowObfuscation() {
+    modifier |= ALLOW_OBFUSCATION;
+    return this;
+  }
 }
