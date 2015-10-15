@@ -33,7 +33,7 @@ import java.util.BitSet;
  * Instruction format {@code 35c}. See the instruction format spec
  * for details.
  */
-public final class Form35c extends InsnFormat {
+public class Form35c extends InsnFormat {
   /** {@code non-null;} unique instance of this class */
   public static final InsnFormat THE_ONE = new Form35c();
 
@@ -44,7 +44,7 @@ public final class Form35c extends InsnFormat {
    * Constructs an instance. This class is not publicly
    * instantiable. Use {@link #THE_ONE}.
    */
-  private Form35c() {
+  protected Form35c() {
     // This space intentionally left blank.
   }
 
@@ -137,11 +137,14 @@ public final class Form35c extends InsnFormat {
    * list requires more than five words or contains registers that need
    * more than a nibble to identify them.
    *
+   * Closure as first register should be managed in a specific way because
+   * the second part of this 64-bit registers is implicit.
+   *
    * @param regs {@code non-null;} the register list in question
    * @return {@code >= -1;} the number of words required, or {@code -1}
    * if the list couldn't possibly fit in this format
    */
-  private static int wordCount(RegisterSpecList regs) {
+  protected static int wordCount(RegisterSpecList regs) {
     int sz = regs.size();
 
     if (sz > MAX_NUM_OPS) {
@@ -153,7 +156,11 @@ public final class Form35c extends InsnFormat {
 
     for (int i = 0; i < sz; i++) {
       RegisterSpec one = regs.get(i);
-      result += one.getCategory();
+      if (i == 0 && one.isClosure()) {
+        result += 1;
+      } else {
+        result += one.getCategory();
+      }
       /*
        * The check below adds (category - 1) to the register, to
        * account for the fact that the second half of a
@@ -174,10 +181,13 @@ public final class Form35c extends InsnFormat {
    * entries. This returns the original list if no modification is
    * required
    *
+   * Closure as first register should be managed in a specific way
+   * because the second part of this 64-bit registers is implicit.
+   *
    * @param orig {@code non-null;} the original list
    * @return {@code non-null;} the list with the described transformation
    */
-  private static RegisterSpecList explicitize(RegisterSpecList orig) {
+  protected static RegisterSpecList explicitize(RegisterSpecList orig) {
     int wordCount = wordCount(orig);
     int sz = orig.size();
 
@@ -191,7 +201,7 @@ public final class Form35c extends InsnFormat {
     for (int i = 0; i < sz; i++) {
       RegisterSpec one = orig.get(i);
       result.set(wordAt, one);
-      if (one.getCategory() == 2) {
+      if (one.getCategory() == 2 && ((i != 0) || !one.isClosure())) {
         result.set(wordAt + 1, RegisterSpec.make(one.getReg() + 1, Type.VOID));
         wordAt += 2;
       } else {

@@ -216,6 +216,8 @@ public final class RopToDop {
   //     Opcodes.USHR_INT_LIT8
   //     Opcodes.CAPTURE_VARIABLE
   //     Opcodes.LIBERATE_VARIABLE
+  //     Opcodes.INVOKE_LAMBDA
+  //     Opcodes.CREATE_LAMBDA
   // END(first-opcodes)
 
   static {
@@ -611,8 +613,11 @@ switch (rop.getOpcode()) {
         return Dops.CAPTURE_VARIABLE;
       case RegOps.LIBERATE_VARIABLE:
         return Dops.LIBERATE_VARIABLE;
+      case RegOps.CREATE_LAMBDA:
+        return Dops.CREATE_LAMBDA;
+      case RegOps.INVOKE_LAMBDA:
+        return Dops.INVOKE_LAMBDA;
     }
-
     throw new RuntimeException("unknown rop: " + rop);
   }
 }

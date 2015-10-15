@@ -33,6 +33,7 @@ import com.android.jack.dx.dex.code.form.Form22s;
 import com.android.jack.dx.dex.code.form.Form22t;
 import com.android.jack.dx.dex.code.form.Form22x;
 import com.android.jack.dx.dex.code.form.Form23x;
+import com.android.jack.dx.dex.code.form.Form25x;
 import com.android.jack.dx.dex.code.form.Form30t;
 import com.android.jack.dx.dex.code.form.Form31c;
 import com.android.jack.dx.dex.code.form.Form31i;
@@ -721,6 +722,13 @@ public final class Dops {
 
   public static final Dop LIBERATE_VARIABLE = new Dop(Opcodes.LIBERATE_VARIABLE,
       Opcodes.LIBERATE_VARIABLE, Opcodes.NO_NEXT, Form22c.THE_ONE, /*hasResult=*/ false);
+
+  public static final Dop CREATE_LAMBDA = new Dop(Opcodes.CREATE_LAMBDA, Opcodes.CREATE_LAMBDA,
+      Opcodes.NO_NEXT, Form21c.THE_ONE, /* hasResult= */ true);
+
+  public static final Dop INVOKE_LAMBDA = new Dop(Opcodes.INVOKE_LAMBDA, Opcodes.INVOKE_LAMBDA,
+      Opcodes.NO_NEXT, Form25x.THE_ONE, /*hasResult=*/ false);
+
   // END(dops)
 
   // Static initialization.
@@ -950,6 +958,8 @@ public final class Dops {
     set(USHR_INT_LIT8);
     set(CAPTURE_VARIABLE);
     set(LIBERATE_VARIABLE);
+    set(INVOKE_LAMBDA);
+    set(CREATE_LAMBDA);
     // END(dops-init)
   }
 

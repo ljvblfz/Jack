@@ -354,6 +354,18 @@ public enum InstructionCodec {
   }
 },
 
+  FORMAT_25X() {
+    @Override
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+      return decodeRegisterList(this, opcodeUnit, in);
+    }
+
+    @Override
+    public void encode(DecodedInstruction insn, CodeOutput out) {
+      encodeRegisterList(insn, out);
+    }
+  },
+
   FORMAT_30T() {
   @Override
   public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
@@ -699,14 +711,17 @@ public enum InstructionCodec {
       CodeInput in) throws EOFException {
     int opcode = byte0(opcodeUnit);
     int e = nibble2(opcodeUnit);
-    int registerCount = nibble3(opcodeUnit);
-    int index = in.read();
+    // Into Format 25x closure is not included into registerCount, but nevertheless it must be taken
+    // into account thus increase registerCount
+    int registerCount = nibble3(opcodeUnit) + (format == FORMAT_25X ? 1 : 0);
+    // This method is used by invoke-lambda, which does not have index type
+    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    int index = indexType != IndexType.NONE ? in.read() : 0;
     int abcd = in.read();
     int a = nibble0(abcd);
     int b = nibble1(abcd);
     int c = nibble2(abcd);
     int d = nibble3(abcd);
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
 
     // TODO(dx team): Having to switch like this is less than ideal.
     switch (registerCount) {
@@ -758,8 +773,19 @@ public enum InstructionCodec {
    * Helper method that encodes any of the register-list formats.
    */
   private static void encodeRegisterList(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), makeByte(insn.getE(), insn.getRegisterCount())),
-        insn.getIndexUnit(), codeUnit(insn.getA(), insn.getB(), insn.getC(), insn.getD()));
+    // This method is used by invoke-lambda, which does not have index type
+    if (insn.getIndexType() == IndexType.NONE) {
+      // Into Format 25x closure is not included into registerCount, thus remove it from
+      // registerCount
+      out.write(
+          codeUnit(insn.getOpcode(),
+              makeByte(insn.getE(),
+                  insn.getRegisterCount() - (insn.getFormat() == FORMAT_25X ? 1 : 0))),
+          codeUnit(insn.getA(), insn.getB(), insn.getC(), insn.getD()));
+    } else {
+      out.write(codeUnit(insn.getOpcode(), makeByte(insn.getE(), insn.getRegisterCount())),
+          insn.getIndexUnit(), codeUnit(insn.getA(), insn.getB(), insn.getC(), insn.getD()));
+    }
   }
 
   /**

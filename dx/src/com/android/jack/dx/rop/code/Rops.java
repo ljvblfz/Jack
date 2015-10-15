@@ -1097,6 +1097,12 @@ public final class Rops {
       case RegOps.LIBERATE_VARIABLE: {
         return opLiberateVariable(dest, sources);
       }
+      case RegOps.INVOKE_LAMBDA: {
+        return opInvokeLambda(sources);
+      }
+      case RegOps.CREATE_LAMBDA: {
+        return opCreateLambda();
+      }
     }
 
     throw new RuntimeException("unknown opcode " + RegOps.opName(opcode));
@@ -1111,6 +1117,16 @@ public final class Rops {
     // STOPSHIP: liberate-variable can throw
     return new Rop(RegOps.LIBERATE_VARIABLE, type.getType(), sources, StdTypeList.EMPTY,
         Rop.BRANCH_NONE, "liberate-lambda");
+  }
+
+  public static Rop opInvokeLambda(TypeList sources) {
+    return new Rop(RegOps.INVOKE_LAMBDA, sources, StdTypeList.THROWABLE);
+  }
+
+  public static Rop opCreateLambda() {
+    // STOPSHIP: replace long by a closure
+    return new Rop(RegOps.CREATE_LAMBDA, Type.LONG, StdTypeList.EMPTY, Exceptions.LIST_Error,
+        "create-lambda");
   }
 
   /**
