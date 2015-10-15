@@ -28,7 +28,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.Flags;
-import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
 import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -76,19 +75,19 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         return false;
       } else {
         SeedMarker marker = clOrI.getMarker(SeedMarker.class);
-        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+        if (marker != null && !marker.getModifier().allowObfuscation()) {
           keepName(clOrI);
         }
         for (JField field : clOrI.getFields()) {
           marker = field.getMarker(SeedMarker.class);
-          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+          if (marker != null && !marker.getModifier().allowObfuscation()) {
             keepName(field);
           }
         }
 
         for (JMethod method : clOrI.getMethods()) {
           marker = method.getMarker(SeedMarker.class);
-          if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+          if (marker != null && !marker.getModifier().allowObfuscation()) {
             keepName(method);
           }
         }
@@ -136,14 +135,14 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
 
       for (JField field : type.getFields()) {
         SeedMarker marker = field.getMarker(SeedMarker.class);
-        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+        if (marker != null && !marker.getModifier().allowObfuscation()) {
           keepName(field);
         }
       }
 
       for (JMethod method : type.getMethods()) {
         SeedMarker marker = method.getMarker(SeedMarker.class);
-        if (marker != null && marker.getModifier() != KeepModifier.ALLOW_OBFUSCATION) {
+        if (marker != null && !marker.getModifier().allowObfuscation()) {
           keepName(method);
         }
       }

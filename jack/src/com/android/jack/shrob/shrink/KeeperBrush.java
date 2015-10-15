@@ -30,7 +30,6 @@ import com.android.jack.ir.ast.JPhantomClass;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JPhantomInterface;
 import com.android.jack.shrob.seed.SeedMarker;
-import com.android.jack.shrob.spec.KeepModifier;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Transform;
@@ -117,19 +116,19 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   @Override
   public boolean startTraceSeed(@Nonnull JDefinedClassOrInterface type) {
     SeedMarker marker = type.getMarker(SeedMarker.class);
-    return marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING;
+    return marker != null && !marker.getModifier().allowShrinking();
   }
 
   @Override
   public boolean startTraceSeed(@Nonnull JMethod method) {
     SeedMarker marker = method.getMarker(SeedMarker.class);
-    return marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING;
+    return marker != null && !marker.getModifier().allowShrinking();
   }
 
   @Override
   public boolean startTraceSeed(@Nonnull JField field) {
     SeedMarker marker = field.getMarker(SeedMarker.class);
-    return marker != null && marker.getModifier() != KeepModifier.ALLOW_SHRINKING;
+    return marker != null && !marker.getModifier().allowShrinking();
   }
 
   @Override

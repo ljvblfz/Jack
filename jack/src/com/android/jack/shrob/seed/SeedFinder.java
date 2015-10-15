@@ -75,7 +75,7 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
     } else {
       KeepModifier previousModifier = marker.getModifier();
       if (previousModifier != modifier) {
-        marker.setModifier(KeepModifier.NONE);
+        marker.setModifier(new KeepModifier());
       }
     }
   }

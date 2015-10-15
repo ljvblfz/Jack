@@ -51,15 +51,15 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 prog [Flags flags, String baseDirectory]
   :
   (
-    ('-keepclassmembers' keepModifier=keepOptionModifier? classSpec=classSpecification {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
-    | ('-keepclasseswithmembers' keepModifier=keepOptionModifier? classSpec=classSpecification {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
-    | ('-keep' keepModifier=keepOptionModifier? classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, $keepModifier.modifier);})
+    ('-keepclassmembers' keepModifier=keepOptionModifier classSpec=classSpecification {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
+    | ('-keepclasseswithmembers' keepModifier=keepOptionModifier classSpec=classSpecification {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
+    | ('-keep' keepModifier=keepOptionModifier classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, $keepModifier.modifier);})
     | '-dontshrink' {$flags.setShrink(false);}
     | '-dontoptimize'  {$flags.setOptimize(false);}
     | '-dontpreverify'  {$flags.setPreverify(false);}
-    | ('-keepclassmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
-    | ('-keepclasseswithmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
-    | ('-keepnames' classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, KeepModifier.ALLOW_SHRINKING);})
+    | ('-keepclassmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, new KeepModifier().setAllowShrinking());})
+    | ('-keepclasseswithmembernames' classSpec=classSpecification  {GrammarActions.addKeepClassesWithMembers($flags, $classSpec.classSpec, new KeepModifier().setAllowShrinking());})
+    | ('-keepnames' classSpec=classSpecification {GrammarActions.addKeepClassSpecification($flags, $classSpec.classSpec, new KeepModifier().setAllowShrinking());})
     | '-dontobfuscate' {$flags.setObfuscate(false);}
     | ('-include'|'@') proguardFile=NAME {GrammarActions.parse($proguardFile.text, baseDirectory, $flags);}
     | ('-basedirectory' baseDir=NAME {baseDirectory=$baseDir.text;})
@@ -261,10 +261,13 @@ private type returns [String signature]
   ;
 
 private keepOptionModifier returns [KeepModifier modifier]
-  : ','
-  ('allowshrinking' {modifier = KeepModifier.ALLOW_SHRINKING;}
+@init {
+  modifier = new KeepModifier();
+}
+  : (','
+  ('allowshrinking' {modifier.setAllowShrinking();}
   | 'allowoptimization' // Optimizations not supported
-  | 'allowobfuscation' {modifier = KeepModifier.ALLOW_OBFUSCATION;})
+  | 'allowobfuscation' {modifier.setAllowObfuscation();}))*
   ;
 
 private NAME  : ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'?'|'$'|'.'|'*'|'/'|'\\'|'-'|'+'|'<'|'>')+ ;
