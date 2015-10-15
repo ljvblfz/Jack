@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.location.Location;
 
 import java.util.Collection;
 
@@ -27,12 +28,14 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 class RuleBuilder {
-
   @Nonnull
   private final JSession session;
+  @Nonnull
+  private final Location location;
 
-  public RuleBuilder(JSession session) {
+  public RuleBuilder(@Nonnull JSession session, @Nonnull Location location) {
     this.session = session;
+    this.location = location;
   }
 
   @SuppressWarnings("unchecked")
@@ -53,4 +56,8 @@ class RuleBuilder {
         NamingTools.getTypeSignatureName(annotationName));
   }
 
+  @Nonnull
+  public Location getLocation() {
+    return location;
+  }
 }

@@ -16,9 +16,7 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.ir.ast.JNode;
-import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.transformations.request.TransformationStep;
+import com.android.jack.ir.ast.JAnnotationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,23 +27,27 @@ import javax.annotation.Nonnull;
  * Common context for evaluation of expressions.
  */
 public class Context {
+  @Nonnull
+  protected final Rule rule;
 
   @Nonnull
-  final Collection<TransformationStep> steps =
-      new ArrayList<TransformationStep>();
+  final Collection<AddAnnotationStep> steps =
+      new ArrayList<AddAnnotationStep>();
 
-  public void addAnnotate(@Nonnull TransformationStep toAdd) {
+  public Context(@Nonnull Rule rule) {
+    this.rule = rule;
+  }
+
+  public void addAnnotate(@Nonnull JAnnotationType toAdd, @Nonnull Collection<?> collection) {
+    steps.add(new AddAnnotationStep(rule, toAdd, collection));
+  }
+
+  public void addAnnotate(@Nonnull AddAnnotationStep toAdd) {
     steps.add(toAdd);
   }
 
   @Nonnull
-  public TransformationRequest getRequest(@Nonnull JNode root) {
-    TransformationRequest request = new TransformationRequest(root);
-    request.appendAll(steps);
-    return request;
-  }
-  @Nonnull
-  public Collection<TransformationStep> getSteps() {
+  public Collection<AddAnnotationStep> getSteps() {
     return steps;
   }
 }

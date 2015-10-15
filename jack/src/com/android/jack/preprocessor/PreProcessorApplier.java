@@ -16,15 +16,17 @@
 
 package com.android.jack.preprocessor;
 
+import com.android.jack.ir.ast.Annotable;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVFile;
 
@@ -36,8 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -58,10 +61,10 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
     Collection<Rule> rules = new ArrayList<Rule>();
 
     if (ThreadConfig.get(PreProcessor.ENABLE).booleanValue()) {
-      InputStreamFile input = ThreadConfig.get(PreProcessor.FILE);
-      InputStream inputStream = input.getInputStream();
+      InputStreamFile inputFile = ThreadConfig.get(PreProcessor.FILE);
+      InputStream inputStream = inputFile.getInputStream();
       try {
-        rules.addAll(parseRules(session, inputStream));
+        rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
       } finally {
         try {
           inputStream.close();
@@ -75,9 +78,10 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
       InputLibrary inputLibrary = iter.next();
       Iterator<InputVFile> metaFileIt = inputLibrary.iterator(FileType.JPP);
       while (metaFileIt.hasNext()) {
-        InputStream inputStream = metaFileIt.next().getInputStream();
+        InputVFile inputFile = metaFileIt.next();
+        InputStream inputStream = inputFile.getInputStream();
         try {
-          rules.addAll(parseRules(session, inputStream));
+          rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
         } finally {
           try {
             inputStream.close();
@@ -94,28 +98,59 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
   @Nonnull
   private Collection<Rule> parseRules(
       @Nonnull JSession session,
-      @Nonnull InputStream inputStream) throws IOException, RecognitionException {
+      @Nonnull InputStream inputStream,
+      @Nonnull Location location) throws IOException, RecognitionException {
     ANTLRInputStream in = new ANTLRInputStream(inputStream);
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);
-    return parser.rules(session);
+
+    return parser.rules(session, location);
   }
 
   private void applyRules(@Nonnull Collection<Rule> rules,
       @Nonnull JSession session) {
     Scope scope = new TypeToEmitScope(session);
-    List<TransformationRequest> requests = new ArrayList<TransformationRequest>(rules.size());
+    Collection<AddAnnotationStep> requests = new ArrayList<AddAnnotationStep>();
     for (Rule rule : rules) {
-      Context context = new Context();
+      Context context = new Context(rule);
       if (!rule.getSet().eval(scope, context).isEmpty()) {
-        requests.add(context.getRequest(session));
+        requests.addAll(context.getSteps());
       }
     }
 
-    for (TransformationRequest request : requests) {
-      request.commit();
+    Map<Entry, Rule> map = new HashMap<Entry, Rule>();
+    for (AddAnnotationStep request : requests) {
+      request.apply(map);
     }
   }
 
+  static class Entry {
+    @Nonnull
+    public final Annotable annotated;
+    @Nonnull
+    public final JAnnotationType annotationType;
+
+    public Entry(@Nonnull Annotable annotated, @Nonnull JAnnotationType annotationType) {
+      this.annotated = annotated;
+      this.annotationType = annotationType;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+      if (obj instanceof Entry) {
+        Entry entry = (Entry) obj;
+
+        return entry.annotated == annotated
+            && entry.annotationType.equals(annotationType);
+      }
+
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return annotated.hashCode() ^ annotationType.hashCode();
+    }
+  }
 }
