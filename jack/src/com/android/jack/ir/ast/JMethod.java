@@ -128,6 +128,13 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   }
 
   /**
+   * Prepends a parameter to this method.
+   */
+  public void prependParam(JParameter parameter) {
+    params.add(0, parameter);
+  }
+
+  /**
    * Returns true if this method can participate in virtual dispatch. Returns
    * true for non-private instance methods; false for static methods, private
    * instance methods, and constructors.
