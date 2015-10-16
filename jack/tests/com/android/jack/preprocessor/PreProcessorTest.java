@@ -23,7 +23,9 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JNodeLookup;
+import com.android.jack.preprocessor.PreProcessorApplier.Entry;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.NoLocation;
 
 import junit.framework.Assert;
 
@@ -33,6 +35,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PreProcessorTest {
 
@@ -46,12 +50,15 @@ public class PreProcessorTest {
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);
-    Collection<Rule> rules = parser.rules(session);
+    Collection<Rule> rules = parser.rules(session, new NoLocation());
     Scope scope = new TypeToEmitScope(session);
+    Map<Entry, Rule> map = new HashMap<Entry, Rule>();
     for (Rule rule : rules) {
-      Context context = new Context();
+      Context context = new Context(rule);
       if (!rule.getSet().eval(scope, context).isEmpty()) {
-        context.getRequest(session).commit();
+        for (AddAnnotationStep request : context.getSteps()) {
+          request.apply(map);
+        }
       }
     }
 
