@@ -24,6 +24,7 @@ class SubContext extends Context {
   private final Context outerContext;
 
   public SubContext(@Nonnull Context outerContext) {
+    super(outerContext.rule);
     this.outerContext = outerContext;
   }
 
