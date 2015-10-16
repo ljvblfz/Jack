@@ -2020,14 +2020,14 @@
   <target name="jack-default-lib.check">
     <uptodate property="jack-default-lib.uptodate"
       targetfile="${jack-default-lib.build.jack}">
-      <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+      <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java"/>
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
       <srcfiles file="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
     </uptodate>
   </target>
 
   <target name="jack-default-lib" depends="jack-intermediate,jack-default-lib.check" unless="jack-default-lib.uptodate">
-    <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+    <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java"/>
     <pathconvert property="jack-default-lib.src.list" pathsep=" " refid="jack-default-lib.src.fileset" />
 
     <java jar="${jack.intermediate.dist.dir}/${jack.intermediatename}" fork="true" failonerror="true">
