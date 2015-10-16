@@ -1,0 +1,1 @@
+This contains a class and its subclasses containing both a method with the same signature.

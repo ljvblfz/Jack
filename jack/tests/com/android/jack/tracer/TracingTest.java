@@ -16,13 +16,16 @@
 
 package com.android.jack.tracer;
 
+import com.google.common.collect.Iterators;
+
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.analysis.tracer.ComposedTracerBrush;
-import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
+import com.android.jack.analysis.tracer.SubClassOrInterfaceFinder;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.analysis.tracer.TracerBrush;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.util.RunnableHooks;
 
@@ -33,6 +36,11 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Nonnull;
 
 public class TracingTest {
 
@@ -58,6 +66,21 @@ public class TracingTest {
     doTest(TestTools.getJackTestsWithJackFolder("flow/loop"));
   }
 
+  @Nonnull
+  private Iterator<JPackage> process(@Nonnull JPackage pack)
+      throws Exception {
+    // Use another list to scan packages in order to support concurrent modification.
+    List<JPackage> packages = new ArrayList<JPackage>(pack.getSubPackages());
+
+    Iterator<JPackage> iter = packages.iterator();
+
+    for (JPackage subPackage : packages) {
+      iter = Iterators.concat(iter, process(subPackage));
+    }
+
+    return iter;
+  }
+
   public void doTest(File fileOrSourceList) throws Exception {
     Options options =
         TestTools.buildCommandLineArgs(fileOrSourceList);
@@ -65,7 +88,7 @@ public class TracingTest {
     RunnableHooks hooks = new RunnableHooks();
     try {
       JSession session = TestTools.buildSession(options, hooks);
-      ExtendingOrImplementingClassFinder hierachyFinder = new ExtendingOrImplementingClassFinder();
+      SubClassOrInterfaceFinder hierachyFinder = new SubClassOrInterfaceFinder();
 
       TracerBrush[] brushForComposed = new TracerBrush[NB_TRACE];
       Tracer[] singleTracers = new Tracer[NB_TRACE];
@@ -77,8 +100,9 @@ public class TracingTest {
       TracerBrush brush = new ComposedTracerBrush(brushForComposed);
       Tracer tracer = new Tracer(brush);
 
-      for (JDefinedClassOrInterface jdcoi : session.getTypesToEmit()) {
-        hierachyFinder.run(jdcoi);
+      Iterator<JPackage> packageIterator = process(session.getTopLevelPackage());
+      while (packageIterator.hasNext()) {
+        hierachyFinder.run(packageIterator.next());
       }
 
       for (JDefinedClassOrInterface jdcoi : session.getTypesToEmit()) {

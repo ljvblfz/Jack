@@ -1,0 +1,4 @@
+com.android.jack.shrob.test047.jack.B -> p.b:
+  int n() -> a
+com.android.jack.shrob.test047.jack.A -> p.a:
+  int m() -> a
