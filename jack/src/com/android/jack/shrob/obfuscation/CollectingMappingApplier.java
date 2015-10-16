@@ -17,6 +17,7 @@
 package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
@@ -25,6 +26,7 @@ import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.TransformationRequest;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -53,16 +55,19 @@ public class CollectingMappingApplier extends MappingApplier {
     return methodNames;
   }
 
-  public CollectingMappingApplier(@Nonnull TransformationRequest request) {
-    super(request);
+  public CollectingMappingApplier(
+      @Nonnull TransformationRequest request,
+      @Nonnull Collection<JDefinedClassOrInterface> allTypes) {
+    super(request, allTypes);
   }
 
   @Override
   protected void renameField(
-      @Nonnull JField field, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
+      @Nonnull JField field, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName,
+      @Nonnull TransformationRequest memberTransformationRequest) {
     JFieldId id = field.getId();
     if (!id.containsMarker(OriginalNameMarker.class)) {
-      super.renameField(field, mappingFile, lineNumber, newName);
+      super.renameField(field, mappingFile, lineNumber, newName, memberTransformationRequest);
       String oldName = id.getName();
       String previousNewName = fieldNames.get(oldName);
       if (previousNewName != null && !previousNewName.equals(newName)) {
@@ -81,16 +86,18 @@ public class CollectingMappingApplier extends MappingApplier {
   }
 
   @Override
-  protected void renameMethod(
-      @Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
+  protected void renameMethod(@Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber,
+      @Nonnull String newName, @Nonnull TransformationRequest transformationRequest) {
     JMethodId id = method.getMethodId();
     if (!id.containsMarker(OriginalNameMarker.class)) {
-      super.renameMethod(method, mappingFile, lineNumber, newName);
+      super.renameMethod(method, mappingFile, lineNumber, newName, transformationRequest);
       if (methodNames != null) {
         String methodSignature = GrammarActions.getSignatureFormatter().getName(method);
         String previousNewName = methodNames.get(methodSignature);
         if (previousNewName != null && !previousNewName.equals(newName)) {
-          logger.log(Level.WARNING, "{0}:{1}: Cannot rename method {2} in {3} to {4} "
+          logger.log(
+              Level.WARNING,
+              "{0}:{1}: Cannot rename method {2} in {3} to {4} "
               + "because it has already been mapped to {5}",
               new Object[] {mappingFile.getPath(),
                   Integer.valueOf(lineNumber),

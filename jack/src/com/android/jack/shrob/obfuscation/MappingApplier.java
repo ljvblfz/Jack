@@ -19,6 +19,7 @@ package com.android.jack.shrob.obfuscation;
 import com.google.common.primitives.Chars;
 
 import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.CanBeRenamed;
 import com.android.jack.ir.ast.HasName;
@@ -33,13 +34,25 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JNodeLookup;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.shrob.shrink.MappingCollisionException;
+import com.android.jack.shrob.shrink.MappingCollisionPolicy;
+import com.android.jack.shrob.shrink.MappingContextException;
+import com.android.jack.shrob.shrink.MappingContextInfo;
 import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.Rename;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.MarkerManager;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -47,6 +60,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +71,7 @@ import javax.annotation.Nonnull;
 /**
  * A class that parses a mapping file and rename the remapped nodes.
  */
+@HasKeyId
 @Transform(add = {OriginalNameMarker.class, OriginalPackageMarker.class, KeepNameMarker.class})
 public class MappingApplier {
 
@@ -78,8 +93,28 @@ public class MappingApplier {
   @Nonnull
   private final TransformationRequest request;
 
-  public MappingApplier(@Nonnull TransformationRequest request) {
+  @Nonnull
+  private final Collection<JDefinedClassOrInterface> allTypes;
+
+  @Nonnull
+  public static final PropertyId<MappingCollisionPolicy> COLLISION_POLICY =
+      BooleanPropertyId
+          .create(
+              "jack.obfuscation.mapping.collision-policy",
+              "Abort obfuscation when a mapping collision is detected",
+              new EnumCodec<MappingCollisionPolicy>(
+                  MappingCollisionPolicy.class, MappingCollisionPolicy.values()).ignoreCase())
+          .addDefaultValue(MappingCollisionPolicy.FAIL);
+
+  @Nonnull
+  private final MappingCollisionPolicy collisionPolicy =
+      ThreadConfig.get(COLLISION_POLICY);
+
+  public MappingApplier(
+      @Nonnull TransformationRequest request,
+      @Nonnull Collection<JDefinedClassOrInterface> allTypes) {
     this.request = request;
+    this.allTypes = allTypes;
   }
 
   private static boolean isClassInfo(@Nonnull String line) {
@@ -95,6 +130,15 @@ public class MappingApplier {
   private void throwException(@Nonnull File mappingFile, int lineNumber, @Nonnull String message)
       throws JackIOException {
     throw new JackIOException(mappingFile.getPath() + ":" + lineNumber + ":" + message);
+  }
+
+  private void fillExistingName(@Nonnull Collection<? extends HasName> namedElements,
+      @Nonnull Collection<String> existingNames) {
+    for (HasName namedElement : namedElements) {
+      if (!Renamer.mustBeRenamed((MarkerManager) namedElement)) {
+        existingNames.add(Renamer.getKey(namedElement));
+      }
+    }
   }
 
   @CheckForNull
@@ -136,7 +180,7 @@ public class MappingApplier {
         newEnclosingPackage = newEnclosingPackage.getEnclosingPackage();
       }
 
-      rename(clOrI, newSimpleName);
+      rename(clOrI, newSimpleName, request);
       return clOrI;
     }
     return null;
@@ -241,8 +285,9 @@ public class MappingApplier {
     return null;
   }
 
-  private void readFieldInfo(@Nonnull String line,
-      @Nonnull JDefinedClassOrInterface currentType, @Nonnull File mappingFile, int lineNumber) {
+  private void readFieldInfo(@Nonnull String line, @Nonnull JDefinedClassOrInterface currentType,
+      @Nonnull Collection<String> existingFieldName, @Nonnull File mappingFile, int lineNumber,
+      @Nonnull TransformationRequest memberTransformationRequest) {
     // type oldFieldName -> newFieldName
     try {
       int startIndex = readWhiteSpaces(line, 0);
@@ -258,7 +303,17 @@ public class MappingApplier {
       String newName = line.substring(startIndex, endIndex);
       JField field = findField(currentType, oldName, typeSignature);
       if (field != null) {
-        renameField(field, mappingFile, lineNumber, newName);
+        String newFieldKey = Renamer.getKey(field);
+        if (!existingFieldName.contains(newFieldKey)
+            || newFieldKey.equals(Renamer.getFieldKey(field.getId()))) {
+          // No collision was found
+          // (the name was not used or the field is renamed with its own name)
+          renameField(field, mappingFile, lineNumber, newName, memberTransformationRequest);
+          existingFieldName.add(newFieldKey);
+        } else {
+          throw new MappingCollisionException(
+              new LineLocation(new FileLocation(mappingFile), lineNumber), field, newName);
+        }
       } else {
         logger.log(Level.WARNING, "{0}:{1}: Field {2} not found in {3}", new Object[] {
             mappingFile.getPath(), Integer.valueOf(lineNumber), oldName,
@@ -267,14 +322,23 @@ public class MappingApplier {
     } catch (ArrayIndexOutOfBoundsException e) {
       throwException(
           mappingFile, lineNumber, "The mapping file is badly formatted (field mapping expected)");
+    } catch (MappingCollisionException e) {
+      if (collisionPolicy.equals(MappingCollisionPolicy.FAIL)) {
+        MappingContextException mappingReportableExn = new MappingContextException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, mappingReportableExn);
+        throw new JackAbortException(mappingReportableExn);
+      } else {
+        Jack.getSession().getReporter().report(Severity.NON_FATAL, new MappingContextInfo(e));
+      }
     }
   }
 
-  private void rename(@Nonnull CanBeRenamed renamable, @Nonnull String newName) {
+  private void rename(@Nonnull CanBeRenamed renamable, @Nonnull String newName,
+      @Nonnull TransformationRequest transformationRequest) {
     MarkerManager markerManager = (MarkerManager) renamable;
     if (!markerManager.containsMarker(OriginalNameMarker.class)) {
       markerManager.addMarker(new OriginalNameMarker(((HasName) renamable).getName()));
-      request.append(new Rename(renamable, newName));
+      transformationRequest.append(new Rename(renamable, newName));
     }
   }
 
@@ -286,8 +350,8 @@ public class MappingApplier {
  * @param newName The new name of the field
  */
   protected void renameField(@Nonnull JField field, @Nonnull File mappingFile, int lineNumber,
-      @Nonnull String newName) {
-    rename(field.getId(), newName);
+      @Nonnull String newName, @Nonnull TransformationRequest memberTransformationRequest) {
+    rename(field.getId(), newName, memberTransformationRequest);
   }
 
   private int readChar(@Nonnull String line, int index, char expectedChar,
@@ -299,9 +363,9 @@ public class MappingApplier {
     return index + 1;
   }
 
-  private void readMethodInfo(@Nonnull String line,
-      @Nonnull JDefinedClassOrInterface currentType, @Nonnull File mappingFile,
-      int lineNumber, @Nonnull JNodeLookup lookup) {
+  private void readMethodInfo(@Nonnull String line, @Nonnull JDefinedClassOrInterface currentType,
+      Collection<String> existingMethodNames, @Nonnull File mappingFile, int lineNumber,
+      @Nonnull JNodeLookup lookup, @Nonnull TransformationRequest memberTransformationRequest) {
     //  (startLineInfo:endLineInfo:)? type oldMethodName\((type(, type)*)?\) -> newMethodName
     try {
       int startIndex = readWhiteSpaces(line, 0);
@@ -335,7 +399,19 @@ public class MappingApplier {
       String newName = line.substring(startIndex, endIndex);
       try {
         JMethod method = currentType.getMethod(oldName, returnType, args);
-        renameMethod(method, mappingFile, lineNumber, newName);
+        String newSignature =
+            GrammarActions.getSignatureFormatter().getNameWithoutReturnType(newName, args);
+        if (!existingMethodNames.contains(newSignature)
+            || newSignature.equals(
+                Jack.getUserFriendlyFormatter().getNameWithoutReturnType(method.getMethodId()))) {
+          // No collision was found
+          // (the name was not used or the method is renamed with its own name)
+          renameMethod(method, mappingFile, lineNumber, newName, memberTransformationRequest);
+          existingMethodNames.add(newSignature);
+        } else {
+          throw new MappingCollisionException(
+              new LineLocation(new FileLocation(mappingFile), lineNumber), method, newName);
+        }
       } catch (JMethodLookupException e) {
         logger.log(Level.WARNING, "{0}:{1}: Method {2} not found in {3}", new Object[] {
             mappingFile.getPath(), Integer.valueOf(lineNumber), oldName,
@@ -347,6 +423,16 @@ public class MappingApplier {
     } catch (JTypeLookupException e) {
       logger.log(Level.WARNING, "{0}:{1}: {2}", new Object[]{mappingFile.getPath(),
           Integer.valueOf(lineNumber), e.getMessage()});
+    } catch (MappingCollisionException e) {
+      if (collisionPolicy.equals(MappingCollisionPolicy.FAIL)) {
+        MappingContextException mappingReportableExn = new MappingContextException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, mappingReportableExn);
+        throw new JackAbortException(mappingReportableExn);
+      } else {
+        Jack.getSession().getReporter().report(
+            Severity.NON_FATAL,
+            new MappingContextInfo(e));
+      }
     }
   }
 
@@ -357,8 +443,8 @@ public class MappingApplier {
    * @param lineNumber The line number in the mapping file where the new name was defined
    * @param newName The new name of the method
    */
-  protected void renameMethod(
-      @Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
+  protected void renameMethod(@Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber,
+      @Nonnull String newName, @Nonnull TransformationRequest memberTransformationRequest) {
     String oldName = method.getName();
     if (oldName.equals(NamingTools.INIT_NAME)) {
       logger.log(Level.WARNING, "{0}:{1}: Constructors cannot be renamed",
@@ -367,7 +453,7 @@ public class MappingApplier {
       logger.log(Level.WARNING, "{0}:{1}: Static initializers cannot be renamed",
           new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber)});
     } else {
-      rename(method.getMethodId(), newName);
+      rename(method.getMethodId(), newName, memberTransformationRequest);
     }
   }
 
@@ -385,21 +471,39 @@ public class MappingApplier {
   public void applyMapping(@Nonnull File mappingFile, @Nonnull JSession session)
       throws JackIOException {
     LineNumberReader reader = null;
+    TransformationRequest memberTranformationRequest = null;
     try {
       reader = new LineNumberReader(new FileReader(mappingFile));
       String line = reader.readLine();
       JDefinedClassOrInterface currentType = null;
+      Collection<String> existingFieldNames = null;
+      Collection<String> existingMethodNames = null;
 
       while (line != null) {
         if (isClassInfo(line)) {
+          if (memberTranformationRequest != null) {
+            memberTranformationRequest.commit();
+            memberTranformationRequest = null;
+          }
           currentType = readClassInfo(line, session, mappingFile, reader.getLineNumber());
+          existingFieldNames = new ArrayList<String>();
+          existingMethodNames = new ArrayList<String>();
+          if (currentType != null) {
+            assert allTypes != null;
+            fillExistingName(
+                Renamer.collectAllFieldIdsInHierarchy(currentType, allTypes), existingFieldNames);
+            fillExistingName(
+                Renamer.collectAllMethodIdsInHierarchy(currentType, allTypes), existingMethodNames);
+            memberTranformationRequest = new TransformationRequest(currentType);
+          }
         } else {
           if (currentType != null) {
             if (isMethodInfo(line)) {
-              readMethodInfo(line, currentType, mappingFile, reader.getLineNumber(),
-                  session.getLookup());
+              readMethodInfo(line, currentType, existingMethodNames, mappingFile,
+                  reader.getLineNumber(), session.getLookup(), memberTranformationRequest);
             } else {
-              readFieldInfo(line, currentType, mappingFile, reader.getLineNumber());
+              readFieldInfo(line, currentType, existingFieldNames, mappingFile,
+                  reader.getLineNumber(), memberTranformationRequest);
             }
           }
         }
@@ -408,6 +512,9 @@ public class MappingApplier {
     } catch (IOException e) {
       throw new JackIOException("Error while reading mapping " + mappingFile.getPath(), e);
     } finally {
+      if (memberTranformationRequest != null) {
+        memberTranformationRequest.commit();
+      }
       if (reader != null) {
         try {
           reader.close();

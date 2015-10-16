@@ -173,6 +173,36 @@ public class Renamer implements RunnableSchedulable<JSession> {
     }
   }
 
+  @Nonnull
+  public static Collection<JFieldId> collectAllFieldIdsInHierarchy(
+      @Nonnull JDefinedClassOrInterface referenceType,
+      @Nonnull Collection<JDefinedClassOrInterface> allTypes) {
+    List<JFieldId> collectedFields = new ArrayList<JFieldId>();
+    for (JDefinedClassOrInterface type : allTypes) {
+      if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
+        for (JField field : type.getFields()) {
+          collectedFields.add(field.getId());
+        }
+      }
+    }
+    return collectedFields;
+  }
+
+  @Nonnull
+  public static Collection<JMethodId> collectAllMethodIdsInHierarchy(
+      @Nonnull JDefinedClassOrInterface referenceType,
+      @Nonnull Collection<JDefinedClassOrInterface> allTypes) {
+    Set<JMethodId> collectedMethods = new HashSet<JMethodId>();
+    for (JDefinedClassOrInterface type : allTypes) {
+      if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
+        for (JMethod method : type.getMethods()) {
+          collectedMethods.add(method.getMethodId());
+        }
+      }
+    }
+    return collectedMethods;
+  }
+
   private class Visitor extends JVisitor {
 
     @Override
@@ -193,47 +223,20 @@ public class Renamer implements RunnableSchedulable<JSession> {
       return super.visit(pack);
     }
 
-    @Nonnull
-    private Collection<JFieldId> collectAllFieldIdsInHierarchy(
-        @Nonnull JDefinedClassOrInterface referenceType) {
-      List<JFieldId> collectedFields = new ArrayList<JFieldId>();
-      assert allTypes != null;
-      for (JDefinedClassOrInterface type : allTypes) {
-        if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
-          for (JField field : type.getFields()) {
-            collectedFields.add(field.getId());
-          }
-        }
-      }
-      return collectedFields;
-    }
-
-    @Nonnull
-    private Collection<JMethodId> collectAllMethodIdsInHierarchy(
-        @Nonnull JDefinedClassOrInterface referenceType) {
-      Set<JMethodId> collectedMethods = new HashSet<JMethodId>();
-      assert allTypes != null;
-      for (JDefinedClassOrInterface type : allTypes) {
-        if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
-          for (JMethod method : type.getMethods()) {
-            collectedMethods.add(method.getMethodId());
-          }
-        }
-      }
-      return collectedMethods;
-    }
-
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface type) {
       if (!type.isExternal()) {
-        Collection<JFieldId> allFieldsInHierarchy = collectAllFieldIdsInHierarchy(type);
+        assert allTypes != null;
+
+        Collection<JFieldId> allFieldsInHierarchy = collectAllFieldIdsInHierarchy(type, allTypes);
         NameProvider fieldNameProvider =
             nameProviderFactory.getFieldNameProvider(allFieldsInHierarchy);
         for (JField field : type.getFields()) {
           rename(field.getId(), fieldNameProvider);
         }
 
-        Collection<JMethodId> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
+        Collection<JMethodId> allMethodsInHierarchy =
+            collectAllMethodIdsInHierarchy(type, allTypes);
         NameProvider methodNameProvider =
             nameProviderFactory.getMethodNameProvider(allMethodsInHierarchy);
         for (JMethod method : type.getMethods()) {
@@ -365,11 +368,11 @@ public class Renamer implements RunnableSchedulable<JSession> {
       TransformationRequest request = new TransformationRequest(session);
       MappingApplier mappingApplier;
       if (useUniqueClassMemberNames) {
-        mappingApplier = new CollectingMappingApplier(request);
+        mappingApplier = new CollectingMappingApplier(request, allTypes);
         fieldNames = ((CollectingMappingApplier) mappingApplier).getFieldNames();
         methodNames = ((CollectingMappingApplier) mappingApplier).getMethodNames();
       } else {
-        mappingApplier = new MappingApplier(request);
+        mappingApplier = new MappingApplier(request, allTypes);
       }
       mappingApplier.applyMapping(ThreadConfig.get(MAPPING_FILE), session);
       request.commit();
