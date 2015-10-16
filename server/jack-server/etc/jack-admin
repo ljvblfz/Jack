@@ -61,7 +61,7 @@ EOT
 fi
 
 usage () {
-  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-log | cleanup-server]"
+  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-log | server-gc | cleanup-server]"
 }
 
 abort () { exit 255; }
@@ -351,6 +351,7 @@ case $COMMAND in
     fi
     exit 0;;
 
+
   stop-server)
     echo "Stopping background server"
 
@@ -490,6 +491,26 @@ case $COMMAND in
            --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
            --noproxy ${SERVER_HOST} \
            https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
+           )
+      handleHttpErrors $? $HTTP_CODE
+      DONE=$?
+    done ;;
+
+
+  server-gc)
+    echo "Requesting a garbage collection to the background server"
+
+    RETRY_SESSION=3
+    DONE=1
+    while [ "$DONE" -ne 0 ]; do
+      HTTP_CODE=$(curl -f \
+           --cert "${JACK_HOME}/client.pem" \
+           --cacert "${JACK_HOME}/server.pem" \
+           --output >(cat >/dev/null) \
+           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
+           -X POST \
+           --noproxy ${SERVER_HOST} \
+           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/gc \
            )
       handleHttpErrors $? $HTTP_CODE
       DONE=$?
