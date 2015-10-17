@@ -716,6 +716,11 @@ public final class Dops {
   public static final Dop USHR_INT_LIT8 =
       new Dop(Opcodes.USHR_INT_LIT8, Opcodes.USHR_INT, Opcodes.NO_NEXT, Form22b.THE_ONE, true);
 
+  public static final Dop CAPTURE_VARIABLE = new Dop(Opcodes.CAPTURE_VARIABLE,
+      Opcodes.CAPTURE_VARIABLE, Opcodes.NO_NEXT, Form21c.THE_ONE, /*hasResult=*/ false);
+
+  public static final Dop LIBERATE_VARIABLE = new Dop(Opcodes.LIBERATE_VARIABLE,
+      Opcodes.LIBERATE_VARIABLE, Opcodes.NO_NEXT, Form22c.THE_ONE, /*hasResult=*/ false);
   // END(dops)
 
   // Static initialization.
@@ -943,6 +948,8 @@ public final class Dops {
     set(SHL_INT_LIT8);
     set(SHR_INT_LIT8);
     set(USHR_INT_LIT8);
+    set(CAPTURE_VARIABLE);
+    set(LIBERATE_VARIABLE);
     // END(dops-init)
   }
 

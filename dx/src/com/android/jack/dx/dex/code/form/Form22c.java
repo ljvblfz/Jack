@@ -22,6 +22,7 @@ import com.android.jack.dx.dex.code.InsnFormat;
 import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstFieldRef;
+import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.util.AnnotatedOutput;
 
@@ -84,7 +85,7 @@ public final class Form22c extends InsnFormat {
     }
 
     Constant cst = ci.getConstant();
-    return (cst instanceof CstType) || (cst instanceof CstFieldRef);
+    return (cst instanceof CstType) || (cst instanceof CstFieldRef) || (cst instanceof CstString);
   }
 
   /** {@inheritDoc} */
