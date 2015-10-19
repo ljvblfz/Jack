@@ -27,12 +27,14 @@ import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullType;
+import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -41,6 +43,12 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.feature.SourceVersion8;
+import com.android.jack.transformations.lambda.CapturedVariable;
+import com.android.jack.transformations.lambda.NeedsLambdaMarker;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
+import com.android.sched.schedulable.ToSupport;
 
 import java.util.List;
 
@@ -49,6 +57,8 @@ import javax.annotation.Nonnull;
 /**
  * Utilities for dx API uses when building dex structures and rop methods.
  */
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(need = {CapturedVariable.class, NeedsLambdaMarker.class})))
 public class RopHelper {
 
   @Nonnull
@@ -295,6 +305,27 @@ public class RopHelper {
 
   private static class RopFormatter extends InternalFormatter {
 
+    @Override
+    @Nonnull
+    public String getName(@Nonnull JType type) {
+      if (type instanceof JClassOrInterface) {
+        if (type instanceof JDefinedInterface
+            && ((JDefinedInterface) type).getMarker(NeedsLambdaMarker.class) != null) {
+          JPackage enclosingPackage = ((JClassOrInterface) type).getEnclosingPackage();
+          assert enclosingPackage != null;
+          StringBuilder sb = new StringBuilder("\\");
+          if (!enclosingPackage.isDefaultPackage()) {
+            sb.append(getNameInternal(enclosingPackage));
+            sb.append(getPackageSeparator());
+          }
+          sb.append(type.getName()).append(";");
+          return sb.toString();
+        }
+      }
+
+      return super.getName(type);
+     }
+
     /**
      * Gets method signature without method's name
      */
@@ -305,6 +336,11 @@ public class RopHelper {
       sb.append('(');
 
       for (JParameter p : method.getParams()) {
+        // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
+        // create-lambda opcode
+        if (p.getMarker(CapturedVariable.class) != null) {
+          continue;
+        }
         sb.append(getName(p.getType()));
       }
 

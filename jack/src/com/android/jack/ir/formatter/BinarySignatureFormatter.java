@@ -92,7 +92,7 @@ public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
   }
 
   @Nonnull
-  private String getClassOrInterfaceName(@Nonnull JClassOrInterface type) {
+  protected String getClassOrInterfaceName(@Nonnull JClassOrInterface type) {
     JPackage enclosingPackage = type.getEnclosingPackage();
     assert enclosingPackage != null;
     return getName(enclosingPackage, type.getName());

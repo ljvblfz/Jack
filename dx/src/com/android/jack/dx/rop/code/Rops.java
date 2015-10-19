@@ -1098,7 +1098,11 @@ public final class Rops {
         return opLiberateVariable(dest, sources);
       }
       case RegOps.INVOKE_LAMBDA: {
-        return opInvokeLambda(sources);
+        CstBaseMethodRef cstMeth = (CstMethodRef) cst;
+        Prototype meth = cstMeth.getPrototype();
+        CstType definer = cstMeth.getDefiningClass();
+        meth = meth.withFirstParameter(definer.getClassType());
+        return opInvokeLambda(meth);
       }
       case RegOps.CREATE_LAMBDA: {
         return opCreateLambda();
@@ -1114,13 +1118,12 @@ public final class Rops {
   }
 
   public static Rop opLiberateVariable(TypeBearer type, TypeList sources) {
-    // STOPSHIP: liberate-variable can throw
     return new Rop(RegOps.LIBERATE_VARIABLE, type.getType(), sources, StdTypeList.EMPTY,
-        Rop.BRANCH_NONE, "liberate-lambda");
+        Rop.BRANCH_THROW, "liberate-lambda");
   }
 
-  public static Rop opInvokeLambda(TypeList sources) {
-    return new Rop(RegOps.INVOKE_LAMBDA, sources, StdTypeList.THROWABLE);
+  public static Rop opInvokeLambda(Prototype meth) {
+    return new Rop(RegOps.INVOKE_LAMBDA, meth.getParameterFrameTypes(), StdTypeList.THROWABLE);
   }
 
   public static Rop opCreateLambda() {

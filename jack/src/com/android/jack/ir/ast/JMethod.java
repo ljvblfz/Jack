@@ -432,7 +432,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JDefinedClassOrInterface)) {
+    if (!(parent instanceof JDefinedClassOrInterface) && !(parent instanceof JLambda)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

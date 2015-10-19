@@ -56,6 +56,7 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.Replace;
@@ -65,6 +66,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 
 import java.util.Collections;
@@ -91,6 +93,7 @@ import javax.annotation.Nonnull;
         JThisRef.class})
 // Lambda converter must be synchronized, otherwise several schedulables can add member types to the
 // same class in the same time.
+@Support(SourceVersion8.class)
 @Synchronized
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
@@ -174,7 +177,6 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JLambda lambdaExpr) {
-      boolean visitChild = true;
       JMethod lambdaMethod = lambdaExpr.getMethod();
       LambdaCtx lambdaCtx = null;
       JConstructor lambdaImplCons = lambdaToLambaImplConst.get(lambdaMethod);
@@ -234,8 +236,8 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
             new JMethodCall(SourceInfo.UNKNOWN, new JThisRef(SourceInfo.UNKNOWN, thisOfConstructor),
                 jlo, jloInitMethodId, JPrimitiveTypeEnum.VOID.getType(), false).makeStatement());
 
-        for (JVariable capturedVar : lambdaExpr.getCapturedVariables()) {
-          createFieldAndAssignment(lambdaCtx, lambdaImplCons, capturedVar);
+        for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
+          createFieldAndAssignment(lambdaCtx, lambdaImplCons, capturedVarRef.getTarget());
         }
 
         if (capturedInstance != null) {
@@ -244,8 +246,6 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
         constructorBody.addStmt(new JReturnStatement(SourceInfo.UNKNOWN, null));
         tr.append(new AppendMethod(lambdaImplClass, lambdaImplCons));
-      } else {
-        visitChild = false;
       }
 
       assert lambdaImplCons != null;
@@ -255,7 +255,8 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       JNewInstance newAnnonymous = new JNewInstance(SourceInfo.UNKNOWN,
           lambdaImplCons.getEnclosingType(), lambdaImplCons.getMethodId());
 
-      for (JVariable capturedVar : lambdaExpr.getCapturedVariables()) {
+      for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
+        JVariable capturedVar = capturedVarRef.getTarget();
         JExpression arg = getCapturedVar(capturedVar);
         if (arg == null) {
           if (capturedVar instanceof JParameter) {
@@ -282,7 +283,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
       accept(lambdaExpr.getBody());
 
-      return visitChild;
+      return false;
     }
 
     @CheckForNull

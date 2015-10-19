@@ -50,6 +50,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
@@ -482,19 +483,22 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     JLambda clonedLambda = new JLambda(lambda.getSourceInfo(), lambda.getMethod(), lambda.getType(),
         lambda.needToCaptureInstance());
 
-    for (JVariable capturedVar : lambda.getCapturedVariables()) {
-      JVariable clonedVar = null;
+    for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
+      JVariable capturedVar = capturedVarRef.getTarget();
+      JVariableRef clonedVarRef = null;
       if (capturedVar instanceof JLocal) {
-        clonedVar = clonedLocals.get(capturedVar);
+        JLocal clonedVar = clonedLocals.get(capturedVar);
         if (clonedVar == null) {
           clonedVar = cloneLocal((JLocal) capturedVar);
         }
+        clonedVarRef = new JLocalRef(capturedVarRef.getSourceInfo(), clonedVar);
       } else {
         assert capturedVar instanceof JParameter;
-        clonedVar = getNewParameter((JParameter) capturedVar);
+        clonedVarRef = new JParameterRef(capturedVar.getSourceInfo(),
+            getNewParameter((JParameter) capturedVar));
       }
-      assert clonedVar != null;
-      clonedLambda.addCapturedVariable(clonedVar);
+      assert clonedVarRef != null;
+      clonedLambda.addCapturedVariable(clonedVarRef);
     }
 
     expression = clonedLambda;

@@ -24,6 +24,7 @@ import com.android.jack.dx.rop.code.FillArrayDataInsn;
 import com.android.jack.dx.rop.code.Insn;
 import com.android.jack.dx.rop.code.PlainCstInsn;
 import com.android.jack.dx.rop.code.PlainInsn;
+import com.android.jack.dx.rop.code.RegOps;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.code.Rop;
@@ -40,6 +41,7 @@ import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
@@ -63,6 +65,7 @@ import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
@@ -75,6 +78,8 @@ import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JIntegralConstant32;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
+import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLock;
@@ -105,6 +110,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.transformations.lambda.NeedsLambdaMarker;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -216,6 +222,46 @@ class RopBuilderVisitor extends JVisitor {
     @Override
     public boolean visit(@Nonnull JParameterRef paramRef) {
       buildAssignVariableRef(destReg, paramRef, sourcePosition);
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLiberateVariable liberateVariable) {
+      SourcePosition srcPos = RopHelper.getSourcePosition(liberateVariable);
+
+      RegisterSpecList sources =
+          RegisterSpecList.make(ropReg.getRegisterSpec(liberateVariable.getClosure()));
+
+      Type capturedType =
+          RopHelper.convertTypeToDx(liberateVariable.getCapturedVariable().getType());
+
+      addInstruction(new ThrowingCstInsn(Rops.opLiberateVariable(capturedType, sources), srcPos,
+          sources, getCatchTypes(), new CstString(capturedType.getDescriptor())));
+
+      addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLambda lambda) {
+      SourcePosition lambdaSrcPos = RopHelper.getSourcePosition(lambda);
+
+      CstMethodRef methodRef =
+          RopHelper.createMethodRef(lambda.getMethod().getEnclosingType(), lambda.getMethod());
+
+      for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
+        RegisterSpecList sources = RegisterSpecList.make(ropReg.getRegisterSpec(capturedVarRef));
+        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
+            sources, new CstString(
+                RopHelper.convertTypeToDx(capturedVarRef.getTarget().getType()).getDescriptor())));
+      }
+
+      Insn callInst = new ThrowingCstInsn(Rops.opCreateLambda(), lambdaSrcPos,
+          RegisterSpecList.EMPTY, getCatchTypes(), methodRef);
+
+      addInstruction(callInst);
+
+      addMoveResultPseudoAsExtraInstruction(destReg, lambdaSrcPos);
       return false;
     }
 
@@ -1164,7 +1210,7 @@ class RopBuilderVisitor extends JVisitor {
 
     switch(methodKind) {
       case STATIC:
-       callOp = Rops.opInvokeStatic(prototype);
+        callOp = Rops.opInvokeStatic(prototype);
         break;
       case INSTANCE_NON_VIRTUAL:
         callOp = Rops.opInvokeDirect(prototype);
@@ -1174,7 +1220,13 @@ class RopBuilderVisitor extends JVisitor {
           callOp = Rops.opInvokeSuper(prototype);
         } else {
           if (methodCall.getReceiverType() instanceof JInterface) {
-            callOp = Rops.opInvokeInterface(prototype);
+            if (methodCall.getReceiverType() instanceof JDefinedInterface
+                && ((JDefinedInterface) methodCall.getReceiverType())
+                    .getMarker(NeedsLambdaMarker.class) != null) {
+              callOp = Rops.opInvokeLambda(prototype);
+            } else {
+              callOp = Rops.opInvokeInterface(prototype);
+            }
           } else {
             callOp = Rops.opInvokeVirtual(prototype);
           }
@@ -1188,10 +1240,13 @@ class RopBuilderVisitor extends JVisitor {
       sources.set(paramIndex++, getRegisterSpec(exprArg));
     }
 
-    CstMethodRef methodRef = RopHelper.createMethodRef(methodCall);
-
-    Insn callInst =
-        new ThrowingCstInsn(callOp, methodCallSrcPos, sources, getCatchTypes(), methodRef);
+    Insn callInst = null;
+    if (callOp.getOpcode() == RegOps.INVOKE_LAMBDA) {
+      callInst = new ThrowingInsn(callOp, methodCallSrcPos, sources, getCatchTypes());
+    } else {
+      CstMethodRef methodRef = RopHelper.createMethodRef(methodCall);
+      callInst = new ThrowingCstInsn(callOp, methodCallSrcPos, sources, getCatchTypes(), methodRef);
+    }
     addInstruction(callInst);
 
     if (result != null) {

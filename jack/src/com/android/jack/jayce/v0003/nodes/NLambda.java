@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.VariableRefLinker;
@@ -65,8 +65,8 @@ public class NLambda extends NExpression {
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLambda lambda = (JLambda) node;
     captureInstance = lambda.needToCaptureInstance();
-    for (JVariable capturedVariable : lambda.getCapturedVariables()) {
-      capturedVariableIds.add(loader.getVariableSymbols().getId(capturedVariable));
+    for (JVariableRef capturedVariableRef : lambda.getCapturedVariables()) {
+      capturedVariableIds.add(loader.getVariableSymbols().getId(capturedVariableRef.getTarget()));
     }
     method = (NMethod) loader.load(lambda.getMethod());
     typeSig = ImportHelper.getSignatureName(lambda.getType());

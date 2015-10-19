@@ -124,6 +124,7 @@ import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.feature.VisibilityBridge;
 import com.android.jack.shrob.obfuscation.Mapping;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -245,6 +246,7 @@ import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.lambda.LambdaConverter;
+import com.android.jack.transformations.lambda.LambdaNativeSupportConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
@@ -452,6 +454,9 @@ public abstract class Jack {
         JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
         if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
           request.addFeature(SourceVersion7.class);
+        }
+        if (sourceVersion.compareTo(JavaVersion.JAVA_8) >= 0) {
+          request.addFeature(SourceVersion8.class);
         }
 
         if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
@@ -1059,7 +1064,8 @@ public abstract class Jack {
       planBuilder.append(AstChecker.class);
     }
 
-    if (!features.contains(LambdaToAnonymousConverter.class)) {
+    if (!features.contains(SourceVersion8.class)
+        || !features.contains(LambdaToAnonymousConverter.class)) {
       planBuilder.append(InnerAccessorSchedulingSeparator.class);
     }
     planBuilder.append(TryStatementSchedulingSeparator.class);
@@ -1082,7 +1088,8 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (!features.contains(LambdaToAnonymousConverter.class)) {
+      if (!features.contains(SourceVersion8.class)
+          || !features.contains(LambdaToAnonymousConverter.class)) {
         typePlan4.append(InnerAccessorAdder.class);
       }
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
@@ -1130,31 +1137,38 @@ public abstract class Jack {
     }
 
 
-    if (features.contains(LambdaToAnonymousConverter.class)) {
-      {
+    if (features.contains(SourceVersion8.class)) {
+      if (features.contains(LambdaToAnonymousConverter.class)) {
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+          methodPlan.append(LambdaConverter.class);
+        }
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+          if (features.contains(AvoidSynthethicAccessors.class)) {
+            methodPlan.append(OptimizedInnerAccessorGenerator.class);
+          } else {
+            methodPlan.append(InnerAccessorGenerator.class);
+          }
+        }
+        planBuilder.append(InnerAccessorSchedulingSeparator.class);
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          if (features.contains(AvoidSynthethicAccessors.class)) {
+            typePlan.append(ReferencedOuterFieldsExposer.class);
+          }
+          typePlan.append(InnerAccessorAdder.class);
+        }
+      } else {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
-        methodPlan.append(LambdaConverter.class);
-      }
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-        if (features.contains(AvoidSynthethicAccessors.class)) {
-          methodPlan.append(OptimizedInnerAccessorGenerator.class);
-        } else {
-          methodPlan.append(InnerAccessorGenerator.class);
-        }
-      }
-      planBuilder.append(InnerAccessorSchedulingSeparator.class);
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        if (features.contains(AvoidSynthethicAccessors.class)) {
-          typePlan.append(ReferencedOuterFieldsExposer.class);
-        }
-        typePlan.append(InnerAccessorAdder.class);
+        methodPlan.append(LambdaNativeSupportConverter.class);
       }
     }
 

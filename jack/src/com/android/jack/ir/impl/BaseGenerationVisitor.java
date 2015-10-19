@@ -69,6 +69,7 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JLambda;
+import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -170,6 +171,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   static final char[] SYNCHRONIZED_BLOCK = "synchronized ".toCharArray();
   static final char[] LOCK = "lock ".toCharArray();
   static final char[] UNLOCK = "unlock ".toCharArray();
+  static final char[] CHARS_LIBERATE_variable = "/*liberate-variable*/".toCharArray();
 
   static final SourceFormatter formatter = SourceFormatter.getFormatter();
 
@@ -753,6 +755,16 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     rparen();
     print(" -> ");
     accept(x.getBody());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLiberateVariable x) {
+    print(CHARS_LIBERATE_variable);
+    space();
+    accept(x.getClosure());
+    print(".");
+    accept(x.getCapturedVariable());
     return false;
   }
 

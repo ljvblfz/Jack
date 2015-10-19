@@ -721,7 +721,7 @@ public final class Dops {
       Opcodes.CAPTURE_VARIABLE, Opcodes.NO_NEXT, Form21c.THE_ONE, /*hasResult=*/ false);
 
   public static final Dop LIBERATE_VARIABLE = new Dop(Opcodes.LIBERATE_VARIABLE,
-      Opcodes.LIBERATE_VARIABLE, Opcodes.NO_NEXT, Form22c.THE_ONE, /*hasResult=*/ false);
+      Opcodes.LIBERATE_VARIABLE, Opcodes.NO_NEXT, Form22c.THE_ONE, /*hasResult=*/ true);
 
   public static final Dop CREATE_LAMBDA = new Dop(Opcodes.CREATE_LAMBDA, Opcodes.CREATE_LAMBDA,
       Opcodes.NO_NEXT, Form21c.THE_ONE, /* hasResult= */ true);

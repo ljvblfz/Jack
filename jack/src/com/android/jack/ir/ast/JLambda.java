@@ -36,7 +36,7 @@ public class JLambda extends JExpression {
   private boolean captureInstance;
 
   @Nonnull
-  private final List<JVariable> capturedVariables = new ArrayList<JVariable>(0);
+  private final List<JVariableRef> capturedVariablesRef = new ArrayList<JVariableRef>(0);
 
   @Nonnull
   private final JMethod method;
@@ -61,13 +61,15 @@ public class JLambda extends JExpression {
     body = localBody;
   }
 
-  public void addCapturedVariable(@Nonnull JVariable capturedVariable) {
-    capturedVariables.add(capturedVariable);
+  public void addCapturedVariable(@Nonnull JVariableRef capturedVariableRef) {
+    capturedVariablesRef.add(capturedVariableRef);
   }
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
-    visitor.visit(this);
+    if (visitor.visit(this)) {
+      visitor.accept(capturedVariablesRef);
+    }
     visitor.endVisit(this);
   }
 
@@ -104,8 +106,8 @@ public class JLambda extends JExpression {
   }
 
   @Nonnull
-  public List<JVariable> getCapturedVariables() {
-    return capturedVariables;
+  public List<JVariableRef> getCapturedVariables() {
+    return capturedVariablesRef;
   }
 
   public void setCaptureInstance(boolean captureInstance) {
@@ -114,5 +116,10 @@ public class JLambda extends JExpression {
 
   public boolean needToCaptureInstance() {
     return captureInstance;
+  }
+
+  @Override
+  public boolean canThrow() {
+    return true;
   }
 }

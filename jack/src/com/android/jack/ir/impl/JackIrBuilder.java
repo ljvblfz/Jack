@@ -115,7 +115,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.Number;
@@ -1312,9 +1311,12 @@ public class JackIrBuilder {
 
         if (!(referenceExpression.lhs instanceof TypeReference)) {
           if (lhsExpr != null && !shouldCaptureInstance) {
-            if (lhsExpr instanceof JVariableRef) {
-              ((JLambda) exprRepresentingLambda)
-                  .addCapturedVariable(((JVariableRef) lhsExpr).getTarget());
+            if (lhsExpr instanceof JLocalRef) {
+              ((JLambda) exprRepresentingLambda).addCapturedVariable(new JLocalRef(
+                  lhsExpr.getSourceInfo(), (JLocal) ((JLocalRef) lhsExpr).getTarget()));
+            } else if (lhsExpr instanceof JParameterRef) {
+              ((JLambda) exprRepresentingLambda).addCapturedVariable(new JParameterRef(
+                  lhsExpr.getSourceInfo(), (JParameter) ((JParameterRef) lhsExpr).getTarget()));
             } else {
               List<JExpression> exprs = new ArrayList<JExpression>();
 
@@ -1325,7 +1327,8 @@ public class JackIrBuilder {
               exprs.add(asg);
               curMethod.body.addLocal(tmp);
               exprs.add(exprRepresentingLambda);
-              ((JLambda) exprRepresentingLambda).addCapturedVariable(tmp);
+              ((JLambda) exprRepresentingLambda)
+                  .addCapturedVariable(new JLocalRef(sourceInfo, tmp));
 
               exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
               lhsExpr = new JLocalRef(sourceInfo, tmp);
@@ -1441,7 +1444,8 @@ public class JackIrBuilder {
             VariableBinding[] paths = blockScope.getEmulationPath(arg.actualOuterLocalVariable);
             JExpression exprPath = generateEmulationPath(sourceInfo, paths);
             if (exprPath instanceof JLocalRef) {
-              lambda.addCapturedVariable(((JVariableRef) exprPath).getTarget());
+              lambda.addCapturedVariable(new JLocalRef(exprPath.getSourceInfo(),
+                  (JLocal) ((JLocalRef) exprPath).getTarget()));
             }
             newInstance.addArg(exprPath);
           }
@@ -1589,7 +1593,8 @@ public class JackIrBuilder {
       // must be added
       popMethodInfo();
 
-      JLambda lambda = new JLambda(makeSourceInfo(lambdaExpression), lambdaMethodInfo.method,
+      SourceInfo sourceInfo = makeSourceInfo(lambdaExpression);
+      JLambda lambda = new JLambda(sourceInfo, lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
           lambdaExpression.shouldCaptureInstance);
 
@@ -1598,7 +1603,11 @@ public class JackIrBuilder {
         if (synthArg.matchingField == null) {
           JVariable var = lambdaMethodInfo.getJVariable(synthArg.actualOuterLocalVariable);
           assert var != null;
-          lambda.addCapturedVariable(var);
+          if (var instanceof JLocal) {
+            lambda.addCapturedVariable(new JLocalRef(sourceInfo, (JLocal) var));
+          } else {
+            lambda.addCapturedVariable(new JParameterRef(sourceInfo, (JParameter) var));
+          }
         } else {
           // Field is already into a field, thus Jack need to capture instance, it is the case when
           // lambda are defined into anonymous, outer variable are already put into fields of the
