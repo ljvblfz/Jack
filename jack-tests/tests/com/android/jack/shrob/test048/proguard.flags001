@@ -1,0 +1,6 @@
+-dontshrink
+-applymapping mapping.txt
+
+-keepclasseswithmembers public class * {
+    public static java.lang.String testMethod();
+}

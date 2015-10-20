@@ -1,0 +1,1 @@
+com.android.jack.shrob.test048.lib.Library -> renamedLibrary:

@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.lookup.JLookup;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Synchronized;
@@ -46,6 +47,9 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
+
+  @Nonnull
+  private final JLookup lookup = Jack.getSession().getLookup();
 
   private void updateSuperTypeList(@Nonnull JDefinedClassOrInterface type) {
     if (type instanceof JDefinedClass) {
@@ -115,6 +119,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
         updateEnclosingMethod((JDefinedClass) type);
       }
     }
+    lookup.clear();
   }
 
   private void updateEnclosingType(@Nonnull JDefinedClassOrInterface type) {

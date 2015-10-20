@@ -1,0 +1,2 @@
+This tests uses a non-obuscated library and applies a mapping to it while
+compiling a test app.
