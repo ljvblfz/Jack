@@ -106,7 +106,7 @@ public class MappingApplier {
     try {
       String typeSignature = NamingTools.getTypeSignatureName(oldName);
       type = (JClassOrInterface) lookup.getType(typeSignature);
-      if (!session.getTypesToEmit().contains(type)) {
+      if (!session.getTypesToEmit().contains(type) && !type.isExternal()) {
         logger.log(Level.WARNING, "{0}:{1}: Type {2} has a mapping but was removed",
             new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber), oldName});
         return null;
