@@ -189,7 +189,7 @@ waitServerStarted () {
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
     CURL_CODE=$?
-    if [ $CURL_CODE -eq 7 ]; then
+    if [ $CURL_CODE -eq 7 ] || [ $CURL_CODE -eq 35 ] || [ $CURL_CODE -eq 58 ] || [ $CURL_CODE -eq 60 ] || [ $CURL_CODE -eq 77 ]; then
       if [ $RETRY_CONNECT -eq 0 ]; then
         echo "Jack server failed to (re)start, see Jack server log" >&2
         abort
