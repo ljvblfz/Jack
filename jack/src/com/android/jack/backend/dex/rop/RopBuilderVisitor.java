@@ -262,6 +262,15 @@ class RopBuilderVisitor extends JVisitor {
       addInstruction(callInst);
 
       addMoveResultPseudoAsExtraInstruction(destReg, lambdaSrcPos);
+
+      if (!isClosure(lambda.getType())) {
+        // lambda type is not a closure need to box it into a regular object
+        RegisterSpecList sources = RegisterSpecList.make(destReg);
+        Insn inst =
+            new PlainInsn(Rops.opBoxLambda(destReg, sources), sourcePosition, destReg, sources);
+        addExtraInstruction(inst);
+      }
+
       return false;
     }
 
@@ -757,6 +766,14 @@ class RopBuilderVisitor extends JVisitor {
     Rop rop = Rops.opAget(getComponentType(instanceReg));
     addInstruction(new ThrowingInsn(rop, sourcePosition, sources, getCatchTypes()));
     addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
+
+    if (isClosure(((JArrayType) arrayRef.getInstance().getType()).getLeafType())) {
+      // STOPSHIP: Remove unbox-lambda opcode when aget-lambda will be supported
+      RegisterSpecList sourcesUnbox = RegisterSpecList.make(destReg);
+      Insn inst = new PlainCstInsn(Rops.opUnboxLambda(destReg, sourcesUnbox), sourcePosition,
+          destReg, sourcesUnbox, CstType.intern(destReg.getType()));
+      addExtraInstruction(inst);
+    }
   }
 
   private void buildArrayWrite(JArrayRef arrayRef, JExpression value,
@@ -767,6 +784,14 @@ class RopBuilderVisitor extends JVisitor {
     RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
     RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
     RegisterSpecList sources = RegisterSpecList.make(valueReg, instanceReg, indexReg);
+
+    if (isClosure(((JArrayType) arrayRef.getInstance().getType()).getLeafType())) {
+      // STOPSHIP: Remove box-lambda opcode when aput-lambda will be supported
+      RegisterSpecList sourcesBox = RegisterSpecList.make(valueReg);
+      Insn inst = new PlainInsn(Rops.opBoxLambda(valueReg, sourcesBox), sourcePosition, valueReg,
+          sourcesBox);
+      addInstruction(inst);
+    }
 
     Rop rop = Rops.opAput(getComponentType(instanceReg));
     addInstruction(new ThrowingInsn(rop, sourcePosition, sources, getCatchTypes()));
@@ -821,6 +846,14 @@ class RopBuilderVisitor extends JVisitor {
       addInstruction(new ThrowingCstInsn(rop, sourcePosition, sources, getCatchTypes(), cstField));
     }
     addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
+
+    if (isClosure(fieldRef.getType())) {
+      // STOPSHIP: Remove unbox-lambda opcode when iget-lambda and sget-lambda will be supported
+      RegisterSpecList sources = RegisterSpecList.make(destReg);
+      Insn inst = new PlainCstInsn(Rops.opUnboxLambda(destReg, sources), sourcePosition, destReg,
+          sources, CstType.intern(destReg.getType()));
+      addExtraInstruction(inst);
+    }
   }
 
   private void buildWriteField(@Nonnull JFieldRef fieldRef, @Nonnull JExpression value,
@@ -830,6 +863,14 @@ class RopBuilderVisitor extends JVisitor {
 
     CstFieldRef cstField = RopHelper.createFieldRef(fieldRef.getFieldId(),
         fieldRef.getReceiverType());
+
+    if (isClosure(fieldRef.getType())) {
+      // STOPSHIP: Remove box-lambda opcode when iput-lambda and sput-lambda will be supported
+      RegisterSpecList sources = RegisterSpecList.make(valueReg);
+      Insn inst =
+          new PlainInsn(Rops.opBoxLambda(valueReg, sources), sourcePosition, valueReg, sources);
+      addInstruction(inst);
+    }
 
     if (fieldRef.getFieldId().getKind() == FieldKind.STATIC) {
       Rop rop = Rops.opPutStatic(RopHelper.convertTypeToDx(fieldRef.getType()));
@@ -1322,5 +1363,10 @@ class RopBuilderVisitor extends JVisitor {
   @Override
   public void endVisit(@Nonnull JStatement x) {
     ropReg.resetFreeTmpRegister();
+  }
+
+  private boolean isClosure(@Nonnull JType type) {
+    return type instanceof JDefinedInterface
+        && ((JDefinedInterface) type).getMarker(NeedsLambdaMarker.class) != null;
   }
 }

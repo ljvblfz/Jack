@@ -263,6 +263,8 @@ public final class Opcodes {
   public static final int CAPTURE_VARIABLE = 0xf5;
   public static final int CREATE_LAMBDA = 0xf6;
   public static final int LIBERATE_VARIABLE = 0xf7;
+  public static final int BOX_LAMBDA = 0xf8;
+  public static final int UNBOX_LAMBDA = 0xf9;
 
   // END(opcodes)
 
