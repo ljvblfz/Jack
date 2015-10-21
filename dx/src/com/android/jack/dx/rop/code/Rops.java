@@ -1806,6 +1806,10 @@ public final class Rops {
     switch (type.getBasicFrameType()) {
       case Type.BT_INT:
         return RETURN_INT;
+      case Type.BT_CLOSURE:
+//        // STOPSHIP: Jack must use return-lambda when it will be supported by the runtime
+//        return new Rop(RegOps.RETURN, Type.VOID, StdTypeList.make(type.getType()),
+//            Rop.BRANCH_RETURN, "return-lambda");
       case Type.BT_LONG:
         return RETURN_LONG;
       case Type.BT_FLOAT:
