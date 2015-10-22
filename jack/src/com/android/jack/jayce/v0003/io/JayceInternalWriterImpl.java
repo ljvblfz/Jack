@@ -51,7 +51,7 @@ import javax.annotation.Nonnull;
 public class JayceInternalWriterImpl implements JayceInternalWriter {
 
   @Nonnull
-  private static final Tracer tracer = TracerFactory.getTracer();
+  private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private final JayceOutputStream out;

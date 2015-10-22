@@ -93,7 +93,13 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return new DeflaterOutputStream(vfs.openWrite(file), new Deflater());
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return new DeflaterOutputStream(vfs.openWrite(file, append), new Deflater());
   }
 
   @Override
@@ -116,6 +122,11 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Override
   boolean isEmpty(@Nonnull BaseVDir dir) {
     return vfs.isEmpty(dir);
+  }
+
+  @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return vfs.getLastModified(file);
   }
 
   @Override
@@ -197,5 +208,17 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Nonnull
   Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
     return vfs.getVDirLocation(parent, path);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return vfs.getPathFromRoot(file);
   }
 }

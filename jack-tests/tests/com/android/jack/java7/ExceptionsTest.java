@@ -16,15 +16,12 @@
 
 package com.android.jack.java7;
 
-import com.android.jack.Main;
+import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
 
 import javax.annotation.Nonnull;
 
@@ -33,43 +30,54 @@ import javax.annotation.Nonnull;
  */
 public class ExceptionsTest {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+  @Nonnull
+  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions.test001"),
+      "com.android.jack.java7.exceptions.test001.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions.test002"),
+      "com.android.jack.java7.exceptions.test002.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo TEST003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions.test003"),
+      "com.android.jack.java7.exceptions.test003.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo TEST004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions.test004"),
+      "com.android.jack.java7.exceptions.test004.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo TEST005 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions.test005"),
+      "com.android.jack.java7.exceptions.test005.dx.Tests");
 
   @Test
   public void java7Exception001() throws Exception {
-    compileJava7Test("test001");
+    new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Exception002() throws Exception {
-    compileJava7Test("test002");
+    new RuntimeTestHelper(TEST002).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Exception003() throws Exception {
-    compileJava7Test("test003");
+    new RuntimeTestHelper(TEST003).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Exception004() throws Exception {
-    compileJava7Test("test004");
+    new RuntimeTestHelper(TEST004).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
   public void java7Exception005() throws Exception {
-    compileJava7Test("test005");
+    new RuntimeTestHelper(TEST005).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
-  private void compileJava7Test(@Nonnull String name) throws Exception {
-    JackBasedToolchain jackBasedToolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    jackBasedToolchain.setSourceLevel(SourceLevel.JAVA_7)
-    .addToClasspath(jackBasedToolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(), /* zipFile = */ false, new File(
-            AbstractTestTools.getTestRootDir("com.android.jack.java7.exceptions." + name), "jack"));
-  }
 }

@@ -19,8 +19,10 @@ package com.android.jack.analysis;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
@@ -30,7 +32,9 @@ import com.android.sched.marker.ValidOn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -178,6 +182,15 @@ public class DefinitionMarker implements Marker {
   @Nonnull
   public JNode getDefinition() {
     return definition;
+  }
+
+  @CheckForNull
+  public JStatement getStatement() {
+    try {
+      return definition.getParent(JExpressionStatement.class);
+    } catch (NoSuchElementException e) {
+      return null;
+    }
   }
 
   private void removeDefFromUseDefsChain(@Nonnull JVariableRef use) {

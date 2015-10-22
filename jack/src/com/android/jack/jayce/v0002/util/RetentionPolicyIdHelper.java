@@ -49,12 +49,12 @@ public class RetentionPolicyIdHelper {
   }
 
   @Nonnegative
-  public static byte getId(@Nonnull Enum<?> enumValue) {
+  public static byte getId(@Nonnull JRetentionPolicy enumValue) {
     return ids[enumValue.ordinal()];
   }
 
   @Nonnull
-  public static Enum<?> getValue(@Nonnegative byte id) {
+  public static JRetentionPolicy getValue(@Nonnegative byte id) {
     return values[id];
   }
 }

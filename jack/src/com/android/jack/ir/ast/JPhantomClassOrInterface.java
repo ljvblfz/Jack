@@ -48,7 +48,7 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
 
   public JPhantomClassOrInterface(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
     super(SourceInfo.UNKNOWN, name);
-    assert NamingTools.isIdentifier(name);
+    assert NamingTools.isTypeIdentifier(name);
     this.enclosingPackage = enclosingPackage;
   }
 
@@ -161,5 +161,11 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
     if (!(parent instanceof JPackage)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  @Override
+  public void setName(@Nonnull String name) {
+    enclosingPackage.removeItemWithName(this);
+    super.setName(name);
   }
 }

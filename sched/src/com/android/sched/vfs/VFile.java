@@ -17,6 +17,9 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.WrongPermissionException;
+
+import java.io.OutputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -28,8 +31,15 @@ public interface VFile extends VElement, InputStreamProvider, OutputStreamProvid
   @Nonnull
   VPath getPath();
 
+  @Nonnull
+  OutputStream getOutputStream(boolean append) throws WrongPermissionException;
+
   @CheckForNull
   String getDigest();
 
+  long getLastModified();
+
   void delete() throws CannotDeleteFileException;
+  @Nonnull
+  VPath getPathFromRoot();
 }

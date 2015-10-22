@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.xor_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.xor_long.jm.T_xor_long_1;
 import com.android.jack.opcodes.xor_long.jm.T_xor_long_3;
 import com.android.jack.opcodes.xor_long.jm.T_xor_long_4;
 import com.android.jack.opcodes.xor_long.jm.T_xor_long_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_xor_long extends DxTestCase {

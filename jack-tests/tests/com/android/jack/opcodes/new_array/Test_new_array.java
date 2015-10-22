@@ -16,12 +16,12 @@
 
 package com.android.jack.opcodes.new_array;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.new_array.jm.T_new_array_1;
 import com.android.jack.opcodes.new_array.jm.T_new_array_2;
 import com.android.jack.opcodes.new_array.jm.T_new_array_4;
 import com.android.jack.opcodes.new_array.jm.T_new_array_5;
 import com.android.jack.opcodes.new_array.jm.T_new_array_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_new_array extends DxTestCase {

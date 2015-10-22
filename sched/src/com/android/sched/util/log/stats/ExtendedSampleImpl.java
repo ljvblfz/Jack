@@ -16,13 +16,7 @@
 
 package com.android.sched.util.log.stats;
 
-import com.google.common.collect.Iterators;
-
-import com.android.sched.util.table.DataHeader;
-import com.android.sched.util.table.DataRow;
-
 import java.util.Arrays;
-import java.util.Iterator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -30,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Extended statistic computation on a set of values. Have Median, First quartile, Third quartile.
  */
-public class ExtendedSampleImpl extends ExtendedSample implements DataRow, DataHeader {
+public class ExtendedSampleImpl extends ExtendedSample {
   private static final int INITIAL_CAPACITY = 16;
   private static final int INCREMENT        = 0;
 
@@ -48,6 +42,11 @@ public class ExtendedSampleImpl extends ExtendedSample implements DataRow, DataH
     super(id);
 
     this.increment = INCREMENT;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   @Override
@@ -84,7 +83,7 @@ public class ExtendedSampleImpl extends ExtendedSample implements DataRow, DataH
   @Override
   public synchronized double getMax() {
     ensureSorted();
-    return samples[count];
+    return samples[count - 1];
   }
 
   @Override
@@ -116,7 +115,8 @@ public class ExtendedSampleImpl extends ExtendedSample implements DataRow, DataH
     }
   }
 
-  private void ensureSorted() {
+  @Override
+  protected void ensureSorted() {
     if (!isSorted) {
       Arrays.sort(samples, 0, count);
       isSorted = true;
@@ -167,21 +167,5 @@ public class ExtendedSampleImpl extends ExtendedSample implements DataRow, DataH
       double vHigh = samples[(int) pos];
       return vLow + diff * (vHigh - vLow);
     }
-  }
-
-  @Override
-  @Nonnull
-  public synchronized Iterator<Object> iterator() {
-    ensureSorted();
-
-    return Iterators.<Object>forArray(
-           Long.valueOf(getCount()),
-           Double.valueOf(getTotal()),
-           Double.valueOf(getMin()),
-           Double.valueOf(getAverage()),
-           Double.valueOf(getFirstQuartile()),
-           Double.valueOf(getMedian()),
-           Double.valueOf(getThirdQuartile()),
-           Double.valueOf(getMax()));
   }
 }

@@ -16,10 +16,11 @@
 
 package com.android.jack.util.graph;
 
-import java.util.LinkedList;
+import com.android.jack.Jack;
+
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -30,21 +31,26 @@ import javax.annotation.Nonnull;
 public class Graph<N extends GraphNode<N>> {
 
   @Nonnull
-  private final LinkedList<N> nodes = new LinkedList<N>();
+  private final List<N> nodes;
 
-  @CheckForNull
-  protected N entry = null;
+  @Nonnull
+  private final N entry;
 
-  @CheckForNull
-  protected N exit = null;
+  @Nonnull
+  private final N exit;
 
-  /**
-   * @return the nodes
-   */
-  @SuppressWarnings("unchecked")
+  public Graph(@Nonnull N entry, @Nonnull N exit, @Nonnull ArrayList<N> nodes) {
+    assert entry != null;
+    assert exit != null;
+    assert nodes != null;
+    this.entry = entry;
+    this.exit = exit;
+    this.nodes = Jack.getUnmodifiableCollections().getUnmodifiableList(nodes);
+  }
+
   @Nonnull
   public List<N> getNodes() {
-    return (List<N>) nodes.clone();
+    return nodes;
   }
 
   /**
@@ -52,7 +58,6 @@ public class Graph<N extends GraphNode<N>> {
    */
   @Nonnull
   public N getEntryNode() {
-    assert entry != null;
     return entry;
   }
 
@@ -61,22 +66,6 @@ public class Graph<N extends GraphNode<N>> {
    */
   @Nonnull
   public N getExitNode() {
-    assert exit != null;
     return exit;
   }
-
-  public void addNode(@Nonnull N node) {
-    nodes.add(node);
-  }
-
-  public boolean removeNode(@Nonnull N node) {
-    boolean remove = nodes.remove(node);
-    if (remove) {
-      for (N succ : node.getSuccessors()) {
-        succ.removePredecessor(node);
-      }
-    }
-    return remove;
-  }
-
 }

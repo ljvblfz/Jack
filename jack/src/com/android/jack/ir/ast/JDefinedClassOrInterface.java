@@ -95,7 +95,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public JDefinedClassOrInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
     super(info, name);
-    assert NamingTools.isIdentifier(name) || "package-info".equals(name);
+    assert NamingTools.isTypeIdentifier(name);
     assert JModifier.isTypeModifier(modifier);
     assert JModifier.isValidTypeModifier(modifier);
     this.modifier = modifier;
@@ -211,10 +211,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public JClassOrInterface getEnclosingType() {
     loader.ensureEnclosing(this);
     return enclosingType;
-  }
-
-  public JSession getSession() {
-    return enclosingPackage.getSession();
   }
 
   /**
@@ -338,6 +334,10 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   @Override
   public boolean isAbstract() {
     return JModifier.isAbstract(getModifier());
+  }
+
+  public boolean isAnonymous() {
+    return JModifier.isAnonymousType(getModifier());
   }
 
   public void setAbstract() {
@@ -574,6 +574,11 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     if (parent == null || parent != enclosingPackage) {
       throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
+  }
 
+  @Override
+  public void setName(@Nonnull String name) {
+    enclosingPackage.removeItemWithName(this);
+    super.setName(name);
   }
 }

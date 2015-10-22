@@ -16,22 +16,15 @@
 
 package com.android.jack.clinit;
 
-import com.android.jack.Main;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ClinitTests {
 
   public static final String CLASS_WITH_VARIABLE_INIT_BINARY_NAME
     = "com/android/jack/clinit/jack/ClInitWithVariableInit";
-
-  @Before
-  public void setUp() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testCompileWithClinit() throws Exception {

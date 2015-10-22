@@ -20,7 +20,8 @@ import com.android.jack.JackAbortException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.FileType;
-import com.android.jack.library.JackLibrary;
+import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
@@ -32,78 +33,48 @@ import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * JUnit tests for resource support.
+ * JUnit tests for conflicts between Jayce files and resources.
  */
 public class FileConflictTests {
 
   @Nonnull
-  private static final String COMMON_PATH_001 = "com/android/jack/fileconflict/test001/jack/";
+  private static final VPath TYPE1_PATH =
+      new VPath("com/android/jack/fileconflict/test001/jack/MyClass", '/');
   @Nonnull
-  private static final String COMMON_PATH_002 = "com/android/jack/fileconflict/test002/jack/";
+  private static final VPath TYPE2_PATH =
+      new VPath("com/android/jack/fileconflict/test001/jack/MyClass2", '/');
   @Nonnull
-  private static final String JACK_FILE_PATH_1 =
-      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass.jayce";
+  private static final VPath TYPE3_PATH =
+      new VPath("com/android/jack/fileconflict/test001/jack/MyClass3", '/');
   @Nonnull
-  private static final String JACK_FILE_PATH_2 =
-      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass2.jayce";
+  private static final VPath RESOURCE1_PATH = new VPath("rsc/Resource1", '/');
   @Nonnull
-  private static final String JACK_FILE_PATH_3 =
-      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_001 + "MyClass3.jayce";
+  private static final VPath RESOURCE2_PATH = new VPath("rsc/Resource2", '/');
   @Nonnull
-  private static final String DEX_FILE_PATH_1 =
-      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass.dex";
-  @Nonnull
-  private static final String DEX_FILE_PATH_2 =
-      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass2.dex";
-  @Nonnull
-  private static final String DEX_FILE_PATH_3 =
-      FileType.DEX.getPrefix() + "/" + COMMON_PATH_001 + "MyClass3.dex";
-  @Nonnull
-  private static final String JACK_FILE_PATH_002_1 =
-      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_002 + "IrrelevantForTest.jayce";
-  @Nonnull
-  private static final String JACK_FILE_PATH_002_2 =
-      FileType.JAYCE.getPrefix() + "/" + COMMON_PATH_002 + "IrrelevantForTest2.jayce";
-  @Nonnull
-  private static final String RESOURCE1_SHORTPATH = "Resource1";
-  @Nonnull
-  private static final String RESOURCE2_SHORTPATH = "Resource2";
-  @Nonnull
-  private static final String RESOURCE3_SHORTPATH = "Resource3";
-  @Nonnull
-  private static final String RESOURCE1_LONGPATH = FileType.RSC.getPrefix() + "/"
-      + RESOURCE1_SHORTPATH;
-  @Nonnull
-  private static final String RESOURCE2_LONGPATH = FileType.RSC.getPrefix() + "/"
-      + RESOURCE2_SHORTPATH;
-  @Nonnull
-  private static final String RESOURCE3_LONGPATH = FileType.RSC.getPrefix() + "/"
-      + RESOURCE3_SHORTPATH;
+  private static final VPath RESOURCE3_PATH = new VPath("rsc/Resource3", '/');
 
   @Nonnull
   private static final File TEST001_DIR =
@@ -113,10 +84,7 @@ public class FileConflictTests {
   private static final File TEST002_DIR =
       AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test002.jack");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FileConflictTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Test the behavior of Jack when importing 2 Jack folders containing conflicting Jack files, and
@@ -174,13 +142,23 @@ public class FileConflictTests {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     runTest001(jackOutput, "keep-first", errOut /* errorStream */, /* isApiTest = */ false,
         /* verbose = */ false);
-    File myClass1 = new File(jackOutput, JACK_FILE_PATH_1);
-    File myClass2 = new File(jackOutput, JACK_FILE_PATH_2);
-    File myClass3 = new File(jackOutput, JACK_FILE_PATH_3);
-    Assert.assertTrue(myClass1.exists());
-    Assert.assertTrue(myClass2.exists());
-    Assert.assertTrue(myClass3.exists());
-    Assert.assertTrue(errOut.toString().isEmpty());
+    InputJackLibrary outputLib = null;
+    try {
+      outputLib = AbstractTestTools.getInputJackLibrary(jackOutput);
+      InputVFile myClass1 = outputLib.getFile(FileType.JAYCE, TYPE1_PATH);
+      InputVFile myClass2 = outputLib.getFile(FileType.JAYCE, TYPE2_PATH);
+      InputVFile myClass3 = outputLib.getFile(FileType.JAYCE, TYPE3_PATH);
+      checkJayceNotEmpty(myClass1);
+      checkJayceNotEmpty(myClass2);
+      checkJayceNotEmpty(myClass3);
+    } catch (FileTypeDoesNotExistException e) {
+      Assert.fail();
+    } finally {
+      if (outputLib != null) {
+        outputLib.close();
+      }
+      Assert.assertTrue(errOut.toString().isEmpty());
+    }
   }
 
   /**
@@ -196,20 +174,30 @@ public class FileConflictTests {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     runTest001(jackOutput, "keep-first", errOut /* errorStream */, /* isApiTest = */ false,
         /* verbose = */ true);
-    File myClass1 = new File(jackOutput, JACK_FILE_PATH_1);
-    File myClass2 = new File(jackOutput, JACK_FILE_PATH_2);
-    File myClass3 = new File(jackOutput, JACK_FILE_PATH_3);
-    Assert.assertTrue(myClass1.exists());
-    Assert.assertTrue(myClass2.exists());
-    Assert.assertTrue(myClass3.exists());
-    String errString = errOut.toString();
-    Assert.assertTrue(
-        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass"));
-    Assert.assertTrue(
-        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass2"));
-    Assert.assertTrue(
-        errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass3"));
-    Assert.assertTrue(errString.contains("has already been imported"));
+    InputJackLibrary outputLib = null;
+    try {
+      outputLib = AbstractTestTools.getInputJackLibrary(jackOutput);
+      InputVFile myClass1 = outputLib.getFile(FileType.JAYCE, TYPE1_PATH);
+      InputVFile myClass2 = outputLib.getFile(FileType.JAYCE, TYPE2_PATH);
+      InputVFile myClass3 = outputLib.getFile(FileType.JAYCE, TYPE3_PATH);
+      checkJayceNotEmpty(myClass1);
+      checkJayceNotEmpty(myClass2);
+      checkJayceNotEmpty(myClass3);
+    } catch (FileTypeDoesNotExistException e) {
+      Assert.fail();
+    } finally {
+      if (outputLib != null) {
+        outputLib.close();
+      }
+      String errString = errOut.toString();
+      Assert.assertTrue(
+          errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass"));
+      Assert.assertTrue(
+          errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass2"));
+      Assert.assertTrue(
+          errString.contains("Type com.android.jack.fileconflict.test001.jack.MyClass3"));
+      Assert.assertTrue(errString.contains("has already been imported"));
+    }
   }
 
   /**
@@ -230,7 +218,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -254,7 +241,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -273,9 +259,17 @@ public class FileConflictTests {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackOutput = runTest002(false /* non-zipped */, "keep-first", errOut, /* isApiTest = */ false,
         /* verbose = */ false);
-    checkResourceContent(jackOutput, RESOURCE1_LONGPATH, "Res1");
-    checkResourceContent(jackOutput, RESOURCE2_LONGPATH, "Res2");
-    checkResourceContent(jackOutput, RESOURCE3_LONGPATH, "Res3");
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackOutput);
+      checkResourceContent(lib, RESOURCE1_PATH, "Res1");
+      checkResourceContent(lib, RESOURCE2_PATH, "Res2");
+      checkResourceContent(lib, RESOURCE3_PATH, "Res3");
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
     Assert.assertTrue(errOut.toString().isEmpty());
   }
 
@@ -297,7 +291,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -321,7 +314,6 @@ public class FileConflictTests {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof ResourceImportConflictException);
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("Resource in"));
       Assert.assertTrue(errString.contains("rsc/Resource1"));
       Assert.assertTrue(errString.contains("has already been imported"));
     }
@@ -340,10 +332,17 @@ public class FileConflictTests {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackOutput = runTest002(true /* zipped */, "keep-first", errOut, /* isApiTest = */ false,
         /* verbose = */ false);
-    ZipFile zipFile = new ZipFile(jackOutput);
-    checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
-    checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
-    checkResourceContent(zipFile, RESOURCE3_LONGPATH, "Res3");
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackOutput);
+      checkResourceContent(lib, RESOURCE1_PATH, "Res1");
+      checkResourceContent(lib, RESOURCE2_PATH, "Res2");
+      checkResourceContent(lib, RESOURCE3_PATH, "Res3");
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
     Assert.assertTrue(errOut.toString().isEmpty());
   }
 
@@ -360,12 +359,18 @@ public class FileConflictTests {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     jackOutput = runTest002(true /* zipped */, "keep-first", errOut, /* isApiTest = */ false,
         /* verbose = */ true);
-    ZipFile zipFile = new ZipFile(jackOutput);
-    checkResourceContent(zipFile, RESOURCE1_LONGPATH, "Res1");
-    checkResourceContent(zipFile, RESOURCE2_LONGPATH, "Res2");
-    checkResourceContent(zipFile, RESOURCE3_LONGPATH, "Res3");
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackOutput);
+      checkResourceContent(lib, RESOURCE1_PATH, "Res1");
+      checkResourceContent(lib, RESOURCE2_PATH, "Res2");
+      checkResourceContent(lib, RESOURCE3_PATH, "Res3");
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
     String errString = errOut.toString();
-    Assert.assertTrue(errString.contains("Resource in"));
     Assert.assertTrue(errString.contains("rsc/Resource1"));
     Assert.assertTrue(errString.contains("has already been imported"));
   }
@@ -376,151 +381,109 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  public void test003a() throws Exception {
-    // compile source files to a Jack dir
+  public void test003() throws Exception {
+
     File jackOutput = AbstractTestTools.createTempDir();
     File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003");
     File tempJackFolder = AbstractTestTools.createTempDir();
 
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    toolchain.addResourceDir(new File(testSrcDir, "jack/rsc1"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         testSrcDir);
 
-    // get paths for Jack files
-    String jackFilePath =
-        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.jayce";
-    File myClass1 = new File(tempJackFolder, jackFilePath);
-
-    // get paths for Dex files
-    String dexFilePath =
-        FileType.DEX.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.dex";
-    File myClass1Dex = new File(tempJackFolder, dexFilePath);
-
-    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
-    File libProperties = new File(tempJackFolder, libPropName);
-    File digestFile = new File(tempJackFolder, FileType.DEX.getPrefix() + "/digest");
-
-
-    // create Jack dirs to import
-    File jackImport1 = AbstractTestTools.createTempDir();
-    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1Dex, dexFilePath, jackImport1);
-    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
-
-    // copy Jack file to output dir
-    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackOutput);
-    AbstractTestTools.copyFileToDir(myClass1Dex, dexFilePath, jackOutput);
-
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
-    toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
-    toolchain.libToLib(jackImport1, jackOutput, false);
-  }
-
-  /**
-   * Test the behavior of Jack when outputting a resource to a Jack folder where a file of the
-   * same name already exists. We expect the previous file to be overridden.
-   * @throws Exception
-   */
-  @Test
-  @Ignore("Now jack generate library, a previous file can not exists")
-  public void test003b() throws Exception {
-    File jackOutput = AbstractTestTools.createTempDir();
-
-    // compile source files to a Jack dir
-    File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test003.jack");
-    File tempJackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addResourceDir(new File(testSrcDir, "jack/rsc2"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tempJackFolder,
         /* zipFiles = */ false,
         testSrcDir);
 
-    // get paths for Jack files
-    String jackFilePath =
-        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test003/jack/MyClass.jayce";
-    File myClass1 = new File(tempJackFolder, jackFilePath);
+    VPath typePath = new VPath("com/android/jack/fileconflict/test003/jack/MyClass", '/');
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(tempJackFolder);
 
-    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
-    File libProperties = new File(tempJackFolder, libPropName);
+      // check Jayce file is not empty
+      InputVFile jayceFile = lib.getFile(FileType.JAYCE, typePath);
+      checkJayceNotEmpty(jayceFile);
 
-    // create Jack dirs to import
-    File jackImport1 = AbstractTestTools.createTempDir();
-    String resourcePath = "com/android/jack/fileconflict/test003/jack/Resource";
-    File resource = new File(testSrcDir, "Resource");
-    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
-    AbstractTestTools.copyFileToDir(resource, resourcePath, jackImport1);
-
-    // copy a different resource to output dir with the same name
-    File resource2 = new File(testSrcDir, "Resource2");
-    AbstractTestTools.copyFileToDir(resource2, resourcePath, jackOutput);
-
-    // run Jack on Jack dir
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.libToLib(jackImport1, jackOutput, /* zipFiles = */ false);
-
-    checkResourceContent(jackOutput, resourcePath, "Res1");
-
+      // check Resource file content
+      checkResourceContent(lib, new VPath("Resource", '/'), "Res2");
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
   }
 
   /**
-   * Test the behavior of Jack when renaming a Jack file along with the resource with a matching
+   * Test the behavior of Jack when renaming a Jayce file along with the resource with a matching
    * name, and when a resource with the same name (after renaming) already exists.
    * @throws Exception
    */
   @Test
-  @KnownIssue
   public void test004() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
+    VPath pathToType = new VPath("com/android/jack/fileconflict/test004/jack/MyClass", '/');
+    VPath pathToRenamedType = new VPath("pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg", '/');
+    VPath pathToResource2 = pathToRenamedType.clone().addSuffix(".txt");
 
-    // compile source files to a Jack dir
-    File testSrcDir = AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test004.jack");
-    File tempJackFolder = AbstractTestTools.createTempDir();
+    // compile source files to a lib dir while importing ZmPyngg.txt
+    File testSrcDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test004.jack");
+    File jackImport1 = AbstractTestTools.createTempDir();
 
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    toolchain.addResourceDir(new File(testSrcDir, "rsc2"))
+    .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
-        tempJackFolder,
+        jackImport1,
         /* zipFiles = */ false,
         testSrcDir);
 
-    // get paths for Jack files
-    String jackFilePath =
-        FileType.JAYCE.getPrefix() + "/com/android/jack/fileconflict/test004/jack/MyClass.jayce";
-    File myClass1 = new File(tempJackFolder, jackFilePath);
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackImport1);
+      checkResourceContent(lib, pathToResource2, "a");
+      checkJayceNotEmpty(lib.getFile(FileType.JAYCE, pathToType));
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
 
-    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
-    File libProperties = new File(tempJackFolder, libPropName);
-
-    // create Jack dirs to import
-    File jackImport1 = AbstractTestTools.createTempDir();
-    File resource = new File(testSrcDir, "MyClass.txt");
-    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1, jackFilePath, jackImport1);
-    AbstractTestTools.copyFileToDir(resource, "com/android/jack/fileconflict/test004/jack/MyClass.txt", jackImport1);
-
-    // copy a different resource to output dir with the same name
-    File resource2 = new File(testSrcDir, "a.txt");
-    AbstractTestTools.copyFileToDir(resource2, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt", jackOutput);
-
-    // run Jack on Jack dir
+    // compile source files to the same lib dir while importing MyClass.txt which should be
+    // obfuscated as ZmPyngg.txt
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addResourceDir(new File(testSrcDir, "rsc1"));
     toolchain.addProguardFlags(new File(testSrcDir, "proguard.flags"));
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
-    toolchain.libToLib(jackImport1, jackOutput, /* zipFiles = */ false);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
+        jackImport1,
+        /* zipFiles = */ false,
+        testSrcDir);
 
-    checkResourceContent(jackOutput, "pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg.txt",
-        "MyClass");
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackImport1);
+      checkResourceContent(lib, pathToResource2, "MyClass");
+      checkJayceNotEmpty(lib.getFile(FileType.JAYCE, pathToRenamedType));
+      checkJayceNotEmpty(lib.getFile(FileType.JAYCE, pathToType)); // still here from 1st run
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
   }
 
   @Nonnull
@@ -535,54 +498,39 @@ public class FileConflictTests {
 
   private void runTest001(@Nonnull File jackOutput, @CheckForNull String collisionPolicy,
       @CheckForNull OutputStream errorStream, boolean isApiTest, boolean verbose) throws Exception {
-    // compile source files to a Jack dir
-    File tempJackFolder = AbstractTestTools.createTempDir();
+
+    // create Jack dirs to import
+    File jackLib1 = AbstractTestTools.createTempDir();
+    File jackLib2 = AbstractTestTools.createTempDir();
+
+    File srcFile1 = new File(TEST001_DIR, "MyClass.java");
+    File srcFile2 = new File(TEST001_DIR, "MyClass2.java");
+    File srcFile3 = new File(TEST001_DIR, "MyClass3.java");
 
     JackBasedToolchain toolchain = getToolchain(isApiTest);
-
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
     toolchain.setVerbose(verbose);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
-        tempJackFolder,
+        jackLib1,
         /* zipFile = */ false,
-        TEST001_DIR);
+        srcFile1, srcFile2);
 
-    // get paths for Jack files
-    File myClass1 = new File(tempJackFolder, JACK_FILE_PATH_1);
-    File myClass2 = new File(tempJackFolder, JACK_FILE_PATH_2);
-    File myClass3 = new File(tempJackFolder, JACK_FILE_PATH_3);
-
-    // get paths for dex files
-    File myClass1Dex = new File(tempJackFolder, DEX_FILE_PATH_1);
-    File myClass2Dex = new File(tempJackFolder, DEX_FILE_PATH_2);
-    File myClass3Dex = new File(tempJackFolder, DEX_FILE_PATH_3);
-
-    String libPropName = JackLibrary.LIBRARY_PROPERTIES_VPATH.getPathAsString('/');
-    File libProperties = new File(tempJackFolder, libPropName);
-    File digestFile = new File(tempJackFolder, FileType.DEX.getPrefix() + "/digest");
-
-    // create Jack dirs to import
-    File jackImport1 = AbstractTestTools.createTempDir();
-    File jackImport2 = AbstractTestTools.createTempDir();
-    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport1);
-    AbstractTestTools.copyFileToDir(digestFile, FileType.DEX.getPrefix() + "/digest", jackImport2);
-    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass2, JACK_FILE_PATH_2, jackImport1);
-    AbstractTestTools.copyFileToDir(myClass2Dex, DEX_FILE_PATH_2, jackImport1);
-    AbstractTestTools.copyFileToDir(libProperties, libPropName, jackImport2);
-    AbstractTestTools.copyFileToDir(myClass1, JACK_FILE_PATH_1, jackImport2);
-    AbstractTestTools.copyFileToDir(myClass1Dex, DEX_FILE_PATH_1, jackImport2);
-    AbstractTestTools.copyFileToDir(myClass3, JACK_FILE_PATH_3, jackImport2);
-    AbstractTestTools.copyFileToDir(myClass3Dex, DEX_FILE_PATH_3, jackImport2);
+    toolchain = getToolchain(isApiTest);
+    if (errorStream != null) {
+      toolchain.setErrorStream(errorStream);
+    }
+    toolchain.setVerbose(verbose);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
+        jackLib2,
+        /* zipFile = */ false,
+        srcFile1, srcFile3);
 
     // run Jack on Jack dirs
     toolchain = getToolchain(isApiTest);
     toolchain.addProguardFlags(new File(TEST001_DIR, "proguard.flags"));
-    toolchain.addStaticLibs(jackImport1, jackImport2);
+    toolchain.addStaticLibs(jackLib1, jackLib2);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     if (collisionPolicy != null) {
       toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), collisionPolicy);
@@ -590,7 +538,7 @@ public class FileConflictTests {
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
-    toolchain.libToLib(new File [] {jackImport1, jackImport2}, jackOutput, /* zipFiles = */ false);
+    toolchain.libToLib(new File [] {jackLib1, jackLib2}, jackOutput, /* zipFiles = */ false);
   }
 
   @Nonnull
@@ -601,7 +549,7 @@ public class FileConflictTests {
     File lib1 = new File(TEST002_DIR, "lib1");
 
     JackBasedToolchain toolchain = getToolchain(isApiTest);
-    toolchain.addResource(new File(lib1, "rsc"));
+    toolchain.addResourceDir(new File(lib1, "rsc"));
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
@@ -615,7 +563,7 @@ public class FileConflictTests {
     File jackImport2 = AbstractTestTools.createTempDir();
     File lib2 = new File(TEST002_DIR, "lib2");
     toolchain = getToolchain(isApiTest);
-    toolchain.addResource(new File(lib2, "rsc"));
+    toolchain.addResourceDir(new File(lib2, "rsc"));
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
@@ -644,15 +592,12 @@ public class FileConflictTests {
     return jackOutput;
   }
 
-  private void checkResourceContent(@Nonnull File dir, @Nonnull String path,
-      @Nonnull String expectedContent) throws IOException {
-    assert dir.isDirectory();
-    File file = new File(dir, path);
-    Assert.assertTrue(file.exists());
+  private void checkResourceContent(@Nonnull InputJackLibrary lib, @Nonnull VPath path,
+      @Nonnull String expectedContent) throws IOException, FileTypeDoesNotExistException {
     BufferedReader reader = null;
     try {
-      InputStream in = new FileInputStream(file);
-      reader = new BufferedReader(new InputStreamReader(in));
+      reader = new BufferedReader(
+          new InputStreamReader(lib.getFile(FileType.RSC, path).getInputStream()));
       String line = reader.readLine();
       Assert.assertEquals(expectedContent, line);
     } finally {
@@ -662,20 +607,8 @@ public class FileConflictTests {
     }
   }
 
-  private void checkResourceContent(@Nonnull ZipFile zipFile, @Nonnull String entryName,
-      @Nonnull String expectedContent) throws IOException {
-    ZipEntry entry = zipFile.getEntry(entryName);
-    Assert.assertNotNull(entry);
-    BufferedReader reader = null;
-    try {
-      InputStream in = zipFile.getInputStream(entry);
-      reader = new BufferedReader(new InputStreamReader(in));
-      String line = reader.readLine();
-      Assert.assertEquals(expectedContent, line);
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-    }
+  private void checkJayceNotEmpty(@Nonnull InputVFile jayceFile) {
+    File file = new File(((FileLocation) jayceFile.getLocation()).getPath());
+    Assert.assertTrue(file.length() > 0);
   }
 }

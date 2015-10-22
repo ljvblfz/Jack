@@ -16,6 +16,7 @@
 
 package com.android.jack.test.util;
 
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.util.stream.CharacterStreamSucker;
@@ -165,6 +166,8 @@ public class ExecuteFile {
     logger = LoggerFactory.getLogger();
   }
 
+  // Intended behavior, wrap any exception thrown in try block
+  @SuppressFBWarnings("REC_CATCH_EXCEPTION")
   public int run() throws ExecFileException {
     int ret;
     Process proc = null;

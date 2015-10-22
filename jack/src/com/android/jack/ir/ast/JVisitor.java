@@ -165,7 +165,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JByteLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JCaseStatement x) {
@@ -189,7 +189,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JCharLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JClassLiteral x) {
@@ -221,7 +221,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JDoubleLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JEnumLiteral enumLiteral) {
@@ -257,7 +257,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JFloatLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JForStatement x) {
@@ -281,7 +281,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JIntLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JLabel x) {
@@ -313,7 +313,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JLongLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JMethod x) {
@@ -366,6 +366,10 @@ public class JVisitor {
 
   public void endVisit(@Nonnull JNullType x) {
     endVisit((JReferenceType) x);
+  }
+
+  public void endVisit(@Nonnull JNumberValueLiteral x) {
+    endVisit((JValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JPackage x) {
@@ -421,7 +425,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JShortLiteral x) {
-    endVisit((JValueLiteral) x);
+    endVisit((JNumberValueLiteral) x);
   }
 
   public void endVisit(@Nonnull JStatement x) {
@@ -553,7 +557,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JByteLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JCastOperation x) {
@@ -569,7 +573,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JCharLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JClassLiteral x) {
@@ -605,7 +609,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JDoubleLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JEnumLiteral enumLiteral) {
@@ -641,7 +645,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JFloatLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JForStatement x) {
@@ -665,7 +669,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JIntLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JLabel x) {
@@ -697,7 +701,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JLongLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JMethod x) {
@@ -750,6 +754,10 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JNullType x) {
     return visit((JReferenceType) x);
+  }
+
+  public boolean visit(@Nonnull JNumberValueLiteral x) {
+    return visit((JValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JPackage x) {
@@ -805,7 +813,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JShortLiteral x) {
-    return visit((JValueLiteral) x);
+    return visit((JNumberValueLiteral) x);
   }
 
   public boolean visit(@Nonnull JStatement x) {
@@ -974,7 +982,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JCharLiteral x, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) x, transformRequest);
   }
 
   public void visit(@Nonnull JClassLiteral x, @Nonnull TransformRequest transformRequest)
@@ -1019,7 +1027,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JDoubleLiteral x, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) x, transformRequest);
   }
 
   public void visit(@Nonnull JEnumLiteral enumLiteral, @Nonnull TransformRequest transformRequest)
@@ -1065,7 +1073,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JFloatLiteral x, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) x, transformRequest);
   }
 
   public void visit(@Nonnull JForStatement x, @Nonnull TransformRequest transformRequest)
@@ -1094,7 +1102,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JIntLiteral x, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) x, transformRequest);
   }
 
   public void visit(@Nonnull JLabel x, @Nonnull TransformRequest transformRequest)
@@ -1133,7 +1141,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JLongLiteral x, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) x, transformRequest);
   }
 
   public void visit(@Nonnull JMethod x, @Nonnull TransformRequest transformRequest)
@@ -1199,6 +1207,12 @@ public class JVisitor {
       throws Exception {
     visit((JReferenceType) x, transformRequest);
   }
+
+  public void visit(@Nonnull JNumberValueLiteral x, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visit((JValueLiteral) x, transformRequest);
+  }
+
 
   public void visit(@Nonnull JParameter x, @Nonnull TransformRequest transformRequest)
       throws Exception {

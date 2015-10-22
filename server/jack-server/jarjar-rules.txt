@@ -1,0 +1,5 @@
+rule com.android.sched.** com.android.jack.server.sched.@1" />
+rule com.google.** com.android.jack.server.google.@1
+rule javax.annotation.** com.android.jack.server.@0
+rule org.uncommons.** com.android.jack.server.@0
+rule freemarker.** com.android.jack.server.@0

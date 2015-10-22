@@ -19,16 +19,9 @@ package com.android.jack.compiletime;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CompileTimeTests {
-
-
-  @BeforeClass
-  public static void setUpClass() {
-    CompileTimeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void test001() throws Exception {

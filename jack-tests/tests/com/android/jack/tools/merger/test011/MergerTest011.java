@@ -17,7 +17,6 @@
 package com.android.jack.tools.merger.test011;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.Main;
 import com.android.jack.backend.dex.DexWritingException;
 import com.android.jack.backend.dex.SingleDexOverflowException;
 import com.android.jack.test.category.SlowTests;
@@ -26,11 +25,9 @@ import com.android.jack.tools.merger.FieldIdOverflowException;
 import com.android.jack.tools.merger.MergerTestTools;
 import com.android.jack.tools.merger.MethodIdOverflowException;
 import com.android.jack.tools.merger.TypeIdOverflowException;
-import com.android.sched.scheduler.ProcessException;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -55,10 +52,7 @@ public class MergerTest011 extends MergerTestTools {
       "Dex writing phase: classes.dex has too many IDs. Try using multi-dex";
 
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testMergerWithHighNumberOfMethods() throws Exception {

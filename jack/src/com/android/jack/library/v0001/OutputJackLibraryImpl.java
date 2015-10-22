@@ -16,7 +16,7 @@
 
 package com.android.jack.library.v0001;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableSet;
 
 import com.android.jack.library.CommonJackLibrary;
 import com.android.jack.library.FileType;
@@ -39,6 +39,7 @@ import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.InputOutputVFS;
+import com.android.sched.vfs.InputOutputVFile;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.MessageDigestFS;
@@ -230,7 +231,7 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
   @Nonnull
   public Iterator<InputVFile> iterator(@Nonnull FileType fileType) {
     if (!containsFileType(fileType)) {
-      return Iterators.emptyIterator();
+      return ImmutableSet.<InputVFile>of().iterator();
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
@@ -245,10 +246,10 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
 
   @Override
   @Nonnull
-  public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
+  public InputOutputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return getSectionVFS(fileType).getRootInputVDir()
+      return getSectionVFS(fileType).getRootInputOutputVDir()
           .getInputVFile(buildFileVPath(fileType, typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);

@@ -16,8 +16,6 @@
 
 package com.android.jack.jarjar.test003.jack;
 
-import java.lang.annotation.Annotation;
-
 public @interface C {
 
   D value() default @D;

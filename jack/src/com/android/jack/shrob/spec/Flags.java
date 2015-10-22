@@ -158,11 +158,8 @@ public class Flags {
   }
 
   public boolean getKeepParameterNames() {
-    if (obfuscate) {
-      return keepParameterNames;
-    } else {
-      return true;
-    }
+    assert obfuscate;
+    return keepParameterNames;
   }
 
   public void setObfuscationMapping(@CheckForNull File obfuscationMapping) {
@@ -275,11 +272,6 @@ public class Flags {
     return packageForFlatHierarchy;
   }
 
-  @CheckForNull
-  public FilterSpecification getKeepAttributes() {
-    return keepAttributes;
-  }
-
   @Nonnull
   public List<ClassSpecification> getKeepClassSpecs() {
     return keepClassSpecs;
@@ -333,14 +325,8 @@ public class Flags {
   }
 
   public boolean keepAttribute(@Nonnull String attributeName) {
-    if (obfuscate) {
-      if (keepAttributes != null) {
-        return keepAttributes.matches(attributeName);
-      }
-      return false;
-    } else {
-      return true;
-    }
+    assert obfuscate;
+    return keepAttributes != null && keepAttributes.matches(attributeName);
   }
 
   public void setRenameSourceFileAttribute(@CheckForNull String renameSourceFileAttribute) {

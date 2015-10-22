@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -128,7 +129,7 @@ public class NClassType extends NDeclaredType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedClass jClassType = (JDefinedClass) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), loading.getSession(),
+    ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jClassType);
     loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));

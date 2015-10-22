@@ -52,7 +52,7 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
     } catch (NoSuchFileException e) {
       rootDir = this.vfs.getRootDir().createVDir(prefix);
     }
-    this.rootDir = rootDir;
+    this.rootDir = changeVFS(rootDir);
   }
 
   @Override
@@ -87,7 +87,13 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return vfs.openWrite(file);
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return vfs.openWrite(file, append);
   }
 
   @Override
@@ -99,35 +105,39 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Override
   @Nonnull
   Collection<? extends BaseVElement> list(@Nonnull BaseVDir dir) {
-    return vfs.list(dir);
+    Collection<? extends BaseVElement> elements = vfs.list(dir);
+    for (BaseVElement element : elements) {
+      element.changeVFS(this);
+    }
+    return elements;
   }
 
   @Override
   @Nonnull
   BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return vfs.createVFile(parent, name);
+    return changeVFS(vfs.createVFile(parent, name));
   }
 
   @Override
   @Nonnull
   BaseVDir createVDir(@Nonnull BaseVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return vfs.createVDir(parent, name);
+    return changeVFS(vfs.createVDir(parent, name));
   }
 
   @Override
   @Nonnull
   BaseVDir getVDir(@Nonnull BaseVDir parent, @Nonnull String name) throws NotDirectoryException,
       NoSuchFileException {
-    return vfs.getVDir(parent, name);
+    return changeVFS(vfs.getVDir(parent, name));
   }
 
   @Override
   @Nonnull
   BaseVFile getVFile(@Nonnull BaseVDir parent, @Nonnull String name) throws NotFileException,
       NoSuchFileException {
-    return vfs.getVFile(parent, name);
+    return changeVFS(vfs.getVFile(parent, name));
   }
 
 
@@ -151,6 +161,11 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Override
   boolean isEmpty(@Nonnull BaseVDir dir) {
     return vfs.isEmpty(dir);
+  }
+
+  @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return vfs.getLastModified(file);
   }
 
   @Override
@@ -187,5 +202,29 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   @Nonnull
   Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
     return vfs.getVDirLocation(parent, path);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(rootDir, file);
+  }
+
+  @Nonnull
+  private BaseVDir changeVFS(@Nonnull BaseVDir dir) {
+    dir.changeVFS(this);
+    return dir;
+  }
+
+  @Nonnull
+  private BaseVFile changeVFS(@Nonnull BaseVFile file) {
+    file.changeVFS(this);
+    return file;
   }
 }

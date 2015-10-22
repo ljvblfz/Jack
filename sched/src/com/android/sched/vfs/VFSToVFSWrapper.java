@@ -170,7 +170,13 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return workVFS.openWrite(file);
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return workVFS.openWrite(file, append);
   }
 
   @Override
@@ -219,6 +225,11 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   }
 
   @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return workVFS.getLastModified(file);
+  }
+
+  @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVFile file) {
     return workVFS.getVFileLocation(file);
@@ -258,4 +269,17 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   public void setWorkVFS(@Nonnull VFS temporaryVFS) {
     workVFS = (BaseVFS<BaseVDir, BaseVFile>) temporaryVFS;
   }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return workVFS.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return workVFS.getPathFromRoot(file);
+  }
+
 }

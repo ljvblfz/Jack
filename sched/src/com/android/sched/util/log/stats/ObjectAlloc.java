@@ -16,9 +16,13 @@
 
 package com.android.sched.util.log.stats;
 
-import com.android.sched.util.codec.ByteFormatter;
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.LongCodec;
+import com.google.common.collect.Iterators;
+
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.DataView;
+import com.android.sched.util.print.DataViewBuilder;
+
+import java.util.Iterator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -39,6 +43,15 @@ public class ObjectAlloc extends Statistic {
   public void recordObjectAllocation(@Nonnegative long size) {
   }
 
+
+  public long getNumber() {
+    return 0;
+  }
+
+  public long getSize() {
+    return 0;
+  }
+
   @Override
   public void merge(@Nonnull Statistic statistic) {
     throw new AssertionError();
@@ -50,33 +63,26 @@ public class ObjectAlloc extends Statistic {
     return "Object allocation";
   }
 
-
-  @Nonnull
-  private static final String[] HEADER = new String[] {
-    "Object count",
-    "Object size",
-    "Total size"
-  };
-
-  @Override
-  @Nonnegative
-  public int getColumnCount() {
-    return HEADER.length;
-  }
-
   @Override
   @Nonnull
-  public String[] getHeader() {
-    return HEADER.clone();
+  public synchronized Iterator<Object> iterator() {
+    return Iterators.<Object> forArray(
+        Long.valueOf(getNumber()),
+        Long.valueOf(getSize()),
+        Long.valueOf(getNumber() * getSize()));
   }
+
+  @Nonnull
+  private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
+      .addField("objectCount", DataType.NUMBER)
+      .addField("objectSize", DataType.QUANTITY)
+      .addField("objectTotalSize", DataType.QUANTITY)
+      .build();
 
   @Override
   @Nonnull
-  public Formatter<?>[] getFormatters() {
-    return new Formatter<?>[] {
-        new LongCodec(),
-        new ByteFormatter(),
-        new ByteFormatter()
-    };
+  public DataView getDataView() {
+    return DATA_VIEW;
   }
+
 }

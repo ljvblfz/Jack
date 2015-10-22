@@ -16,9 +16,22 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.WrongPermissionException;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+
+import javax.annotation.Nonnull;
+
 /**
  * Virtual file to write to.
  */
 public interface OutputVFile extends OutputVElement, OutputStreamProvider {
+
+  @Nonnull
+  OutputStream getOutputStream(boolean append) throws WrongPermissionException;
+
+  @Nonnull
+  PrintStream getPrintStream(boolean append) throws WrongPermissionException;
 
 }

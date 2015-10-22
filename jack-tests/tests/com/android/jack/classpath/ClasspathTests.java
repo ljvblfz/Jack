@@ -19,18 +19,21 @@ package com.android.jack.classpath;
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -40,11 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClasspathTests {
-
-  @BeforeClass
-  public static void setUpClass() {
-    ClasspathTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void test001() throws Exception {
@@ -65,7 +63,10 @@ public class ClasspathTests {
 
   @Test
   public void test002() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
+    exclude.add(JillApiToolchainBase.class);
+
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
 
     File[] defaultBootCp = toolchain.getDefaultBootClasspath();
 
@@ -78,19 +79,19 @@ public class ClasspathTests {
         /* zipFiles = */ false, new File(testFolder, "lib1"));
 
     File lib1BisOut = AbstractTestTools.createDir(outFolder, "lib1override");
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.addToClasspath(defaultBootCp)
     .srcToLib(lib1BisOut,
         /* zipFiles = */ false, new File(testFolder, "lib1override"));
 
     File lib2Out = AbstractTestTools.createDir(outFolder, "lib2");
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.addToClasspath(defaultBootCp)
     .addToClasspath(lib1Out)
     .srcToLib(lib2Out,
     /* zipFiles = */ false, new File(testFolder, "lib2"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.addStaticLibs(lib2Out);
     toolchain.addToClasspath(defaultBootCp)
     .addToClasspath(lib1BisOut)
@@ -125,10 +126,11 @@ public class ClasspathTests {
 
     {
       // delete unused inner in classpath and check we can still compile with it
-      boolean deleted = new File(libOut, FileType.JAYCE.getPrefix()
-          + "/com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete"
-          + toolchain.getLibraryElementsExtension()).delete();
-      Assert.assertTrue(deleted);
+      InputJackLibrary lib = AbstractTestTools.getInputJackLibrary(libOut);
+      lib.getFile(FileType.JAYCE,
+          new VPath("com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete", '/'))
+          .delete();
+      lib.close();
       toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
@@ -165,7 +167,7 @@ public class ClasspathTests {
   @Test
   public void testMissingClasspathEntry() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
     File testOut = AbstractTestTools.createTempFile("ClasspathTest", "missing");

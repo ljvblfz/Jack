@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java short literal expression.
  */
 @Description("Java short literal expression")
-public class JShortLiteral extends JValueLiteral
+public class JShortLiteral extends JNumberValueLiteral
     implements JIntegralConstant32, JNumberLiteral {
 
   private final short value;
@@ -81,5 +81,12 @@ public class JShortLiteral extends JValueLiteral
   @Nonnull
   public Number getNumber() {
     return new Number(Short.valueOf(value));
+  }
+
+  @Override
+  public void checkValidity() {
+    if (!(parent instanceof JSwitchStatement || parent instanceof JCaseStatement)) {
+      super.checkValidity();
+    }
   }
 }

@@ -17,6 +17,8 @@
 package com.android.sched.util.log;
 
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.config.Config;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.util.log.tracer.TracerEventType;
@@ -37,6 +39,9 @@ import javax.annotation.Nonnull;
 public final class DummyTracer implements Tracer {
   @Nonnull
   private final DummyTracerEvent dummyEvent = new DummyTracerEvent();
+
+  @Nonnull
+  private final Config config;
 
   /**
    * Represents event.
@@ -96,49 +101,69 @@ public final class DummyTracer implements Tracer {
     }
   }
 
+  public DummyTracer() {
+    config = ThreadConfig.getConfig();
+  }
+
   @Override
   @Nonnull
   public DummyTracerEvent start(@Nonnull EventType type) {
+    assert config == ThreadConfig.getConfig();
+
     return dummyEvent;
   }
 
   @Override
   @Nonnull
   public DummyTracerEvent start(@Nonnull String name) {
+    assert config == ThreadConfig.getConfig();
+
     return dummyEvent;
   }
 
   @Override
   public boolean isTracing() {
+    assert config == ThreadConfig.getConfig();
+
     return false;
   }
 
   @Override
   @Nonnull
   public EventType getCurrentEventType() {
+    assert config == ThreadConfig.getConfig();
+
     return TracerEventType.NOEVENT;
   }
 
   @Override
   @Nonnull
   public <T extends Statistic> T getStatistic(@Nonnull StatisticId<T> id) {
+    assert config == ThreadConfig.getConfig();
+
     return dummyEvent.getStatistic(id);
   }
 
   @Override
   @Nonnull
   public EventType getDynamicEventType(@Nonnull String name) {
+    assert config == ThreadConfig.getConfig();
+
     return TracerEventType.NOTYPE;
   }
 
   @Override
   public <T> void registerWatcher(@Nonnull Class<T> objectClass,
       @Nonnull Class<? extends ObjectWatcher<? extends T>> watcherClass) {
+    assert config == ThreadConfig.getConfig();
+
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void registerObject(@Nonnull Object object, @Nonnegative long size, int count) {
+    assert config == ThreadConfig.getConfig();
+
     throw new UnsupportedOperationException();
   }
 }

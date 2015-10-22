@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.int_to_byte;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.int_to_byte.jm.T_int_to_byte_1;
 import com.android.jack.opcodes.int_to_byte.jm.T_int_to_byte_3;
 import com.android.jack.opcodes.int_to_byte.jm.T_int_to_byte_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_int_to_byte extends DxTestCase {

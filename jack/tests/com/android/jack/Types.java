@@ -47,7 +47,7 @@ import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -66,13 +66,10 @@ public class Types {
     session.getLookup().getOrCreatePackage("java/lang");
   }
 
-  @BeforeClass
-  public static void setUpClass() {
-    Types.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
-
   @Test
   public void unaryPrefixNotGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
 
     try {
@@ -106,6 +103,8 @@ public class Types {
 
   @Test
   public void unaryPrefixBitNotGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
 
     try {
@@ -211,6 +210,8 @@ public class Types {
 
   @Test
   public void shiftGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
 
     try {
@@ -294,6 +295,8 @@ public class Types {
 
   @Test
   public void relationalGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
     try {
       catched = false;
@@ -345,6 +348,8 @@ public class Types {
 
   @Test
   public void logicalAndBitwiseGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
     try {
       catched = false;
@@ -419,6 +424,8 @@ public class Types {
 
   @Test
   public void equalityGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
 
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JEqOperation(SourceInfo.UNKNOWN,
@@ -463,6 +470,8 @@ public class Types {
 
   @Test
   public void conditionalOperationGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
 
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JAndOperation(SourceInfo.UNKNOWN,
@@ -487,6 +496,8 @@ public class Types {
 
   @Test
   public void arithmeticGetType() throws Exception {
+    Assume.assumeTrue(TestTools.areAssertionsEnabled());
+
     boolean catched;
     JType objectType = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", objectType, JModifier.DEFAULT, null);

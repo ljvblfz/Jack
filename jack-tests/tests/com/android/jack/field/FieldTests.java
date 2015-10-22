@@ -26,7 +26,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -66,10 +65,7 @@ public class FieldTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.field.static005"),
     "com.android.jack.field.static005.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FieldTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void instance001() throws Exception {

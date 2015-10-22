@@ -16,6 +16,7 @@
 
 package com.android.jack.backend.dex.annotations;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexAnnotations;
 import com.android.jack.ir.ast.JAnnotation;
@@ -138,7 +139,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   @Nonnull
   private JAnnotationType getDefaultAnnotationType(@Nonnull JDefinedClassOrInterface type) {
     if (defaultAnnotationType == null) {
-      defaultAnnotationType = type.getSession()
+      defaultAnnotationType = Jack.getSession()
           .getPhantomLookup().getAnnotationType(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
     }
     assert defaultAnnotationType != null;

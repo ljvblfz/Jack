@@ -22,9 +22,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.unary.UnaryTests;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -60,10 +58,6 @@ public class BridgeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.bridge.test007"),
     "com.android.jack.bridge.test007.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    BridgeTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

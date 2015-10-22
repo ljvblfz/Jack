@@ -16,10 +16,17 @@
 
 package com.android.jack.transformations.ast.inner;
 
+import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JModifier;
+import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.transformations.request.AddModifiers;
+import com.android.jack.transformations.request.AppendMethodParam;
 import com.android.jack.transformations.request.RemoveModifiers;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -32,9 +39,16 @@ import javax.annotation.Nonnull;
 /**
  * Adds accessors for outer fields and methods in an inner class
  */
-@Description("Changes collected fields visibility to package private.")
-@Transform(remove = {ReferencedFromInnerClassMarker.class})
-@Constraint(need = {ReferencedFromInnerClassMarker.class})
+@Description("Changes collected fields visibility to package private,"
+    + "transforms collected methods to their uniquely named, package private versions.")
+@Transform(add = {NeedsDispatchAdjustment.class,
+    JParameter.class,
+    NeedsRethising.class,
+    OptimizedInnerAccessorSchedulingSeparator.SeparatorTag.class},
+    modify = {JMethod.class},
+    remove = {ReferencedFromInnerClassMarker.class})
+@Constraint(need = {ReferencedFromInnerClassMarker.class},
+    no = {InnerAccessorSchedulingSeparator.SeparatorTag.class})
 public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
@@ -47,8 +61,27 @@ public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefine
     ReferencedFromInnerClassMarker marker = type.getMarker(ReferencedFromInnerClassMarker.class);
 
     if (marker != null) {
-      for (JField f : marker.getAllFields()) {
+      for (JField f : marker.getFields()) {
         tr.append(new RemoveModifiers(f, JModifier.PRIVATE));
+      }
+
+      for (JMethod method : marker.getMethods()) {
+        tr.append(new RemoveModifiers(method, JModifier.PRIVATE));
+        if (!(method instanceof JConstructor)) {
+          tr.append(new AddModifiers(method, JModifier.STATIC));
+          JMethodId id = method.getMethodId();
+          assert id.getMethods().size() == 1;
+          if (id.getKind() != MethodKind.STATIC) {
+            id.setKind(MethodKind.STATIC);
+            id.addParam(type);
+            id.addMarker(NeedsDispatchAdjustment.INSTANCE);
+            JParameter thisParam =
+                new JParameter(method.getSourceInfo(), InnerAccessorGenerator.THIS_PARAM_NAME,
+                    type, JModifier.FINAL | JModifier.SYNTHETIC, method);
+            tr.append(new AppendMethodParam(method, thisParam));
+            method.addMarker(NeedsRethising.INSTANCE);
+          }
+        }
       }
       type.removeMarker(ReferencedFromInnerClassMarker.class);
     }

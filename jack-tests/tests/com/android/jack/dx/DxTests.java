@@ -27,15 +27,14 @@ import com.android.jack.test.toolchain.IToolchain;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
-import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
 import org.jf.dexlib.Code.Analysis.AnalyzedInstruction;
 import org.jf.dexlib.Code.Analysis.MethodAnalyzer;
 import org.jf.dexlib.Code.Format.Instruction23x;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -56,12 +55,34 @@ public class DxTests extends RuntimeTest {
 
   private RuntimeTestInfo OVERLAPPING = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.dx.overlapping"),
-    "com.android.jack.dx.overlapping.dx.Tests");
+    "com.android.jack.dx.overlapping.dx.Tests").addFileChecker(new FileChecker() {
 
-  @BeforeClass
-  public static void setUpClass() {
-    DxTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        EncodedMethod em =
+            TestTools.getEncodedMethod(dexFile,
+                "Lcom/android/jack/dx/overlapping/jack/Data;", "test002",
+                "(IJJ)J");
+
+        checkThatRegistersDoesNotOverlap(em);
+      }
+
+    }).addFileChecker(new FileChecker() {
+
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        EncodedMethod em =
+            TestTools.getEncodedMethod(dexFile,
+                "Lcom/android/jack/dx/overlapping/jack/Data;", "test001",
+                "(IJJ)J");
+
+        checkThatRegistersDoesNotOverlap(em);
+      }
+
+    });
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void compiler() throws Exception {
@@ -78,34 +99,6 @@ public class DxTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void overlapping() throws Exception {
     new RuntimeTestHelper(OVERLAPPING)
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        EncodedMethod em =
-            TestTools.getEncodedMethod(dexFile,
-                "Lcom/android/jack/dx/overlapping/jack/Data;", "test002",
-                "(IJJ)J");
-
-        checkThatRegistersDoesNotOverlap(em);
-      }
-
-    })
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        EncodedMethod em =
-            TestTools.getEncodedMethod(dexFile,
-                "Lcom/android/jack/dx/overlapping/jack/Data;", "test001",
-                "(IJJ)J");
-
-        checkThatRegistersDoesNotOverlap(em);
-      }
-
-    })
     .compileAndRunTest();
   }
 

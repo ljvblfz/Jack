@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.if_eqz;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_eqz.jm.T_if_eqz_1;
 import com.android.jack.opcodes.if_eqz.jm.T_if_eqz_2;
 import com.android.jack.opcodes.if_eqz.jm.T_if_eqz_3;
 import com.android.jack.opcodes.if_eqz.jm.T_if_eqz_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_eqz extends DxTestCase {

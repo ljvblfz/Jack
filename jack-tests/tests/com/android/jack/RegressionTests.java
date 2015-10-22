@@ -27,7 +27,6 @@ import com.android.jack.cast.CastTests;
 import com.android.jack.comparison.ComparisonTests;
 import com.android.jack.conditional.ConditionalTests;
 import com.android.jack.constant.ConstantTests;
-import com.android.jack.debug.DebugTests;
 import com.android.jack.dx.DxTests;
 import com.android.jack.enums.EnumsTests;
 import com.android.jack.external.ExternalTests;
@@ -59,7 +58,6 @@ import com.android.jack.type.TypeTests;
 import com.android.jack.unary.UnaryTests;
 import com.android.jack.verify.VerifyTests;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -79,7 +77,6 @@ public class RegressionTests {
       new ComparisonTests(),
       new ConditionalTests(),
       new ConstantTests(),
-      new DebugTests(),
       new DxTests(),
       new EnumsTests(),
       new ExprsimplifierTests(),
@@ -109,10 +106,7 @@ public class RegressionTests {
       new VerifyTests(),
   };
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void runRegressionTests() throws Exception {

@@ -19,7 +19,6 @@ package com.android.jack.generic.basic;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -27,10 +26,7 @@ import org.junit.Test;
  */
 public class GenericTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    GenericTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Verifies that the test source can compile from source to dex file.

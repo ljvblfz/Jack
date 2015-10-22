@@ -84,6 +84,6 @@ public class ThreadConfig {
   }
 
   public static void unsetConfig() {
-    threadLocalConfig.set(unitializedConfig);
+    threadLocalConfig.remove();
   }
 }

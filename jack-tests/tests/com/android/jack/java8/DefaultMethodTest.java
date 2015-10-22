@@ -76,17 +76,52 @@ public class DefaultMethodTest {
           "com.android.jack.java8.defaultmethod.test008.jack.Tests")
           .addProguardFlagsFileName("proguard.flags");
 
-  private RuntimeTestInfo DEFAULTMETHOD009 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test009"),
-          "com.android.jack.java8.defaultmethod.test009.jack.Tests")
-          .addProguardFlagsFileName("proguard.flags");
+  private RuntimeTestInfo DEFAULTMETHOD009 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test009"),
+      "com.android.jack.java8.defaultmethod.test009.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags").addFileChecker(new FileChecker() {
+            @Override
+            public void check(@Nonnull File file) throws Exception {
+              DexFile dexFile = new DexFile(file);
+              Set<String> sourceFileInDex = new HashSet<String>();
+              boolean isIKept = false;
+              for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
+                if (classDef.toString().equals(
+                    "class_def_item: Lcom/android/jack/java8/defaultmethod/test009/jack/I;")) {
+                  isIKept = true;
+                  List<EncodedMethod> methods = classDef.getClassData().getVirtualMethods();
+                  Assert.assertEquals(methods.size(), 1);
+                  Assert.assertEquals(methods.get(0).method.getMethodName().getStringValue(),
+                      "add");
+                }
+              }
+              Assert.assertTrue(isIKept);
+            }
+          });
 
-  private RuntimeTestInfo DEFAULTMETHOD010 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test010"),
-          "com.android.jack.java8.defaultmethod.test010.jack.Tests")
-          .addProguardFlagsFileName("proguard.flags");
+  private RuntimeTestInfo DEFAULTMETHOD010 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test010"),
+      "com.android.jack.java8.defaultmethod.test010.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags").addFileChecker(new FileChecker() {
+            @Override
+            public void check(@Nonnull File file) throws Exception {
+              DexFile dexFile = new DexFile(file);
+              Set<String> sourceFileInDex = new HashSet<String>();
+              boolean isIRenamed = false;
+              for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
+                System.out.println(classDef.toString());
+                if (classDef.toString().equals(
+                    "class_def_item: Lcom/android/jack/java8/defaultmethod/test010/jack/Z;")) {
+                  isIRenamed = true;
+                  List<EncodedMethod> methods = classDef.getClassData().getVirtualMethods();
+                  Assert.assertEquals(methods.size(), 1);
+                  Assert.assertEquals(methods.get(0).method.getMethodName().getStringValue(),
+                      "renamedAdd");
+                }
+              }
+              Assert.assertTrue(isIRenamed);
+            }
+          });
 
   private RuntimeTestInfo DEFAULTMETHOD011 =
       new RuntimeTestInfo(
@@ -184,23 +219,6 @@ public class DefaultMethodTest {
   public void testDefaultMethod009() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD009)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addTestExeFileChecker(new FileChecker() {
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        Set<String> sourceFileInDex = new HashSet<String>();
-        boolean isIKept = false;
-        for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
-          if (classDef.toString().equals("class_def_item: Lcom/android/jack/java8/defaultmethod/test009/jack/I;")) {
-            isIKept = true;
-            List<EncodedMethod> methods = classDef.getClassData().getVirtualMethods();
-            Assert.assertEquals(methods.size(), 1);
-            Assert.assertEquals(methods.get(0).method.getMethodName().getStringValue(), "add");
-          }
-        }
-        Assert.assertTrue(isIKept);
-      }
-    })
     .compileAndRunTest();
   }
 
@@ -208,24 +226,6 @@ public class DefaultMethodTest {
   public void testDefaultMethod010() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD010)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addTestExeFileChecker(new FileChecker() {
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        Set<String> sourceFileInDex = new HashSet<String>();
-        boolean isIRenamed = false;
-        for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
-          System.out.println(classDef.toString());
-          if (classDef.toString().equals("class_def_item: Lcom/android/jack/java8/defaultmethod/test010/jack/Z;")) {
-            isIRenamed = true;
-            List<EncodedMethod> methods = classDef.getClassData().getVirtualMethods();
-            Assert.assertEquals(methods.size(), 1);
-            Assert.assertEquals(methods.get(0).method.getMethodName().getStringValue(), "renamedAdd");
-          }
-        }
-        Assert.assertTrue(isIRenamed);
-      }
-    })
     .compileAndRunTest();
   }
 

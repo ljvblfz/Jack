@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.impl;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
@@ -119,6 +120,9 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
     name = intern(name);
     JDefinedClassOrInterface type;
     int accessFlags = binding.getAccessFlags();
+    if (binding.isAnonymousType()) {
+      accessFlags |= JModifier.ANONYMOUS_TYPE;
+    }
     if (binding.isClass()) {
       type = new JDefinedClass(info, name, accessFlags, enclosingPackage, loader);
     } else if (binding.isInterface()) {
@@ -132,6 +136,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       if (binding.isAnonymousType()) {
         // Don't model an enum subclass as a JEnumType.
         assert JModifier.isEnum(accessFlags);
+        accessFlags |= JModifier.ANONYMOUS_TYPE;
         type = new JDefinedClass(info, name, accessFlags, enclosingPackage, loader);
       } else {
         type = new JDefinedEnum(info, name, accessFlags, enclosingPackage, loader);
@@ -203,7 +208,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
         return;
       }
       SourceTypeBinding binding = getBinding();
-      JPhantomLookup lookup = loaded.getEnclosingPackage().getSession().getPhantomLookup();
+      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
       if (loaded instanceof JDefinedClass) {
         ReferenceBinding superclass = binding.superclass();
         if (superclass != null) {

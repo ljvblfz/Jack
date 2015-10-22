@@ -35,4 +35,7 @@ public interface Config {
   public <T> String getAsString(@Nonnull PropertyId<T> propertyId);
   @Nonnull
   public Collection<PropertyId<?>> getPropertyIds();
+  @Nonnull
+  public String getName();
+  public void setName(@Nonnull String name);
 }

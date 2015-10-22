@@ -24,33 +24,35 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImportTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    ImportTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testCompileNonConflictingSourceAndImport() throws Exception {
     File jackOut = AbstractTestTools.createTempDir();
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackOut,
         /* zipFiles = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001.jack"));
 
-    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addStaticLibs(jackOut);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
@@ -96,8 +98,10 @@ public class ImportTests {
   public void testConflictingImport() throws Exception {
     String testName = "com.android.jack.inner.test015";
     File lib = AbstractTestTools.createTempDir();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         lib,
@@ -105,7 +109,7 @@ public class ImportTests {
         AbstractTestTools.getTestRootDir(testName + ".lib"));
 
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addStaticLibs(lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "keep-first");
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())

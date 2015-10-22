@@ -30,8 +30,15 @@ import javax.annotation.Nonnull;
  */
 public class ArtRunnerHost extends HostRunner {
 
+  private boolean isDebugMode = false;
+
   public ArtRunnerHost(@Nonnull File rtEnvironmentRootDir) {
     super(rtEnvironmentRootDir);
+  }
+
+  public ArtRunnerHost setDebugMode(boolean isDebugMode) {
+    this.isDebugMode = isDebugMode;
+    return this;
   }
 
   @Override
@@ -77,9 +84,13 @@ public class ArtRunnerHost extends HostRunner {
     return args;
   }
 
-  private void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
+  protected void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
       @Nonnull List<String> result) {
     result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
+
+    if (isDebugMode) {
+      result.add("-d");
+    }
 
     for (String option : options) {
       result.add(option);

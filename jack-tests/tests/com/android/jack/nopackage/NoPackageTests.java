@@ -18,22 +18,24 @@ package com.android.jack.nopackage;
 
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NoPackageTests {
 
-  @BeforeClass
-  public static void setUpClass() {
-    NoPackageTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void test001() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
         AbstractTestTools.createTempDir(),
@@ -44,7 +46,9 @@ public class NoPackageTests {
   @Test
   public void test001_throughJayce() throws Exception {
     File tmpDir = AbstractTestTools.createTempDir();
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         tmpDir,

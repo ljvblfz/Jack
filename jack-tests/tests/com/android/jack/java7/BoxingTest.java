@@ -16,33 +16,28 @@
 
 package com.android.jack.java7;
 
-import com.android.jack.Main;
+import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 /**
  * JUnit test for compilation of Java 7 features
  */
 public class BoxingTest {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+  @Nonnull
+  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.boxing.test001"),
+      "com.android.jack.java7.boxing.test001.dx.Tests");
 
   @Test
   public void java7Boxing001() throws Exception {
-    IToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain();
-    toolchain.setSourceLevel(SourceLevel.JAVA_7)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.java7.boxing.test001.jack"));
+    new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
+
 }

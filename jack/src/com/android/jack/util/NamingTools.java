@@ -46,6 +46,17 @@ public class NamingTools {
     return NON_SOURCE_CONFLICTING_CHAR + getValidName(name);
   }
 
+  /**
+   * Return a string representing the strict valid name for generated files and which does not
+   * conflict with name coming from Java source files. The difference between this API and
+   * {@link #getNonSourceConflictingName} is this API replaces '/' with '-'.
+   */
+  @Nonnull
+  public static String getStrictNonSourceConflictingName(@Nonnull String name) {
+    return NON_SOURCE_CONFLICTING_CHAR
+        + name.replace(JLookup.PACKAGE_SEPARATOR, NON_SOURCE_CONFLICTING_CHAR);
+  }
+
   public static boolean isNameSynthetic(@Nonnull String name) {
     return name.indexOf(NON_SOURCE_CONFLICTING_CHAR) != -1;
   }
@@ -94,17 +105,14 @@ public class NamingTools {
     return (nameIndex < 0) ? "" : binaryName.substring(0, nameIndex);
   }
 
-  public static boolean isIdentifier(@Nonnull String name) {
+  public static boolean isTypeIdentifier(@Nonnull String name) {
     int nameLength = name.length();
     if (nameLength == 0) {
       return false;
     }
-    if (!Character.isJavaIdentifierStart(name.charAt(0))) {
-      return false;
-    }
     for (int i = 1; i < nameLength; i++) {
       char curChar = name.charAt(i);
-      if (!(Character.isJavaIdentifierPart(curChar) || curChar == '-')) {
+      if (curChar == '.' || curChar == ';' || curChar == '[' || curChar == '/') {
         return false;
       }
     }

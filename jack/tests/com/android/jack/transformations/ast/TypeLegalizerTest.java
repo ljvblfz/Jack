@@ -28,7 +28,6 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.request.TransformationRequest;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -36,10 +35,6 @@ import java.util.List;
 
 public class TypeLegalizerTest {
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    TypeLegalizerTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testNewArrayWithJLongLiteralAsDimension() throws Exception {

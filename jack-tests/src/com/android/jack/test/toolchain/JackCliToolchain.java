@@ -60,7 +60,7 @@ public class JackCliToolchain extends JackBasedToolchain {
   @Nonnull
   public JackCliToolchain setVerbose(boolean isVerbose) {
     super.setVerbose(isVerbose);
-    verbosityLevel = isVerbose ? VerbosityLevel.DEBUG : VerbosityLevel.WARNING;
+    verbosityLevel = isVerbose ? VerbosityLevel.INFO : VerbosityLevel.WARNING;
     addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
     return this;
   }
@@ -134,11 +134,13 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
-    args.add("java");
-    args.add("-cp");
-    args.add(jackPrebuilt.getAbsolutePath());
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
 
-    args.add(com.android.jack.Main.class.getName());
+    args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
+    args.add("-jar");
+    args.add(jackPrebuilt.getAbsolutePath());
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
@@ -163,11 +165,16 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(res.getPath());
     }
 
+    for (File meta : metaImport) {
+      args.add("--import-meta");
+      args.add(meta.getPath());
+    }
+
     args.addAll(extraJackArgs);
 
-    if (jarjarRules != null) {
+    for (File jarjarFile : jarjarRules) {
       args.add("--config-jarjar");
-      args.add(jarjarRules.getAbsolutePath());
+      args.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
@@ -244,11 +251,13 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,
       @Nonnull File[] in) throws Exception {
-    args.add("java");
-    args.add("-cp");
-    args.add(jackPrebuilt.getAbsolutePath());
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
 
-    args.add(com.android.jack.Main.class.getName());
+    args.add("java");
+    args.add(assertEnable ? "-ea" : "-da");
+    args.add("-jar");
+    args.add(jackPrebuilt.getAbsolutePath());
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
@@ -266,6 +275,11 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(res.getPath());
     }
 
+    for (File meta : metaImport) {
+      args.add("--import-meta");
+      args.add(meta.getPath());
+    }
+
     addProperties(properties, args);
 
     if (!classpath.equals("")) {
@@ -273,14 +287,18 @@ public class JackCliToolchain extends JackBasedToolchain {
       args.add(classpath);
     }
 
-    if (jarjarRules != null) {
+    for (File jarjarFile : jarjarRules) {
       args.add("--config-jarjar");
-      args.add(jarjarRules.getAbsolutePath());
+      args.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
       args.add("--config-proguard");
       args.add(flags.getAbsolutePath());
+    }
+
+    if (withDebugInfos) {
+      args.add("-g");
     }
 
     libToImportStaticLibs(args, in);

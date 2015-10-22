@@ -25,7 +25,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -37,10 +36,7 @@ public class FibonacciTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.fibonacci.test001"),
     "com.android.jack.fibonacci.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FibonacciTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @Category(RuntimeRegressionTest.class)

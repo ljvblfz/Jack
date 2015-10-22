@@ -19,9 +19,11 @@ package com.android.jack.library;
 import com.android.jack.LibraryException;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.MessageDigestCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
@@ -34,11 +36,14 @@ import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.vfs.CaseInsensitiveFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
+import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.File;
+import java.security.Provider.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipException;
@@ -50,6 +55,9 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link InputJackLibrary}.
  */
 public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
+
+  @Nonnull
+  private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
 
   @Override
   @Nonnull
@@ -70,15 +78,22 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
       Directory workingDirectory = context.getWorkingDirectory();
       File dirOrZip = FileOrDirectory.getFileFromWorkingDirectory(workingDirectory, string);
       if (dirOrZip.isDirectory()) {
-        vfs = new DirectFS(new Directory(workingDirectory,
+        DirectFS directFS = new DirectFS(new Directory(workingDirectory,
             string,
             context.getRunnableHooks(),
             Existence.MUST_EXIST,
             Permission.READ | Permission.WRITE,
             ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
+        try {
+          Service service = messageDigestCodec.checkString(context, "SHA");
+          vfs = new CaseInsensitiveFS(directFS, /* numGroups = */ JackLibrary.NUM_GROUPS_FOR_DIRS,
+              /* groupSize = */ JackLibrary.GROUP_SIZE_FOR_DIRS,
+              new MessageDigestFactory(service), /* debug = */ false);
+        } catch (WrongVFSFormatException e) {
+          vfs = directFS;
+        }
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
-        assert hooks != null;
         vfs = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
             Existence.MUST_EXIST, ChangePermission.NOCHANGE));
       }

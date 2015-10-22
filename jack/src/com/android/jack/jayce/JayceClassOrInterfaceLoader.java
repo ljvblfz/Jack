@@ -258,8 +258,8 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
     TypePackageAndMethodFormatter lookupFormatter = Jack.getLookupFormatter();
     String expectedSignature = lookupFormatter.getName(enclosingPackage, simpleName);
     if (!signature.equals(expectedSignature)) {
-      throw new AssertionError("Wrong type in '" + source + "', found '"
-          + signature + "' while expecting '" + expectedSignature + "'");
+      throw new AssertionError("Wrong type in '" + source.getLocation().getDescription()
+          + "', found '" + signature + "' while expecting '" + expectedSignature + "'");
     }
     return true;
   }

@@ -16,7 +16,6 @@
 
 package com.android.jack.preprocessor;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JAnnotationType;
@@ -24,11 +23,14 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JNodeLookup;
+import com.android.jack.preprocessor.PreProcessorApplier.Entry;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.location.NoLocation;
 
 import junit.framework.Assert;
 
@@ -40,13 +42,15 @@ import org.junit.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PreProcessorTests {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
+
   }
 
   @Test
@@ -67,7 +71,7 @@ public class PreProcessorTests {
     File testDir = AbstractTestTools.getTestRootDir("com.android.jack.preprocessor.test001.jack");
     File tempDir = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(tempDir,
@@ -84,12 +88,15 @@ public class PreProcessorTests {
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);
-    Collection<Rule> rules = parser.rules(session);
+    Collection<Rule> rules = parser.rules(session, new NoLocation());
     Scope scope = new TypeToEmitScope(session);
+    Map<Entry, Rule> map = new HashMap<Entry, Rule>();
     for (Rule rule : rules) {
-      Context context = new Context();
+      Context context = new Context(rule);
       if (!rule.getSet().eval(scope, context).isEmpty()) {
-        context.getRequest(session).commit();
+        for (AddAnnotationStep request : context.getSteps()) {
+          request.apply(map);
+        }
       }
     }
 

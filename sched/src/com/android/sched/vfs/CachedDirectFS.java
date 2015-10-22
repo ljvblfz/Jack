@@ -111,6 +111,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     public Collection<? extends BaseVElement> list() {
       return vfs.list(this);
     }
+
+    @CheckForNull
+    public CachedParentVDir getParent() {
+      return parent;
+    }
   }
 
   static class CachedParentVFile extends ParentVFile {
@@ -157,7 +162,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   private void fillVDirFromRealDirectory(@Nonnull File dir, @Nonnull VDir vDir) {
-    for (File element : dir.listFiles()) {
+    File[] fileList = dir.listFiles();
+    assert fileList != null;
+    for (File element : fileList) {
       try {
         if (element.isDirectory()) {
           VDir newVDir = vDir.createVDir(element.getName());
@@ -223,12 +230,19 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Nonnull
   @Override
   OutputStream openWrite(@Nonnull CachedParentVFile file) throws WrongPermissionException {
+    return openWrite(file, false);
+  }
+
+  @Nonnull
+  @Override
+  OutputStream openWrite(@Nonnull CachedParentVFile file, boolean append)
+      throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileOutputStream(path);
+      return new FileOutputStream(path, append);
     } catch (FileNotFoundException e) {
       FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
       throw new ConcurrentIOException(e);
@@ -246,7 +260,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
-    return getNativeFile(dir.getPath()).listFiles().length == 0;
+    File[] fileList = getNativeFile(dir.getPath()).listFiles();
+    assert fileList != null;
+    return fileList.length == 0;
   }
 
   @Override
@@ -361,6 +377,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   @Override
+  public long getLastModified(@Nonnull CachedParentVFile file) {
+    return getNativeFile(file.getPath()).lastModified();
+  }
+
+  @Override
   @Nonnull
   FileLocation getVFileLocation(@Nonnull CachedParentVFile file) {
     return new FileLocation(getNativeFile(file.getPath()));
@@ -404,5 +425,30 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Nonnull
   private File getNativeFile(@Nonnull VPath path, @Nonnull String name) {
     return new File(new File(dir.getFile(), path.getPathAsString(File.separatorChar)), name);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull CachedParentVDir parent, @Nonnull CachedParentVFile file) {
+    StringBuffer path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
+        .append(file.getName());
+    return new VPath(path.toString(), '/');
+  }
+
+  @Nonnull
+  private static StringBuffer getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
+      @Nonnull CachedParentVDir currentDir) {
+    if (baseDir == currentDir) {
+      return new StringBuffer();
+    }
+    CachedParentVDir currentParent = currentDir.getParent();
+    assert currentParent != null;
+    return getPathFromDirInternal(baseDir, currentParent).append(currentDir.getName()).append('/');
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot(@Nonnull CachedParentVFile file) {
+    return getPathFromDir(root, file);
   }
 }

@@ -16,9 +16,9 @@
 
 package com.android.jack.opcodes.if_gez;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.if_gez.jm.T_if_gez_1;
 import com.android.jack.opcodes.if_gez.jm.T_if_gez_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_if_gez extends DxTestCase {

@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFieldInitializer;
@@ -413,9 +412,6 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
-
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
-    assert enclosingType != null;
 
     TransformationRequest trRequest = new TransformationRequest(method);
 

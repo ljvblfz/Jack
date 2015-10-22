@@ -44,6 +44,10 @@ public interface JackLibrary extends Library {
   @Nonnull
   public static final String KEY_LIB_EMITTER_VERSION = "lib.emitter.version";
 
+  public static final int GROUP_SIZE_FOR_DIRS = 2;
+
+  public static final int NUM_GROUPS_FOR_DIRS = 1;
+
   @Nonnull
   public String getProperty(@Nonnull String key) throws LibraryFormatException;
 

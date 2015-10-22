@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.renamepackage;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -29,6 +30,7 @@ import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.Jarjar;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -42,14 +44,16 @@ import com.android.sched.util.codec.InputStreamCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.vfs.VPath;
 import com.tonicsystems.jarjar.PackageRemapper;
 import com.tonicsystems.jarjar.PatternElement;
 import com.tonicsystems.jarjar.RulesFileParser;
 import com.tonicsystems.jarjar.Wildcard;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -71,12 +75,12 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       .addDefaultValue(false);
 
   @Nonnull
-  public static final PropertyId<InputStreamFile> JARJAR_FILE = PropertyId.create(
-      "jack.repackaging.file", "Jarjar rules file", new InputStreamCodec())
+  public static final ListPropertyId<InputStreamFile> JARJAR_FILES = new ListPropertyId<
+      InputStreamFile>("jack.repackaging.files", "Jarjar rules files", new InputStreamCodec())
       .requiredIf(JARJAR_ENABLED.getValue().isTrue());
 
   @Nonnull
-  private final InputStreamFile jarjarRulesFile = ThreadConfig.get(JARJAR_FILE);
+  private final List<InputStreamFile> jarjarRulesFiles = ThreadConfig.get(JARJAR_FILES);
 
   private static class Visitor extends JVisitor {
 
@@ -148,7 +152,17 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    List<PatternElement> result = RulesFileParser.parse(jarjarRulesFile);
+    List<PatternElement> result = new ArrayList<PatternElement>();
+    for (InputStreamFile jarjarFile : jarjarRulesFiles) {
+      try {
+        result.addAll(RulesFileParser.parse(jarjarFile));
+      } catch (IllegalArgumentException e) {
+        PackageRenamingParsingException ex =
+            new PackageRenamingParsingException((FileLocation) jarjarFile.getLocation(), e);
+        session.getReporter().report(Severity.FATAL, ex);
+        throw new JackAbortException(ex);
+      }
+    }
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
     PackageRemapper remapper = new PackageRemapper(wildcards);
 

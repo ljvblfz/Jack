@@ -171,6 +171,16 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     return new ZipEntryOutputStream(this, file.getZipEntry());
   }
 
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull ZipVFile file, boolean append) {
+    if (append) {
+      throw new UnsupportedOperationException();
+    } else {
+      return openWrite(file);
+    }
+  }
+
   //
   // VElement
   //
@@ -217,6 +227,11 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
 
   @Override
   boolean isEmpty(@Nonnull ZipVDir dir) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  long getLastModified(@Nonnull ZipVFile file) {
     throw new UnsupportedOperationException();
   }
 
@@ -330,5 +345,21 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
         entryWritten = true;
       }
     }
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull ZipVDir parent, @Nonnull ZipVFile file) {
+    String fileEntryPath = file.getZipEntry().getName();
+    String parentEntryPath = parent.getZipEntry().getName();
+    assert fileEntryPath.contains(parentEntryPath);
+    String newPath = fileEntryPath.substring(fileEntryPath.indexOf(parentEntryPath));
+    return new VPath(newPath, '/');
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull ZipVFile file) {
+    return getPathFromDir(root, file);
   }
 }

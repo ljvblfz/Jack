@@ -16,7 +16,6 @@
 
 package com.android.jack.opcodes.sput;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.sput.jm.T_sput_1;
 import com.android.jack.opcodes.sput.jm.T_sput_13;
 import com.android.jack.opcodes.sput.jm.T_sput_14;
@@ -24,6 +23,7 @@ import com.android.jack.opcodes.sput.jm.T_sput_16;
 import com.android.jack.opcodes.sput.jm.T_sput_18;
 import com.android.jack.opcodes.sput.jm.T_sput_2;
 import com.android.jack.opcodes.sput.jm.T_sput_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_sput extends DxTestCase {

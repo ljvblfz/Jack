@@ -17,6 +17,7 @@
 package com.android.jack.resource;
 
 import com.android.jack.backend.jayce.ImportConflictException;
+import com.android.jack.ir.ast.Resource;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -31,20 +32,20 @@ public class ResourceImportConflictException extends ImportConflictException {
   @Nonnull
   private final Location newResourceLocation;
   @Nonnull
-  private final Location existingResourceLocation;
+  private final Resource existingResource;
 
-  public ResourceImportConflictException(@Nonnull Location newResourceLocation,
-      @Nonnull Location existingResourceLocation) {
+  public ResourceImportConflictException(@Nonnull Resource existingResource,
+      @Nonnull Location newResourceLocation) {
     this.newResourceLocation = newResourceLocation;
-    this.existingResourceLocation = existingResourceLocation;
+    this.existingResource = existingResource;
   }
 
   @Override
   @Nonnull
   public String getMessage() {
-    return "Resource in "
+    return "Resource \'" + existingResource.getPath().getPathAsString('/') + "\' from "
         + newResourceLocation.getDescription() + " has already been imported from "
-        + existingResourceLocation.getDescription()
+        + existingResource.getLocation().getDescription()
         + " (see property '" + ResourceImporter.RESOURCE_COLLISION_POLICY.getName()
         + "' for resource collision policy)";
    }

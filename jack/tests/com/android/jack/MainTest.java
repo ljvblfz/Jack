@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JSession;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -31,12 +30,6 @@ public class MainTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/Fibo";
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
-
-  @BeforeClass
-  public static void setUpClass() {
-    // Enable assertions
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Verifies that Fibo can be loaded in J-AST.

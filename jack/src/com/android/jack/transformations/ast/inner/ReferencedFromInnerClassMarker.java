@@ -18,12 +18,13 @@ package com.android.jack.transformations.ast.inner;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JMethod;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
  * This marker indicates that a field has an associated getter.
  */
 @ValidOn({JDefinedClassOrInterface.class})
-@Description("This marker indicates that a field inside the class"
+@Description("This marker indicates that a field or method inside the class"
     + "is accessed from an inner class.")
 public class ReferencedFromInnerClassMarker implements Marker {
 
@@ -39,12 +40,24 @@ public class ReferencedFromInnerClassMarker implements Marker {
   private final HashSet<JField> fields = new HashSet<JField>();
 
   @Nonnull
-  Collection<JField> getAllFields() {
+  private final HashSet<JMethod> methods = new HashSet<JMethod>();
+
+  @Nonnull
+  Set<JMethod> getMethods() {
+    return methods;
+  }
+
+  @Nonnull
+  Set<JField> getFields() {
     return fields;
   }
 
-  void addField(@Nonnull JField field) {
+  synchronized void addField(@Nonnull JField field) {
     fields.add(field);
+  }
+
+  synchronized void addMethod(@Nonnull JMethod method) {
+    methods.add(method);
   }
 
   @Override

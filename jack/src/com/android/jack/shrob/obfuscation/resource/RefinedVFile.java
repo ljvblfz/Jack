@@ -21,6 +21,7 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.AbstractVElement;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -276,5 +277,16 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
   @Override
   public void delete() throws CannotDeleteFileException {
     file.delete();
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return file.getPathFromRoot();
+  }
+
+  @Override
+  public long getLastModified() {
+    return file.getLastModified();
   }
 }

@@ -79,7 +79,7 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
           && !rhs.canThrow()) {
 
         DefinitionMarker dm = binary.getMarker(DefinitionMarker.class);
-        if (dm != null && dm.isUnused()) {
+        if (dm != null && dm.isUnused() && dm.getDefinedVariable().isSynthetic()) {
           assert !(binary.getLhs() instanceof JFieldRef || binary.getLhs() instanceof JArrayRef);
           removeUnusedDefinition((JAsgOperation) binary);
         }

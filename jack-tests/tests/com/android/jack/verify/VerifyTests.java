@@ -22,7 +22,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -32,10 +31,7 @@ public class VerifyTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.verify.test001"),
     "com.android.jack.verify.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    VerifyTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

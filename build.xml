@@ -15,25 +15,32 @@
    limitations under the License.
 -->
 
-<project name="jack" default="all">
+<project name="jack" default="all"
+  xmlns:if="ant:if"
+  xmlns:unless="ant:unless">
 
-  <target name="all" depends="dexcomparator-lib,
+  <description>
+    This buildfile is used to build all Jack projects and run tests.
+  </description>
+
+  <target name="all" description="build all Jack projects" depends="dexcomparator-lib,
     jack,
     jack-api,
     jack-api-src,
     jack-annotations-lib,
-    jack-launcher,
     jackunittests,
     jack-tests,
     dx-lib,
     sched-lib,
-    schedtests-lib"/>
+    schedtests-lib,
+    jill,
+    jill-api,
+    jillunittests"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
+    jack-api-clean,
     jack-api-src-clean,
-    jack-launcher-clean,
-    jack-server-lib-clean,
     jack-annotations-lib-clean,
     jack-intermediate-clean,
     jackunittests-lib-clean,
@@ -65,14 +72,17 @@
     dx-ref-lib-clean,
     core-stubs-mini-clean,
     jack-default-lib-clean,
+    jill-clean,
+    jill-api-lib-clean,
+    jill-api-src-clean,
+    jillunittests-clean,
+    asm4-clean,
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
 
   <property name="jack.dir" value="${jack-project.dir}/jack" />
   <property name="jack-api.dir" value="${jack-project.dir}/jack-api" />
-  <property name="jack-launcher.dir" value="${jack-project.dir}/jack-launcher" />
-  <property name="jack-server.dir" value="${jack-project.dir}/jack-server" />
   <property name="jack-tests.dir" value="${jack-project.dir}/jack-tests" />
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
   <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
@@ -96,6 +106,14 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
 
+  <property name="jill.dir" value="${jack-project.dir}/jill" />
+  <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
+  <property name="asm4.dir" value="${jack-project.dir}/asm4" />
+
+  <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
+      classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
+
+
   <!-- ******************* -->
   <!-- Distributed files   -->
   <!-- ******************* -->
@@ -106,23 +124,114 @@
     <delete dir="${jack-top-dist.dir}"/>
   </target>
 
-  <target name="dist" depends="jack,
+  <target name="dist-check">
+    <condition property="dist-check-only-one-defined">
+      <xor>
+       <isset property="dist.sha"/>
+       <isset property="dist.build-id"/>
+      </xor>
+    </condition>
+    <fail if:true="${dist-check-only-one-defined}"
+      message="Only one of dist.sha and dist.build-id properties has been set"/>
+  </target>
+
+  <target name="dist" depends="jack-dist, jill-dist"/>
+
+  <target name="jack-dist"
+    description="package a Jack distribution"
+    depends="dist-check,
+    jack,
     jack-api,
     jack-api-src,
-    jack-annotations-lib,
-    jack-launcher">
+    jack-annotations-lib">
     <mkdir dir="${jack-top-dist.dir}"/>
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
-        <file name="${jack.dist.dir}/${jack.execname}" />
-        <file name="${jack-api.dist.dir}/${jack-api.name}" />
         <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
-        <file name="${jack.dir}/etc/jack" />
-        <file name="${jack.dir}/etc/jack-admin" />
-        <file name="${jack-launcher.dist.dir}/${jack-launcher.name}" />
-        <file name="${jack.dist.dir}/${jack-annotations.libname}" />
       </filelist>
     </copy>
+
+    <tempfile property="jack-dist.tmp" prefix="jack-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${jack-dist.tmp}"/>
+
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack-dist.tmp}/version.properties"/>
+    <propertyfile file="${jack-dist.tmp}/version.properties">
+      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
+      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
+    </propertyfile>
+
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack.execname}" filesetmanifest="merge">
+      <zipfileset src="${jack.dist.dir}/${jack.execname}"
+      excludes="jack-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
+      basedir="${jack-dist.tmp}"
+      includes="jack-version.properties"/>
+
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-api-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-api.name}" filesetmanifest="merge">
+      <zipfileset src="${jack-api.dist.dir}/${jack-api.name}"
+      excludes="jack-api-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
+      basedir="${jack-dist.tmp}"
+      includes="jack-api-version.properties"/>
+
+    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-annotations-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" filesetmanifest="merge">
+      <zipfileset src="${jack.dist.dir}/${jack-annotations.libname}"
+      excludes="jack-annotations-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
+      basedir="${jack-dist.tmp}"
+      includes="jack-annotations-version.properties"/>
+
+    <delete dir="${jack-dist.tmp}"/>
+
+  </target>
+
+  <target name="jill-dist" description="package a Jill distribution" depends="
+    dist-check,
+    jill,
+    jill-api,
+    jill-api-src">
+    <mkdir dir="${jack-top-dist.dir}"/>
+    <copy todir="${jack-top-dist.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jill-api.dist.dir}/${jill-api-src.name}" />
+      </filelist>
+    </copy>
+
+    <tempfile property="jill-dist.tmp" prefix="jill-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${jill-dist.tmp}"/>
+
+    <copy file="${jack-project.dir}/version.properties" tofile="${jill-dist.tmp}/version.properties"/>
+    <propertyfile file="${jill-dist.tmp}/version.properties">
+      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
+      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
+    </propertyfile>
+
+    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}" filesetmanifest="merge">
+      <zipfileset src="${jill.dist.dir}/${jill.execname}"
+      excludes="jill-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
+      basedir="${jill-dist.tmp}"
+      includes="jill-version.properties"/>
+
+    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-api-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" filesetmanifest="merge">
+      <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
+      excludes="jill-api-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
+      basedir="${jill-dist.tmp}"
+      includes="jill-api-version.properties"/>
+
+    <delete dir="${jill-dist.tmp}"/>
+
   </target>
 
   <!-- ******************* -->
@@ -162,8 +271,14 @@
     </copy>
   </target>
 
+  <target name="jack-create-version-file">
+    <!-- create symlink to ensure consistency between version.properties and jack-version.properties -->
+    <symlink link="${jack.dir}/rsc/jack-version.properties"
+      resource="${jack-project.dir}/version.properties" overwrite="true"/>
+  </target>
+
   <target name="jack-lib-compile-step1"
-    depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,
+    depends="jack-copy-libs,jack-create-version-file,sched-build,antlr,sched-build-lib,allocation-lib,
     dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
@@ -262,6 +377,7 @@
     <copy todir="${jack.build.outdir}">
       <fileset dir="${jack.dir}/rsc" includes="**"/>
     </copy>
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack.build.outdir}/jack-version.properties"/>
     <jar destfile="${jack.dist.dir}/${jack.libname}"
       basedir="${jack.build.outdir}" includes="**"/>
   </target>
@@ -323,25 +439,19 @@
       targetfile="${jack.dist.dir}/${jack.execname}">
       <srcfiles dir="${jack.build.outdir}"/>
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
-      <srcfiles dir="${jack-default-lib.build.outdir}"/>
+      <srcfiles file="${jack-default-lib.build.jack}"/>
       <srcfiles file="${jack.dir}/etc/manifest.txt"/>
-      <srcfiles dir="${jack-server.build.outdir}"/>
     </uptodate>
   </target>
 
-  <target name="jack" depends="jack-intermediate,jack-default-lib,jack-server-lib-compile,jack.check" unless="${jack.uptodate}">
+  <target name="jack" depends="jack-intermediate,jack-default-lib,jack.check" unless="${jack.uptodate}">
     <copy todir="${jack.exec.build.outdir}">
       <fileset dir="${jack.build.outdir}"/>
     </copy>
     <!-- package -->
     <unzip dest="${jack.exec.build.outdir}" src="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
-    <copy todir="${jack.exec.build.outdir}">
-      <fileset dir="${jack-server.build.outdir}"/>
-    </copy>
     <mkdir dir="${jack.exec.build.outdir}/jack-default-lib"/>
-    <copy todir="${jack.exec.build.outdir}/jack-default-lib">
-      <fileset dir="${jack-default-lib.build.outdir}"/>
-    </copy>
+    <unzip src="${jack-default-lib.build.jack}" dest="${jack.exec.build.outdir}/jack-default-lib"/>
     <jar destfile="${jack.dist.dir}/${jack.execname}"
        manifest="${jack.dir}/etc/manifest.txt" basedir="${jack.exec.build.outdir}" includes="**"/>
   </target>
@@ -358,7 +468,7 @@
 
   <target name="jack-api-lib-clean">
     <delete dir="${jack-api.lib.build.dir}"/>
-    <delete dir="${jack-api.dist.dir}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api.lib.name}"/>
     <delete dir="${jack-api.libs.dir}"/>
   </target>
 
@@ -400,13 +510,20 @@
   <!-- jack-api            -->
   <!-- ******************* -->
   <property name="jack-api.build.dir" value="${jack-api.dir}/build/exec" />
-  <property name="jack-api.build.outdir" value="${jack-api.build.dir}/classes" />
   <property name="jack-api.name" value="jack-api.jar" />
 
+  <target name="jack-api-clean">
+    <delete dir="${jack-api.build.dir}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api.name}"/>
+  </target>
+
   <target name="jack-api" depends="jack-api-lib">
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-api.build.dir}/jack-api-version.properties"/>
     <jar destfile="${jack-api.dist.dir}/${jack-api.name}">
       <fileset dir="${jsr305.build.outdir}"/>
       <fileset dir="${jack-api.lib.build.outdir}"/>
+      <fileset dir="${jack-api.build.dir}" includes="jack-api-version.properties"/>
     </jar>
   </target>
 
@@ -417,114 +534,12 @@
   <property name="jack-api-src.name" value="jack-api-src.zip" />
 
   <target name="jack-api-src-clean">
-    <delete dir="${jack-api.dist.dir}/${jack-api-src.name}"/>
+    <delete file="${jack-api.dist.dir}/${jack-api-src.name}"/>
   </target>
 
   <target name="jack-api-src">
    <zip destfile="${jack-api.dist.dir}/${jack-api-src.name}"
         basedir="${jack-api.dir}/src" />
-  </target>
-
-
-  <!-- ******************* -->
-  <!-- jack-launcher       -->
-  <!-- ******************* -->
-  <property name="jack-launcher.build.dir" value="${jack-launcher.dir}/build" />
-  <property name="jack-launcher.dist.dir" value="${jack-launcher.dir}/dist" />
-  <property name="jack-launcher.libs.dir" value="${jack-launcher.dir}/libs" />
-  <property name="jack-launcher.build.outdir" value="${jack-launcher.build.dir}/classes" />
-  <property name="jack-launcher.name" value="jack-launcher.jar" />
-
-  <target name="jack-launcher-clean">
-    <delete dir="${jack-launcher.build.outdir}"/>
-  </target>
-
-  <target name="jack-launcher-copy-libs" depends="jsr305-lib">
-    <copy todir="${jack-launcher.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-launcher" depends="jack-launcher-copy-libs">
-    <mkdir dir="${jack-launcher.build.outdir}"/>
-    <dependset>
-      <sources>
-          <fileset dir="${jack-launcher.dir}/src" />
-          <fileset file="${jack-launcher.libs.dir}/${jsr305.libname}" />
-      </sources>
-      <targets>
-        <fileset dir="${jack-launcher.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${jack-launcher.dir}/src" destdir="${jack-launcher.build.outdir}"
-         source="1.6" target="1.6" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-         <classpath>
-           <filelist dir="/" >
-             <file name="${jack-launcher.libs.dir}/${jsr305.libname}"/>
-            </filelist>
-         </classpath>
-       </javac>
-    <unzip dest="${jack-launcher.build.outdir}" src="${jack-launcher.libs.dir}/${jsr305.libname}" />
-    <copy todir="${jack-launcher.build.outdir}">
-      <fileset dir="${jack-launcher.dir}/rsc" includes="**"/>
-    </copy>
-    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}" manifest="${jack-launcher.dir}/etc/manifest.txt">
-      <fileset dir="${jack-launcher.build.outdir}"/>
-    </jar>
-  </target>
-
-  <!-- ******************* -->
-  <!-- jack-server-lib     -->
-  <!-- ******************* -->
-  <property name="jack-server.build.dir" value="${jack-server.dir}/build" />
-  <property name="jack-server.libs.dir" value="${jack-server.dir}/libs" />
-  <property name="jack-server.build.outdir" value="${jack-server.build.dir}/classes" />
-
-  <target name="jack-server-lib-clean">
-    <delete dir="${jack-server.build.outdir}"/>
-  </target>
-
-  <target name="jack-server-lib-copy-libs" depends="jsr305-lib,simple-lib,args4j-lib,guava-lib">
-    <copy todir="${jack-server.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        <file name="${simple.dist.dir}/${simple.libname}"/>
-        <file name="${args4j.dist.dir}/${args4j.libname}"/>
-        <file name="${guava.dist.dir}/${guava.libname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-server-lib-compile" depends="jack-server-lib-copy-libs,jack-lib">
-    <filelist id="jack-server-lib-compile.classpath" dir="/" >
-      <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-      <file name="${jack.dist.dir}/${jack.libname}"/>
-      <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
-      <file name="${guava.dist.dir}/${guava.libname}"/>
-      <file name="${simple.dist.dir}/${simple.libname}"/>
-      <file name="${args4j.dist.dir}/${args4j.libname}"/>
-    </filelist>
-    <mkdir dir="${jack-server.build.outdir}"/>
-    <dependset>
-      <sources>
-        <fileset dir="${jack-server.dir}/src" />
-        <filelist refid="jack-server-lib-compile.classpath" />
-      </sources>
-      <targets>
-        <fileset dir="${jack-server.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${jack-server.dir}/src" destdir="${jack-server.build.outdir}"
-         source="1.7" target="1.7" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-         <classpath>
-           <filelist refid="jack-server-lib-compile.classpath"/>
-         </classpath>
-    </javac>
-    <unzip dest="${jack-server.build.outdir}" src="${simple.dist.dir}/${simple.libname}" />
   </target>
 
 
@@ -536,6 +551,7 @@
   <property name="jack-annotations.libname" value="jack-annotations.jar" />
 
   <target name="jack-annotations-lib-clean">
+    <delete dir="${jack-annotations.build.dir}" />
     <delete file="${jack.dist.dir}/${jack-annotations.libname}" />
     <delete dir="${jack-annotations.build.outdir}" />
   </target>
@@ -555,6 +571,10 @@
           destdir="${jack-annotations.build.outdir}"
           source="1.6" target="1.6" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
+
+     <copy file="${jack-project.dir}/version.properties"
+            tofile="${jack-annotations.build.outdir}/jack-annotations-version.properties"/>
+
     <jar destfile="${jack.dist.dir}/${jack-annotations.libname}">
       <fileset dir="${jack-annotations.build.outdir}"/>
     </jar>
@@ -634,6 +654,7 @@
   <property name="jackunittests.execname" value="jackunittests.jar"/>
 
   <target name="jackunittests-clean">
+    <delete dir="${jackunittests.exec.build.dir}" />
     <delete file="${jackunittests.dist.dir}/${jackunittests.execname}" />
   </target>
 
@@ -675,6 +696,7 @@
     <delete dir="${jack-tests.libs.dir}" />
     <delete dir="${jack-tests.build.outdir}" />
     <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
+    <delete file="${jack-tests.dist.dir}/${jack-tests.execname}" />
   </target>
 
   <target name="jack-tests-copy-libs" depends="jack-api-lib,junit4,dx-ref-lib,ddm-lib,ecj,
@@ -695,7 +717,7 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests">
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api">
     <!-- project layout -->
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
@@ -791,6 +813,7 @@
       <exclude name="com/android/jack/frontend/test007/**"/>
       <classpath>
         <filelist dir="/">
+          <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
           <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
@@ -809,9 +832,236 @@
       <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
+      <arg line="${jill-api.dist.dir}/${jill-api.lib.name}"/>
       <arg line="${jack.static.libs.list}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill                -->
+  <!-- ******************* -->
+  <property name="jill.build.dir" value="${jill.dir}/build/jill" />
+  <property name="jill.libs.dir" value="${jill.dir}/libs" />
+  <property name="jill.build.outdir" value="${jill.build.dir}/classes" />
+  <property name="jill.dist.dir" value="${jill.dir}/dist" />
+  <property name="jill.execname" value="jill.jar" />
+
+  <target name="jill-clean">
+    <delete dir="${jill.build.dir}" />
+    <delete dir="${jill.dist.dir}" />
+    <delete dir="${jill.libs.dir}" />
+  </target>
+
+  <target name="jill-copy-libs" depends="jill-api-lib,sched-lib,guava-lib,asm4-lib,args4j-lib,jsr305-lib,
+    dexcomparator-lib">
+    <copy todir="${jill.libs.dir}" flatten="true">
+      <filelist id="jill.libs.filelist" dir="/" >
+        <file name="${jill-api.dist.dir}/${jill-api.lib.name}"/>
+        <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
+        <file name="${guava.dist.dir}/${guava.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${asm4.dist.dir}/${asm4.libname}"/>
+        <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jill-check">
+    <union id ="jill.uptodate.files">
+      <filelist refid="jill.libs.filelist" />
+    </union>
+    <uptodate property="jill.uptodate" targetfile="${jill.dist.dir}/${jill.execname}">
+      <srcfiles dir="${jill.dir}/src" />
+      <srcresources refid="jill.uptodate.files" />
+      <srcfiles dir="${jill.dir}/rsc"/>
+    </uptodate>
+  </target>
+
+  <target name="jill" depends="jill-copy-libs, jill-check" unless="jill.uptodate">
+    <!-- project layout -->
+    <delete dir="${jill.build.outdir}"/>
+    <mkdir dir="${jill.build.outdir}"/>
+    <mkdir dir="${jill.dist.dir}"/>
+    <!-- compile -->
+    <javac  encoding="UTF-8" srcdir="${jill.dir}/src"
+          destdir="${jill.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="jill.libs.filelist" />
+      </classpath>
+    </javac>
+    <!-- package -->
+    <copy todir="${jill.build.outdir}">
+      <fileset dir="${jill.dir}/rsc">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jill-api.lib.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${schedlib.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${args4j.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jsr305.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${asm4.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+    <unzip dest="${jill.build.outdir}" src="${guava.dist.dir}/${guava.libname}">
+      <patternset excludes="META-INF/**"/>
+    </unzip>
+
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jill.build.outdir}/jill-version.properties"/>
+
+    <jar destfile="${jill.dist.dir}/${jill.execname}"
+          manifest="${jill.dir}/etc/manifest.txt"
+          basedir="${jill.build.outdir}"
+          includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api-lib        -->
+  <!-- ******************* -->
+  <property name="jill-api.lib.build.dir" value="${jill-api.dir}/build/lib" />
+  <property name="jill-api.lib.build.outdir" value="${jill-api.lib.build.dir}/classes" />
+  <property name="jill-api.libs.dir" value="${jill-api.dir}/libs" />
+  <property name="jill-api.dist.dir" value="${jill-api.dir}/dist" />
+  <property name="jill-api.lib.name" value="jill-api-lib.jar" />
+
+  <target name="jill-api-lib-clean">
+    <delete dir="${jill-api.lib.build.dir}"/>
+    <delete dir="${jill-api.dist.dir}"/>
+    <delete dir="${jill-api.libs.dir}"/>
+  </target>
+
+  <target name="jill-api-lib-copy-libs" depends="jsr305-lib">
+    <copy todir="${jill-api.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jill-api-check">
+    <uptodate property="jill-api.uptodate" targetfile="${jill-api.dist.dir}/${jill-api.lib.name}">
+      <srcfiles dir="${jill-api.dir}/src" />
+      <srcfiles file="${jsr305.dist.dir}/${jsr305.libname}" />
+    </uptodate>
+  </target>
+
+  <target name="jill-api-lib" depends="jill-api-lib-copy-libs, jill-api-check" unless="jill-api.uptodate">
+    <delete dir="${jill-api.lib.build.outdir}"/>
+    <mkdir dir="${jill-api.lib.build.outdir}"/>
+    <javac  encoding="UTF-8" srcdir="${jill-api.dir}/src" destdir="${jill-api.lib.build.outdir}"
+          source="1.6" target="1.6" debug="true"
+          includeantruntime="false"  includeDestClasses="false" nowarn="true">
+      <classpath>
+        <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
+      </classpath>
+      <exclude name="com/android/jack/api/example/**"/>
+    </javac>
+    <jar destfile="${jill-api.dist.dir}/${jill-api.lib.name}">
+      <fileset dir="${jill-api.lib.build.outdir}"/>
+    </jar>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api            -->
+  <!-- ******************* -->
+  <property name="jill-api.build.dir" value="${jill-api.dir}/build/exec" />
+  <property name="jill-api.build.outdir" value="${jill-api.build.dir}/classes" />
+  <property name="jill-api.name" value="jill-api.jar" />
+
+  <target name="jill-api" depends="jill-api-lib">
+
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jill-api.lib.build.outdir}/jill-api-version.properties"/>
+
+    <jar destfile="${jill-api.dist.dir}/${jill-api.name}">
+      <fileset dir="${jsr305.build.outdir}"/>
+      <fileset dir="${jill-api.lib.build.outdir}"/>
+    </jar>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api-src        -->
+  <!-- ******************* -->
+  <property name="jill-api-src.name" value="jill-api-src.zip" />
+
+  <target name="jill-api-src-clean">
+    <delete dir="${jill-api.dist.dir}/${jill-api-src.name}"/>
+  </target>
+
+  <target name="jill-api-src">
+    <zip destfile="${jill-api.dist.dir}/${jill-api-src.name}"
+        basedir="${jill-api.dir}/src" />
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jillunittests       -->
+  <!-- ******************* -->
+  <property name="jillunittests.build.dir" value="${jill.dir}/build/jillunittests" />
+  <property name="jillunittests.build.outdir" value="${jillunittests.build.dir}/classes" />
+  <property name="jillunittests.execname" value="jillunittests.jar" />
+
+  <target name="jillunittests-clean">
+    <delete dir="${jillunittests.build.dir}" />
+    <delete dir="${jill.dist.dir}/${jillunittests.execname}" />
+  </target>
+
+  <target name="jillunittests-check">
+    <uptodate property="jillunittests.uptodate" targetfile="${jill.dist.dir}/${jillunittests.execname}">
+      <srcfiles dir="${jill.dir}/tests" />
+      <srcfiles file="${jill.dist.dir}/${jill.execname}" />
+      <srcfiles file="${jill-api.dist.dir}/${jill-api.name}" />
+      <srcfiles file="${jackunittests.dist.dir}/${jackunittests.execname}" />
+      <srcfiles file="${jack-tests.dist.dir}/${jack-tests.execname}" />
+    </uptodate>
+  </target>
+
+  <target name="jillunittests" depends="jill, jill-api, jackunittests, jack-tests, jillunittests-check" unless="jillunittests.uptodate">
+    <!-- project layout -->
+    <delete dir="${jillunittests.build.outdir}"/>
+    <mkdir dir="${jillunittests.build.outdir}"/>
+    <!-- compile -->
+    <javac  encoding="UTF-8" srcdir="${jill.dir}/tests"
+          destdir="${jillunittests.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false">
+      <classpath>
+        <filelist dir="/">
+          <file name="${jill.dist.dir}/${jill.execname}" />
+          <file name="${jill-api.dist.dir}/${jill-api.name}" />
+          <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
+          <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
+        </filelist>
+      </classpath>
+    </javac>
+    <!-- package -->
+    <copy todir="${jillunittests.build.outdir}">
+      <fileset dir="${jill.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jackunittests.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+    <jar destfile="${jill.dist.dir}/${jillunittests.execname}"
+            basedir="${jillunittests.build.outdir}"
+            includes="**"/>
   </target>
 
 
@@ -963,14 +1213,15 @@
 
   <target name="simple-lib-clean">
     <delete dir="${simple.dist.dir}"/>
+    <delete dir="${simple.build.outdir}"/>
   </target>
 
   <target name="simple-lib">
     <mkdir dir="${simple.dist.dir}"/>
     <mkdir dir="${simple.build.outdir}"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-common-6.0.1.jar"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-http-6.0.1.jar"/>
-    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-transport-6.0.1.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-common-6.0.1-jack.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-http-6.0.1-jack.jar"/>
+    <unzip dest="${simple.build.outdir}" src="${simple.dir}/simple-transport-6.0.1-jack.jar"/>
     <jar basedir="${simple.build.outdir}" destfile="${simple.dist.dir}/${simple.libname}"/>
   </target>
 
@@ -1010,43 +1261,16 @@
   <!-- ******************* -->
   <!-- guava-lib           -->
   <!-- ******************* -->
-  <property name="guava.build.dir" value="${guava.dir}/build"/>
-  <property name="guava.build.outdir" value="${guava.build.dir}/classes"/>
   <property name="guava.dist.dir" value="${guava.dir}/dist"/>
   <property name="guava.libname" value="guava-lib.jar"/>
 
   <target name="guava-lib-clean">
-    <delete dir="${guava.build.dir}"/>
     <delete dir="${guava.dist.dir}"/>
   </target>
 
-  <target name="guava-lib" depends="jsr305-lib">
-    <!-- project layout -->
-    <mkdir dir="${guava.build.outdir}"/>
+  <target name="guava-lib">
     <mkdir dir="${guava.dist.dir}"/>
-    <dependset>
-      <sources>
-        <fileset dir="${guava.dir}/src" />
-        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
-      </sources>
-      <targets>
-        <fileset dir="${guava.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" source="1.6" target="1.6"
-      srcdir="${guava.dir}/src"
-      destdir="${guava.build.outdir}"
-      debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist dir="/">
-          <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-        </filelist>
-      </classpath>
-    </javac>
-    <!-- package -->
-    <jar destfile="${guava.dist.dir}/${guava.libname}"
-      basedir="${guava.build.outdir}"
-      includes="**"/>
+    <copy file="${guava.dir}/guava-18.0.jar" tofile="${guava.dist.dir}/${guava.libname}"/>
   </target>
 
 
@@ -1769,28 +1993,64 @@
             includes="**"/>
   </target>
 
+
+  <!-- ******************* -->
+  <!-- asm4                -->
+  <!-- ******************* -->
+  <property name="asm4.build.dir" value="${asm4.dir}/build" />
+  <property name="asm4.build.outdir" value="${asm4.build.dir}/classes" />
+  <property name="asm4.dist.dir" value="${asm4.dir}/dist" />
+  <property name="asm4.libname" value="asm4-lib.jar" />
+
+  <target name="asm4-clean">
+    <delete dir="${asm4.build.dir}" />
+    <delete dir="${asm4.dist.dir}" />
+  </target>
+
+  <target name="asm4-lib">
+    <!-- project layout -->
+    <mkdir dir="${asm4.build.outdir}"/>
+    <mkdir dir="${asm4.dist.dir}"/>
+    <!-- compile -->
+    <dependset>
+      <sources>
+        <fileset dir="${asm4.dir}/src" />
+      </sources>
+      <targets>
+        <fileset file="${asm4.dist.dir}/${asm4.libname}"/>
+      </targets>
+    </dependset>
+    <javac  encoding="UTF-8" srcdir="${asm4.dir}/src"
+          destdir="${asm4.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${asm4.dist.dir}/${asm4.libname}"
+          basedir="${asm4.build.outdir}"
+          includes="**"/>
+  </target>
+
+
   <!-- ******************* -->
   <!-- jack-default-lib    -->
   <!-- ******************* -->
-  <property name="jack-default-lib.build.outdir" value="${jack.dir}/build/default-lib/jack-lib"/>
+  <property name="jack-default-lib.build.jack" value="${jack.dir}/build/default-lib.jack"/>
 
   <target name="jack-default-lib-clean">
-    <delete dir="${jack-default-lib.build.outdir}" />
+    <delete file="${jack-default-lib.build.jack}" />
   </target>
 
   <target name="jack-default-lib.check">
     <uptodate property="jack-default-lib.uptodate"
-      targetfile="${jack-default-lib.build.outdir}">
-      <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+      targetfile="${jack-default-lib.build.jack}">
+      <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java"/>
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
       <srcfiles file="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
     </uptodate>
   </target>
 
   <target name="jack-default-lib" depends="jack-intermediate,jack-default-lib.check" unless="jack-default-lib.uptodate">
-    <delete dir="${jack-default-lib.build.outdir}" quiet="true"/>
-    <mkdir dir="${jack-default-lib.build.outdir}"/>
-    <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/*.java"/>
+    <fileset id="jack-default-lib.src.fileset" dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java"/>
     <pathconvert property="jack-default-lib.src.list" pathsep=" " refid="jack-default-lib.src.fileset" />
 
     <java jar="${jack.intermediate.dist.dir}/${jack.intermediatename}" fork="true" failonerror="true">
@@ -1800,10 +2060,11 @@
       <arg value="jack.classpath.default-libraries=false"/>
       <arg value="--classpath"/>
       <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
-      <arg value="--output-jack-dir"/>
-      <arg value="${jack-default-lib.build.outdir}"/>
+      <arg value="--output-jack"/>
+      <arg value="${jack-default-lib.build.jack}"/>
       <arg line="${jack-default-lib.src.list}"/>
     </java>
+
   </target>
 
 
@@ -1881,6 +2142,10 @@
 
   <property name="jack.tests.output" value="${jack-project.dir}/tests-results"/>
 
+  <condition property="jack.tests.assertions" value="-da" else="-ea">
+    <istrue value="${tests.disable-assertions}"/>
+  </condition>
+
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
@@ -1894,14 +2159,73 @@
     <fail message="tests.config is undefined" unless="tests.config" />
   </target>
 
-  <target name="test-jack" depends="tests-check-config, jack-tests, test-jack-nodep"/>
+  <target name="tests-check-name">
+    <fail message="test.name is undefined" unless="test.name" />
+  </target>
+
+  <target name="test-jack-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true"
+      output="${jack-tests.dir}/dump/PreSubmitTests.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="com.android.jack.PreSubmitTests"/>
+    </java>
+
+    <java fork="true"
+      output="${jack-tests.dir}/dump/LongLastingTests.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+       <jvmarg value="-Dtests.dump=true" />
+       <jvmarg value="-Dtests.config=${tests.config}"/>
+       <classpath>
+        <filelist refid="jack.junit.tests.classpath"/>
+       </classpath>
+       <arg value="com.android.jack.LongLastingTests"/>
+     </java>
+
+  </target>
+
+  <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
+  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
+  </target>
+
+  <target name="test-jack-by-name-no-dep">
+    <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
+    <junit fork="yes" failureproperty="test-jack.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="${jack.tests.assertions}"/>
+       <classpath>
+        <filelist refid="jack.junit.tests.classpath" />
+       </classpath>
+      <test name="${test.name}"
+        todir="${jack.tests.output}/test-jack-by-name/"
+        outfile="test-jack-by-name" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jack-by-name">
+      <fileset dir="${jack.tests.output}/test-jack-by-name">
+        <include name="test-jack-by-name.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jack-by-name/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jack.failure" />
+  </target>
+
+  <target name="test-jack" description="run Jack tests that must pass before submitting a change"
+    depends="tests-check-config, jack-tests, test-jack-nodep">
+  </target>
 
   <target name="test-jack-nodep">
     <mkdir dir="${jack.tests.output}/test-jack/html"/>
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
         <filelist refid="ecj-test-libs"/>
@@ -1919,7 +2243,8 @@
     <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-   <target name="test-jack-long" depends="tests-check-config, jack-tests, test-jack-long-nodep">
+   <target name="test-jack-long" description="run long lasting Jack tests"
+     depends="tests-check-config, jack-tests, test-jack-long-nodep">
    </target>
 
   <target name="test-jack-long-nodep">
@@ -1927,7 +2252,7 @@
      <junit fork="yes" failureproperty="test-jack.failure">
        <formatter type="xml"/>
        <jvmarg value="-Dtests.config=${tests.config}"/>
-       <jvmarg value="-ea"/>
+       <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
         <filelist refid="ecj-test-libs"/>
@@ -1945,14 +2270,16 @@
      <fail message="TESTS FAILED" if="test-jack.failure" />
   </target>
 
-  <target name="test-jack-all" depends="tests-check-config, jack-tests, test-jack-all-nodep"/>
+  <target name="test-jack-all" description="runs all Jack tests"
+    depends="tests-check-config, jack-tests, test-jack-all-nodep">
+  </target>
 
   <target name="test-jack-all-nodep">
       <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
         <formatter type="xml"/>
         <jvmarg value="-Dtests.config=${tests.config}"/>
-        <jvmarg value="-ea"/>
+        <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
           <filelist refid="ecj-test-libs"/>
@@ -1970,14 +2297,15 @@
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
 
-  <target name="test-sched" depends="junit4,schedtests-lib,sched-lib,guava-lib,
-    freemarker-lib,maths-lib, test-sched-nodep"/>
+  <target name="test-sched" description="run schedlib tests"
+    depends="junit4,schedtests-lib,sched-lib,guava-lib,
+    freemarker-lib,maths-lib, test-sched-nodep">
+  </target>
 
-  <target name="test-sched-nodep" depends="junit4,schedtests-lib,sched-lib,guava-lib,
-    freemarker-lib,maths-lib">
+  <target name="test-sched-nodep">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
-        <jvmarg value="-ea"/>
+        <jvmarg value="${jack.tests.assertions}"/>
         <formatter type="xml"/>
         <classpath>
           <filelist dir="/">
@@ -2002,6 +2330,81 @@
       </junitreport>
       <fail message="TESTS FAILED" if="test-jack.failure" />
     </target>
+
+  <filelist id="jill.junit.tests.classpath" dir="/">
+    <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
+    <file name="${jill.dist.dir}/${jillunittests.execname}" />
+    <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
+  </filelist>
+
+  <target name="test-jill" description="run Jill tests that must pass before submitting a change"
+    depends="tests-check-config, jillunittests">
+    <mkdir dir="${jack.tests.output}/test-jill/html"/>
+    <junit fork="yes" failureproperty="test-jill.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <filelist refid="jill.junit.tests.classpath" />
+      </classpath>
+      <test name="com.android.jill.PreSubmitTests"
+        todir="${jack.tests.output}/test-jill/"
+        outfile="test-jill" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jill">
+      <fileset dir="${jack.tests.output}/test-jill">
+        <include name="test-jill.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jill/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jill.failure" />
+  </target>
+
+  <target name="test-jill-long" description="run long lasting Jill tests"
+    depends="tests-check-config, jillunittests">
+    <mkdir dir="${jack.tests.output}/test-jill-long/html"/>
+    <junit fork="yes" failureproperty="test-jill.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <filelist refid="jill.junit.tests.classpath" />
+      </classpath>
+      <test name="com.android.jill.LongLastingTests"
+        todir="${jack.tests.output}/test-jill-long/"
+        outfile="test-jill-long" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jill-long">
+      <fileset dir="${jack.tests.output}/test-jill-long">
+        <include name="test-jill-long.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jill-long/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jill.failure" />
+  </target>
+
+  <target name="test-jill-all" description="runs all Jill tests"
+  depends="tests-check-config, jillunittests">
+    <mkdir dir="${jack.tests.output}/test-jill-all/html"/>
+    <junit fork="yes" failureproperty="test-jill.failure">
+      <formatter type="xml"/>
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <filelist refid="jill.junit.tests.classpath" />
+      </classpath>
+      <test name="com.android.jill.AllTests"
+        todir="${jack.tests.output}/test-jill-all/"
+        outfile="test-jill-all" />
+    </junit>
+    <junitreport todir="${jack.tests.output}/test-jill-all">
+      <fileset dir="${jack.tests.output}/test-jill-all">
+        <include name="test-jill-all.xml"/>
+      </fileset>
+      <report format="frames" todir="${jack.tests.output}/test-jill-all/html"/>
+    </junitreport>
+    <fail message="TESTS FAILED" if="test-jill.failure" />
+  </target>
 
 </project>
 

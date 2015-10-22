@@ -19,17 +19,11 @@ package com.android.jack.instance;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 public class InstanceTest {
-
-  @Before
-  public void setUp() throws Exception {
-    InstanceTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testReturnThis() throws Exception {

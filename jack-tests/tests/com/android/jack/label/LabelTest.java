@@ -28,7 +28,7 @@ public class LabelTest {
 
   @Before
   public void setUp() throws Exception {
-    LabelTest.class.getClassLoader().setDefaultAssertionStatus(true);
+
   }
 
   @Test

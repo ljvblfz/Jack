@@ -16,6 +16,10 @@
 
 package com.android.jack.jayce.v0002.io;
 
+import com.android.jack.ir.ast.FieldKind;
+import com.android.jack.ir.ast.JMethodCall.DispatchKind;
+import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.jayce.DeclaredTypeNode;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceInternalReader;
@@ -26,6 +30,7 @@ import com.android.jack.jayce.v0002.nodes.HasCatchBlockIds;
 import com.android.jack.jayce.v0002.nodes.HasSourceInfo;
 import com.android.jack.jayce.v0002.nodes.NDeclaredType;
 import com.android.jack.jayce.v0002.nodes.NMethod;
+import com.android.jack.jayce.v0002.nodes.NMethodCall.ReceiverKind;
 import com.android.jack.jayce.v0002.nodes.NSourceInfo;
 import com.android.jack.jayce.v0002.util.DispatchKindIdHelper;
 import com.android.jack.jayce.v0002.util.FieldRefKindIdHelper;
@@ -113,34 +118,29 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return currentLine;
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public <T extends Enum<T>> T readRetentionPolicyEnum() throws IOException {
-    return (T) RetentionPolicyIdHelper.getValue(readByte());
+  public JRetentionPolicy readRetentionPolicyEnum() throws IOException {
+    return RetentionPolicyIdHelper.getValue(readByte());
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public <T extends Enum<T>> T readFieldRefKindEnum() throws IOException {
-    return (T) FieldRefKindIdHelper.getValue(readByte());
+  public FieldKind readFieldRefKindEnum() throws IOException {
+    return FieldRefKindIdHelper.getValue(readByte());
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public <T extends Enum<T>> T readMethodKindEnum() throws IOException {
-    return (T) MethodKindIdHelper.getValue(readByte());
+  public MethodKind readMethodKindEnum() throws IOException {
+    return MethodKindIdHelper.getValue(readByte());
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public <T extends Enum<T>> T readReceiverKindEnum() throws IOException {
-    return (T) ReceiverKindIdHelper.getValue(readByte());
+  public ReceiverKind readReceiverKindEnum() throws IOException {
+    return ReceiverKindIdHelper.getValue(readByte());
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
-  public <T extends Enum<T>> T readDispatchKindEnum() throws IOException {
-    return (T) DispatchKindIdHelper.getValue(readByte());
+  public DispatchKind readDispatchKindEnum() throws IOException {
+    return DispatchKindIdHelper.getValue(readByte());
   }
 
   @CheckForNull

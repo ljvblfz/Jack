@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.and_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.and_long.jm.T_and_long_1;
 import com.android.jack.opcodes.and_long.jm.T_and_long_3;
 import com.android.jack.opcodes.and_long.jm.T_and_long_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_and_long extends DxTestCase {

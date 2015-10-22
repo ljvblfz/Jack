@@ -117,15 +117,14 @@ public class JSession extends JNode {
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
-    topLevelPackage = new JPackage("", this, null);
+    topLevelPackage = new JPackage("", null);
     topLevelPackage.updateParents(this);
     lookup = new JNodeLookup(topLevelPackage);
     phantomLookup = new JPhantomLookup(lookup);
   }
 
-  @Nonnull
+  @CheckForNull
   public InputFilter getInputFilter() {
-    assert inputFilter != null;
     return inputFilter;
   }
 

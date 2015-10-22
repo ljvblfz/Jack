@@ -2,6 +2,7 @@ package com.android.jack;
 
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTests;
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.processor.AnnotationProcessorTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
 import com.android.jack.assertion.AssertionTests;
@@ -47,6 +48,7 @@ import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
+import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
@@ -72,6 +74,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+    AnnotationProcessorTests.class,
     AnnotationTests.class,
     ArithmeticTests.class,
     ArrayTests.class,
@@ -134,6 +137,7 @@ import org.junit.runners.Suite.SuiteClasses;
     TryfinallyTests.class,
     TypeTests.class,
     UnaryTests.class,
+    UnusedDefTest.class,
     UselessVariableCopyTest.class,
     VerifyTests.class,
     WithPhantomTests.class,

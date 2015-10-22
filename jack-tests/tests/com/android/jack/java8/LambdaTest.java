@@ -137,22 +137,22 @@ public class LambdaTest {
       "com.android.jack.java8.lambda.test023.jack.Tests");
 
   private RuntimeTestInfo LAMBDA024 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test024"),
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test024"),
           "com.android.jack.java8.lambda.test024.jack.Tests")
-          .addProguardFlagsFileName("proguard.flags");
+              .addProguardFlagsFileName("proguard.flags").addFileChecker(
+                  new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"));
 
   private RuntimeTestInfo LAMBDA025 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test025"),
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test025"),
           "com.android.jack.java8.lambda.test025.jack.Tests")
-          .addProguardFlagsFileName("proguard.flags");
+              .addProguardFlagsFileName("proguard.flags").addFileChecker(
+                  new ShrinkFileChecker().addKeptFile("I1.java").addKeptFile("I2.java"));
 
   private RuntimeTestInfo LAMBDA026 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test026"),
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test026"),
           "com.android.jack.java8.lambda.test026.jack.Tests")
-          .addProguardFlagsFileName("proguard.flags");
+              .addProguardFlagsFileName("proguard.flags").addFileChecker(
+                  new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"));
 
   private RuntimeTestInfo LAMBDA027 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test027"),
@@ -364,7 +364,6 @@ public class LambdaTest {
     new RuntimeTestHelper(LAMBDA024)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"))
     .compileAndRunTest();
   }
 
@@ -373,7 +372,6 @@ public class LambdaTest {
     new RuntimeTestHelper(LAMBDA025)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addKeptFile("I2.java"))
     .compileAndRunTest();
   }
 
@@ -382,7 +380,6 @@ public class LambdaTest {
     new RuntimeTestHelper(LAMBDA026)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addTestExeFileChecker(new ShrinkFileChecker().addKeptFile("I1.java").addRemovedFile("I2.java"))
     .compileAndRunTest();
   }
 

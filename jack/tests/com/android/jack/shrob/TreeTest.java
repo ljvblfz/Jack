@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.TestTools;
@@ -40,7 +39,6 @@ public class TreeTest {
 
   @BeforeClass
   public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
     CORE_SOURCELIST = TestTools.getTargetLibSourcelist("core-libart");
   }
 

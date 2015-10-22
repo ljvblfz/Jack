@@ -153,7 +153,7 @@ public abstract class DefUsesAndUseDefsChainsSimplifier {
     return false;
   }
 
-  private boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,
+  protected boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,
       @CheckForNull JStatement beginAfterStmt, @Nonnull JStatement end) {
 
     List<JStatement> statements = basicBlock.getStatements();

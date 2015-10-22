@@ -1,0 +1,4 @@
+Prebuilt guava-18.0.jar can be rebuilt using the following command line:
+mvn clean package
+
+Ensure that java version is not 8.

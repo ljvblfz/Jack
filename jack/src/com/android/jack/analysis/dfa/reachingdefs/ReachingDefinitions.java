@@ -41,6 +41,7 @@ import com.android.sched.util.config.id.PropertyId;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -117,7 +118,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
       out[entryBb.getId()].set(dm.getBitSetIdx());
     }
 
-    List<BasicBlock> changeNodes = cfg.getNodes();
+    List<BasicBlock> changeNodes = new LinkedList<BasicBlock>(cfg.getNodes());
 
     while (!changeNodes.isEmpty()) {
       BasicBlock bb = changeNodes.remove(0);

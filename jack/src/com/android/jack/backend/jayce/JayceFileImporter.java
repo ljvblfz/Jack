@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.IgnoringImportMessage;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
@@ -40,13 +41,12 @@ import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.vfs.GenericInputVFile;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -119,17 +119,17 @@ public class JayceFileImporter {
     this.jackLibraries = jackLibraries;
   }
 
-  public void doImport(@Nonnull JSession session) throws LibraryReadingException {
-
+  public void doJayceImport(@Nonnull JSession session) throws LibraryReadingException {
     for (InputJackLibrary jackLibrary : jackLibraries) {
       Reporter reporter = session.getReporter();
-      logger.log(Level.FINE, "Importing {0}", jackLibrary.getLocation().getDescription());
+      logger.log(Level.FINE, "Importing jayces from {0}",
+          jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> jayceFileIt = jackLibrary.iterator(FileType.JAYCE);
       while (jayceFileIt.hasNext()) {
         InputVFile jayceFile = jayceFileIt.next();
-        String name = getNameFromInputVFile(jackLibrary, jayceFile, FileType.JAYCE);
+
         try {
-          addImportedTypes(session, name, jackLibrary);
+          addImportedTypes(session, jayceFile, jackLibrary);
         } catch (JLookupException e) {
           throw new LibraryReadingException(e);
         } catch (TypeImportConflictException e) {
@@ -140,11 +140,18 @@ public class JayceFileImporter {
           }
         }
       }
+    }
+  }
 
+  public void doResourceImport(@Nonnull JSession session) throws LibraryReadingException {
+    for (InputJackLibrary jackLibrary : jackLibraries) {
+      Reporter reporter = session.getReporter();
+      logger.log(Level.FINE, "Importing resources from {0}",
+          jackLibrary.getLocation().getDescription());
       Iterator<InputVFile> rscFileIt = jackLibrary.iterator(FileType.RSC);
       while (rscFileIt.hasNext()) {
         InputVFile rscFile = rscFileIt.next();
-        String name = getNameFromInputVFile(jackLibrary, rscFile, FileType.RSC);
+        String name = rscFile.getPathFromRoot().getPathAsString('/');
         try {
           addImportedResource(rscFile, session, name);
         } catch (ResourceImportConflictException e) {
@@ -158,32 +165,11 @@ public class JayceFileImporter {
     }
   }
 
-  // TODO(jack-team): remove this hack
-  @Nonnull
-  private String getNameFromInputVFile(@Nonnull InputJackLibrary jackLibrary,
-      @Nonnull InputVFile jayceFile, @Nonnull FileType fileType) {
-    Location loc = jayceFile.getLocation();
-    String name;
-    if (loc instanceof ZipLocation) {
-      name = ((ZipLocation) jayceFile.getLocation()).getEntryName();
-      if (jackLibrary.getMajorVersion() != 0) {
-        name = name.substring(
-            fileType.buildDirVPath(VPath.ROOT).split().iterator().next().length() + 1);
-      }
-    } else {
-      name = ((FileLocation) jayceFile.getLocation()).getPath();
-      if (jackLibrary.getMajorVersion() != 0) {
-        String prefix = fileType.buildDirVPath(VPath.ROOT).split().iterator().next() + '/';
-        name = name.substring(name.lastIndexOf(prefix) + prefix.length());
-      }
-    }
-    return name;
-  }
-
-  private void addImportedTypes(@Nonnull JSession session, @Nonnull String path,
+  private void addImportedTypes(@Nonnull JSession session, @Nonnull InputVFile jayceFile,
       @Nonnull InputLibrary intendedInputLibrary) throws TypeImportConflictException,
       JTypeLookupException {
     Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
+    String path = jayceFile.getPathFromRoot().getPathAsString('/');
     try {
       logger.log(Level.FINEST, "Importing jayce file ''{0}'' from {1}", new Object[] {path,
           intendedInputLibrary.getLocation().getDescription()});
@@ -191,6 +177,27 @@ public class JayceFileImporter {
       JDefinedClassOrInterface declaredType =
           (JDefinedClassOrInterface) session.getLookup().getType(signature);
       if (!isTypeFromLibrary(declaredType, intendedInputLibrary)) {
+        Location previousLocation = declaredType.getLocation();
+        if (previousLocation instanceof TypeInInputLibraryLocation) {
+          InputLibrary previousInputLibrary =
+              ((TypeInInputLibraryLocation) previousLocation)
+                  .getInputLibraryLocation()
+                  .getInputLibrary();
+          String pathWithoutExt =
+              path.substring(0, path.lastIndexOf(FileType.JAYCE.getFileExtension()));
+          try {
+            String previousDigest =
+                ((GenericInputVFile)
+                    previousInputLibrary.getFile(
+                        FileType.DEX, new VPath(pathWithoutExt, '/'))).getDigest();
+            if (previousDigest != null
+                && previousDigest.equals(((GenericInputVFile) jayceFile).getDigest())) {
+              return; // both types are identical, ignore
+            }
+          } catch (FileTypeDoesNotExistException e) {
+            // best effort, throw the conflict exception
+          }
+        }
         throw new TypeImportConflictException(declaredType, intendedInputLibrary.getLocation());
       } else {
         session.addTypeToEmit(declaredType);
@@ -223,8 +230,7 @@ public class JayceFileImporter {
     Resource newResource = new Resource(path, file);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
-        throw new ResourceImportConflictException(newResource.getLocation(),
-            existingResource.getLocation());
+        throw new ResourceImportConflictException(existingResource, newResource.getLocation());
       }
     }
     session.addResource(newResource);

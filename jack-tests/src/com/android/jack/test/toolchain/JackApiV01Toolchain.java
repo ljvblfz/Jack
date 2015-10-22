@@ -27,6 +27,7 @@ import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.test.TestConfigurationException;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 
 import java.io.File;
@@ -124,7 +125,11 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
   @Nonnull
   public JackApiV01Toolchain setWithDebugInfos(boolean withDebugInfos) {
     try {
-      apiV01Config.setDebugInfoLevel(DebugInfoLevel.FULL);
+      if (withDebugInfos) {
+        apiV01Config.setDebugInfoLevel(DebugInfoLevel.FULL);
+      } else {
+        apiV01Config.setDebugInfoLevel(DebugInfoLevel.LINES);
+      }
       return this;
     } catch (ConfigurationException e) {
       throw new TestConfigurationException(e);
@@ -158,6 +163,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     try {
       System.setOut(outRedirectStream);
       System.setErr(errRedirectStream);
+      LoggerFactory.configure(LogLevel.ERROR);
       apiV01Config.getTask().run();
     } catch (ConfigurationException e) {
       Throwable t1 = e.getCause();
@@ -176,6 +182,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     } finally {
       System.setOut(stdOut);
       System.setOut(stdErr);
+      LoggerFactory.configure(LogLevel.ERROR);
     }
   }
 
@@ -184,9 +191,10 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     apiV01Config.setImportedJackLibraryFiles(staticLibs);
     apiV01Config.setSourceEntries(Lists.newArrayList(sources));
     apiV01Config.setResourceDirs(resImport);
+    apiV01Config.setMetaDirs(metaImport);
     apiV01Config.setProguardConfigFiles(proguardFlags);
-    if (jarjarRules != null) {
-      apiV01Config.setJarJarConfigFile(jarjarRules);
+    if (!jarjarRules.isEmpty()) {
+      apiV01Config.setJarJarConfigFiles(jarjarRules);
     }
     apiV01Config.setProcessorOptions(annotationProcessorOptions);
 
@@ -210,9 +218,10 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
     Collections.addAll(importedLibs, in);
     apiV01Config.setImportedJackLibraryFiles(importedLibs);
     apiV01Config.setResourceDirs(resImport);
+    apiV01Config.setMetaDirs(metaImport);
     apiV01Config.setProguardConfigFiles(proguardFlags);
     if (jarjarRules != null) {
-      apiV01Config.setJarJarConfigFile(jarjarRules);
+      apiV01Config.setJarJarConfigFiles(jarjarRules);
     }
   }
 

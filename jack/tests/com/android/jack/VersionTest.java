@@ -19,14 +19,12 @@ package com.android.jack;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.BeforeClass;
+import com.android.sched.util.SubReleaseKind;
+import com.android.sched.util.Version;
+
 import org.junit.Test;
 
 public class VersionTest {
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void testVersion() {

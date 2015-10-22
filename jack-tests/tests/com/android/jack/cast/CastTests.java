@@ -23,7 +23,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,6 +33,10 @@ public class CastTests extends RuntimeTest {
   private RuntimeTestInfo EXPLICIT001 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.cast.explicit001"),
     "com.android.jack.cast.explicit001.dx.Tests");
+
+  private RuntimeTestInfo EXPLICIT002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.cast.explicit002"),
+      "com.android.jack.cast.explicit002.dx.Tests");
 
   private RuntimeTestInfo IMPLICIT001 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.cast.implicit001"),
@@ -59,14 +62,20 @@ public class CastTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.cast.useless002"),
     "com.android.jack.cast.useless002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    CastTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+  private RuntimeTestInfo USELESS004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.cast.useless004"),
+      "com.android.jack.cast.useless004.dx.Tests");
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void explicit001() throws Exception {
     new RuntimeTestHelper(EXPLICIT001).compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void explicit002() throws Exception {
+    new RuntimeTestHelper(EXPLICIT002).compileAndRunTest();
   }
 
   @Test
@@ -115,6 +124,13 @@ public class CastTests extends RuntimeTest {
     new RuntimeTestHelper(USELESS002).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void useless004() throws Exception {
+    new RuntimeTestHelper(USELESS004).compileAndRunTest();
+  }
+
+
   /**
    * Verifies that the test source can compile from source to dex file.
    */
@@ -129,11 +145,13 @@ public class CastTests extends RuntimeTest {
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(EXPLICIT001);
+    rtTestInfos.add(EXPLICIT002);
     rtTestInfos.add(IMPLICIT001);
     rtTestInfos.add(IMPLICIT002);
     rtTestInfos.add(IMPLICIT003);
     rtTestInfos.add(IMPLICIT004);
     rtTestInfos.add(USELESS001);
     rtTestInfos.add(USELESS002);
+    rtTestInfos.add(USELESS004);
   }
 }

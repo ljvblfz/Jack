@@ -450,11 +450,12 @@ public class MultiWorkersScheduleInstance<T extends Component>
     // Create threads
     int threadPoolSize = getThreadPoolSize();
 
+    String name = ThreadConfig.getConfig().getName() + "-worker-";
     List<Worker> activeWorkers = new ArrayList<Worker>(threadPoolSize);
     for (int i = 0; i < threadPoolSize; i++) {
       Worker worker = new Worker(queue);
 
-      worker.setName("sched-worker-" + i);
+      worker.setName(name + i);
       worker.setDaemon(true);
       worker.start();
       activeWorkers.add(worker);

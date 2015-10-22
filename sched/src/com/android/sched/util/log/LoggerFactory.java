@@ -16,9 +16,14 @@
 
 package com.android.sched.util.log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Level;
+import com.google.common.collect.Lists;
+
+import com.android.sched.util.log.LoggerConfiguration.PackageLevel;
+
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -63,35 +68,45 @@ public class LoggerFactory  {
     throw new AssertionError();
   }
 
-  /**
-   * Overrides current logging properties by the one stored in filename to override the default
-   * ones.
-   * @param filename Path of the properties file either absolute in or relative
-   *                 to clazz in classpath.
-   * @param clazz Helps to locate the resource file. Usually the the class of the caller.
-   */
-  public static void loadLoggerConfiguration (@Nonnull Class<?> clazz, @Nonnull String filename) {
-    assert (filename != null) && (clazz != null);
+  public static void configure(LoggerConfiguration configuration) {
+    LogManager manager = LogManager.getLogManager();
+    // reset configuration
+    manager.reset();
 
-    InputStream is = null;
+    List<PackageLevel> levels = configuration.getLevels();
+    if (levels.isEmpty()) {
+      // nothing to do
+      return;
+    }
 
-    try {
-      is = clazz.getResourceAsStream(filename);
-      if (is != null) {
-        LogManager.getLogManager().readConfiguration(is);
-      } else {
-        LoggerFactory.getLogger().log(Level.WARNING,
-            "Unable to locate custom logger properties file ''{0}''", filename);
+    // ensure logger are created
+    for (PackageLevel level : levels) {
+      Logger.getLogger(level.getPackageName());
+    }
+
+    List<PackageLevel> levelsReverse = Lists.reverse(levels);
+    Enumeration<String> names = manager.getLoggerNames();
+    Collection<Handler> handlers = configuration.getHandlers();
+
+    while (names.hasMoreElements()) {
+      String loggerName = names.nextElement();
+      Logger logger = manager.getLogger(loggerName);
+
+      if (logger == null) {
+        continue;
       }
-    } catch (IOException e) {
-      LoggerFactory.getLogger().log(Level.WARNING,
-          "An error occured while reading logger config file ''{0}''", clazz.getResource(filename));
-    } finally {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException e) {
-          // Nothing more to be done.
+
+      for (Handler handler : handlers) {
+        logger.addHandler(handler);
+      }
+
+      // Iterate in reverse order to test most specific package name first and then continue to
+      // parents
+      for (PackageLevel level : levelsReverse) {
+        if (loggerName.startsWith(level.getPackageName())) {
+          logger.setLevel(level.getLevel());
+          logger.setUseParentHandlers(false);
+          break;
         }
       }
     }

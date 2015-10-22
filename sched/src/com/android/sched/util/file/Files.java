@@ -20,6 +20,8 @@ import com.android.sched.util.location.DirectoryLocation;
 
 import java.io.File;
 
+import javax.annotation.Nonnull;
+
 /**
  * Provides utility methods for working with files.
  */
@@ -30,9 +32,10 @@ public class Files {
 
   private Files() {}
 
+  @Nonnull
   public static File createTempDir() throws CannotCreateFileException {
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
-    String baseName = System.currentTimeMillis() + "-";
+    String baseName = "jack-" + System.currentTimeMillis() + "-";
     File tempDir = null;
 
     for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {

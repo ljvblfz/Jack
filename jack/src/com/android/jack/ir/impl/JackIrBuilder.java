@@ -2378,6 +2378,11 @@ public class JackIrBuilder {
             }
           }
 
+          if (!binding.isMemberType() && binding.isLocalType()
+              && ((LocalTypeBinding) binding).enclosingMethod != null) {
+            ((JDefinedClass) type).setEnclosingMethod(curMethod.method);
+          }
+
           if (x.binding.syntheticFields() != null) {
             for (FieldBinding fieldBinding : x.binding.syntheticFields()) {
               JType fieldType = getTypeMap().get(fieldBinding.type);

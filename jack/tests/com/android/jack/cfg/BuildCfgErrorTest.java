@@ -19,20 +19,13 @@ package com.android.jack.cfg;
 import static org.junit.Assert.fail;
 
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.util.graph.GraphException;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class BuildCfgErrorTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
-
-  @Before
-  public void setUp() throws Exception {
-    BuildCfgErrorTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Add a successor twice to a block is not allow.
@@ -40,13 +33,11 @@ public class BuildCfgErrorTest {
    */
   @Test
   public void cfgError001() throws Exception {
-    JMethod method =
-        TestTools.getJMethodWithRejectAllFilter(
-            TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME), "L" + CLASS_BINARY_NAME + ";",
-            "fibonacci(I)I");
-    ControlFlowGraph cfg = new ControlFlowGraph(method);
-    NormalBasicBlock b0 = new NormalBasicBlock(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
-    NormalBasicBlock b1 = new NormalBasicBlock(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
+    TestTools.getJMethodWithRejectAllFilter(TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME),
+        "L" + CLASS_BINARY_NAME + ";", "fibonacci(I)I");
+    NormalBasicBlock b0 = new NormalBasicBlock(1, BasicBlock.EMPTY_STATEMENT_LIST);
+    NormalBasicBlock b1 = new NormalBasicBlock(2, BasicBlock.EMPTY_STATEMENT_LIST);
+
     b0.setTarget(b1);
     try {
       b0.setTarget(b1);

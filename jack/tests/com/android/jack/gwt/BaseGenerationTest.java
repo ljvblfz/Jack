@@ -16,7 +16,6 @@
 
 package com.android.jack.gwt;
 
-import com.android.jack.Main;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JExpression;
@@ -29,18 +28,12 @@ import com.android.jack.util.DefaultTextOutput;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BaseGenerationTest {
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void toStringNewArray001() {

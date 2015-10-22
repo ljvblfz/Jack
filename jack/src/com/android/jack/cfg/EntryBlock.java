@@ -16,7 +16,7 @@
 
 package com.android.jack.cfg;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nonnegative;
 
 /**
  * {@link EntryBlock} is a special block to have only one exit block into the control flow graph.
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  */
 public class EntryBlock extends NormalBasicBlock {
 
-  public EntryBlock(@Nonnull ControlFlowGraph cfg) {
-    super(cfg, BasicBlock.EMPTY_STATEMENT_LIST);
+  public EntryBlock(@Nonnegative int id) {
+    super(id, BasicBlock.EMPTY_STATEMENT_LIST);
   }
 }

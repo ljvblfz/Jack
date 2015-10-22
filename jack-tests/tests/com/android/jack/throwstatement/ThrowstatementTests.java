@@ -22,7 +22,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -32,18 +31,27 @@ public class ThrowstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.throwstatement.test001"),
     "com.android.jack.throwstatement.test001.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ThrowstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.throwstatement.test002"),
+      "com.android.jack.throwstatement.test002.dx.Tests");
+
+
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test002() throws Exception {
+    new RuntimeTestHelper(TEST002).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST002);
   }
 }

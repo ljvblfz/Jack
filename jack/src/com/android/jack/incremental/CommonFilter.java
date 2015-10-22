@@ -48,16 +48,19 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.PrefixedFS;
+import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.ZipUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -136,7 +139,27 @@ public abstract class CommonFilter {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
+  @Nonnull
+  protected final VFS incrementalVfs;
+
+  @Nonnull
+  private final OutputJackLibrary outputJackLibrary;
+
   public CommonFilter() {
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+      VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      ((ReadWriteZipFS) incrementalVfs).setWorkVFS(dirVFS);
+    } else {
+      if (ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.DIR) {
+        incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      } else {
+        incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      }
+    }
+
+    outputJackLibrary = JackLibraryFactory.getOutputLibrary(incrementalVfs,
+        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
   }
 
   @Nonnull
@@ -159,17 +182,29 @@ public abstract class CommonFilter {
 
   protected void fillFiles(@Nonnull File folder, @Nonnull String fileExt,
       @Nonnull Set<String> fileNames) {
-    for (File subFile : folder.listFiles()) {
+    File[] fileList = folder.listFiles();
+    if (fileList == null) {
+      throw new JackUserException(new IOException("Failed to list "
+          + new DirectoryLocation(folder).getDescription()));
+    }
+    for (File subFile : fileList) {
       if (subFile.isDirectory()) {
         fillFiles(subFile, fileExt, fileNames);
       } else {
         String path = subFile.getPath();
         if (subFile.getName().endsWith(fileExt)) {
           try {
-            // File contained into folder are not checked by codec
-            FileOrDirectory.checkPermissions(subFile, new FileLocation(subFile), Permission.READ);
+            // Let's check the files contained in the folder since they have not checked by codec
+            FileLocation location = new FileLocation(subFile);
+            // We still need to check existence, because of non-existing symbolic link targets
+            AbstractStreamFile.check(subFile, location);
+            FileOrDirectory.checkPermissions(subFile, location, Permission.READ);
             fileNames.add(path);
           } catch (WrongPermissionException e) {
+            throw new JackUserException(e);
+          } catch (NotFileException e) {
+            throw new JackUserException(e);
+          } catch (NoSuchFileException e) {
             throw new JackUserException(e);
           }
         }
@@ -178,27 +213,11 @@ public abstract class CommonFilter {
   }
 
   @Nonnull
-  protected OutputJackLibrary getOutputJackLibraryFromVfs() {
-    VFS vfs;
-    Container containerType = ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE);
-
-    if (containerType == Container.DIR) {
-      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
-    } else {
-      vfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
-    }
-
-    return (JackLibraryFactory.getOutputLibrary(vfs, Jack.getEmitterId(), Jack.getVersion()
-        .getVerboseVersion()));
-  }
-
-  @SuppressWarnings("unused")
-  @Nonnull
   protected List<InputLibrary> getInputLibrariesFromFiles(
       @Nonnull List<InputLibrary> files,
       boolean strictMode) {
     List<InputLibrary> libraries;
-    if (true || !ThreadConfig.get(Options.USE_DEFAULT_LIBRARIES).booleanValue()) {
+    if (!ThreadConfig.get(Options.USE_DEFAULT_LIBRARIES).booleanValue()) {
       libraries = new ArrayList<InputLibrary>();
     } else {
       libraries = getDefaultLibraries();
@@ -293,4 +312,8 @@ public abstract class CommonFilter {
     }
   }
 
+  @Nonnull
+  public OutputJackLibrary getOutputJackLibrary() {
+    return outputJackLibrary;
+  }
 }

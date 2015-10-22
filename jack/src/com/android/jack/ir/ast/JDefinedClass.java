@@ -29,7 +29,8 @@ import javax.annotation.Nonnull;
  * Java class type reference expression.
  */
 @Description("Java class type reference expression")
-public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetFinal, JClass {
+public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetFinal, JClass,
+    HasEnclosingMethod {
 
   @CheckForNull
   private JClass superClass;
@@ -60,6 +61,7 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
     this.enclosingMethod = enclosingMethod;
   }
 
+  @Override
   @CheckForNull
   public JMethod getEnclosingMethod() {
     loader.ensureEnclosing(this);

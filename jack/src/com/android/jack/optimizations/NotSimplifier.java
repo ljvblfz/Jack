@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.UnsupportedOperatorException;
+import com.android.jack.ir.types.JFloatingPointType;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -90,14 +91,16 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
       opBeforeTransformation++;
       JBinaryOperator op = binaryOp.getOp();
 
-      if (op.isComparison() || op.isConditionalOperation()
+      if ((op.isComparison() && !useFloatingTypes(binaryOp))
+          || op.isConditionalOperation()
           || op == JBinaryOperator.BIT_AND
           || op == JBinaryOperator.BIT_OR) {
         // Operator will be inverse, thus it exists before and after the transformation.
         opAfterTransformation++;
       } else {
         assert op == JBinaryOperator.ASG
-            || op == JBinaryOperator.BIT_XOR;
+            || op == JBinaryOperator.BIT_XOR
+            || op.isComparison() && useFloatingTypes(binaryOp);
         // Operator could not be inverse, thus it always exists after transformation and first
         // enclosing '!' should also be added.
         opAfterTransformation += 2;
@@ -113,6 +116,11 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
       opBeforeTransformation++;
       // This '!' operator will disappear, do not add it in countOpAfter.
       return false;
+    }
+
+    private boolean useFloatingTypes(@Nonnull JBinaryOperation binaryOp) {
+      return binaryOp.getLhs().getType() instanceof JFloatingPointType ||
+          binaryOp.getRhs().getType() instanceof JFloatingPointType;
     }
   }
 

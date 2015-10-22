@@ -19,6 +19,8 @@ package com.android.jack.test.toolchain;
 import com.google.common.base.Splitter;
 
 import com.android.jack.Sourcelist;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -27,6 +29,7 @@ import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.stream.ByteStreamSucker;
 
@@ -92,10 +95,11 @@ public abstract class AbstractTestTools {
     toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
-    toolchainBuilders.put("jack-api-inc-v01"  , new JackApiV01IncrementalToolchainBuilder());
+    toolchainBuilders.put("jack-api-inc-v01", new JackApiV01IncrementalToolchainBuilder());
     toolchainBuilders.put("jack-api-2steps-v01", new JackApiV01TwoStepsToolchainBuilder());
     toolchainBuilders.put("legacy", new LegacyToolchainBuilder());
     toolchainBuilders.put("jill-legacy", new LegacyJillToolchainBuilder());
+    toolchainBuilders.put("jill-api-v01", new JillApiV01ToolchainBuilder());
 
     try {
       runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
@@ -165,6 +169,15 @@ public abstract class AbstractTestTools {
     public IToolchain build() {
       return new LegacyJillToolchain(getPrebuilt("legacy-java-compiler"), getPrebuilt("jill"),
           getPrebuilt("jack"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
+    }
+  }
+
+  private static class JillApiV01ToolchainBuilder implements ToolchainBuilder {
+
+@Override
+    public IToolchain build() {
+      return new JillApiV01Toolchain(getPrebuilt("jill"), getPrebuilt("jack"),
+          getPrebuilt("legacy-java-compiler"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
     }
   }
 
@@ -312,13 +325,15 @@ public abstract class AbstractTestTools {
     return result;
   }
 
-  public static void deleteTempDir(@CheckForNull File tmp) throws IOException {
-    if (tmp == null) {
-      return;
-    }
+  public static void deleteTempDir(@Nonnull File tmp) throws IOException {
 
     if (tmp.isDirectory()) {
-      for (File sub : tmp.listFiles()) {
+      File[] fileList = tmp.listFiles();
+      if (fileList == null) {
+        throw new IOException("Failed to delete dir " + tmp.getAbsolutePath()
+            + " because listing of content failed");
+      }
+      for (File sub : fileList) {
         deleteTempDir(sub);
       }
     }
@@ -343,10 +358,13 @@ public abstract class AbstractTestTools {
         throw new AssertionError("Unable to create directory '" + dest.getPath() + "'");
       }
 
-      for (String file : src.list()) {
-        File srcFile = new File(src, file);
-        File destFile = new File(dest, file);
-        recursiveFileCopy(srcFile, destFile);
+      String [] files = src.list();
+      if (files != null) {
+        for (String file : files) {
+          File srcFile = new File(src, file);
+          File destFile = new File(dest, file);
+          recursiveFileCopy(srcFile, destFile);
+        }
       }
 
     } else {
@@ -460,8 +478,11 @@ public abstract class AbstractTestTools {
   private static void fillWithFiles(@Nonnull File file, @Nonnull List<File> jackFiles,
       @Nonnull String extension) {
     if (file.isDirectory()) {
-      for (File subFile : file.listFiles()) {
-        fillWithFiles(subFile, jackFiles, extension);
+      File[] files = file.listFiles();
+      if (files != null) {
+        for (File subFile : files) {
+          fillWithFiles(subFile, jackFiles, extension);
+        }
       }
     } else if (extension == null || extension.equals("*") || file.getName().endsWith(extension)) {
       jackFiles.add(file);
@@ -495,8 +516,10 @@ public abstract class AbstractTestTools {
       boolean mustExist) throws IOException {
     if (fileObject.isDirectory()) {
       File allFiles[] = fileObject.listFiles();
-      for (File aFile : allFiles) {
-        getJavaFiles(aFile, filePaths, mustExist);
+      if (allFiles != null) {
+        for (File aFile : allFiles) {
+          getJavaFiles(aFile, filePaths, mustExist);
+        }
       }
     } else if (fileObject.getName().endsWith(".java") && (!mustExist || fileObject.isFile())) {
       filePaths.add(fileObject.getCanonicalFile());
@@ -610,13 +633,15 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File getRuntimeEnvironmentRootDir(@Nonnull String rtName) {
-    String rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+    String rtLocationPath;
 
-    if (rtLocationPath == null) {
-      throw new TestConfigurationException(
-          "Location for runtime '" + rtName + "' is not specified. Set property '"
-              + RUNTIME_LOCATION_PREFIX + rtName + "'");
+    try {
+      rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+    } catch (TestConfigurationException e) {
+      throw new TestConfigurationException("Location for runtime '" + rtName
+          + "' is not specified. Set property '" + RUNTIME_LOCATION_PREFIX + rtName + "'");
     }
+
     File rtLocation = new File(rtLocationPath);
     if (!rtLocation.exists()) {
       throw new TestConfigurationException(
@@ -658,5 +683,12 @@ public abstract class AbstractTestTools {
         fis.close();
       }
     }
+  }
+
+  /**
+   * The returned {@link InputJackLibrary} must be closed.
+   */
+  public static InputJackLibrary getInputJackLibrary(@Nonnull File dirOrZip) {
+    return new InputJackLibraryCodec().parseString(new CodecContext(), dirOrZip.getPath());
   }
 }

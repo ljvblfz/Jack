@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
@@ -142,7 +143,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public JAbstractMethodBody loadBody(@Nonnull JMethod method) throws JTypeLookupException,
       JMethodLookupException {
     if (body != null) {
-      JSession session = method.getParent(JSession.class);
+      JSession session = Jack.getSession();
       ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
           NodeLevel.FULL);
       exportSession.setCurrentMethod(method);

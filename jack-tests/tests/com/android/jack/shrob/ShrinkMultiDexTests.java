@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.Main;
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
 import com.android.jack.backend.dex.DexFileWriter;
@@ -33,7 +32,6 @@ import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -54,10 +52,7 @@ public class ShrinkMultiDexTests extends AbstractTest {
   private static ProguardFlags dontObfuscateFlagFile =
       new ProguardFlags(shrobTestsDir, "dontobfuscate.flags");
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Override
   protected void runTest(

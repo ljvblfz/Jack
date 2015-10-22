@@ -37,7 +37,6 @@ import com.android.jack.annotation.test001.jack.Annotation8;
 import com.android.jack.annotation.test001.jack.Annotation9;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;

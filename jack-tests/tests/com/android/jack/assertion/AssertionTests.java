@@ -23,7 +23,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -41,10 +40,6 @@ public class AssertionTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.assertion.test003"),
     "com.android.jack.assertion.test003.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    AssertionTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   // this test must be run with assertions enabled (for now, use dalvik)
   @Category(RuntimeRegressionTest.class)

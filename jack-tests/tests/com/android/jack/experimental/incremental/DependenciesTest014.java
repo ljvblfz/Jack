@@ -16,14 +16,12 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -34,10 +32,7 @@ import java.io.FileInputStream;
  */
 public class DependenciesTest014 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation works when file without dependency is deleted.
@@ -55,7 +50,7 @@ public class DependenciesTest014 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(2, ite.getJackFiles().size());
+    Assert.assertEquals(2, ite.getJayceCount());
 
     ite.deleteJavaFile(f);
     ite.incrementalBuildFromFolder();
@@ -86,7 +81,7 @@ public class DependenciesTest014 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(3, ite.getJackFiles().size());
+    Assert.assertEquals(3, ite.getJayceCount());
 
     ite.deleteJavaFile(fB);
     ite.deleteJavaFile(fC);

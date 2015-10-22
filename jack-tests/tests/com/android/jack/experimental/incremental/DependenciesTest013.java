@@ -16,14 +16,12 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -34,10 +32,7 @@ import java.io.File;
  */
 public class DependenciesTest013 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that incremental compilation support array creation.
@@ -62,7 +57,7 @@ public class DependenciesTest013 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(2, ite.getJackFiles().size());
+    Assert.assertEquals(2, ite.getJayceCount());
 
     ite.deleteJavaFile(f);
 
@@ -107,7 +102,7 @@ public class DependenciesTest013 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(3, ite.getJackFiles().size());
+    Assert.assertEquals(3, ite.getJayceCount());
 
     ite.deleteJavaFile(f);
 
@@ -152,7 +147,7 @@ public class DependenciesTest013 {
 
     ite.incrementalBuildFromFolder();
     ite.snapshotJackFilesModificationDate();
-    Assert.assertEquals(3, ite.getJackFiles().size());
+    Assert.assertEquals(3, ite.getJayceCount());
 
     ite.deleteJavaFile(f);
 

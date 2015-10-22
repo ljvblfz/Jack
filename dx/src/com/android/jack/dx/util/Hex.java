@@ -242,7 +242,7 @@ public final class Hex {
    * @param length {@code >= 0;} number of bytes to dump
    * @param outOffset {@code >= 0;} first output offset to print
    * @param bpl {@code >= 0;} number of bytes of output per line
-   * @param addressLength {@code {2,4,6,8};} number of characters for each address
+   * @param addressLength <code>{2,4,6,8};</code> number of characters for each address
    * header
    * @return {@code non-null;} a string of the dump
    */

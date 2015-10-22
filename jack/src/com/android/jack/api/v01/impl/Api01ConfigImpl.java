@@ -36,6 +36,7 @@ import com.android.jack.api.v01.TypeCollisionPolicy;
 import com.android.jack.api.v01.UnrecoverableException;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -75,23 +76,26 @@ public class Api01ConfigImpl implements Api01Config {
       throw new ConfigurationException(e.getMessage(), e);
     }
 
-    return new Api01CompilationTaskImpl(options);
+    return new Api01CompilationTaskImpl(options, configHooks);
   }
 
   private static class Api01CompilationTaskImpl implements Api01CompilationTask {
 
     @Nonnull
     private final Options options;
+    @Nonnull
+    private final RunnableHooks runSessionHooks;
 
-    public Api01CompilationTaskImpl(@Nonnull Options options) {
+    public Api01CompilationTaskImpl(@Nonnull Options options,
+        @Nonnull RunnableHooks runSessionHooks) {
       this.options = options;
+      this.runSessionHooks = runSessionHooks;
     }
 
     @Override
     public void run() throws CompilationException, UnrecoverableException {
       ProcessException pe = null;
 
-      RunnableHooks runSessionHooks = new RunnableHooks();
       try {
         try {
           Jack.run(options, runSessionHooks);
@@ -100,6 +104,8 @@ public class Api01ConfigImpl implements Api01Config {
           pe = e;
           throw e.getCause();
         }
+      } catch (FrontendCompilationException e) {
+        throw new CompilationException(e.getMessage(), e);
       } catch (JackUserException e) {
         throw new CompilationException(e.getMessage(), e);
       } catch (JackAbortException e) {
@@ -168,8 +174,8 @@ public class Api01ConfigImpl implements Api01Config {
   }
 
   @Override
-  public void setJarJarConfigFile(@Nonnull File jarJarConfigFile) {
-    options.setJarjarRulesFile(jarJarConfigFile);
+  public void setJarJarConfigFiles(@Nonnull List<File> jarJarConfigFiles) {
+    options.setJarjarRulesFiles(jarJarConfigFiles);
   }
 
   @Override
@@ -359,7 +365,7 @@ public class Api01ConfigImpl implements Api01Config {
     com.android.jack.Options.VerbosityLevel jackVerbosityLevel;
     switch (verbosityLevel) {
       case DEBUG: {
-        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.DEBUG;
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.INFO;
         break;
       }
       case ERROR: {

@@ -41,8 +41,6 @@ public class BuildCfgTest {
 
   @Before
   public void setUp() throws Exception {
-    BuildCfgTest.class.getClassLoader().setDefaultAssertionStatus(true);
-
     String classSignature = "L" + CLASS_BINARY_NAME + ";";
     File fileName = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
     final String methodSignature = "fibonacci(I)I";

@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
@@ -52,7 +53,8 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   @Nonnull
   private final File dir;
 
-  public ReadWriteZipFS(@Nonnull OutputZipFile file)
+  public ReadWriteZipFS(@Nonnull OutputZipFile file, int numGroups, int groupSize,
+      @Nonnull MessageDigestFactory mdf, boolean debug)
       throws NotDirectoryException,
       WrongPermissionException,
       CannotSetPermissionException,
@@ -61,8 +63,15 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
       CannotCreateFileException {
     int permissions = Permission.READ | Permission.WRITE;
     dir = Files.createTempDir();
-    CachedDirectFS workVFS = new CachedDirectFS(new Directory(dir.getPath(), null,
-        Existence.MUST_EXIST, permissions, ChangePermission.NOCHANGE), permissions);
+    VFS workVFS;
+    try {
+      workVFS = new CaseInsensitiveFS(new CachedDirectFS(new Directory(dir.getPath(),
+          null, Existence.MUST_EXIST, permissions, ChangePermission.NOCHANGE), permissions),
+          numGroups, groupSize, mdf, debug);
+    } catch (WrongVFSFormatException e) {
+      // Directory is empty, so this cannot happen
+      throw new AssertionError(e);
+    }
     WriteZipFS finalVFS = new WriteZipFS(file);
     this.vfs = new VFSToVFSWrapper(workVFS, finalVFS);
   }
@@ -119,7 +128,13 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   @Override
   @Nonnull
   OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return vfs.openWrite(file);
+    return openWrite(file, false);
+  }
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
+    return vfs.openWrite(file, append);
   }
 
   @Override
@@ -168,6 +183,11 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   }
 
   @Override
+  long getLastModified(@Nonnull BaseVFile file) {
+    return vfs.getLastModified(file);
+  }
+
+  @Override
   @Nonnull
   Location getVFileLocation(@Nonnull BaseVFile file) {
     return vfs.getVFileLocation(file);
@@ -205,5 +225,17 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
 
   public void setWorkVFS(@Nonnull VFS workVFS) {
     vfs.setWorkVFS(workVFS);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
+    return vfs.getPathFromDir(parent, file);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull BaseVFile file) {
+    return getPathFromDir(getRootDir(), file);
   }
 }

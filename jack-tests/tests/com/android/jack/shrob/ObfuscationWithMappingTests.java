@@ -21,18 +21,12 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -90,13 +84,19 @@ public class ObfuscationWithMappingTests extends AbstractTest {
   @Override
   @Test
   public void test34_001() throws Exception {
-    // Test 35 already has a partial mapping, it can't be used in this test suite.
+    // Test 34 already has a partial mapping, it can't be used in this test suite.
   }
 
   @Override
   @Test
   public void test35_001() throws Exception {
-    // Test 34 already has a partial mapping, it can't be used in this test suite.
+    // Test 35 already has a partial mapping, it can't be used in this test suite.
+  }
+
+  @Override
+  @Test
+  public void test44_001() throws Exception {
+    // Irrelevant.
   }
 
   @Test

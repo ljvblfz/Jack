@@ -46,4 +46,9 @@ public class ParentVDir extends BaseVDir {
       return VPath.ROOT;
     }
   }
+
+  @CheckForNull
+  VDir getParent() {
+    return parent;
+  }
 }

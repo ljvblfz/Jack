@@ -23,11 +23,8 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import java.io.IOException;
 
 public class StringTests extends RuntimeTest {
 
@@ -43,10 +40,7 @@ public class StringTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.string.concat003"),
     "com.android.jack.string.concat003.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    StringTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testCompileNewString() throws Exception {

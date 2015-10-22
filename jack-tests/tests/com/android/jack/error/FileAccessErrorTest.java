@@ -18,8 +18,9 @@ package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
-import com.android.jack.Main;
 import com.android.jack.backend.jayce.JayceFileImporter;
+import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
@@ -29,24 +30,21 @@ import com.android.sched.util.codec.ListParsingException;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Iterator;
 
 /**
  * JUnit test checking Jack behavior on file access error.
  */
 public class FileAccessErrorTest {
-
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Checks that compilation fails correctly when folder to generate jack files is not readable.
@@ -60,18 +58,20 @@ public class FileAccessErrorTest {
         "public class A {} \n");
 
     File jackOutputFile = AbstractTestTools.createTempDir();
-    if (!jackOutputFile.setReadable(false)) {
-      Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
-    }
-    JackApiToolchainBase jackApiToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-
     try {
-      jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
-      .srcToLib(jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
-      Assert.fail();
-    } catch (PropertyIdException e) {
-      // Failure is ok since jack output folder is not readable
+      if (!jackOutputFile.setReadable(false)) {
+        Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
+      }
+      JackApiToolchainBase jackApiToolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+      try {
+        jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
+        .srcToLib(jackOutputFile, /* zipFiles = */ false, te.getSourceFolder());
+        Assert.fail();
+      } catch (PropertyIdException e) {
+        // Failure is ok since jack output folder is not readable
+      }
     } finally {
       if (!jackOutputFile.setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
@@ -186,10 +186,15 @@ public class FileAccessErrorTest {
 
     jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    InputJackLibrary jackLib = null;
     try {
-      for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
-        if (!jackFile.setReadable(false)) {
-          Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
+      jackLib = AbstractTestTools.getInputJackLibrary(te.getJackFolder());
+      Iterator<InputVFile> jackFileIter = jackLib.iterator(FileType.JAYCE);
+      while (jackFileIter.hasNext()) {
+        InputVFile vFile = jackFileIter.next();
+        File file = new File(((FileLocation) vFile.getLocation()).getPath());
+        if (!file.setReadable(false)) {
+          Assert.fail("Fails to change file permissions of " + file.getAbsolutePath());
         }
       }
 
@@ -202,6 +207,9 @@ public class FileAccessErrorTest {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
     } finally {
+      if (jackLib != null) {
+        jackLib.close();
+      }
       String errOutput = errOut.toString();
       Assert.assertTrue(errOutput.contains(
           "Library reading phase: I/O error when accessing ")); // user reporting

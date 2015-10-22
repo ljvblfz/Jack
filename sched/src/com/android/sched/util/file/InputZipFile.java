@@ -99,4 +99,9 @@ public class InputZipFile extends StreamFile {
     assert file != null;
     return file.getName();
   }
+
+  public long getLastModified() {
+    assert file != null;
+    return file.lastModified();
+  }
 }

@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.mul_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.mul_long.jm.T_mul_long_1;
 import com.android.jack.opcodes.mul_long.jm.T_mul_long_4;
 import com.android.jack.opcodes.mul_long.jm.T_mul_long_5;
 import com.android.jack.opcodes.mul_long.jm.T_mul_long_6;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_mul_long extends DxTestCase {

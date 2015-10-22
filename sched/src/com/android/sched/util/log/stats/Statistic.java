@@ -19,10 +19,12 @@ package com.android.sched.util.log.stats;
 import com.google.common.collect.Iterators;
 
 import com.android.sched.util.HasDescription;
-import com.android.sched.util.codec.Formatter;
-import com.android.sched.util.codec.ToStringFormatter;
-import com.android.sched.util.table.DataHeader;
-import com.android.sched.util.table.DataRow;
+import com.android.sched.util.print.DataModel;
+import com.android.sched.util.print.DataType;
+import com.android.sched.util.print.TextPrinter;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -30,7 +32,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a statistic.
  */
-public abstract class Statistic implements DataHeader, HasDescription {
+public abstract class Statistic implements DataModel, HasDescription {
   @Nonnull
   private final StatisticId<? extends Statistic> id;
 
@@ -51,6 +53,10 @@ public abstract class Statistic implements DataHeader, HasDescription {
     return id.getName();
   }
 
+  public boolean isEnabled() {
+    return false;
+  }
+
   //
   // Adapter for deprecated API
   //
@@ -58,13 +64,13 @@ public abstract class Statistic implements DataHeader, HasDescription {
   @Nonnull
   @Deprecated
   public final String getDescription(int columnIdx) {
-    return getHeader()[columnIdx];
+    return getDataView().getDataNames()[columnIdx];
   }
 
   @Nonnull
   @Deprecated
   public final String getType(int columnIdx) {
-    if (getFormatters()[columnIdx] instanceof ToStringFormatter) {
+    if (getDataView().getDataTypes()[columnIdx] == DataType.STRING) {
       return "string";
     } else {
       return "number";
@@ -74,19 +80,17 @@ public abstract class Statistic implements DataHeader, HasDescription {
   @Nonnull
   @Deprecated
   public final Object getValue(@Nonnegative int columnIdx) {
-    if (this instanceof DataRow) {
-      DataRow data = (DataRow) this;
-
-      return Iterators.get(data.iterator(), columnIdx);
-    }
-
-    throw new AssertionError();
+    return Iterators.get(iterator(), columnIdx);
   }
 
-  @SuppressWarnings("unchecked")
   @Nonnull
   @Deprecated
   public final String getHumanReadableValue(@Nonnegative int columnIdx) {
-    return ((Formatter<Object>) (getFormatters()[columnIdx])).formatValue(getValue(columnIdx));
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream printer = new PrintStream(baos);
+    TextPrinter provider = new TextPrinter(printer);
+    provider.print(this);
+
+    return baos.toString();
   }
 }

@@ -16,25 +16,17 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.sched.util.file.CannotReadException;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -50,10 +42,7 @@ import javax.annotation.Nonnull;
  */
 public class DependenciesTest009 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that usages does not change during incremental compilation and that dependencies are
@@ -77,11 +66,9 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    DirectFS directFS = null;
+    InputJackLibrary inputJackLibrary = null;
     try {
-      directFS = new DirectFS(new Directory(ite.getCompilerStateFolder().getPath(), null,
-          Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE), Permission.READ);
-      InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(directFS);
+      inputJackLibrary = AbstractTestTools.getInputJackLibrary(ite.getCompilerStateFolder());
 
       TypeDependencies typeDependencies = readTypeDependencies(inputJackLibrary);
 
@@ -98,8 +85,8 @@ public class DependenciesTest009 {
       assert dependencies1.equals(dependencies2);
       Assert.assertEquals(dependencies1, dependencies2);
     } finally {
-      if (directFS != null) {
-        directFS.close();
+      if (inputJackLibrary != null) {
+        inputJackLibrary.close();
       }
     }
   }

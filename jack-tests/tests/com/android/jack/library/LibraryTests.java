@@ -32,7 +32,6 @@ import com.android.sched.vfs.VFS;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -43,10 +42,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public class LibraryTests {
-  @BeforeClass
-  public static void setUpClass() {
-    LibraryTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void testEmptyLibraryInClassPath() throws Exception {
@@ -122,7 +118,7 @@ public class LibraryTests {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File emptyLib = AbstractTestTools.createTempFile("rsc", toolchain.getLibraryExtension());
 
-    toolchain.addResource(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
+    toolchain.addResourceDir(AbstractTestTools.getTestRootDir("com.android.jack.library.test001.lib"));
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
     return emptyLib;

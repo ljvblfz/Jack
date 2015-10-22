@@ -16,13 +16,11 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,10 +30,7 @@ import java.util.List;
  */
 public class DependenciesTest003 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that file modification implying to transform an interface call to a virtual call is well

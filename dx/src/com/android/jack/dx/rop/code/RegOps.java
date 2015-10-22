@@ -199,8 +199,8 @@ public final class RegOps {
   public static final int NEW_ARRAY = 41;
 
   /**
-   * {@code T: any array type; r: T; x: int; v0..vx: T :: r = new T[x]
-   * {v0, ..., vx}}
+   * <code>T: any array type; r: T; x: int; v0..vx: T :: r = new T[x]
+   * {v0, ..., vx}</code>
    */
   public static final int FILLED_NEW_ARRAY = 42;
 
@@ -293,7 +293,7 @@ public final class RegOps {
    */
   public static final int MOVE_RESULT_PSEUDO = 56;
 
-  /** {@code T: Any primitive type; v0..vx: T :: {v0, ..., vx}} */
+  /** <code>T: Any primitive type; v0..vx: T :: {v0, ..., vx}</code> */
   public static final int FILL_ARRAY_DATA = 57;
 
   /**

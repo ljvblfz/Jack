@@ -43,7 +43,7 @@ public class AddAnnotationExpression<T> implements Expression<Collection<T>, Sco
   public Collection<T> eval(@Nonnull Scope scope, @Nonnull Context context) {
     Collection<T> collection = on.eval(scope, context);
     if (!collection.isEmpty()) {
-      context.addAnnotate(new AddAnnotationStep(toAdd, collection));
+      context.addAnnotate(toAdd, collection);
     }
     return collection;
   }

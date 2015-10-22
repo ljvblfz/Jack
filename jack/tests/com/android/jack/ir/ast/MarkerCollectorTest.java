@@ -38,7 +38,7 @@ public class MarkerCollectorTest {
   private final JParameter param;
 
   public MarkerCollectorTest() {
-    JPackage p = new JPackage("test", new JSession(), null);
+    JPackage p = new JPackage("test", null);
     JDefinedClass classTest = new JDefinedClass(SourceInfo.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
     JMethod method =
@@ -50,7 +50,6 @@ public class MarkerCollectorTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    MarkerCollectorTest.class.getClassLoader().setDefaultAssertionStatus(true);
     Options options = new Options();
     RunnableHooks hooks = new RunnableHooks();
     options.checkValidity(hooks);

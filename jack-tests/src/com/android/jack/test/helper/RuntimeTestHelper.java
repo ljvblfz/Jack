@@ -66,7 +66,7 @@ public class RuntimeTestHelper {
   private SourceLevel level = SourceLevel.JAVA_6;
 
   @Nonnull
-  private List<FileChecker> testExeCheckers = new ArrayList<FileChecker>(0);
+  private List<FileChecker> fileCheckers = new ArrayList<FileChecker>(0);
 
   @Nonnull
   private Map<String, String> runtimeProperties = new HashMap<String, String>(0);
@@ -76,6 +76,10 @@ public class RuntimeTestHelper {
 
     for (RuntimeTestInfo info : rtTestInfos) {
       jUnitClasses.add(info.jUnit);
+
+      for (FileChecker checker : info.checkers) {
+        fileCheckers.add(checker);
+      }
     }
   }
 
@@ -94,12 +98,6 @@ public class RuntimeTestHelper {
   @Nonnull
   public RuntimeTestHelper setSourceLevel(@Nonnull SourceLevel level) {
     this.level = level;
-    return this;
-  }
-
-  @Nonnull
-  public RuntimeTestHelper addTestExeFileChecker(@Nonnull FileChecker checker) {
-    this.testExeCheckers.add(checker);
     return this;
   }
 
@@ -150,11 +148,6 @@ public class RuntimeTestHelper {
     File[] candidateBootClasspath = candidateTestTools.getDefaultBootClasspath();
     File[] referenceBootClasspath = referenceTestTools.getDefaultBootClasspath();
 
-    String candidateBootClasspathAsString =
-        AbstractTestTools.getClasspathAsString(candidateTestTools.getDefaultBootClasspath());
-    String referenceBootClasspathAsString =
-        AbstractTestTools.getClasspathAsString(referenceTestTools.getDefaultBootClasspath());
-
     // Compile lib src
     File libLibRef = null;
     File libBinaryRef = null;
@@ -178,8 +171,6 @@ public class RuntimeTestHelper {
     // Compile test src
     candidateTestTools = createCandidateToolchain();
 
-    String candidateClasspathAsString;
-    String referenceClasspathAsString;
     File[] candidateClassPath;
     File[] referenceClasspath;
     if (libSources.length != 0) {
@@ -187,17 +178,13 @@ public class RuntimeTestHelper {
       System.arraycopy(candidateBootClasspath, 0, candidateClassPath, 0,
           candidateBootClasspath.length);
       candidateClassPath[candidateClassPath.length - 1] = libLibCandidate;
-      candidateClasspathAsString = AbstractTestTools.getClasspathAsString(candidateClassPath);
       referenceClasspath = new File[referenceBootClasspath.length + 1];
       System.arraycopy(referenceBootClasspath, 0, referenceClasspath, 0,
           referenceBootClasspath.length);
       referenceClasspath[referenceClasspath.length - 1] = libLibRef;
-      referenceClasspathAsString = AbstractTestTools.getClasspathAsString(referenceClasspath);
     } else {
       candidateClassPath = candidateBootClasspath;
       referenceClasspath = referenceBootClasspath;
-      candidateClasspathAsString = candidateBootClasspathAsString;
-      referenceClasspathAsString = referenceBootClasspathAsString;
     }
 
     File jarjarRules = getJarjarRules();
@@ -220,20 +207,21 @@ public class RuntimeTestHelper {
       if (jarjarRules != null) {
         helper.setJarjarRulesFile(jarjarRules);
       }
+      helper.setWithDebugInfo(withDebugInfos);
       helper.setProguardFlags(proguargFlags.toArray(new File[proguargFlags.size()]));
       helper.compare();
       Files.copy(helper.getCandidateDex(),
           new File(testBinaryDir, helper.getCandidateDex().getName()));
     } else {
       if (jarjarRules != null) {
-        candidateTestTools.setJarjarRules(jarjarRules);
+        candidateTestTools.setJarjarRules(Collections.singletonList(jarjarRules));
       }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
       candidateTestTools.addToClasspath(candidateClassPath)
       .srcToExe(testBinaryDir, /* zipFile = */ false, sourcesAsArray);
     }
 
-    for (FileChecker checker : testExeCheckers) {
+    for (FileChecker checker : fileCheckers) {
       checker.check(testBinary);
     }
 
@@ -244,7 +232,9 @@ public class RuntimeTestHelper {
     if (getLinkSrc().length != 0) {
       File linkBinaryDir = AbstractTestTools.createTempDir();
       linkBinary = new File(linkBinaryDir, candidateTestTools.getBinaryFileName());
-      candidateTestTools.setJarjarRules(jarjarRules);
+      if (jarjarRules != null) {
+        candidateTestTools.setJarjarRules(Collections.singletonList(jarjarRules));
+      }
       candidateTestTools.addProguardFlags(proguargFlags.toArray(new File [proguargFlags.size()]));
       candidateTestTools.addToClasspath(candidateBootClasspath)
       .srcToExe(linkBinaryDir, /* zipFile = */ false, getLinkSrc());
@@ -292,8 +282,6 @@ public class RuntimeTestHelper {
     }
 
     List<File> rtClasspath = new ArrayList<File>();
-    rtClasspath.add(new File(TestsProperties.getJackRootDir(),
-        "jack-tests/prebuilts/core-hostdex.jar"));
     rtClasspath.add(new File(TestsProperties.getJackRootDir(),
         "jack-tests/prebuilts/junit4-hostdex.jar"));
    if (refPartBinary != null) {

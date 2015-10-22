@@ -16,14 +16,12 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -34,10 +32,7 @@ import java.util.List;
  */
 public class DependenciesTest006 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that runtime is correct after class renaming.

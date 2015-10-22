@@ -25,6 +25,7 @@ import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -57,6 +58,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -180,6 +182,9 @@ public class TestTools {
   public static void getJavaFiles(@Nonnull File fileObject, @Nonnull List<File> filePaths) throws IOException {
     if (fileObject.isDirectory()) {
       File allFiles[] = fileObject.listFiles();
+      if (allFiles == null) {
+        throw new IOException("Failed to list dir '" + fileObject.getPath() + "'");
+      }
       for (File aFile : allFiles) {
         getJavaFiles(aFile, filePaths);
       }
@@ -254,16 +259,15 @@ public class TestTools {
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist) throws IOException {
-    return buildCommandLineArgs(fileOrSourcelist, null);
+    return buildCommandLineArgs(fileOrSourcelist, Collections.<File>emptyList());
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
-      @CheckForNull File jarjarRules) throws IOException {
+      @Nonnull List<File> jarjarRules) throws IOException {
     Options options = buildCommandLineArgs(null /* classpath */, new File[] {fileOrSourcelist});
-    if (jarjarRules != null) {
-      options.setJarjarRulesFile(jarjarRules);
-    }
+    options.setJarjarRulesFiles(jarjarRules);
+
     return options;
   }
 
@@ -363,6 +367,10 @@ public class TestTools {
       request.addFeature(DropMethodBody.class);
     }
 
+    if (options.getConfig().get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+      request.addFeature(TailRecursionOptimization.class);
+    }
+
     OutputJackLibrary outputLibrary = null;
     try {
       outputLibrary = JackLibraryFactory.getOutputLibrary(new CachedDirectFS(new Directory(
@@ -392,19 +400,7 @@ public class TestTools {
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
     commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
-    JSession session = TestTools.buildSession(commandLineArgs);
-    Assert.assertNotNull(session);
-
-    JDefinedClassOrInterface type =
-        (JDefinedClassOrInterface) session.getLookup().getType(className);
-    Assert.assertNotNull(type);
-
-    JMethod foundMethod = null;
-    foundMethod = getMethod(type, methodSignature);
-
-    Assert.assertNotNull(foundMethod);
-
-    return foundMethod;
+    return getJMethodWithCommandLineArgs(commandLineArgs, className, methodSignature);
   }
 
   @Nonnull
@@ -415,6 +411,12 @@ public class TestTools {
     commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
         methodSignature);
     commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
+    return getJMethodWithCommandLineArgs(commandLineArgs, className, methodSignature);
+  }
+
+  @Nonnull
+  public static JMethod getJMethodWithCommandLineArgs(@Nonnull Options commandLineArgs,
+      @Nonnull String className, @Nonnull String methodSignature) throws Exception {
     JSession session = TestTools.buildSession(commandLineArgs);
     Assert.assertNotNull(session);
 
@@ -479,4 +481,12 @@ public class TestTools {
     }
     throw new AssertionError("Encoded method not found.");
   }
+
+  public static boolean areAssertionsEnabled() {
+    boolean assertEnable = false;
+    // assertEnable = true if assertions are already enabled
+    assert true == (assertEnable = true);
+    return assertEnable;
+  }
+
 }

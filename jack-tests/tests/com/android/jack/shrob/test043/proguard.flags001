@@ -1,0 +1,6 @@
+-keep class com.android.jack.shrob.test043.jack.A {
+  void test();
+}
+-keep class com.android.jack.shrob.test043.jack.I {
+  int getInt();
+}

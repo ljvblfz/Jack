@@ -16,14 +16,12 @@
 
 package com.android.jack.experimental.incremental;
 
-import com.android.jack.Main;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -31,10 +29,7 @@ import org.junit.Test;
  */
 public class DependenciesTest008 {
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Check that jack files are deleted according to recompiled files.
@@ -53,7 +48,7 @@ public class DependenciesTest008 {
         " public static void main(String[] args) {new B().m();} } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(2, ite.getJackFiles().size());
+      Assert.assertEquals(2, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
@@ -65,7 +60,7 @@ public class DependenciesTest008 {
         Assert.fail();
       } catch (FrontendCompilationException e)  {
         // Error is ok
-        Assert.assertEquals(0, ite.getJackFiles().size());
+        Assert.assertEquals(0, ite.getJayceCount());
       }
   }
 
@@ -83,14 +78,14 @@ public class DependenciesTest008 {
         "class B { } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(2, ite.getJackFiles().size());
+      Assert.assertEquals(2, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
           "public class A { }\n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(1, ite.getJackFiles().size());
+      Assert.assertEquals(1, ite.getJayceCount());
   }
 
   /**
@@ -113,7 +108,7 @@ public class DependenciesTest008 {
         "public class C { public void test() {new B();} } \n");
 
       ite.incrementalBuildFromFolder();
-      Assert.assertEquals(3, ite.getJackFiles().size());
+      Assert.assertEquals(3, ite.getJayceCount());
 
       ite.addJavaFile("jack.incremental", "A.java",
           "package jack.incremental; \n" +
@@ -124,7 +119,7 @@ public class DependenciesTest008 {
         Assert.fail();
       } catch (FrontendCompilationException e)  {
         // Error is ok
-        Assert.assertEquals(0, ite.getJackFiles().size());
+        Assert.assertEquals(0, ite.getJayceCount());
       }
   }
 }

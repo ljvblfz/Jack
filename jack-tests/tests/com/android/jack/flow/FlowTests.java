@@ -22,7 +22,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -36,10 +35,7 @@ public class FlowTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.flow.loop"),
     "com.android.jack.flow.loop.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    FlowTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void cfg001() throws Exception {

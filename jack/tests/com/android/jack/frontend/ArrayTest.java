@@ -19,15 +19,9 @@ package com.android.jack.frontend;
 
 import com.android.jack.TestTools;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ArrayTest {
-
-  @Before
-  public void setUp() throws Exception {
-    ArrayTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void arrayReuse() throws Exception {

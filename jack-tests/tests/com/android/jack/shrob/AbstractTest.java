@@ -18,15 +18,14 @@ package com.android.jack.shrob;
 
 import com.google.common.io.Files;
 
-import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -48,10 +47,7 @@ public abstract class AbstractTest {
   @Nonnull
   private static final Charset charSet = Charset.forName("UTF-8");
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   protected abstract void runTest(
       @Nonnull String testNumber,
@@ -600,9 +596,14 @@ public abstract class AbstractTest {
     runTest("041", "001", "");
   }
 
+  @Test
+  public void test44_001() throws Exception {
+    runTest("044", "001", "");
+  }
+
   protected void checkToolchainIsNotJillBased() {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(LegacyJillToolchain.class);
+    excludeList.add(JillBasedToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, excludeList);
   }
 }

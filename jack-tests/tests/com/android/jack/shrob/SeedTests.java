@@ -209,4 +209,11 @@ public class SeedTests extends AbstractTest {
     checkToolchainIsNotJillBased();
     super.test41_001();
   }
+
+  @Override
+  @Test
+  public void test44_001() throws Exception {
+    checkToolchainIsNotJillBased();
+    super.test44_001();
+  }
 }

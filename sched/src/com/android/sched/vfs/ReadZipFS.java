@@ -19,7 +19,11 @@ package com.android.sched.vfs;
 import com.google.common.base.Splitter;
 
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.InputZipFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.ReadZipFS.ZipVDir;
@@ -66,6 +70,38 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     public VPath getPath() {
       return new VPath(zipEntry.getName(), '/');
     }
+
+    @Override
+    @Nonnull
+    public BaseVFile getVFile(@Nonnull String name) throws NoSuchFileException,
+        NotFileException {
+      return vfs.getVFile(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVDir getVDir(@Nonnull String name) throws NotDirectoryException,
+        NoSuchFileException {
+      return vfs.getVDir(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVFile createVFile(@Nonnull String name) throws CannotCreateFileException {
+      return vfs.createVFile(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public BaseVDir createVDir(@Nonnull String name) throws CannotCreateFileException {
+      return vfs.createVDir(this, name);
+    }
+
+    @Override
+    @Nonnull
+    public Collection<? extends BaseVElement> list() {
+      return vfs.list(this);
+    }
   }
 
   static class ZipVFile extends BaseVFile {
@@ -89,6 +125,11 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     @Nonnull
     public VPath getPath() {
       return new VPath(zipEntry.getName(), '/');
+    }
+
+    @Override
+    public void delete() throws CannotDeleteFileException {
+      vfs.delete(this);
     }
   }
 
@@ -163,36 +204,82 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull ZipVFile file, boolean append) {
+    throw new UnsupportedOperationException();
+  }
+
   //
   // VElement
   //
 
   @Override
   @Nonnull
-  ZipVDir getVDir(@Nonnull ZipVDir parent, @Nonnull String name) {
-    throw new UnsupportedOperationException();
+  ZipVDir getVDir(@Nonnull ZipVDir parent, @Nonnull String name) throws NotDirectoryException,
+      NoSuchFileException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element != null) {
+      if (element.isVDir()) {
+        return (ZipVDir) element;
+      } else {
+        throw new NotDirectoryException(getVDirLocation(parent, name));
+      }
+    } else {
+      throw new NoSuchFileException(getVDirLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  ZipVFile getVFile(@Nonnull ZipVDir parent, @Nonnull String name) {
-    throw new UnsupportedOperationException();
+  ZipVFile getVFile(@Nonnull ZipVDir parent, @Nonnull String name) throws NotFileException,
+      NoSuchFileException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element != null) {
+      if (!element.isVDir()) {
+        return (ZipVFile) element;
+      } else {
+        throw new NotFileException(getVFileLocation(parent, name));
+      }
+    } else {
+      throw new NoSuchFileException(getVFileLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  ZipVDir createVDir(@Nonnull ZipVDir parent, @Nonnull String name) {
+  synchronized ZipVDir createVDir(@Nonnull ZipVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
     assert !isClosed();
 
-    return new ZipVDir(this, new ZipEntry(parent.getZipEntry().getName() + name + '/'), name);
+    try {
+      return getVDir(parent, name);
+    } catch (NoSuchFileException e) {
+      ZipVDir vDir =
+          new ZipVDir(this, new ZipEntry(parent.getZipEntry().getName() + name + '/'), name);
+      parent.putInCache(name, vDir);
+      return vDir;
+    } catch (NotDirectoryException e) {
+      throw new CannotCreateFileException(getVDirLocation(parent, name));
+    }
   }
 
   @Override
   @Nonnull
-  ZipVFile createVFile(@Nonnull ZipVDir parent, @Nonnull String name) {
+  synchronized ZipVFile createVFile(@Nonnull ZipVDir parent, @Nonnull String name)
+      throws CannotCreateFileException {
     assert !isClosed();
 
-    return new ZipVFile(this, zipFile.getEntry(parent.getZipEntry().getName() + name), name);
+    try {
+      return getVFile(parent, name);
+    } catch (NoSuchFileException e) {
+      ZipVFile vFile =
+          new ZipVFile(this, zipFile.getEntry(parent.getZipEntry().getName() + name), name);
+      parent.putInCache(name, vFile);
+      return vFile;
+    } catch (NotFileException e) {
+      throw new CannotCreateFileException(getVFileLocation(parent, name));
+    }
   }
 
   @Override
@@ -204,12 +291,17 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Override
   @Nonnull
   Collection<? extends BaseVElement> list(@Nonnull ZipVDir dir) {
-    return dir.list();
+    return dir.getAllFromCache();
   }
 
   @Override
   boolean isEmpty(@Nonnull ZipVDir dir) {
-    return dir.list().isEmpty();
+    return list(dir).isEmpty();
+  }
+
+  @Override
+  long getLastModified(@Nonnull ZipVFile file) {
+    return inputZipFile.getLastModified();
   }
 
   //
@@ -297,5 +389,21 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     } catch (CannotCreateFileException e) {
       throw new AssertionError(e);
     }
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull ZipVDir parent, @Nonnull ZipVFile file) {
+    String fileEntryPath = file.getZipEntry().getName();
+    String parentEntryPath = parent.getZipEntry().getName();
+    assert fileEntryPath.startsWith(parentEntryPath);
+    String newPath = fileEntryPath.substring(parentEntryPath.length());
+    return new VPath(newPath, '/');
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull ZipVFile file) {
+    return getPathFromDir(root, file);
   }
 }

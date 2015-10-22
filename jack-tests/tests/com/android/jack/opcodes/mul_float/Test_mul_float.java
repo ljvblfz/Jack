@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.mul_float;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.mul_float.jm.T_mul_float_1;
 import com.android.jack.opcodes.mul_float.jm.T_mul_float_3;
 import com.android.jack.opcodes.mul_float.jm.T_mul_float_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_mul_float extends DxTestCase {

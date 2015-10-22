@@ -127,15 +127,15 @@ public interface Api01Config extends JackConfig {
   void setOutputJackFile(@Nonnull File outputJackFile) throws ConfigurationException;
 
   /**
-   * Sets the JarJar configuration file to use for repackaging.
-   * @param jarjarConfigFile The JarJar configuration file
+   * Sets JarJar configuration files to use for repackaging.
+   * @param jarjarConfigFiles The JarJar configuration files
    * @throws ConfigurationException
    */
-  void setJarJarConfigFile(@Nonnull File jarjarConfigFile) throws ConfigurationException;
+  void setJarJarConfigFiles(@Nonnull List<File> jarjarConfigFiles) throws ConfigurationException;
 
   /**
-   * Sets a ProGuard configuration file.
-   * @param proguardConfigFiles The ProGuard configuration file
+   * Sets ProGuard configuration files.
+   * @param proguardConfigFiles The ProGuard configuration files
    * @throws ConfigurationException
    */
   void setProguardConfigFiles(@Nonnull List<File> proguardConfigFiles)

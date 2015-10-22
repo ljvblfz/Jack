@@ -25,7 +25,6 @@ import com.android.jack.scheduling.marker.ClassDefItemMarker;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,12 +38,6 @@ public class FibonacciThreeAddressTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   private static final String JAVA_FILENAME = "FibonacciThreeAddress.java";
   private static final File JAVA_FILEPATH = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
-
-  @BeforeClass
-  public static void setUpClass() {
-    // Enable assertions
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   /**
    * Verifies that FibonacciThreeAddress can be loaded in J-AST.

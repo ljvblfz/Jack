@@ -23,7 +23,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -40,7 +39,7 @@ public class OpcodesTests extends RuntimeTest {
       setSrcDirName("jm");
       setRefDirName( ".");
       addReferenceExtraSources(new File(TestsProperties.getJackRootDir(),
-          "jack-tests/src/com/android/jack/DxTestCase.java"));
+          "jack-tests/src/com/android/jack/test/DxTestCase.java"));
     }
   }
 
@@ -575,10 +574,7 @@ public class OpcodesTests extends RuntimeTest {
     "com.android.jack.opcodes.rem_float.Test_rem_float");
 
 
-  @BeforeClass
-  public static void setUpClass() {
-    OpcodesTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void invoke_static() throws Exception {

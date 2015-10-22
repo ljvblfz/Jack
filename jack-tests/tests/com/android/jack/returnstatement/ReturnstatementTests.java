@@ -23,7 +23,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -39,10 +38,7 @@ public class ReturnstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.returnstatement.returnvoid"),
     "com.android.jack.returnstatement.returnvoid.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ReturnstatementTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void returns() throws Exception {

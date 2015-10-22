@@ -16,11 +16,11 @@
 
 package com.android.jack.opcodes.rem_long;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.rem_long.jm.T_rem_long_1;
 import com.android.jack.opcodes.rem_long.jm.T_rem_long_3;
 import com.android.jack.opcodes.rem_long.jm.T_rem_long_4;
 import com.android.jack.opcodes.rem_long.jm.T_rem_long_5;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_rem_long extends DxTestCase {

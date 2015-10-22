@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.util.NamingTools;
+import com.android.sched.item.Component;
 import com.android.sched.marker.LocalMarkerManager;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
  * An identifier for methods. A JMethodId instance is shared between JMethods
  * that may share an overriding relation.
  */
-public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed {
+public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed, Component {
 
   /**
    * Method hierarchy filter.
@@ -53,7 +54,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   private final List<JMethod> methods = new ArrayList<JMethod>();
 
   @Nonnull
-  private final MethodKind methodKind;
+  private MethodKind methodKind;
 
   public JMethodId(@Nonnull String name, @Nonnull MethodKind kind) {
     assert !(name.contains("(") || name.contains(")"));
@@ -182,6 +183,13 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Nonnull
   public MethodKind getKind() {
     return methodKind;
+  }
+
+  public void setKind(@Nonnull MethodKind methodKind) {
+    assert methods.size() == 1;
+    assert methodKind != MethodKind.INSTANCE_VIRTUAL;
+    assert this.methodKind != MethodKind.INSTANCE_VIRTUAL;
+    this.methodKind = methodKind;
   }
 
   public boolean canBeVirtual() {

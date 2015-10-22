@@ -16,8 +16,6 @@
 
 package com.android.jack.opcodes.return_object.jm;
 
-import com.android.jack.opcodes.return_object.jm.T_return_object_7;
-
 public class T_return_object_7 implements Runnable {
     public final static int CNT = 1000;
     Integer value = new Integer(0);

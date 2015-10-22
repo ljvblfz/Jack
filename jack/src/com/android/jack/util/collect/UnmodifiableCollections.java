@@ -22,11 +22,6 @@ import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
-import com.android.sched.util.log.stats.Counter;
-import com.android.sched.util.log.stats.CounterImpl;
-import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -47,17 +42,12 @@ public interface UnmodifiableCollections {
    */
   @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-enabled")
   public class ChecksEnabledUnmodifiableCollection implements UnmodifiableCollections {
-
-    @Nonnull
-    private final Tracer tracer = TracerFactory.getTracer();
-
     /**
      * @see Collections#unmodifiableList(List)
      */
     @Override
     @Nonnull
     public <T> List<T> getUnmodifiableList(@Nonnull List<T> list) {
-      tracer.getStatistic(COUNT).incValue();
       return Collections.unmodifiableList(list);
     }
 
@@ -67,7 +57,6 @@ public interface UnmodifiableCollections {
     @Override
     @Nonnull
     public <T> Set<T> getUnmodifiableSet(@Nonnull Set<T> set) {
-      tracer.getStatistic(COUNT).incValue();
       return Collections.unmodifiableSet(set);
     }
 
@@ -77,7 +66,6 @@ public interface UnmodifiableCollections {
     @Override
     @Nonnull
     public <T> Collection<T> getUnmodifiableCollection(@Nonnull Collection<T> collection) {
-      tracer.getStatistic(COUNT).incValue();
       return Collections.unmodifiableCollection(collection);
     }
   }
@@ -87,28 +75,21 @@ public interface UnmodifiableCollections {
    */
   @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-disabled")
   public class ChecksdisabledUnmodifiableCollection implements UnmodifiableCollections {
-
-    @Nonnull
-    private final Tracer tracer = TracerFactory.getTracer();
-
     @Override
     @Nonnull
     public <T> List<T> getUnmodifiableList(@Nonnull List<T> list) {
-      tracer.getStatistic(COUNT).incValue();
       return list;
     }
 
     @Override
     @Nonnull
     public <T> Set<T> getUnmodifiableSet(@Nonnull Set<T> set) {
-      tracer.getStatistic(COUNT).incValue();
       return set;
     }
 
     @Override
     @Nonnull
     public <T> Collection<T> getUnmodifiableCollection(@Nonnull Collection<T> collection) {
-      tracer.getStatistic(COUNT).incValue();
       return collection;
     }
   }
@@ -119,11 +100,6 @@ public interface UnmodifiableCollections {
           "Define which checks are activated when using an unmodifiable collection",
           new DefaultFactorySelector<UnmodifiableCollections>(UnmodifiableCollections.class))
           .addDefaultValue("checks-enabled");
-
-  @Nonnull
-  static final StatisticId<Counter> COUNT = new StatisticId<Counter>(
-      "jack.collections.unmodifiable.count", "Unmodifiable collections requested",
-      CounterImpl.class, Counter.class);
 
   /**
    * @see Collections#unmodifiableList(List)

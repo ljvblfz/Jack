@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.opc_instanceof;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.opc_instanceof.jm.T_opc_instanceof_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_opc_instanceof extends DxTestCase {

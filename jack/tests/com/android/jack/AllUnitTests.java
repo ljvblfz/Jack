@@ -20,9 +20,12 @@ import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
 import com.android.jack.ir.ast.JDefinedInterfaceTest;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.ir.impl.ReferenceMapperTest;
+import com.android.jack.jayce.v0002.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
+import com.android.jack.optimizations.tailrecursion.TailRecursionTest;
 import com.android.jack.preprocessor.PreProcessorTest;
 import com.android.jack.reporting.ProblemLevelTest;
+import com.android.jack.shrob.obfuscation.nameprovider.DictionaryNameProviderTest;
 import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
 import com.android.jack.transformations.cast.UselessCastRemoverTest;
@@ -44,8 +47,8 @@ import org.junit.runners.Suite.SuiteClasses;
     com.android.jack.shrob.AllTests.class,
     com.android.jack.transformations.ast.AllTests.class,
     ConditionalTest.class,
-    com.android.jack.jayce.v0002.io.EscapeStringTest.class,
-    com.android.jack.jayce.v0003.io.EscapeStringTest.class,
+    DictionaryNameProviderTest.class,
+    EscapeStringTest.class,
     ExpressionSimplifierTest.class,
     FibonacciThreeAddressTest.class,
     FinallyTest.class,
@@ -65,6 +68,7 @@ import org.junit.runners.Suite.SuiteClasses;
     Types.class,
     UnaryTest.class,
     UselessCastRemoverTest.class,
-    TracingTest.class})
+    TracingTest.class,
+    TailRecursionTest.class})
 public class AllUnitTests {
 }

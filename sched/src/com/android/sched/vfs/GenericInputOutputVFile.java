@@ -64,13 +64,25 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   @Override
   @Nonnull
   public OutputStream getOutputStream() throws WrongPermissionException {
-    return file.getOutputStream();
+    return getOutputStream(false);
   }
 
   @Override
   @Nonnull
   public PrintStream getPrintStream() throws WrongPermissionException {
     return new PrintStream(getOutputStream());
+  }
+
+  @Override
+  @Nonnull
+  public OutputStream getOutputStream(boolean append) throws WrongPermissionException {
+    return file.getOutputStream(append);
+  }
+
+  @Override
+  @Nonnull
+  public PrintStream getPrintStream(boolean append) throws WrongPermissionException {
+    return new PrintStream(getOutputStream(append));
   }
 
   @Override
@@ -81,5 +93,16 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   @CheckForNull
   public String getDigest() {
     return file.getDigest();
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return file.getPathFromRoot();
+  }
+
+  @Override
+  public long getLastModified() {
+    return file.getLastModified();
   }
 }

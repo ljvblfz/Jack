@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.obfuscation.annotation;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
@@ -59,7 +60,7 @@ public class LineNumberRemover implements RunnableSchedulable<JDefinedClassOrInt
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
-    Visitor visitor = new Visitor(type.getSession().getSourceInfoFactory());
+    Visitor visitor = new Visitor(Jack.getSession().getSourceInfoFactory());
     visitor.accept(type);
   }
 

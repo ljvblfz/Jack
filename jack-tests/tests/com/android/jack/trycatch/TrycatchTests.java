@@ -30,7 +30,6 @@ import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -57,10 +56,7 @@ public class TrycatchTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.trycatch.test005"),
     "com.android.jack.trycatch.test005.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    TrycatchTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

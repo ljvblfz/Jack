@@ -16,10 +16,9 @@
 
 package com.android.sched.util.sched;
 
-import com.android.sched.util.codec.ImplementationSelector;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.ImplementationPropertyId;
 
 import javax.annotation.Nonnull;
 
@@ -30,10 +29,10 @@ import javax.annotation.Nonnull;
 @HasKeyId
 public class ManagedDataListenerFactory {
   @Nonnull
-  public static final PropertyId<ManagedDataListener> DATA_LISTENER = PropertyId.create(
-      "sched.data", "Define which data processor to use",
-      new ImplementationSelector<ManagedDataListener>(ManagedDataListener.class))
-      .addDefaultValue("none");
+  public static final ImplementationPropertyId<ManagedDataListener> DATA_LISTENER =
+      ImplementationPropertyId
+          .create("sched.data", "Define which data processor to use", ManagedDataListener.class)
+          .addDefaultValue("none");
 
   @Nonnull
   public static ManagedDataListener getManagedDataListener() {

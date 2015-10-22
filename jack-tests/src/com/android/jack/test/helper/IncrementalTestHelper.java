@@ -16,8 +16,9 @@
 
 package com.android.jack.test.helper;
 
-import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.LibraryIOException;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -28,6 +29,8 @@ import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
@@ -39,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,11 +66,9 @@ public class IncrementalTestHelper {
   @Nonnull
   private final File compilerStateFolder;
   @Nonnull
-  private final File jackFolder;
-  @Nonnull
   private final Set<File> javaFiles = new HashSet<File>();
   @Nonnull
-  private final Map<String, Long> fileModificationDate = new HashMap<String, Long>();
+  private final Map<VPath, Long> fileModificationDate = new HashMap<VPath, Long>();
   @Nonnull
   private OutputStream out = System.out;
   @Nonnull
@@ -84,12 +86,12 @@ public class IncrementalTestHelper {
     if (!compilerStateFolder.exists() && !compilerStateFolder.mkdir()) {
       throw new IOException("Failed to create folder " + compilerStateFolder.getAbsolutePath());
     }
+
     dexOutDir = new File(testingFolder, "outputBinary");
     if (!dexOutDir.exists() && !dexOutDir.mkdir()) {
       throw new IOException("Failed to create folder " + dexOutDir.getAbsolutePath());
     }
     dexFile = new File(dexOutDir, "classes.dex");
-    jackFolder = new File(compilerStateFolder, FileType.JAYCE.getPrefix());
   }
 
   public void setOut(OutputStream out) {
@@ -127,43 +129,50 @@ public class IncrementalTestHelper {
     fileModificationDate.clear();
   }
 
-  public void snapshotJackFilesModificationDate() {
-    List<File> jackFiles = new ArrayList<File>();
-    fillJackFiles(jackFolder, jackFiles);
-    for (File jackFile : jackFiles) {
-      fileModificationDate.put(jackFile.getAbsolutePath(), Long.valueOf(jackFile.lastModified()));
-    }
-  }
-
-  private void fillJackFiles(@Nonnull File file, @Nonnull List<File> jackFiles) {
-    if (file.isDirectory()) {
-      for (File subFile : file.listFiles()) {
-        fillJackFiles(subFile, jackFiles);
+  public void snapshotJackFilesModificationDate() throws LibraryIOException {
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        InputVFile jayceFile = jayceIter.next();
+        fileModificationDate.put(jayceFile.getPathFromRoot(),
+            Long.valueOf(jayceFile.getLastModified()));
       }
-    } else if (file.getName().endsWith(JayceFileImporter.JAYCE_FILE_EXTENSION)) {
-      jackFiles.add(file);
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
+      }
     }
   }
 
   @Nonnull
-  public List<String> getFQNOfRebuiltTypes() {
+  public List<String> getFQNOfRebuiltTypes() throws LibraryIOException {
     assert !fileModificationDate.isEmpty();
 
     List<String> fqnOfRebuiltTypes = new ArrayList<String>();
-    List<File> jackFiles = new ArrayList<File>();
-    fillJackFiles(jackFolder, jackFiles);
-
-    for (File jackFile : jackFiles) {
-      Long previousDate = fileModificationDate.get(jackFile.getAbsolutePath());
-      if (previousDate == null || jackFile.lastModified() > previousDate.longValue()) {
-        String jackFileName = jackFile.getAbsolutePath();
-        String binaryTypeName = jackFileName.substring(0, jackFileName.indexOf(".jayce"));
-        binaryTypeName = binaryTypeName.substring(jackFolder.getAbsolutePath().length() + 1);
-        fqnOfRebuiltTypes.add(binaryTypeName.replace(File.separatorChar, '.'));
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        InputVFile jayceFile = jayceIter.next();
+        VPath path = jayceFile.getPathFromRoot();
+        Long previousDate = fileModificationDate.get(path);
+        if (previousDate == null || jayceFile.getLastModified() > previousDate.longValue()) {
+          String fqnWithExtension = path.getPathAsString('.');
+          String fqn = fqnWithExtension.substring(0,
+              fqnWithExtension.lastIndexOf(FileType.JAYCE.getFileExtension()));
+          fqnOfRebuiltTypes.add(fqn);
+        }
+      }
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
       }
     }
 
-    return (fqnOfRebuiltTypes);
+    return fqnOfRebuiltTypes;
   }
 
   public void incrementalBuildFromFolder() throws Exception {
@@ -228,13 +237,21 @@ public class IncrementalTestHelper {
   }
 
   @Nonnull
-  public File getJackFolder() {
-    return jackFolder;
+  public int getJayceCount() throws LibraryIOException {
+    int size = 0;
+    InputJackLibrary compilerStateLib = null;
+    try {
+      compilerStateLib = AbstractTestTools.getInputJackLibrary(compilerStateFolder);
+      Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
+      while (jayceIter.hasNext()) {
+        size++;
+        jayceIter.next();
+      }
+    } finally {
+      if (compilerStateLib != null) {
+        compilerStateLib.close();
+      }
+    }
+    return size;
   }
-
-  @Nonnull
-  public List<File> getJackFiles() {
-    return AbstractTestTools.getFiles(jackFolder, ".jayce");
-  }
-
 }

@@ -39,7 +39,6 @@ public class FrameworksBaseCompilationTest {
 
   @BeforeClass
   public static void setUpClass() {
-    FrameworksBaseCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     CLASSPATH = new File[] {
         TestTools.getFromAndroidTree(
             "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack"),

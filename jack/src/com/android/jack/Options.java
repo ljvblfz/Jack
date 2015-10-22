@@ -31,8 +31,10 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.MetaImporter;
+import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
@@ -46,8 +48,8 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
-import com.android.sched.util.codec.DirectFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
 import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
@@ -113,6 +115,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -121,6 +124,28 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class Options {
+
+  private static class DeprecatedVerbosity implements Reportable {
+    @Nonnull
+    private final VerbosityLevel verbosity;
+
+    private DeprecatedVerbosity(@Nonnull VerbosityLevel verbosity) {
+      this.verbosity = verbosity;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Verbosity level '" + verbosity.name().toLowerCase() + "' is deprecated";
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.WARNING;
+    }
+
+  }
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
@@ -149,6 +174,16 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
       .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
+
+  /**
+   * property used to specify the kind of switch enum optimization that is enabled.
+   * See(@link SwitchEnumOptStrategy)
+   */
+  @Nonnull
+  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
+      EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
+          SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
+      .addDefaultValue(SwitchEnumOptStrategy.FEEDBACK).ignoreCase();
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -194,7 +229,7 @@ public class Options {
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
       "jack.library.output.dir", "Output folder for library",
-      new DirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
+      new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
       .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
 
@@ -289,13 +324,37 @@ public class Options {
     }
   }
 
+  /**
+   * Types of switch enum optimization strategies.
+   * 1. feedback (set on by default)
+   * 2. always
+   * 3. never
+   */
+  @VariableName("strategy")
+  public enum SwitchEnumOptStrategy {
+    // feedback-based optimization: this strategy will be enabled/disabled based on the
+    // compile time information collected, e.g., if it is detected that an enum is only
+    // used in one/few switch statements, it is useless to optimize it. Potentially enable
+    // this strategy will cost more compilation time, but save more dex code
+    FEEDBACK(),
+    // different from feedback-based optimization, always strategy doesn't collect compile-
+    // time information to guide switch enum optimization. It will always enable switch enum
+    // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
+    // compile code quicker than feedback-based strategy does, but the generated dex may be
+    // larger than feedback strategy
+    ALWAYS(),
+    // this actually is not real strategy, but we still need it because switch enum
+    // optimization is disabled when incremental compilation is triggered
+    NEVER();
+  }
+
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
       "jack.verbose.level", "Verbosity level", VerbosityLevel.class, VerbosityLevel.values())
       .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
-      metaVar = "[error | warning | info | debug]")
+      metaVar = "[error | warning | info]")
   private VerbosityLevel verbose = VerbosityLevel.WARNING;
 
   /**
@@ -325,9 +384,9 @@ public class Options {
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")
   private File libraryOutZip = null;
 
-  @Option(name = "--config-jarjar", usage = "use a jarjar rules file (default: none)",
+  @Option(name = "--config-jarjar", usage = "use jarjar rules files (default: none)",
       metaVar = "<FILE>")
-  private File jarjarRulesFile = null;
+  private List<File> jarjarRulesFiles = new ArrayList<File>(0);
 
   @Option(name = "--import", usage = "import the given file into the output (repeatable)",
       metaVar = "<FILE>")
@@ -458,7 +517,13 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId OPTIMIZE_INNER_CLASSES_ACCESSORS = BooleanPropertyId.create(
       "jack.optimization.inner-class.accessors",
-      "Avoid creating synthethic accessors for outer class private fields")
+      "Avoid creating synthethic accessors for outer class private fields and methods")
+      .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
+  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION = BooleanPropertyId.create(
+      "jack.optimization.tail-recursion",
+      "Optimize tail recursive calls")
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
@@ -654,9 +719,10 @@ public class Options {
           new OutputStreamFile(new PrintStream(reporterStream), new NoLocation()));
     }
 
-    if (jarjarRulesFile != null) {
+    if (!jarjarRulesFiles.isEmpty()) {
       configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
-      configBuilder.setString(PackageRenamer.JARJAR_FILE, jarjarRulesFile.getPath());
+      String sep = PackageRenamer.JARJAR_FILES.getCodec().getSeparator();
+      configBuilder.setString(PackageRenamer.JARJAR_FILES, Joiner.on(sep).join(jarjarRulesFiles));
     }
 
     if (processor != null) {
@@ -690,20 +756,29 @@ public class Options {
       configBuilder.setString(SOURCES, Joiner.on(File.pathSeparator).join(inputSources));
     }
 
+    if (emitLocalDebugInfo != null) {
+      configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
+    }
+
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
     if (flags != null) {
       configBuilder.set(SHROB_ENABLED, true);
-      configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
-          flags.keepAttribute("RuntimeInvisibleAnnotations"));
-      configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
-          flags.keepAttribute("RuntimeVisibleAnnotations"));
-      configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
-          flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
-      configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
-          flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
-      configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO,
-          flags.keepAttribute("LineNumberTable"));
+
+      if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
+        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
+            flags.keepAttribute("RuntimeInvisibleAnnotations"));
+        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
+            flags.keepAttribute("RuntimeVisibleAnnotations"));
+        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
+            flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
+        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
+            flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
+
+        configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
+        configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));
+      }
+
       configBuilder.set(Options.FLAGS, flags);
       configBuilder.set(
           Options.USE_MIXED_CASE_CLASSNAME, flags.getUseMixedCaseClassName());
@@ -791,9 +866,6 @@ public class Options {
 
     configBuilder.popDefaultLocation();
 
-    if (emitLocalDebugInfo != null) {
-      configBuilder.set(EMIT_LOCAL_DEBUG_INFO, emitLocalDebugInfo);
-    }
     if (importedLibraries != null) {
       configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
     }
@@ -846,6 +918,9 @@ public class Options {
       configBuilder.set(GENERATE_DEX_FILE, true);
     }
 
+    // use a variable to keep record of whether incremental compilation is enabled or not,
+    // because we cannot check the value through configBuilder
+    boolean isIncrementalEnabled = false;
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
         LoggerFactory.getLogger().log(Level.WARNING,
@@ -853,7 +928,7 @@ public class Options {
       } else if (flags != null) {
         LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disabled due to usage of shrinking or obfuscation");
-      } else if (jarjarRulesFile != null) {
+      } else if (!jarjarRulesFiles.isEmpty()) {
         LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disabled due to usage of jarjar");
       } else {
@@ -867,6 +942,7 @@ public class Options {
         if (libraryOutZip != null) {
           configBuilder.set(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER, true);
         }
+        isIncrementalEnabled = true;
       }
     }
 
@@ -885,6 +961,15 @@ public class Options {
       configBuilder.setString(entry.getKey(), entry.getValue(), new StringLocation("-D option"));
     }
 
+    if (isIncrementalEnabled) {
+      // if the incremental compilation is enabled, the switch enum optimization cannot
+      // be enabled because it will generates non-deterministic code. This has to be done after
+      // -D options are set
+      configBuilder.set(OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
+      LoggerFactory.getLogger().log(
+          Level.WARNING, "Switch enum optimization is disabled due to incremental compilation");
+    }
+
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
     configBuilder.setHooks(hooks);
 
@@ -899,9 +984,6 @@ public class Options {
     // FINDBUGS
     Config config = this.config;
     assert config != null;
-
-    LoggerFactory.loadLoggerConfiguration(
-        this.getClass(), "/" + config.get(VERBOSITY_LEVEL).getId() + ".jack.logging.properties");
 
     // FINDBUGS
     assert config != null;
@@ -925,6 +1007,10 @@ public class Options {
       throw new PropertyIdException(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO,
           new NoLocation(),
           "Impossible to emit synthetic debug info when not emitting debug info");
+    }
+
+    if (verbose == VerbosityLevel.DEBUG || verbose == VerbosityLevel.TRACE) {
+      config.get(Reporter.REPORTER).report(Severity.NON_FATAL, new DeprecatedVerbosity(verbose));
     }
   }
 
@@ -1007,8 +1093,8 @@ public class Options {
     this.proguardFlagsFiles = proguardFlagsFiles;
   }
 
-  public void setJarjarRulesFile(@Nonnull File jarjarRulesFile) {
-    this.jarjarRulesFile = jarjarRulesFile;
+  public void setJarjarRulesFiles(@Nonnull List<File> jarjarRulesFiles) {
+    this.jarjarRulesFiles = jarjarRulesFiles;
   }
 
   public void disableDxOptimizations() {
@@ -1028,7 +1114,7 @@ public class Options {
   }
 
   public void setResourceDirs(@Nonnull List<File> resourceDirs) {
-    resImport = resourceDirs;
+    resImport = new ArrayList<File>(resourceDirs);
   }
 
   public void setMetaDirs(@Nonnull List<File> metaDirs) {
@@ -1063,6 +1149,9 @@ public class Options {
     }
     return proguardFlagsFileFromWorkingDir;
   }
+
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private static Directory createTempDir(

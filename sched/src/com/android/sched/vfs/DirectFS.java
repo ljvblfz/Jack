@@ -125,12 +125,20 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   @Override
   OutputStream openWrite(@Nonnull ParentVFile file) throws WrongPermissionException {
+    return openWrite(file, false);
+  }
+
+
+  @Override
+  @Nonnull
+  OutputStream openWrite(@Nonnull ParentVFile file, boolean append)
+      throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileOutputStream(path);
+      return new FileOutputStream(path, append);
     } catch (FileNotFoundException e) {
       FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
       throw new ConcurrentIOException(e);
@@ -169,7 +177,9 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
-    return getNativeFile(dir.getPath()).listFiles().length == 0;
+    File[] fileList = getNativeFile(dir.getPath()).listFiles();
+    assert fileList != null;
+    return fileList.length == 0;
   }
 
   @Override
@@ -255,6 +265,11 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   }
 
   @Override
+  public long getLastModified(@Nonnull ParentVFile file) {
+    return getNativeFile(file.getPath()).lastModified();
+  }
+
+  @Override
   @Nonnull
   FileLocation getVFileLocation(@Nonnull ParentVFile file) {
     return new FileLocation(getNativeFile(file.getPath()));
@@ -298,5 +313,30 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   private File getNativeFile(@Nonnull VPath path, @Nonnull String name) {
     return new File(new File(dir.getFile(), path.getPathAsString(File.separatorChar)), name);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull ParentVDir parent, @Nonnull ParentVFile file) {
+    StringBuffer path =
+        getPathFromDirInternal(parent, (ParentVDir) file.getParent()).append(file.getName());
+    return new VPath(path.toString(), '/');
+  }
+
+  @Nonnull
+  private static StringBuffer getPathFromDirInternal(@Nonnull ParentVDir baseDir,
+      @Nonnull ParentVDir currentDir) {
+    if (baseDir == currentDir) {
+      return new StringBuffer();
+    }
+    ParentVDir currentParent = (ParentVDir) currentDir.getParent();
+    assert currentParent != null;
+    return getPathFromDirInternal(baseDir, currentParent).append(currentDir.getName()).append('/');
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot(@Nonnull ParentVFile file) {
+    return getPathFromDir(root, file);
   }
 }

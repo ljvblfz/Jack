@@ -22,15 +22,9 @@ import com.android.jack.util.NamingTools;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class InitTest {
-
-  @Before
-  public void setUp() throws Exception {
-    ConstantReuseTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void searchInit() throws Exception {

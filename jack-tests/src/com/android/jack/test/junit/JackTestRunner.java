@@ -35,6 +35,8 @@ import javax.annotation.Nonnull;
  */
 public class JackTestRunner extends Categories {
 
+  private boolean dumpTests = false;
+
   private static class ToolchainFilter extends Filter {
 
     @Nonnull
@@ -43,9 +45,13 @@ public class JackTestRunner extends Categories {
     @Nonnull
     private IToolchain reference;
 
-    public ToolchainFilter(@Nonnull IToolchain candidate, @Nonnull IToolchain reference) {
+    private boolean dumpTests = false;
+
+    public ToolchainFilter(
+        @Nonnull IToolchain candidate, @Nonnull IToolchain reference, boolean dumpTest) {
       this.candidate = candidate;
       this.reference = reference;
+      this.dumpTests = dumpTest;
     }
 
     @Override
@@ -56,15 +62,28 @@ public class JackTestRunner extends Categories {
 
     @Override
     public boolean shouldRun(@Nonnull Description description) {
+      boolean shouldRun = false;
+
       KnownIssue knownIssueAnnot = description.getAnnotation(KnownIssue.class);
 
       if (knownIssueAnnot == null) {
-        return true;
+        shouldRun = true;
+      } else {
+        shouldRun = (knownIssueAnnot.candidate().length > 0
+                     || knownIssueAnnot.reference().length > 0)
+                   && (isValidToolchain(candidate, knownIssueAnnot.candidate())
+                       && isValidToolchain(reference, knownIssueAnnot.reference()));
       }
 
-      return (knownIssueAnnot.candidate().length > 0 || knownIssueAnnot.reference().length > 0)
-          && (isValidToolchain(candidate, knownIssueAnnot.candidate())
-                 && isValidToolchain(reference, knownIssueAnnot.reference()));
+      if (dumpTests && description.getMethodName() != null) {
+        System.out.println(
+            "  \"" + description.getClassName() + '#' + description.getMethodName() + "\": {");
+        System.out.println("    \"ignored\":" + !shouldRun);
+        System.out.println("  },");
+        return false;
+      }
+
+      return shouldRun;
     }
 
     private boolean isValidToolchain(
@@ -82,12 +101,18 @@ public class JackTestRunner extends Categories {
   public JackTestRunner(@Nonnull Class<?> klass, @Nonnull RunnerBuilder builder)
       throws InitializationError {
     super(klass, builder);
+
+    dumpTests = Boolean.parseBoolean(System.getProperty("tests.dump", "false"));
+
+    ToolchainFilter filter = new ToolchainFilter(AbstractTestTools.getCandidateToolchain(),
+        AbstractTestTools.getReferenceToolchain(), dumpTests);
+
     try {
-      filter(new ToolchainFilter(AbstractTestTools.getCandidateToolchain(),
-          AbstractTestTools.getReferenceToolchain()));
+      filter(filter);
     } catch (NoTestsRemainException e) {
-      throw new InitializationError(e);
+      if (!dumpTests) {
+        throw new InitializationError(e);
+      }
     }
   }
-
 }

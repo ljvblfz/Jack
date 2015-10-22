@@ -1,0 +1,2 @@
+This tests contains two classes with the same enclosing package.
+We use the -repackageclasses option with a simple package name.

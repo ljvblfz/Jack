@@ -19,7 +19,9 @@ package com.android.jack.transformations.cast;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JDynamicCastOperation;
+import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -30,6 +32,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
 import javax.annotation.Nonnull;
@@ -39,6 +42,7 @@ import javax.annotation.Nonnull;
 @Description("Removes useless casts.")
 @Name("UselessCastRemover")
 @Constraint(need = JDynamicCastOperation.class)
+@Transform(remove = SourceCast.class)
 public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -57,10 +61,14 @@ public class UselessCastRemover implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JCastOperation cast) {
       JType destType = cast.getCastType();
-      JType srcType = cast.getExpr().getType();
-      if (srcType instanceof JReferenceType && destType instanceof JReferenceType) {
-        if (((JReferenceType) srcType).canBeSafelyUpcast((JReferenceType) destType)) {
-          request.append(new Replace(cast, cast.getExpr()));
+      JExpression castedExpr = cast.getExpr();
+      JType srcType = castedExpr.getType();
+      // Do not remove cast of 'null' expression otherwise type is lost
+      if (!(castedExpr instanceof JNullLiteral)) {
+        if (srcType instanceof JReferenceType && destType instanceof JReferenceType) {
+          if (((JReferenceType) srcType).canBeSafelyUpcast((JReferenceType) destType)) {
+            request.append(new Replace(cast, castedExpr));
+          }
         }
       }
       super.endVisit(cast);

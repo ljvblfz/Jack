@@ -16,7 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.google.common.io.NullOutputStream;
+import com.google.common.io.ByteStreams;
 
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -138,6 +138,16 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
           }
         }
       };
+    }
+
+    @Override
+    @Nonnull
+    public OutputStream getOutputStream(boolean append) throws WrongPermissionException {
+      if (append) {
+        throw new UnsupportedOperationException();
+      } else {
+        return getOutputStream();
+      }
     }
   }
 
@@ -283,11 +293,16 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Nonnull
   public synchronized String getDigest() {
     if (digest == null) {
-      printDigest(new NullOutputStream());
+      printDigest(ByteStreams.nullOutputStream());
       assert digest != null;
     }
 
     return digest;
+  }
+
+  @Override
+  long getLastModified(@Nonnull MessageDigestVFile file) {
+    return vfs.getLastModified(file.getWrappedFile());
   }
 
   @Override
@@ -358,6 +373,13 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @Override
   @Nonnull
+  OutputStream openWrite(@Nonnull MessageDigestVFile file, boolean append) {
+    // should be implemented in MessageDigestVFile
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @Nonnull
   synchronized void delete(@Nonnull MessageDigestVFile file) throws CannotDeleteFileException {
     file.getWrappedFile().delete();
     digests.remove(file.getPath());
@@ -385,7 +407,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @Override
   boolean isEmpty(@Nonnull MessageDigestVDir dir) {
-    return vfs.isEmpty(dir);
+    return vfs.isEmpty(dir.getWrappedDir());
   }
 
   @Override
@@ -437,30 +459,42 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
-    return vfs.getVFileLocation(parent, name);
+    return vfs.getVFileLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
   Location getVFileLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
-    return vfs.getVFileLocation(parent, path);
+    return vfs.getVFileLocation(parent.getWrappedDir(), path);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir dir) {
-    return vfs.getVDirLocation(dir);
+    return vfs.getVDirLocation(dir.getWrappedDir());
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull String name) {
-    return vfs.getVDirLocation(parent, name);
+    return vfs.getVDirLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
   Location getVDirLocation(@Nonnull MessageDigestVDir parent, @Nonnull VPath path) {
-    return vfs.getVDirLocation(parent, path);
+    return vfs.getVDirLocation(parent.getWrappedDir(), path);
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromDir(@Nonnull MessageDigestVDir parent, @Nonnull MessageDigestVFile file) {
+    return vfs.getPathFromDir(parent.getWrappedDir(), file.getWrappedFile());
+  }
+
+  @Override
+  @Nonnull
+  VPath getPathFromRoot(@Nonnull MessageDigestVFile file) {
+    return vfs.getPathFromRoot(file.getWrappedFile());
   }
 }

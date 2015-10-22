@@ -26,7 +26,7 @@ com.android.sched.item.AllTests.class,
     com.android.sched.marker.AllTests.class,
     com.android.sched.scheduler.AllTests.class,
     com.android.sched.config.AllTests.class,
-    com.android.sched.util.config.cli.AllTests.class,
+    com.android.sched.util.AllTests.class,
     com.android.sched.util.file.AllTests.class,
     com.android.sched.vfs.VFSTest.class})
 public class AllTests {

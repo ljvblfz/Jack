@@ -16,13 +16,13 @@
 
 package com.android.jack.opcodes.invoke_interface;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.invoke_interface.jm.ITestImpl;
 import com.android.jack.opcodes.invoke_interface.jm.T_invoke_interface_1;
 import com.android.jack.opcodes.invoke_interface.jm.T_invoke_interface_12;
 import com.android.jack.opcodes.invoke_interface.jm.T_invoke_interface_14;
 import com.android.jack.opcodes.invoke_interface.jm.T_invoke_interface_19;
 import com.android.jack.opcodes.invoke_interface.jm.T_invoke_interface_2;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_invoke_interface extends DxTestCase {

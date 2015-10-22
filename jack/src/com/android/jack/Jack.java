@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
 import com.android.jack.analysis.UsedVariableAdder;
@@ -71,6 +72,7 @@ import com.android.jack.frontend.java.JackBatchCompiler.TransportExceptionAround
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
 import com.android.jack.incremental.GenerateLibraryFromIncrementalFolder;
 import com.android.jack.incremental.Incremental;
+import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
 import com.android.jack.ir.ast.JClass;
@@ -91,7 +93,6 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
-import com.android.jack.library.OutputLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
@@ -103,6 +104,8 @@ import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
+import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.Reporter;
@@ -179,6 +182,8 @@ import com.android.jack.transformations.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
+import com.android.jack.transformations.OptimizedSwitchEnumFeedbackFeature;
+import com.android.jack.transformations.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
@@ -202,7 +207,9 @@ import com.android.jack.transformations.ast.inner.AvoidSynthethicAccessors;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
 import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
+import com.android.jack.transformations.ast.inner.MethodCallDispatchAdjuster;
 import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorGenerator;
+import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.ReferencedOuterFieldsExposer;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCallRemover;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodRemover;
@@ -228,6 +235,8 @@ import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.jack.transformations.enums.UsedEnumFieldCollector;
 import com.android.jack.transformations.enums.UsedEnumFieldMarkerRemover;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
+import com.android.jack.transformations.enums.opt.SwitchEnumUsageCollector;
 import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
 import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparator;
@@ -241,6 +250,8 @@ import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
+import com.android.jack.transformations.typedef.TypeDefRemover;
+import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
 import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
@@ -257,6 +268,7 @@ import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
 import com.android.sched.scheduler.TagOrMarkerOrComponentSet;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ConfigPrinterFactory;
 import com.android.sched.util.config.ConfigurationException;
@@ -276,7 +288,6 @@ import org.antlr.runtime.RecognitionException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -291,10 +302,6 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public abstract class Jack {
-
-  static {
-    LoggerFactory.loadLoggerConfiguration(Jack.class, "/initial.logging.properties");
-  }
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -377,10 +384,6 @@ public abstract class Jack {
   public static void check(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, ConfigurationException {
 
-    boolean assertEnable = false;
-    // assertEnable = true if assertions are already enabled
-    assert true == (assertEnable = true);
-
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
       if (options.flags == null) {
         options.flags = new Flags();
@@ -402,16 +405,9 @@ public abstract class Jack {
 
     Config config = options.getConfig();
 
-    ThreadConfig.setConfig(config);
 
     boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
-    if (sanityChecks != assertEnable) {
-      logger.log(Level.INFO, "Jack assertion status overriden by sanity checks option");
-    }
 
-    ClassLoader classLoader = Jack.class.getClassLoader();
-    classLoader.clearAssertionStatus();
-    classLoader.setDefaultAssertionStatus(sanityChecks);
     logger.log(Level.INFO, "Jack sanity checks {0}",
         (sanityChecks ? "enabled" : "disabled"));
   }
@@ -426,196 +422,221 @@ public abstract class Jack {
   public static void run(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws JackUserException, ProcessException {
 
-    Event event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
+    Event event = null;
 
     try {
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
 
+      event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
+
       ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
-      JSession session = buildSession(options, hooks);
+      JSession session = getSession();
 
-      if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-        session.setJackOutputLibrary(session.getInputFilter().getOutputJackLibrary());
-      }
-
-      Request request = createInitialRequest();
-      request.addFeature(PreProcessor.class);
-
-      request.addFeature(Resources.class);
-
-      JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
-      if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
-        request.addFeature(SourceVersion7.class);
-      }
-
-      if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
-        request.addFeature(DropMethodBody.class);
-      }
-
-      if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
-        request.addFeature(CompiledTypeStats.class);
-        request.addFeature(CodeStats.class);
-      }
-
-      if (config.get(Options.SANITY_CHECKS).booleanValue()) {
-        request.addFeature(SanityChecks.class);
-      }
-      if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
-        request.addFeature(Jarjar.class);
-      }
-      if (config.get(VisibilityBridgeAdder.VISIBILITY_BRIDGE).booleanValue()) {
-        request.addFeature(VisibilityBridge.class);
-      }
-      if (options.flags != null) {
-        if (options.flags.shrink()) {
-          request.addFeature(Shrinking.class);
-        }
-        if (options.flags.obfuscate()) {
-          request.addFeature(Obfuscation.class);
-        }
-        if (options.flags.printSeeds()) {
-          request.addProduction(SeedFile.class);
-        }
-        if (!options.flags.keepAttribute("EnclosingMethod")) {
-          request.addFeature(RemoveEnclosingMethod.class);
-        }
-        if (!options.flags.keepAttribute("InnerClasses")) {
-          request.addFeature(RemoveEnclosingType.class);
-        }
-        if (!options.flags.keepAttribute("Signature")) {
-          request.addFeature(RemoveGenericSignature.class);
-        }
-        if (!options.flags.keepAttribute("AnnotationDefault")) {
-          request.addFeature(RemoveAnnotationDefaultValue.class);
-        }
-        if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
-          request.addFeature(RemoveLocalVariableGenericSignature.class);
-        }
-        if (!options.flags.keepAttribute("Exceptions")) {
-          request.addFeature(RemoveThrownException.class);
-        }
-        if (!options.flags.keepAttribute("SourceFile")) {
-          request.addFeature(RemoveSourceFile.class);
-        }
-        if (!options.flags.keepAttribute("LineNumberTable")) {
-          request.addFeature(RemoveLineNumber.class);
-        }
-        if (!options.flags.getKeepParameterNames()) {
-          request.addFeature(RemoveParameterName.class);
-        }
-        if (options.flags.getRenameSourceFileAttribute() != null) {
-          request.addFeature(SourceFileRenaming.class);
-        }
-        if (options.flags.getAdaptResourceFileContents() != null) {
-          request.addFeature(AdaptResourceFileContent.class);
-        }
-      }
-      if (config.get(MappingPrinter.MAPPING_OUTPUT_ENABLED).booleanValue()) {
-        request.addProduction(Mapping.class);
-      }
-      if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
-        request.addProduction(StructurePrinting.class);
-      }
-      if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
-        request.addFeature(MultiDexLegacy.class);
-      }
-      if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
-        request.addFeature(Incremental.class);
-      }
-      if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-        request.addFeature(GenerateLibraryFromIncrementalFolder.class);
-      }
-
-      if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
-        request.addFeature(AvoidSynthethicAccessors.class);
-      }
-
-      request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-      request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
-
-      if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
-        request.addProduction(DexInLibraryProduct.class);
-      }
-
-      if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
-        request.addFeature(LambdaToAnonymousConverter.class);
-      }
-      if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
-        request.addProduction(DexFileProduct.class);
-        session.addGeneratedFileType(FileType.DEX);
-      }
-
-      if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
-        request.addProduction(JayceInLibraryProduct.class);
-      }
-
-      if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
-        request.addProduction(DependencyInLibraryProduct.class);
-      }
-
-      ProductionSet targetProduction = request.getTargetProductions();
-      FeatureSet features = request.getFeatures();
-      PlanBuilder<JSession> planBuilder;
       try {
-        planBuilder = request.getPlanBuilder(JSession.class);
-      } catch (IllegalRequestException e) {
-        throw new AssertionError(e);
-      }
+        buildSession(session, options, hooks);
 
-      planBuilder.append(PreProcessorApplier.class);
-
-      fillDexPlan(planBuilder);
-      if (targetProduction.contains(DexFileProduct.class)) {
-        planBuilder.append(DexFileWriter.class);
-      }
-
-      if (features.contains(Resources.class)) {
-        if (targetProduction.contains(DexFileProduct.class)) {
-          planBuilder.append(ResourceWriter.class);
+        if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+          InputFilter inputFilter = session.getInputFilter();
+          assert inputFilter != null;
+          session.setJackOutputLibrary(inputFilter.getOutputJackLibrary());
         }
-        if (targetProduction.contains(JayceInLibraryProduct.class)) {
-          planBuilder.append(LibraryResourceWriter.class);
+
+        Request request = createInitialRequest();
+        request.addFeature(PreProcessor.class);
+
+        request.addFeature(Resources.class);
+
+        JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
+        if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
+          request.addFeature(SourceVersion7.class);
         }
-      }
 
-      if (targetProduction.contains(JayceInLibraryProduct.class)) {
-        planBuilder.append(LibraryMetaWriter.class);
-      }
+        if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
+          request.addFeature(DropMethodBody.class);
+        }
 
-      Plan<JSession> plan;
-      try {
-        // Try to build an automatic plan ...
+        if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
+          request.addFeature(CompiledTypeStats.class);
+          request.addFeature(CodeStats.class);
+        }
+
+        if (config.get(Options.SANITY_CHECKS).booleanValue()) {
+          request.addFeature(SanityChecks.class);
+        }
+        if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
+          request.addFeature(Jarjar.class);
+        }
+        if (config.get(VisibilityBridgeAdder.VISIBILITY_BRIDGE).booleanValue()) {
+          request.addFeature(VisibilityBridge.class);
+        }
+        if (options.flags != null) {
+          if (options.flags.shrink()) {
+            request.addFeature(Shrinking.class);
+          }
+          if (options.flags.obfuscate()) {
+            request.addFeature(Obfuscation.class);
+
+            if (!options.flags.keepAttribute("EnclosingMethod")) {
+              request.addFeature(RemoveEnclosingMethod.class);
+            }
+            if (!options.flags.keepAttribute("InnerClasses")) {
+              request.addFeature(RemoveEnclosingType.class);
+            }
+            if (!options.flags.keepAttribute("Signature")) {
+              request.addFeature(RemoveGenericSignature.class);
+            }
+            if (!options.flags.keepAttribute("AnnotationDefault")) {
+              request.addFeature(RemoveAnnotationDefaultValue.class);
+            }
+            if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
+              request.addFeature(RemoveLocalVariableGenericSignature.class);
+            }
+            if (!options.flags.keepAttribute("Exceptions")) {
+              request.addFeature(RemoveThrownException.class);
+            }
+            if (!options.flags.keepAttribute("SourceFile")) {
+              request.addFeature(RemoveSourceFile.class);
+            }
+            if (!options.flags.keepAttribute("LineNumberTable")) {
+              request.addFeature(RemoveLineNumber.class);
+            }
+            if (!options.flags.getKeepParameterNames()
+                && !options.flags.keepAttribute("LocalVariableTable")) {
+              request.addFeature(RemoveParameterName.class);
+            }
+          }
+          if (options.flags.printSeeds()) {
+            request.addProduction(SeedFile.class);
+          }
+          if (options.flags.getRenameSourceFileAttribute() != null) {
+            request.addFeature(SourceFileRenaming.class);
+          }
+          if (options.flags.getAdaptResourceFileContents() != null) {
+            request.addFeature(AdaptResourceFileContent.class);
+          }
+        }
+        if (config.get(MappingPrinter.MAPPING_OUTPUT_ENABLED).booleanValue()) {
+          request.addProduction(Mapping.class);
+        }
+        if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
+          request.addProduction(StructurePrinting.class);
+        }
+        if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
+          request.addFeature(MultiDexLegacy.class);
+        }
+        if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
+          request.addFeature(Incremental.class);
+        }
+        if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+          request.addFeature(GenerateLibraryFromIncrementalFolder.class);
+        }
+
+        if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
+          request.addFeature(AvoidSynthethicAccessors.class);
+        }
+
+        if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+          request.addFeature(TailRecursionOptimization.class);
+        }
+
+        request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
+        request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
+
+        if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
+          request.addProduction(DexInLibraryProduct.class);
+        }
+
+        if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+          request.addFeature(LambdaToAnonymousConverter.class);
+        }
+
+        if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
+          request.addProduction(DexFileProduct.class);
+          session.addGeneratedFileType(FileType.DEX);
+        }
+
+        if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
+          request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
+        } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
+          request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
+        }
+
+        if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
+          request.addProduction(JayceInLibraryProduct.class);
+        }
+
+        if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
+          request.addProduction(DependencyInLibraryProduct.class);
+        }
+
+        if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
+          request.addFeature(TypeDefRemover.RemoveTypeDef.class);
+        }
+
+        ProductionSet targetProduction = request.getTargetProductions();
+        FeatureSet features = request.getFeatures();
+        PlanBuilder<JSession> planBuilder;
         try {
-          plan = request.buildPlan(JSession.class);
-        } catch (PlanNotFoundException e) {
-          throw new AssertionError(e);
+          planBuilder = request.getPlanBuilder(JSession.class);
         } catch (IllegalRequestException e) {
           throw new AssertionError(e);
         }
-      } catch (UnsupportedOperationException e) {
-        // ... but use a manual one if not supported
-        plan = planBuilder.getPlan();
 
-        assert !targetProduction.contains(JayceInLibraryProduct.class)
-            || targetProduction.contains(DexFileProduct.class) || (plan.computeFinalTagsOrMarkers(
-                request.getInitialTags()).contains(JackFormatIr.class)
-                && !targetProduction.contains(DexInLibraryProduct.class)) || ((
-                    targetProduction.contains(DexInLibraryProduct.class)
-                    && targetProduction.contains(JayceInLibraryProduct.class))
-                    || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
-      }
+        planBuilder.append(PreProcessorApplier.class);
 
-      PlanPrinterFactory.getPlanPrinter().printPlan(plan);
-      try {
+        fillDexPlan(planBuilder);
+        if (targetProduction.contains(DexFileProduct.class)) {
+          planBuilder.append(DexFileWriter.class);
+        }
+
+        if (features.contains(Resources.class)) {
+          if (targetProduction.contains(DexFileProduct.class)) {
+            planBuilder.append(ResourceWriter.class);
+          }
+          if (targetProduction.contains(JayceInLibraryProduct.class)) {
+            planBuilder.append(LibraryResourceWriter.class);
+          }
+        }
+
+        if (targetProduction.contains(JayceInLibraryProduct.class)) {
+          planBuilder.append(LibraryMetaWriter.class);
+        }
+
+        Plan<JSession> plan;
+        try {
+          // Try to build an automatic plan ...
+          try {
+            plan = request.buildPlan(JSession.class);
+          } catch (PlanNotFoundException e) {
+            throw new AssertionError(e);
+          } catch (IllegalRequestException e) {
+            throw new AssertionError(e);
+          }
+        } catch (UnsupportedOperationException e) {
+          // ... but use a manual one if not supported
+          plan = planBuilder.getPlan();
+
+          assert!targetProduction.contains(JayceInLibraryProduct.class)
+              || targetProduction.contains(DexFileProduct.class)
+              || (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
+                  JackFormatIr.class) && !targetProduction.contains(DexInLibraryProduct.class))
+              || ((targetProduction.contains(DexInLibraryProduct.class)
+                  && targetProduction.contains(JayceInLibraryProduct.class))
+                  || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
+        }
+
+        PlanPrinterFactory.getPlanPrinter().printPlan(plan);
+
         plan.getScheduleInstance().process(session);
       } finally {
         try {
-          OutputLibrary jackOutputLibrary = session.getJackOutputLibrary();
-          if (jackOutputLibrary != null) {
-            jackOutputLibrary.close();
+          InputFilter inputFilter = session.getInputFilter();
+          if (inputFilter != null) {
+            inputFilter.getOutputJackLibrary().close();
           }
+
           // TODO(jack-team): auto-close
           if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
               && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
@@ -628,8 +649,10 @@ public abstract class Jack {
         }
       }
     } finally {
+      if (event != null) {
+        event.end();
+      }
       ThreadConfig.unsetConfig();
-      event.end();
     }
   }
 
@@ -663,11 +686,17 @@ public abstract class Jack {
   }
 
   @Nonnull
-  static JSession buildSession(@Nonnull Options options, @Nonnull RunnableHooks hooks)
-      throws JackUserException {
-    Tracer tracer = TracerFactory.getTracer();
+  static JSession buildSession(@Nonnull Options options,
+      @Nonnull RunnableHooks hooks) throws JackUserException {
+    JSession session = getSession();
+    buildSession(session, options, hooks);
+    return session;
+  }
 
-    JSession session =  getSession();
+  @Nonnull
+  private static void buildSession(@Nonnull JSession session, @Nonnull Options options,
+      @Nonnull RunnableHooks hooks) throws JackUserException {
+    Tracer tracer = TracerFactory.getTracer();
 
     session.setHooks(hooks);
 
@@ -675,8 +704,10 @@ public abstract class Jack {
 
     Config config = ThreadConfig.getConfig();
 
+    InputFilter inputFilter;
     try {
-      session.setInputFilter(config.get(Options.INPUT_FILTER).create(options));
+      inputFilter = config.get(Options.INPUT_FILTER).create(options);
+      session.setInputFilter(inputFilter);
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
       if (cause instanceof JackAbortException) {
@@ -691,7 +722,7 @@ public abstract class Jack {
     new MetaImporter(config.get(MetaImporter.IMPORTED_META)).doImport(session);
 
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
-    for (InputLibrary library : session.getInputFilter().getImportedLibrary()) {
+    for (InputLibrary library : inputFilter.getImportedLibrary()) {
       if (library instanceof InputJackLibrary) {
         addPackageLoaderForLibrary(session, config.get(IMPORT_POLICY),
             (InputJackLibrary) library);
@@ -701,7 +732,7 @@ public abstract class Jack {
     }
     JayceFileImporter jayceImporter = new JayceFileImporter(inputJackLibraries);
 
-    for (InputLibrary library : session.getInputFilter().getClasspath()) {
+    for (InputLibrary library : inputFilter.getClasspath()) {
       if (library instanceof InputJackLibrary) {
         addPackageLoaderForLibrary(session, config.get(CLASSPATH_POLICY),
             (InputJackLibrary) library);
@@ -709,7 +740,7 @@ public abstract class Jack {
       }
     }
 
-    Set<String> fileNamesToCompile = session.getInputFilter().getFileNamesToCompile();
+    Set<String> fileNamesToCompile = inputFilter.getFileNamesToCompile();
     if (!fileNamesToCompile.isEmpty()) {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
@@ -724,7 +755,7 @@ public abstract class Jack {
 
       try {
         if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {
-          throw new FrontendCompilationException("Failed to compile.");
+          throw new FrontendCompilationException("Failed to compile");
         }
       } catch (TransportExceptionAroundEcjError e) {
         throw e.getCause();
@@ -743,7 +774,8 @@ public abstract class Jack {
     }
 
     try {
-      jayceImporter.doImport(session);
+      jayceImporter.doJayceImport(session);
+      jayceImporter.doResourceImport(session);
     } catch (LibraryReadingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
@@ -769,8 +801,6 @@ public abstract class Jack {
       MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
       methodIdDupRemover.accept(session.getTypesToEmit());
     }
-
-    return session;
   }
 
   private static void addPackageLoaderForLibrary(JSession session,
@@ -906,6 +936,12 @@ public abstract class Jack {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }
 
+    if (features.contains(RemoveTypeDef.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      typePlan.append(TypeDefRemover.class);
+    }
+
     appendStringRefiners(planBuilder);
 
     if (features.contains(Jarjar.class)) {
@@ -920,8 +956,8 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         if (features.contains(CompiledTypeStats.class)) {
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
           methodPlan.append(MethodStats.class);
         }
       }
@@ -992,11 +1028,34 @@ public abstract class Jack {
       }
     }
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+    if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)) {
+      // add one more traversal at compile-time to collect the usage for each enum,
+      // figure out how many classes use enum in switch statement.
+      // this step is enabled only when feedback-based optimization is enabled
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(SwitchEnumSupport.class);
+      methodPlan.append(SwitchEnumUsageCollector.class);
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
+          || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
+        methodPlan.append(OptimizedSwitchEnumSupport.class);
+      } else {
+        methodPlan.append(SwitchEnumSupport.class);
+      }
+    }
+
+    if ((features.contains(OptimizedSwitchEnumFeedbackFeature.class)
+        || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class))
+        && hasSanityChecks) {
+      // check the validity of instrumentation if switch enum optimization and
+      // hasSanityCheck are both set
+      planBuilder.append(AstChecker.class);
     }
 
     if (!features.contains(LambdaToAnonymousConverter.class)) {
@@ -1005,13 +1064,24 @@ public abstract class Jack {
     planBuilder.append(TryStatementSchedulingSeparator.class);
     planBuilder.append(EnumMappingSchedulingSeparator.class);
 
+    if (features.contains(AvoidSynthethicAccessors.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      typePlan.append(ReferencedOuterFieldsExposer.class);
+
+      planBuilder.append(OptimizedInnerAccessorSchedulingSeparator.class);
+
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan =
+          typePlan2.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(MethodCallDispatchAdjuster.class);
+    }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       if (!features.contains(LambdaToAnonymousConverter.class)) {
-        if (features.contains(AvoidSynthethicAccessors.class)) {
-          typePlan4.append(ReferencedOuterFieldsExposer.class);
-        }
         typePlan4.append(InnerAccessorAdder.class);
       }
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
@@ -1031,6 +1101,9 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan3 =
             typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan3.append(FieldInitMethodCallRemover.class);
+        if (features.contains(TailRecursionOptimization.class)) {
+          methodPlan3.append(TailRecursionOptimizer.class);
+        }
       }
       typePlan4.append(FieldInitMethodRemover.class);
     }
@@ -1119,7 +1192,6 @@ public abstract class Jack {
         methodPlan.append(NestedAssignRemover.class);
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
-        methodPlan.append(UselessCastRemover.class);
         if (features.contains(CodeStats.class)) {
           methodPlan.append(BinaryOperationWithCst.class);
         }
@@ -1132,6 +1204,7 @@ public abstract class Jack {
         methodPlan.append(ExceptionRuntimeValueAdder.class);
         methodPlan.append(DefinitionMarkerAdder.class);
         methodPlan.append(ThreeAddressCodeBuilder.class);
+        methodPlan.append(UselessCastRemover.class);
         methodPlan.append(DefinitionMarkerRemover.class);
         methodPlan.append(TryCatchRemover.class);
         methodPlan.append(ExpressionStatementLegalizer.class);
@@ -1304,19 +1377,16 @@ public abstract class Jack {
     }
   }
 
-  @Nonnull
-  private static final String PROPERTIES_FILE = "jack.properties";
   @CheckForNull
   private static Version version = null;
 
   @Nonnull
   public static Version getVersion() {
     if (version == null) {
-      InputStream is = Jack.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-      if (is != null) {
-        version = new Version(is);
-      } else {
-        logger.log(Level.SEVERE, "Failed to open Jack properties file " + PROPERTIES_FILE);
+      try {
+        version = new Version("jack", Jack.class.getClassLoader());
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Failed to open Jack version file", e);
         throw new AssertionError();
       }
     }

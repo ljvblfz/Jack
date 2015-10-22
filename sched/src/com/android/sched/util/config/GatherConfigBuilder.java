@@ -229,6 +229,13 @@ public class GatherConfigBuilder {
   }
 
   @Nonnull
+  public GatherConfigBuilder setName(@Nonnull String name) {
+    builder.setName(name);
+
+    return this;
+  }
+
+  @Nonnull
   public GatherConfigBuilder setHooks(@Nonnull RunnableHooks hooks) {
     builder.setHooks(hooks);
 

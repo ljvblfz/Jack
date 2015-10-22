@@ -47,7 +47,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodNameLiteral;
-import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
@@ -79,7 +78,7 @@ import javax.annotation.Nonnull;
 public class Tracer extends JVisitor {
 
   @Nonnull
-  protected static final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
+  protected final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   public Logger logger = LoggerFactory.getLogger();
@@ -165,7 +164,7 @@ public class Tracer extends JVisitor {
         }
 
 
-        if (JModifier.isAnonymousType(t.getModifier())) {
+        if (t.isAnonymous()) {
           trace(t.getEnclosingType());
           if (brush.startTraceEnclosingMethod()) {
             JMethod enclosingMethod = ((JDefinedClass) t).getEnclosingMethod();
@@ -208,8 +207,8 @@ public class Tracer extends JVisitor {
           // To be safe, Jack is conservative when there is partial type hierarchy.
           // It considers all methods of the type as seed.
           if (brush.startTraceSeed(method) || pth != null) {
-            trace(method);
-            brush.setMustTraceOverridingMethods(method);
+            trace(method.getMethodId(), method.getEnclosingType(), method.getType(),
+                true /* mustTraceOverridingMethods */);
             brush.endTraceSeed(method);
           }
         }

@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.double_to_int;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.double_to_int.jm.T_double_to_int_1;
 import com.android.jack.opcodes.double_to_int.jm.T_double_to_int_3;
 import com.android.jack.opcodes.double_to_int.jm.T_double_to_int_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_double_to_int extends DxTestCase {

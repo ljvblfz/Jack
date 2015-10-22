@@ -33,7 +33,6 @@ public class CompilerRegressionsTest {
 
   @BeforeClass
   public static void setUpClass() {
-    CompilerRegressionsTest.class.getClassLoader().setDefaultAssertionStatus(true);
     BOOTCLASSPATH = new File[] {TestTools.getFromAndroidTree(
         "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
   }

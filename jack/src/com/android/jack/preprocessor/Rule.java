@@ -16,6 +16,9 @@
 
 package com.android.jack.preprocessor;
 
+import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
+
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -23,16 +26,18 @@ import javax.annotation.Nonnull;
 /**
  * A rule in an annotation adder file.
  */
-public class Rule {
-
+public class Rule implements HasLocation {
   @Nonnull
   private final String name;
-
+  @Nonnull
+  private final Location location;
   @Nonnull
   private final Expression<Collection<?>, Scope> set;
 
-  public Rule(@Nonnull String name, @Nonnull Expression<Collection<?>, Scope> set) {
+  public Rule(@Nonnull String name, @Nonnull Location location,
+      @Nonnull Expression<Collection<?>, Scope> set) {
     this.name = name;
+    this.location = location;
     this.set = set;
   }
 
@@ -46,4 +51,9 @@ public class Rule {
     return set;
   }
 
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return location;
+  }
 }

@@ -25,7 +25,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -68,10 +67,6 @@ public class AnnotationTests extends RuntimeTest {
   private static final File ANNOTATION001_PATH =
       AbstractTestTools.getTestRootDir("com.android.jack.annotation.test001.jack");
 
-  @BeforeClass
-  public static void setUpClass() {
-    AnnotationTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {

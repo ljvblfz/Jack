@@ -51,6 +51,10 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @Nonnull
   abstract OutputStream openWrite(@Nonnull FILE file) throws WrongPermissionException;
 
+  @Nonnull
+  abstract OutputStream openWrite(@Nonnull FILE file, boolean append)
+      throws WrongPermissionException;
+
   //
   // VElement related
   //
@@ -78,6 +82,14 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   abstract Collection<? extends BaseVElement> list(@Nonnull DIR dir);
 
   abstract boolean isEmpty(@Nonnull DIR dir);
+
+  @Nonnull
+  abstract VPath getPathFromDir(@Nonnull DIR parent, @Nonnull FILE file);
+
+  @Nonnull
+  abstract VPath getPathFromRoot(@Nonnull FILE file);
+
+  abstract long getLastModified(@Nonnull FILE file);
 
   //
   // Location related

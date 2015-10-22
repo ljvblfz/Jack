@@ -16,10 +16,10 @@
 
 package com.android.jack.opcodes.long_to_float;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.long_to_float.jm.T_long_to_float_1;
 import com.android.jack.opcodes.long_to_float.jm.T_long_to_float_3;
 import com.android.jack.opcodes.long_to_float.jm.T_long_to_float_4;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_long_to_float extends DxTestCase {

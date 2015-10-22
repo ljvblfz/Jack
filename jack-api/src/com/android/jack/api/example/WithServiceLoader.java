@@ -21,6 +21,7 @@ import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackProvider;
 import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
+import com.android.jack.api.v01.ChainedException;
 import com.android.jack.api.v01.CompilationException;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.UnrecoverableException;
@@ -38,7 +39,7 @@ public class WithServiceLoader {
   public static void main(String[] args) throws SecurityException, IllegalArgumentException {
     if (args.length != 3) {
       System.out.println(
-          "Usage: <jack core library> <source files directory> <output dex files directory>");
+          "Usage: <jack-core-library> <source-files-directory> <output-dex-files-directory>");
       return;
     }
 
@@ -83,30 +84,40 @@ public class WithServiceLoader {
     // Configure the compiler
     try {
       config.setClasspath(Arrays.asList(new File(args[0])));
-
       config.setSourceEntries(Arrays.asList(new File(args[1])));
-
       config.setOutputDexDir(new File(args[2]));
 
-      // Check and build compiler
+      // Check and build task
       compilationTask = config.getTask();
-    } catch (ConfigurationException e) {
-      System.err.println(e.getMessage());
+    } catch (ConfigurationException exceptions) {
+      System.err.println(exceptions.getNextExceptionCount() + " error"
+          + (exceptions.getNextExceptionCount() > 1 ? "s" : "") + " during configuration.");
+      for (ChainedException exception : exceptions) {
+        System.err.println("- " + exception.getMessage());
+      }
       return;
     }
 
     // Run the compilation
     try {
       compilationTask.run();
-    } catch (CompilationException e) {
-      System.out.println("User error, see reporter");
+    } catch (CompilationException exception) {
+      // No meaningful message
+      System.err.println("User error, see reporter.");
       return;
-    } catch (UnrecoverableException e) {
-      System.out.println("Something out of Jack control has happen: " + e.getMessage());
+    } catch (UnrecoverableException exception) {
+      System.err.println("Something out of Jack control has happen: " + exception.getMessage());
       return;
-    } catch (ConfigurationException e) {
-      System.err.println(e.getMessage());
+    } catch (ConfigurationException exceptions) {
+      System.err.println(exceptions.getNextExceptionCount() + " error"
+          + (exceptions.getNextExceptionCount() > 1 ? "s" : "") + " during configuration.");
+      for (ChainedException exception : exceptions) {
+        System.err.println("- " + exception.getMessage());
+      }
       return;
+    } catch (Throwable e) {
+      System.err.println("Internal Compiler Error:");
+      e.printStackTrace();
     }
   }
 }

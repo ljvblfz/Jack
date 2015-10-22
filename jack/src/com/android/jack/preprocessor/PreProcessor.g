@@ -27,6 +27,8 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 
+import com.android.sched.util.location.Location;
+
 import java.util.Collection;
 
 }
@@ -39,9 +41,9 @@ package com.android.jack.preprocessor;
   public RuleBuilder builder;
 }
 
-rules [JSession session] returns [Collection<Rule> rules]
+rules [JSession session, Location location] returns [Collection<Rule> rules]
 @init {
-    builder = new RuleBuilder(session);
+    builder = new RuleBuilder(session, location);
     rules = new ArrayList<Rule>();
 }
     :   (rule=namedRule {rules.add($rule.rule);})* EOF
@@ -50,7 +52,7 @@ rules [JSession session] returns [Collection<Rule> rules]
 namedRule returns [Rule rule]
     :   name=Identifier  ':'
         classSet=annotatedCoiSet
-        {rule = new Rule($name.text, (Expression<Collection<?>, Scope>)(Object)$classSet.set);}
+        {rule = new Rule($name.text, builder.getLocation(), (Expression<Collection<?>, Scope>)(Object)$classSet.set);}
     ;
 
 annotatedCoiSet returns [Expression<Collection<JClassOrInterface>, Scope> set]

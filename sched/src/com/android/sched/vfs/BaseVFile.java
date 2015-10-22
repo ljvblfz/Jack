@@ -50,13 +50,24 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   @Override
   @Nonnull
   public OutputStream getOutputStream() throws WrongPermissionException {
-    return vfs.openWrite(this);
+    return getOutputStream(false);
+  }
+
+  @Override
+  @Nonnull
+  public OutputStream getOutputStream(boolean append) throws WrongPermissionException {
+    return vfs.openWrite(this, append);
   }
 
   @Override
   @Nonnull
   public PrintStream getPrintStream() throws WrongPermissionException {
     return new PrintStream(getOutputStream());
+  }
+
+  @Nonnull
+  public PrintStream getPrintStream(boolean append) throws WrongPermissionException {
+    return new PrintStream(getOutputStream(append));
   }
 
   @Override
@@ -72,7 +83,18 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   }
 
   @Override
+  public long getLastModified() {
+    return vfs.getLastModified(this);
+  }
+
+  @Override
   public void delete() throws CannotDeleteFileException {
     vfs.delete(this);
+  }
+
+  @Override
+  @Nonnull
+  public VPath getPathFromRoot() {
+    return vfs.getPathFromRoot(this);
   }
 }

@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="libs/antlr-runtime-lib.jar"/>
 	<classpathentry kind="lib" path="libs/args4j-lib.jar"/>
 	<classpathentry kind="lib" path="libs/dex-lib.jar"/>
-	<classpathentry kind="lib" path="libs/dx-ref.jar"/>
+	<classpathentry kind="lib" path="libs/dx-ref.jar" sourcepath="/Scheduler/src"/>
 	<classpathentry kind="lib" path="libs/ecj.jar"/>
 	<classpathentry kind="lib" path="libs/guava-lib.jar"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>

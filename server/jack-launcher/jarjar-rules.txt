@@ -1,0 +1,5 @@
+rule com.android.sched.** com.android.jack.launcher.sched.@1
+rule com.google.** com.android.jack.launcher.google.@1
+rule javax.annotation.** com.android.jack.launcher.@0
+rule org.** com.android.jack.launcher.@0
+rule freemarker.** com.android.jack.launcher.@0

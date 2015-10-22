@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -23,7 +24,6 @@ import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClass;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JLocal;
@@ -102,11 +102,10 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final LocalVarCreator lvCreator;
 
-    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JSession session,
-        @Nonnull LocalVarCreator lvCreator) {
+    public Visitor(@Nonnull TransformationRequest tr, @Nonnull LocalVarCreator lvCreator) {
       this.tr = tr;
       this.lvCreator = lvCreator;
-      this.session = session;
+      this.session = Jack.getSession();
     }
 
     @Override
@@ -203,14 +202,13 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 
     TransformationRequest tr = new TransformationRequest(method);
     LocalVarCreator lvCreator = new LocalVarCreator(method, "sync");
-    Visitor visitor = new Visitor(tr, enclosingType.getSession(), lvCreator);
+    Visitor visitor = new Visitor(tr, lvCreator);
     visitor.accept(method);
     tr.commit();
   }

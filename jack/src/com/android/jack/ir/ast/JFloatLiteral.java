@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Java literal typed as a float.
  */
 @Description("Java literal typed as a float")
-public class JFloatLiteral extends JValueLiteral implements JNumberLiteral {
+public class JFloatLiteral extends JNumberValueLiteral implements JNumberLiteral {
 
   private final float value;
 

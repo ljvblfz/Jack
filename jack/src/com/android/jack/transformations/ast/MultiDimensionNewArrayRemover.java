@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JClassOrInterface;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
@@ -31,7 +30,6 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -87,14 +85,11 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
 
     @Nonnull
     private final TransformationRequest tr;
-    @Nonnull
-    private final JSession session;
     @CheckForNull
     private JMethodId newInstance;
 
-    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JSession session) {
+    public Visitor(@Nonnull TransformationRequest tr) {
       this.tr = tr;
-      this.session = session;
     }
 
     @Override
@@ -173,13 +168,12 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    JDefinedClassOrInterface enclosingType = method.getEnclosingType();
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 
     TransformationRequest tr = new TransformationRequest(method);
-    Visitor visitor = new Visitor(tr, enclosingType.getSession());
+    Visitor visitor = new Visitor(tr);
     visitor.accept(method);
     tr.commit();
   }

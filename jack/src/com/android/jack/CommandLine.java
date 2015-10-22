@@ -144,11 +144,11 @@ public abstract class CommandLine {
     }
   }
 
-  public static void printVersion() {
+  public static void printVersion(@Nonnull PrintStream printStream) {
     String version = Jack.getVersion().getVerboseVersion();
 
-    System.out.println("Jack compiler.");
-    System.out.println("Version: " + version + '.');
+    printStream.println("Jack compiler.");
+    printStream.println("Version: " + version + '.');
   }
 
   protected static void printUsage(@Nonnull PrintStream printStream) {
@@ -160,18 +160,20 @@ public abstract class CommandLine {
     parser.printUsage(printStream);
   }
 
-  public static void printHelpProperties (@Nonnull Options options) throws IOException {
+  public static void printHelpProperties(@Nonnull PrintStream printStream, @Nonnull Options options)
+      throws IOException {
     GatherConfigBuilder builder = options.getDefaultConfigBuilder();
 
-    printProperties(builder, Brest.class);
+    printProperties(printStream, builder, Brest.class);
 
-    System.out.println();
-    System.out.println("Provisional properties (subject to change):");
-    System.out.println();
-    printProperties(builder, DefaultCategory.class);
+    printStream.println();
+    printStream.println("Provisional properties (subject to change):");
+    printStream.println();
+    printProperties(printStream, builder, DefaultCategory.class);
   }
 
-  private static void printProperties(@Nonnull GatherConfigBuilder builder,
+  private static void printProperties(@Nonnull PrintStream printStream,
+      @Nonnull GatherConfigBuilder builder,
       @Nonnull Class<? extends Category> category) {
     // Get and sort properties
     Collection<PropertyId<?>>  collec = builder.getPropertyIds(category);
@@ -226,7 +228,7 @@ public abstract class CommandLine {
         }
       }
 
-      System.out.println(sb);
+      printStream.println(sb);
     }
   }
 

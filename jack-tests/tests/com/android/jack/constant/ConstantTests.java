@@ -24,6 +24,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -31,7 +32,6 @@ import org.jf.dexlib.CodeItem;
 import org.jf.dexlib.DexFile;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.Opcode;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -64,7 +64,19 @@ public class ConstantTests extends RuntimeTest {
 
   private RuntimeTestInfo TEST005 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test005"),
-    "com.android.jack.constant.test005.dx.Tests");
+    "com.android.jack.constant.test005.dx.Tests").addFileChecker(new FileChecker() {
+
+      @Override
+      public void check(@Nonnull File file) throws Exception {
+        DexFile dexFile = new DexFile(file);
+        CodeItem ci =
+            TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/constant/test005/jack/Constant005;",
+                "test", "()I").codeItem;
+
+        Assert.assertEquals(7, countOpcode(ci, Opcode.CONST_4));
+      }
+    }
+    );
 
   private RuntimeTestInfo TEST006 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test006"),
@@ -74,10 +86,6 @@ public class ConstantTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test007"),
     "com.android.jack.constant.test007.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ConstantTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
   @Test
   @Category(RuntimeRegressionTest.class)
   public void clazz() throws Exception {
@@ -109,21 +117,10 @@ public class ConstantTests extends RuntimeTest {
   }
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
-    .addTestExeFileChecker(new FileChecker() {
-
-      @Override
-      public void check(@Nonnull File file) throws Exception {
-        DexFile dexFile = new DexFile(file);
-        CodeItem ci =
-            TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/constant/test005/jack/Constant005;",
-                "test", "()I").codeItem;
-
-        Assert.assertEquals(7, countOpcode(ci, Opcode.CONST_4));
-      }
-    }).compileAndRunTest();
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .compileAndRunTest();
   }
 
   @Nonnegative
@@ -167,7 +164,6 @@ public class ConstantTests extends RuntimeTest {
     rtTestInfos.add(TEST002);
     rtTestInfos.add(TEST003);
     rtTestInfos.add(TEST004);
-    rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
   }

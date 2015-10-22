@@ -20,7 +20,6 @@ import com.android.jack.TestTools;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,10 +31,7 @@ public class SchedTest {
 
   private static final File SOURCE = TestTools.getJackUnitTestFromBinaryName("com/android/sched/input/Test");
 
-  @BeforeClass
-  public static void setUpClass() {
-    Main.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   /**
    * Verifies that StaticField.java can compiled from source to dex file.

@@ -43,7 +43,6 @@ public class ExtCompilationTest {
 
   @BeforeClass
   public static void setUpClass() {
-    ExtCompilationTest.class.getClassLoader().setDefaultAssertionStatus(true);
     CLASSPATH = new File[] {TestTools.getFromAndroidTree(
         "out/target/common/obj/JAVA_LIBRARIES/core-libart_intermediates/classes.jack")};
     REF_CLASSPATH = new File[] {TestTools.getFromAndroidTree(

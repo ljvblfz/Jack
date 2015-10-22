@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JVisitor;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -40,11 +39,6 @@ public class UselessCastRemoverTest {
   private static final String CAST_USELESS002 = "com/android/jack/cast/useless002/jack/UselessCast";
   @Nonnull
   private static final String CAST_USELESS003 = "com/android/jack/cast/useless003/jack/UselessCast";
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    UselessCastRemoverTest.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
 
   @Test
   public void castObjectToArray() throws Exception {
@@ -85,7 +79,7 @@ public class UselessCastRemoverTest {
   public void castNullToString() throws Exception {
     final String methodSignature = "castNullToString()Ljava/lang/String;";
 
-    buildMethodAndCheckUselessCastRemover(CAST, methodSignature, true);
+    buildMethodAndCheckUselessCastRemover(CAST, methodSignature, false);
   }
 
   @Test

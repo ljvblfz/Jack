@@ -56,8 +56,8 @@ public abstract class Toolchain implements IToolchain {
   protected List<File> staticLibs = Collections.emptyList();
   @Nonnull
   protected List<File> proguardFlags = Collections.emptyList();
-  @CheckForNull
-  protected File jarjarRules;
+  @Nonnull
+  protected List<File> jarjarRules = Collections.emptyList();
 
   @Nonnull
   protected PrintStream stdOut = System.out;
@@ -150,7 +150,7 @@ public abstract class Toolchain implements IToolchain {
 
   @Override
   @Nonnull
-  public final Toolchain setJarjarRules(@Nonnull File jarjarRules) {
+  public final Toolchain setJarjarRules(@Nonnull List<File> jarjarRules) {
     this.jarjarRules = jarjarRules;
     return this;
   }

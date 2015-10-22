@@ -17,26 +17,31 @@
 package com.android.jack.resource;
 
 import com.android.jack.library.FileType;
+import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -68,10 +73,7 @@ public class ResourceTests {
   private static final File FILE =
       AbstractTestTools.getTestRootDir("com.android.jack.resource.test001.jack");
 
-  @BeforeClass
-  public static void setUpClass() {
-    ResourceTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   @KnownIssue(candidate=IncrementalToolchain.class)
@@ -85,10 +87,10 @@ public class ResourceTests {
     toolchain.libToExe(jackAr, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
-    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
+    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1");
+    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2");
+    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3");
+    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4");
   }
 
   @Test
@@ -104,10 +106,10 @@ public class ResourceTests {
 
     // check that resources are contained in dex archive
     ZipFile zipFile = new ZipFile(dexAr);
-    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
+    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1");
+    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2");
+    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3");
+    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4");
   }
 
   @Test
@@ -115,8 +117,11 @@ public class ResourceTests {
   public void testJackDirToDexArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class,exclude);
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -130,10 +135,10 @@ public class ResourceTests {
 
     // check that resources are contained in dex archive
     ZipFile zipFile = new ZipFile(dexAr);
-    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
-    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
+    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1");
+    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2");
+    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3");
+    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4");
   }
 
   @Test
@@ -151,11 +156,18 @@ public class ResourceTests {
     toolchain.libToLib(jackAr, shrobbedJackAr, /* zipFiles = */ true);
 
     // check that resources are contained in dex archive
-    ZipFile zipFile = new ZipFile(shrobbedJackAr);
-    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
+    InputJackLibrary shrobbedLib = null;
+    try {
+      shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackAr);
+      checkResourceContentFromLib(shrobbedLib, RESOURCE1_SHORTPATH, "Res1");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE2_SHORTPATH, "Res2");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE3_SHORTPATH, "Res3");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE4_SHORTPATH, "Res4");
+    } finally {
+      if (shrobbedLib != null) {
+        shrobbedLib.close();
+      }
+    }
   }
 
   @Test
@@ -163,8 +175,10 @@ public class ResourceTests {
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -172,7 +186,7 @@ public class ResourceTests {
         FILE);
 
     // run shrobbing from Jack dir to Jack archive
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File shrobbedJackAr =
         AbstractTestTools.createTempFile("shrobbedJackAr", toolchain.getLibraryExtension());
     toolchain.addProguardFlags(new File(FILE, "proguard.flags"));
@@ -180,11 +194,18 @@ public class ResourceTests {
     toolchain.libToLib(jackFolder, shrobbedJackAr, /* zipFiles = */ true);
 
     // check that resources are contained in Jack archive
-    ZipFile zipFile = new ZipFile(shrobbedJackAr);
-    checkResourceContentFromZip(zipFile, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
-    checkResourceContentFromZip(zipFile, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
+    InputJackLibrary shrobbedLib = null;
+    try {
+      shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackAr);
+      checkResourceContentFromLib(shrobbedLib, RESOURCE1_SHORTPATH, "Res1");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE2_SHORTPATH, "Res2");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE3_SHORTPATH, "Res3");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE4_SHORTPATH, "Res4");
+    } finally {
+      if (shrobbedLib != null) {
+        shrobbedLib.close();
+      }
+    }
   }
 
   @Test
@@ -201,11 +222,18 @@ public class ResourceTests {
     toolchain.libToLib(jackAr, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
-
+    InputJackLibrary shrobbedLib = null;
+    try {
+      shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackDir);
+      checkResourceContentFromLib(shrobbedLib, RESOURCE1_SHORTPATH, "Res1");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE2_SHORTPATH, "Res2");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE3_SHORTPATH, "Res3");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE4_SHORTPATH, "Res4");
+    } finally {
+      if (shrobbedLib != null) {
+        shrobbedLib.close();
+      }
+    }
   }
 
   @Test
@@ -213,8 +241,10 @@ public class ResourceTests {
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -229,10 +259,18 @@ public class ResourceTests {
     toolchain.libToLib(jackFolder, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ true);
-    checkResourceContentFromDir(shrobbedJackDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ true);
+    InputJackLibrary shrobbedLib = null;
+    try {
+      shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackDir);
+      checkResourceContentFromLib(shrobbedLib, RESOURCE1_SHORTPATH, "Res1");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE2_SHORTPATH, "Res2");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE3_SHORTPATH, "Res3");
+      checkResourceContentFromLib(shrobbedLib, RESOURCE4_SHORTPATH, "Res4");
+    } finally {
+      if (shrobbedLib != null) {
+        shrobbedLib.close();
+      }
+    }
   }
 
   @Test
@@ -240,8 +278,10 @@ public class ResourceTests {
   public void testJackDirToDexDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -250,14 +290,14 @@ public class ResourceTests {
 
     // compile Jack dir to a dex dir
     File dexDir = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
-    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
+    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1");
+    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2");
+    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3");
+    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4");
   }
 
   @Test
@@ -265,8 +305,10 @@ public class ResourceTests {
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addResource(new File(FILE, "rsc"));
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillApiToolchainBase.class);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackFolder,
@@ -275,14 +317,14 @@ public class ResourceTests {
 
     // compile Jack dir to same dir
     File dexDir = jackFolder;
-    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+    AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude)
       .libToExe(jackFolder, dexDir, /* zipFile = */ false);
 
     // check that resources are contained in dex dir
-    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3", /*isLib*/ false);
-    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4", /*isLib*/ false);
+    checkResourceContentFromDir(dexDir, RESOURCE1_SHORTPATH, "Res1");
+    checkResourceContentFromDir(dexDir, RESOURCE2_SHORTPATH, "Res2");
+    checkResourceContentFromDir(dexDir, RESOURCE3_SHORTPATH, "Res3");
+    checkResourceContentFromDir(dexDir, RESOURCE4_SHORTPATH, "Res4");
   }
 
   @Test
@@ -292,20 +334,32 @@ public class ResourceTests {
     File jackOutputFolder = AbstractTestTools.createTempDir();
     //String testName = "resource/test003";
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.resource.test003");
-    File jackTestFolder = AbstractTestTools.getTestRootDir("com.android.jack.resource.test003.jack");
-    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    File jackTestFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.resource.test003.jack");
+    File rscFolder = new File(jackTestFolder, "rsc");
+    String resource1LongPath = "com/android/jack/resource/test003/jack/A";
+    String resource2LongPath = "com/android/jack/resource/test003/jack/A.txt";
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addResourceDir(rscFolder).addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
           jackOutputFolder,
           /* zipFiles = */ false,
           testFolder);
 
-    String resource1LongPath = "com/android/jack/resource/test003/jack/A";
-    String resource2LongPath = "com/android/jack/resource/test003/jack/A.txt";
-
-    // add resources to Jack dir
-    copyFileToDir(new File(jackTestFolder, "A.txt"), resource1LongPath, jackOutputFolder);
-    copyFileToDir(new File(jackTestFolder, "A.txt"), resource2LongPath, jackOutputFolder);
+    // check that resources are contained in Jack dir and check their contents
+    InputJackLibrary lib = null;
+    try {
+      lib = AbstractTestTools.getInputJackLibrary(jackOutputFolder);
+      InputVFile candidateFile1 = lib.getFile(FileType.RSC, new VPath(resource1LongPath, '/'));
+      InputVFile candidateFile2 = lib.getFile(FileType.RSC, new VPath(resource2LongPath, '/'));
+      checkResourceContent(candidateFile1, new File(rscFolder, resource1LongPath));
+      checkResourceContent(candidateFile2, new File(rscFolder, resource2LongPath));
+    } finally {
+      if (lib != null) {
+        lib.close();
+      }
+    }
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
@@ -314,11 +368,21 @@ public class ResourceTests {
     toolchain.libToLib(jackOutputFolder, shrobbedJackDir, /* zipFiles = */ false);
 
     // check that resources are contained in Jack dir and check their contents
-    File referenceFileContent = new File(testFolder, "refs/A.txt");
-    checkResourceContent(new File(shrobbedJackDir, "pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/A"),
-        referenceFileContent);
-    checkResourceContent(new File(shrobbedJackDir, "pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/N.txt"),
-        referenceFileContent);
+    InputJackLibrary shrobbedLib = null;
+    try {
+      shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackDir);
+      File referenceFile = new File(testFolder, "refs/A.txt");
+      InputVFile candidateFile1 = shrobbedLib.getFile(FileType.RSC,
+          new VPath("pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/A", '/'));
+      InputVFile candidateFile2 = shrobbedLib.getFile(FileType.RSC,
+          new VPath("pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/N.txt", '/'));
+      checkResourceContent(candidateFile1, referenceFile);
+      checkResourceContent(candidateFile2, referenceFile);
+    } finally {
+      if (shrobbedLib != null) {
+        shrobbedLib.close();
+      }
+    }
   }
 
   @Nonnull
@@ -326,7 +390,7 @@ public class ResourceTests {
     // compile source file to a Jack file
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File jackAr = AbstractTestTools.createTempFile("resourcetestjack", toolchain.getLibraryExtension());
-    toolchain.addResource(new File(FILE, "rsc"));
+    toolchain.addResourceDir(new File(FILE, "rsc"));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
         jackAr,
@@ -337,8 +401,8 @@ public class ResourceTests {
   }
 
   private void checkResourceContentFromZip(@Nonnull ZipFile zipFile, @Nonnull String entryName,
-      @Nonnull String expectedContent, boolean isLib) throws IOException {
-    ZipEntry entry = zipFile.getEntry((isLib ? FileType.RSC.getPrefix() + '/' : "") + entryName);
+      @Nonnull String expectedContent) throws IOException {
+    ZipEntry entry = zipFile.getEntry(entryName);
     Assert.assertNotNull(entry);
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
@@ -357,10 +421,29 @@ public class ResourceTests {
     }
   }
 
+  private void checkResourceContentFromLib(@Nonnull InputJackLibrary lib, @Nonnull String path,
+      @Nonnull String expectedContent) throws IOException, FileTypeDoesNotExistException {
+    InputVFile rescFile = lib.getFile(FileType.RSC, new VPath(path, '/'));
+    BufferedReader candidateReader = null;
+    BufferedReader referenceReader = null;
+    try {
+      candidateReader = new BufferedReader(new InputStreamReader(rescFile.getInputStream()));
+      referenceReader = new BufferedReader(new StringReader(expectedContent));
+      compareReadLines(referenceReader, candidateReader);
+    } finally {
+      if (candidateReader != null) {
+        candidateReader.close();
+      }
+      if (referenceReader != null) {
+        referenceReader.close();
+      }
+    }
+  }
+
   private void checkResourceContentFromDir(@Nonnull File dir, @Nonnull String path,
-      @Nonnull String expectedContent, boolean isLib) throws IOException {
+      @Nonnull String expectedContent) throws IOException {
     assert dir.isDirectory();
-    File file = new File(isLib ? new File(dir, FileType.RSC.getPrefix()) : dir, path);
+    File file = new File(dir, path);
     Assert.assertTrue(file.exists());
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
@@ -380,14 +463,14 @@ public class ResourceTests {
   }
 
 
-  private void checkResourceContent(@Nonnull File candidateFileContent,
-      @Nonnull File referenceFileContent) throws IOException {
-    Assert.assertTrue(candidateFileContent.exists());
+  private void checkResourceContent(@Nonnull InputVFile candidateFile,
+      @Nonnull File referenceFile) throws IOException {
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
     try {
-      candidateReader = new BufferedReader(new InputStreamReader(new FileInputStream(candidateFileContent)));
-      referenceReader = new BufferedReader(new InputStreamReader(new FileInputStream(referenceFileContent)));
+      candidateReader = new BufferedReader(new InputStreamReader(candidateFile.getInputStream()));
+      referenceReader =
+          new BufferedReader(new InputStreamReader(new FileInputStream(referenceFile)));
       compareReadLines(referenceReader, candidateReader);
     } finally {
       if (candidateReader != null) {
@@ -409,35 +492,4 @@ public class ResourceTests {
       }
       Assert.assertNull(candidateReader.readLine());
   }
-
-  private void copyFileToDir(@Nonnull File fileToCopy, @Nonnull String relativePath,
-      @Nonnull File dir) throws IOException {
-    FileOutputStream fos = null;
-    FileInputStream fis = null;
-    try {
-      fis = new FileInputStream(fileToCopy);
-      File copiedFile = new File(dir, relativePath);
-      File parentDir = copiedFile.getParentFile();
-      if (!parentDir.exists()) {
-        boolean res = parentDir.mkdirs();
-        if (!res) {
-          throw new AssertionError();
-        }
-      }
-      try {
-        fos = new FileOutputStream(copiedFile);
-        ByteStreamSucker sucker = new ByteStreamSucker(fis, fos);
-        sucker.suck();
-      } finally {
-        if (fos != null) {
-          fos.close();
-        }
-      }
-    } finally {
-      if (fis != null) {
-        fis.close();
-      }
-    }
-  }
-
 }

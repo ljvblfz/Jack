@@ -16,8 +16,8 @@
 
 package com.android.jack.opcodes.const_string;
 
-import com.android.jack.DxTestCase;
 import com.android.jack.opcodes.const_string.jm.T_const_string_1;
+import com.android.jack.test.DxTestCase;
 
 
 public class Test_const_string extends DxTestCase {

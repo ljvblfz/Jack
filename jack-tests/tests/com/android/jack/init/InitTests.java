@@ -23,7 +23,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -33,10 +32,7 @@ public class InitTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.init.test002"),
     "com.android.jack.init.test002.dx.Tests");
 
-  @BeforeClass
-  public static void setUpClass() {
-    InitTests.class.getClassLoader().setDefaultAssertionStatus(true);
-  }
+
 
   @Test
   public void test001() throws Exception {

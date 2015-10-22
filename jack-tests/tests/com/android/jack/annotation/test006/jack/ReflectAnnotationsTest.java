@@ -18,7 +18,6 @@ package com.android.jack.annotation.test006.jack;
 
 
 
-import java.io.Serializable;
 import java.util.List;
 
 public class ReflectAnnotationsTest {

@@ -33,13 +33,11 @@ import org.junit.Test;
 public class MethodModifierTest {
 
   private JSession session;
-  private final String classBinaryName = "com/android/jack/modifier/jack/MethodModifier";
-  private final String classSignature = "L" + classBinaryName + ";";
+  private static final String classBinaryName = "com/android/jack/modifier/jack/MethodModifier";
+  private static final String classSignature = "L" + classBinaryName + ";";
 
   @Before
   public void setUp() throws Exception {
-    MethodModifierTest.class.getClassLoader().setDefaultAssertionStatus(true);
-
     Options jackArgs = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(classBinaryName));
     jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
