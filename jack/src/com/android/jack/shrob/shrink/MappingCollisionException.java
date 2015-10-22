@@ -22,7 +22,8 @@ import com.android.sched.util.location.LineLocation;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link Exception} information that occurs during the mapping phase of the obfuscation.
+ * An {@link Exception} that occurs during the mapping phase of the obfuscation, when a collision is
+ * detected.
  */
 public class MappingCollisionException extends Exception {
 
@@ -57,8 +58,8 @@ public class MappingCollisionException extends Exception {
   @Override
   @Nonnull
   public String getMessage() {
-    return location.getDescription() + ": " + node.getName()
-        + " could not be renamed to " + newName + " since the name was already used";
+    return location.getDescription() + ": '" + node.getName()
+        + "' could not be renamed to '" + newName + "' since the name was already used";
   }
 
 }

@@ -106,7 +106,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
     // Only difference with other tests: allows mapping collision
-    toolchain.addProperty(MappingApplier.COLLISION_POLICY.getName(), "true");
+    toolchain.addProperty(MappingApplier.COLLISION_POLICY.getName(), "ignore");
 
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
     File refOutputMapping = new File(refFolder, "expected-001.txt");

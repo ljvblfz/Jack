@@ -26,7 +26,7 @@ public enum MappingCollisionPolicy {
   /**
    * In case of collision between names, ignore the mapping entry.
    */
-  WARN,
+  IGNORE,
 
   /**
    * In case of name collision, fail.
