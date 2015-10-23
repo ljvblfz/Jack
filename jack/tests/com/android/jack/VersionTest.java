@@ -34,8 +34,6 @@ public class VersionTest {
     assertNotNull(version.getVersion());
     assertNotNull(version.getVerboseVersion());
     assertNotNull(version.getReleaseName());
-    assertTrue(version.getReleaseCode() > 0);
-    assertTrue(version.getSubReleaseCode() >= 0);
 
     if (version.getBuildId() == null || version.getCodeBase() == null) {
       assertTrue(version.getSubReleaseKind() == SubReleaseKind.ENGINEERING);
