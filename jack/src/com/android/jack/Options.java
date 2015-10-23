@@ -183,7 +183,7 @@ public class Options {
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
       EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
           SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
-      .addDefaultValue(SwitchEnumOptStrategy.FEEDBACK).ignoreCase();
+      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase();
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
