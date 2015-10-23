@@ -28,6 +28,7 @@ CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 JACK_CONNECTION_TIMEOUT=300
+JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
 
 #
 # Load client settings
@@ -116,10 +117,10 @@ CURRENT_CHARSET=$(locale charmap)
 # Launch compilation
 exec 3>&1
 exec 4>&2
-HTTP_CODE=$(curl -f \
+HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
      --cert "${JACK_HOME}/client.pem" \
      --cacert "${JACK_HOME}/server.pem" \
-     --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
+     --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | tee >(sed -n -e 's/^O|\(.*\)$/\1/p' >&3) | grep -v ^[^EXO]) \
      --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
      -X POST \
      -H "Accept: application/vnd.jack.command-out;version=1;charset=$CURRENT_CHARSET" \

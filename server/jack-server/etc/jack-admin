@@ -27,6 +27,7 @@ JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
 CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 JACK_SERVER_VM_ARGUMENTS="${JACK_SERVER_VM_ARGUMENTS:=-Dfile.encoding=UTF-8 -XX:+TieredCompilation}"
+JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
 
 LAUNCHER_JAR="$JACK_HOME/launcher.jar"
 LAUNCHER_NAME=com.android.jack.launcher.ServerLauncher
@@ -120,7 +121,7 @@ checkCurlVersion () {
 # $2: jar of the program
 #
 updateProgram () {
-  HTTP_CODE=$(curl -f \
+  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
        --output >(cat >/dev/null) \
@@ -144,7 +145,7 @@ isServerRunning () {
   DONE=1
   let DATE_TIMEOUT=$(date +%s)+$JACK_CONNECTION_TIMEOUT
   while [ "$DONE" -ne 0 ]; do
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
@@ -181,7 +182,7 @@ waitServerStarted () {
   DONE=1
   let DATE_TIMEOUT=$(date +%s)+$JACK_CONNECTION_TIMEOUT
   while [ "$DONE" -ne 0 ]; do
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
@@ -211,7 +212,7 @@ waitServerStarted () {
 #
 listProgramVersion () {
   exec 3>&1
-  HTTP_CODE=$(curl -f \
+  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
        --output >(tr -d '\015' >&3) \
@@ -320,7 +321,7 @@ case $COMMAND in
       updateProgram $2 $3
     else
       if [ $# -eq 4 ]; then
-        HTTP_CODE=$(curl -f \
+        HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
              --cert "${JACK_HOME}/client.pem" \
              --cacert "${JACK_HOME}/server.pem" \
              --output >(cat >/dev/null) \
@@ -351,7 +352,7 @@ case $COMMAND in
   stop-server)
     echo "Stopping background server"
 
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
@@ -367,7 +368,7 @@ case $COMMAND in
     echo "Getting statistic from background server"
 
     exec 3>&1
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(tr -d '\015' >&3) \
@@ -383,7 +384,7 @@ case $COMMAND in
 
   server-log)
     exec 3>&1
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(tr -d '\015' >&3) \
@@ -458,7 +459,7 @@ case $COMMAND in
 
     echo "Setting logging parameters of background server"
 
-    HTTP_CODE=$(curl --fail \
+    HTTP_CODE=$(curl --fail $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
@@ -476,7 +477,7 @@ case $COMMAND in
   server-gc)
     echo "Requesting a garbage collection to the background server"
 
-    HTTP_CODE=$(curl -f \
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
