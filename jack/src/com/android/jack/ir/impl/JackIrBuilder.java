@@ -3192,7 +3192,6 @@ public class JackIrBuilder {
       assert b.isConstructor();
       JConstructor ctor = (JConstructor) getTypeMap().get(b);
       JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodId());
-      call.addMarker(new ResolutionTargetMarker(ctor));
       JExpression qualExpr = pop(qualifier);
 
       // Enums: hidden arguments for the name and id.
@@ -4183,7 +4182,6 @@ public class JackIrBuilder {
     assert methodId.getKind() == MethodKind.STATIC || instance != null;
     JMethodCall call = new JMethodCall(info, instance,
         receiverType, methodId, targetMethod.getType(), methodId.canBeVirtual());
-    call.addMarker(new ResolutionTargetMarker(targetMethod));
     return call;
   }
 
@@ -4196,7 +4194,6 @@ public class JackIrBuilder {
     JMethodCall call = new JMethodCall(info, instance,
         receiverType, targetMethod.getMethodId(), targetMethod.getType(),
         false /* isVirtualDispatch */);
-    call.addMarker(new ResolutionTargetMarker(targetMethod));
     return call;
   }
 

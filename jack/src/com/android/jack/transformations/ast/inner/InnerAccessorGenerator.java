@@ -16,18 +16,23 @@
 
 package com.android.jack.transformations.ast.inner;
 
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
@@ -36,9 +41,11 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.impl.ResolutionTargetMarker;
+import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;
@@ -53,6 +60,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -190,9 +198,18 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JMethodCall x) {
-      ResolutionTargetMarker resolutionTargetMarker = x.getMarker(ResolutionTargetMarker.class);
-      if (resolutionTargetMarker != null) {
-        JMethod method = resolutionTargetMarker.getTarget();
+      JClassOrInterface receiverType = x.getReceiverType();
+
+      if (receiverType instanceof JDefinedClassOrInterface) {
+        String methSignature = Jack.getLookupFormatter().getNameWithoutReturnType(x.getMethodId());
+        JType returnType =
+            x instanceof JNewInstance ? JPrimitiveTypeEnum.VOID.getType() : x.getType();
+        methSignature = methSignature + Jack.getLookupFormatter().getName(returnType);
+        // STOPSHIP: Jack-team must decide if it is the right way or not.
+        JMethod method = getMethod((JDefinedClassOrInterface) receiverType, methSignature);
+
+        assert method != null;
+
         JDefinedClassOrInterface accessorClass;
         boolean isSuper = x.getDispatchKind() == DispatchKind.DIRECT
             && method.getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
@@ -213,6 +230,49 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
     }
 
   }
+
+  @CheckForNull
+  private JMethod getDirectMethod(@Nonnull JDefinedClassOrInterface declaringType,
+      @Nonnull String methodNameWithParam) {
+    JMethod methodFound = null;
+    TypeAndMethodFormatter formatter = Jack.getLookupFormatter();
+    for (JMethod m : declaringType.getMethods()) {
+      if (formatter.getName(m).startsWith(methodNameWithParam)) {
+          if (methodFound != null) {
+              throw new AssertionError();
+          } else {
+            methodFound = m;
+          }
+      }
+    }
+    return methodFound;
+  }
+
+  @CheckForNull
+  private JMethod getMethod(@Nonnull JDefinedClassOrInterface declaringType,
+      @Nonnull String methodNameWithParam) {
+    JMethod methodFound = getDirectMethod(declaringType, methodNameWithParam);
+    if (methodFound != null) {
+      return methodFound;
+    }
+    JClass superClass = declaringType.getSuperClass();
+    if (superClass instanceof JDefinedClass) {
+      methodFound = getMethod((JDefinedClass) superClass, methodNameWithParam);
+      if (methodFound != null) {
+        return methodFound;
+      }
+    }
+    for (JInterface interfaceType : declaringType.getImplements()) {
+      if (interfaceType instanceof JDefinedInterface) {
+        methodFound = getMethod((JDefinedInterface) interfaceType, methodNameWithParam);
+        if (methodFound != null) {
+          return methodFound;
+        }
+      }
+    }
+    return null;
+  }
+
 
   protected void handleOuterFieldWrite(@Nonnull TransformationRequest tr,
       @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {
