@@ -142,6 +142,7 @@ updateProgram () {
 isServerRunning () {
   RETRY_SESSION=3
   DONE=1
+  let DATE_TIMEOUT=$(date +%s)+$JACK_CONNECTION_TIMEOUT
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
          --cert "${JACK_HOME}/client.pem" \
@@ -162,18 +163,23 @@ isServerRunning () {
     else
       # In case of partial, timeout, empty response, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "Communication error with Jack server $CURL_CODE, try other ports or see Jack server log"  >&2
+        echo "Communication error with Jack server ($CURL_CODE), try other ports or see Jack server log"  >&2
         abort
       else
-        let RETRY_SESSION=RETRY_SESSION-1
+        if [ $(date +%s) -lt $DATE_TIMEOUT ]; then
+          let RETRY_SESSION=RETRY_SESSION-1
+        else
+          echo "Communication error with Jack server ($CURL_CODE), try other ports or see Jack server log"  >&2
+          abort
+        fi
       fi
     fi
   done
 }
 
 waitServerStarted () {
-  RETRY_CONNECT=$JACK_CONNECTION_TIMEOUT
   DONE=1
+  let DATE_TIMEOUT=$(date +%s)+$JACK_CONNECTION_TIMEOUT
   while [ "$DONE" -ne 0 ]; do
     HTTP_CODE=$(curl -f \
          --cert "${JACK_HOME}/client.pem" \
@@ -187,12 +193,11 @@ waitServerStarted () {
          )
     CURL_CODE=$?
     if [ $CURL_CODE -eq 7 ] || [ $CURL_CODE -eq 35 ] || [ $CURL_CODE -eq 58 ] || [ $CURL_CODE -eq 60 ] || [ $CURL_CODE -eq 77 ]; then
-      if [ $RETRY_CONNECT -eq 0 ]; then
+      if [ $(date +%s) -ge $DATE_TIMEOUT ]; then
         echo "Jack server failed to (re)start, see Jack server log" >&2
         abort
       else
-        let RETRY_CONNECT=RETRY_CONNECT-1
-        sleep 1;
+        sleep 1
       fi
     else
       # A connection was opened, no need to know if it went well
