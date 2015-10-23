@@ -101,14 +101,8 @@ handleHttpErrors() {
       abort
     fi
   else
-    # In case of partial, timeout, empty response, network error, let's retry
-    if [ $RETRY_SESSION -eq 0 ]; then
-      echo "Communication error with Jack server $1" >&2
-      abort
-    else
-      let RETRY_SESSION=RETRY_SESSION-1
-      return 1;
-    fi
+    echo "Communication error with Jack server $1" >&2
+    abort
   fi
 }
 
@@ -125,24 +119,18 @@ checkCurlVersion () {
 # $2: jar of the program
 #
 updateProgram () {
-  RETRY_SESSION=3
-  DONE=1
-  while [ "$DONE" -ne 0 ]; do
-    HTTP_CODE=$(curl -f \
-         --cert "${JACK_HOME}/client.pem" \
-         --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
-         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-         -X PUT \
-         -F "jar=@$2;type=application/octet-stream" \
-         -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
-         --noproxy ${SERVER_HOST} \
-         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
-         )
-    handleHttpErrors $? $HTTP_CODE
-    DONE=$?
-  done
-
+  HTTP_CODE=$(curl -f \
+       --cert "${JACK_HOME}/client.pem" \
+       --cacert "${JACK_HOME}/server.pem" \
+       --output >(cat >/dev/null) \
+       --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+       -X PUT \
+       -F "jar=@$2;type=application/octet-stream" \
+       -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
+       --noproxy ${SERVER_HOST} \
+       https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
+       )
+  handleHttpErrors $? $HTTP_CODE
 
   if [ "$1" == server ]; then
     echo "Server updated, waiting for restart"
@@ -158,7 +146,7 @@ isServerRunning () {
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
-         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
@@ -190,7 +178,7 @@ waitServerStarted () {
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
          --output >(cat >/dev/null) \
-         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
          --noproxy ${SERVER_HOST} \
@@ -216,24 +204,19 @@ waitServerStarted () {
 # $1: program name
 #
 listProgramVersion () {
-  RETRY_SESSION=3
-  DONE=1
-  while [ "$DONE" -ne 0 ]; do
-    exec 3>&1
-    HTTP_CODE=$(curl -f \
-         --cert "${JACK_HOME}/client.pem" \
-         --cacert "${JACK_HOME}/server.pem" \
-         --output >(tr -d '\015' >&3) \
-         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-         -X GET \
-         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-         --noproxy ${SERVER_HOST} \
-         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
-         )
-    handleHttpErrors $? $HTTP_CODE
-    DONE=$?
-    exec 3>&-
-  done
+  exec 3>&1
+  HTTP_CODE=$(curl -f \
+       --cert "${JACK_HOME}/client.pem" \
+       --cacert "${JACK_HOME}/server.pem" \
+       --output >(tr -d '\015' >&3) \
+       --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+       -X GET \
+       -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+       --noproxy ${SERVER_HOST} \
+       https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
+       )
+  handleHttpErrors $? $HTTP_CODE
+  exec 3>&-
 }
 
 #
@@ -331,31 +314,26 @@ case $COMMAND in
       updateProgram $2 $3
     else
       if [ $# -eq 4 ]; then
-        RETRY_SESSION=3
-        DONE=1
-        while [ "$DONE" -ne 0 ]; do
-          HTTP_CODE=$(curl -f \
-               --cert "${JACK_HOME}/client.pem" \
-               --cacert "${JACK_HOME}/server.pem" \
-               --output >(cat >/dev/null) \
-               --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-               -X HEAD \
-               --data "$4" \
-               -H "Content-Type:application/vnd.jack.select-exact;version=1" \
-               --noproxy ${SERVER_HOST} \
-               https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
-               )
-          CURL_CODE=$?
-          if [ $CURL_CODE -eq 22 ]; then
-            if [ $HTTP_CODE -eq 404 ]; then
-              # version not found, proceed to installation
-              updateProgram $2 $3
-              exit 0
-            fi
+        HTTP_CODE=$(curl -f \
+             --cert "${JACK_HOME}/client.pem" \
+             --cacert "${JACK_HOME}/server.pem" \
+             --output >(cat >/dev/null) \
+             --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+             -X HEAD \
+             --data "$4" \
+             -H "Content-Type:application/vnd.jack.select-exact;version=1" \
+             --noproxy ${SERVER_HOST} \
+             https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$2 \
+             )
+        CURL_CODE=$?
+        if [ $CURL_CODE -eq 22 ]; then
+          if [ $HTTP_CODE -eq 404 ]; then
+            # version not found, proceed to installation
+            updateProgram $2 $3
+            exit 0
           fi
-          handleHttpErrors $CURL_CODE $HTTP_CODE
-          DONE=$?
-        done
+        fi
+        handleHttpErrors $CURL_CODE $HTTP_CODE
       else
         # No version provided, proceed directly without testing
         updateProgram $2 $3
@@ -367,65 +345,50 @@ case $COMMAND in
   stop-server)
     echo "Stopping background server"
 
-    RETRY_SESSION=3
-    DONE=1
-    while [ "$DONE" -ne 0 ]; do
-      HTTP_CODE=$(curl -f \
-           --cert "${JACK_HOME}/client.pem" \
-           --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >/dev/null) \
-           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-           -X POST \
-           --noproxy ${SERVER_HOST} \
-           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
-           )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
-    done ;;
+    HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output >(cat >/dev/null) \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+         -X POST \
+         --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server/stop \
+         )
+    handleHttpErrors $? $HTTP_CODE ;;
 
 
   server-stat)
     echo "Getting statistic from background server"
 
-    RETRY_SESSION=3
-    DONE=1
-    while [ "$DONE" -ne 0 ]; do
-      exec 3>&1
-      HTTP_CODE=$(curl -f \
-           --cert "${JACK_HOME}/client.pem" \
-           --cacert "${JACK_HOME}/server.pem" \
-           --output >(tr -d '\015' >&3) \
-           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-           -X GET \
-           -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-           --noproxy ${SERVER_HOST} \
-           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
-           )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
-      exec 3>&-
-    done ;;
+    exec 3>&1
+    HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output >(tr -d '\015' >&3) \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+         -X GET \
+         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+         --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
+         )
+    handleHttpErrors $? $HTTP_CODE
+    exec 3>&- ;;
 
 
   server-log)
-    RETRY_SESSION=3
-    DONE=1
-    while [ "$DONE" -ne 0 ]; do
-      exec 3>&1
-      HTTP_CODE=$(curl -f \
-           --cert "${JACK_HOME}/client.pem" \
-           --cacert "${JACK_HOME}/server.pem" \
-           --output >(tr -d '\015' >&3) \
-           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-           -X GET \
-           -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
-          --noproxy ${SERVER_HOST} \
-           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log \
-           )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
-      exec 3>&-
-    done ;;
+    exec 3>&1
+    HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output >(tr -d '\015' >&3) \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+         -X GET \
+         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+        --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log \
+         )
+    handleHttpErrors $? $HTTP_CODE
+    exec 3>&- ;;
 
 
   kill-server)
@@ -489,44 +452,34 @@ case $COMMAND in
 
     echo "Setting logging parameters of background server"
 
-    RETRY_SESSION=3
-    DONE=1
-    while [ "$DONE" -ne 0 ]; do
-      HTTP_CODE=$(curl --fail \
-           --cert "${JACK_HOME}/client.pem" \
-           --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >/dev/null) \
-           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-           --request PUT \
-           --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
-           --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
-           --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
-           --noproxy ${SERVER_HOST} \
-           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
-           )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
-    done ;;
+    HTTP_CODE=$(curl --fail \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output >(cat >/dev/null) \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+         --request PUT \
+         --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
+         --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
+         --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
+         --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
+         )
+    handleHttpErrors $? $HTTP_CODE ;;
 
 
   server-gc)
     echo "Requesting a garbage collection to the background server"
 
-    RETRY_SESSION=3
-    DONE=1
-    while [ "$DONE" -ne 0 ]; do
-      HTTP_CODE=$(curl -f \
-           --cert "${JACK_HOME}/client.pem" \
-           --cacert "${JACK_HOME}/server.pem" \
-           --output >(cat >/dev/null) \
-           --no-buffer --write-out '%{http_code}' --silent --connect-timeout 10 \
-           -X POST \
-           --noproxy ${SERVER_HOST} \
-           https://${SERVER_HOST}:$SERVER_PORT_ADMIN/gc \
-           )
-      handleHttpErrors $? $HTTP_CODE
-      DONE=$?
-    done ;;
+    HTTP_CODE=$(curl -f \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output >(cat >/dev/null) \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+         -X POST \
+         --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/gc \
+         )
+    handleHttpErrors $? $HTTP_CODE ;;
 
 
 #
