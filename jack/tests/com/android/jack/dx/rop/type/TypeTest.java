@@ -25,26 +25,26 @@ public class TypeTest {
 
   @Test
   public void type() {
-    Type t = Type.intern("La/b/c;");
-    Assert.assertEquals("a/b/c", t.getClassName());
+    Type t = Type.intern("La/b/c3;");
+    Assert.assertEquals("a/b/c3", t.getClassName());
     Assert.assertEquals(1, t.getCategory());
     Assert.assertTrue(t.isCategory1());
     Assert.assertFalse(t.isCategory2());
     Assert.assertTrue(t.isReference());
     Assert.assertFalse(t.isArray());
     Assert.assertEquals(Type.BT_OBJECT, t.getBasicType());
-    Assert.assertEquals("La/b/c;", t.getDescriptor());
-    Assert.assertEquals("[La/b/c;", t.getArrayType().getDescriptor());
+    Assert.assertEquals("La/b/c3;", t.getDescriptor());
+    Assert.assertEquals("[La/b/c3;", t.getArrayType().getDescriptor());
   }
 
   @Test
   public void arrayType() {
-    Type t = Type.intern("[[La/b/c;");
-    Assert.assertEquals("[[La/b/c;", t.getClassName());
-    Assert.assertEquals("[La/b/c;", t.getComponentType().getClassName());
-    Assert.assertEquals("[La/b/c;", t.getComponentType().getDescriptor());
-    Assert.assertEquals("La/b/c;", t.getComponentType().getComponentType().getDescriptor());
-    Assert.assertEquals("a/b/c", t.getComponentType().getComponentType().getClassName());
+    Type t = Type.intern("[[La/b/c4;");
+    Assert.assertEquals("[[La/b/c4;", t.getClassName());
+    Assert.assertEquals("[La/b/c4;", t.getComponentType().getClassName());
+    Assert.assertEquals("[La/b/c4;", t.getComponentType().getDescriptor());
+    Assert.assertEquals("La/b/c4;", t.getComponentType().getComponentType().getDescriptor());
+    Assert.assertEquals("a/b/c4", t.getComponentType().getComponentType().getClassName());
     Assert.assertEquals(1, t.getCategory());
     Assert.assertTrue(t.isCategory1());
     Assert.assertFalse(t.isCategory2());
@@ -57,8 +57,8 @@ public class TypeTest {
   @Test
   @Ignore
   public void closure() {
-    Type t = Type.intern("\\a/b/c;");
-    Assert.assertEquals("a/b/c", t.getClassName());
+    Type t = Type.intern("\\a/b/c5;");
+    Assert.assertEquals("a/b/c5", t.getClassName());
     Assert.assertEquals(2, t.getCategory());
     Assert.assertFalse(t.isCategory1());
     Assert.assertTrue(t.isCategory2());
@@ -66,19 +66,19 @@ public class TypeTest {
     Assert.assertTrue(t.isClosure());
     Assert.assertFalse(t.isArray());
     Assert.assertEquals(Type.BT_CLOSURE, t.getBasicType());
-    Assert.assertEquals("\\a/b/c;", t.getDescriptor());
-    Assert.assertEquals("[\\a/b/c;", t.getArrayType().getDescriptor());
+    Assert.assertEquals("\\a/b/c5;", t.getDescriptor());
+    Assert.assertEquals("[\\a/b/c5;", t.getArrayType().getDescriptor());
   }
 
   @Test
   @Ignore
   public void arrayClosure() {
-    Type t = Type.intern("[[\\a/b/c;");
-    Assert.assertEquals("[[\\a/b/c;", t.getClassName());
-    Assert.assertEquals("[\\a/b/c;", t.getComponentType().getClassName());
-    Assert.assertEquals("[\\a/b/c;", t.getComponentType().getDescriptor());
-    Assert.assertEquals("\\a/b/c;", t.getComponentType().getComponentType().getDescriptor());
-    Assert.assertEquals("a/b/c", t.getComponentType().getComponentType().getClassName());
+    Type t = Type.intern("[[\\a/b/c6;");
+    Assert.assertEquals("[[\\a/b/c6;", t.getClassName());
+    Assert.assertEquals("[\\a/b/c6;", t.getComponentType().getClassName());
+    Assert.assertEquals("[\\a/b/c6;", t.getComponentType().getDescriptor());
+    Assert.assertEquals("\\a/b/c6;", t.getComponentType().getComponentType().getDescriptor());
+    Assert.assertEquals("a/b/c6", t.getComponentType().getComponentType().getClassName());
     Assert.assertEquals(1, t.getCategory());
     Assert.assertTrue(t.isCategory1());
     Assert.assertFalse(t.isCategory2());

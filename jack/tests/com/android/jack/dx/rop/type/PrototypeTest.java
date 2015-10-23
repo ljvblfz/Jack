@@ -24,8 +24,8 @@ public class PrototypeTest {
 
   @Test
   public void prototype001() {
-    Prototype proto = Prototype.intern("(\\a/b/c;I)V");
-    Assert.assertEquals("(\\a/b/c;I)V", proto.getDescriptor());
+    Prototype proto = Prototype.intern("(\\a/b/c1;I)V");
+    Assert.assertEquals("(\\a/b/c1;I)V", proto.getDescriptor());
     Assert.assertEquals(2, proto.getParameterTypes().size());
     Assert.assertEquals(2, proto.getParameterTypes().get(0).getCategory());
     Assert.assertTrue(proto.getParameterTypes().get(1).getFrameType().isPrimitive());
@@ -34,8 +34,8 @@ public class PrototypeTest {
 
   @Test
   public void prototype002() {
-    Prototype proto = Prototype.intern("(\\a/b/c;Lc/d/e;)V");
-    Assert.assertEquals("(\\a/b/c;Lc/d/e;)V", proto.getDescriptor());
+    Prototype proto = Prototype.intern("(\\a/b/c2;Lc/d/e;)V");
+    Assert.assertEquals("(\\a/b/c2;Lc/d/e;)V", proto.getDescriptor());
     Assert.assertEquals(2, proto.getParameterTypes().size());
     Assert.assertEquals(2, proto.getParameterTypes().get(0).getCategory());
     Assert.assertTrue(proto.getParameterTypes().get(0).getFrameType().isClosure());
