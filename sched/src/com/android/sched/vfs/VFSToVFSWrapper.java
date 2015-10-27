@@ -282,4 +282,9 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
     return workVFS.getPathFromRoot(file);
   }
 
+  @Nonnull
+  public VFS getWorkVFS() {
+    return workVFS;
+  }
+
 }

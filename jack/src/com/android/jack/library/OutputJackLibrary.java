@@ -16,7 +16,11 @@
 
 package com.android.jack.library;
 
+import com.android.sched.vfs.VFS;
+
 import java.util.Properties;
+
+import javax.annotation.Nonnull;
 
 /**
  * Interface representing an output jack library.
@@ -24,7 +28,7 @@ import java.util.Properties;
 public abstract class OutputJackLibrary extends CommonJackLibrary
   implements OutputLibrary, JackLibrary {
 
-  public OutputJackLibrary(Properties libraryProperties) {
-    super(libraryProperties);
+  public OutputJackLibrary(@Nonnull Properties libraryProperties, @Nonnull VFS vfs) {
+    super(libraryProperties, vfs);
   }
 }

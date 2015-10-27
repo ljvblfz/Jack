@@ -76,9 +76,6 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   private boolean closed = false;
 
-  @Nonnull
-  private final VFS vfs;
-
   private final boolean generateJacklibDigest =
 
       ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue();
@@ -109,8 +106,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   public OutputJackLibraryImpl(@Nonnull VFS vfs, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
-    super(new Properties());
-    this.vfs = vfs;
+    super(new Properties(), vfs);
 
     try {
       loadLibraryProperties(new GenericInputVFS(vfs));
