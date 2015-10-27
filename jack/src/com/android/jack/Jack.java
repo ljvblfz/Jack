@@ -182,27 +182,29 @@ import com.android.jack.shrob.obfuscation.SourceFileRenaming;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
-import com.android.jack.shrob.obfuscation.annotation.LineNumberRemover;
+import com.android.jack.shrob.obfuscation.annotation.LocalVariableAndThisLineNumberRemover;
 import com.android.jack.shrob.obfuscation.annotation.LocalVariableAndThisNameRemover;
-import com.android.jack.shrob.obfuscation.annotation.VariableGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.ParameterLineNumberRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValue;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethodFeature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
-import com.android.jack.shrob.obfuscation.annotation.RemoveLineNumber;
-import com.android.jack.shrob.obfuscation.annotation.RemoveVariableGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLocalLineNumber;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableName;
+import com.android.jack.shrob.obfuscation.annotation.RemoveParameterLineNumber;
 import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
+import com.android.jack.shrob.obfuscation.annotation.RemoveVariableGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.ThrownExceptionRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingMethodRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeEnclosingTypeRemover;
 import com.android.jack.shrob.obfuscation.annotation.TypeGenericSignatureRemover;
+import com.android.jack.shrob.obfuscation.annotation.VariableGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.resource.AdaptResourceFileContent;
 import com.android.jack.shrob.obfuscation.resource.ResourceContentRefiner;
 import com.android.jack.shrob.obfuscation.resource.ResourceRefiner;
@@ -616,14 +618,18 @@ public abstract class Jack {
               if (!options.flags.keepAttribute("SourceFile")) {
                 request.addFeature(RemoveSourceFile.class);
               }
-              if (!options.flags.keepAttribute("LineNumberTable")) {
-                request.addFeature(RemoveLineNumber.class);
+              if (!config.get(RemoveLocalLineNumber.KEEP_LOCAL_LINE_NUMBER).booleanValue()) {
+                request.addFeature(RemoveLocalLineNumber.class);
               }
-              if (!options.flags.keepAttribute("LocalVariableTable")) {
+              if (!config.get(RemoveParameterLineNumber.KEEP_PARAMETER_LINE_NUMBER)
+                  .booleanValue()) {
+                request.addFeature(RemoveParameterLineNumber.class);
+              }
+              if (!config.get(RemoveLocalVariableName.KEEP_LOCAL_NAME).booleanValue()) {
                 request.addFeature(RemoveLocalVariableName.class);
-                if (!options.flags.getKeepParameterNames()) {
-                  request.addFeature(RemoveParameterName.class);
-                }
+              }
+              if (!config.get(RemoveParameterName.KEEP_PARAMETER_NAME).booleanValue()) {
+                request.addFeature(RemoveParameterName.class);
               }
             }
             if (options.flags.printSeeds()) {
@@ -1828,9 +1834,6 @@ public abstract class Jack {
       if (features.contains(RemoveGenericSignature.class)) {
         typePlan.append(TypeGenericSignatureRemover.class);
       }
-      if (features.contains(RemoveLineNumber.class)) {
-        typePlan.append(LineNumberRemover.class);
-      }
       {
         SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldAnnotationRemover.class);
@@ -1857,8 +1860,14 @@ public abstract class Jack {
         if (features.contains(RemoveParameterName.class)) {
           methodPlan.append(ParameterNameRemover.class);
         }
+        if (features.contains(RemoveParameterLineNumber.class)) {
+          methodPlan.append(ParameterLineNumberRemover.class);
+        }
         if (features.contains(RemoveLocalVariableName.class)) {
           methodPlan.append(LocalVariableAndThisNameRemover.class);
+        }
+        if (features.contains(RemoveLocalLineNumber.class)) {
+          methodPlan.append(LocalVariableAndThisLineNumberRemover.class);
         }
       }
     }

@@ -45,6 +45,10 @@ import com.android.jack.shrob.obfuscation.Renamer;
 import com.android.jack.shrob.obfuscation.SourceFileRenamer;
 import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLocalLineNumber;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableName;
+import com.android.jack.shrob.obfuscation.annotation.RemoveParameterLineNumber;
+import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
@@ -1046,6 +1050,23 @@ public class Options {
 
         configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
         configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));
+
+        boolean keepLineNumbers = flags.keepAttribute("LineNumberTable");
+        configBuilder.set(RemoveLocalLineNumber.KEEP_LOCAL_LINE_NUMBER,
+            keepLineNumbers);
+        if (!keepLineNumbers) {
+          configBuilder.set(RemoveParameterLineNumber.KEEP_PARAMETER_LINE_NUMBER,
+              flags.getKeepParameterNames());
+        } else {
+          configBuilder.set(RemoveParameterLineNumber.KEEP_PARAMETER_LINE_NUMBER, true);
+        }
+        boolean keepNames = flags.keepAttribute("LocalVariableTable");
+        configBuilder.set(RemoveLocalVariableName.KEEP_LOCAL_NAME, keepNames);
+        if (!keepNames) {
+          configBuilder.set(RemoveParameterName.KEEP_PARAMETER_NAME, flags.getKeepParameterNames());
+        } else {
+          configBuilder.set(RemoveParameterName.KEEP_PARAMETER_NAME, true);
+        }
       }
 
       configBuilder.set(Options.FLAGS, flags);

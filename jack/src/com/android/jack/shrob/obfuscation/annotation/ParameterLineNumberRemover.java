@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
@@ -29,11 +29,11 @@ import com.android.sched.schedulable.Support;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link RunnableSchedulable} that removes line numbers.
+ * A {@link RunnableSchedulable} that removes line numbers of parameters.
  */
-@Description("Removes line numbers")
-@Support(RemoveLineNumber.class)
-public class LineNumberRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
+@Description("Removes line numbers of parameters")
+@Support(RemoveParameterLineNumber.class)
+public class ParameterLineNumberRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {
     @Nonnull
@@ -44,19 +44,20 @@ public class LineNumberRemover implements RunnableSchedulable<JDefinedClassOrInt
     }
 
     @Override
-    public boolean visit(@Nonnull JNode node) {
+    public boolean visit(@Nonnull JParameter node) {
       SourceInfo info = node.getSourceInfo();
       if (info != SourceInfo.UNKNOWN) {
         node.setSourceInfo(info.getFileSourceInfo());
       }
-      return false;
+      return true;
     }
   }
 
+
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) {
+  public void run(@Nonnull JMethod method) {
     Visitor visitor = new Visitor(Jack.getSession().getSourceInfoFactory());
-    visitor.accept(type);
+    visitor.accept(method);
   }
 
 }

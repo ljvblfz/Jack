@@ -18,11 +18,25 @@ package com.android.jack.shrob.obfuscation.annotation;
 
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.id.BooleanPropertyId;
+
+import javax.annotation.Nonnull;
 
 /**
  * A {@link Feature} that represents the removal of parameter names.
  */
+@HasKeyId
 @Description("The removal of parameter names")
 public class RemoveParameterName implements Feature {
 
+  /**
+   * This property indicates if the names of parameters in source info must be removed.
+   * If a flags file (provided with --config-proguard) contradicts this property, the property is
+   * overridden.
+   */
+  @Nonnull
+  public static final BooleanPropertyId KEEP_PARAMETER_NAME = BooleanPropertyId.create(
+      "jack.obfuscation.parameter.keep-name", "Keep names for parameters")
+      .addDefaultValue(Boolean.TRUE);
 }

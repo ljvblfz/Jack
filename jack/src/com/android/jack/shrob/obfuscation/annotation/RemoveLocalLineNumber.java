@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,20 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link Feature} that represents the removal of local variables and 'this' names.
+ * Represents the removal of line numbers of local variables and 'this' in source info.
  */
 @HasKeyId
-@Description("The removal of local variables and 'this' names")
-public class RemoveLocalVariableName implements Feature {
+@Description("The removal of line numbers of local variables and 'this' in source info")
+public class RemoveLocalLineNumber implements Feature {
 
   /**
-   * This property indicates if the names of local variables and 'this' in source info must
+   * This property indicates if the line numbers of local variables and 'this' in source info must
    * be removed.
    * If a flags file (provided with --config-proguard) contradicts this property, the property is
    * overridden.
    */
   @Nonnull
-  public static final BooleanPropertyId KEEP_LOCAL_NAME = BooleanPropertyId.create(
-      "jack.obfuscation.local.keep-name", "Keep names for locals")
+  public static final BooleanPropertyId KEEP_LOCAL_LINE_NUMBER = BooleanPropertyId.create(
+      "jack.obfuscation.local.keep-line-number", "Keep line numbers for locals")
       .addDefaultValue(Boolean.TRUE);
 }

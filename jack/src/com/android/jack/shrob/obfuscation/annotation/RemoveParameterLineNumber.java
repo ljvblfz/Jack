@@ -24,20 +24,20 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link Feature} that represents the removal of local variables and 'this' names.
+ * Represents the removal of line numbers in source info for parameters.
  */
 @HasKeyId
-@Description("The removal of local variables and 'this' names")
-public class RemoveLocalVariableName implements Feature {
+@Description("The removal of line numbers in source info for parameters")
+public class RemoveParameterLineNumber implements Feature {
 
   /**
-   * This property indicates if the names of local variables and 'this' in source info must
-   * be removed.
+   * This property indicates if the line numbers of parameters in source info must be removed.
    * If a flags file (provided with --config-proguard) contradicts this property, the property is
    * overridden.
    */
   @Nonnull
-  public static final BooleanPropertyId KEEP_LOCAL_NAME = BooleanPropertyId.create(
-      "jack.obfuscation.local.keep-name", "Keep names for locals")
+  public static final BooleanPropertyId KEEP_PARAMETER_LINE_NUMBER = BooleanPropertyId.create(
+      "jack.obfuscation.parameter.keep-line-number", "Keep line numbers for parameters")
       .addDefaultValue(Boolean.TRUE);
+
 }
