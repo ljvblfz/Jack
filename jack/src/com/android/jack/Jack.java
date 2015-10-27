@@ -136,6 +136,7 @@ import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.LineNumberRemover;
 import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatureRemover;
+import com.android.jack.shrob.obfuscation.annotation.LocalVariableNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
@@ -146,6 +147,7 @@ import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLineNumber;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
 import com.android.jack.shrob.obfuscation.annotation.ThrownExceptionRemover;
@@ -488,9 +490,11 @@ public abstract class Jack {
           if (!options.flags.keepAttribute("LineNumberTable")) {
             request.addFeature(RemoveLineNumber.class);
           }
-          if (!options.flags.getKeepParameterNames()
-              && !options.flags.keepAttribute("LocalVariableTable")) {
-            request.addFeature(RemoveParameterName.class);
+          if (!options.flags.keepAttribute("LocalVariableTable")) {
+            request.addFeature(RemoveLocalVariableName.class);
+            if (!options.flags.getKeepParameterNames()) {
+              request.addFeature(RemoveParameterName.class);
+            }
           }
           if (options.flags.getRenameSourceFileAttribute() != null) {
             request.addFeature(SourceFileRenaming.class);
@@ -1252,6 +1256,9 @@ public abstract class Jack {
         }
         if (features.contains(RemoveParameterName.class)) {
           methodPlan.append(ParameterNameRemover.class);
+        }
+        if (features.contains(RemoveLocalVariableName.class)) {
+          methodPlan.append(LocalVariableNameRemover.class);
         }
       }
     }
