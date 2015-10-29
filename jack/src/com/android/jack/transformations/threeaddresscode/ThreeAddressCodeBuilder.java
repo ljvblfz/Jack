@@ -52,6 +52,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.jack.transformations.LocalVarCreator;
+import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.InitInNewArray;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.ast.RefAsStatement;
@@ -83,8 +84,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Transform body of a JMethod to into a three address form.")
 @Name("ThreeAddressCodeBuilder")
-@Constraint(need = {NoImplicitBlock.class, SourceCast.class}, no = {InitInNewArray.class,
-    JAssertStatement.class, JAsgOperation.class, JFieldInitializer.class,
+@Constraint(need = {NoImplicitBlock.class, SourceCast.class}, no = {BooleanTestOutsideIf.class,
+    InitInNewArray.class, JAssertStatement.class, JAsgOperation.class, JFieldInitializer.class,
     JConditionalOperation.class, JLoop.class})
 @Transform(add = {ThreeAddressCodeForm.class,
     RefAsStatement.class,
