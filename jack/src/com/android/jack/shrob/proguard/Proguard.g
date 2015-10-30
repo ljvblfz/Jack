@@ -224,6 +224,7 @@ private modifier [ModifierSpecification modifiers]
     | 'synthetic' {modifiers.addModifier(JModifier.SYNTHETIC, hasNegator);}
     | 'bridge' {modifiers.addModifier(JModifier.BRIDGE, hasNegator);}
     | 'varargs' {modifiers.addModifier(JModifier.VARARGS, hasNegator);}
+    | 'volatile' {modifiers.addModifier(JModifier.VOLATILE, hasNegator);}
   )
   ;
 
