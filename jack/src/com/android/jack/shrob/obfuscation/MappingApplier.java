@@ -402,8 +402,8 @@ public class MappingApplier {
         String newSignature =
             GrammarActions.getSignatureFormatter().getNameWithoutReturnType(newName, args);
         if (!existingMethodNames.contains(newSignature)
-            || newSignature.equals(
-                Jack.getUserFriendlyFormatter().getNameWithoutReturnType(method.getMethodId()))) {
+            || newSignature.equals(GrammarActions.getSignatureFormatter().getNameWithoutReturnType(
+                method.getMethodId()))) {
           // No collision was found
           // (the name was not used or the method is renamed with its own name)
           renameMethod(method, mappingFile, lineNumber, newName, memberTransformationRequest);

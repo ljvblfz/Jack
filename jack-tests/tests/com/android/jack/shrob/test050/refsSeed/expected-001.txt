@@ -1,0 +1,5 @@
+com.android.jack.shrob.test050.jack.Kept
+com.android.jack.shrob.test050.jack.Kept: Kept()
+com.android.jack.shrob.test050.jack.Kept: void kept(java.lang.String)
+com.android.jack.shrob.test050.jack.Kept: void <clinit>()
+com.android.jack.shrob.test050.jack.Kept: void $init()

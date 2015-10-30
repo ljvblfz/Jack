@@ -1,0 +1,3 @@
+com.android.jack.shrob.test050.jack.Kept -> renamedKept:
+    void <init>() -> <init>
+    void kept(java.lang.String) -> kept

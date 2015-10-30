@@ -18,7 +18,6 @@ package com.android.jack.shrob;
 
 import com.google.common.io.Files;
 
-import com.android.jack.Main;
 import com.android.jack.ProguardFlags;
 import com.android.jack.test.category.KnownBugs;
 import com.android.jack.test.category.SlowTests;
@@ -26,7 +25,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -595,6 +593,11 @@ public abstract class AbstractTest {
   @Category(KnownBugs.class)
   public void test41_001() throws Exception {
     runTest("041", "001", "");
+  }
+
+  @Test
+  public void test50_001() throws Exception {
+    runTest("050", "001", "");
   }
 
   protected void checkToolchainIsNotJillBased() {
