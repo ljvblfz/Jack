@@ -45,6 +45,6 @@ public class NameSpecification extends SpecificationWithNegator<String> {
 
   @Override
   public String toString() {
-    return name.toString();
+    return super.toString() + name.toString();
   }
 }
