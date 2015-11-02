@@ -37,4 +37,74 @@ public class Tests {
       // OK
     }
   }
+
+  @Test
+  public void test003() {
+    try {
+      ConditionalTest006.test003();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test004() {
+    try {
+      ConditionalTest006.test004();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test005() {
+    try {
+      ConditionalTest006.test005();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test006() {
+    try {
+      ConditionalTest006.test006();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test007() {
+    try {
+      ConditionalTest006.test007();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test008() {
+    try {
+      ConditionalTest006.test008();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
+
+  @Test
+  public void test009() {
+    try {
+      ConditionalTest006.test009();
+      Assert.fail("Npe expected");
+    } catch (NullPointerException npe) {
+      // OK
+    }
+  }
 }

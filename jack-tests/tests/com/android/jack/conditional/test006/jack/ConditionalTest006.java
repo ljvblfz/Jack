@@ -31,4 +31,53 @@ public class ConditionalTest006 {
     Float f2 = false? 1.0f: false? 1.0f: null;
     return f2;
   }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Boolean test003() {
+    @SuppressWarnings({"boxing", "unused"})
+    Boolean b = false? true: false? true: null;
+    return b;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Byte test004() {
+    @SuppressWarnings({"boxing", "unused"})
+    Byte b = false? (byte) 1: false? (byte) 2: null;
+    return b;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Character test005() {
+    @SuppressWarnings({"boxing", "unused"})
+    Character c = false? (char) 1: false? (char) 2: null;
+    return c;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Short test006() {
+    @SuppressWarnings({"boxing", "unused"})
+    Short s = false? (short) 1: false? (short) 2: null;
+    return s;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Integer test007() {
+    @SuppressWarnings({"boxing", "unused"})
+    Integer i = false? 1: false? 2: null;
+    return i;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Long test008() {
+    @SuppressWarnings({"boxing", "unused"})
+    Long l = false? 1l: false? 2l: null;
+    return l;
+  }
+
+  // Check that null pointer exception is trigger due to unboxing of null
+  public static Double test009() {
+    @SuppressWarnings({"boxing", "unused"})
+    Double d = false? 1.2: false? 2.4: null;
+    return d;
+  }
 }
