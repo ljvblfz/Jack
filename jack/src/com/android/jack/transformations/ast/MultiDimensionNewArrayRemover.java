@@ -60,8 +60,7 @@ import javax.annotation.Nonnull;
 @Transform(remove = {MultiDimensionNewArray.class, ThreeAddressCodeForm.class}, add = {
     JNewArray.class, JMethodCall.class, JClassLiteral.class, JDynamicCastOperation.class,
     InitInNewArray.class})
-public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMethod>
-{
+public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);

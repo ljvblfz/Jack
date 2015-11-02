@@ -16,8 +16,8 @@
 
 package com.android.jack.transformations.request;
 
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JDefinedClass;
 import com.android.sched.transform.TransformStep;
 
 import javax.annotation.Nonnull;
