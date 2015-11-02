@@ -1,0 +1,5 @@
+-keep class **.Kept {
+  *;
+}
+
+-applymapping mapping.txt

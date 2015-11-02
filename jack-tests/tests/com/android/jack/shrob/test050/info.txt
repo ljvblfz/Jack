@@ -1,0 +1,2 @@
+This test contains a obfuscated method with a mapping indicating to leave
+its name unchanged.

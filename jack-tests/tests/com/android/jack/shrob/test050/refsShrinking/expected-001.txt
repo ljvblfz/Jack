@@ -1,0 +1,3 @@
+Lcom/android/jack/shrob/test050/jack/Kept;:
+<init>()V
+kept(Ljava/lang/String;)V
