@@ -157,6 +157,8 @@ public final class Opcodes {
   public static final int INVOKE_DIRECT_RANGE = 0x76;
   public static final int INVOKE_STATIC_RANGE = 0x77;
   public static final int INVOKE_INTERFACE_RANGE = 0x78;
+  public static final int IGET_LAMBDA = 0x79;
+  public static final int IPUT_LAMBDA = 0x7a;
   public static final int NEG_INT = 0x7b;
   public static final int NOT_INT = 0x7c;
   public static final int NEG_LONG = 0x7d;
@@ -267,6 +269,8 @@ public final class Opcodes {
   public static final int LIBERATE_VARIABLE = 0xf7;
   public static final int BOX_LAMBDA = 0xf8;
   public static final int UNBOX_LAMBDA = 0xf9;
+  public static final int SGET_LAMBDA = 0xfa;
+  public static final int SPUT_LAMBDA = 0xfb;
 
   // END(opcodes)
 

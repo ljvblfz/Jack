@@ -730,6 +730,18 @@ public final class OpcodeInfo {
   public static final Info MOVE_RESULT_LAMBDA = new Info(Opcodes.MOVE_RESULT_LAMBDA,
       "move-result-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
 
+  public static final Info IGET_LAMBDA = new Info(Opcodes.IGET_LAMBDA, "iget-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.FIELD_REF);
+
+  public static final Info IPUT_LAMBDA = new Info(Opcodes.IPUT_LAMBDA, "iput-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.FIELD_REF);
+
+  public static final Info SGET_LAMBDA = new Info(Opcodes.SGET_LAMBDA, "sget-lambda",
+      InstructionCodec.FORMAT_21C, IndexType.FIELD_REF);
+
+  public static final Info SPUT_LAMBDA = new Info(Opcodes.SPUT_LAMBDA, "sput-lambda",
+      InstructionCodec.FORMAT_21C, IndexType.FIELD_REF);
+
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -971,6 +983,10 @@ public final class OpcodeInfo {
     set(UNBOX_LAMBDA);
     set(RETURN_LAMBDA);
     set(MOVE_RESULT_LAMBDA);
+    set(IGET_LAMBDA);
+    set(IPUT_LAMBDA);
+    set(SGET_LAMBDA);
+    set(SPUT_LAMBDA);
     // END(opcode-info-init)
   }
 

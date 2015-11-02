@@ -920,6 +920,26 @@ public final class Rops {
       new Rop(RegOps.FILL_ARRAY_DATA, Type.VOID, StdTypeList.EMPTY, "fill-array-data");
 
   /**
+   * {@code r: Closure; x: Object; f: instance field spec of type Closure :: r = x.f}
+   */
+  public static final Rop GET_FIELD_LAMBDA = new Rop(RegOps.GET_FIELD, Type.CLOSURE,
+      StdTypeList.OBJECT, Exceptions.LIST_Error_NullPointerException, "get-field-lambda");
+
+  /**
+   * {@code x: Closure; y: Object; f: instance field spec of type Closure :: y.f = x}
+   */
+  public static final Rop PUT_FIELD_LAMBDA = new Rop(RegOps.PUT_FIELD, Type.VOID,
+      StdTypeList.CLOSURE_OBJECT, Exceptions.LIST_Error_NullPointerException, "put-field-lambda");
+
+  /** {@code f: static field spec of type Closure; x: Object :: f = x} */
+  public static final Rop PUT_STATIC_LAMBDA = new Rop(RegOps.PUT_STATIC, Type.VOID,
+      StdTypeList.CLOSURE, Exceptions.LIST_Error, "put-static-lambda");
+
+  /** {@code r: Closure; f: static field spec of type Closure :: r = f} */
+  public static final Rop GET_STATIC_LAMBDA = new Rop(RegOps.GET_STATIC, Type.CLOSURE,
+      StdTypeList.EMPTY, Exceptions.LIST_Error, "get-static-lambda");
+
+  /**
    * Returns the appropriate rop for the given opcode, destination,
    * and sources. The result is typically, but not necessarily, a
    * shared instance.
@@ -1980,6 +2000,7 @@ public final class Rops {
         return GET_FIELD_DOUBLE;
       // STOPSHIP: read closure from a field must use iget-lambda
       case Type.BT_CLOSURE:
+//        return GET_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return GET_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2014,6 +2035,7 @@ public final class Rops {
         return PUT_FIELD_DOUBLE;
       // STOPSHIP: write closure into a field must use iput-lambda
       case Type.BT_CLOSURE:
+//        return PUT_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2048,6 +2070,7 @@ public final class Rops {
         return GET_STATIC_DOUBLE;
       // STOPSHIP: read closure from a field must use sget-lambda
       case Type.BT_CLOSURE:
+//        return GET_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return GET_STATIC_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2082,6 +2105,7 @@ public final class Rops {
         return PUT_STATIC_DOUBLE;
       // STOPSHIP: write closure into a field must use sput-lambda
       case Type.BT_CLOSURE:
+//        return PUT_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_STATIC_OBJECT;
       case Type.BT_BOOLEAN:
