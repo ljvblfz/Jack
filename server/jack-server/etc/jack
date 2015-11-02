@@ -27,6 +27,7 @@ JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
 CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 CLIENT_TMP_DIR=$TMPDIR/jack-$USER
+JACK_CONNECTION_TIMEOUT=300
 
 #
 # Load client settings
@@ -92,7 +93,7 @@ HTTP_CODE=$(curl -f \
      --cert "${JACK_HOME}/client.pem" \
      --cacert "${JACK_HOME}/server.pem" \
      --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
-     --no-buffer --write-out '%{http_code}' --silent --connect-timeout 30 \
+     --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
      -X POST \
      -H "Accept: application/vnd.jack.command-out;version=1;charset=$CURRENT_CHARSET" \
      -F "cli=$ARGS;type=text/plain;charset=$CURRENT_CHARSET" \
