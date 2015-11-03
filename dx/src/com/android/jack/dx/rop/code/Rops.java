@@ -939,6 +939,15 @@ public final class Rops {
   public static final Rop GET_STATIC_LAMBDA = new Rop(RegOps.GET_STATIC, Type.CLOSURE,
       StdTypeList.EMPTY, Exceptions.LIST_Error, "get-static-lambda");
 
+  /** {@code r: Closure; x: Closure[]; y: int :: r = x[y]} */
+  public static final Rop AGET_LAMBDA = new Rop(RegOps.AGET, Type.CLOSURE,
+      StdTypeList.CLOSUREARR_INT, Exceptions.LIST_Error_Null_ArrayIndexOutOfBounds, "aget-lambda");
+
+  /** {@code x: Closure; y: Closure[]; z: int :: y[z] = x} */
+  public static final Rop APUT_LAMBDA =
+      new Rop(RegOps.APUT, Type.VOID, StdTypeList.CLOSURE_CLOSUREARR_INT,
+          Exceptions.LIST_Error_Null_ArrayIndex_ArrayStore, "aput-lambda");
+
   /**
    * Returns the appropriate rop for the given opcode, destination,
    * and sources. The result is typically, but not necessarily, a
@@ -1864,6 +1873,7 @@ public final class Rops {
         return AGET_DOUBLE;
       // STOPSHIP: read closure from an array must use aget-lambda
       case Type.BT_CLOSURE:
+//        return AGET_LAMBDA;
       case Type.BT_OBJECT:
         return AGET_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1898,6 +1908,7 @@ public final class Rops {
         return APUT_DOUBLE;
       // STOPSHIP: write closure into an array must use aput-lambda
       case Type.BT_CLOSURE:
+//        return APUT_LAMBDA;
       case Type.BT_OBJECT:
         return APUT_OBJECT;
       case Type.BT_BOOLEAN:
