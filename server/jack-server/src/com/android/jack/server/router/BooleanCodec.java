@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-package com.android.jack.server;
+package com.android.jack.server.router;
+
+import com.android.sched.util.codec.KeyValueCodec;
+import com.android.sched.util.codec.StringCodec;
 
 import javax.annotation.Nonnull;
 
 /**
- * Thrown when a Content type is not supported.
+ * This {@link StringCodec} is used to create an instance of {@link Boolean}
  */
-public class TypeNotSupportedException extends Exception {
+public class BooleanCodec extends KeyValueCodec<Boolean> {
 
-  private static final long serialVersionUID = 1L;
-
+  @SuppressWarnings("unchecked")
   @Nonnull
-  private final String type;
+  static final Entry<Boolean>[] elements =
+      new Entry[] {
+        new Entry<Boolean>("true",  Boolean.TRUE),
+        new Entry<Boolean>("false", Boolean.FALSE),
+    };
 
-  public TypeNotSupportedException(@Nonnull String type) {
-    this.type = type;
-  }
-
-  public TypeNotSupportedException(@Nonnull String type, @Nonnull Throwable cause) {
-    super(cause);
-    this.type = type;
-  }
-
-  @Override
-  public String getMessage() {
-    return "Unsupported type '" + type + "'";
-  }
-
-  @Nonnull
-  public String getType() {
-    return type;
+  public BooleanCodec() {
+    super("bool", elements);
+    ignoreCase();
   }
 }

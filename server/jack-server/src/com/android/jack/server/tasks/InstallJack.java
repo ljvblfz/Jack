@@ -66,20 +66,18 @@ public class InstallJack extends SynchronousAdministrativeTask {
     assert jarPart != null && jarPart.getContentType() != null
         && jarPart.getContentType().getType().equals("application/octet-stream");
 
-    Part forcePart = request.getPart("force");
-    assert forcePart != null;
+    boolean force = ((Boolean) request.getAttribute("force")).booleanValue();
+    if (force) {
+      logger.log(Level.WARNING, "Forced update is not supported when updating 'jack'");
+      response.setStatus(Status.BAD_REQUEST);
+      return;
+    }
 
     InputStream jarIn = null;
     FileOutputStream out = null;
     File tmpJack = null;
     File jackDir = new File(jackServer.getServerDir(), programName);
     try {
-      boolean force = "true".equals(forcePart.getContent());
-      if (force) {
-        logger.log(Level.WARNING, "Forced update is not supported when updating 'jack'");
-        response.setStatus(Status.BAD_REQUEST);
-        return;
-      }
       jarIn = jarPart.getInputStream();
       tmpJack = File.createTempFile("jackserver-", ".tmp", jackDir);
       out = new FileOutputStream(tmpJack);
