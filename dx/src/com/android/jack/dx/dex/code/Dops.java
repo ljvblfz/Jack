@@ -759,6 +759,9 @@ public final class Dops {
   public static final Dop APUT_LAMBDA =
       new Dop(Opcodes.APUT_LAMBDA, Opcodes.APUT_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, false);
 
+  public static final Dop MOVE_LAMBDA =
+      new Dop(Opcodes.MOVE_LAMBDA, Opcodes.MOVE_LAMBDA, Opcodes.NO_NEXT, Form12x.THE_ONE, true);
+
   // END(dops)
 
   // Static initialization.
@@ -1000,6 +1003,7 @@ public final class Dops {
     set(SPUT_LAMBDA);
     set(APUT_LAMBDA);
     set(AGET_LAMBDA);
+    set(MOVE_LAMBDA);
     // END(dops-init)
   }
 

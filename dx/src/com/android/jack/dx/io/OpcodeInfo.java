@@ -748,6 +748,9 @@ public final class OpcodeInfo {
   public static final Info APUT_LAMBDA =
       new Info(Opcodes.APUT_LAMBDA, "aput-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
 
+  public static final Info MOVE_LAMBDA =
+      new Info(Opcodes.MOVE_LAMBDA, "move-lambda", InstructionCodec.FORMAT_12X, IndexType.NONE);
+
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -995,6 +998,7 @@ public final class OpcodeInfo {
     set(SPUT_LAMBDA);
     set(AGET_LAMBDA);
     set(APUT_LAMBDA);
+    set(MOVE_LAMBDA);
     // END(opcode-info-init)
   }
 
