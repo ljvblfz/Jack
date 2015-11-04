@@ -55,6 +55,35 @@ EOT
   source "$CLIENT_SETTING"
 fi
 
+
+abort () { exit 255; }
+
+JACK_SERVER=${JACK_SERVER:=true}
+JACK_MAIN_COMMAND=${JACK_MAIN_COMMAND:="java -Djava.io.tmpdir=$TMPDIR -Dfile.encoding=UTF-8 -XX:+TieredCompilation"}
+JACK_REPOSITORY=${JACK_REPOSITORY:=}
+
+
+#
+# If not in server mode, exec jack
+#
+if [ "$JACK_SERVER" != "true" ]; then
+  if [ -z "$JACK_REPOSITORY" ]; then
+    echo "Running Jack without Jack server requires definition of JACK_REPOSITORY" >&2
+    abort
+  fi
+  JACK_JAR=$JACK_REPOSITORY/jack-$JACK_VERSION.jar
+  if [ ! -r "$JACK_JAR" ]; then
+    echo "Jack jar \"$JACK_JAR\" is not readable" >&2
+    abort
+  fi
+
+
+  exec $JACK_MAIN_COMMAND -jar $JACK_JAR "$@"
+  echo "Cannot succeed to launch Jack without Jack server" >&2
+  abort
+fi
+
+
 #
 # Prepare compilation
 #
@@ -68,8 +97,6 @@ trap 'rm -f "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR";' EXIT
 mkdir "$CLIENT_TMP_DIR" 2>/dev/null || (exit 0)
 set -o errexit
 mkdir "$JACK_DIR"
-
-abort () { exit 255; }
 
 #
 # Launch the compilation
