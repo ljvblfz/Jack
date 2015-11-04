@@ -48,7 +48,6 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -243,7 +242,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     Visitor visitor = new Visitor(method);
 
     for (BasicBlock bb : cfg.getNodes()) {
-      for (JStatement stmt : new ArrayList<JStatement>(bb.getStatements())) {
+      for (JStatement stmt : bb.getStatements()) {
         visitor.accept(stmt);
       }
     }
