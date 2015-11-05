@@ -24,7 +24,7 @@ import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
@@ -199,8 +199,8 @@ public class IncrementalTestHelper {
       excludeList.add(JackCliToolchain.class);
     }
 
-    JackApiToolchainBase jackToolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
+    JackBasedToolchain jackToolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     jackToolchain.setIncrementalFolder(getCompilerStateFolder());
     jackToolchain.addStaticLibs(imports.toArray(new File[imports.size()]));
     jackToolchain.setMultiDexKind(multiDexKind);
