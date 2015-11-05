@@ -50,6 +50,11 @@ public class ShrobRuntimeTests extends RuntimeTest {
       "com.android.jack.shrob.test030.dx.Tests").addProguardFlagsFileName("proguard.flags001")
       .addProguardFlagsFileName("../dontobfuscate.flags");
 
+  private RuntimeTestInfo TEST046 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.shrob.test046"),
+      "com.android.jack.shrob.test046.dx.Tests").addProguardFlagsFileName("proguard.flags001")
+      .addProguardFlagsFileName("applyMapping.flags");
+
   @Test
   public void test011_1() throws Exception {
     new RuntimeTestHelper(TEST011_1)
@@ -77,6 +82,13 @@ public class ShrobRuntimeTests extends RuntimeTest {
   @Test
   public void test030() throws Exception {
     new RuntimeTestHelper(TEST030)
+    .compileAndRunTest();
+  }
+
+
+  @Test
+  public void test046() throws Exception {
+    new RuntimeTestHelper(TEST046)
     .compileAndRunTest();
   }
 
