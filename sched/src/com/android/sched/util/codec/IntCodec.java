@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link StringCodec} is used to create an instance of {@link Long}
+ * This {@link StringCodec} is used to create an instance of {@link Integer}
  */
 public class IntCodec implements StringCodec<Integer> {
   private int min;
