@@ -721,8 +721,8 @@ public final class OpcodeInfo {
   public static final Info BOX_LAMBDA =
       new Info(Opcodes.BOX_LAMBDA, "box-lambda", InstructionCodec.FORMAT_22X, IndexType.TYPE_REF);
 
-  public static final Info UNBOX_LAMBDA =
-      new Info(Opcodes.UNBOX_LAMBDA, "unbox-lambda", InstructionCodec.FORMAT_22C, IndexType.NONE);
+  public static final Info UNBOX_LAMBDA = new Info(Opcodes.UNBOX_LAMBDA, "unbox-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.TYPE_REF);
 
   public static final Info RETURN_LAMBDA =
       new Info(Opcodes.RETURN_LAMBDA, "return-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
