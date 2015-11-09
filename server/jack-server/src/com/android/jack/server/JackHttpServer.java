@@ -113,12 +113,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManagerFactory;
 
 /**
@@ -311,6 +313,9 @@ public class JackHttpServer implements HasVersion {
 
   @Nonnull
   private final String currentUser;
+
+  @CheckForNull
+  private String[] filteredCiphersArray = null;
 
   @Nonnull
   public static Version getServerVersion() {
@@ -574,7 +579,7 @@ public class JackHttpServer implements HasVersion {
         serviceProcessor = new ContainerSocketProcessor(new RootContainer(router), maxServices) {
           @Override
           public void process(Socket socket) throws IOException {
-            socket.getEngine().setNeedClientAuth(true);
+            configureSocket(socket);
             super.process(socket);
           }
         };
@@ -591,7 +596,7 @@ public class JackHttpServer implements HasVersion {
         adminProcessor = new ContainerSocketProcessor(new RootContainer(router), 1) {
           @Override
           public void process(Socket socket) throws IOException {
-            socket.getEngine().setNeedClientAuth(true);
+            configureSocket(socket);
             super.process(socket);
           }
         };
@@ -1160,5 +1165,30 @@ public class JackHttpServer implements HasVersion {
       }
     }
     return sslContext;
+  }
+
+  private void configureSocket(@Nonnull Socket socket) {
+    SSLEngine engine = socket.getEngine();
+
+    if (filteredCiphersArray == null) {
+      // Synchronization not necessary since there's no going back to null and duplicate
+      // computations would produce the same result.
+      String[] enabledCyphers = engine.getEnabledCipherSuites();
+      ArrayList<String> filteredCiphers = new ArrayList<>(enabledCyphers.length);
+      // Filter out TLS_DHE and TLS_EDH because they are weak when running on a jre 7
+      // and may cause connection issues depending on curl and libraries version.
+      Pattern excludePattern = Pattern.compile("TLS_(DHE)|(EDH).*");
+      for (String string : enabledCyphers) {
+        if (!excludePattern.matcher(string).matches()) {
+          filteredCiphers.add(string);
+        }
+      }
+
+      filteredCiphersArray = filteredCiphers.toArray(
+          new String[filteredCiphers.size()]);
+    }
+
+    engine.setEnabledCipherSuites(filteredCiphersArray);
+    engine.setNeedClientAuth(true);
   }
 }
