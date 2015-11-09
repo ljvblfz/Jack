@@ -17,7 +17,7 @@
 package com.android.jack.transformations.ast.inner;
 
 import com.android.jack.Jack;
-import com.android.jack.annotations.DisableAccessorsOptimization;
+import com.android.jack.annotations.DisableAccessorOptimization;
 import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAnnotationType;
@@ -64,7 +64,7 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
   @Nonnull
   private final JAnnotationType annotationType =
     Jack.getSession().getPhantomLookup().getAnnotationType(
-    NamingTools.getTypeSignatureName(DisableAccessorsOptimization.class.getName()));
+    NamingTools.getTypeSignatureName(DisableAccessorOptimization.class.getName()));
 
   @Nonnull
   private ReferencedFromInnerClassMarker getOrCreateRFICMarker

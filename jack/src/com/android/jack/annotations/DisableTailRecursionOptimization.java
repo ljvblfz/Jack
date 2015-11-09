@@ -22,11 +22,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicate that the type or method shouldn't be considered for inner class accessors
+ * Indicate that the type or method shouldn't be considered for tail recursion calls
  * optimization.
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
-public @interface DisableAccessorsOptimization {
-
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface DisableTailRecursionOptimization {
 }
