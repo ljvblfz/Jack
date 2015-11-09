@@ -97,7 +97,7 @@ public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> 
 
     @Override
     public boolean visit(@Nonnull JThisRef x) {
-      JParameterRef replacement = new JParameterRef(x.getSourceInfo(), thisParam);
+      JParameterRef replacement = thisParam.makeRef(x.getSourceInfo());
       replacement.addAllMarker(x.getAllMarkers());
       tr.append(new Replace(x, replacement));
       return super.visit(x);

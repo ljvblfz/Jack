@@ -56,8 +56,7 @@ public class NLocalRef extends NExpression {
   public JLocalRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert localId != null;
-    JLocalRef jLocalRef =
-        new JLocalRef(sourceInfo.exportAsJast(exportSession), JLocalUnresolved.INSTANCE);
+    JLocalRef jLocalRef = JLocalUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
     exportSession.getLocalResolver().addLink(localId, new LocalRefLinker(jLocalRef));
     return jLocalRef;
   }

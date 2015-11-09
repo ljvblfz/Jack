@@ -237,11 +237,11 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
           JLocal tempLocal =
               localVarCreator.createTempLocal(type, sourceInfo, transformationRequest);
 
-          JLocalRef localRef = new JLocalRef(sourceInfo, tempLocal);
+          JLocalRef localRef = tempLocal.makeRef(sourceInfo);
           transformationRequest.append(new Replace(expr, localRef));
           assert !(expr instanceof JAsgOperation);
           JBinaryOperation newBin =
-              new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, tempLocal), expr);
+              new JAsgOperation(sourceInfo, tempLocal.makeRef(sourceInfo), expr);
 
           JStatement stmt = newBin.makeStatement();
           stmt.setCatchBlocks(currentCatchBlocks);
@@ -301,21 +301,19 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
 
       // Then
       JBinaryOperation assign =
-          new JAsgOperation(thenSrcInfo, new JLocalRef(thenSrcInfo, tempLocal),
-              conditional.getThenExpr());
+          new JAsgOperation(thenSrcInfo, tempLocal.makeRef(thenSrcInfo), conditional.getThenExpr());
       JStatement assignStmt = assign.makeStatement();
       thenBlock.addStmt(assignStmt);
 
       // Else
-      assign =
-          new JAsgOperation(elseSourceInfo, new JLocalRef(elseSourceInfo, tempLocal),
-              conditional.getElseExpr());
+      assign = new JAsgOperation(elseSourceInfo, tempLocal.makeRef(elseSourceInfo),
+          conditional.getElseExpr());
       assignStmt = assign.makeStatement();
       elseBlock.addStmt(assignStmt);
 
       assert insertStatement != null;
       transformationRequest.append(new AppendBefore(insertStatement, ifStmt));
-      transformationRequest.append(new Replace(conditional, new JLocalRef(srcInfo, tempLocal)));
+      transformationRequest.append(new Replace(conditional, tempLocal.makeRef(srcInfo)));
 
       transformationRequest.commit();
 

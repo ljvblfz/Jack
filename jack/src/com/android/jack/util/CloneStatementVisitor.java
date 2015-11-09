@@ -451,7 +451,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     JThis jThis = targetMethod.getThis();
     assert jThis != null;
     assert jThis.getType().isSameType(jThisRef.getType());
-    expression = new JThisRef(jThisRef.getSourceInfo(), jThis);
+    expression = jThis.makeRef(jThisRef.getSourceInfo());
     return false;
 
   }
@@ -462,14 +462,13 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     if (clonedLocal == null) {
       clonedLocal = cloneLocal(localRef.getLocal());
     }
-    expression = new JLocalRef(localRef.getSourceInfo(), clonedLocal);
+    expression = clonedLocal.makeRef(localRef.getSourceInfo());
     return false;
   }
 
   @Override
   public boolean visit(@Nonnull JParameterRef parameterRef) {
-    expression = new JParameterRef(parameterRef.getSourceInfo(),
-        getNewParameter(parameterRef.getParameter()));
+    expression = getNewParameter(parameterRef.getParameter()).makeRef(parameterRef.getSourceInfo());
     return false;
   }
 

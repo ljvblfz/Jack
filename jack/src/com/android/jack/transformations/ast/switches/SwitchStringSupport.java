@@ -126,7 +126,7 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
             localVarCreator.createTempLocal(switchStmt.getExpr().getType(), dbgInfo, tr);
 
         JAsgOperation asg =
-            new JAsgOperation(dbgInfo, new JLocalRef(dbgInfo, tempLocal), switchStmt.getExpr());
+            new JAsgOperation(dbgInfo, tempLocal.makeRef(dbgInfo), switchStmt.getExpr());
 
         tr.append(new AppendBefore(switchStmt, asg.makeStatement()));
 
@@ -141,11 +141,9 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
                       dbgInfo));
           tr.append(new Replace(caseStmt, labelStmt));
 
-          JMethodCall equalsCall =
-              new JMethodCall(dbgInfo,
-                  new JLocalRef(dbgInfo, tempLocal), (JClassOrInterface) switchStmt
-                      .getExpr().getType(), equalsMethodId, JPrimitiveTypeEnum.BOOLEAN.getType(),
-                  true);
+          JMethodCall equalsCall = new JMethodCall(dbgInfo, tempLocal.makeRef(dbgInfo),
+              (JClassOrInterface) switchStmt.getExpr().getType(), equalsMethodId,
+              JPrimitiveTypeEnum.BOOLEAN.getType(), true);
           equalsCall.addArg(caseExpr);
           JBlock thenBlock = new JBlock(dbgInfo);
           thenBlock.addStmt(new JGoto(dbgInfo, labelStmt));

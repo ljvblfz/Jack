@@ -19,16 +19,8 @@ package com.android.jack.optimizations;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.BasicBlockMarker;
-import com.android.jack.ir.ast.JDefinedClass;
-import com.android.jack.ir.ast.JLocal;
-import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JThis;
-import com.android.jack.ir.ast.JThisRef;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
@@ -52,23 +44,8 @@ public abstract class DefUsesAndUseDefsChainsSimplifier {
 
   @Nonnull
   protected JVariableRef getNewVarRef(@Nonnull JNode defExpr) {
-    JVariableRef newVarAccess;
-
-    if (defExpr instanceof JLocalRef) {
-      newVarAccess = new JLocalRef(
-          defExpr.getSourceInfo(), (JLocal) ((JLocalRef) defExpr).getTarget());
-    } else if (defExpr instanceof JThisRef){
-      JThis jThis = ((JThisRef) defExpr).getTarget();
-      JType thisType = jThis.getType();
-      assert thisType instanceof JDefinedClass;
-      newVarAccess = new JThisRef(defExpr.getSourceInfo(), jThis);
-    } else {
-      assert defExpr instanceof JParameterRef;
-      newVarAccess = new JParameterRef(
-          defExpr.getSourceInfo(), (JParameter) ((JParameterRef) defExpr).getTarget());
-    }
-
-    return newVarAccess;
+    assert defExpr instanceof JVariableRef;
+    return ((JVariableRef) defExpr).getTarget().makeRef(defExpr.getSourceInfo());
   }
 
   protected boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,

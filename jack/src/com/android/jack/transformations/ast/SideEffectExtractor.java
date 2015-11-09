@@ -64,16 +64,15 @@ public class SideEffectExtractor {
       SourceInfo sourceInfo = toExtract.getSourceInfo();
       // TODO(delphinemartin): use cloner if no side-effect
       if (toExtract instanceof JLocalRef) {
-        return new JLocalRef(sourceInfo, ((JLocalRef) toExtract).getLocal());
+        return ((JLocalRef) toExtract).getLocal().makeRef(sourceInfo);
       } else if (toExtract instanceof JParameterRef) {
-        return new JParameterRef(sourceInfo, ((JParameterRef) toExtract).getParameter());
+        return ((JParameterRef) toExtract).getParameter().makeRef(sourceInfo);
       } else {
         JLocal tmp = lvCreator.createTempLocal(toExtract.getType(), sourceInfo, tr);
-        JAsgOperation asg = new JAsgOperation(sourceInfo,
-            new JLocalRef(sourceInfo, tmp), toExtract);
+        JAsgOperation asg = new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), toExtract);
         extracted.add(asg);
-        tr.append(new Replace(toExtract, new JLocalRef(sourceInfo, tmp)));
-        return new JLocalRef(sourceInfo, tmp);
+        tr.append(new Replace(toExtract, tmp.makeRef(sourceInfo)));
+        return tmp.makeRef(sourceInfo);
       }
     }
     return null;
@@ -120,10 +119,10 @@ public class SideEffectExtractor {
     SourceInfo sourceInfo = toCopy.getSourceInfo();
     if (toCopy instanceof JParameterRef) {
       JParameter a = ((JParameterRef) toCopy).getParameter();
-      return new JParameterRef(sourceInfo, a);
+      return a.makeRef(sourceInfo);
     } else if (toCopy instanceof JLocalRef) {
       JLocal a = ((JLocalRef) toCopy).getLocal();
-      return new JLocalRef(sourceInfo, a);
+      return a.makeRef(sourceInfo);
     } else if (toCopy instanceof JFieldRef) {
       return extractInstance((JFieldRef) toCopy, tr);
     } else if (toCopy instanceof JArrayRef) {

@@ -72,4 +72,11 @@ public class JThis extends JVariable implements HasEnclosingMethod {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+
+  @Override
+  @Nonnull
+  public JThisRef makeRef(@Nonnull SourceInfo info) {
+    return new JThisRef(info, this);
+  }
 }

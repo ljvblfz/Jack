@@ -84,7 +84,7 @@ public class RopRegisterManagerTest {
         false /* emitSyntheticDebugInfo */);
     SourceInfo srcPos = SourceInfo.UNKNOWN;
     JParameter parameter = new JParameter(srcPos, "", JPrimitiveTypeEnum.INT.getType(), JModifier.DEFAULT, null);
-    JParameterRef ref = new JParameterRef(srcPos, parameter);
+    JParameterRef ref = parameter.makeRef(srcPos);
 
     try {
       rrm.getRegisterSpec(ref);
@@ -105,7 +105,7 @@ public class RopRegisterManagerTest {
         false /* emitSyntheticDebugInfo */);
     SourceInfo srcPos = SourceInfo.UNKNOWN;
     JParameter parameter = new JParameter(srcPos, "", JPrimitiveTypeEnum.INT.getType(), JModifier.DEFAULT, null);
-    JParameterRef ref = new JParameterRef(srcPos, parameter);
+    JParameterRef ref = parameter.makeRef(srcPos);
     rrm.createRegisterSpec(parameter);
     rrm.getRegisterSpec(ref);
   }

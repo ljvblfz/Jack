@@ -25,11 +25,13 @@ import javax.annotation.Nonnull;
 
 /**
  * Java local variable reference.
+ *
+ * Instantiated using {@link JLocal#makeRef(SourceInfo)}
  */
 @Description("Java local variable reference")
 public class JLocalRef extends JVariableRef {
 
-  public JLocalRef(@Nonnull SourceInfo info, @Nonnull JLocal local) {
+  JLocalRef(@Nonnull SourceInfo info, @Nonnull JLocal local) {
     super(info, local);
   }
 

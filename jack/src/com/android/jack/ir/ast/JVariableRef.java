@@ -29,7 +29,7 @@ public abstract class JVariableRef extends JExpression {
   @Nonnull
   protected JVariable target;
 
-  public JVariableRef(@Nonnull SourceInfo info, @Nonnull JVariable target) {
+  JVariableRef(@Nonnull SourceInfo info, @Nonnull JVariable target) {
     super(info);
     this.target = target;
   }

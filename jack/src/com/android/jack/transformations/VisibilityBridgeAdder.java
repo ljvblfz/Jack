@@ -111,11 +111,10 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
     assert superClass != null;
     JThis jThis = bridge.getThis();
     assert jThis != null;
-    JMethodCall callToSuper = new JMethodCall(sourceInfo,
-        new JThisRef(sourceInfo, jThis), superClass, methodId, method.getType(),
-        false /* isVirtualDispatch */);
+    JMethodCall callToSuper = new JMethodCall(sourceInfo, jThis.makeRef(sourceInfo), superClass,
+        methodId, method.getType(), false /* isVirtualDispatch */);
     for (JParameter param : bridge.getParams()) {
-      callToSuper.addArg(new JParameterRef(sourceInfo, param));
+      callToSuper.addArg(param.makeRef(sourceInfo));
     }
 
     if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {

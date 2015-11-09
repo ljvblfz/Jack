@@ -64,7 +64,7 @@ public class ExceptionRuntimeValueAdder implements RunnableSchedulable<JMethod> 
     @Override
     public boolean visit(@Nonnull JCatchBlock jCatchBlock) {
       SourceInfo sourceInfo = jCatchBlock.getSourceInfo();
-      JLocalRef localRef = new JLocalRef(sourceInfo, jCatchBlock.getCatchVar());
+      JLocalRef localRef = jCatchBlock.getCatchVar().makeRef(sourceInfo);
       JAsgOperation assign =
           new JAsgOperation(sourceInfo, localRef, new JExceptionRuntimeValue(sourceInfo,
               (JClassOrInterface) localRef.getType()));

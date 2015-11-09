@@ -40,7 +40,6 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLocal;
-import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
@@ -190,7 +189,7 @@ public class SwitchMapClassFiller {
 
       JThis thisLocal = initMethod.getThis();
       assert thisLocal != null;
-      JThisRef thisRef = new JThisRef(SourceInfo.UNKNOWN, thisLocal);
+      JThisRef thisRef = thisLocal.makeRef(SourceInfo.UNKNOWN);
 
       // create method call to super class default constructor
       JMethodCall superCall =
@@ -389,14 +388,14 @@ public class SwitchMapClassFiller {
         JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,
             new JFieldRef(SourceInfo.UNKNOWN, null /*static field*/,
                 syntheticSwitchMapField.getId(), switchMapClass),
-            new JLocalRef(SourceInfo.UNKNOWN, switchmapLocal)));
+            switchmapLocal.makeRef(SourceInfo.UNKNOWN)));
     transformRequest.append(new AppendStatement(initializerMethodBlock, putStaticFieldStmt));
 
     createStatementsInitializingSwitchMapArrayField(
         transformRequest, localVarCreator, initializerMethodBlock, switchmapLocal);
 
     transformRequest.append(new AppendStatement(initializerMethodBlock, new JReturnStatement(
-        SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, switchmapLocal))));
+        SourceInfo.UNKNOWN, switchmapLocal.makeRef(SourceInfo.UNKNOWN))));
   }
 
   /**
@@ -444,7 +443,7 @@ public class SwitchMapClassFiller {
 
       transformRequest.append(new AppendStatement(tryBlock,
           JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,
-            new JArrayRef(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, switchmapLocal),
+            new JArrayRef(SourceInfo.UNKNOWN, switchmapLocal.makeRef(SourceInfo.UNKNOWN),
                 invocOrdinalExpr),
             new JIntLiteral(SourceInfo.UNKNOWN, compileTimeOrdinal.intValue()))
             .makeStatement()));
@@ -481,7 +480,7 @@ public class SwitchMapClassFiller {
 
     JStatement newArrayStmt = new JExpressionStatement(
         SourceInfo.UNKNOWN, JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,
-            new JLocalRef(SourceInfo.UNKNOWN, switchMapLocal), newArrayExpr));
+            switchMapLocal.makeRef(SourceInfo.UNKNOWN), newArrayExpr));
 
     transformRequest.append(new AppendStatement(block, newArrayStmt));
 

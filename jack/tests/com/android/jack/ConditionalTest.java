@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -86,8 +85,8 @@ public class ConditionalTest {
       // true ? int[] : byte[] => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayByte));
+              SourceInfo.UNKNOWN, true), pArrayInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayByte.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
@@ -95,8 +94,8 @@ public class ConditionalTest {
       // true ? int[] : Object => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pObject));
+              SourceInfo.UNKNOWN, true), pArrayInt.makeRef(SourceInfo.UNKNOWN),
+              pObject.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
@@ -104,8 +103,8 @@ public class ConditionalTest {
       // true ? int[][] : int[] => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayInt));
+              SourceInfo.UNKNOWN, true), pArrayIntInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayInt.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
@@ -113,8 +112,8 @@ public class ConditionalTest {
       // true ? int[] : int[] => int []
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayInt));
+              SourceInfo.UNKNOWN, true), pArrayInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayInt.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(arrayInt, conditional.getType());
     }
 
@@ -122,8 +121,8 @@ public class ConditionalTest {
       // true ? int[][] : int[][][] => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayIntIntInt));
+              SourceInfo.UNKNOWN, true), pArrayIntInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayIntIntInt.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
@@ -131,8 +130,8 @@ public class ConditionalTest {
       // true ? Test[] : Test[][] => Object[]
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayTest),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest));
+              SourceInfo.UNKNOWN, true), pArrayTest.makeRef(SourceInfo.UNKNOWN),
+              pArrayTestTest.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(lookup.getArrayType(javaLangObject, 1),
           conditional.getType());
     }
@@ -141,8 +140,8 @@ public class ConditionalTest {
       // true ? Test[][] : Test[][][] => Object[][]
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTestTest));
+              SourceInfo.UNKNOWN, true), pArrayTestTest.makeRef(SourceInfo.UNKNOWN),
+              pArrayTestTestTest.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(
           lookup.getArrayType(javaLangObject, 2),
           conditional.getType());
@@ -152,8 +151,8 @@ public class ConditionalTest {
       // true ? int[][] : Test[][] => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTest));
+              SourceInfo.UNKNOWN, true), pArrayIntInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayTestTest.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
 
@@ -161,8 +160,8 @@ public class ConditionalTest {
       // true ? int[][] : Test[][][] => Object
       JConditionalExpression conditional =
           new JConditionalExpression(SourceInfo.UNKNOWN, new JBooleanLiteral(
-              SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, pArrayIntInt),
-              new JParameterRef(SourceInfo.UNKNOWN, pArrayTestTestTest));
+              SourceInfo.UNKNOWN, true), pArrayIntInt.makeRef(SourceInfo.UNKNOWN),
+              pArrayTestTestTest.makeRef(SourceInfo.UNKNOWN));
       Assert.assertEquals(javaLangObject, conditional.getType());
     }
   }

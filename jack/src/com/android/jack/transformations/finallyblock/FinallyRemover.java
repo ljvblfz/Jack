@@ -226,10 +226,10 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
             localForReturnCreator.createTempLocal(expr.getType(), expr.getSourceInfo(),
                 currentRequest);
 
-        JLocalRef returnedLocalRef = new JLocalRef(expr.getSourceInfo(), local);
+        JLocalRef returnedLocalRef = local.makeRef(expr.getSourceInfo());
         currentRequest.append(new Replace(expr, returnedLocalRef));
 
-        JLocalRef assignedLocalRef = new JLocalRef(expr.getSourceInfo(), local);
+        JLocalRef assignedLocalRef = local.makeRef(expr.getSourceInfo());
         JAsgOperation assign =
             new JAsgOperation(expr.getSourceInfo(), assignedLocalRef, expr);
         currentRequest.append(new AppendBefore(returnStmt, assign.makeStatement()));
@@ -367,7 +367,7 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
       currentRequest.append(new AppendStatement(catchBlock, clonedFinallyBlock));
 
       // add a Statement that rethrows the catched Throwable
-      JLocalRef throwLocalRef = new JLocalRef(finallySourceInfo, local);
+      JLocalRef throwLocalRef = local.makeRef(finallySourceInfo);
       JThrowStatement throwStmt = new JThrowStatement(finallySourceInfo, throwLocalRef);
       currentRequest.append(new AppendStatement(catchBlock, throwStmt));
 

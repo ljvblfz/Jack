@@ -200,14 +200,12 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
             JLocal tempVar = new JLocal(srcInfo, "tmp." + param.getName(),
                 param.getType(), JModifier.FINAL, body);
             tr.append(new AddJLocalInMethodBody(tempVar, body));
-            JAsgOperation asgToTemp = new JAsgOperation(srcInfo,
-                new JLocalRef(srcInfo, tempVar), expr);
+            JAsgOperation asgToTemp = new JAsgOperation(srcInfo, tempVar.makeRef(srcInfo), expr);
             JExpressionStatement asgToTempStmt =
                 new JExpressionStatement(srcInfo, asgToTemp);
             tmpAssignments.add(asgToTempStmt);
-            JAsgOperation tempToArg = new JAsgOperation(srcInfo,
-                new JParameterRef(srcInfo, param),
-                new JLocalRef(srcInfo, tempVar));
+            JAsgOperation tempToArg =
+                new JAsgOperation(srcInfo, param.makeRef(srcInfo), tempVar.makeRef(srcInfo));
             JStatement tempToArgStmt = new JExpressionStatement(srcInfo, tempToArg);
             argAssignments.add(tempToArgStmt);
           }

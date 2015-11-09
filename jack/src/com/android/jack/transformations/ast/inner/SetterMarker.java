@@ -116,7 +116,7 @@ public class SetterMarker implements Marker {
                 JModifier.FINAL | JModifier.SYNTHETIC, setter);
         setter.addParam(thisParam);
         id.addParam(accessorClass);
-        instance = new JParameterRef(sourceInfo, thisParam);
+        instance = thisParam.makeRef(sourceInfo);
       }
 
       JParameter value = new JParameter(sourceInfo, VALUE_PARAM_NAME, fieldType,
@@ -125,12 +125,11 @@ public class SetterMarker implements Marker {
       id.addParam(fieldType);
       JFieldRef lhs = new JFieldRef(sourceInfo, instance, field.getId(), accessorClass);
 
-      JAsgOperation asgOperation = new JAsgOperation(sourceInfo,
-          lhs, new JParameterRef(sourceInfo, value));
+      JAsgOperation asgOperation = new JAsgOperation(sourceInfo, lhs, value.makeRef(sourceInfo));
       bodyBlock.addStmt(new JExpressionStatement(sourceInfo, asgOperation));
 
       JReturnStatement returnSt =
-          new JReturnStatement(sourceInfo, new JParameterRef(sourceInfo, value));
+          new JReturnStatement(sourceInfo, value.makeRef(sourceInfo));
       bodyBlock.addStmt(returnSt);
       setter.setBody(body);
       assert !setters.containsKey(field);

@@ -88,17 +88,17 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
       JAlloc alloc = new JAlloc(srcInfos, type);
       JLocal tmp = lvCreator.createTempLocal(type, srcInfos, request);
       JAsgOperation assign =
-          new JAsgOperation(srcInfos, new JLocalRef(srcInfos, tmp), alloc);
+          new JAsgOperation(srcInfos, tmp.makeRef(srcInfos), alloc);
 
       // tmp.init(args)
       JMethodId methodId = newInstance.getMethodId();
       JMethodCall initCall = new JMethodCall(
-          srcInfos, new JLocalRef(srcInfos, tmp), type, methodId,
+          srcInfos,  tmp.makeRef(srcInfos), type, methodId,
           JPrimitiveTypeEnum.VOID.getType(), methodId.canBeVirtual());
       initCall.addArgs(newInstance.getArgs());
 
       // tmp
-      JLocalRef result = new JLocalRef(srcInfos, tmp);
+      JLocalRef result = tmp.makeRef(srcInfos);
 
       List<JExpression> exprs = new ArrayList<JExpression>();
       exprs.add(assign);
