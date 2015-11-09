@@ -92,15 +92,14 @@ public class NestedAssignRemover implements RunnableSchedulable<JMethod> {
           List<JExpression> exprs = new LinkedList<JExpression>();
 
           // t = b
-          JAsgOperation asg1 = new JAsgOperation(sourceInfo,
-              new JLocalRef(sourceInfo, tmp), rhs);
+          JAsgOperation asg1 = new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), rhs);
           exprs.add(asg1);
           // a = t
-          JAsgOperation asg2 = new JAsgOperation(sourceInfo,
-              binOp.getLhs(), new JLocalRef(sourceInfo, tmp));
+          JAsgOperation asg2 = new JAsgOperation(sourceInfo, binOp.getLhs(),
+              tmp.makeRef(sourceInfo));
           exprs.add(asg2);
           // t
-          exprs.add(new JLocalRef(sourceInfo, tmp));
+          exprs.add(tmp.makeRef(sourceInfo));
 
           tr.append(new Replace(binOp, new JMultiExpression(sourceInfo, exprs)));
           tr.commit();

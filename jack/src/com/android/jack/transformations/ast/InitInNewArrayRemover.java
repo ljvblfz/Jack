@@ -93,19 +93,18 @@ public class InitInNewArrayRemover implements RunnableSchedulable<JMethod> {
 
         List<JExpression> dims = new ArrayList<JExpression>(1);
         dims.add(new JIntLiteral(sourceInfo, initializers.size()));
-        expressions.add(new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, array),
+        expressions.add(new JAsgOperation(sourceInfo, array.makeRef(sourceInfo),
             JNewArray.createWithDims(sourceInfo, newArray.getArrayType(), dims)));
 
         int index = 0;
         for (JExpression expression : initializers) {
           SourceInfo expressionInfo = expression.getSourceInfo();
-          expressions.add(new JAsgOperation(expressionInfo,
-              new JArrayRef(expressionInfo, new JLocalRef(expressionInfo, array),
-                  new JIntLiteral(expressionInfo, index)), expression));
+          expressions.add(new JAsgOperation(expressionInfo, new JArrayRef(expressionInfo,
+              array.makeRef(sourceInfo), new JIntLiteral(expressionInfo, index)), expression));
           index++;
         }
 
-        expressions.add(new JLocalRef(sourceInfo, array));
+        expressions.add(array.makeRef(sourceInfo));
 
         tr.append(new Replace(newArray, new JMultiExpression(sourceInfo, expressions)));
       }

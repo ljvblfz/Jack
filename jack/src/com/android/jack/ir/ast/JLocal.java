@@ -85,4 +85,10 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+  @Override
+  @Nonnull
+  public JLocalRef makeRef(@Nonnull SourceInfo info) {
+    return new JLocalRef(info, this);
+  }
 }

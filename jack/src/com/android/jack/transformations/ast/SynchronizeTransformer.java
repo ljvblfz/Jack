@@ -128,10 +128,10 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
           JExpression syncVarValue =
               new JClassLiteral(SourceInfo.UNKNOWN, enclosingType, getJLClass());
           JAsgOperation asg = new JAsgOperation(SourceInfo.UNKNOWN,
-              new JLocalRef(SourceInfo.UNKNOWN, syncVar), syncVarValue);
+              syncVar.makeRef(SourceInfo.UNKNOWN), syncVarValue);
           newBodyBlock.addStmt(asg.makeStatement());
-          lockExpr = new JLocalRef(SourceInfo.UNKNOWN, syncVar);
-          unlockExpr = new JLocalRef(SourceInfo.UNKNOWN, syncVar);
+          lockExpr = syncVar.makeRef(SourceInfo.UNKNOWN);
+          unlockExpr = syncVar.makeRef(SourceInfo.UNKNOWN);
         } else {
           if (enclosingMethod.isStatic()) {
             lockExpr = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType, getJLClass());
@@ -140,8 +140,8 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
             assert enclosingType instanceof JDefinedClass;
             JVariable thisVar = enclosingMethod.getThis();
             assert thisVar != null;
-            lockExpr = new JThisRef(SourceInfo.UNKNOWN, thisVar);
-            unlockExpr = new JThisRef(SourceInfo.UNKNOWN, thisVar);
+            lockExpr = thisVar.makeRef(SourceInfo.UNKNOWN);
+            unlockExpr = thisVar.makeRef(SourceInfo.UNKNOWN);
           }
         }
 
@@ -169,15 +169,15 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
       // $sync0 = lockExpr
       JLocal syncVar = lvCreator.createTempLocal(lockExprType, srcInfo, tr);
-      JLocalRef asgLhs = new JLocalRef(srcInfo, syncVar);
+      JLocalRef asgLhs = syncVar.makeRef(srcInfo);
       JAsgOperation asg = new JAsgOperation(srcInfo, asgLhs, lockExpr);
 
       JBlock finallyBlock = tryStmt.getFinallyBlock();
       assert finallyBlock != null;
-      finallyBlock.addStmt(new JUnlock(SourceInfo.UNKNOWN, new JLocalRef(srcInfo, syncVar)));
+      finallyBlock.addStmt(new JUnlock(SourceInfo.UNKNOWN, syncVar.makeRef(srcInfo)));
 
       tr.append(new AppendBefore(syncBlock, asg.makeStatement()));
-      tr.append(new AppendBefore(syncBlock, new JLock(srcInfo, new JLocalRef(srcInfo, syncVar))));
+      tr.append(new AppendBefore(syncBlock, new JLock(srcInfo, syncVar.makeRef(srcInfo))));
       tr.append(new Replace(syncBlock, tryStmt));
 
       return super.visit(syncBlock);

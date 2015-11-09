@@ -25,11 +25,13 @@ import javax.annotation.Nonnull;
 
 /**
  * Java method parameter reference expression.
+ *
+ * Instantiated using {@link JParameter#makeRef(SourceInfo)}
  */
 @Description("Java method parameter reference expression")
 public class JParameterRef extends JVariableRef {
 
-  public JParameterRef(@Nonnull SourceInfo info, @Nonnull JParameter param) {
+  JParameterRef(@Nonnull SourceInfo info, @Nonnull JParameter param) {
     super(info, param);
   }
 

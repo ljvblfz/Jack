@@ -27,7 +27,6 @@ import com.android.jack.ir.ast.JEqOperation;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLocal;
-import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JLteOperation;
 import com.android.jack.ir.ast.JModifier;
@@ -98,7 +97,7 @@ public class Types {
     JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JPrefixNotOperation(
-        SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l)).getType());
+        SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN)).getType());
   }
 
   @Test
@@ -141,7 +140,7 @@ public class Types {
       catched = false;
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      new JPrefixBitNotOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l))
+      new JPrefixBitNotOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN))
           .getType();
     } catch (AssertionError e) {
       // ~java.lang.Double is not valid
@@ -161,7 +160,7 @@ public class Types {
     JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CHAR);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JPrefixBitNotOperation(
-        SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l)).getType());
+        SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN)).getType());
   }
 
   @Test
@@ -182,7 +181,7 @@ public class Types {
       catched = false;
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      new JPostfixDecOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l))
+      new JPostfixDecOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN))
           .getType();
     } catch (AssertionError e) {
       // Boolean-- is not valid
@@ -205,7 +204,7 @@ public class Types {
     JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JPostfixDecOperation(
-        SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l)).getType());
+        SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN)).getType());
   }
 
   @Test
@@ -238,7 +237,7 @@ public class Types {
       catched = false;
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      new JShlOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
+      new JShlOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
           new JIntLiteral(SourceInfo.UNKNOWN, 1)).getType();
     } catch (AssertionError e) {
       // Double << int is not valid
@@ -251,7 +250,7 @@ public class Types {
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       new JShlOperation(SourceInfo.UNKNOWN, new JIntLiteral(SourceInfo.UNKNOWN, 1),
-          new JLocalRef(SourceInfo.UNKNOWN, l)).getType();
+          l.makeRef(SourceInfo.UNKNOWN)).getType();
     } catch (AssertionError e) {
       // int << Double is not valid
       catched = true;
@@ -279,7 +278,7 @@ public class Types {
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceInfo.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JShlOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l1))
+          l.makeRef(SourceInfo.UNKNOWN), l1.makeRef(SourceInfo.UNKNOWN))
           .getType());
     }
 
@@ -288,7 +287,7 @@ public class Types {
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceInfo.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.LONG.getType(), new JShlOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l1))
+          l.makeRef(SourceInfo.UNKNOWN), l1.makeRef(SourceInfo.UNKNOWN))
           .getType());
     }
   }
@@ -312,7 +311,7 @@ public class Types {
       catched = false;
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      new JLteOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
+      new JLteOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
           new JFloatLiteral(SourceInfo.UNKNOWN, 1)).getType();
     } catch (AssertionError e) {
       // ref object <= int is not valid
@@ -324,7 +323,7 @@ public class Types {
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JLteOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JIntLiteral(SourceInfo.UNKNOWN, 1))
+          l.makeRef(SourceInfo.UNKNOWN), new JIntLiteral(SourceInfo.UNKNOWN, 1))
           .getType());
     }
 
@@ -341,7 +340,7 @@ public class Types {
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       JLocal l1 = new JLocal(SourceInfo.UNKNOWN, "test2", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JLteOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l1))
+          l.makeRef(SourceInfo.UNKNOWN), l1.makeRef(SourceInfo.UNKNOWN))
           .getType());
     }
   }
@@ -369,7 +368,7 @@ public class Types {
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JBitAndOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l))
+          l.makeRef(SourceInfo.UNKNOWN),l.makeRef(SourceInfo.UNKNOWN))
           .getType());
     }
 
@@ -377,7 +376,7 @@ public class Types {
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       Assert.assertEquals(JPrimitiveTypeEnum.INT.getType(), new JBitAndOperation(SourceInfo.UNKNOWN,
-          new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l))
+          l.makeRef(SourceInfo.UNKNOWN), l.makeRef(SourceInfo.UNKNOWN))
           .getType());
     }
 
@@ -388,8 +387,8 @@ public class Types {
       JLocal l1 = new JLocal(SourceInfo.UNKNOWN, "test", t1, JModifier.DEFAULT, null);
       try {
         catched = false;
-        new JBitAndOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
-            new JLocalRef(SourceInfo.UNKNOWN, l1)).getType();
+        new JBitAndOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
+            l1.makeRef(SourceInfo.UNKNOWN)).getType();
       } catch (AssertionError e) {
         // Integer & Object is not valid
         catched = true;
@@ -402,7 +401,7 @@ public class Types {
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
       try {
         catched = false;
-        new JBitAndOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
+        new JBitAndOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
             new JIntLiteral(SourceInfo.UNKNOWN, 1)).getType();
       } catch (AssertionError e) {
         // Float & int is not valid
@@ -454,7 +453,7 @@ public class Types {
       catched = false;
       JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
-      new JEqOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
+      new JEqOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
           new JIntLiteral(SourceInfo.UNKNOWN, 1)).getType();
     } catch (AssertionError e) {
       // Object == int is not valid
@@ -465,7 +464,7 @@ public class Types {
     JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JEqOperation(SourceInfo.UNKNOWN,
-        new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l)).getType());
+        l.makeRef(SourceInfo.UNKNOWN), l.makeRef(SourceInfo.UNKNOWN)).getType());
   }
 
   @Test
@@ -491,7 +490,7 @@ public class Types {
     JType t = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
     JLocal l = new JLocal(SourceInfo.UNKNOWN, "test", t, JModifier.DEFAULT, null);
     Assert.assertEquals(JPrimitiveTypeEnum.BOOLEAN.getType(), new JAndOperation(SourceInfo.UNKNOWN,
-        new JLocalRef(SourceInfo.UNKNOWN, l), new JLocalRef(SourceInfo.UNKNOWN, l)).getType());
+        l.makeRef(SourceInfo.UNKNOWN), l.makeRef(SourceInfo.UNKNOWN)).getType());
   }
 
   @Test
@@ -504,7 +503,7 @@ public class Types {
 
     try {
       catched = false;
-      new JAddOperation(SourceInfo.UNKNOWN, new JLocalRef(SourceInfo.UNKNOWN, l),
+      new JAddOperation(SourceInfo.UNKNOWN, l.makeRef(SourceInfo.UNKNOWN),
           new JIntLiteral(SourceInfo.UNKNOWN, 1)).getType();
     } catch (AssertionError e) {
       // Object add int is not valid

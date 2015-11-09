@@ -25,11 +25,13 @@ import javax.annotation.Nonnull;
 
 /**
  * Java method this expression.
+ *
+ * Instantiated using {@link JThis#makeRef(SourceInfo)}
  */
 @Description("Java method this expression")
 public class JThisRef extends JVariableRef {
 
-  public JThisRef(@Nonnull SourceInfo info, @Nonnull JVariable thisVar) {
+  JThisRef(@Nonnull SourceInfo info, @Nonnull JVariable thisVar) {
     super(info, thisVar);
   }
 

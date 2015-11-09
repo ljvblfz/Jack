@@ -56,8 +56,8 @@ public class NParameterRef extends NExpression {
   public JParameterRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert localId != null;
-    JParameterRef jRef = new JParameterRef(sourceInfo.exportAsJast(exportSession),
-        JParameterUnresolved.INSTANCE);
+    JParameterRef jRef =
+        JParameterUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
     exportSession.getParameterResolver().addLink(localId, new ParameterRefLinker(jRef));
     return jRef;
   }
@@ -70,7 +70,7 @@ public class NParameterRef extends NExpression {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     localId = in.readId();
-    
+
   }
 
   @Override

@@ -805,10 +805,9 @@ public class JackIrBuilder {
 
         if (getEnumSuperClass(curClass.classType) != null) {
           // Enums: wire up synthetic name/ordinal params to the super method.
-          JParameterRef enumNameRef = new JParameterRef(info, curMethod.method.getParams().get(0));
+          JParameterRef enumNameRef = curMethod.method.getParams().get(0).makeRef(info);
           call.addArg(enumNameRef);
-          JParameterRef enumOrdinalRef =
-              new JParameterRef(info, curMethod.method.getParams().get(1));
+          JParameterRef enumOrdinalRef = curMethod.method.getParams().get(1).makeRef(info);
           call.addArg(enumOrdinalRef);
         }
 
@@ -823,17 +822,17 @@ public class JackIrBuilder {
             JLocal tmp =
                 new JLocal(info, ".superInstanceQualifier" + superInstanceQualifierSuffix++,
                     qualifier.getType(), JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
-            JAsgOperation asg = new JAsgOperation(info, new JLocalRef(info, tmp), qualifier);
+            JAsgOperation asg = new JAsgOperation(info, tmp.makeRef(info), qualifier);
             exprs.add(asg);
             curMethod.body.addLocal(tmp);
 
             JMethodCall getClassCall =
-                makeMethodCall(info, new JLocalRef(info, tmp), javaLangObject, getGetClassMethod());
+                makeMethodCall(info, tmp.makeRef(info), javaLangObject, getGetClassMethod());
             exprs.add(getClassCall);
 
             exprs.add(call);
 
-            qualifier = new JLocalRef(info, tmp);
+            qualifier = tmp.makeRef(info);
 
             JMultiExpression multiExpr = new JMultiExpression(info, exprs);
             push(multiExpr.makeStatement());
@@ -1007,24 +1006,20 @@ public class JackIrBuilder {
           // int i$index = 0
           initializers.add(makeAssignStatement(info, indexVar, new JIntLiteral(info, 0)));
           // int i$max = i$array.length
-          initializers.add(makeAssignStatement(
-              info, maxVar, new JArrayLength(info, new JLocalRef(info,
-              arrayVar))));
+          initializers.add(
+              makeAssignStatement(info, maxVar, new JArrayLength(info, arrayVar.makeRef(info))));
 
           // i$index < i$max
           JExpression condition =
-              new JLtOperation(info, new JLocalRef(
-                  info, indexVar), new JLocalRef(info, maxVar));
+              new JLtOperation(info, indexVar.makeRef(info), maxVar.makeRef(info));
 
           // ++i$index
           List<JExpressionStatement> increments = new ArrayList<JExpressionStatement>(1);
-          increments.add(new JPrefixIncOperation(info, new JLocalRef(info,
-              indexVar)).makeStatement());
+          increments.add(new JPrefixIncOperation(info, indexVar.makeRef(info)).makeStatement());
 
           // T elementVar = i$array[i$index];
-          elementDecl = new JAsgOperation(info, new JLocalRef(info, elementVar),
-              new JArrayRef(info, new JLocalRef(info, arrayVar), new JLocalRef(info, indexVar)))
-                .makeStatement();
+          elementDecl = new JAsgOperation(info, elementVar.makeRef(info),
+              new JArrayRef(info, arrayVar.makeRef(info), indexVar.makeRef(info))).makeStatement();
           body.addStmt(0, elementDecl);
 
           result = new JForStatement(info, initializers, condition, increments, body);
@@ -1059,12 +1054,11 @@ public class JackIrBuilder {
               (JDefinedClassOrInterface) getTypeMap().get(javaUtilIterator);
           // i$iterator.hasNext()
           JExpression condition =
-              makeMethodCall(info, new JLocalRef(info, iteratorVar), jIterator,
-                  getTypeMap().get(hasNext));
+              makeMethodCall(info, iteratorVar.makeRef(info), jIterator, getTypeMap().get(hasNext));
 
           // i$iterator.next();
-          JExpression callToNext = makeMethodCall(info, new JLocalRef(info, iteratorVar), jIterator,
-              getTypeMap().get(next));
+          JExpression callToNext =
+              makeMethodCall(info, iteratorVar.makeRef(info), jIterator, getTypeMap().get(next));
 
           // Perform any implicit reference type casts (due to generics).
           // Note this occurs before potential unboxing.
@@ -1075,8 +1069,8 @@ public class JackIrBuilder {
             callToNext = maybeCast(toType, callToNext);
           }
           // T elementVar = (T) i$iterator.next();
-          elementDecl = new JAsgOperation(info, new JLocalRef(info, elementVar), callToNext)
-                .makeStatement();
+          elementDecl =
+              new JAsgOperation(info, elementVar.makeRef(info), callToNext).makeStatement();
           body.addStmt(0, elementDecl);
 
           result =
@@ -1241,7 +1235,7 @@ public class JackIrBuilder {
         SourceInfo info = makeSourceInfo(x);
         JLocal local = (JLocal) curMethod.getJVariable(x.binding);
         assert local != null;
-        JLocalRef localRef = new JLocalRef(info, local);
+        JLocalRef localRef = local.makeRef(info);
         JExpression initialization = pop(x.initialization);
         if (initialization != null) {
           push(new JAsgOperation(info, localRef, initialization).makeStatement());
@@ -2325,7 +2319,7 @@ public class JackIrBuilder {
 
       assert field != null;
       JFieldRef lhs = makeInstanceFieldRef(info, field);
-      JParameterRef rhs = new JParameterRef(info, param);
+      JParameterRef rhs = param.makeRef(info);
       JBinaryOperation asg = new JAsgOperation(info, lhs, rhs);
       return asg;
     }
@@ -2362,7 +2356,7 @@ public class JackIrBuilder {
           implMethod);
       for (int i = 0; i < bridgeMethod.getParams().size(); i++) {
         JParameter param = bridgeMethod.getParams().get(i);
-        JParameterRef paramRef = new JParameterRef(info, param);
+        JParameterRef paramRef = param.makeRef(info);
         call.addArg(maybeCast(implParams.get(i).getType(), paramRef));
       }
 
@@ -2488,7 +2482,7 @@ public class JackIrBuilder {
     @Nonnull
     private JStatement makeAssignStatement(@Nonnull SourceInfo info, @Nonnull JLocal local,
         JExpression value) {
-        return new JAsgOperation(info, new JLocalRef(info, local), value).makeStatement();
+        return new JAsgOperation(info, local.makeRef(info), value).makeStatement();
     }
 
     private JFieldRef makeInstanceFieldRef(SourceInfo info, JField field) {
@@ -2499,11 +2493,7 @@ public class JackIrBuilder {
         throws JTypeLookupException {
       JVariable variable = curMethod.getJVariable(b);
       assert variable != null;
-      if (variable instanceof JLocal) {
-        return new JLocalRef(info, (JLocal) variable);
-      } else {
-        return new JParameterRef(info, (JParameter) variable);
-      }
+      return variable.makeRef(info);
     }
 
     private JThisRef makeThisRef(SourceInfo info) {
@@ -2513,7 +2503,7 @@ public class JackIrBuilder {
       assert !(curMethod.method.isAbstract() || curMethod.method.isNative());
       JThis jThis = curMethod.method.getThis();
       assert jThis != null;
-      return new JThisRef(info, jThis);
+      return jThis.makeRef(info);
     }
 
     @Nonnull
@@ -2568,7 +2558,7 @@ public class JackIrBuilder {
         SyntheticArgumentBinding b = (SyntheticArgumentBinding) path[0];
         JParameter param = (JParameter) curMethod.getJVariable(b);
         assert param != null;
-        ref = new JParameterRef(info, param);
+        ref = param.makeRef(info);
         type = (ReferenceBinding) b.type.erasure();
       } else if (path[0] instanceof FieldBinding) {
         FieldBinding b = (FieldBinding) path[0];
@@ -2693,7 +2683,7 @@ public class JackIrBuilder {
             }
           }
           assert param != null : "Could not find matching local arg for explicit super ctor call.";
-          call.addArg(new JParameterRef(call.getSourceInfo(), param));
+          call.addArg(param.makeRef(call.getSourceInfo()));
         }
       }
     }
@@ -2720,7 +2710,7 @@ public class JackIrBuilder {
         for (SyntheticArgumentBinding arg : binding.syntheticOuterLocalVariables()) {
           JParameter param = (JParameter) curMethod.getJVariable(arg);
           assert param != null;
-          call.addArg(new JParameterRef(call.getSourceInfo(), param));
+          call.addArg(param.makeRef(call.getSourceInfo()));
         }
       }
     }
@@ -2735,7 +2725,7 @@ public class JackIrBuilder {
         }
         for (int i = 0; i < binding.syntheticEnclosingInstanceTypes().length; i++) {
           JParameter param = paramIt.next();
-          call.addArg(new JParameterRef(call.getSourceInfo(), param));
+          call.addArg(param.makeRef(call.getSourceInfo()));
         }
       }
     }
@@ -2847,16 +2837,16 @@ public class JackIrBuilder {
               JLocal tmp = new JLocal(sourceInfo,
                   ".newInstanceQualifier" + newInstanceQualifierSuffix++, qualExpr.getType(),
                   JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
-              JAsgOperation asg = new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, tmp),
+              JAsgOperation asg = new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo),
                   new CloneExpressionVisitor().cloneExpression(qualExpr));
               exprs.add(asg);
               curMethod.body.addLocal(tmp);
 
-              JMethodCall getClassCall = makeMethodCall(sourceInfo, new JLocalRef(sourceInfo, tmp),
+              JMethodCall getClassCall = makeMethodCall(sourceInfo, tmp.makeRef(sourceInfo),
                   javaLangObject, getGetClassMethod());
               exprs.add(getClassCall);
 
-              exprs.add(new JLocalRef(sourceInfo, tmp));
+              exprs.add(tmp.makeRef(sourceInfo));
 
               JMultiExpression multiExpr = new JMultiExpression(info, exprs);
               call.addArg(multiExpr);
@@ -3083,7 +3073,7 @@ public class JackIrBuilder {
 
         JClassLiteral clazz = new JClassLiteral(info, method.getEnclosingType(),
             (JDefinedClass) getTypeMap().get(classType));
-        JParameterRef nameRef = new JParameterRef(info, method.getParams().get(0));
+        JParameterRef nameRef = method.getParams().get(0).makeRef(info);
         JMethod jValueOfBinding = getTypeMap().get(valueOfBinding);
         JMethodCall call = makeMethodCall(info, null, jValueOfBinding.getEnclosingType(),
             jValueOfBinding);

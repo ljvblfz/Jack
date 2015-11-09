@@ -58,7 +58,7 @@ public class NThisRef extends NExpression {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JThis jThis = exportSession.getCurrentMethod().getThis();
     assert jThis != null;
-    JThisRef jThisRef = new JThisRef(jSourceInfo, jThis);
+    JThisRef jThisRef = jThis.makeRef(jSourceInfo);
     return jThisRef;
   }
 

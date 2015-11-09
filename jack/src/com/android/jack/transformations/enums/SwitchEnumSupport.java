@@ -307,7 +307,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
             valuesId.canBeVirtual()));
         List<JExpression> dimensions = new ArrayList<JExpression>();
         dimensions.add(valuesLength);
-        bodyBlock.addStmt(new JAsgOperation(dbgInfo, new JLocalRef(dbgInfo, arrayVar),
+        bodyBlock.addStmt(new JAsgOperation(dbgInfo, arrayVar.makeRef(dbgInfo),
             JNewArray.createWithDims(dbgInfo, switchValuesArrayType, dimensions)).makeStatement());
 
 
@@ -369,16 +369,18 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
             unusedEnumFieldCstValue++;
           }
 
-          tryBlock.addStmt(new JAsgOperation(dbgInfo, new JArrayRef(dbgInfo, new JLocalRef(dbgInfo,
-              arrayVar), callOrdinal), new JIntLiteral(dbgInfo, constant)).makeStatement());
+          tryBlock.addStmt(new JAsgOperation(dbgInfo,
+              new JArrayRef(dbgInfo, arrayVar.makeRef(dbgInfo), callOrdinal),
+              new JIntLiteral(dbgInfo, constant)).makeStatement());
 
           emm.addMapping(enumFieldId, constant);
         }
 
         getEnumSwitchValues.addMarker(emm);
-        bodyBlock.addStmt(new JAsgOperation(dbgInfo, new JFieldRef(dbgInfo, null /* instance */,
-            enumSwitchValuesId, currentClass), new JLocalRef(dbgInfo, arrayVar)).makeStatement());
-        bodyBlock.addStmt(new JReturnStatement(dbgInfo, new JLocalRef(dbgInfo, arrayVar)));
+        bodyBlock.addStmt(new JAsgOperation(dbgInfo,
+            new JFieldRef(dbgInfo, null /* instance */, enumSwitchValuesId, currentClass),
+            arrayVar.makeRef(dbgInfo)).makeStatement());
+        bodyBlock.addStmt(new JReturnStatement(dbgInfo, arrayVar.makeRef(dbgInfo)));
 
         localTr.commit();
       }

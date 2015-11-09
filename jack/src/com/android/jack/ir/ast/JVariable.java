@@ -132,4 +132,7 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
       super.transform(existingNode, newNode, transformation);
     }
   }
+
+  @Nonnull
+  public abstract JVariableRef makeRef(@Nonnull SourceInfo info);
 }

@@ -83,7 +83,7 @@ public class ExpressionStatementLegalizer implements RunnableSchedulable<JMethod
       if (!isLegal(expr)) {
         SourceInfo sourceInfo = exprSt.getSourceInfo();
         JLocal lv = lvCreator.createTempLocal(type, sourceInfo, tr);
-        JAsgOperation asg = new JAsgOperation(sourceInfo, new JLocalRef(sourceInfo, lv), expr);
+        JAsgOperation asg = new JAsgOperation(sourceInfo, lv.makeRef(sourceInfo), expr);
         tr.append(new Replace(expr, asg));
       }
       super.endVisit(exprSt);

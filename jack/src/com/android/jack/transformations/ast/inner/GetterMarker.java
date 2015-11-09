@@ -105,7 +105,7 @@ public class GetterMarker implements Marker {
             getter);
         getter.addParam(thisParam);
         id.addParam(accessorClass);
-        instance = new JParameterRef(sourceInfo, thisParam);
+        instance = thisParam.makeRef(sourceInfo);
       }
 
       JFieldRef returnedRef = new JFieldRef(sourceInfo, instance, field.getId(), accessorClass);

@@ -218,14 +218,14 @@ public class WrapperMarker implements Marker {
       if (isConstructor) {
         JThis jThis = wrapper.getThis();
         assert jThis != null;
-        instance = new JThisRef(sourceInfo, jThis);
+        instance = jThis.makeRef(sourceInfo);
       } else if (!method.isStatic()){
         JParameter thisParam =
             new JParameter(sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass,
                 JModifier.FINAL | JModifier.SYNTHETIC, wrapper);
         wrapper.addParam(thisParam);
         id.addParam(accessorClass);
-        instance = new JParameterRef(sourceInfo, thisParam);
+        instance = thisParam.makeRef(sourceInfo);
       }
 
       JMethodId calledMethodId = method.getMethodId();
@@ -238,7 +238,7 @@ public class WrapperMarker implements Marker {
             param.getModifier(), wrapper);
         wrapper.addParam(newParam);
         id.addParam(paramType);
-        methodCall.addArg(new JParameterRef(sourceInfo, newParam));
+        methodCall.addArg(newParam.makeRef(sourceInfo));
       }
 
       if (isConstructor) {

@@ -75,4 +75,11 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
       throw new JNodeInternalError(this, "Invalid parent or enclosing method");
     }
   }
+
+
+  @Override
+  @Nonnull
+  public JParameterRef makeRef(@Nonnull SourceInfo info) {
+    return new JParameterRef(info, this);
+  }
 }

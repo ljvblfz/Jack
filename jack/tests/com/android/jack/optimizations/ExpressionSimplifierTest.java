@@ -425,14 +425,14 @@ public class ExpressionSimplifierTest {
     // param && true => param
     JExpression simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.AND,
-            new JParameterRef(SourceInfo.UNKNOWN, param), new JBooleanLiteral(
+            param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(
                 SourceInfo.UNKNOWN, true)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
     // param && false => param && false
     JBinaryOperation binExpr = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.AND,
-        new JParameterRef(SourceInfo.UNKNOWN, param), new JBooleanLiteral(
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(
             SourceInfo.UNKNOWN, false));
     simplifiedExpr = getSimplifiedExpresssion(binExpr);
     Assert.assertTrue(simplifiedExpr instanceof JBinaryOperation);
@@ -440,7 +440,7 @@ public class ExpressionSimplifierTest {
 
     // param || true => param || true
     binExpr = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.OR,
-        new JParameterRef(SourceInfo.UNKNOWN, param), new JBooleanLiteral(
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(
             SourceInfo.UNKNOWN, true));
     simplifiedExpr = getSimplifiedExpresssion(binExpr);
     Assert.assertTrue(simplifiedExpr instanceof JBinaryOperation);
@@ -449,7 +449,7 @@ public class ExpressionSimplifierTest {
     // param || false => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.OR,
-            new JParameterRef(SourceInfo.UNKNOWN, param), new JBooleanLiteral(
+            param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(
                 SourceInfo.UNKNOWN, false)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
@@ -457,32 +457,28 @@ public class ExpressionSimplifierTest {
     // false || param => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.OR,
-            new JBooleanLiteral(SourceInfo.UNKNOWN, false), new JParameterRef(
-                SourceInfo.UNKNOWN, param)));
+            new JBooleanLiteral(SourceInfo.UNKNOWN, false), param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
     // true || param => true
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.OR,
-            new JBooleanLiteral(SourceInfo.UNKNOWN, true), new JParameterRef(
-                SourceInfo.UNKNOWN, param)));
+            new JBooleanLiteral(SourceInfo.UNKNOWN, true), param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JBooleanLiteral);
     Assert.assertTrue(((JBooleanLiteral) simplifiedExpr).getValue());
 
     // false && param => false
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.AND,
-            new JBooleanLiteral(SourceInfo.UNKNOWN, false), new JParameterRef(
-                SourceInfo.UNKNOWN, param)));
+            new JBooleanLiteral(SourceInfo.UNKNOWN, false), param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JBooleanLiteral);
     Assert.assertFalse(((JBooleanLiteral) simplifiedExpr).getValue());
 
     // true && param => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.AND,
-            new JBooleanLiteral(SourceInfo.UNKNOWN, true), new JParameterRef(
-                SourceInfo.UNKNOWN, param)));
+            new JBooleanLiteral(SourceInfo.UNKNOWN, true), param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
@@ -490,7 +486,7 @@ public class ExpressionSimplifierTest {
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
             JBinaryOperator.BIT_AND, new JBooleanLiteral(SourceInfo.UNKNOWN, true),
-            new JParameterRef(SourceInfo.UNKNOWN, param)));
+            param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
@@ -498,7 +494,7 @@ public class ExpressionSimplifierTest {
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
             JBinaryOperator.BIT_OR, new JBooleanLiteral(SourceInfo.UNKNOWN, false),
-            new JParameterRef(SourceInfo.UNKNOWN, param)));
+            param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
@@ -506,14 +502,14 @@ public class ExpressionSimplifierTest {
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
             JBinaryOperator.BIT_XOR, new JBooleanLiteral(SourceInfo.UNKNOWN, false),
-            new JParameterRef(SourceInfo.UNKNOWN, param)));
+            param.makeRef(SourceInfo.UNKNOWN)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
 
     // param ^ false => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
-            JBinaryOperator.BIT_XOR, new JParameterRef(SourceInfo.UNKNOWN, param),
+            JBinaryOperator.BIT_XOR, param.makeRef(SourceInfo.UNKNOWN),
             new JBooleanLiteral(SourceInfo.UNKNOWN, false)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
@@ -521,7 +517,7 @@ public class ExpressionSimplifierTest {
     // param & true => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
-            JBinaryOperator.BIT_AND, new JParameterRef(SourceInfo.UNKNOWN, param),
+            JBinaryOperator.BIT_AND, param.makeRef(SourceInfo.UNKNOWN),
             new JBooleanLiteral(SourceInfo.UNKNOWN, true)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
@@ -529,7 +525,7 @@ public class ExpressionSimplifierTest {
     // param | false => param
     simplifiedExpr =
         getSimplifiedExpresssion(JBinaryOperation.create(SourceInfo.UNKNOWN,
-            JBinaryOperator.BIT_OR, new JParameterRef(SourceInfo.UNKNOWN, param),
+            JBinaryOperator.BIT_OR, param.makeRef(SourceInfo.UNKNOWN),
             new JBooleanLiteral(SourceInfo.UNKNOWN, false)));
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertEquals(param, ((JParameterRef) simplifiedExpr).getTarget());
@@ -562,18 +558,16 @@ public class ExpressionSimplifierTest {
   @Test
   public void simplifyIfCondition() {
     // Check that if (param == true) is simplify to if(param)
-    JBinaryOperation binOp =
-        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ, new JParameterRef(
-            SourceInfo.UNKNOWN, param), new JBooleanLiteral(SourceInfo.UNKNOWN, true));
+    JBinaryOperation binOp = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ,
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(SourceInfo.UNKNOWN, true));
 
     JExpression simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
     Assert.assertTrue(((JParameterRef) simplifiedExpr).getParameter() == param);
 
     // Check that if (param == false) is simplify to if(!param)
-    binOp =
-        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ, new JParameterRef(
-            SourceInfo.UNKNOWN, param), new JBooleanLiteral(SourceInfo.UNKNOWN, false));
+    binOp = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ,
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(SourceInfo.UNKNOWN, false));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JPrefixNotOperation);
@@ -582,7 +576,7 @@ public class ExpressionSimplifierTest {
     // Check that if (false == param) is simplify to if(!param)
     binOp =
         JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ, new JBooleanLiteral(
-            SourceInfo.UNKNOWN, false), new JParameterRef(SourceInfo.UNKNOWN, param));
+            SourceInfo.UNKNOWN, false), param.makeRef(SourceInfo.UNKNOWN));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JPrefixNotOperation);
@@ -591,7 +585,7 @@ public class ExpressionSimplifierTest {
     // Check that if (true == param) is simplify to if(param)
     binOp =
         JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.EQ, new JBooleanLiteral(
-            SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, param));
+            SourceInfo.UNKNOWN, true), param.makeRef(SourceInfo.UNKNOWN));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);
@@ -600,25 +594,23 @@ public class ExpressionSimplifierTest {
     // Check that if (true || param) is simplify to if(true)
     binOp =
         JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.OR, new JBooleanLiteral(
-            SourceInfo.UNKNOWN, true), new JParameterRef(SourceInfo.UNKNOWN, param));
+            SourceInfo.UNKNOWN, true), param.makeRef(SourceInfo.UNKNOWN));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JBooleanLiteral);
     Assert.assertTrue(((JBooleanLiteral) simplifiedExpr).getValue());
 
     // Check that if (param != true) is simplify to if(!param)
-    binOp =
-        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.NEQ, new JParameterRef(
-            SourceInfo.UNKNOWN, param), new JBooleanLiteral(SourceInfo.UNKNOWN, true));
+    binOp = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.NEQ,
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(SourceInfo.UNKNOWN, true));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JPrefixNotOperation);
     Assert.assertTrue(((JPrefixNotOperation) simplifiedExpr).getArg() instanceof JParameterRef);
 
     // Check that if (param != false) is simplify to if(param)
-    binOp =
-        JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.NEQ, new JParameterRef(
-            SourceInfo.UNKNOWN, param), new JBooleanLiteral(SourceInfo.UNKNOWN, false));
+    binOp = JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.NEQ,
+        param.makeRef(SourceInfo.UNKNOWN), new JBooleanLiteral(SourceInfo.UNKNOWN, false));
 
     simplifiedExpr = getSimplifiedExpressionIntoIf(binOp);
     Assert.assertTrue(simplifiedExpr instanceof JParameterRef);

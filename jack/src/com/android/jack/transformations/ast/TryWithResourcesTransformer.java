@@ -200,18 +200,16 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
         JClass throwableClass = Jack.getSession().getPhantomLookup().getClass(THROWABLE_SIGNATURE);
         JLocal exceptionToThrow =
             localVarCreator.createTempLocal(throwableClass, firstLineSourceInfos, request);
-        JAsgOperation assign = new JAsgOperation(
-            firstLineSourceInfos, new JLocalRef(firstLineSourceInfos, exceptionToThrow),
-            new JNullLiteral(firstLineSourceInfos));
+        JAsgOperation assign = new JAsgOperation(firstLineSourceInfos,
+            exceptionToThrow.makeRef(firstLineSourceInfos), new JNullLiteral(firstLineSourceInfos));
         finalTryBlock.addStmt(new JExpressionStatement(firstLineSourceInfos, assign));
 
         // Init all resources to null
         for (JStatement resInit : x.getResourcesDeclarations()) {
           JAsgOperation asgOp = (JAsgOperation) ((JExpressionStatement) resInit).getExpr();
           JLocal resourceLocal = ((JLocalRef) asgOp.getLhs()).getLocal();
-          assign = new JAsgOperation(
-              firstLineSourceInfos, new JLocalRef(firstLineSourceInfos, resourceLocal),
-              new JNullLiteral(firstLineSourceInfos));
+          assign = new JAsgOperation(firstLineSourceInfos,
+              resourceLocal.makeRef(firstLineSourceInfos), new JNullLiteral(firstLineSourceInfos));
           finalTryBlock.addStmt(new JExpressionStatement(firstLineSourceInfos, assign));
         }
 
@@ -230,13 +228,13 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
             JModifier.SYNTHETIC, currentMethodBody);
         JCatchBlock catchBlock = new JCatchBlock(endOfTrySourceInfos,
             Collections.singletonList(throwableClass), tryException);
-        JAsgOperation save = new JAsgOperation(
-            endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
-            new JLocalRef(endOfTrySourceInfos, tryException));
+        JAsgOperation save =
+            new JAsgOperation(endOfTrySourceInfos, exceptionToThrow.makeRef(endOfTrySourceInfos),
+                tryException.makeRef(endOfTrySourceInfos));
 
         catchBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, save));
         catchBlock.addStmt(new JThrowStatement(endOfTrySourceInfos,
-            new JLocalRef(endOfTrySourceInfos, exceptionToThrow)));
+            exceptionToThrow.makeRef(endOfTrySourceInfos)));
 
 
         JTryStatement innerTry = new JTryStatement(endOfTrySourceInfos,
@@ -272,13 +270,12 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
           JLocal resourceLocal = ((JLocalRef) asgOp.getLhs()).getLocal();
 
           // If resource != null ...
-          JNeqOperation isNotNull = new JNeqOperation(
-              endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, resourceLocal),
-              new JNullLiteral(endOfTrySourceInfos));
+          JNeqOperation isNotNull = new JNeqOperation(endOfTrySourceInfos,
+              resourceLocal.makeRef(endOfTrySourceInfos), new JNullLiteral(endOfTrySourceInfos));
 
           // ... close it
           JMethodCall closeCall = new JMethodCall(endOfTrySourceInfos,
-              new JLocalRef(endOfTrySourceInfos, resourceLocal),
+              resourceLocal.makeRef(endOfTrySourceInfos),
               (JClassOrInterface) resourceLocal.getType(),
               closeMethodId,
               JPrimitiveTypeEnum.VOID.getType(),
@@ -306,32 +303,31 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
           finallyBlock.addStmt(tryClose);
 
           // If exceptionToThrow == null ...
-          JEqOperation isNull = new JEqOperation(
-              endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
-              new JNullLiteral(endOfTrySourceInfos));
+          JEqOperation isNull = new JEqOperation(endOfTrySourceInfos,
+              exceptionToThrow.makeRef(endOfTrySourceInfos), new JNullLiteral(endOfTrySourceInfos));
 
           // ... then make it the exception thrown by close() ...
           thenBlock = new JBlock(endOfTrySourceInfos);
-          asgOp = new JAsgOperation(
-              endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
-              new JLocalRef(endOfTrySourceInfos, exceptionThrownByClose));
+          asgOp =
+              new JAsgOperation(endOfTrySourceInfos, exceptionToThrow.makeRef(endOfTrySourceInfos),
+                  exceptionThrownByClose.makeRef(endOfTrySourceInfos));
           thenBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, asgOp));
 
           // ... else add exception thrown by close() to the list of suppressed exceptions
           JBlock callSuppressBlock = new JBlock(endOfTrySourceInfos);
-          JNeqOperation ifExceptionsDiffer = new JNeqOperation(
-              endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
-              new JLocalRef(endOfTrySourceInfos, exceptionThrownByClose));
+          JNeqOperation ifExceptionsDiffer =
+              new JNeqOperation(endOfTrySourceInfos, exceptionToThrow.makeRef(endOfTrySourceInfos),
+                  exceptionThrownByClose.makeRef(endOfTrySourceInfos));
           JIfStatement elseIf =
               new JIfStatement(endOfTrySourceInfos, ifExceptionsDiffer, callSuppressBlock, null);
 
           JMethodCall addSuppressCall = new JMethodCall(endOfTrySourceInfos,
-              new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
+              exceptionToThrow.makeRef(endOfTrySourceInfos),
               throwableClass,
               addSuppressedMethodId,
               JPrimitiveTypeEnum.VOID.getType(),
               closeMethodId.canBeVirtual());
-          addSuppressCall.addArg(new JLocalRef(endOfTrySourceInfos, exceptionThrownByClose));
+          addSuppressCall.addArg(exceptionThrownByClose.makeRef(endOfTrySourceInfos));
           callSuppressBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, addSuppressCall));
 
           ifStmt = new JIfStatement(endOfTrySourceInfos, isNull, thenBlock, elseIf);
@@ -340,11 +336,10 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
         }
 
         // Throw an exception if any
-        JThrowStatement throwStmt = new JThrowStatement(
-            endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow));
-        JNeqOperation ifNotNull = new JNeqOperation(
-            endOfTrySourceInfos, new JLocalRef(endOfTrySourceInfos, exceptionToThrow),
-            new JNullLiteral(endOfTrySourceInfos));
+        JThrowStatement throwStmt =
+            new JThrowStatement(endOfTrySourceInfos, exceptionToThrow.makeRef(endOfTrySourceInfos));
+        JNeqOperation ifNotNull = new JNeqOperation(endOfTrySourceInfos,
+            exceptionToThrow.makeRef(endOfTrySourceInfos), new JNullLiteral(endOfTrySourceInfos));
         JIfStatement ifExceptionToThrow =
             new JIfStatement(endOfTrySourceInfos, ifNotNull, throwStmt, null);
         finallyBlock.addStmt(ifExceptionToThrow);
