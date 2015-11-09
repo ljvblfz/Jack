@@ -122,4 +122,15 @@ public class JLambda extends JExpression {
   public boolean canThrow() {
     return true;
   }
+
+  @Override
+  protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
+      throws UnsupportedOperationException {
+    int nodeIdx = capturedVariablesRef.indexOf(existingNode);
+    if (nodeIdx != -1) {
+      capturedVariablesRef.set(nodeIdx, (JLocalRef) newNode);
+    } else {
+      super.replaceImpl(existingNode, newNode);
+    }
+  }
 }

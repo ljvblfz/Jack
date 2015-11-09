@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -67,8 +68,11 @@ public class LambdaNativeSupportConverter implements RunnableSchedulable<JMethod
   private static class Visitor extends JVisitor {
 
     @Nonnull
-    private final Map<JVariable, JLocal> capturedVar2LiberatedVar =
-        new HashMap<JVariable, JLocal>();
+    private Map<JVariable, JLocal> capturedVar2LiberatedVar = new HashMap<JVariable, JLocal>();
+
+    @Nonnull
+    private final Stack<Map<JVariable, JLocal>> stackOfCapturedVar =
+        new Stack<Map<JVariable, JLocal>>();
 
     @Nonnull
     private final TransformationRequest tr;
@@ -90,12 +94,21 @@ public class LambdaNativeSupportConverter implements RunnableSchedulable<JMethod
     }
 
     @Override
+    public void endVisit(@Nonnull JLambda x) {
+      capturedVar2LiberatedVar = stackOfCapturedVar.pop();
+    }
+
+    @Override
     public boolean visit(@Nonnull JLambda lambdaExpr) {
+      stackOfCapturedVar.push(capturedVar2LiberatedVar);
+      capturedVar2LiberatedVar = new HashMap<JVariable, JLocal>();
+
       JMethod lambdaMethod = lambdaExpr.getMethod();
       lambdaMethod.getMethodId().setName(lambdaClassNamePrefix + anonymousCountByMeth++);
       lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.STATIC);
       JParameter closure = new JParameter(SourceInfo.UNKNOWN, "closure",
           lambdaExpr.getType(), JModifier.DEFAULT, lambdaMethod);
+      closure.addMarker(ForceClosureMarker.INSTANCE);
       lambdaMethod.getParams().add(0, closure);
 
       JMethodBody lambdaMethodBody = (JMethodBody) lambdaMethod.getBody();
@@ -130,7 +143,13 @@ public class LambdaNativeSupportConverter implements RunnableSchedulable<JMethod
       }
 
       for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
-       JVariable capturedVar = capturedVarRef.getTarget();
+        JLocal alreadyCapturedVar = stackOfCapturedVar.peek().get(capturedVarRef.getTarget());
+        JVariable capturedVar = capturedVarRef.getTarget();
+        if (alreadyCapturedVar != null) {
+          tr.append(new Replace(capturedVarRef,
+              new JLocalRef(capturedVarRef.getSourceInfo(), alreadyCapturedVar)));
+        }
+
         JParameter paramCapturingVar = addParameter(lambdaMethod, capturedVar);
 
         JLocal liberatedVariable = createLiberateVariable(lambdaMethodBody, capturedVar);

@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.transformations.lambda.ForceClosureMarker;
 import com.android.jack.transformations.lambda.NeedsLambdaMarker;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -40,7 +41,8 @@ public class JLiberateVariable extends JExpression {
       @Nonnull JParameterRef capturedVariable) {
     super(info);
     assert closure.getType() instanceof JDefinedInterface;
-    assert ((JDefinedInterface) closure.getType()).getMarker(NeedsLambdaMarker.class) != null;
+    assert ((JDefinedInterface) closure.getType()).getMarker(NeedsLambdaMarker.class) != null
+        || closure.getTarget().getMarker(ForceClosureMarker.class) != null;
     this.closure = closure;
     this.capturedVariable = capturedVariable;
   }

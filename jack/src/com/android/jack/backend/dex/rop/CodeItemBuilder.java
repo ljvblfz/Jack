@@ -86,6 +86,7 @@ import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.lambda.CapturedVariable;
+import com.android.jack.transformations.lambda.ForceClosureMarker;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
@@ -525,7 +526,10 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       if (param.getMarker(CapturedVariable.class) != null) {
         continue;
       }
-      wordCount += RopHelper.convertTypeToDx(param.getType()).getWordCount();
+      wordCount += RopHelper
+          .convertTypeToDx(param.getType(),
+              /* isForcedClosure= */ param.getMarker(ForceClosureMarker.class) != null)
+          .getWordCount();
     }
 
     return wordCount;

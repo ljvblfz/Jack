@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.transformations.lambda.ForceClosureMarker;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -130,7 +131,8 @@ class RopRegisterManager {
     assert !variableToRegister.containsKey(var);
 
     JType type = var.getType();
-    Type dexRegType = RopHelper.convertTypeToDx(type);
+    Type dexRegType = RopHelper.convertTypeToDx(type,
+        /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null);
     RegisterSpec reg;
     if (emitDebugInfo && var.getName() != null && (emitSyntheticDebugInfo || !isSynthetic(var))) {
       CstString cstSignature = null;
@@ -174,7 +176,9 @@ class RopRegisterManager {
     assert variableToRegister.containsKey(var);
 
     RegisterSpec register = variableToRegister.get(var);
-    assert RopHelper.areTypeCompatible(RopHelper.convertTypeToDx(varRef.getType()),
+    assert RopHelper.areTypeCompatible(
+        RopHelper.convertTypeToDx(varRef.getType(),
+            /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null),
         register.getType());
 
     return register;
@@ -212,7 +216,7 @@ class RopRegisterManager {
   }
 
   @Nonnull
-  RegisterSpec getOrCreateTmpRegister(@Nonnull JType type) {
+  RegisterSpec getOrCreateTmpRegister(@Nonnull JType type, boolean isForcedClosure) {
     Integer nextFreeRegister = typeToNextPosFreeRegister.get(type);
 
     if (nextFreeRegister == null) {
@@ -232,7 +236,7 @@ class RopRegisterManager {
       return regSpecs.get(nextFreeRegister.intValue());
     }
 
-    Type dexRegType = RopHelper.convertTypeToDx(type);
+    Type dexRegType = RopHelper.convertTypeToDx(type, isForcedClosure);
     RegisterSpec regSpec = RegisterSpec.make(nextFreeReg, dexRegType);
     regSpecs.add(regSpec);
     nextFreeReg += dexRegType.getCategory();
