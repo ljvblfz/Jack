@@ -18,7 +18,7 @@ package com.android.jack.optimizations.tailrecursion;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.annotations.DisableTailRecursionOptimisation;
+import com.android.jack.annotations.DisableTailRecursionOptimization;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -130,7 +130,7 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final JAnnotationType annotationType =
     Jack.getSession().getPhantomLookup().getAnnotationType(
-    NamingTools.getTypeSignatureName(DisableTailRecursionOptimisation.class.getName()));
+    NamingTools.getTypeSignatureName(DisableTailRecursionOptimization.class.getName()));
 
   private class TailRecursionVisitor extends JVisitor {
 
