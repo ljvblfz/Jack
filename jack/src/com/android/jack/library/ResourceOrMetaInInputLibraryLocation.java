@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.jack.meta;
+package com.android.jack.library;
 
-import com.android.jack.resource.ResourceOrMeta;
-import com.android.sched.item.Description;
 import com.android.sched.util.location.Location;
-import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
 
 /**
- * Represents a meta.
+ * Location describing a resource or a meta in an input library.
  */
-@Description("Represents a meta")
-public class Meta extends ResourceOrMeta {
+public abstract class ResourceOrMetaInInputLibraryLocation extends Location {
 
-  public Meta(@Nonnull VPath path, @Nonnull InputVFile vFile, @Nonnull Location location) {
-    super(path, vFile, location);
+  @Nonnull
+  protected final InputLibraryLocation inputLibLoc;
+
+  @Nonnull
+  protected final VPath path;
+
+  public ResourceOrMetaInInputLibraryLocation(@Nonnull InputLibraryLocation inputLibLoc,
+      @Nonnull VPath path) {
+    this.inputLibLoc = inputLibLoc;
+    this.path = path;
   }
 
+  @Nonnull
+  public InputLibraryLocation getInputLibraryLocation() {
+    return inputLibLoc;
+  }
 }

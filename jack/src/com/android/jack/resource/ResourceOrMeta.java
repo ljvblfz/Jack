@@ -21,6 +21,7 @@ import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -34,9 +35,14 @@ public abstract class ResourceOrMeta implements HasLocation {
   @Nonnull
   private InputVFile vFile;
 
-  public ResourceOrMeta(@Nonnull VPath path, @Nonnull InputVFile vFile) {
+  @CheckForNull
+  private final Location location;
+
+  public ResourceOrMeta(@Nonnull VPath path, @Nonnull InputVFile vFile,
+      @Nonnull Location location) {
     this.vFile = vFile;
     this.path = path;
+    this.location = location;
   }
 
   @Nonnull

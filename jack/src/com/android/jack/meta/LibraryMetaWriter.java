@@ -20,6 +20,7 @@ import com.android.jack.analysis.dependency.Dependency;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.MetaInInputLibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -60,7 +61,8 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
           InputVFile metaFile = metaIter.next();
           if (!metaFile.getName().endsWith(Dependency.DEPENDENCY_FILE_EXTENSION)) {
             VPath path = getNameFromInputVFile(importedLibrary, metaFile);
-            Meta meta = new Meta(path, metaFile);
+            Meta meta = new Meta(path, metaFile,
+                new MetaInInputLibraryLocation(importedLibrary.getLocation(), path));
             addMetaToOutputJackLib(meta, ojl);
           }
         }
@@ -83,7 +85,8 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
     return path;
   }
 
-  private void addMetaToOutputJackLib(Meta meta, OutputJackLibrary ojl) throws IOException {
+  private void addMetaToOutputJackLib(@Nonnull Meta meta, @Nonnull OutputJackLibrary ojl)
+      throws IOException {
     InputVFile inputFile = meta.getVFile();
     VPath path = meta.getPath();
     OutputVFile outputFile = ojl.createFile(FileType.META, path);

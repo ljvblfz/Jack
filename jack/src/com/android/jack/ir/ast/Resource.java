@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.resource.ResourceOrMeta;
 import com.android.sched.item.Description;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -29,8 +30,8 @@ import javax.annotation.Nonnull;
 @Description("Represents a resource")
 public class Resource extends ResourceOrMeta {
 
-  public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile) {
-    super(path, vFile);
+  public Resource(@Nonnull VPath path, @Nonnull InputVFile vFile, @Nonnull Location location) {
+    super(path, vFile, location);
   }
 
 }
