@@ -293,6 +293,8 @@ public class CommandOut {
     @Override
     public synchronized void close() {
       if (builder.length() > 0) {
+        // Last line was not terminated but protocol does not support non terminated line.
+        // Add a line termination to flush the buffer.
         println();
       }
       super.close();
