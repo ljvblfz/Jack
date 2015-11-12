@@ -35,6 +35,7 @@ import com.android.sched.util.log.LoggerFactory;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.ParserProperties;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -157,7 +158,9 @@ public abstract class CommandLine {
     printStream.println("Usage: <options> <source files>");
     printStream.println();
     printStream.println("Options:");
-    parser.printUsage(printStream);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    parser.printUsage(outputStream);
+    printStream.append(outputStream.toString());
   }
 
   public static void printHelpProperties(@Nonnull PrintStream printStream, @Nonnull Options options)
