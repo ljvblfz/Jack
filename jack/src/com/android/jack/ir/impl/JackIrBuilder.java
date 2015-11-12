@@ -655,9 +655,11 @@ public class JackIrBuilder {
 
         if (isOptimizedTrue(x.condition)) {
           JExpression valueIfTrue = pop(x.valueIfTrue);
+          pop(x.condition); // condition is unused but need to be pop
           push(generateImplicitConversion(x.implicitConversion, valueIfTrue));
         } else if (isOptimizedFalse(x.condition)) {
           JExpression valueIfFalse = pop(x.valueIfFalse);
+          pop(x.condition); // condition is unused but need to be pop
           push(generateImplicitConversion(x.implicitConversion, valueIfFalse));
         } else {
           JExpression valueIfFalse = pop(x.valueIfFalse);
