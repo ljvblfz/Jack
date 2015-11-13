@@ -43,12 +43,12 @@ public class FieldRefKindIdHelper {
   }
 
   @Nonnegative
-  public static byte getId(@Nonnull Enum<?> enumValue) {
+  public static byte getId(@Nonnull FieldKind enumValue) {
     return ids[enumValue.ordinal()];
   }
 
   @Nonnull
-  public static Enum<?> getValue(@Nonnegative byte id) {
+  public static FieldKind getValue(@Nonnegative byte id) {
     return values[id];
   }
 

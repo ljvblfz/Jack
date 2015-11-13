@@ -45,12 +45,12 @@ public class MethodKindIdHelper {
   }
 
   @Nonnegative
-  public static byte getId(@Nonnull Enum<?> enumValue) {
+  public static byte getId(@Nonnull MethodKind enumValue) {
     return ids[enumValue.ordinal()];
   }
 
   @Nonnull
-  public static Enum<?> getValue(@Nonnegative byte id) {
+  public static MethodKind getValue(@Nonnegative byte id) {
     return values[id];
   }
 }

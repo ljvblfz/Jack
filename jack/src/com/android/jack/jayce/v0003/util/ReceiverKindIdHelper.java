@@ -43,12 +43,12 @@ public class ReceiverKindIdHelper {
   }
 
   @Nonnegative
-  public static byte getId(@Nonnull Enum<?> enumValue) {
+  public static byte getId(@Nonnull ReceiverKind enumValue) {
     return ids[enumValue.ordinal()];
   }
 
   @Nonnull
-  public static Enum<?> getValue(@Nonnegative byte id) {
+  public static ReceiverKind getValue(@Nonnegative byte id) {
     return values[id];
   }
 }
