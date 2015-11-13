@@ -240,7 +240,8 @@
       <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir/default.sched.logging.properties"/>
       <fileset file="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir/com.android.sched.discover"/>
     </delete>
-    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}">
+    <jar destfile="${jack-launcher.dist.dir}/${jack-launcher.name}"
+        manifest="${jack-launcher.dir}/etc/manifest.txt">
       <fileset dir="${jack-launcher.dist.dir}/${jack-launcher.name}.unpolluteddir"/>
     </jar>
     <delete>
