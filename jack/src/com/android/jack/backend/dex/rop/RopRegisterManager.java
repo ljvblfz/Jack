@@ -44,15 +44,15 @@ class RopRegisterManager {
   private int nextFreeReg = 0;
 
   /**
-   * Keep a list of temporary register for each type.
+   * Keep a list of temporary register for each dex type.
    */
-  private final Map<JType, List<RegisterSpec>> typeToTmpRegister =
-      new Hashtable<JType, List<RegisterSpec>>();
+  private final Map<Type, List<RegisterSpec>> typeToTmpRegister =
+      new Hashtable<Type, List<RegisterSpec>>();
 
   /**
    * Keep position of the next free register into {@code typeToTmpRegister}.
    */
-  private final Map<JType, Integer> typeToNextPosFreeRegister = new Hashtable<JType, Integer>();
+  private final Map<Type, Integer> typeToNextPosFreeRegister = new Hashtable<Type, Integer>();
 
   /**
    * Keep mapping between variables of IR and dex registers.
@@ -217,26 +217,26 @@ class RopRegisterManager {
 
   @Nonnull
   RegisterSpec getOrCreateTmpRegister(@Nonnull JType type, boolean isForcedClosure) {
-    Integer nextFreeRegister = typeToNextPosFreeRegister.get(type);
+    Type dexRegType = RopHelper.convertTypeToDx(type, isForcedClosure);
+    Integer nextFreeRegister = typeToNextPosFreeRegister.get(dexRegType);
 
     if (nextFreeRegister == null) {
       nextFreeRegister = Integer.valueOf(0);
-      typeToNextPosFreeRegister.put(type, nextFreeRegister);
+      typeToNextPosFreeRegister.put(dexRegType, nextFreeRegister);
     }
 
-    List<RegisterSpec> regSpecs = typeToTmpRegister.get(type);
+    List<RegisterSpec> regSpecs = typeToTmpRegister.get(dexRegType);
     if (regSpecs == null) {
       regSpecs = new ArrayList<RegisterSpec>(2);
-      typeToTmpRegister.put(type, regSpecs);
+      typeToTmpRegister.put(dexRegType, regSpecs);
     }
 
-    typeToNextPosFreeRegister.put(type, Integer.valueOf(nextFreeRegister.intValue() + 1));
+    typeToNextPosFreeRegister.put(dexRegType, Integer.valueOf(nextFreeRegister.intValue() + 1));
 
     if (nextFreeRegister.intValue() < regSpecs.size()) {
       return regSpecs.get(nextFreeRegister.intValue());
     }
 
-    Type dexRegType = RopHelper.convertTypeToDx(type, isForcedClosure);
     RegisterSpec regSpec = RegisterSpec.make(nextFreeReg, dexRegType);
     regSpecs.add(regSpec);
     nextFreeReg += dexRegType.getCategory();
@@ -245,7 +245,7 @@ class RopRegisterManager {
   }
 
   void resetFreeTmpRegister() {
-    for (JType type : typeToNextPosFreeRegister.keySet()) {
+    for (Type type : typeToNextPosFreeRegister.keySet()) {
       typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
     }
   }
