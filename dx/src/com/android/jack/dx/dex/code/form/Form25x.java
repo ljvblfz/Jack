@@ -21,6 +21,7 @@ import com.android.jack.dx.dex.code.InsnFormat;
 import com.android.jack.dx.dex.code.SimpleInsn;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecList;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 
 import java.util.BitSet;
@@ -104,5 +105,60 @@ public final class Form25x extends Form35c {
     // registerCount
     write(out, opcodeUnit(insn, makeByte(r4, sz - 1)), // encode the fifth operand here
         codeUnit(r0, r1, r2, r3));
+  }
+
+  private static int wordCount(RegisterSpecList regs) {
+    int sz = regs.size();
+
+    if (sz > MAX_NUM_OPS) {
+      // It can't possibly fit.
+      return -1;
+    }
+
+    int result = 0;
+
+    for (int i = 0; i < sz; i++) {
+      RegisterSpec one = regs.get(i);
+      if (i == 0 && one.isClosure()) {
+        result += 1;
+      } else {
+        result += one.getCategory();
+      }
+      /*
+       * The check below adds (category - 1) to the register, to account for the fact that the
+       * second half of a category-2 register has to be represented explicitly in the result.
+       */
+      if (!unsignedFitsInNibble(one.getReg() + one.getCategory() - 1)) {
+        return -1;
+      }
+    }
+
+    return (result <= MAX_NUM_OPS) ? result : -1;
+  }
+
+  private static RegisterSpecList explicitize(RegisterSpecList orig) {
+    int wordCount = wordCount(orig);
+    int sz = orig.size();
+
+    if (wordCount == sz) {
+      return orig;
+    }
+
+    RegisterSpecList result = new RegisterSpecList(wordCount);
+    int wordAt = 0;
+
+    for (int i = 0; i < sz; i++) {
+      RegisterSpec one = orig.get(i);
+      result.set(wordAt, one);
+      if (one.getCategory() == 2 && ((i != 0) || !one.isClosure())) {
+        result.set(wordAt + 1, RegisterSpec.make(one.getReg() + 1, Type.VOID));
+        wordAt += 2;
+      } else {
+        wordAt++;
+      }
+    }
+
+    result.setImmutable();
+    return result;
   }
 }
