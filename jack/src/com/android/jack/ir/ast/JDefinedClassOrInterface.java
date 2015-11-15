@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -241,8 +242,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   @Nonnull
-  public List<JMethod> getLambdaMethods() {
-    final List<JMethod> lambdaMethods = new ArrayList<JMethod>();
+  public Collection<JMethod> getLambdaMethods() {
+    final Set<JMethod> lambdaMethods = new HashSet<JMethod>();
 
     class LambdaMethodCollector extends JVisitor {
       @Override
@@ -260,8 +261,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   @Nonnull
-  public List<JMethod> getCallables() {
-    List<JMethod> callables = getLambdaMethods();
+  public Collection<JMethod> getCallables() {
+    Collection<JMethod> callables = getLambdaMethods();
     callables.addAll(getMethods());
     return callables;
   }
