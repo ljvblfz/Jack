@@ -314,11 +314,9 @@ class RopBuilderVisitor extends JVisitor {
       JType type = literal.getType();
 
       Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
-      Insn constInst = new ThrowingCstInsn(
-          constOp, RopHelper.getSourcePosition(literal),
-          RegisterSpecList.EMPTY, getCatchTypes(), cst);
+      Insn constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
+          RegisterSpecList.EMPTY, cst);
       addInstruction(constInst);
-      addMoveResultPseudoAsExtraInstruction(destReg, RopHelper.getSourcePosition(literal));
       return false;
     }
 
@@ -954,6 +952,15 @@ class RopBuilderVisitor extends JVisitor {
     assert tmpBoxedReg != null;
     RegisterSpecList sourcesBox = RegisterSpecList.make(regToBox);
 
+    Insn constInst =
+        new PlainCstInsn(Rops.CONST_OBJECT, sourcePosition, tmpBoxedReg, RegisterSpecList.EMPTY,
+            RopHelper.createString(RopHelper.convertTypeToDx(boxType).getDescriptor()));
+    if (extraInst) {
+      addExtraInstruction(constInst);
+    } else {
+      addInstruction(constInst);
+    }
+
     Insn inst = new PlainCstInsn(Rops.opBoxLambda(regToBox, sourcesBox), sourcePosition,
         tmpBoxedReg, sourcesBox, CstType.intern(RopHelper.convertTypeToDx(boxType)));
 
@@ -1125,11 +1132,9 @@ class RopBuilderVisitor extends JVisitor {
           getConstant(literal));
       addInstruction(constInst);
     } else  if (literal instanceof JAbstractStringLiteral){
-      constInst = new ThrowingCstInsn(
-          constOp, RopHelper.getSourcePosition(literal), RegisterSpecList.EMPTY,
-          getCatchTypes(),  getConstant(literal));
+      constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
+          RegisterSpecList.EMPTY, getConstant(literal));
       addInstruction(constInst);
-      addMoveResultPseudoAsExtraInstruction(destReg, RopHelper.getSourcePosition(literal));
     } else if (literal instanceof JNullLiteral) {
       constInst = new PlainCstInsn(
           constOp, RopHelper.getSourcePosition(literal), destReg,

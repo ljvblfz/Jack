@@ -17,6 +17,7 @@
 package com.android.jack.dx.dex.code;
 
 import com.android.jack.dx.rop.code.Insn;
+import com.android.jack.dx.rop.code.PlainCstInsn;
 import com.android.jack.dx.rop.code.RegOps;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.Rop;
@@ -24,6 +25,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.ThrowingCstInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstFieldRef;
+import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
@@ -261,12 +263,6 @@ public final class RopToDop {
      * into either CONST_STRING or CONST_CLASS.
      */
 
-/*
-       * TODO(dx team): I think the only case of this is for null, and
-       * const/4 should cover that.
-       */
-    MAP.put(Rops.CONST_OBJECT_NOTHROW, Dops.CONST_4);
-
     MAP.put(Rops.GOTO, Dops.GOTO);
     MAP.put(Rops.IF_EQZ_INT, Dops.IF_EQZ);
     MAP.put(Rops.IF_NEZ_INT, Dops.IF_NEZ);
@@ -333,7 +329,7 @@ public final class RopToDop {
      * there's a *reverse* sub (constant - reg) for ints only.
      */
 
-MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
+    MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     // Note: No dalvik ops for other types of mul_const.
 
     MAP.put(Rops.DIV_CONST_INT, Dops.DIV_INT_LIT8);
@@ -616,11 +612,13 @@ switch (rop.getOpcode()) {
         break;
       }
       case RegOps.CONST: {
-        Constant cst = ((ThrowingCstInsn) insn).getConstant();
+        Constant cst = ((PlainCstInsn) insn).getConstant();
         if (cst instanceof CstType) {
           return Dops.CONST_CLASS;
         } else if (cst instanceof CstString) {
           return Dops.CONST_STRING;
+        } else if (cst instanceof CstKnownNull) {
+          return Dops.CONST_4;
         }
         break;
       }
