@@ -31,6 +31,7 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -203,9 +204,19 @@ public final class ServerLauncher {
   private static final Logger logger = Logger.getLogger(ServerLauncher.class.getName());
 
   @Nonnull
+  private static final String HELP = "--help";
+
+  @Nonnull
+  private static final String VERSION = "--version";
+
+  @Nonnull
   private static final String TMP_SUFFIX = ".tmp";
 
   private static final int ABORT_EXIT_CODE = 255;
+  /**
+   * Usage, syntax or configuration file error.
+   */
+  public static final int FAILURE_USAGE = 2;
 
   @Nonnull
   private static final String DEFAULT_JACK_DIR = ".";
@@ -239,21 +250,60 @@ public final class ServerLauncher {
   private final TaskRunner taskRunner = new TaskRunner();
 
   public static void main(@Nonnull String[] args) {
-    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        logger.log(Level.SEVERE, "Uncaught exception in thread '" + t.getName() + "'", e);
-        abort("Internal error");
+    if (args.length == 0) {
+      Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+          logger.log(Level.SEVERE, "Uncaught exception in thread '" + t.getName() + "'", e);
+          abort("Internal error");
+        }
+      });
+      String jackDir = System.getProperty("jack.home", DEFAULT_JACK_DIR);
+      try {
+        new ServerLauncher(new File(jackDir)).run();
+      } catch (ServerException e) {
+        abort("Failed to start server: " + e.getMessage());
+      } catch (InterruptedException e) {
+        logger.log(Level.FINE, "ServerLauncher was interrupted");
       }
-    });
-    String jackDir = System.getProperty("jack.home", DEFAULT_JACK_DIR);
-    try {
-      new ServerLauncher(new File(jackDir)).run();
-    } catch (ServerException e) {
-      abort("Failed to start server: " + e.getMessage());
-    } catch (InterruptedException e) {
-      logger.log(Level.FINE, "ServerLauncher was interrupted");
+    } else if (args.length == 1) {
+      String command = args[0];
+      switch (command) {
+        case HELP:
+          printHelp(System.out);
+          break;
+        case VERSION:
+          try {
+            printVersion(System.out);
+          } catch (IOException e) {
+            e.printStackTrace();
+            abort("Failed to read version");
+          }
+          break;
+        default:
+          printHelp(System.err);
+          System.exit(FAILURE_USAGE);
+          break;
+      }
+    } else {
+      printHelp(System.err);
+      System.exit(FAILURE_USAGE);
     }
+  }
+
+  private static void printVersion(@Nonnull PrintStream printStream) throws IOException {
+    Version version = new Version("jack-launcher", ServerLauncher.class.getClassLoader());
+    printStream.println("Jack server launcher.");
+    printStream.println("Version: " + version.getVerboseVersion() + '.');
+  }
+
+  private static void printHelp(@Nonnull PrintStream printStream) {
+    printStream.println("Usage: <options>");
+    printStream.println("Start server.");
+    printStream.println();
+    printStream.println("Options:");
+    printStream.println(" --help     : display help");
+    printStream.println(" --version  : display version");
   }
 
   public ServerLauncher(@Nonnull File serverDir) {
