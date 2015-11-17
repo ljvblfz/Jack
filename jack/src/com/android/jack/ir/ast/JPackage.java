@@ -488,14 +488,15 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   @Nonnull
-  protected JDefinedClassOrInterface loadClassOrInterface(
-      @Nonnull String simpleName) throws JTypeLookupException {
-    assert !deletedItems.contains(simpleName);
-    for (PackageLoader loader : loaders) {
-      try {
-        return loader.loadClassOrInterface(this, simpleName);
-      } catch (JLookupException e) {
-        // ignore
+  protected JDefinedClassOrInterface loadClassOrInterface(@Nonnull String simpleName)
+      throws JTypeLookupException {
+    if (!deletedItems.contains(simpleName)) {
+      for (PackageLoader loader : loaders) {
+        try {
+          return loader.loadClassOrInterface(this, simpleName);
+        } catch (JLookupException e) {
+          // ignore
+        }
       }
     }
     throw new MissingJTypeLookupException(this, simpleName);
