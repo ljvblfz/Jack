@@ -119,7 +119,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
         updateEnclosingMethod((JDefinedClass) type);
       }
     }
-    lookup.clear();
+    lookup.removeType(type);
   }
 
   private void updateEnclosingType(@Nonnull JDefinedClassOrInterface type) {

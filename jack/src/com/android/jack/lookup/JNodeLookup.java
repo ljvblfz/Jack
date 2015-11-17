@@ -165,12 +165,16 @@ public class JNodeLookup extends JLookup {
     }
   }
 
-  @Override
-  public void clear() {
+  private void clear() {
     synchronized (types) {
       types.clear();
       init();
     }
+  }
+
+  @Override
+  public void removeType(@Nonnull JType type) {
+    clear();
   }
 
   private void init() {

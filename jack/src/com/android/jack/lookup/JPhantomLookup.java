@@ -282,8 +282,7 @@ public class JPhantomLookup extends JLookup {
     }
   }
 
-  @Override
-  public void clear() {
+  private void clear() {
     synchronized (typeCache) {
       typeCache.clear();
     }
@@ -299,6 +298,11 @@ public class JPhantomLookup extends JLookup {
     synchronized (annotationCache) {
       annotationCache.clear();
     }
+  }
+
+  @Override
+  public void removeType(@Nonnull JType type) {
+    clear();
   }
 
   private boolean doesCacheContain(@Nonnull Map<String, ? extends JReferenceType> cache,

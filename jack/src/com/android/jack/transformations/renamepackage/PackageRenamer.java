@@ -104,6 +104,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       String binaryName = remapper.mapValue(formatter.getName(type));
       String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
       type.setName(simpleName);
+      lookup.removeType(type);
       type.getEnclosingPackage().remove(type);
       String packageName = NamingTools.getPackageNameFromBinaryName(binaryName);
       JPackage newPackage = lookup.getOrCreatePackage(packageName);
@@ -173,8 +174,5 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       String transformedPath = remapper.mapValue(pathToTransform);
       res.setPath(new VPath(transformedPath, '/'));
     }
-
-    session.getLookup().clear();
-    session.getPhantomLookup().clear();
   }
 }

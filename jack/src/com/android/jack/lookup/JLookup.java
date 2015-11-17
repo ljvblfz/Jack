@@ -117,7 +117,7 @@ public abstract class JLookup {
   public abstract JAnnotationType getAnnotationType(@Nonnull String signature)
       throws JTypeLookupException;
 
-  public abstract void clear();
+  public abstract void removeType(@Nonnull JType type);
 
   @Nonnull
   public JClass getClass(@Nonnull CommonType type) throws JTypeLookupException {
