@@ -255,6 +255,12 @@ class RopBuilderVisitor extends JVisitor {
       CstMethodRef methodRef =
           RopHelper.createMethodRef(lambda.getMethod().getEnclosingType(), lambda.getMethod());
 
+      if (lambda.needToCaptureInstance()) {
+        RegisterSpecList sources = RegisterSpecList.make(ropReg.getThisReg());
+        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
+            sources, new CstString(ropReg.getThisReg().getType().getDescriptor())));
+      }
+
       for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
         RegisterSpecList sources = RegisterSpecList.make(ropReg.getRegisterSpec(capturedVarRef));
         addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,

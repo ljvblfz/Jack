@@ -249,4 +249,10 @@ class RopRegisterManager {
       typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
     }
   }
+
+  @Nonnull
+  RegisterSpec getThisReg() {
+    assert thisReg != null;
+    return thisReg;
+  }
 }
