@@ -19,10 +19,10 @@ package com.android.sched.marker;
 import com.android.sched.item.Items;
 
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -47,7 +47,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
     //assert checkAddAccess(marker.getClass());
 
     if (markers == null) {
-      markers = new Hashtable<Class<? extends Marker>, Marker>();
+      markers = new ConcurrentHashMap<Class<? extends Marker>, Marker>();
     }
 
     assert markers.get(marker.getClass()) == null : "Marker '" + Items.getName(marker.getClass())
