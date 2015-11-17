@@ -17,13 +17,11 @@
 package com.android.sched.util;
 
 import com.android.sched.util.findbugs.SuppressFBWarnings;
-import com.android.sched.util.log.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -34,8 +32,6 @@ import javax.annotation.Nonnull;
 public class Version {
   @Nonnull
   private static final String FILE_SUFFIX = "-version.properties";
-  @Nonnull
-  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private String version;
