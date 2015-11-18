@@ -35,7 +35,8 @@
     schedtests-lib,
     jill,
     jill-api,
-    jillunittests"/>
+    jillunittests,
+    jack-jar-tools"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
@@ -76,6 +77,7 @@
     jill-api-lib-clean,
     jill-api-src-clean,
     jillunittests-clean,
+    jack-jar-tools-clean,
     asm4-clean,
     dist-clean" />
 
@@ -105,6 +107,7 @@
   <property name="tools.dir" value="${jack-project.dir}/tools"/>
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
+  <property name="jack-jar-tools.dir" value="${jack-project.dir}/jack-jar-tools"/>
 
   <property name="jill.dir" value="${jack-project.dir}/jill" />
   <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
@@ -135,7 +138,7 @@
       message="Only one of dist.sha and dist.build-id properties has been set"/>
   </target>
 
-  <target name="dist" depends="jack-dist, jill-dist"/>
+  <target name="dist" depends="jack-dist, jill-dist, tools-dist"/>
 
   <target name="jack-dist"
     description="package a Jack distribution"
@@ -231,6 +234,33 @@
       includes="jill-api-version.properties"/>
 
     <delete dir="${jill-dist.tmp}"/>
+
+  </target>
+
+  <target name="tools-dist" description="package tools distribution" depends="
+    dist-check,
+    jack-jar-tools">
+    <mkdir dir="${jack-top-dist.dir}"/>
+
+    <tempfile property="tools-dist.tmp" prefix="tools-dist" destdir="${java.io.tmpdir}"/>
+    <mkdir dir="${tools-dist.tmp}"/>
+
+    <copy file="${jack-project.dir}/version.properties" tofile="${tools-dist.tmp}/version.properties"/>
+    <propertyfile file="${tools-dist.tmp}/version.properties">
+      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
+      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
+    </propertyfile>
+
+    <copy file="${tools-dist.tmp}/version.properties" tofile="${tools-dist.tmp}/jack-jar-tools-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" filesetmanifest="merge">
+      <zipfileset src="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}"
+      excludes="jack-jar-tools-version.properties"/>
+    </jar>
+    <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
+      basedir="${tools-dist.tmp}"
+      includes="jack-jar-tools-version.properties"/>
+
+    <delete dir="${tools-dist.tmp}"/>
 
   </target>
 
@@ -2378,6 +2408,64 @@
       <report format="frames" todir="${jack.tests.output}/test-jill-all/html"/>
     </junitreport>
     <fail message="TESTS FAILED" if="test-jill.failure" />
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jack-jar-tools          -->
+  <!-- ******************* -->
+  <property name="jack-jar-tools.build.dir" value="${jack-jar-tools.dir}/build" />
+  <property name="jack-jar-tools.dist.dir" value="${jack-jar-tools.dir}/dist" />
+  <property name="jack-jar-tools.libs.dir" value="${jack-jar-tools.dir}/libs" />
+  <property name="jack-jar-tools.build.outdir" value="${jack-jar-tools.build.dir}/classes" />
+  <property name="jack-jar-tools.name" value="jack-jar-tools.jar" />
+
+  <target name="jack-jar-tools-clean">
+    <delete dir="${jack-jar-tools.build.outdir}"/>
+    <delete file="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}"/>
+  </target>
+
+  <target name="jack-jar-tools-copy-libs" depends="jsr305-lib">
+    <copy todir="${jack-jar-tools.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jack-jar-tools"
+      depends="jack-jar-tools-copy-libs,sched-lib">
+    <mkdir dir="${jack-jar-tools.build.outdir}"/>
+    <filelist id="jack-jar-tools.static.libs.fileset" dir="/">
+      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
+      <file name="${args4j.dist.dir}/${args4j.libname}"/>
+    </filelist>
+    <dependset>
+      <sources>
+          <fileset dir="${jack-jar-tools.dir}/src" />
+          <filelist refid="jack-jar-tools.static.libs.fileset" />
+        </sources>
+      <targets>
+        <fileset dir="${jack-jar-tools.build.outdir}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${jack-jar-tools.dir}/src" destdir="${jack-jar-tools.build.outdir}"
+         source="1.6" target="1.6" debug="true"
+         includeantruntime="false"  includeDestClasses="false" nowarn="true">
+      <classpath>
+        <filelist refid="jack-jar-tools.static.libs.fileset"/>
+      </classpath>
+    </javac>
+    <unzip dest="${jack-jar-tools.build.outdir}">
+      <filelist refid="jack-jar-tools.static.libs.fileset"/>
+    </unzip>
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-jar-tools.build.outdir}/jack-jar-tools-version.properties"/>
+    <jar destfile="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}" manifest="${jack-jar-tools.dir}/etc/manifest.txt">
+      <fileset dir="${jack-jar-tools.build.outdir}"/>
+    </jar>
   </target>
 
 </project>
