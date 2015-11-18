@@ -216,8 +216,7 @@ class RopRegisterManager {
   }
 
   @Nonnull
-  RegisterSpec getOrCreateTmpRegister(@Nonnull JType type, boolean isForcedClosure) {
-    Type dexRegType = RopHelper.convertTypeToDx(type, isForcedClosure);
+  RegisterSpec getOrCreateTmpRegister(@Nonnull Type dexRegType) {
     Integer nextFreeRegister = typeToNextPosFreeRegister.get(dexRegType);
 
     if (nextFreeRegister == null) {

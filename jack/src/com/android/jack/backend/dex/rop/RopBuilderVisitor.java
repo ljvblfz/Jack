@@ -274,7 +274,8 @@ class RopBuilderVisitor extends JVisitor {
       addInstruction(callInst);
 
       if (!isClosure(lambda.getType())) {
-        RegisterSpec tmp = ropReg.getOrCreateTmpRegister(destRegJType, /* isForcedClosure= */ true);
+        RegisterSpec tmp = ropReg.getOrCreateTmpRegister(
+            RopHelper.convertTypeToDx(destRegJType, /* isForcedClosure= */ true));
         addMoveResultPseudoAsExtraInstruction(tmp, lambdaSrcPos);
         generateBoxLambda(destRegJType, sourcePosition, /* destReg= */destReg, tmp,
             /* useTmp= */ false, /* extraInst= */true);
@@ -864,6 +865,12 @@ class RopBuilderVisitor extends JVisitor {
     SourcePosition srcPos = RopHelper.getSourcePosition(instanceOf);
     RegisterSpec regExpr = getRegisterSpec(instanceOf.getExpr());
     CstType type = RopHelper.getCstType(instanceOf.getTestType());
+
+    if (regExpr.isClosure()) {
+      regExpr = generateBoxLambda(instanceOf.getExpr().getType(), srcPos, /* destReg= */null,
+          regExpr, /* useTmp= */ true, /* extraInst= */false);
+    }
+
     addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos, RegisterSpecList.make(regExpr),
         getCatchTypes(), type));
     addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
@@ -930,8 +937,8 @@ class RopBuilderVisitor extends JVisitor {
       @Nonnull SourcePosition sourcePosition, @CheckForNull RegisterSpec destReg,
       @Nonnull RegisterSpec regToUnbox, boolean useTmp, boolean extraInst) {
     assert !useTmp || destReg == null;
-    RegisterSpec tmpUnboxedReg =
-        useTmp ? ropReg.getOrCreateTmpRegister(unboxType, /* isForcedClosure= */ true) : destReg;
+    RegisterSpec tmpUnboxedReg = useTmp ? ropReg.getOrCreateTmpRegister(
+        RopHelper.convertTypeToDx(unboxType, /* isForcedClosure= */ true)) : destReg;
     assert tmpUnboxedReg != null;
     RegisterSpecList sourcesUnbox = RegisterSpecList.make(regToUnbox);
 
@@ -953,14 +960,14 @@ class RopBuilderVisitor extends JVisitor {
       @Nonnull SourcePosition sourcePosition, @CheckForNull RegisterSpec destReg,
       @Nonnull RegisterSpec regToBox, boolean useTmp, boolean extraInst) {
     assert !useTmp || destReg == null;
+    Type dxType = RopHelper.convertTypeToDxWithoutClosure(boxType);
     RegisterSpec tmpBoxedReg =
-        useTmp ? ropReg.getOrCreateTmpRegister(boxType, /* isForcedClosure= */ false) : destReg;
+        useTmp ? ropReg.getOrCreateTmpRegister(dxType) : destReg;
     assert tmpBoxedReg != null;
     RegisterSpecList sourcesBox = RegisterSpecList.make(regToBox);
 
-    Insn constInst =
-        new PlainCstInsn(Rops.CONST_OBJECT, sourcePosition, tmpBoxedReg, RegisterSpecList.EMPTY,
-            RopHelper.createString(RopHelper.convertTypeToDx(boxType).getDescriptor()));
+    Insn constInst = new PlainCstInsn(Rops.CONST_OBJECT, sourcePosition, tmpBoxedReg,
+        RegisterSpecList.EMPTY, RopHelper.createString(dxType.getDescriptor()));
     if (extraInst) {
       addExtraInstruction(constInst);
     } else {
@@ -968,7 +975,7 @@ class RopBuilderVisitor extends JVisitor {
     }
 
     Insn inst = new PlainCstInsn(Rops.opBoxLambda(regToBox, sourcesBox), sourcePosition,
-        tmpBoxedReg, sourcesBox, CstType.intern(RopHelper.convertTypeToDx(boxType)));
+        tmpBoxedReg, sourcesBox, CstType.intern(dxType));
 
     if (extraInst) {
       addExtraInstruction(inst);
@@ -1030,6 +1037,11 @@ class RopBuilderVisitor extends JVisitor {
 
       }
     } else {
+      if (fromReg.isClosure()) {
+        fromReg = generateBoxLambda(from.getType(), sourcePosition, /* destReg= */null, fromReg,
+            /* useTmp= */ true, /* extraInst= */false);
+      }
+
       RegisterSpecList sources = RegisterSpecList.make(fromReg);
 
       Insn insn =
@@ -1443,7 +1455,8 @@ class RopBuilderVisitor extends JVisitor {
       regSpec = ropReg.getRegisterSpec((JVariableRef) expr);
     } else {
       assert expr instanceof JValueLiteral;
-      regSpec = ropReg.getOrCreateTmpRegister(expr.getType(), /*isForcedClosure=*/ false);
+      regSpec =
+          ropReg.getOrCreateTmpRegister(RopHelper.convertTypeToDxWithoutClosure(expr.getType()));
       buildConstant(regSpec, (JValueLiteral) expr);
     }
 
