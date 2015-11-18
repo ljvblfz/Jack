@@ -779,9 +779,18 @@ class RopBuilderVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLock lockStmt) {
-    Insn lockInsn = new ThrowingInsn(Rops.MONITOR_ENTER, RopHelper.getSourcePosition(lockStmt),
-        RegisterSpecList.make(getRegisterSpec(lockStmt.getLockExpr())),
-        getCatchTypes());
+    SourcePosition srcPosition = RopHelper.getSourcePosition(lockStmt);
+    RegisterSpec lockReg = getRegisterSpec(lockStmt.getLockExpr());
+
+    if (lockReg.isClosure()) {
+      RegisterSpec regularObjectReg = generateBoxLambda(lockStmt.getLockExpr().getType(),
+          srcPosition, /* destReg= */null, lockReg, /* useTmp= */ true, /* extraInst= */false);
+      ropReg.addMapppingFromClosureToRegularObject(lockReg, regularObjectReg);
+      lockReg = regularObjectReg;
+    }
+
+    Insn lockInsn = new ThrowingInsn(Rops.MONITOR_ENTER, srcPosition,
+        RegisterSpecList.make(lockReg), getCatchTypes());
 
     addInstruction(lockInsn);
 
@@ -790,9 +799,14 @@ class RopBuilderVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JUnlock unlockStmt) {
+    RegisterSpec unlockReg = getRegisterSpec(unlockStmt.getLockExpr());
+
+    if (unlockReg.isClosure()) {
+      unlockReg = ropReg.getRegularObjectFromClosure(unlockReg);
+    }
+
     Insn unlockInsn = new ThrowingInsn(Rops.MONITOR_EXIT, RopHelper.getSourcePosition(unlockStmt),
-        RegisterSpecList.make(getRegisterSpec(unlockStmt.getLockExpr())),
-        getCatchTypes());
+        RegisterSpecList.make(unlockReg), getCatchTypes());
 
     addInstruction(unlockInsn);
 
