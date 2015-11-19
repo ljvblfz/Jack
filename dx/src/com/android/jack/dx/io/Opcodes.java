@@ -106,6 +106,7 @@ public final class Opcodes {
   public static final int MOVE_LAMBDA = 0x3e;
   public static final int MOVE_RESULT_LAMBDA = 0x3f;
   public static final int RETURN_LAMBDA = 0x40;
+  public static final int CMP_LAMBDA = 0x41;
   public static final int AGET_LAMBDA = 0x42;
   public static final int APUT_LAMBDA = 0x43;
   public static final int AGET = 0x44;

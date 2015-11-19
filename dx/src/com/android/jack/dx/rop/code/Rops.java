@@ -952,6 +952,10 @@ public final class Rops {
   public static final Rop MOVE_LAMBDA =
       new Rop(RegOps.MOVE, Type.CLOSURE, StdTypeList.CLOSURE, "move-lambda");
 
+  /** {@code r: int; x,y: Closure :: r = cmp(x, y);} */
+  public static final Rop CMP_LAMBDA =
+      new Rop(RegOps.CMPL, Type.INT, StdTypeList.CLOSURE_CLOSURE, "cmp-lambda");
+
   /**
    * Returns the appropriate rop for the given opcode, destination,
    * and sources. The result is typically, but not necessarily, a

@@ -357,6 +357,7 @@ public final class RopToDop {
     // Note: No dalvik op for shr_const_long.
 
     MAP.put(Rops.CMPL_LONG, Dops.CMP_LONG);
+    MAP.put(Rops.CMP_LAMBDA, Dops.CMP_LAMBDA);
     MAP.put(Rops.CMPL_FLOAT, Dops.CMPL_FLOAT);
     MAP.put(Rops.CMPL_DOUBLE, Dops.CMPL_DOUBLE);
     MAP.put(Rops.CMPG_FLOAT, Dops.CMPG_FLOAT);
