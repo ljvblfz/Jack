@@ -41,6 +41,8 @@ import com.android.jack.analysis.tracer.SubClassOrInterfaceFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
+import com.android.jack.backend.dex.DalvikProtectedInnerChecker;
+import com.android.jack.backend.dex.DalvikProtectedInnerChecker.DalvikProtectedInnerCheck;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexInLibraryProduct;
@@ -594,6 +596,7 @@ public abstract class Jack {
           if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
             request.addFeature(MultiDexLegacy.class);
           }
+          request.addFeature(DalvikProtectedInnerCheck.class);
           DexWritingTool dexWritingTool = config.get(DexFileWriter.DEX_WRITING_POLICY);
           if (dexWritingTool instanceof MultiDexWritingTool) {
             request.addFeature(MultiDex.class);
@@ -1153,6 +1156,13 @@ public abstract class Jack {
 
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
+    }
+
+    if (features.contains(DalvikProtectedInnerCheck.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(DalvikProtectedInnerChecker.class);
     }
 
     if (features.contains(RemoveTypeDef.class)) {
