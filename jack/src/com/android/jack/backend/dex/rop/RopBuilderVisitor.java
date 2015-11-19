@@ -564,39 +564,54 @@ class RopBuilderVisitor extends JVisitor {
           || (leftType instanceof JIntegralType32 && type instanceof JIntegralType32)
           || (leftType instanceof JReferenceType && type instanceof JReferenceType);
 
-      RegisterSpec leftReg = getRegisterSpec(left);
-      sources = RegisterSpecList.make(leftReg, rightReg);
-
       op = binCondExpr.getOp();
-      if (type instanceof JPrimitiveType) {
-        switch (((JPrimitiveType) type).getPrimitiveTypeEnum()) {
-          case LONG:
-          case FLOAT:
-          case DOUBLE: {
-            RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.BOOLEAN.getType());
-            Rop cmpOp = null;
-            Type dxType = RopHelper.convertTypeToDx(type);
+      RegisterSpec leftReg = getRegisterSpec(left);
+      if (leftReg.isClosure() && !rightReg.isClosure()) {
+        leftReg = generateBoxLambda(left.getType(), ifStmtSrcPos, /* destReg= */null, leftReg,
+            /* useTmp= */ true, /* extraInst= */false);
+        sources = RegisterSpecList.make(leftReg, rightReg);
+      } else if (!leftReg.isClosure() && rightReg.isClosure()) {
+        rightReg = generateBoxLambda(right.getType(), ifStmtSrcPos, /* destReg= */null, rightReg,
+            /* useTmp= */ true, /* extraInst= */false);
+        sources = RegisterSpecList.make(leftReg, rightReg);
+      } else if (leftReg.isClosure() && rightReg.isClosure()) {
+        RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.INT.getType());
+        sources = RegisterSpecList.make(leftReg, rightReg);
+        Insn cmpInst = new PlainInsn(Rops.CMP_LAMBDA, ifStmtSrcPos, dest, sources);
+        addInstruction(cmpInst);
+        sources = RegisterSpecList.make(dest);
+      } else {
+        sources = RegisterSpecList.make(leftReg, rightReg);
+        if (type instanceof JPrimitiveType) {
+          switch (((JPrimitiveType) type).getPrimitiveTypeEnum()) {
+            case LONG:
+            case FLOAT:
+            case DOUBLE: {
+              RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.BOOLEAN.getType());
+              Rop cmpOp = null;
+              Type dxType = RopHelper.convertTypeToDx(type);
 
-            if (type == JPrimitiveTypeEnum.LONG.getType()) {
-              cmpOp = Rops.opCmpl(dxType);
-            } else {
-              cmpOp = getCmpOperatorForFloatDouble(op, dxType);
+              if (type == JPrimitiveTypeEnum.LONG.getType()) {
+                cmpOp = Rops.opCmpl(dxType);
+              } else {
+                cmpOp = getCmpOperatorForFloatDouble(op, dxType);
+              }
+
+              Insn ifInst = new PlainInsn(cmpOp, ifStmtSrcPos, dest, sources);
+              addInstruction(ifInst);
+              sources = RegisterSpecList.make(dest);
+              break;
             }
-
-            Insn ifInst = new PlainInsn(cmpOp, ifStmtSrcPos, dest, sources);
-            addInstruction(ifInst);
-            sources = RegisterSpecList.make(dest);
-            break;
+            case BOOLEAN:
+            case BYTE:
+            case CHAR:
+            case SHORT:
+            case INT:
+              // Nothing to do.
+              break;
+            case VOID:
+              throw new AssertionError("Void type not supported.");
           }
-          case BOOLEAN:
-          case BYTE:
-          case CHAR:
-          case SHORT:
-          case INT:
-            // Nothing to do.
-            break;
-          case VOID:
-           throw new AssertionError("Void type not supported.");
         }
       }
     } else if (condExpr instanceof JPrefixNotOperation) {
