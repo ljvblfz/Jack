@@ -26,6 +26,7 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.code.DalvCode;
 import com.android.jack.dx.dex.code.PositionList;
@@ -161,7 +162,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
       "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
@@ -174,8 +175,10 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
-  private final boolean runDxOptimizations =
-      ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
+  // STOPSHIP: Enable dx optimizations for Java 8 when final version of box-lambda will be
+  // available.
+  private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue()
+      && ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) != 0;
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
