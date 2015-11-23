@@ -34,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
     LambdaTest.class,
     MethodRefTest.class,
     RetroLambdaTests.class,
-    StaticMethodTest.class
+    StaticMethodTest.class,
+    TypeInferenceTest.class
     })
 public class Java8AllTest {
 }
