@@ -21,6 +21,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -52,6 +53,7 @@ public class DebugTests {
   }
 
   @Test
+  @Ignore
   public void test003() throws Exception {
     checkStructure("003");
   }
@@ -63,11 +65,13 @@ public class DebugTests {
   }
 
   @Test
+  @Ignore
   public void test005() throws Exception {
     checkStructure("005");
   }
 
   @Test
+  @Ignore
   public void test006() throws Exception {
     checkStructure("006");
   }
@@ -103,16 +107,19 @@ public class DebugTests {
   }
 
   @Test
+  @Ignore
   public void test013() throws Exception {
     checkStructure("013");
   }
 
   @Test
+  @Ignore
   public void test014() throws Exception {
     checkStructure("014");
   }
 
   @Test
+  @Ignore
   public void test019() throws Exception {
     checkStructure("019");
   }

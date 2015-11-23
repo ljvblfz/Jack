@@ -235,6 +235,9 @@ public class LegacyToolchain extends AndroidToolchain {
       args.add(classpath);
     }
 
+    // for now, we only use ECJ for debug info comparison
+    args.add("-g");
+
     if (isVerbose) {
       args.add("-verbose");
     }
@@ -342,7 +345,8 @@ public class LegacyToolchain extends AndroidToolchain {
 
       arguments.jarOutput = zipFile;
       arguments.outName = new File(out, getBinaryFileName()).getAbsolutePath();
-      arguments.optimize = !withDebugInfos && useDxOptimization;
+
+      arguments.optimize = useDxOptimization;
       // this only means we deactivate the check that no core classes are included
       arguments.coreLibrary = true;
       arguments.verbose = isVerbose;
