@@ -143,7 +143,7 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
       excludeList.add(JillBasedToolchain.class);
       File dexOutDir = AbstractTestTools.createTempDir();
-      JackApiToolchainBase jackToolchain =
+      JackBasedToolchain jackToolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
@@ -166,7 +166,7 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
       excludeList.add(JillBasedToolchain.class);
       File dexOutDir = AbstractTestTools.createTempDir();
-      JackApiToolchainBase jackToolchain =
+      JackBasedToolchain jackToolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
