@@ -23,11 +23,16 @@ import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
+import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -90,5 +95,26 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   @KnownIssue
   public void test35_001() throws Exception {
     super.test35_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test44_001() throws Exception {
+    super.test44_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test5_001() throws Exception {
+    super.test5_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test15_001() throws Exception {
+    super.test15_001();
   }
 }

@@ -23,9 +23,13 @@ import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,4 +86,47 @@ public class RepackagingTest extends AbstractTest {
 
     return result;
   }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test33_001() throws Exception {
+    super.test33_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test34_001() throws Exception {
+    super.test34_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test35_001() throws Exception {
+    super.test35_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test44_001() throws Exception {
+    super.test44_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test5_001() throws Exception {
+    super.test5_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test15_001() throws Exception {
+    super.test15_001();
+  }
+
 }

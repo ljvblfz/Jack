@@ -29,9 +29,11 @@ import com.android.jack.test.comparator.Comparator;
 import com.android.jack.test.comparator.ComparatorException;
 import com.android.jack.test.comparator.ComparatorFile;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
@@ -380,6 +382,7 @@ public class MultiDexTests {
 
   @Test
   @Category(SlowTests.class)
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void legacyAppTest002b_auto() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareAutoLibrary();
@@ -466,6 +469,7 @@ public class MultiDexTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void legacyAppTest002b_auto_withoutAnnotations() throws Exception {
     File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test002.jack");
     File autoLibrary = prepareAutoLibrary();
