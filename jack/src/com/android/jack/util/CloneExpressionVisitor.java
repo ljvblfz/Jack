@@ -210,7 +210,7 @@ public class CloneExpressionVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JDynamicCastOperation x) {
     expression =
-        new JDynamicCastOperation(x.getSourceInfo(), x.getCastType(), cloneExpression(x.getExpr()));
+        new JDynamicCastOperation(x.getSourceInfo(), cloneExpression(x.getExpr()), x.getTypes());
     return false;
   }
 
@@ -344,8 +344,8 @@ public class CloneExpressionVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLambda x) {
-    expression =
-        new JLambda(x.getSourceInfo(), x.getMethod(), x.getType(), x.needToCaptureInstance());
+    expression = new JLambda(x.getSourceInfo(), x.getMethod(), x.getType(),
+        x.needToCaptureInstance(), x.getInterfaceBounds());
     return false;
   }
 }

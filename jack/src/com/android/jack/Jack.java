@@ -197,6 +197,7 @@ import com.android.jack.transformations.ast.ImplicitBlocks;
 import com.android.jack.transformations.ast.ImplicitBlocksChecker;
 import com.android.jack.transformations.ast.IncDecRemover;
 import com.android.jack.transformations.ast.InitInNewArrayRemover;
+import com.android.jack.transformations.ast.IntersectionTypeRemover;
 import com.android.jack.transformations.ast.MultiDimensionNewArrayRemover;
 import com.android.jack.transformations.ast.NestedAssignRemover;
 import com.android.jack.transformations.ast.NumericConversionChecker;
@@ -1205,6 +1206,7 @@ public abstract class Jack {
         methodPlan.append(PrimitiveClassTransformer.class);
         methodPlan.append(SynchronizeTransformer.class);
         methodPlan.append(NestedAssignRemover.class);
+        methodPlan.append(IntersectionTypeRemover.class);
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
         if (features.contains(CodeStats.class)) {

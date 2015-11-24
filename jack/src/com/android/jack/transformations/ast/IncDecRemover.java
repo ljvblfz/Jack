@@ -69,7 +69,7 @@ import javax.annotation.Nonnull;
 @Name("IncDecRemover")
 @Transform(add = {JAsgOperation.class, JAddOperation.class, JSubOperation.class,
     JMultiExpression.class, JArrayRef.class, JLocalRef.class, JIntLiteral.class,
-    JFieldRef.class, JParameterRef.class},
+    JFieldRef.class, JParameterRef.class, JDynamicCastOperation.class},
     remove = {JPrefixDecOperation.class, JPrefixIncOperation.class,
     JPostfixDecOperation.class, JPostfixIncOperation.class, ThreeAddressCodeForm.class})
 @Use({LocalVarCreator.class, SideEffectExtractor.class})
@@ -169,7 +169,7 @@ public class IncDecRemover implements RunnableSchedulable<JMethod> {
           if (unaryArgType == JPrimitiveTypeEnum.BYTE.getType() ||
               unaryArgType == JPrimitiveTypeEnum.SHORT.getType() ||
               unaryArgType == JPrimitiveTypeEnum.CHAR.getType()) {
-            rhs = new JDynamicCastOperation(sourceInfo, unaryArgType, rhs);
+            rhs = new JDynamicCastOperation(sourceInfo, rhs, unaryArgType);
           }
           JAsgOperation newExpr = new JAsgOperation(sourceInfo, unary.getArg(), rhs);
           tr.append(new Replace(unary, newExpr));

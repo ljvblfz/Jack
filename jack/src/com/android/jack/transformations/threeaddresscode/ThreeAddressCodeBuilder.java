@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBlock;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConditionalOperation;
@@ -85,7 +86,7 @@ import javax.annotation.Nonnull;
 @Name("ThreeAddressCodeBuilder")
 @Constraint(need = {NoImplicitBlock.class, SourceCast.class}, no = {InitInNewArray.class,
     JAssertStatement.class, JAsgOperation.class, JFieldInitializer.class,
-    JConditionalOperation.class, JLoop.class})
+    JConditionalOperation.class, JLoop.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {ThreeAddressCodeForm.class,
     RefAsStatement.class,
     JLocalRef.class,

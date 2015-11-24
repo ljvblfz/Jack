@@ -170,6 +170,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.FloatLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ForStatement;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
@@ -220,6 +221,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -569,9 +571,16 @@ public class JackIrBuilder {
     public void endVisit(CastExpression x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JType type = getTypeMap().get(x.resolvedType);
         JExpression expression = pop(x.expression);
-        push(new JDynamicCastOperation(info, type, expression));
+        JDynamicCastOperation castOp = null;
+        if (x.resolvedType instanceof IntersectionTypeBinding18) {
+          castOp = new JDynamicCastOperation(info, expression,
+              getTypeMap().getBounds((IntersectionTypeBinding18) x.resolvedType));
+        } else {
+          castOp =
+              new JDynamicCastOperation(info, expression, getTypeMap().get(x.resolvedType));
+        }
+        push(castOp);
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
@@ -1305,9 +1314,10 @@ public class JackIrBuilder {
             || referenceExpression.lhs instanceof QualifiedThisReference;
         boolean shouldCaptureInstance = isSuperRef || isThisRef;
 
-        exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
-          (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-          shouldCaptureInstance);
+        exprRepresentingLambda =
+            new JLambda(sourceInfo, newMethodInfo.method,
+                (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+                shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
 
         if (!(referenceExpression.lhs instanceof TypeReference)) {
           if (lhsExpr != null && !shouldCaptureInstance) {
@@ -1373,7 +1383,7 @@ public class JackIrBuilder {
 
         exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
             (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-            /*captureInstance=*/ false);
+            /* captureInstance= */ false, getInterfaceBounds(referenceExpression, blockScope));
 
         Expression lhs = referenceExpression.lhs;
         JArrayType arrayType = (JArrayType) getTypeMap().get(lhs.resolvedType);
@@ -1431,7 +1441,7 @@ public class JackIrBuilder {
 
       JLambda lambda = new JLambda(sourceInfo, newMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-          shouldCaptureInstance);
+          shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
 
       addArgToMethodCall(referenceExpression, argsOfLambdaMth, constructor,
           newInstance, paramCountCons, 0);
@@ -1596,7 +1606,8 @@ public class JackIrBuilder {
       SourceInfo sourceInfo = makeSourceInfo(lambdaExpression);
       JLambda lambda = new JLambda(sourceInfo, lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
-          lambdaExpression.shouldCaptureInstance);
+          lambdaExpression.shouldCaptureInstance,
+          getInterfaceBounds(lambdaExpression, blockScope));
 
       // Capture all local variable that are not already moved into fields
       for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
@@ -1617,6 +1628,48 @@ public class JackIrBuilder {
       }
 
       push(lambda);
+    }
+
+    @Nonnull
+    private List<JInterface> getInterfaceBounds(
+        @Nonnull FunctionalExpression functionalExpression,
+        @Nonnull BlockScope blockScope) {
+      List<JInterface> bounds = new ArrayList<JInterface>();
+
+      TypeBinding expectedType = functionalExpression.expectedType();
+      if (expectedType instanceof IntersectionTypeBinding18) {
+        List<JType> types = getTypeMap().getBounds((IntersectionTypeBinding18) expectedType);
+
+        for (JType type :types) {
+          if (type instanceof JInterface) {
+            bounds.add((JInterface) type);
+          } else {
+            blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(functionalExpression);
+            throw new FrontendCompilationError();
+          }
+        }
+
+        ReferenceBinding[] intersectingTypes =
+            ((IntersectionTypeBinding18) expectedType).intersectingTypes;
+        int samCount = 0;
+        for (int i = 0; i < intersectingTypes.length; i++) {
+          MethodBinding method = intersectingTypes[i].getSingleAbstractMethod(blockScope,
+              /* replaceWildcards= */ true);
+          if (method != null) {
+            if (method.isValidBinding()) {
+              samCount++;
+            } else {
+              if (intersectingTypes[i].methods().length != 0 && samCount > 0) {
+                blockScope.problemReporter()
+                    .targetTypeIsNotAFunctionalInterface(functionalExpression);
+                throw new FrontendCompilationError();
+              }
+            }
+          }
+        }
+      }
+
+      return bounds;
     }
 
     @Override
@@ -1670,17 +1723,27 @@ public class JackIrBuilder {
         }
 
         JDefinedClassOrInterface receiverType;
-
-        JType jType = getTypeMap().get(x.actualReceiverType);
-        if (jType instanceof JClassOrInterface) {
-          if (jType instanceof JInterface && method.getEnclosingType() != null
-              && method.getEnclosingType().isSameType(javaLangObject)) {
+        if (x.actualReceiverType instanceof IntersectionTypeBinding18) {
+          if (method.getEnclosingType() instanceof JDefinedInterface) {
             receiverType = method.getEnclosingType();
           } else {
-            receiverType = (JDefinedClassOrInterface) jType;
+            ReferenceBinding firstBound =
+                ((IntersectionTypeBinding18) x.actualReceiverType).intersectingTypes[0];
+            assert firstBound.isClass();
+            receiverType = (JDefinedClass) getTypeMap().get(firstBound);
           }
         } else {
-          receiverType = method.getEnclosingType();
+          JType jType = getTypeMap().get(x.actualReceiverType);
+          if (jType instanceof JClassOrInterface) {
+            if (jType instanceof JInterface && method.getEnclosingType() != null
+                && method.getEnclosingType().isSameType(javaLangObject)) {
+              receiverType = method.getEnclosingType();
+            } else {
+              receiverType = (JDefinedClassOrInterface) jType;
+            }
+          } else {
+            receiverType = method.getEnclosingType();
+          }
         }
 
         JMethodCall call;
@@ -2971,7 +3034,7 @@ public class JackIrBuilder {
       if (!expected.isSameType(expression.getType())) {
         // Must be a generic; insert a cast operation.
         JReferenceType toType = (JReferenceType) expected;
-        return new JDynamicCastOperation(expression.getSourceInfo(), toType, expression);
+        return new JDynamicCastOperation(expression.getSourceInfo(), expression, toType);
       } else {
         return expression;
       }
@@ -3457,7 +3520,7 @@ public class JackIrBuilder {
         JMethodCall call = makeMethodCall(info, null, jValueOfBinding.getEnclosingType(),
             jValueOfBinding);
         call.addArgs(clazz, nameRef);
-        implementMethod(method, new JDynamicCastOperation(info, type, call));
+        implementMethod(method, new JDynamicCastOperation(info, call, type));
       }
     }
 

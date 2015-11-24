@@ -55,6 +55,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAssertStatement;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConditionalOperation;
@@ -145,7 +146,8 @@ import javax.annotation.Nonnull;
     JConditionalOperation.class,
     EmptyClinit.class,
     UselessSwitches.class,
-    SourceCast.class})
+    SourceCast.class,
+    JCastOperation.WithIntersectionType.class})
 @Transform(add = DexCodeMarker.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = CapturedVariable.class)))

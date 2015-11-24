@@ -541,7 +541,6 @@ public class GwtTest {
   }
 
   @Test
-  @KnownIssue
   public void testBaseIntersectionCast() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_39)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -550,16 +549,14 @@ public class GwtTest {
   }
 
   @Test
-  @KnownIssue
   public void testIntersectionCastWithLambdaExpr() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_40)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .compileAndRunTest();
+      new RuntimeTestHelper(GWT_LAMBDA_TEST_40)
+      .setSourceLevel(SourceLevel.JAVA_8)
+      .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+      .compileAndRunTest();
   }
 
   @Test
-  @KnownIssue
   public void testIntersectionCastPolymorphism() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_41)
     .setSourceLevel(SourceLevel.JAVA_8)

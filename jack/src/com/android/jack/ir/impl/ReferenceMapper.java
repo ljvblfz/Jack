@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -182,8 +183,20 @@ public class ReferenceMapper {
   }
 
   @Nonnull
+  public List<JType> getBounds(@Nonnull IntersectionTypeBinding18 binding)
+      throws JTypeLookupException {
+    List<JType> bounds = new ArrayList<JType>(binding.intersectingTypes.length);
+
+    for (ReferenceBinding refBinding : binding.intersectingTypes) {
+      bounds.add(get(refBinding));
+    }
+    return bounds;
+  }
+
+  @Nonnull
   public JType get(@Nonnull TypeBinding binding) throws JTypeLookupException {
     binding = binding.erasure();
+    assert !(binding instanceof IntersectionTypeBinding18);
     return get(new String(binding.signature()));
   }
 

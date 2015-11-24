@@ -1020,7 +1020,7 @@ class RopBuilderVisitor extends JVisitor {
     SourcePosition sourcePosition = RopHelper.getSourcePosition(cast);
     RegisterSpec fromReg = getRegisterSpec(from);
 
-    JType castTo = cast.getCastType();
+    JType castTo = cast.getType();
     JType castedFrom = from.getType();
 
     if (castTo instanceof JPrimitiveType) {

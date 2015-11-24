@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -355,8 +356,8 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       List<JType> paramType = lamdbaMethodImpl.getMethodId().getParamTypes();
       int pIndex =  0;
       for (JParameter param : bridge.getParams()) {
-        callToSuper.addArg(new JDynamicCastOperation(sourceInfo, paramType.get(pIndex++),
-            new JParameterRef(sourceInfo, param)));
+        callToSuper.addArg(new JDynamicCastOperation(sourceInfo,
+            new JParameterRef(sourceInfo, param), paramType.get(pIndex++)));
       }
 
       if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
@@ -394,6 +395,11 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
       lambdaImpl.setSuperClass(jlo);
       lambdaImpl.addImplements(lambdaExpr.getType());
+      for (JInterface bound : lambdaExpr.getInterfaceBounds()) {
+        if (!bound.isSameType(lambdaExpr.getType())) {
+          lambdaImpl.addImplements(bound);
+        }
+      }
       lambdaImpl.setEnclosingType(currentClass);
       lambdaImpl.addMarker(new SimpleName(simpleName));
 

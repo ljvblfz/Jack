@@ -57,11 +57,10 @@ import javax.annotation.Nonnull;
  */
 @Description("Remove new array with multiple dimension.")
 @Name("MultiDimensionNewArrayRemover")
-@Transform(remove = {MultiDimensionNewArray.class, ThreeAddressCodeForm.class}, add = {
-    JNewArray.class, JMethodCall.class, JClassLiteral.class, JDynamicCastOperation.class,
-    InitInNewArray.class})
-public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMethod>
-{
+@Transform(remove = {MultiDimensionNewArray.class, ThreeAddressCodeForm.class},
+    add = {JNewArray.class, JMethodCall.class, JClassLiteral.class, JDynamicCastOperation.class,
+        InitInNewArray.class})
+public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
@@ -111,8 +110,8 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
           call.addArg(new JClassLiteral(sourceInfo,
               getComponentTypeForNewInstance(newArray, nbPresentDimensions), jlc));
          call.addArg(JNewArray.createWithInits(sourceInfo, intArrayType, presentDimensions));
-          tr.append(new Replace(newArray, new JDynamicCastOperation(sourceInfo, newArray
-              .getArrayType(), call)));
+          tr.append(new Replace(newArray, new JDynamicCastOperation(sourceInfo, call, newArray
+              .getArrayType())));
         }
       }
       return super.visit(newArray);

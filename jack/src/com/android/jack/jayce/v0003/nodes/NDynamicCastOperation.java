@@ -29,6 +29,8 @@ import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -37,11 +39,12 @@ import javax.annotation.Nonnull;
  * Dynamic cast expression.
  */
 public class NDynamicCastOperation extends NExpression {
+
   @Nonnull
   public static final Token TOKEN = Token.DYNAMIC_CAST_OPERATION;
 
   @CheckForNull
-  public String castType;
+  public List<String> castTypes;
 
   @CheckForNull
   public NExpression expr;
@@ -51,10 +54,10 @@ public class NDynamicCastOperation extends NExpression {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    JDynamicCastOperation jDynamicCastOperation = (JDynamicCastOperation) node;
-    castType = ImportHelper.getSignatureName(jDynamicCastOperation.getCastType());
-    expr = (NExpression) loader.load(jDynamicCastOperation.getExpr());
-    sourceInfo = loader.load(jDynamicCastOperation.getSourceInfo());
+    JDynamicCastOperation jMultiCastOperation = (JDynamicCastOperation) node;
+    castTypes = ImportHelper.getSignatureNameList(jMultiCastOperation.getTypes());
+    expr = (NExpression) loader.load(jMultiCastOperation.getExpr());
+    sourceInfo = loader.load(jMultiCastOperation.getSourceInfo());
   }
 
   @Override
@@ -62,27 +65,29 @@ public class NDynamicCastOperation extends NExpression {
   public JDynamicCastOperation exportAsJast(@Nonnull ExportSession exportSession)
       throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
-    assert castType != null;
+    assert castTypes != null;
     assert expr != null;
-    JType jType = exportSession.getLookup().getType(castType);
+    List<JType> jTypes = new ArrayList<JType>(castTypes.size());
+    for (String types : castTypes) {
+      jTypes.add(exportSession.getLookup().getType(types));
+    }
     JExpression jExpr = expr.exportAsJast(exportSession);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JDynamicCastOperation jDynamicCastOperation =
-        new JDynamicCastOperation(jSourceInfo, jType, jExpr);
-    return jDynamicCastOperation;
+    JDynamicCastOperation castOperation = new JDynamicCastOperation(jSourceInfo, jExpr, jTypes);
+    return castOperation;
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(castType);
+    assert castTypes != null;
+    out.writeIds(castTypes);
     out.writeNode(expr);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
-    castType = in.readId();
+    castTypes = in.readIds();
     expr = in.readNode(NExpression.class);
-
   }
 
   @Override

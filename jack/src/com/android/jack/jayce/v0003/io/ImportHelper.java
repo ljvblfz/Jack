@@ -34,6 +34,7 @@ import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class ImportHelper {
   }
 
   @Nonnull
-  public static List<String> getSignatureNameList(@Nonnull List<? extends JType> types) {
+  public static List<String> getSignatureNameList(@Nonnull Collection<? extends JType> types) {
     int typesNumber = types.size();
     List<String> signatures = new ArrayList<String>(typesNumber);
     for (JType type : types) {

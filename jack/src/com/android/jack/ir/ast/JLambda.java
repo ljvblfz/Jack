@@ -47,8 +47,11 @@ public class JLambda extends JExpression {
   @Nonnull
   private final JMethodBody body;
 
+  @Nonnull
+  private final List<JInterface> interfaceBounds;
+
   public JLambda(@Nonnull SourceInfo info, @Nonnull JMethod method, @Nonnull JDefinedInterface type,
-      boolean captureInstance) {
+      boolean captureInstance, @Nonnull List<JInterface> interfaceBounds) {
     super(info);
     assert method != null;
     assert type != null;
@@ -59,6 +62,7 @@ public class JLambda extends JExpression {
     JMethodBody localBody = (JMethodBody) method.getBody();
     assert localBody != null;
     body = localBody;
+    this.interfaceBounds = interfaceBounds;
   }
 
   public void addCapturedVariable(@Nonnull JVariableRef capturedVariableRef) {
@@ -121,6 +125,11 @@ public class JLambda extends JExpression {
   @Override
   public boolean canThrow() {
     return true;
+  }
+
+  @Nonnull
+  public List<JInterface> getInterfaceBounds() {
+    return interfaceBounds;
   }
 
   @Override

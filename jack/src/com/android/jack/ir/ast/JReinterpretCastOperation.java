@@ -30,9 +30,19 @@ import javax.annotation.Nonnull;
 @Description("Reinterpret cast expression")
 public class JReinterpretCastOperation extends JCastOperation {
 
+  @Nonnull
+  private final JType castType;
+
   public JReinterpretCastOperation(@Nonnull SourceInfo info, @Nonnull JType castType,
       @Nonnull JExpression expr) {
-    super(info, castType, expr);
+    super(info, expr);
+    this.castType = castType;
+  }
+
+  @Override
+  @Nonnull
+  public JType getType() {
+    return castType;
   }
 
   @Override

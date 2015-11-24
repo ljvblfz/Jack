@@ -24,11 +24,11 @@ import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JByteLiteral;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoubleLiteral;
-import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
@@ -118,7 +118,7 @@ class JavaPrecedenceVisitor extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JDynamicCastOperation operation) {
+  public boolean visit(@Nonnull JCastOperation operation) {
     answer = 2;
     return false;
   }

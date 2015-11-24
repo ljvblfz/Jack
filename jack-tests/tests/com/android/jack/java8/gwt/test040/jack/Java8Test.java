@@ -55,38 +55,6 @@ public class Java8Test {
     EmptyI emptyI = (EmptyI & SimpleI) () -> {
       return 33;
     };
-    try {
-      ((EmptyA & SimpleI) () -> {
-        return 33;
-      }).fun();
-      Assert.fail("Should have thrown a ClassCastException");
-    } catch (ClassCastException e) {
-      // expected.
-    }
-    try {
-      ((SimpleI & SimpleJ) () -> {
-        return 44;
-      }).fun();
-      Assert.fail("Should have thrown a ClassCastException");
-    } catch (ClassCastException e) {
-      // expected.
-    }
-    try {
-      ((SimpleI & SimpleJ) () -> {
-        return 44;
-      }).foo();
-      Assert.fail("Should have thrown a ClassCastException");
-    } catch (ClassCastException e) {
-      // expected.
-    }
-    try {
-      ((SimpleI & SimpleJ) () -> {
-        return 44;
-      }).bar();
-      Assert.fail("Should have thrown a ClassCastException");
-    } catch (ClassCastException e) {
-      // expected.
-    }
     Assert.assertEquals(55, ((SimpleI & SimpleK) () -> {
       return 55;
     }).fun());

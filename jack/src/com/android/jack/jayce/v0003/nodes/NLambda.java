@@ -18,6 +18,7 @@ package com.android.jack.jayce.v0003.nodes;
 
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JTypeLookupException;
@@ -61,6 +62,9 @@ public class NLambda extends NExpression {
   @CheckForNull
   public NSourceInfo sourceInfo;
 
+  @Nonnull
+  private List<String> boundsIds = new ArrayList<String>();
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLambda lambda = (JLambda) node;
@@ -71,6 +75,7 @@ public class NLambda extends NExpression {
     method = (NMethod) loader.load(lambda.getMethod());
     typeSig = ImportHelper.getSignatureName(lambda.getType());
     sourceInfo = loader.load(lambda.getSourceInfo());
+    boundsIds = ImportHelper.getSignatureNameList(lambda.getInterfaceBounds());
   }
 
   @Override
@@ -103,8 +108,14 @@ public class NLambda extends NExpression {
     // Lambda method is already loaded
     lambdaMethod.removeLoader();
 
+    List<JInterface> jBounds = new ArrayList<JInterface>(boundsIds.size());
+    for (String bound : boundsIds) {
+      jBounds.add(exportSession.getLookup().getInterface(bound));
+    }
+
     JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), lambdaMethod,
-        (JDefinedInterface) exportSession.getLookup().getInterface(typeSig), captureInstance);
+        (JDefinedInterface) exportSession.getLookup().getInterface(typeSig), captureInstance,
+        jBounds);
 
     for (String capturedVariableId : capturedVariableIds) {
       exportSession.getVariableResolver().addLink(capturedVariableId,
@@ -120,6 +131,7 @@ public class NLambda extends NExpression {
     out.writeIds(capturedVariableIds);
     out.writeNode(method);
     out.writeId(typeSig);
+    out.writeIds(boundsIds);
   }
 
   @Override
@@ -128,6 +140,7 @@ public class NLambda extends NExpression {
     capturedVariableIds = in.readIds();
     method = in.readNode(NMethod.class);
     typeSig = in.readId();
+    boundsIds = in.readIds();
   }
 
   @Override

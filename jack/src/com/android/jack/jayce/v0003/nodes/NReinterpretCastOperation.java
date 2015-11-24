@@ -53,7 +53,7 @@ public class NReinterpretCastOperation extends NExpression {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JReinterpretCastOperation jReinterpretCastOperation = (JReinterpretCastOperation) node;
-    castType = ImportHelper.getSignatureName(jReinterpretCastOperation.getCastType());
+    castType = ImportHelper.getSignatureName(jReinterpretCastOperation.getType());
     expr = (NExpression) loader.load(jReinterpretCastOperation.getExpr());
     sourceInfo = loader.load(jReinterpretCastOperation.getSourceInfo());
   }

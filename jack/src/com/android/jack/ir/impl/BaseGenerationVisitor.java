@@ -413,7 +413,12 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JDynamicCastOperation x) {
     lparen();
-    printType(x);
+    Iterator<JType> typesIt = x.getTypes().iterator();
+    printTypeName(typesIt.next());
+    while (typesIt.hasNext()) {
+      print(" & ");
+      printTypeName(typesIt.next());
+    }
     rparen();
     space();
 

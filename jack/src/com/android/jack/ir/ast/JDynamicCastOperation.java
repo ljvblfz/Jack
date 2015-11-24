@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Google Inc.
+ * Copyright 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,17 +21,45 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
- * Java cast expression that can throws exceptions at runtime.
+ * Java cast expression with multiple target types that can throw at runtime.
  */
-@Description("Java cast expression that can throws exceptions at runtime")
+@Description("Java cast expression with multiple target types that can throw at runtime")
 public class JDynamicCastOperation extends JCastOperation {
 
-  public JDynamicCastOperation(@Nonnull SourceInfo info, @Nonnull JType castType,
-      @Nonnull JExpression expr) {
-    super(info, castType, expr);
+  @Nonnull
+  private final List<JType> castTypes;
+
+  public JDynamicCastOperation(@Nonnull SourceInfo info, @Nonnull JExpression expr,
+      @Nonnull JType... castTypes) {
+    super(info, expr);
+    this.castTypes = Arrays.asList(castTypes);
+    assert !this.castTypes.isEmpty();
+    assert this.castTypes.size() == 1 || !hasJPrimitiveType();
+  }
+
+  public JDynamicCastOperation(@Nonnull SourceInfo info, @Nonnull JExpression expr,
+      @Nonnull List<JType> castTypes) {
+    super(info, expr);
+    this.castTypes = castTypes;
+    assert !this.castTypes.isEmpty();
+  }
+
+  @Nonnull
+  public List<JType> getTypes() {
+    return castTypes;
+  }
+
+  @Override
+  @Nonnull
+  public JType getType() {
+    assert castTypes.size() == 1;
+    return castTypes.iterator().next();
   }
 
   @Override
@@ -50,13 +78,26 @@ public class JDynamicCastOperation extends JCastOperation {
 
   @Override
   public boolean canThrow() {
-    return !((getCastType() instanceof JPrimitiveType)
-          && (getExpr().getType() instanceof JPrimitiveType));
+    if (castTypes.size() > 1) {
+      return true;
+    }
+
+    return !((getType() instanceof JPrimitiveType)
+        && (getExpr().getType() instanceof JPrimitiveType));
   }
 
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  private boolean hasJPrimitiveType() {
+    for (JType type : castTypes) {
+      if (type instanceof JPrimitiveType) {
+        return true;
+      }
+    }
+    return false;
   }
 }

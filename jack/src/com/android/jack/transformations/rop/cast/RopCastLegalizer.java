@@ -17,6 +17,7 @@
 package com.android.jack.transformations.rop.cast;
 
 import com.android.jack.Options;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
@@ -49,8 +50,8 @@ import javax.annotation.Nonnull;
 @Description("Transform body of a JMethod to contain all required cast instructions avoiding " +
     "register creation into Ropper.")
 @Name("RopCastLegalizer")
-@Constraint(
-    need = JDynamicCastOperation.class, no = {ImplicitBoxingAndUnboxing.class, ImplicitCast.class})
+@Constraint(need = JDynamicCastOperation.class, no = {ImplicitBoxingAndUnboxing.class,
+    ImplicitCast.class, JCastOperation.WithIntersectionType.class})
 @Transform(
     add = {RopLegalCast.class, JDynamicCastOperation.class}, remove = ThreeAddressCodeForm.class)
 @Protect(add = JDynamicCastOperation.class, unprotect = @With(remove = RopLegalCast.class))
@@ -78,7 +79,7 @@ public class RopCastLegalizer implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JDynamicCastOperation cast) {
 
-      JType castTo = cast.getCastType();
+      JType castTo = cast.getType();
       if (castTo instanceof JPrimitiveType) {
         JType castedFrom = cast.getExpr().getType();
 
@@ -92,11 +93,10 @@ public class RopCastLegalizer implements RunnableSchedulable<JMethod> {
               || castedFrom == JPrimitiveTypeEnum.DOUBLE.getType()) {
             /* The cast operation is not supported, lets split it in 2 with a intermediate INT
              */
-            JExpression intermediateCastToInt = new JDynamicCastOperation(
-                cast.getSourceInfo(), JPrimitiveTypeEnum.INT.getType(), cast.getExpr());
-            JDynamicCastOperation replacementCast =
-                new JDynamicCastOperation(cast.getSourceInfo(), cast.getCastType(),
-                    intermediateCastToInt);
+            JExpression intermediateCastToInt = new JDynamicCastOperation(cast.getSourceInfo(),
+                cast.getExpr(), JPrimitiveTypeEnum.INT.getType());
+            JDynamicCastOperation replacementCast = new JDynamicCastOperation(cast.getSourceInfo(),
+                intermediateCastToInt, cast.getType());
             request.append(new Replace(cast, replacementCast));
           }
 

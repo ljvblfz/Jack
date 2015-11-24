@@ -31,6 +31,7 @@ import org.junit.runners.Suite.SuiteClasses;
     EcjInterfaceMethodsTest.class,
     EcjLambdaTest.class,
     GwtTest.class,
+    IntersectionTypeTest.class,
     LambdaTest.class,
     MethodRefTest.class,
     RetroLambdaTests.class,

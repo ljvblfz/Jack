@@ -481,7 +481,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
   @Override
   public boolean visit(@Nonnull JLambda lambda) {
     JLambda clonedLambda = new JLambda(lambda.getSourceInfo(), lambda.getMethod(), lambda.getType(),
-        lambda.needToCaptureInstance());
+        lambda.needToCaptureInstance(), lambda.getInterfaceBounds());
 
     for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
       JVariable capturedVar = capturedVarRef.getTarget();
