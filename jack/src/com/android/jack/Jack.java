@@ -1013,12 +1013,17 @@ public abstract class Jack {
           methodPlan2.append(IncDecRemover.class);
           methodPlan2.append(CompoundAssignmentRemover.class);
           methodPlan2.append(ConcatRemover.class);
-          if (features.contains(AvoidSynthethicAccessors.class)) {
-            methodPlan2.append(OptimizedInnerAccessorGenerator.class);
-          } else {
-            methodPlan2.append(InnerAccessorGenerator.class);
-          }
         }
+      }
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      if (features.contains(AvoidSynthethicAccessors.class)) {
+        typePlan.append(OptimizedInnerAccessorGenerator.class);
+      } else {
+        typePlan.append(InnerAccessorGenerator.class);
       }
     }
 
