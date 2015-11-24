@@ -40,23 +40,23 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getCanonicalName());
     Assert.assertEquals("ReflectAnnotationsTest", testClass.getSimpleName());
-    Assert.assertEquals("class java.lang.Object", testClass.getSuperclass().toString());
-    Assert.assertEquals("class java.lang.Object", testClass.getGenericSuperclass().toString());
+    Assert.assertEquals("java.lang.Object", testClass.getSuperclass().getName());
+    Assert.assertEquals("java.lang.Object", ((Class<?>) testClass.getGenericSuperclass()).getName());
     Assert.assertNull(testClass.getDeclaringClass());
     Assert.assertNull(testClass.getEnclosingClass());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     String declaredClasses = stringifyTypeArray(testClass.getDeclaredClasses());
     boolean testDeclaredClasses = declaredClasses.contains("[2]");
-    testDeclaredClasses = testDeclaredClasses && declaredClasses.contains("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass");
-    testDeclaredClasses = testDeclaredClasses && declaredClasses.contains("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClassStatic");
+    testDeclaredClasses = testDeclaredClasses && declaredClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass");
+    testDeclaredClasses = testDeclaredClasses && declaredClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClassStatic");
     Assert.assertTrue(testDeclaredClasses);
     String memberClasses = stringifyTypeArray(testClass.getClasses());
     boolean memberClassesTest = memberClasses.contains("[2]");
-    memberClassesTest = memberClassesTest && memberClasses.contains("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass");
-    memberClassesTest = memberClassesTest && memberClasses.contains("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClassStatic");
+    memberClassesTest = memberClassesTest && memberClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass");
+    memberClassesTest = memberClassesTest && memberClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClassStatic");
     Assert.assertTrue(memberClassesTest);
     Assert.assertFalse(testClass.isAnnotation());
     Assert.assertFalse(testClass.isAnonymousClass());
@@ -76,14 +76,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$1C", testClass.getName());
     Assert.assertNull(testClass.getCanonicalName());
     Assert.assertEquals("C", testClass.getSimpleName());
-    Assert.assertEquals("class java.lang.Object", testClass.getSuperclass().toString());
-    Assert.assertEquals("class java.lang.Object", testClass.getGenericSuperclass().toString());
+    Assert.assertEquals("java.lang.Object", testClass.getSuperclass().getName());
+    Assert.assertEquals("java.lang.Object", ((Class<?>) testClass.getGenericSuperclass()).getName());
     Assert.assertNull(testClass.getDeclaringClass());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().getName());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertEquals("public java.lang.Object com.android.jack.annotation.test006.jack.ReflectAnnotationsTest.getLocal(int)", testClass.getEnclosingMethod().toString());
     Assert.assertEquals(testClass.getModifiers(), 0);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -104,14 +104,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClass", testClass.getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest.InnerClass", testClass.getCanonicalName());
     Assert.assertEquals("InnerClass", testClass.getSimpleName());
-    Assert.assertEquals("class java.lang.Object", testClass.getSuperclass().toString());
-    Assert.assertEquals("class java.lang.Object", testClass.getGenericSuperclass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getDeclaringClass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().toString());
+    Assert.assertEquals("java.lang.Object", testClass.getSuperclass().getName());
+    Assert.assertEquals("java.lang.Object", ((Class<?>) testClass.getGenericSuperclass()).getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getDeclaringClass().getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().getName());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -132,14 +132,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest$InnerClassStatic", testClass.getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest.InnerClassStatic", testClass.getCanonicalName());
     Assert.assertEquals("InnerClassStatic", testClass.getSimpleName());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.SuperClass", testClass.getSuperclass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.SuperClass", testClass.getGenericSuperclass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getDeclaringClass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.SuperClass", testClass.getSuperclass().getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.SuperClass", ((Class<?>) testClass.getGenericSuperclass()).getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getDeclaringClass().getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest", testClass.getEnclosingClass().getName());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 9);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -166,14 +166,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getCanonicalName());
     Assert.assertEquals("ReflectAnnotationsTest2", testClass.getSimpleName());
-    Assert.assertEquals("class java.lang.Object", testClass.getSuperclass().toString());
-    Assert.assertEquals("class java.lang.Object", testClass.getGenericSuperclass().toString());
+    Assert.assertEquals("java.lang.Object", testClass.getSuperclass().getName());
+    Assert.assertEquals("java.lang.Object", ((Class<?>) testClass.getGenericSuperclass()).getName());
     Assert.assertNull(testClass.getDeclaringClass());
     Assert.assertNull(testClass.getEnclosingClass());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 1);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     String declaredClasses = stringifyTypeArray(testClass.getDeclaredClasses());
     boolean testDeclared = declaredClasses.contains("[2]");
     testDeclared = testDeclared && declaredClasses.contains("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic2");
@@ -199,14 +199,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$1ConsInnerNamed", testClass.getName());
     Assert.assertNull(testClass.getCanonicalName());
     Assert.assertEquals("ConsInnerNamed", testClass.getSimpleName());
-    Assert.assertEquals("class java.lang.Object", testClass.getSuperclass().toString());
-    Assert.assertEquals("class java.lang.Object", testClass.getGenericSuperclass().toString());
+    Assert.assertEquals("java.lang.Object", testClass.getSuperclass().getName());
+    Assert.assertEquals("java.lang.Object", ((Class<?>) testClass.getGenericSuperclass()).getName());
     Assert.assertNull(testClass.getDeclaringClass());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getEnclosingClass().toString());
-    Assert.assertEquals("public com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2()", testClass.getEnclosingConstructor().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getEnclosingClass().getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getEnclosingConstructor().getName());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 0);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getClasses()));
     Assert.assertFalse(testClass.isAnnotation());
@@ -227,14 +227,14 @@ public class Tests {
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic2", testClass.getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2.Generic2", testClass.getCanonicalName());
     Assert.assertEquals("Generic2", testClass.getSimpleName());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic1", testClass.getSuperclass().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic1", testClass.getSuperclass().getName());
     Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2$Generic1<K, java.lang.String>", testClass.getGenericSuperclass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getDeclaringClass().toString());
-    Assert.assertEquals("class com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getEnclosingClass().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getDeclaringClass().getName());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack.ReflectAnnotationsTest2", testClass.getEnclosingClass().getName());
     Assert.assertNull(testClass.getEnclosingConstructor());
     Assert.assertNull(testClass.getEnclosingMethod());
     Assert.assertEquals(testClass.getModifiers(), 2);
-    Assert.assertEquals("package com.android.jack.annotation.test006.jack", testClass.getPackage().toString());
+    Assert.assertEquals("com.android.jack.annotation.test006.jack", testClass.getPackage().getName());
     Assert.assertEquals("[0]", stringifyTypeArray(testClass.getDeclaredClasses()));
     String memberClasses = stringifyTypeArray(testClass.getClasses());
     boolean testMemberClasses = memberClasses.contains("java.util.AbstractMap$SimpleEntry");
@@ -279,13 +279,18 @@ public class Tests {
       stb.append("[" + types.length + "]");
 
       for (Type t: types) {
-          if (first) {
+        if (first) {
               stb.append(" ");
               first = false;
           } else {
               stb.append(", ");
           }
-          stb.append(t.toString());
+          if (t instanceof Class) {
+            stb.append(((Class<?>) t).getName());
+          } else {
+            stb.append(t.toString());
+          }
+
       }
 
       return stb.toString();
