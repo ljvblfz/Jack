@@ -40,13 +40,18 @@ public class FinalizerRunner {
 
     @Override
     public void run() {
+      boolean isRunning = true;
       try {
-        while (true) {
+        while (isRunning) {
           logger.log(Level.FINE, "Finalizer thread " + getName() + " pulling for next deleter");
           FinalizerReference removedReference = (FinalizerReference) queue.remove();
           synchronized (referenceList) {
             boolean removed = referenceList.remove(removedReference);
             assert removed;
+            if (referenceList.isEmpty()) {
+              isRunning = false;
+              thread = null;
+            }
           }
           removedReference.run();
         }
@@ -95,28 +100,38 @@ public class FinalizerRunner {
     new LinkedList<PhantomReference<Object>>();
 
   @CheckForNull
-  private volatile Thread thread;
+  private Thread thread;
+
+  @Nonnull
+  private final String name;
+
+  private boolean shutDown = false;
 
   public FinalizerRunner(@Nonnull String name) {
-    Thread finalizerThread = new FinalizerThread(name);
-    finalizerThread.setDaemon(true);
-    thread = finalizerThread;
-    finalizerThread.start();
+    this.name = name;
   }
 
   public void registerFinalizer(@Nonnull final Runnable finalizer, @Nonnull Object watched) {
-    assert thread != null;
     synchronized (referenceList) {
+      assert !shutDown;
+      if (thread == null) {
+        Thread finalizerThread = new FinalizerThread(name);
+        finalizerThread.setDaemon(true);
+        thread = finalizerThread;
+        finalizerThread.start();
+      }
       FinalizerReference reference = new FinalizerReference(watched, queue, finalizer);
       referenceList.add(reference);
     }
   }
 
   public void shutdown() {
-    Thread finalizerThread = thread;
-    if (finalizerThread != null) {
-      finalizerThread.interrupt();
-      finalizerThread = null;
+    synchronized (referenceList) {
+      shutDown = true;
+      Thread finalizerThread = thread;
+      if (finalizerThread != null) {
+        finalizerThread.interrupt();
+      }
     }
   }
 }
