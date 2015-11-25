@@ -433,22 +433,24 @@ public class ContentTypeParser extends Parser implements ContentType {
     * quotes except if the quote is prefixed with a backward slash character).    
     */
    private void value(){
-      if(quote(buf[off])){         
-         for(off++; off < count;){
-            if(quote(buf[off])){
-               if(buf[++off-2]!='\\'){
+      if(off < count){
+         if(quote(buf[off])){
+            for(off++; off < count;){
+               if(quote(buf[off])){
+                  if(buf[++off-2]!='\\'){
+                     break;
+                  }
+               }
+               value.append(buf[off++]);
+            }
+         }else{
+            while(off < count){
+               if(buf[off] ==';') {
                   break;
                }
+               value.append(buf[off]);
+               off++;
             }
-            value.append(buf[off++]);
-         }
-      }else{   
-         while(off < count){
-            if(buf[off] ==';') {
-               break;           
-            }
-            value.append(buf[off]);
-            off++;
          }
       }
    }
@@ -474,24 +476,26 @@ public class ContentTypeParser extends Parser implements ContentType {
     * then the quotes will be read as part of the charset.
     */ 
    private void charset(){
-      if(buf[off] == '"'){         
-         charset.append('"');
-         for(off++; off < count;){
-            charset.append(buf[off]);
-            if(buf[off++]=='"')
-               if(buf[off-2]!='\\'){
-                  break;
-               }            
-         }
-      }else{   
-         while(off < count){
-            if(buf[off]==';') {
-               break;          
+      if(off < count){
+         if(buf[off] == '"'){
+            charset.append('"');
+            for(off++; off < count;){
+               charset.append(buf[off]);
+               if(buf[off++]=='"')
+                  if(buf[off-2]!='\\'){
+                     break;
+                  }
             }
-            charset.append(buf[off]);
-            off++;
+         }else{
+            while(off < count){
+               if(buf[off]==';') {
+                  break;
+               }
+               charset.append(buf[off]);
+               off++;
+            }
          }
-      }   
+      }
    }
    
    /** 
