@@ -22,7 +22,6 @@ import org.simpleframework.http.parse.ContentTypeParser;
 
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,9 +42,6 @@ public class TextPlain {
   // See RFC 2046 4.1.1 and RFC 2616 3.7.1
   @Nonnull
   public static final String EOL = "\r\n";
-
-  @Nonnull
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.US_ASCII;
 
   @Nonnull
   public static Charset getPreferredTextPlainCharset(@Nonnull Request request) {
@@ -78,7 +74,7 @@ public class TextPlain {
     String charsetName = contentType.getCharset();
     Charset charset;
     if (charsetName == null) {
-      charset = DEFAULT_CHARSET;
+      charset = Charset.defaultCharset();
     } else {
       charset = Charset.forName(charsetName);
     }

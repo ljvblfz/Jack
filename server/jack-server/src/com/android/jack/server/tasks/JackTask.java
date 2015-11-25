@@ -69,7 +69,7 @@ public class JackTask extends SynchronousServiceTask {
     String charsetName = accept.getCharset();
     Charset outCharset;
     if (charsetName == null) {
-      outCharset = CommandOut.DEFAULT_COMMAND_OUT_CHARSET;
+      outCharset = Charset.defaultCharset();
     } else {
       outCharset = Charset.forName(charsetName);
     }

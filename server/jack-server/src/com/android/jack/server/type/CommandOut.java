@@ -26,7 +26,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -45,9 +44,6 @@ public class CommandOut {
 
   @Nonnull
   public static final String JACK_COMMAND_OUT_CONTENT_TYPE = "application/vnd.jack.command-out";
-
-  @Nonnull
-  public static final Charset DEFAULT_COMMAND_OUT_CHARSET = StandardCharsets.UTF_8;
 
   @Nonnull
   private static final String OUT_PREFIX = "O|";

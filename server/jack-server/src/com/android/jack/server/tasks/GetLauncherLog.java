@@ -28,7 +28,6 @@ import org.simpleframework.http.parse.ContentTypeParser;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +51,7 @@ public class GetLauncherLog extends SynchronousServiceTask {
     ContentType expectedContentType = new ContentTypeParser(request.getValue("accept"));
     String charset = expectedContentType.getParameter("charset");
     if (charset == null) {
-      charset = StandardCharsets.US_ASCII.name();
+      charset = Charset.defaultCharset().name();
     }
     response.setContentType(TextPlain.CONTENT_TYPE_NAME + "; Charset=" + charset);
     OutputStreamWriter out = null;
