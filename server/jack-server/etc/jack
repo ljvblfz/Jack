@@ -115,7 +115,9 @@ done
 
 CURRENT_CHARSET=$(locale charmap)
 if [ -z "$CURRENT_CHARSET" ]; then
-  CURRENT_CHARSET=US-ASCII
+  CHARSET_ARGUMENT=
+else
+  CHARSET_ARGUMENT=";charset=$CURRENT_CHARSET"
 fi
 
 # Launch compilation
@@ -130,7 +132,7 @@ HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
      -H "Accept: application/vnd.jack.command-out;version=1;charset=$CURRENT_CHARSET" \
      -F "cli=$ARGS;type=text/plain;charset=$CURRENT_CHARSET" \
      -F "version=$JACK_VERSION;type=application/vnd.jack.select-exact;version=1" \
-     -F "pwd=$JACK_PWD;type=text/plain;charset=$CURRENT_CHARSET" \
+     -F "pwd=$JACK_PWD;type=text/plain$CHARSET_ARGUMENT" \
      --noproxy ${SERVER_HOST} \
      https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
      )

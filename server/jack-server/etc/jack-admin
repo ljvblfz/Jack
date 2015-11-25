@@ -33,7 +33,9 @@ LAUNCHER_JAR="$JACK_HOME/launcher.jar"
 LAUNCHER_NAME=com.android.jack.launcher.ServerLauncher
 CURRENT_CHARSET=$(locale charmap)
 if [ -z "$CURRENT_CHARSET" ]; then
-  CURRENT_CHARSET=US-ASCII
+  CHARSET_ARGUMENT=
+else
+  CHARSET_ARGUMENT=";charset=$CURRENT_CHARSET"
 fi
 
 JACK_LOGS_DIR="$JACK_HOME"/logs
@@ -132,7 +134,7 @@ updateProgram () {
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
        -X PUT \
        -F "jar=@$2;type=application/octet-stream" \
-       -F "force=$FORCE_INSTALLATION;type=text/plain;charset=$CURRENT_CHARSET" \
+       -F "force=$FORCE_INSTALLATION;type=text/plain$CHARSET_ARGUMENT" \
        --noproxy ${SERVER_HOST} \
        https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
        )
@@ -155,7 +157,7 @@ isServerRunning () {
          --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
-         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+         -H "Accept: text/plain$CHARSET_ARGUMENT" \
          --noproxy ${SERVER_HOST} \
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
@@ -192,7 +194,7 @@ waitServerStarted () {
          --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
-         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+         -H "Accept: text/plain$CHARSET_ARGUMENT" \
          --noproxy ${SERVER_HOST} \
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/server \
          )
@@ -222,7 +224,7 @@ listProgramVersion () {
        --output >(tr -d '\015' >&3) \
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
        -X GET \
-       -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+       -H "Accept: text/plain$CHARSET_ARGUMENT" \
        --noproxy ${SERVER_HOST} \
        https://${SERVER_HOST}:$SERVER_PORT_ADMIN/$1 \
        )
@@ -378,7 +380,7 @@ case $COMMAND in
          --output >(tr -d '\015' >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
-         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+         -H "Accept: text/plain$CHARSET_ARGUMENT" \
          --noproxy ${SERVER_HOST} \
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
          )
@@ -394,7 +396,7 @@ case $COMMAND in
          --output >(tr -d '\015' >&3) \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
-         -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
+         -H "Accept: text/plain$CHARSET_ARGUMENT" \
         --noproxy ${SERVER_HOST} \
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log \
          )
@@ -489,9 +491,9 @@ case $COMMAND in
          --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          --request PUT \
-         --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
-         --form "limit=$LIMIT;type=text/plain;charset=$CURRENT_CHARSET" \
-         --form "count=$COUNT;type=text/plain;charset=$CURRENT_CHARSET" \
+         --form "level=$2;type=text/plain$CHARSET_ARGUMENT" \
+         --form "limit=$LIMIT;type=text/plain$CHARSET_ARGUMENT" \
+         --form "count=$COUNT;type=text/plain$CHARSET_ARGUMENT" \
          --noproxy ${SERVER_HOST} \
          https://${SERVER_HOST}:$SERVER_PORT_ADMIN/launcher/log/level \
          )
