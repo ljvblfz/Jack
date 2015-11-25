@@ -128,7 +128,7 @@ updateProgram () {
   HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
-       --output >(cat >/dev/null) \
+       --output /dev/null \
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
        -X PUT \
        -F "jar=@$2;type=application/octet-stream" \
@@ -152,7 +152,7 @@ isServerRunning () {
     HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
+         --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
@@ -189,7 +189,7 @@ waitServerStarted () {
     HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
+         --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X GET \
          -H "Accept: text/plain;charset=$CURRENT_CHARSET" \
@@ -328,7 +328,7 @@ case $COMMAND in
         HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
              --cert "${JACK_HOME}/client.pem" \
              --cacert "${JACK_HOME}/server.pem" \
-             --output >(cat >/dev/null) \
+             --output /dev/null \
              --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
              -X HEAD \
              --data "$4" \
@@ -359,7 +359,7 @@ case $COMMAND in
     HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
+         --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X POST \
          --noproxy ${SERVER_HOST} \
@@ -486,7 +486,7 @@ case $COMMAND in
     HTTP_CODE=$(curl --fail $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
+         --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          --request PUT \
          --form "level=$2;type=text/plain;charset=$CURRENT_CHARSET" \
@@ -504,7 +504,7 @@ case $COMMAND in
     HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
          --cert "${JACK_HOME}/client.pem" \
          --cacert "${JACK_HOME}/server.pem" \
-         --output >(cat >/dev/null) \
+         --output /dev/null \
          --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
          -X POST \
          --noproxy ${SERVER_HOST} \
