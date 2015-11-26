@@ -55,6 +55,7 @@ import com.android.jack.server.tasks.Stop;
 import com.android.jack.server.type.CommandOut;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
+import com.android.sched.util.FinalizerRunner;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.IntCodec;
 import com.android.sched.util.codec.LongCodec;
@@ -216,6 +217,26 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
+  private static class Deleter implements Runnable {
+    @Nonnull
+    private final File[] toDelete;
+
+    private Deleter(@Nonnull File[] toDelete) {
+      this.toDelete = toDelete;
+    }
+
+    @Override
+    public void run() {
+      for (File file : toDelete) {
+        if (!file.delete()) {
+          logger.log(Level.WARNING, "Failed to delete file '" + file.getPath() + "'");
+        } else {
+          logger.log(Level.FINE, "Deleted file '" + file.getPath() + "'");
+        }
+      }
+    }
+  }
+
   @Nonnull
   private static final String JAR_SUFFIX = ".jar";
 
@@ -318,6 +339,9 @@ public class JackHttpServer implements HasVersion {
   private String[] filteredCiphersArray = null;
 
   @Nonnull
+  private final FinalizerRunner finalizer = new FinalizerRunner("Server finalizer");
+
+  @Nonnull
   public static Version getServerVersion() {
     try {
       return new Version("jack-server", JackHttpServer.class.getClassLoader());
@@ -388,7 +412,7 @@ public class JackHttpServer implements HasVersion {
                     + "' aborting deletion by finalizer", e);
                 return;
               }
-              getLauncherHandle().deleteFilesOnGarbage(new File[]{deleteMarker, jar},
+              finalizer.registerFinalizer(new Deleter(new File[]{deleteMarker, jar}),
                   provider.getClass().getClassLoader());
               deleteMarker.deleteOnExit();
               jar.deleteOnExit();
