@@ -2168,7 +2168,7 @@
   </target>
 
   <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
-  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-nodep">
+  depends="tests-check-config, tests-check-name, jack, jack-tests, test-jack-by-name-nodep">
   </target>
 
   <target name="test-jack-by-name-nodep">
@@ -2194,7 +2194,7 @@
   </target>
 
   <target name="test-jack" description="run Jack tests that must pass before submitting a change"
-    depends="tests-check-config, jack-tests, test-jack-nodep">
+    depends="tests-check-config, jack, jack-tests, test-jack-nodep">
   </target>
 
   <target name="test-jack-nodep">
@@ -2220,7 +2220,7 @@
   </target>
 
    <target name="test-jack-long" description="run long lasting Jack tests"
-     depends="tests-check-config, jack-tests, test-jack-long-nodep">
+     depends="tests-check-config, jack, jack-tests, test-jack-long-nodep">
    </target>
 
   <target name="test-jack-long-nodep">
@@ -2246,7 +2246,7 @@
   </target>
 
   <target name="test-jack-all" description="runs all Jack tests"
-    depends="tests-check-config, jack-tests, test-jack-all-nodep">
+    depends="tests-check-config, jack, jack-tests, test-jack-all-nodep">
   </target>
 
   <target name="test-jack-all-nodep">
