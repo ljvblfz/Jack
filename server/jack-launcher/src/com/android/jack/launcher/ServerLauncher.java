@@ -225,7 +225,7 @@ public final class ServerLauncher {
   private static final Pattern SERVER_JAR_PATTERN = Pattern.compile("server-(\\d+)\\.jar");
 
   @Nonnull
-  private final FinalizerRunner finalizer = new FinalizerRunner("Launcher deleter");
+  private final FinalizerRunner finalizer = new FinalizerRunner("Launcher finalizer");
 
   @Nonnull
   private final File serverDir;
