@@ -2168,10 +2168,10 @@
   </target>
 
   <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
-  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-no-dep">
+  depends="tests-check-config, tests-check-name, jack-tests, test-jack-by-name-nodep">
   </target>
 
-  <target name="test-jack-by-name-no-dep">
+  <target name="test-jack-by-name-nodep">
     <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
     <junit fork="yes" failureproperty="test-jack.failure">
       <formatter type="xml"/>
