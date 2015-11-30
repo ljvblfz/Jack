@@ -1048,9 +1048,6 @@ public class Options {
             ParameterAnnotationRemover.EMIT_RUNTIME_RETENTION_PARAMETER_ANNOTATION,
             flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
 
-        configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
-        configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));
-
         boolean keepLineNumbers = flags.keepAttribute("LineNumberTable");
         configBuilder.set(RemoveLocalLineNumber.KEEP_LOCAL_LINE_NUMBER,
             keepLineNumbers);
