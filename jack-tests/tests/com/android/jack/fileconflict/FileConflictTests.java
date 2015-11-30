@@ -321,7 +321,6 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002f() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();

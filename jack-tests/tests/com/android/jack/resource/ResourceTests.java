@@ -76,7 +76,6 @@ public class ResourceTests {
 
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToDexDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -94,7 +93,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToDexArchive() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -113,7 +111,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToDexArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -142,7 +139,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToJackArchive() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -171,7 +167,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToJackArchive() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -272,7 +267,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToDexDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -299,7 +293,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackToDexInSameDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();
@@ -326,7 +319,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue
   public void testResourceContentAdaptation() throws Exception {
     // compile source file to a Jack dir
     File jackOutputFolder = AbstractTestTools.createTempDir();

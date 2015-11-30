@@ -56,7 +56,6 @@ public class LibraryTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testRscLibraryInClassPath() throws Exception {
     File emptyLib = createRscLibrary();
 
@@ -78,7 +77,6 @@ public class LibraryTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testImportRscLibrary() throws Exception {
     File lib = createRscLibrary();
     File out = AbstractTestTools.createTempFile("library001", ".jack");
