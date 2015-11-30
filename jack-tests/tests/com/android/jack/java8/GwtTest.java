@@ -517,7 +517,6 @@ public class GwtTest {
   }
 
   @Test
-  @KnownIssue
   public void testSuperRefInDefenderMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_36)
     .setSourceLevel(SourceLevel.JAVA_8)
