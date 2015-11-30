@@ -76,28 +76,6 @@ public class CheckDexStructureTestHelper extends SourceToDexComparisonTestHelper
     return (CheckDexStructureTestHelper) super.setProguardFlags(proguardFlags);
   }
 
-  @Override
-  @Nonnull
-  protected void executeCandidateToolchain() throws Exception {
-    if (withDebugInfos) {
-      getCandidateToolchain().disableDxOptimizations();
-    } else {
-      getCandidateToolchain().enableDxOptimizations();
-    }
-    super.executeCandidateToolchain();
-  }
-
-  @Override
-  @Nonnull
-  protected void executeReferenceToolchain() throws Exception {
-    if (withDebugInfos) {
-      getReferenceToolchain().disableDxOptimizations();
-    } else {
-      getReferenceToolchain().enableDxOptimizations();
-    }
-    super.executeReferenceToolchain();
-  }
-
   public void compare() throws Exception {
     runTest(createDexFileComparator().setWithDebugInfo(withDebugInfos));
   }
