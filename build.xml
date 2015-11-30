@@ -640,13 +640,14 @@
     </filelist>
 
     <union id ="jackunittests.uptodate.files">
+      <fileset dir="${jack.dir}/tests"/>
+      <dirset dir="${jack.dir}/tests"/>
       <filelist refid="jackunittests.static.libs.fileset"/>
       <filelist refid="jack.static.libs.fileset"/>
       <filelist refid="jackunittests.static.libs.fileset"/>
     </union>
 
     <uptodate property="jackunittests-lib.uptodate" targetfile="${jackunittests.dist.dir}/${jackunittests.libname}">
-      <srcfiles dir="${jack.dir}/tests" />
       <srcresources refid="jackunittests.uptodate.files" />
     </uptodate>
   </target>
@@ -905,12 +906,14 @@
 
   <target name="jill-check">
     <union id ="jill.uptodate.files">
+      <fileset dir="${jill.dir}/src" />
+      <dirset dir="${jill.dir}/src" />
+      <fileset dir="${jill.dir}/rsc"/>
+      <dirset dir="${jill.dir}/rsc"/>
       <filelist refid="jill.libs.filelist" />
     </union>
     <uptodate property="jill.uptodate" targetfile="${jill.dist.dir}/${jill.execname}">
-      <srcfiles dir="${jill.dir}/src" />
       <srcresources refid="jill.uptodate.files" />
-      <srcfiles dir="${jill.dir}/rsc"/>
     </uptodate>
   </target>
 
@@ -989,6 +992,9 @@
   <target name="jill-api-check">
     <uptodate property="jill-api.uptodate" targetfile="${jill-api.dist.dir}/${jill-api.lib.name}">
       <srcfiles dir="${jill-api.dir}/src" />
+      <srcresources>
+        <dirset dir="${jill-api.dir}/src" />
+      </srcresources>
       <srcfiles file="${jsr305.dist.dir}/${jsr305.libname}" />
     </uptodate>
   </target>
@@ -1059,6 +1065,9 @@
   <target name="jillunittests-check">
     <uptodate property="jillunittests.uptodate" targetfile="${jill.dist.dir}/${jillunittests.execname}">
       <srcfiles dir="${jill.dir}/tests" />
+      <srcresources>
+        <dirset dir="${jill.dir}/tests" />
+      </srcresources>
       <srcfiles file="${jill.dist.dir}/${jill.execname}" />
       <srcfiles file="${jill-api.dist.dir}/${jill-api.name}" />
       <srcfiles file="${jackunittests.dist.dir}/${jackunittests.execname}" />
@@ -2078,6 +2087,9 @@
     <uptodate property="jack-default-lib.uptodate"
       targetfile="${jack-default-lib.build.jack}">
       <srcfiles dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java"/>
+      <srcresources>
+        <dirset dir="${jack.dir}/src" includes="com/android/jack/annotations"/>
+      </srcresources>
       <srcfiles file="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
       <srcfiles file="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
     </uptodate>
@@ -2122,6 +2134,9 @@
       <srcfiles dir="${core-stubs-mini.dir}/src">
         <include name="**/*.java"/>
       </srcfiles>
+      <srcresources>
+        <dirset dir="${core-stubs-mini.dir}/src"/>
+      </srcresources>
     </uptodate>
   </target>
 
