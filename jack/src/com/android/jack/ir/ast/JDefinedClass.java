@@ -33,9 +33,6 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
     HasEnclosingMethod {
 
   @CheckForNull
-  private JClass superClass;
-
-  @CheckForNull
   private JMethod enclosingMethod;
 
   public JDefinedClass(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
@@ -47,14 +44,7 @@ public class JDefinedClass extends JDefinedClassOrInterface implements CanBeSetF
   @Override
   public final JClass getSuperClass() {
     loader.ensureHierarchy(this);
-    return superClass;
-  }
-
-  /**
-   * Sets this type's super class.
-   */
-  public final void setSuperClass(@CheckForNull JClass superClass) {
-    this.superClass = superClass;
+    return super.getSuperClass();
   }
 
   public void setEnclosingMethod(@CheckForNull JMethod enclosingMethod) {

@@ -168,17 +168,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return super.removeMarker(cls);
   }
 
-  /**
-   * Adds an implemented interface to this type.
-   */
-  public void addImplements(JInterface superInterface) {
-    superInterfaces.add(superInterface);
-  }
-
-  public void setImplements(@Nonnull List<JInterface> superInterfaces) {
-    this.superInterfaces = superInterfaces;
-  }
-
   @Override
   @Nonnull
   public List<JInterface> getImplements() {
@@ -303,15 +292,6 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   public JMethod getMethod(@Nonnull String name, @Nonnull JType returnType,
       @Nonnull JType... args) throws JMethodLookupException {
     return (getMethod(name, returnType, Arrays.asList(args)));
-  }
-
-  /**
-   * Returns this type's super class, or <code>null</code> if this type is
-   * {@link Object} or an interface.
-   */
-  @CheckForNull
-  public JClass getSuperClass() {
-    return null;
   }
 
   @Override
