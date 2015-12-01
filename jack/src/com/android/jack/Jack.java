@@ -139,8 +139,8 @@ import com.android.jack.shrob.obfuscation.annotation.AnnotationDefaultValueRemov
 import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.LineNumberRemover;
+import com.android.jack.shrob.obfuscation.annotation.LocalVariableAndThisNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatureRemover;
-import com.android.jack.shrob.obfuscation.annotation.LocalVariableNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
@@ -1340,7 +1340,7 @@ public abstract class Jack {
           methodPlan.append(ParameterNameRemover.class);
         }
         if (features.contains(RemoveLocalVariableName.class)) {
-          methodPlan.append(LocalVariableNameRemover.class);
+          methodPlan.append(LocalVariableAndThisNameRemover.class);
         }
       }
     }

@@ -23,6 +23,7 @@ import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVariable;
@@ -75,23 +76,25 @@ class RopRegisterManager {
   }
 
   /**
-   * Create a {@code RegisterSpec} representing the variable {@code this}.
-   * @param type Type of this register.
-   * @return The built {@code RegisterSpec}.
+   * Create a {@link RegisterSpec} representing the variable {@code this}.
+   * @param jThis The {@link JThis} we want the {@link RegisterSpec} for.
+   * @return The built {@link RegisterSpec}.
    */
   @Nonnull
-  RegisterSpec createThisReg(@Nonnull JDefinedClassOrInterface type) {
+  RegisterSpec createThisReg(@Nonnull JThis jThis) {
     assert thisReg == null : "This register was already created.";
+    JDefinedClassOrInterface type = (JDefinedClassOrInterface) jThis.getType();
 
     Type dexRegType = RopHelper.convertTypeToDx(type);
-    if (emitDebugInfo) {
+    String name = jThis.getName();
+    if (emitDebugInfo && name != null) {
       CstString cstSignature = null;
       ThisRefTypeInfo thisMarker = type.getMarker(ThisRefTypeInfo.class);
       if (thisMarker != null && !thisMarker.getGenericSignature().isEmpty()) {
         cstSignature = new CstString(thisMarker.getGenericSignature());
       }
-      LocalItem localItem = LocalItem.make(new CstString("this"), RopHelper.getCstType(type),
-          cstSignature);
+      LocalItem localItem =
+          LocalItem.make(new CstString(name), RopHelper.getCstType(type), cstSignature);
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType, localItem);
     } else {
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType);
@@ -119,10 +122,10 @@ class RopRegisterManager {
   }
 
   /**
-   * Create a {@code RegisterSpec} from a {@code JVariable}.
+   * Create a {@link RegisterSpec} from a {@link JVariable}.
    *
-   * @param var The {@code JVariable} we want the {@code RegisterSpec} of.
-   * @return The built {@code RegisterSpec}.
+   * @param var The {@link JVariable} we want the {@link RegisterSpec} for.
+   * @return The built {@link RegisterSpec}.
    */
   @Nonnull
   RegisterSpec createRegisterSpec(@Nonnull JVariable var) {

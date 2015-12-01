@@ -67,6 +67,7 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
@@ -464,7 +465,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     } else {
       // +2 is to reserve space for Goto instruction, and parameter 'this'
       insns = new InsnList(sz + 2);
-      RegisterSpec thisReg = ropReg.createThisReg(method.getEnclosingType());
+      JThis jThis = method.getThis();
+      assert jThis != null;
+      RegisterSpec thisReg = ropReg.createThisReg(jThis);
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(thisReg.getType()), pos, thisReg,
               RegisterSpecList.EMPTY, CstInteger.make(thisReg.getReg()));
