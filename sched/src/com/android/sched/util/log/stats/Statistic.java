@@ -89,7 +89,8 @@ public abstract class Statistic implements DataModel, HasDescription {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream printer = new PrintStream(baos);
     TextPrinter provider = new TextPrinter(printer);
-    provider.print(this);
+    provider.getFormatter(getDataView().getDataTypes()[columnIdx]).print(printer,
+        getValue(columnIdx));
 
     return baos.toString();
   }
