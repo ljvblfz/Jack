@@ -42,7 +42,7 @@ public class ProbeManager {
   private static final PropertyId<ProbeManager> PROBE_MANAGER = PropertyId.create(
       "sched.tracer.probes", "Define which probes use for tracing",
       new ProbeManagerCodec()).addDefaultValue(
-      "event-count,gc-count,gc-duration,heap-alloc-count,heap-alloc-size,wall-clock");
+      "event-count,gc-count,gc-duration,wall-clock");
 
   @Nonnull
   public static final ThreadLocal<Boolean> enable = new ThreadLocal<Boolean>() {
