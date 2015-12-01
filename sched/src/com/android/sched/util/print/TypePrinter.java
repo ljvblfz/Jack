@@ -23,6 +23,6 @@ import javax.annotation.Nonnull;
 /**
  * Interface to a low level printer / formatter
  */
-interface TypePrinter<T> {
+public interface TypePrinter<T> {
   public boolean print(@Nonnull PrintStream printer, @Nonnull T value);
 }
