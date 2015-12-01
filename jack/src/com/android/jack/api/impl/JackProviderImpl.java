@@ -24,7 +24,8 @@ import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.impl.Cli01ConfigImpl;
 import com.android.jack.api.v02.Api02Config;
-import com.android.jack.api.v02.impl.Api02ConfigImpl;
+import com.android.jack.api.v03.Api03Config;
+import com.android.jack.api.v03.impl.Api03ConfigImpl;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,8 +44,9 @@ public class JackProviderImpl implements JackProvider {
       new HashMap<Class<? extends JackConfig>, Class<? extends JackConfig>>();
 
   static {
-    map.put(Api01Config.class, Api02ConfigImpl.class);
-    map.put(Api02Config.class, Api02ConfigImpl.class);
+    map.put(Api01Config.class, Api03ConfigImpl.class);
+    map.put(Api02Config.class, Api03ConfigImpl.class);
+    map.put(Api03Config.class, Api03ConfigImpl.class);
     map.put(Cli01Config.class, Cli01ConfigImpl.class);
   }
 

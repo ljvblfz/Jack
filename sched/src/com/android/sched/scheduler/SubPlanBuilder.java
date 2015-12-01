@@ -20,6 +20,10 @@ import com.android.sched.item.Component;
 import com.android.sched.schedulable.AdapterSchedulable;
 import com.android.sched.schedulable.ProcessorSchedulable;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -118,6 +122,35 @@ public class SubPlanBuilder<T extends Component> {
   @Nonnull
   public Class<T> getRunOn() {
     return runOn;
+  }
+
+  // STOPSHIP Remove this
+  @Nonnull
+  @Deprecated
+  public List<ManagedRunnable> getRunners() {
+    List<ManagedRunnable> list = new ArrayList<ManagedRunnable>();
+    getRunners(plan, list);
+
+    return list;
+  }
+
+  @Nonnull
+  private static List<ManagedRunnable> getRunners(@Nonnull Plan<?> plan,
+      @Nonnull List<ManagedRunnable> list) {
+    Iterator<PlanStep> iter = plan.iterator();
+
+    while (iter.hasNext()) {
+      PlanStep step = iter.next();
+      ManagedSchedulable schedulable = step.getManagedSchedulable();
+
+      if (step.isRunner()) {
+        list.add((ManagedRunnable) schedulable);
+      } else {
+        getRunners(step.getSubPlan(), list);
+      }
+    }
+
+    return list;
   }
 
   @Nonnull

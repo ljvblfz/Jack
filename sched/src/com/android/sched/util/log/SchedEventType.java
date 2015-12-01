@@ -26,7 +26,9 @@ public enum SchedEventType implements EventType {
   WORKERS("Workers"),
   REFLECTIONS("Reflections"),
   INSTANCIER("Schedulable instancier"),
-  PLANBUILDER("Plan builder");
+  PLANBUILDER("Plan builder"),
+  AMENDER("Amending plan"),
+  ANALYZER("Analyzing plan");
 
   @Nonnull
   private final String name;

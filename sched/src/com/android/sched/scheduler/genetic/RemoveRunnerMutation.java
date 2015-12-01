@@ -17,6 +17,7 @@
 package com.android.sched.scheduler.genetic;
 
 import com.android.sched.item.Component;
+import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.Request;
 
@@ -30,7 +31,8 @@ import java.util.Random;
 
 import javax.annotation.Nonnull;
 
-class RemoveRunnerMutation<T extends Component> implements EvolutionaryOperator<PlanCandidate<T>> {
+class RemoveRunnerMutation<T extends Component>
+    implements EvolutionaryOperator<GroupPlanCandidate<T>> {
   @Nonnull
   private final NumberGenerator<Probability> removeProbability;
 
@@ -41,11 +43,12 @@ class RemoveRunnerMutation<T extends Component> implements EvolutionaryOperator<
 
   @Override
   @Nonnull
-  public List<PlanCandidate<T>> apply(List<PlanCandidate<T>> selectedCandidates, Random rng) {
-    List<PlanCandidate<T>> mutatedCandidates =
-        new ArrayList<PlanCandidate<T>>(selectedCandidates.size());
+  public List<GroupPlanCandidate<T>> apply(List<GroupPlanCandidate<T>> selectedCandidates,
+      Random rng) {
+    List<GroupPlanCandidate<T>> mutatedCandidates =
+        new ArrayList<GroupPlanCandidate<T>>(selectedCandidates.size());
 
-    for (PlanCandidate<T> candidate : selectedCandidates) {
+    for (GroupPlanCandidate<T> candidate : selectedCandidates) {
       if (candidate.getSize() != 0 && removeProbability.nextValue().nextEvent(rng)) {
         List<ManagedRunnable> newRunners = new ArrayList<ManagedRunnable>(candidate.getRunnables());
 
@@ -53,7 +56,7 @@ class RemoveRunnerMutation<T extends Component> implements EvolutionaryOperator<
         if (newRunners.get(victim).getProductions().isEmpty()) {
           newRunners.remove(victim);
         }
-        mutatedCandidates.add(new PlanCandidate<T>(candidate, newRunners));
+        mutatedCandidates.add(new GroupPlanCandidate<T>(candidate, newRunners));
       } else {
         mutatedCandidates.add(candidate);
       }

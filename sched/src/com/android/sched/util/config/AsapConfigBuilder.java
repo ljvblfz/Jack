@@ -18,7 +18,6 @@ package com.android.sched.util.config;
 
 import com.google.common.base.CharMatcher;
 
-import com.android.sched.reflections.CompositeReflectionManager;
 import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.reflections.ReflectionManager.ClassWithLocation;
@@ -105,10 +104,8 @@ public class AsapConfigBuilder {
   @CheckForNull
   private String name;
 
-  public AsapConfigBuilder(boolean debug, @Nonnull ReflectionManager... reflextionManagers) {
+  public AsapConfigBuilder(boolean debug, @Nonnull ReflectionManager reflectionManager) {
     defaultLocations.push(NO_LOCATION);
-    CompositeReflectionManager reflectionManager =
-        new CompositeReflectionManager(reflextionManagers);
     loadProperties(reflectionManager, debug);
   }
 
@@ -220,6 +217,10 @@ public class AsapConfigBuilder {
     return this;
   }
 
+  /*
+   * Setter
+   */
+
   @Nonnull
   public AsapConfigBuilder setString(
       @Nonnull String name, @Nonnull String value, @Nonnull Location location)
@@ -322,18 +323,6 @@ public class AsapConfigBuilder {
   }
 
   @Nonnull
-  public CodecContext getCodecContext() {
-    return context;
-  }
-
-  @Nonnull
-  public AsapConfigBuilder setCodecContext(@Nonnull CodecContext context) {
-    this.context = context;
-
-    return this;
-  }
-
-  @Nonnull
   public AsapConfigBuilder setStrictMode() {
     this.strict = true;
 
@@ -343,6 +332,18 @@ public class AsapConfigBuilder {
   @Nonnull
   public AsapConfigBuilder setName(@Nonnull String name) {
     this.name = name;
+
+    return this;
+  }
+
+  @Nonnull
+  public CodecContext getCodecContext() {
+    return context;
+  }
+
+  @Nonnull
+  public AsapConfigBuilder setCodecContext(@Nonnull CodecContext context) {
+    this.context = context;
 
     return this;
   }

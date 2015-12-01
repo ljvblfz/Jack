@@ -19,6 +19,7 @@ package com.android.jack;
 import com.android.jack.config.id.Douarn;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
+import com.android.jack.plugin.Plugin;
 import com.android.sched.scheduler.ProcessException;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.util.TextUtils;
@@ -179,10 +180,14 @@ public abstract class CommandLine {
   }
 
   public static void printVersion(@Nonnull PrintStream printStream) {
-    String version = Jack.getVersion().getVerboseVersion();
+    printStream.println("Jack compiler: " + Jack.getVersion().getVerboseVersion() + '.');
+  }
 
-    printStream.println("Jack compiler.");
-    printStream.println("Version: " + version + '.');
+  public static void printVersion(@Nonnull PrintStream printStream, @Nonnull Plugin plugin) {
+    printStream.println("Jack plugin:   " + plugin.getFriendlyName()
+                                          + " (" + plugin.getName() + ") "
+                                          + plugin.getVersion().getVerboseVersion() + '.');
+    printStream.println("               " + plugin.getDescription() + '.');
   }
 
   protected static void printUsage(@Nonnull PrintStream printStream) {
@@ -197,7 +202,7 @@ public abstract class CommandLine {
   }
 
   public static void printHelpProperties(@Nonnull PrintStream printStream, @Nonnull Options options)
-      throws IOException {
+      throws IOException, IllegalOptionsException {
     GatherConfigBuilder builder = options.getDefaultConfigBuilder();
 
     printProperties(printStream, builder, Douarn.class);

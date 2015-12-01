@@ -25,6 +25,7 @@ import com.android.sched.item.TagOrMarker;
 import com.android.sched.item.TagOrMarkerOrComponent;
 import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.ProcessorSchedulable;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -101,11 +103,15 @@ public class ManagedRunnable extends ManagedSchedulable {
   @Nonnull
   private final ComponentFilterSet neededFilters;
 
+  // @ExclusiveAccess
+  @CheckForNull
+  private Class<? extends Component> exclusiveAccess;
+
   // @Use
   @Nonnull
   private final List<Class<?>> useTools = new ArrayList<Class<?>>();
 
-  // Class ... implements RunnaleSchedulable<T>
+  // Class ... implements RunnableSchedulable<T>
   @Nonnull
   private Class<? extends Component> schedulableOn;
 
@@ -133,6 +139,7 @@ public class ManagedRunnable extends ManagedSchedulable {
 
     extractUse(runnable);
     extractSchedulableOn(runnable);
+    extractExclusiveAccess(runnable);
 
     extractTransform(runnable);
     extractProduce(runnable);
@@ -362,6 +369,7 @@ public class ManagedRunnable extends ManagedSchedulable {
     return productions.clone();
   }
 
+
   /**
    * @return a copy of the set of {@link TagOrMarkerOrComponent} added
    */
@@ -433,6 +441,21 @@ public class ManagedRunnable extends ManagedSchedulable {
   @Override
   public Class<? extends Component> getRunOn() {
     return schedulableOn;
+  }
+
+  /**
+   * @return the {@link Component} needed as exclusive access
+   */
+  @CheckForNull
+  public Class<? extends Component> getExclusiveAccess() {
+    return exclusiveAccess;
+  }
+
+  /**
+   * @return if the runnable needs an exclusive access to a {@link Component}.
+   */
+  public boolean needsExclusiveAccess() {
+    return exclusiveAccess != null;
   }
 
   /**
@@ -545,6 +568,14 @@ public class ManagedRunnable extends ManagedSchedulable {
           productions.add(production);
         }
       }
+    }
+  }
+
+  private void extractExclusiveAccess(@Nonnull Class<?> cls) {
+    ExclusiveAccess access = cls.getAnnotation(ExclusiveAccess.class);
+
+    if (access != null) {
+      exclusiveAccess = access.value();
     }
   }
 

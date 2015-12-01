@@ -26,7 +26,6 @@ import com.android.sched.util.log.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -55,8 +54,6 @@ public class ManagedComponentFilter extends ManagedConcreteItem implements HasDe
     extractFilterOn(filter);
 
     checkValidity();
-
-    logger.log(Level.CONFIG, "{0}", this);
   }
 
   @Nonnull

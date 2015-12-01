@@ -94,7 +94,9 @@ import javax.annotation.Nonnull;
     JFieldInitializer.class,
     UselessSwitches.class})
 @Protect(
-    add = JNode.class, remove = JNode.class, unprotect = @With(remove = ControlFlowGraph.class))
+    add = JNode.class,
+    remove = JNode.class,
+    unprotect = @With(remove = {ControlFlowGraph.class, BasicBlockMarker.class}) )
 @Transform(add = {ControlFlowGraph.class, JReturnStatement.class, BasicBlockMarker.class})
 @Use(SourceInfoFactory.class)
 @Filter(TypeWithoutPrebuiltFilter.class)

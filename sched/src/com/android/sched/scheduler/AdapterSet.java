@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -102,34 +104,58 @@ public class AdapterSet implements Iterable<ManagedVisitor> {
     return adapters.iterator();
   }
 
-  public boolean containsAdapters(
-      @Nonnull Class<? extends Component> current, @Nonnull Class<? extends Component> after) {
-    if (current == after) {
-      return true;
+  private static class Pair<T, S> {
+    @Nonnull
+    private final T first;
+    @Nonnull
+    private final S second;
+
+    public Pair(@Nonnull T first, @Nonnull S second) {
+      this.first = first;
+      this.second = second;
     }
 
-    for (ManagedVisitor adapter : adapters) {
-      if (adapter.getRunOn() == current && adapter.getRunOnAfter() == after) {
+    @Override
+    public final boolean equals(Object obj) {
+      if (this == obj) {
         return true;
       }
-    }
 
-    for (ManagedVisitor adapter : adapters) {
-      if (adapter.getRunOn() == current && containsAdapters(adapter.getRunOnAfter(), after)) {
-        return true;
+      if (!(obj instanceof Pair)) {
+        return false;
       }
+
+      Pair<?, ?> pair = (Pair<?, ?>) obj;
+      return first.equals(pair.first) && second.equals(pair.second);
     }
 
-    return false;
+    @Override
+    public int hashCode() {
+      return first.hashCode() ^ second.hashCode();
+    }
   }
+
+  @Nonnull
+  private final Map<Pair<Class<? extends Component>, Class<? extends Component>>,
+                    List<ManagedVisitor>> cache =
+            new ConcurrentHashMap<Pair<Class<? extends Component>, Class<? extends Component>>,
+                                  List<ManagedVisitor>>();
 
   @Nonnull
   public List<ManagedVisitor> getAdapter(
       @Nonnull Class<? extends Component> current, @Nonnull Class<? extends Component> after) {
-    Stack<ManagedVisitor> stack = new Stack<ManagedVisitor>();
-    getAdapter(stack, current, after);
+    Pair<Class<? extends Component>, Class<? extends Component>> key =
+        new Pair<Class<? extends Component>, Class<? extends Component>>(current, after);
+    List<ManagedVisitor> list = cache.get(key);
 
-    return new ArrayList<ManagedVisitor>(stack);
+    if (list == null) {
+      Stack<ManagedVisitor> stack = new Stack<ManagedVisitor>();
+      getAdapter(stack, current, after);
+      list = new ArrayList<ManagedVisitor>(stack);
+      cache.put(key, list);
+    }
+
+    return list;
   }
 
   private boolean getAdapter(@Nonnull Stack<ManagedVisitor> stack,
@@ -158,5 +184,15 @@ public class AdapterSet implements Iterable<ManagedVisitor> {
     }
 
     return false;
+  }
+
+
+  public boolean containsAdapters(
+      @Nonnull Class<? extends Component> current, @Nonnull Class<? extends Component> after) {
+    if (current == after) {
+      return true;
+    }
+
+    return !getAdapter(current, after).isEmpty();
   }
 }

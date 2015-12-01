@@ -26,8 +26,6 @@ import javax.annotation.Nonnull;
  */
 enum GeneticEventType implements EventType {
   ENGINE("Genetic engine"),
-  ANALYZER("Genetic analizing plan"),
-  BUILDER("Genetic builder builder"),
   RANDOM_INIT("Random generator initializer");
 
   @Nonnull

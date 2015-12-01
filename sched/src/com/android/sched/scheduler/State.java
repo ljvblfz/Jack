@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package com.android.sched.reflections;
+package com.android.sched.scheduler;
 
-/**
- * This exception is thrown whenever an error related to reflection occurs.
- */
-public class ReflectionException extends RuntimeException {
+import javax.annotation.Nonnull;
 
-  private static final long serialVersionUID = 1L;
+class State {
+  @Nonnull
+  private ThreeState state = ThreeState.UNDEFINED;
 
-  /**
-   * @param message
-   */
-  public ReflectionException(String message) {
-    super(message);
+  enum ThreeState {
+    SATISFIED,
+    UNSATISFIED,
+    UNDEFINED;
+  }
+
+  void setSatisfied() {
+    if (state != ThreeState.UNSATISFIED) {
+      state = ThreeState.SATISFIED;
+    }
+  }
+
+  void setUnsatisfied() {
+    state = ThreeState.UNSATISFIED;
+  }
+
+  boolean isStatisfied() {
+    assert state != ThreeState.UNDEFINED;
+
+    return state == ThreeState.SATISFIED;
   }
 }

@@ -179,12 +179,16 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
     return hashCode;
   }
 
-  public void add(@Nonnull Class<? extends T> item) {
-    add(manager.getManagedItem(item));
+  @Nonnull
+  public ItemSet<T> add(@Nonnull Class<? extends T> item) {
+    return add(manager.getManagedItem(item));
   }
 
-  public void add(@Nonnull ManagedItem item) {
+  @Nonnull
+  public ItemSet<T> add(@Nonnull ManagedItem item) {
     add(item.getBitmap());
+
+    return this;
   }
 
   private void add(@Nonnull long[] bitmap) {
@@ -195,34 +199,50 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
     }
   }
 
-  public void addAll(@Nonnull ItemSet<T> set) {
+  @Nonnull
+  public ItemSet<T> addAll(@Nonnull ItemSet<T> set) {
     add(set.bitmap);
+
+    return this;
   }
 
-  public void remove(@Nonnull Class<? extends T> item) {
-    remove(manager.getManagedItem(item));
+  @Nonnull
+  public ItemSet<T> remove(@Nonnull Class<? extends T> item) {
+    return remove(manager.getManagedItem(item));
   }
 
-  public void remove(@Nonnull ManagedItem item) {
+  @Nonnull
+  public ItemSet<T> remove(@Nonnull ManagedItem item) {
     remove(item.getBitmap());
+
+    return this;
   }
 
-  private void remove(@Nonnull long[] bitmap) {
+  @Nonnull
+  private ItemSet<T> remove(@Nonnull long[] bitmap) {
     assert this.bitmap.length == bitmap.length;
 
     for (int i = 0; i < this.bitmap.length; i++) {
       this.bitmap[i] &= ~bitmap[i];
     }
+
+    return this;
   }
 
-  public void removeAll(@Nonnull ItemSet<T> set) {
+  @Nonnull
+  public ItemSet<T> removeAll(@Nonnull ItemSet<T> set) {
     remove(set.bitmap);
+
+    return this;
   }
 
-  public void clear() {
+  @Nonnull
+  public ItemSet<T> clear() {
     for (int i = 0; i < this.bitmap.length; i++) {
       this.bitmap[i] = 0;
     }
+
+    return this;
   }
 
   @Nonnegative

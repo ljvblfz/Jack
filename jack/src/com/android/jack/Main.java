@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.CLILogConfiguration.LogConfigurationException;
+import com.android.jack.plugin.Plugin;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 
@@ -74,6 +75,11 @@ public abstract class Main extends CommandLine {
 
       if (options.askForVersion()) {
         printVersion(System.out);
+        // STOPSHIP remove call
+        options.ensurePluginManager();
+        for (Plugin plugin : options.getPluginManager().getPlugins()) {
+          printVersion(System.out, plugin);
+        }
         System.exit(ExitStatus.SUCCESS);
       }
 
@@ -90,6 +96,10 @@ public abstract class Main extends CommandLine {
 
       System.exit(ExitStatus.FAILURE_USAGE);
     } catch (IOException e) {
+      System.err.println(e.getMessage());
+
+      System.exit(ExitStatus.FAILURE_USAGE);
+    } catch (IllegalOptionsException e) {
       System.err.println(e.getMessage());
 
       System.exit(ExitStatus.FAILURE_USAGE);

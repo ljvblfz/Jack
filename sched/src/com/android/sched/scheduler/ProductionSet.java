@@ -39,4 +39,20 @@ public class ProductionSet extends ItemSet<Production> {
   public ProductionSet clone() {
     return (ProductionSet) super.clone();
   }
+
+  @Nonnull
+  public ProductionSet intersectWith(@Nonnull ProductionSet set) {
+    ProductionSet inter = new ProductionSet(set);
+    computeIntersection(inter, set);
+
+    return inter;
+  }
+
+  @Override
+  @Nonnull
+  public ProductionSet clear() {
+    super.clear();
+
+    return this;
+  }
 }

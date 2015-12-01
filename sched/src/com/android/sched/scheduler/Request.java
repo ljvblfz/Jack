@@ -46,7 +46,7 @@ public class Request {
   protected FeatureSet features;
 
   @Nonnull
-  protected RunnerSet runners = new RunnerSet();
+  protected RunnerSet runners;
   @CheckForNull
   protected RunnerSet candidateRunners = null;
   @Nonnull
@@ -60,6 +60,7 @@ public class Request {
     targetExcludeTags  = scheduler.createTagOrMarkerOrComponentSet();
     targetProductions  = scheduler.createProductionSet();
     features           = scheduler.createFeatureSet();
+    runners            = new RunnerSet(scheduler.getSchedulableManager());
   }
 
   //
@@ -92,6 +93,19 @@ public class Request {
   }
 
   /**
+   * Sets a {@link TagOrMarkerOrComponentSet} whose elements will be required at the end of the
+   * plan.
+   *
+   * @return this {@code Request}
+   */
+  @Nonnull
+  public Request setTargetIncludeTagsOrMarkers(@Nonnull TagOrMarkerOrComponentSet set) {
+    targetIncludeTags = set.clone();
+
+    return this;
+  }
+
+  /**
    * Adds a {@link TagOrMarkerOrComponent} class that will be forbidden at the end of the plan.
    *
    * @return this {@code Request}
@@ -117,6 +131,19 @@ public class Request {
   }
 
   /**
+   * Sets a {@link TagOrMarkerOrComponentSet} whose elements will be forbidden at the end of the
+   * plan.
+   *
+   * @return this {@code Request}
+   */
+  @Nonnull
+  public Request setTargetExcludeTagsOrMarkers(@Nonnull TagOrMarkerOrComponentSet set) {
+    targetExcludeTags = set.clone();
+
+    return this;
+  }
+
+  /**
    * Adds a {@link Production} class that will be produced during the execution of the plan.
    *
    * @return this {@code Request}
@@ -136,6 +163,18 @@ public class Request {
   @Nonnull
   public Request addProductions(@Nonnull ProductionSet set) {
     targetProductions.addAll(set);
+
+    return this;
+  }
+
+  /**
+   * Sets a {@link ProductionSet} whose elements will be produced during the execution of the plan.
+   *
+   * @return this {@code Request}
+   */
+  @Nonnull
+  public Request setProductions(@Nonnull ProductionSet set) {
+    targetProductions = set.clone();
 
     return this;
   }
@@ -167,6 +206,18 @@ public class Request {
   }
 
   /**
+   * Sets a {@link FeatureSet} whose elements must be supported at the end of the plan.
+   *
+   * @return this {@code Request}
+   */
+  @Nonnull
+  public Request setFeatures(@Nonnull FeatureSet set) {
+    features = set.clone();
+
+    return this;
+  }
+
+  /**
    * Adds a {@link TagOrMarkerOrComponent} class that will be considered present at the beginning of
    * the plan.
    *
@@ -188,6 +239,19 @@ public class Request {
   @Nonnull
   public Request addInitialTagsOrMarkers(@Nonnull TagOrMarkerOrComponentSet set) {
     initialTags.addAll(set);
+
+    return this;
+  }
+
+  /**
+   * Sets a {@link TagOrMarkerOrComponentSet} whose elements will be considered present at the
+   * beginning of the plan.
+   *
+   * @return this {@code Request}
+   */
+  @Nonnull
+  public Request setInitialTagsOrMarkers(@Nonnull TagOrMarkerOrComponentSet set) {
+    initialTags = set.clone();
 
     return this;
   }

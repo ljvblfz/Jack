@@ -17,6 +17,7 @@
 package com.android.sched.scheduler.genetic;
 
 import com.android.sched.item.Component;
+import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.ManagedSchedulable;
 import com.android.sched.scheduler.Request;
@@ -32,7 +33,8 @@ import java.util.Random;
 
 import javax.annotation.Nonnull;
 
-class AddPostRunnerMutation<T extends Component> implements EvolutionaryOperator<PlanCandidate<T>> {
+class AddPostRunnerMutation<T extends Component>
+    implements EvolutionaryOperator<GroupPlanCandidate<T>> {
   @Nonnull
   private final NumberGenerator<Probability> addProbability;
   @Nonnull
@@ -54,12 +56,12 @@ class AddPostRunnerMutation<T extends Component> implements EvolutionaryOperator
 
   @Override
   @Nonnull
-  public List<PlanCandidate<T>> apply(
-      List<PlanCandidate<T>> selectedCandidates, Random rng) {
-    List<PlanCandidate<T>> mutatedCandidates =
-        new ArrayList<PlanCandidate<T>>(selectedCandidates.size());
+  public List<GroupPlanCandidate<T>> apply(
+      List<GroupPlanCandidate<T>> selectedCandidates, Random rng) {
+    List<GroupPlanCandidate<T>> mutatedCandidates =
+        new ArrayList<GroupPlanCandidate<T>>(selectedCandidates.size());
 
-    for (PlanCandidate<T> candidate : selectedCandidates) {
+    for (GroupPlanCandidate<T> candidate : selectedCandidates) {
       if (addProbability.nextValue().nextEvent(rng)) {
         List<ManagedRunnable> newRunners = new ArrayList<ManagedRunnable>(candidate.getRunnables());
 
@@ -81,7 +83,7 @@ class AddPostRunnerMutation<T extends Component> implements EvolutionaryOperator
           }
         }
 
-        mutatedCandidates.add(new PlanCandidate<T>(candidate, newRunners));
+        mutatedCandidates.add(new GroupPlanCandidate<T>(candidate, newRunners));
       } else {
         mutatedCandidates.add(candidate);
       }

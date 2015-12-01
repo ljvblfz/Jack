@@ -18,6 +18,7 @@ package com.android.sched.scheduler.genetic;
 
 import com.android.sched.item.Component;
 import com.android.sched.item.Production;
+import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.ManagedSchedulable;
 import com.android.sched.scheduler.Request;
@@ -30,7 +31,7 @@ import java.util.Random;
 
 import javax.annotation.Nonnull;
 
-class PlanFactory<T extends Component> extends AbstractCandidateFactory<PlanCandidate<T>> {
+class PlanFactory<T extends Component> extends AbstractCandidateFactory<GroupPlanCandidate<T>> {
 
   @Nonnull
   private final Request request;
@@ -56,10 +57,10 @@ class PlanFactory<T extends Component> extends AbstractCandidateFactory<PlanCand
 
   @Override
   @Nonnull
-  public PlanCandidate<T> generateRandomCandidate(Random rng) {
+  public GroupPlanCandidate<T> generateRandomCandidate(Random rng) {
     List<ManagedRunnable> initial = new ArrayList<ManagedRunnable>(runners);
 
-    return new PlanCandidate<T>(request, rootRunOn, initial);
+    return new GroupPlanCandidate<T>(request, rootRunOn, initial);
   }
 
 }

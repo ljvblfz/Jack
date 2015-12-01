@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.sched.scheduler.genetic;
+package com.android.sched.scheduler;
 
 import com.android.sched.item.Component;
 import com.android.sched.item.Items;
+import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarkerOrComponent;
-import com.android.sched.scheduler.FeatureSet;
-import com.android.sched.scheduler.IllegalRequestException;
-import com.android.sched.scheduler.ManagedRunnable;
-import com.android.sched.scheduler.ManagedVisitor;
-import com.android.sched.scheduler.PlanBuilder;
-import com.android.sched.scheduler.Request;
-import com.android.sched.scheduler.SubPlanBuilder;
-import com.android.sched.scheduler.TagOrMarkerOrComponentSet;
-import com.android.sched.scheduler.genetic.State.ThreeState;
 import com.android.sched.scheduler.genetic.stats.RunnerPercent;
 import com.android.sched.scheduler.genetic.stats.RunnerPercentImpl;
 import com.android.sched.scheduler.genetic.stats.TagPercent;
 import com.android.sched.scheduler.genetic.stats.TagPercentImpl;
 import com.android.sched.util.codec.PercentFormatter;
 import com.android.sched.util.log.Event;
+import com.android.sched.util.log.SchedEventType;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Percent;
@@ -46,20 +39,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
-  @Nonnull
-  private static final Map<ManagedRunnable, StatisticId<Percent>> runnerSatisfaction =
-      new HashMap<ManagedRunnable, StatisticId<Percent>>();
-  @Nonnull
-  private static final
-      Map<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>> needSatisfaction =
-          new HashMap<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>();
-  @Nonnull
-  private static final Map<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>
-      noSatisfaction = new HashMap<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>();
+/**
+ * Class which analyzes a plan and diagnoses quantitatively problems.
+ */
+public class FitnessPlanCandidate<T extends Component> implements PlanCandidate<T> {
+  @CheckForNull
+  private static Map<ManagedRunnable, StatisticId<Percent>> runnerSatisfaction;
+  @CheckForNull
+  private static Map<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>
+      needSatisfaction;
+  @CheckForNull
+  private static Map<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>
+      noSatisfaction;
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
@@ -68,14 +63,6 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
   private final List<ManagedRunnable> plan;
   @Nonnull
   private final List<TagOrMarkerOrComponentSet> beforeTags;
-  @Nonnull
-  private final List<Integer> unsatisfiedConstraints;
-  @Nonnull
-  private final List<Integer> satisfiedConstraints;
-  @Nonnull
-  private final List<List<Integer>> unsatisfiedGroups;
-  @Nonnull
-  private final List<List<Integer>> satisfiedGroups;
 
   @Nonnull
   private final Request request;
@@ -87,31 +74,36 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
   @Nonnegative
   private long satisfiedConstraint = 0;
   @Nonnegative
+  private int satisfiedRunner = 0;
+  @Nonnegative
   private int adapterCount = 0;
+  @Nonnegative
+  private int unsatisfiedProduction = 0;
 
-  public PlanCandidate(@Nonnull PlanCandidate<T> analyzer, @Nonnull List<ManagedRunnable> plan) {
+  public FitnessPlanCandidate(@Nonnull Request request, @Nonnull Class<T> rootRunOn,
+      @Nonnull PlanBuilder<T> builder) {
+    this(request, rootRunOn, builder.getRunners());
+  }
+
+  public FitnessPlanCandidate(@Nonnull FitnessPlanCandidate<T> analyzer,
+      @Nonnull List<ManagedRunnable> plan) {
     this(analyzer.request, analyzer.rootRunOn, plan);
   }
 
-  PlanCandidate(
+  FitnessPlanCandidate(
       @Nonnull Request request, @Nonnull Class<T> rootRunOn, @Nonnull List<ManagedRunnable> plan) {
-    Event event = tracer.start(GeneticEventType.ANALYZER);
+    Event event = tracer.start(SchedEventType.ANALYZER);
 
     try {
       this.request = request;
       this.rootRunOn = rootRunOn;
 
       this.plan = new ArrayList<ManagedRunnable>(plan);
-      this.unsatisfiedConstraints = new ArrayList<Integer>();
-      this.satisfiedConstraints = new ArrayList<Integer>();
-      this.unsatisfiedGroups = new ArrayList<List<Integer>>();
-      this.satisfiedGroups = new ArrayList<List<Integer>>();
       this.beforeTags = new ArrayList<TagOrMarkerOrComponentSet>();
 
       FeatureSet features = request.getFeatures();
       Stack<Class<? extends Component>> runOn = new Stack<Class<? extends Component>>();
-      List<Integer> currentGroup = new ArrayList<Integer>();
-      State.ThreeState currentGroupState = ThreeState.UNDEFINED;
+      ProductionSet toProduce = new ProductionSet(request.getTargetProductions());
       TagOrMarkerOrComponentSet currentTags =
           new TagOrMarkerOrComponentSet(request.getInitialTags());
       beforeTags.add(new TagOrMarkerOrComponentSet(currentTags));
@@ -119,12 +111,20 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
       runOn.push(rootRunOn);
       for (int idx = 0; idx < plan.size(); idx++) {
         ManagedRunnable runner = plan.get(idx);
-        State current = new State();
+        State currentState = new State();
+
+        for (Class<? extends Production> production : runner.getProductions()) {
+          if (toProduce.contains(production)) {
+            toProduce.remove(production);
+          } else {
+            unsatisfiedProduction++;
+          }
+        }
 
         while (!runOn.isEmpty()) {
           if (runOn.contains(runner.getRunOn())) {
             satisfiedConstraint++;
-            current.setSatisfied();
+            currentState.setSatisfied();
 
             while (runOn.peek() != runner.getRunOn()) {
               runOn.pop();
@@ -135,7 +135,7 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
 
           if (request.getVisitors().containsAdapters(runOn.peek(), runner.getRunOn())) {
             satisfiedConstraint++;
-            current.setSatisfied();
+            currentState.setSatisfied();
 
             for (ManagedVisitor visitor :
                 request.getVisitors().getAdapter(runOn.peek(), runner.getRunOn())) {
@@ -150,10 +150,8 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
         }
 
         if (runOn.isEmpty()) {
-          System.err.println("Impossible to go from " + runOn.peek().getSimpleName() + " to "
-              + runner.getRunOn().getSimpleName());
           unsatisfiedConstraint++;
-          current.setUnsatisfied();
+          currentState.setUnsatisfied();
           runOn.push(rootRunOn);
         }
 
@@ -184,34 +182,22 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
         if (runner.isCompatible(features, currentTags)) {
           assert runner.getUnsatisfiedConstraintCount(features, currentTags) == 0;
           satisfiedConstraint += runner.getConstraintCount(features);
-          current.setSatisfied();
+          currentState.setSatisfied();
         } else {
           assert runner.getUnsatisfiedConstraintCount(features, currentTags) > 0;
           unsatisfiedConstraint += runner.getUnsatisfiedConstraintCount(features, currentTags);
-          current.setUnsatisfied();
+          currentState.setUnsatisfied();
         }
 
         if (tracer.isTracing()) {
-          tracer.getStatistic(getRunnerSatisfaction(runner)).add(current.isStatisfied());
+          tracer.getStatistic(getRunnerSatisfaction(runner)).add(currentState.isSatisfied());
         }
 
-        if (current.isStatisfied()) {
-          satisfiedConstraints.add(Integer.valueOf(idx));
-          if (currentGroupState != ThreeState.SATISFIED) {
-            currentGroupState = ThreeState.SATISFIED;
-            satisfiedGroups.add(currentGroup);
-            currentGroup = new ArrayList<Integer>();
-          }
-        } else {
-          unsatisfiedConstraints.add(Integer.valueOf(idx));
-          if (currentGroupState != ThreeState.UNSATISFIED) {
-            currentGroupState = ThreeState.UNSATISFIED;
-            unsatisfiedGroups.add(currentGroup);
-            currentGroup = new ArrayList<Integer>();
-          }
+        if (currentState.isSatisfied()) {
+          satisfiedRunner++;
         }
 
-        currentGroup.add(Integer.valueOf(idx));
+        update(currentState, idx);
         currentTags = runner.getAfterTags(currentTags);
         beforeTags.add(currentTags);
       }
@@ -220,9 +206,18 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     }
   }
 
+  protected void update(@Nonnull State currentState, int index) {
+  }
+
   @Nonnull
   private StatisticId<Percent> getNeedSatisfaction(
       @Nonnull Class<? extends TagOrMarkerOrComponent> tag) {
+    if (needSatisfaction == null) {
+      needSatisfaction =
+          new HashMap<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>();
+    }
+
+    assert needSatisfaction != null;
     StatisticId<Percent> id = needSatisfaction.get(tag);
     if (id == null) {
       String name = Items.getName(tag);
@@ -230,6 +225,8 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
       id = new StatisticId<Percent>("sched.tag." + name + ".need.satisfied",
           "Number of time 'need " + name + "' is satisfied", TagPercentImpl.class,
           TagPercent.class);
+
+      assert needSatisfaction != null;
       needSatisfaction.put(tag, id);
     }
 
@@ -239,12 +236,19 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
   @Nonnull
   private StatisticId<Percent> getNoSatisfaction(
       @Nonnull Class<? extends TagOrMarkerOrComponent> tag) {
+    if (noSatisfaction == null) {
+      noSatisfaction = new HashMap<Class<? extends TagOrMarkerOrComponent>, StatisticId<Percent>>();
+    }
+
+    assert noSatisfaction != null;
     StatisticId<Percent> id = noSatisfaction.get(tag);
     if (id == null) {
       String name = Items.getName(tag);
 
       id = new StatisticId<Percent>("sched.tag." + name + ".no.satisfied",
           "Number of time 'no " + name + "' is satisfied", TagPercentImpl.class, TagPercent.class);
+
+      assert noSatisfaction != null;
       noSatisfaction.put(tag, id);
     }
 
@@ -253,6 +257,11 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
 
   @Nonnull
   private StatisticId<Percent> getRunnerSatisfaction(@Nonnull ManagedRunnable runner) {
+    if (runnerSatisfaction == null) {
+      runnerSatisfaction = new HashMap<ManagedRunnable, StatisticId<Percent>>();
+    }
+
+    assert runnerSatisfaction != null;
     StatisticId<Percent> id = runnerSatisfaction.get(runner);
     if (id == null) {
       String name = runner.getName();
@@ -266,11 +275,11 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     return id;
   }
 
-  double getFitness() {
+  public double getFitness() {
     if (satisfiedConstraint > 0 || unsatisfiedConstraint > 0) {
       if (unsatisfiedConstraint > 0) {
         return (double) satisfiedConstraint
-            / (double) (satisfiedConstraint + unsatisfiedConstraint);
+            / (double) (satisfiedConstraint + unsatisfiedConstraint + unsatisfiedProduction);
       } else {
         return 1.0 + (1 / (double) ((10 * adapterCount) + plan.size()));
       }
@@ -279,13 +288,19 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     }
   }
 
-  boolean isValid() {
-    return unsatisfiedConstraint == 0;
+  @Override
+  public boolean isValid() {
+    return unsatisfiedConstraint == 0 && unsatisfiedProduction == 0;
   }
 
   @Nonnegative
-  int getUnsatisfiedRunnerCount() {
-    return unsatisfiedConstraints.size();
+  public int getUnsatisfiedRunnerCount() {
+    return plan.size() - satisfiedRunner;
+  }
+
+  @Nonnegative
+  public int getSatisfiedRunnerCount() {
+    return satisfiedRunner;
   }
 
   @Nonnegative
@@ -294,42 +309,17 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
   }
 
   @Nonnegative
-  long getUnsatisfiedConstraintCount() {
+  public long getUnsatisfiedConstraintCount() {
     return unsatisfiedConstraint;
   }
 
   @Nonnegative
-  int getSatisfiedRunnerCount() {
-    return satisfiedConstraints.size();
-  }
-
-  @Nonnegative
-  int getTotalGroupCount() {
-    return satisfiedGroups.size() + unsatisfiedGroups.size();
-  }
-
-  @Nonnegative
-  int getSatisfiedGroupCount() {
-    return satisfiedGroups.size();
-  }
-
-  @Nonnegative
-  int getUnsatisfiedGroupCount() {
-    return unsatisfiedGroups.size();
-  }
-
-  @Nonnegative
-  int getIndexFromUnsatisfiedIndex(@Nonnegative int index) {
-    return unsatisfiedConstraints.get(index).intValue();
-  }
-
-  @Nonnegative
-  int getIndexFromSatisfiedIndex(@Nonnegative int index) {
-    return satisfiedConstraints.get(index).intValue();
+  public int getUnsatisfiedProductionCount() {
+    return unsatisfiedProduction;
   }
 
   @Nonnull
-  TagOrMarkerOrComponentSet getBeforeTags(@Nonnegative int index) {
+  public TagOrMarkerOrComponentSet getBeforeTags(@Nonnegative int index) {
     return beforeTags.get(index);
   }
 
@@ -347,7 +337,9 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     return adapterCount;
   }
 
+  @Override
   @Nonnull
+  public
   String getDescription() {
     try {
       return getPlanBuilder().getDescription();
@@ -356,8 +348,9 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     }
   }
 
+  @Override
   @Nonnull
-  String getDetailedDescription() {
+  public String getDetailedDescription() {
     try {
       return getPlanBuilder().getDetailedDescription();
     } catch (IllegalRequestException e) {
@@ -365,10 +358,11 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     }
   }
 
+  @Override
   @Nonnull
-  PlanBuilder<T> getPlanBuilder()
+  public PlanBuilder<T> getPlanBuilder()
       throws IllegalRequestException {
-    Event event = tracer.start(GeneticEventType.BUILDER);
+    Event event = tracer.start(SchedEventType.PLANBUILDER);
 
     try {
       Stack<Class<? extends Component>> runOn = new Stack<Class<? extends Component>>();
@@ -473,8 +467,39 @@ class PlanCandidate<T extends Component> implements Iterable<ManagedRunnable> {
     return plan;
   }
 
+  @Override
   @Nonnegative
   public int getSize() {
     return plan.size();
+  }
+
+  /**
+   * State of a plan
+   */
+  protected static class State {
+    @Nonnull
+    private ThreeState state = ThreeState.UNDEFINED;
+
+    enum ThreeState {
+      SATISFIED,
+      UNSATISFIED,
+      UNDEFINED;
+    }
+
+    void setSatisfied() {
+      if (state != ThreeState.UNSATISFIED) {
+        state = ThreeState.SATISFIED;
+      }
+    }
+
+    void setUnsatisfied() {
+      state = ThreeState.UNSATISFIED;
+    }
+
+    boolean isSatisfied() {
+      assert state != ThreeState.UNDEFINED;
+
+      return state == ThreeState.SATISFIED;
+    }
   }
 }

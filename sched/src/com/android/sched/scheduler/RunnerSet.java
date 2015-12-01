@@ -16,6 +16,8 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.schedulable.RunnableSchedulable;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -32,21 +34,30 @@ import javax.annotation.Nonnull;
  */
 public class RunnerSet implements Iterable<ManagedRunnable> {
   @Nonnull
+  private final SchedulableManager schedulableManager;
+
+  @Nonnull
   private final Set<ManagedRunnable> runners =
       new TreeSet<ManagedRunnable>(new SchedulableComparator());
 
-  RunnerSet() {
+  public RunnerSet(@Nonnull SchedulableManager manager) {
+    schedulableManager = manager;
   }
 
-  RunnerSet(@Nonnull RunnerSet initial) {
+  public RunnerSet(@Nonnull RunnerSet initial) {
+    this.schedulableManager = initial.schedulableManager;
     runners.addAll(initial.runners);
+  }
+
+  public void add(@Nonnull Class<? extends RunnableSchedulable<?>> sched) {
+    runners.add((ManagedRunnable) schedulableManager.getManagedSchedulable(sched));
   }
 
   public void addAll(@Nonnull RunnerSet set) {
     runners.addAll(set.runners);
   }
 
-  protected void add(@Nonnull ManagedRunnable sched) {
+  public void add(@Nonnull ManagedRunnable sched) {
     runners.add(sched);
   }
 

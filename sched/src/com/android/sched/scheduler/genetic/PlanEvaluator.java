@@ -17,15 +17,16 @@
 package com.android.sched.scheduler.genetic;
 
 import com.android.sched.item.Component;
+import com.android.sched.scheduler.GroupPlanCandidate;
 
 import org.uncommons.watchmaker.framework.FitnessEvaluator;
 
 import java.util.List;
 
-class PlanEvaluator<T extends Component>  implements FitnessEvaluator<PlanCandidate<T>> {
+class PlanEvaluator<T extends Component>  implements FitnessEvaluator<GroupPlanCandidate<T>> {
   @Override
   public double getFitness(
-      PlanCandidate<T> candidate, List<? extends PlanCandidate<T>> population) {
+      GroupPlanCandidate<T> candidate, List<? extends GroupPlanCandidate<T>> population) {
     return candidate.getFitness();
   }
 

@@ -18,8 +18,10 @@ package com.android.jack.api.v01.impl;
 
 import com.android.jack.CommandLine;
 import com.android.jack.ExitStatus;
+import com.android.jack.IllegalOptionsException;
 import com.android.jack.Options;
 import com.android.jack.api.v01.Cli01CompilationTask;
+import com.android.jack.plugin.Plugin;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
@@ -73,16 +75,28 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
       } catch (IOException e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
         return ExitStatus.FAILURE_UNKNOWN;
+      } catch (IllegalOptionsException e) {
+        standardError.println(e.getMessage());
+        return ExitStatus.FAILURE_USAGE;
       }
     }
 
     if (options.askForVersion()) {
-      printVersion(standardOutput);
-      return ExitStatus.SUCCESS;
-    }
+      printVersion(System.out);
+      try {
+        // STOPSHIP remove call
+        options.ensurePluginManager();
+        for (Plugin plugin : options.getPluginManager().getPlugins()) {
+          printVersion(System.out, plugin);
+        }
 
+        return ExitStatus.SUCCESS;
+      } catch (IllegalOptionsException e) {
+        standardError.println(e.getMessage());
+        return ExitStatus.FAILURE_USAGE;
+      }
+    }
 
     return runJack(standardError, options);
   }
-
 }

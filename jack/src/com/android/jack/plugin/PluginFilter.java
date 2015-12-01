@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.sched.scheduler.genetic;
+package com.android.jack.plugin;
 
 import javax.annotation.Nonnull;
 
-class State {
-  @Nonnull
-  private ThreeState state = ThreeState.UNDEFINED;
-
-  enum ThreeState {
-    SATISFIED,
-    UNSATISFIED,
-    UNDEFINED;
-  }
-
-  void setSatisfied() {
-    if (state != ThreeState.UNSATISFIED) {
-      state = ThreeState.SATISFIED;
-    }
-  }
-
-  void setUnsatisfied() {
-    state = ThreeState.UNSATISFIED;
-  }
-
-  boolean isStatisfied() {
-    assert state != ThreeState.UNDEFINED;
-
-    return state == ThreeState.SATISFIED;
-  }
+/**
+ * An interface to filter plugin.
+ */
+public interface PluginFilter {
+  boolean accept(@Nonnull Plugin plugin);
 }

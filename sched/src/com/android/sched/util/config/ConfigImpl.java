@@ -55,7 +55,8 @@ class ConfigImpl implements Config, InternalConfig {
    * @param values All the property values as {@code String} objects.
    * @param instances All the property values as objects.
    */
-  ConfigImpl(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
+  ConfigImpl(@Nonnull CodecContext context,
+      @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
       @Nonnull Map<KeyId<?, ?>, Object> instances) {
     this(context, values, instances, "config-" + currentIndex.getAndIncrement());
   }
@@ -66,7 +67,8 @@ class ConfigImpl implements Config, InternalConfig {
    * @param instances All the property values as objects.
    * @param name Name of the config object
    */
-  ConfigImpl(@Nonnull CodecContext context, @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
+  ConfigImpl(@Nonnull CodecContext context,
+      @Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values,
       @Nonnull Map<KeyId<?, ?>, Object> instances, @Nonnull String name) {
     this.context = context;
     this.valuesById.putAll(values);

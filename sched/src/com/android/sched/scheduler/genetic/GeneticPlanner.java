@@ -17,6 +17,7 @@
 package com.android.sched.scheduler.genetic;
 
 import com.android.sched.item.Component;
+import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.IllegalRequestException;
 import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.Plan;
@@ -43,7 +44,7 @@ public abstract class GeneticPlanner<T extends Component> implements Planner<T> 
   @Override
   public Plan<T> buildPlan(@Nonnull Request request, @Nonnull Class<T> rootRunOn)
       throws PlanNotFoundException, IllegalRequestException {
-    PlanCandidate<T> planCandidate = buildPlanCandidate(request, rootRunOn);
+    GroupPlanCandidate<T> planCandidate = buildPlanCandidate(request, rootRunOn);
 
     if (planCandidate.isValid()) {
       try {
@@ -73,7 +74,7 @@ public abstract class GeneticPlanner<T extends Component> implements Planner<T> 
     }
   }
 
-  protected abstract PlanCandidate<T> buildPlanCandidate(
+  protected abstract GroupPlanCandidate<T> buildPlanCandidate(
       @Nonnull Request request, @Nonnull Class<T> rootRunOn)
       throws PlanNotFoundException, IllegalRequestException;
 }

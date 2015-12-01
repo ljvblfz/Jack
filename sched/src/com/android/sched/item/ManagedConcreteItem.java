@@ -79,8 +79,8 @@ public class ManagedConcreteItem extends ManagedItem {
   @Nonnull
   @Override
   public String toString() {
-    assert posInteger >= 0;
-    assert posBit >= 0;
+    assert posInteger >= 0 : "name: " + getName() + ", posInteger: " + posInteger;
+    assert posBit >= 0 : "name: " + getName() + ", posBit: " + posBit;
 
     StringBuilder sb = new StringBuilder();
 

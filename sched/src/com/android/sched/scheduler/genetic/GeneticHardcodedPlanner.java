@@ -19,6 +19,8 @@ package com.android.sched.scheduler.genetic;
 import com.google.common.base.Joiner;
 
 import com.android.sched.item.Component;
+import com.android.sched.scheduler.GroupPlanCandidate;
+import com.android.sched.scheduler.FitnessPlanCandidate;
 import com.android.sched.scheduler.Planner;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.codec.ImplementationName;
@@ -128,7 +130,7 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
 
   @Override
   @Nonnull
-  protected PlanCandidate<T> buildPlanCandidate(
+  protected GroupPlanCandidate<T> buildPlanCandidate(
       @Nonnull Request request, @Nonnull Class<T> rootRunOn) {
     if (rng == null) {
       Event event = tracer.start(GeneticEventType.RANDOM_INIT);
@@ -144,11 +146,11 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
     // Build engine
     //
 
-    FitnessEvaluator<PlanCandidate<T>> evaluator =
-        new CachingFitnessEvaluator<PlanCandidate<T>>(new PlanEvaluator<T>());
+    FitnessEvaluator<GroupPlanCandidate<T>> evaluator =
+        new CachingFitnessEvaluator<GroupPlanCandidate<T>>(new PlanEvaluator<T>());
     PlanFactory<T> factory = new PlanFactory<T>(request, rootRunOn);
-    ArrayList<EvolutionaryOperator<PlanCandidate<T>>> operators =
-        new ArrayList<EvolutionaryOperator<PlanCandidate<T>>>();
+    ArrayList<EvolutionaryOperator<GroupPlanCandidate<T>>> operators =
+        new ArrayList<EvolutionaryOperator<GroupPlanCandidate<T>>>();
 
     operators.add(new AddRunnerMutation<T>(new AdjustableNumberGenerator<Probability>(
         new Probability(ThreadConfig.get(ADD_RUNNER).floatValue())), request, rootRunOn));
@@ -166,24 +168,24 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
     SelectionStrategy<Object> selection = new TournamentSelection(new AdjustableNumberGenerator<
         Probability>(new Probability(ThreadConfig.get(SELECTION_PRESSURE).floatValue())));
 
-    EvolutionEngine<PlanCandidate<T>> engine = new GenerationalEvolutionEngine<PlanCandidate<T>>(
-        factory, new EvolutionPipeline<PlanCandidate<T>>(operators), evaluator, selection,
-        rng);
+    EvolutionEngine<GroupPlanCandidate<T>> engine =
+        new GenerationalEvolutionEngine<GroupPlanCandidate<T>>(factory,
+            new EvolutionPipeline<GroupPlanCandidate<T>>(operators), evaluator, selection, rng);
 
     if (logger.isLoggable(Level.FINEST)) {
-      engine.addEvolutionObserver(new EvolutionObserver<PlanCandidate<T>>() {
+      engine.addEvolutionObserver(new EvolutionObserver<FitnessPlanCandidate<T>>() {
         @Override
-        public void populationUpdate(PopulationData<? extends PlanCandidate<T>> population) {
+        public void populationUpdate(PopulationData<? extends FitnessPlanCandidate<T>> population) {
           logger.log(Level.FINE, "Candidate fitness: {0}, plan: {1}", new Object[] {
               String.valueOf(population.getBestCandidateFitness()),
               Joiner.on(", ").join(population.getBestCandidate())});
         }
       });
     } else if (logger.isLoggable(Level.FINE)) {
-      engine.addEvolutionObserver(new EvolutionObserver<PlanCandidate<T>>() {
+      engine.addEvolutionObserver(new EvolutionObserver<FitnessPlanCandidate<T>>() {
         private long iter = 0;
         @Override
-        public void populationUpdate(PopulationData<? extends PlanCandidate<T>> population) {
+        public void populationUpdate(PopulationData<? extends FitnessPlanCandidate<T>> population) {
           if (iter++ % 100 == 0) {
             logger.log(Level.FINE, "Candidate plan: {0}", population.getBestCandidate());
           }
@@ -193,8 +195,8 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
 
     Event event = tracer.start(GeneticEventType.ENGINE);
     try {
-      PlanCandidate<T> planCandidate = engine.evolve(ThreadConfig.get(POPULATION_SIZE).intValue(),
-          ThreadConfig.get(ELITE_COUNT).intValue(),
+      GroupPlanCandidate<T> planCandidate = engine.evolve(
+          ThreadConfig.get(POPULATION_SIZE).intValue(), ThreadConfig.get(ELITE_COUNT).intValue(),
           new Stagnation(ThreadConfig.get(STAGNATION).intValue(), true),
           new ElapsedTime(ThreadConfig.get(MAX_DURATION).intValue()));
 

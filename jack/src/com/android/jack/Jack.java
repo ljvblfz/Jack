@@ -117,6 +117,8 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
+import com.android.jack.plugin.Plugin;
+import com.android.jack.plugin.PluginManager;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.ReportableIOException;
@@ -281,10 +283,16 @@ import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
 import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
+import com.android.sched.item.Component;
+import com.android.sched.reflections.ReflectionFactory;
+import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.scheduler.EvenSimplerPlanAmender;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.IllegalRequestException;
+import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.Plan;
 import com.android.sched.scheduler.PlanBuilder;
+import com.android.sched.scheduler.PlanConstructor;
 import com.android.sched.scheduler.PlanNotFoundException;
 import com.android.sched.scheduler.PlanPrinterFactory;
 import com.android.sched.scheduler.ProcessException;
@@ -321,6 +329,7 @@ import org.antlr.runtime.RecognitionException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -443,11 +452,9 @@ public abstract class Jack {
 
     Config config = options.getConfig();
 
-
     boolean sanityChecks = config.get(Options.SANITY_CHECKS).booleanValue();
 
-    logger.log(Level.INFO, "Jack sanity checks {0}",
-        (sanityChecks ? "enabled" : "disabled"));
+    logger.log(Level.INFO, "Jack sanity checks {0}", (sanityChecks ? "enabled" : "disabled"));
   }
 
   /**
@@ -482,7 +489,10 @@ public abstract class Jack {
 
           buildSession(session, options, hooks);
 
-          Scheduler scheduler = new Scheduler();
+          PluginManager pluginManager = options.getPluginManager();
+          Scheduler scheduler =
+              new Scheduler(pluginManager.getReflectionManager(ReflectionFactory.getManager()));
+
           Request request = createInitialRequest(scheduler);
           request.addFeature(PreProcessor.class);
 
@@ -713,28 +723,69 @@ public abstract class Jack {
             planBuilder.append(LibraryMetaWriter.class);
           }
 
-          Plan<JSession> plan;
+          // Modify features and productions according to plugins
+          ProductionSet productions = request.getTargetProductions();
+          for (Plugin plugin : pluginManager.getPlugins()) {
+            plugin.manageFeaturesAndProductions(config, features, productions);
+            request.setFeatures(features);
+            request.setProductions(productions);
+          }
+
+          Plan<JSession> plan = null;
           try {
-            // Try to build an automatic plan ...
             try {
+              // Try to build an automatic plan ...
               plan = request.buildPlan(JSession.class);
-            } catch (PlanNotFoundException e) {
-              throw new AssertionError(e);
             } catch (IllegalRequestException e) {
+              throw new AssertionError(e);
+            } catch (PlanNotFoundException e) {
               throw new AssertionError(e);
             }
           } catch (UnsupportedOperationException e) {
             // ... but use a manual one if not supported
-            plan = planBuilder.getPlan();
+            if (pluginManager.hasPlugins()) {
+              // If there are some plugins, amend the handcrafted plan
+              PlanConstructor<JSession> ctor =
+                  new PlanConstructor<JSession>(request, JSession.class, planBuilder);
 
-            assert!targetProduction.contains(JayceInLibraryProduct.class)
-            || targetProduction.contains(DexFileProduct.class)
-            || (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
-                JackFormatIr.class) && !targetProduction.contains(DexInLibraryProduct.class))
-            || ((targetProduction.contains(DexInLibraryProduct.class)
-                && targetProduction.contains(JayceInLibraryProduct.class))
-                || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
+              EvenSimplerPlanAmender<JSession> amender = new EvenSimplerPlanAmender<JSession>();
+              for (Plugin plugin : pluginManager.getPlugins()) {
+                Collection<Class<? extends RunnableSchedulable<? extends Component>>> classes =
+                    plugin.getSortedRunners();
+                List<ManagedRunnable> runners = new ArrayList<ManagedRunnable>(classes.size());
+                for (Class<? extends RunnableSchedulable<? extends Component>> c : classes) {
+                  runners.add(
+                      (ManagedRunnable) scheduler.getSchedulableManager().getManagedSchedulable(c));
+                }
+
+                if (!amender.amendPlan(request, JSession.class, runners, ctor)) {
+                  throw new JackUserException(
+                      "Jack cannot insert '" + plugin.getFriendlyName() + "'");
+                }
+              }
+
+              try {
+                assert ctor != null;
+                plan = ctor.getPlanBuilder().getPlan();
+                logger.log(Level.FINE, "Plan candidate: {0}", plan);
+              } catch (IllegalRequestException ire) {
+                throw new AssertionError(ire);
+              }
+            } else {
+              // ... without plugins, use the handcrafted plan as is
+              plan = planBuilder.getPlan();
+            }
           }
+
+          assert plan != null;
+          assert  !targetProduction.contains(JayceInLibraryProduct.class)  ||
+                   targetProduction.contains(DexFileProduct.class)         ||
+                   (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
+                     JackFormatIr.class) &&
+                    !targetProduction.contains(DexInLibraryProduct.class)) ||
+                  ((targetProduction.contains(DexInLibraryProduct.class) &&
+                     targetProduction.contains(JayceInLibraryProduct.class)) ||
+                  !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
 
           try {
             PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -743,6 +794,7 @@ public abstract class Jack {
             session.abortEventually();
           }
 
+          assert plan != null;
           plan.getScheduleInstance().process(session);
         } finally {
           try {

@@ -46,8 +46,8 @@ public class GatherConfigBuilder {
   private final ChainedExceptionBuilder<ConfigurationException> exceptions =
       new ChainedExceptionBuilder<ConfigurationException>();
 
-  public GatherConfigBuilder(boolean debug, @Nonnull ReflectionManager... reflectionManagers) {
-    builder = new AsapConfigBuilder(debug, reflectionManagers);
+  public GatherConfigBuilder(boolean debug, @Nonnull ReflectionManager reflectionManager) {
+    builder = new AsapConfigBuilder(debug, reflectionManager);
   }
 
   public GatherConfigBuilder(boolean debug) {
@@ -191,7 +191,6 @@ public class GatherConfigBuilder {
     return this;
   }
 
-
   @Nonnull
   public CodecContext getCodecContext() {
     return builder.getCodecContext();
@@ -203,7 +202,6 @@ public class GatherConfigBuilder {
 
     return this;
   }
-
 
   @Nonnull
   public GatherConfigBuilder setStrictMode() {
