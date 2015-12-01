@@ -40,8 +40,9 @@ public class JArrayType extends JDefinedReferenceType {
     super(SourceInfo.UNKNOWN, elementType.getName() + "[]");
     this.elementType = elementType;
     JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-    superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));
-    superInterfaces.add(lookup.getInterface(CommonTypes.JAVA_LANG_CLONEABLE));
+    addImplements(lookup.getInterface(CommonTypes.JAVA_IO_SERIALIZABLE));
+    addImplements(lookup.getInterface(CommonTypes.JAVA_LANG_CLONEABLE));
+    setSuperClass(lookup.getClass(CommonTypes.JAVA_LANG_OBJECT));
   }
 
   public int getDims() {

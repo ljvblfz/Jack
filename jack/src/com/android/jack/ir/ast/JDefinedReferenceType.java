@@ -32,10 +32,16 @@ import javax.annotation.Nonnull;
 public abstract class JDefinedReferenceType extends JReferenceTypeCommon {
 
   /**
+   * This type's super class.
+   */
+  @CheckForNull
+  private JClass superClass = null;
+
+  /**
    * This type's implemented interfaces.
    */
   @Nonnull
-  protected List<JInterface> superInterfaces = new ArrayList<JInterface>();
+  private List<JInterface> superInterfaces = new ArrayList<JInterface>();
 
   public JDefinedReferenceType(@Nonnull SourceInfo info, @Nonnull String name) {
     super(info, name);
@@ -56,12 +62,42 @@ public abstract class JDefinedReferenceType extends JReferenceTypeCommon {
   }
 
   /**
+   * Adds an implemented interface to this type.
+   */
+  public void addImplements(JInterface superInterface) {
+    superInterfaces.add(superInterface);
+  }
+
+  /**
+   * Set implemented interfaces to this type.
+   */
+  public void setImplements(@Nonnull List<JInterface> superInterfaces) {
+    this.superInterfaces = superInterfaces;
+  }
+
+  /**
    * Returns implemented or extended interfaces. Returns an empty list if this
    * type implements no interfaces.
    */
   @Nonnull
   public List<JInterface> getImplements() {
     return superInterfaces;
+  }
+
+  /**
+   * Sets this type's super class.
+   */
+  public final void setSuperClass(@CheckForNull JClass superClass) {
+    this.superClass = superClass;
+  }
+
+  /**
+   * Returns this type's super class, or <code>null</code> if this type is
+   * {@link Object} or an interface.
+   */
+  @CheckForNull
+  public JClass getSuperClass() {
+    return superClass;
   }
 
   @Override
