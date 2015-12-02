@@ -61,6 +61,7 @@ public class JarTool {
    */
   public static final int FAILURE_PROCESSING = 4;
 
+  @Nonnull
   private static final String VERSION_FILE_SUFFIX = "-version.properties";
 
   @Option(name = "--version", usage = "display version")
@@ -72,6 +73,11 @@ public class JarTool {
   @Option(name = "--list-version",
       usage = "display versions found in the given jar file")
   private boolean listVersion;
+
+  @Option(name = "--version-code",
+      usage = "display version code of the given component", metaVar = "component")
+  @CheckForNull
+  private String listVersionCode;
 
   @Argument()
   @CheckForNull
@@ -130,18 +136,45 @@ public class JarTool {
           return FAILURE_USAGE;
         }
         try {
-          if (listVersion) {
-            PrintStream printStream = System.out;
-            for (Enumeration<? extends ZipEntry> entries = zip.entries();
-                entries.hasMoreElements();) {
-              ZipEntry entry = entries.nextElement();
-              if (entry.getName().endsWith(VERSION_FILE_SUFFIX)) {
+          if (!listVersion && listVersionCode == null) {
+            printUsage(System.err);
+            return  FAILURE_USAGE;
+          } else {
+            if (listVersion) {
+              PrintStream printStream = System.out;
+              for (Enumeration<? extends ZipEntry> entries = zip.entries();
+                  entries.hasMoreElements();) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(VERSION_FILE_SUFFIX)) {
+                  InputStream inputStream = null;
+                  try {
+                    inputStream = zip.getInputStream(entry);
+                    Version version = new Version(inputStream);
+                    printStream.println("'" + entry.getName() + "': "
+                        + version.getVerboseVersion());
+                  } finally {
+                    if (inputStream != null) {
+                      try {
+                        inputStream.close();
+                      } catch (IOException e) {
+                        // ignore
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            if (listVersionCode != null) {
+              ZipEntry entry = zip.getEntry(listVersionCode + VERSION_FILE_SUFFIX);
+              if (entry != null) {
+                PrintStream printStream = System.out;
                 InputStream inputStream = null;
                 try {
                   inputStream = zip.getInputStream(entry);
                   Version version = new Version(inputStream);
-                  printStream.println("'" + entry.getName() + "': "
-                      + version.getVerboseVersion());
+                  printStream.println(version.getReleaseCode() + "." + version.getSubReleaseCode()
+                  + "." + version.getSubReleaseKind().name());
                 } finally {
                   if (inputStream != null) {
                     try {
@@ -151,12 +184,14 @@ public class JarTool {
                     }
                   }
                 }
+              } else {
+                System.err.println("No version found for component '" + listVersionCode + "' in '"
+                    + input.getPath() + "'");
+                return FAILURE_PROCESSING;
               }
             }
+
             return SUCCESS;
-          } else {
-            printUsage(System.err);
-            return  FAILURE_USAGE;
           }
         } catch (IOException e) {
           System.err.println("Something went wrong trying to read '" + input.getPath() + "': "
