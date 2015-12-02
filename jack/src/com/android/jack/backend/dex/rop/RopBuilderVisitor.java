@@ -1410,7 +1410,7 @@ class RopBuilderVisitor extends JVisitor {
                 // La = () -> {}
                 // \b = La
                 // La.run()    !closure but receiver type is mark with @NeedsLambdaMarker
-                instanceReg = generateUnboxLambda(methodCall.getReceiverType(), methodCallSrcPos,
+                instanceReg = generateUnboxLambda(instance.getType(), methodCallSrcPos,
                     /*destReg=*/null, instanceReg, /* useTmp= */ true, /* extraInst= */ false);
               }
               callOp = Rops.opInvokeLambda(prototype);
@@ -1426,12 +1426,16 @@ class RopBuilderVisitor extends JVisitor {
                 // \a = () -> {}
                 // Lb = \a
                 // \a.run()    closure but receiver type is not mark with @NeedsLambdaMarker
-                instanceReg = generateBoxLambda(methodCall.getReceiverType(), methodCallSrcPos,
+                instanceReg = generateBoxLambda(instance.getType(), methodCallSrcPos,
                     /* destReg= */null, instanceReg, /* useTmp= */ true, /* extraInst= */false);
               }
               callOp = Rops.opInvokeInterface(prototype);
             }
           } else {
+            if (instanceReg.isClosure()) {
+              instanceReg = generateBoxLambda(instance.getType(), methodCallSrcPos,
+                  /* destReg= */null, instanceReg, /* useTmp= */ true, /* extraInst= */false);
+            }
             callOp = Rops.opInvokeVirtual(prototype);
           }
         }
