@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob;
 
+import com.android.jack.shrob.shrink.MappingCollisionException;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
@@ -23,6 +24,8 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 

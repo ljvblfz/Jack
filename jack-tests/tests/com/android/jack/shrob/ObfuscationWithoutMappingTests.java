@@ -136,6 +136,32 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     runTest("049", "001", "");
   }
 
+  @Test
+  @Runtime
+  public void test51() throws Exception {
+    String testPackageName = "com.android.jack.shrob.test051";
+    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+    File proguardFlagsFile = new File(testFolder, "proguard.flags001");
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+
+    try {
+      List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+      excludeList.add(JackCliToolchain.class);
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+          .addProguardFlags(proguardFlagsFile).srcToExe(AbstractTestTools.createTempDir(),
+              /* zipFile = */false, AbstractTestTools.getTestRootDir(testPackageName + ".jack"));
+      Assert.fail();
+    } catch (JackAbortException jae) {
+      Assert.assertTrue(jae.getCause() instanceof MappingContextException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("could not be renamed to " +
+      "'com.android.jack.shrob.test051.jack.C' since the name was already used"));
+    }
+  }
+
   /**
    * Test Obfuscation when a whole package is missing from the classpath.
    */

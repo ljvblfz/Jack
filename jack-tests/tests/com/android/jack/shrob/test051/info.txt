@@ -1,0 +1,1 @@
+This test contains two classes obfuscated with the same name
