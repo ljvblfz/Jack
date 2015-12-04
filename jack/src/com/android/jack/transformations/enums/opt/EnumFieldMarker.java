@@ -52,6 +52,7 @@ public final class EnumFieldMarker implements Marker {
   public void addEnumField(@Nonnull JEnumField enumField) {
     assert !enumFields.contains(enumField);
     enumFields.add(enumField);
+    areFieldsSorted = false;
   }
 
   /**
