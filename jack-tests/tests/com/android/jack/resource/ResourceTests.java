@@ -24,6 +24,7 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.sched.vfs.InputVFile;
@@ -330,7 +331,7 @@ public class ResourceTests {
     String resource1LongPath = "com/android/jack/resource/test003/jack/A";
     String resource2LongPath = "com/android/jack/resource/test003/jack/A.txt";
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addResourceDir(rscFolder).addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(
           jackOutputFolder,
@@ -351,7 +352,7 @@ public class ResourceTests {
       }
     }
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
     File shrobbedJackDir = AbstractTestTools.createTempDir();
     toolchain.addProguardFlags(new File(testFolder, "proguard.flags001"));
