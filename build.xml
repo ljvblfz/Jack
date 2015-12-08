@@ -35,7 +35,8 @@
     schedtests-lib,
     jill,
     jill-api,
-    jack-jar-tools"/>
+    jack-jar-tools,
+    jack-jacoco-reporter"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
@@ -76,6 +77,7 @@
     jill-api-lib-clean,
     jill-api-src-clean,
     jack-jar-tools-clean,
+    jack-jacoco-reporter-clean,
     jacoco-clean,
     asm4-clean,
     gson-clean,
@@ -108,6 +110,7 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
   <property name="jack-jar-tools.dir" value="${jack-project.dir}/jack-jar-tools"/>
+  <property name="jack-jacoco-reporter.dir" value="${jack-project.dir}/jack-jacoco-reporter"/>
   <property name="jacoco.dir" value="${jack-project.dir}/jacoco"/>
 
   <property name="jill.dir" value="${jack-project.dir}/jill" />
@@ -241,7 +244,8 @@
 
   <target name="tools-dist" description="package tools distribution" depends="
     dist-check,
-    jack-jar-tools">
+    jack-jar-tools,
+    jack-jacoco-reporter">
     <mkdir dir="${jack-top-dist.dir}"/>
 
     <tempfile property="tools-dist.tmp" prefix="ant-tools-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
@@ -261,6 +265,11 @@
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
       basedir="${tools-dist.tmp}"
       includes="jack-jar-tools-version.properties"/>
+
+    <jar destfile="${jack-top-dist.dir}/${jack-jacoco-reporter.name}" filesetmanifest="merge">
+      <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"
+      excludes="jack-jacoco-reporter-version.properties"/>
+    </jar>
 
     <delete dir="${tools-dist.tmp}"/>
 
@@ -2506,6 +2515,72 @@
           tofile="${jack-jar-tools.build.outdir}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}" manifest="${jack-jar-tools.dir}/etc/manifest.txt">
       <fileset dir="${jack-jar-tools.build.outdir}"/>
+    </jar>
+  </target>
+
+
+  <!-- ************************* -->
+  <!-- jack-jacoco-reporter   -->
+  <!-- ************************* -->
+  <property name="jack-jacoco-reporter.build.dir" value="${jack-jacoco-reporter.dir}/build" />
+  <property name="jack-jacoco-reporter.dist.dir" value="${jack-jacoco-reporter.dir}/dist" />
+  <property name="jack-jacoco-reporter.libs.dir" value="${jack-jacoco-reporter.dir}/libs" />
+  <property name="jack-jacoco-reporter.build.outdir" value="${jack-jacoco-reporter.build.dir}/classes" />
+  <property name="jack-jacoco-reporter.name" value="jack-jacoco-reporter.jar" />
+
+  <target name="jack-jacoco-reporter-clean">
+    <delete dir="${jack-jacoco-reporter.build.dir}" />
+    <delete dir="${jack-jacoco-reporter.dist.dir}" />
+    <delete dir="${jack-jacoco-reporter.libs.dir}" />
+  </target>
+
+  <target name="jack-jacoco-reporter-copy-libs" depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,jacoco-libs">
+    <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+        <file name="${asm4.dist.dir}/${asm4.libname}"/>
+        <file name="${gson.dist.dir}/${gson.libname}"/>
+        <file name="${jacoco.dist.dir}/${jacoco.core.libname}"/>
+        <file name="${jacoco.dist.dir}/${jacoco.report.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jack-jacoco-reporter"
+      depends="jack-jacoco-reporter-copy-libs">
+    <mkdir dir="${jack-jacoco-reporter.build.outdir}"/>
+    <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
+      <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.core.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.report.libname}"/>
+    </filelist>
+    <dependset>
+      <sources>
+          <fileset dir="${jack-jacoco-reporter.dir}/src" />
+          <filelist refid="jack-jacoco-reporter.static.libs.fileset" />
+        </sources>
+      <targets>
+        <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${jack-jacoco-reporter.dir}/src" destdir="${jack-jacoco-reporter.build.outdir}"
+         source="1.6" target="1.6" debug="true"
+         includeantruntime="false"  includeDestClasses="false" nowarn="true">
+      <classpath>
+        <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
+      </classpath>
+    </javac>
+    <unzip dest="${jack-jacoco-reporter.build.outdir}">
+      <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
+    </unzip>
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jack-jacoco-reporter.build.outdir}/jack-jacoco-reporter-version.properties"/>
+    <jar destfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}" manifest="${jack-jacoco-reporter.dir}/etc/manifest.txt">
+      <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
     </jar>
   </target>
 
