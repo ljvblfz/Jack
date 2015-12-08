@@ -16,6 +16,18 @@
 
 package com.android.jack.annotation;
 
+import com.google.common.collect.Lists;
+
+import com.android.jack.Options;
+import com.android.jack.TestTools;
+import com.android.jack.category.SlowTests;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
+import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JEnumLiteral;
+import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -24,11 +36,18 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.sched.util.RunnableHooks;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.Collections;
 
 public class AnnotationTests extends RuntimeTest {
 
@@ -158,6 +177,230 @@ public class AnnotationTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest(/* checkStructure = */ true);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test010() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test010.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test011() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test011.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test012() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test012.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test013() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test013.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test014() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test014.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  @KnownIssue
+  public void test015() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test015.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test015_jill() throws Exception {
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test015.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test016() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test016.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * Check there is no phantom field created while loading the library of annotation and enum.
+   */
+  @Test
+  @Category(SlowTests.class)
+  @KnownIssue
+  public void test016_2steps() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File jackOutFile = AbstractTestTools.createTempFile("annotationWithEnum16", ".jack");
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test016.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(jackOutFile, /* zipFile = */ false, testSourceDir);
+
+
+    File dexOutDir = AbstractTestTools.createTempDir();
+    RunnableHooks hooks = new RunnableHooks();
+    try {
+      Options options = new Options();
+      options.setImportedLibraries(Collections.singletonList(jackOutFile));
+      options.setOutputDir(dexOutDir);
+      JSession session = TestTools.buildSession(options, hooks);
+      JDefinedAnnotationType annnotationWithEnum =
+          (JDefinedAnnotationType) session.getLookup().getType(
+              "Lcom/android/jack/annotation/test016/jack/AnnotationWithEnum;");
+      annnotationWithEnum.getMethods();
+      JDefinedEnum annotatedEnum =
+          (JDefinedEnum) session.getLookup().getType(
+              "Lcom/android/jack/annotation/test016/jack/AnnotatedEnum;");
+      JVisitor phantomChecker = new JVisitor() {
+        @Override
+        public void endVisit(JEnumLiteral enumLiteral) {
+          Assert.assertTrue(enumLiteral.getFieldId().getField() != null);
+        }
+      };
+      phantomChecker.accept(annnotationWithEnum);
+      phantomChecker.accept(annotatedEnum);
+    } finally {
+      hooks.runHooks();
+    }
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  @KnownIssue
+  public void test017() throws Exception {
+    // JackApiToolchainBase required for ordered-filter
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty(Options.INPUT_FILTER.getName(), "ordered-filter");
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test017.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
+
+  /**
+   * About annotation with enum and its usage.
+   */
+  @Test
+  @Category(SlowTests.class)
+  public void test017_jill() throws Exception {
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test017.jack");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
   }
 
   @Override
