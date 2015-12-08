@@ -16,11 +16,15 @@
 
 package com.android.jack.transformations.ast.inner;
 
+import com.google.common.collect.Ordering;
+
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -38,6 +42,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.impl.ResolutionTargetMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
@@ -53,6 +58,9 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
+import java.util.Comparator;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -70,27 +78,21 @@ import javax.annotation.Nonnull;
     InnerAccessorSchedulingSeparator.SeparatorTag.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Constraint(no = {SideEffectOperation.class, JAlloc.class})
-public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
+public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
   static final String THIS_PARAM_NAME = NamingTools.getNonSourceConflictingName("this");
 
-  @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
-
-  private static class Visitor extends JVisitor {
+  private class Visitor extends JVisitor {
 
     @Nonnull
-    private final TransformationRequest tr;
+    protected final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-    @Nonnull
-    private final JDefinedClassOrInterface currentType;
+    @CheckForNull
+    protected TransformationRequest tr;
 
-    public Visitor(@Nonnull TransformationRequest tr,
-        @Nonnull JDefinedClassOrInterface currentType) {
-      this.tr = tr;
-      this.currentType = currentType;
-    }
+    @CheckForNull
+    private JDefinedClassOrInterface currentType = null;
 
     /**
      * Determines where the accessor must be located in case of super invocation
@@ -102,6 +104,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
         @Nonnull JDefinedClassOrInterface declaringType) {
 
       // if the instance is the super of an enclosing class, we have to retrieve it
+      assert currentType != null;
       JDefinedClass enclosing = (JDefinedClass) currentType;
       while (!isSuperClassOf((JDefinedClass) declaringType, enclosing)) {
         enclosing = (JDefinedClass) enclosing.getEnclosingType();
@@ -169,6 +172,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       assert field != null;
       JDefinedClassOrInterface accessorClass = getAccessorClass(field.getModifier(),
           field.getEnclosingType());
+      assert currentType != null;
+      assert tr != null;
       if (!accessorClass.isSameType(currentType)) {
         assert accessorClass.getSourceInfo().getFileSourceInfo()
             .equals(currentType.getSourceInfo().getFileSourceInfo());
@@ -244,6 +249,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
               method.getEnclosingType());
         }
 
+        assert currentType != null;
+        assert tr != null;
         if (!accessorClass.isSameType(currentType)) {
           assert accessorClass.getSourceInfo().getFileSourceInfo()
             .equals(currentType.getSourceInfo().getFileSourceInfo());
@@ -297,19 +304,75 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       }
       return super.visit(x);
     }
+
+    @Override
+    public boolean visit(@Nonnull JDefinedClassOrInterface type) {
+      currentType = type;
+      tr = new TransformationRequest(type);
+      // Sort types and methods to make this visitor deterministic
+      for (JMethod method : methodOrdering.sortedCopy(type.getMethods())) {
+        if (!method.isNative() && !method.isAbstract()
+            && filter.accept(InnerAccessorGenerator.class, method)) {
+          this.accept(method);
+        }
+      }
+      assert tr != null;
+      tr.commit();
+
+      for (JClassOrInterface innerType : typeOrdering.sortedCopy(type.getMemberTypes())) {
+        if (innerType instanceof JDefinedClassOrInterface) {
+          visit((JDefinedClassOrInterface) innerType);
+        }
+      }
+      return false;
+    }
   }
 
+  @Nonnull
+  TypePackageAndMethodFormatter formatter = Jack.getLookupFormatter();
+
+  private int compareSourceInfo(@Nonnull JNode n1, @Nonnull JNode n2) {
+    return n1.getSourceInfo().getStartLine() - n2.getSourceInfo().getStartLine();
+  }
+
+  @Nonnull
+  private final Ordering<JMethod> methodOrdering = Ordering.from(new Comparator<JMethod>() {
+    @Override
+    public int compare(@Nonnull JMethod m1, @Nonnull JMethod m2) {
+      int compareSourceInfo = compareSourceInfo(m1, m2);
+      if (compareSourceInfo != 0) {
+        return compareSourceInfo;
+      }
+      return formatter.getName(m1).compareTo(formatter.getName(m2));
+    }
+  });
+
+  @Nonnull
+  private final Ordering<JClassOrInterface> typeOrdering =
+      Ordering.from(new Comparator<JClassOrInterface>() {
+        @Override
+        public int compare(@Nonnull JClassOrInterface t1, @Nonnull JClassOrInterface t2) {
+          int compareSourceInfo = compareSourceInfo((JNode) t1, (JNode) t2);
+          if (compareSourceInfo != 0) {
+            return compareSourceInfo;
+          }
+          return formatter.getName(t1).compareTo(formatter.getName(t2));
+        }
+      });
+
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
-    if (method.getEnclosingType().isExternal() || method.isNative() || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    // Start visit on outer types for a deterministic visit order.
+    if (type.getEnclosingType() != null) {
       return;
     }
 
-    TransformationRequest tr = new TransformationRequest(method);
-    Visitor visitor = new Visitor(tr, method.getEnclosingType());
-    visitor.accept(method);
-    tr.commit();
+    // No need to visit types without inner classes.
+    if (type.getMemberTypes().isEmpty()) {
+      return;
+    }
+
+    new Visitor().accept(type);
   }
 
 
