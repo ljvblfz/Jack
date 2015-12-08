@@ -75,7 +75,7 @@ public class JarTool {
   private boolean listVersion;
 
   @Option(name = "--version-code",
-      usage = "display version code of the given component", metaVar = "component")
+      usage = "display version code", metaVar = "component")
   @CheckForNull
   private String listVersionCode;
 
