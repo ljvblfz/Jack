@@ -207,21 +207,29 @@ public abstract class AbstractTracer implements Tracer {
   @SuppressWarnings("unchecked")
   private void mergeStatistic(@Nonnull EventType type, @Nonnull StatisticId<? extends Statistic> id,
       @Nonnull Children kind, @Nonnull Statistic local) {
-    Map<StatisticId<? extends Statistic>, Statistic>[] s = globalStatistics.get(type);
-    if (s == null) {
-      s = new Map[Children.values().length];
-      globalStatistics.put(type, s);
+    Map<StatisticId<? extends Statistic>, Statistic>[] staticticById;
+    synchronized (globalStatistics) {
+      staticticById = globalStatistics.get(type);
+      if (staticticById == null) {
+        staticticById = new Map[Children.values().length];
+        globalStatistics.put(type, staticticById);
 
-      for (int i = 0; i < s.length; i++) {
-        s[i] = new HashMap<StatisticId<? extends Statistic>, Statistic>();
+        for (int i = 0; i < staticticById.length; i++) {
+          staticticById[i] = new HashMap<StatisticId<? extends Statistic>, Statistic>();
+        }
       }
     }
 
-    Statistic global = s[kind.ordinal()].get(id);
-    if (global == null) {
-      global = id.newInstance();
-      s[kind.ordinal()].put(id, global);
-      setOfStatisticIds.add(id);
+    Statistic global;
+    synchronized (staticticById[kind.ordinal()]) {
+      global = staticticById[kind.ordinal()].get(id);
+      if (global == null) {
+        global = id.newInstance();
+        staticticById[kind.ordinal()].put(id, global);
+        synchronized (setOfStatisticIds) {
+          setOfStatisticIds.add(id);
+        }
+      }
     }
 
     synchronized (global) {
