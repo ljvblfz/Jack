@@ -330,7 +330,7 @@ public abstract class Jack {
           .addArgType(InputJackLibrary.class)
           .addArgType(JPhantomLookup.class)
           .bypassAccessibility()
-          .addDefaultValue("structure");
+          .addDefaultValue("type");
 
   @Nonnull
   private static final
