@@ -315,7 +315,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
     }
 
     JMethod wrapper = marker.getOrCreateWrapper(method, (JDefinedClass) accessorClass,
-        isSuper);
+        isSuper, methodCall.getReceiverType());
 
     JMethodCall wrapperCall = null;
     SourceInfo sourceInfo = methodCall.getSourceInfo();

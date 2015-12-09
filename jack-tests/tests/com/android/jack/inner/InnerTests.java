@@ -16,10 +16,12 @@
 
 package com.android.jack.inner;
 
+import com.android.jack.TestTools;
 import com.android.jack.test.category.RedundantTests;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
@@ -27,8 +29,18 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 
+import junit.framework.Assert;
+
+import org.jf.dexlib.CodeItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.Item;
+import org.jf.dexlib.MethodIdItem;
+import org.jf.dexlib.Code.Instruction;
+import org.jf.dexlib.Code.Format.Instruction35c;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.File;
 
 import javax.annotation.Nonnull;
 
@@ -130,9 +142,26 @@ public class InnerTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.inner.test024"),
     "com.android.jack.inner.test024.dx.Tests");
 
-  private RuntimeTestInfo TEST026 = new RuntimeTestInfo(
-    AbstractTestTools.getTestRootDir("com.android.jack.inner.test026"),
-    "com.android.jack.inner.test026.dx.Tests");
+  private RuntimeTestInfo TEST026 =
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.inner.test026"),
+          "com.android.jack.inner.test026.dx.Tests").addFileChecker(new FileChecker() {
+
+            @Override
+            public void check(@Nonnull File file) throws Exception {
+              // Check that the receiver type of method call into an accessor is correctly typed.
+              DexFile dexFile = new DexFile(file);
+              CodeItem ci =
+                  TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/inner/test026/jack/D;",
+                      "-wrap1", "(Lcom/android/jack/inner/test026/jack/D;)I").codeItem;
+              Assert.assertNotNull(ci);
+              Instruction firstInst = ci.getInstructions()[0];
+              Assert.assertTrue(firstInst instanceof Instruction35c);
+              Item<?> referencedItem = ((Instruction35c) firstInst).getReferencedItem();
+              Assert.assertTrue(referencedItem instanceof MethodIdItem);
+              Assert.assertEquals("Lcom/android/jack/inner/test026/jack/pkg/C;",
+                  ((MethodIdItem) referencedItem).getContainingClass().getTypeDescriptor());
+            }
+          });
 
   private RuntimeTestInfo TEST027 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.inner.test027"),
