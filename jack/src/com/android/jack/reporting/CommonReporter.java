@@ -32,6 +32,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -40,13 +42,15 @@ import javax.annotation.Nonnull;
  * A common implementation of {@link Reporter}.
  */
 abstract class CommonReporter implements Reporter {
+  @Nonnull
+  private static final Logger logger = Logger.getLogger(CommonReporter.class.getName());
 
   @Nonnull
   private final VerbosityLevel verbosityLevel = ThreadConfig.get(Options.VERBOSITY_LEVEL);
 
   @Nonnull
-  private final LinkedBlockingDeque<ProblemDescription> toProcess =
-      new LinkedBlockingDeque<ProblemDescription>();
+  private final LinkedBlockingDeque<Problem> toProcess =
+      new LinkedBlockingDeque<Problem>();
 
   @Nonnull
   protected final PrintStream streamByDefault = ThreadConfig.get(REPORTER_OUTPUT_STREAM)
@@ -65,12 +69,12 @@ abstract class CommonReporter implements Reporter {
         Reporter.REPORTER_OUTPUT_STREAM_BY_LEVEL).entrySet()) {
       streamByLevel.put(entry.getKey(), entry.getValue().getPrintStream());
     }
-    final Thread reporterThread = new Thread(new RunReporter());
+    final Thread reporterThread = new Thread(new RunReporter(), "Jack reporter");
     reporterThread.start();
     Jack.getSession().getHooks().addHook(new Runnable() {
       @Override
       public void run() {
-        reporterThread.interrupt();
+        toProcess.add(ReportingDone.INSTANCE);
         try {
           reporterThread.join();
         } catch (InterruptedException e) {
@@ -125,23 +129,29 @@ abstract class CommonReporter implements Reporter {
 
     @Override
     public void run() {
-      while (!Thread.currentThread().isInterrupted()) {
-        try {
-          ProblemDescription current = toProcess.takeFirst();
+      try {
+        Problem current;
+        while ((current = toProcess.takeFirst()) != ReportingDone.INSTANCE) {
           handleProblem(current.getSeverity(), current.getReportable());
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
         }
-      }
-      while (!toProcess.isEmpty()) {
-        ProblemDescription current = toProcess.poll();
-        handleProblem(current.getSeverity(), current.getReportable());
+      } catch (InterruptedException e) {
+        logger.log(Level.FINE, "Reporter thread '" + Thread.currentThread().getName()
+            + "' was interrupted");
+        Thread.currentThread().interrupt();
       }
     }
 
   }
 
-  static class ProblemDescription {
+  private static interface Problem {
+    @Nonnull
+    Severity getSeverity();
+
+    @Nonnull
+    Reportable getReportable();
+  }
+
+  private static class ProblemDescription implements Problem {
 
     @Nonnull
     private final Severity severity;
@@ -154,15 +164,37 @@ abstract class CommonReporter implements Reporter {
       this.reportable = reportable;
     }
 
+    @Override
     @Nonnull
     public Severity getSeverity() {
       return severity;
     }
 
+    @Override
     @Nonnull
     public Reportable getReportable() {
       return reportable;
     }
 
+  }
+
+  /**
+   * Fake Problem injected in queue as a last message indicating the end of the reporting.
+   */
+  private static class ReportingDone implements Problem {
+    @Nonnull
+    public static final ReportingDone INSTANCE = new ReportingDone();
+
+    private ReportingDone() {
+    }
+    @Override
+    public Severity getSeverity() {
+      throw new AssertionError();
+    }
+
+    @Override
+    public Reportable getReportable() {
+      throw new AssertionError();
+    }
   }
 }
