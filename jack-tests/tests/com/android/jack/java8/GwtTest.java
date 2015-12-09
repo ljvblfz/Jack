@@ -18,12 +18,12 @@ package com.android.jack.java8;
 
 import org.junit.Test;
 
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+
 
 
 /**
@@ -239,7 +239,6 @@ public class GwtTest {
   public void testLambdaNoCapture() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_1)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -247,7 +246,6 @@ public class GwtTest {
   public void testLambdaCaptureLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_2)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -255,7 +253,6 @@ public class GwtTest {
   public void testLambdaCaptureLocalWithInnerClass() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_3)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -263,7 +260,6 @@ public class GwtTest {
   public void testLambdaCaptureLocalAndFieldWithInnerClass() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_4)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -271,7 +267,6 @@ public class GwtTest {
   public void testLambdaCaptureLocalAndField() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_5)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -279,7 +274,6 @@ public class GwtTest {
   public void testCompileLambdaCaptureOuterInnerField() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_6)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -287,7 +281,6 @@ public class GwtTest {
   public void testStaticReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_7)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -295,7 +288,6 @@ public class GwtTest {
   public void testInstanceReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_8)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -303,7 +295,6 @@ public class GwtTest {
   public void testImplicitQualifierReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_9)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -311,7 +302,6 @@ public class GwtTest {
   public void testConstructorReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_10)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -319,7 +309,6 @@ public class GwtTest {
   public void testStaticInterfaceMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_11)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -327,7 +316,6 @@ public class GwtTest {
   public void testArrayConstructorReference() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_12)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -335,7 +323,6 @@ public class GwtTest {
   public void testArrayConstructorReferenceBoxed() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_13)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -343,7 +330,6 @@ public class GwtTest {
   public void testVarArgsReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_14)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -351,7 +337,6 @@ public class GwtTest {
   public void testVarArgsPassthroughReferenceBinding() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_15)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -359,7 +344,6 @@ public class GwtTest {
   public void testVarArgsPassthroughReferenceBindingProvidedArray() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_16)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -367,7 +351,6 @@ public class GwtTest {
   public void testSuperReferenceExpression() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_17)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -375,7 +358,6 @@ public class GwtTest {
   public void testSuperReferenceExpressionWithVarArgs() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_18)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -383,7 +365,6 @@ public class GwtTest {
   public void testPrivateConstructorReference() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_19)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -391,7 +372,6 @@ public class GwtTest {
   public void testLambdaCaptureParameter() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_20)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -399,7 +379,6 @@ public class GwtTest {
   public void testLambdaNestingCaptureLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_21)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -407,7 +386,6 @@ public class GwtTest {
   public void testLambdaNestingCaptureField_InnerClassCapturingOuterClassVariable() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_22)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -415,7 +393,6 @@ public class GwtTest {
   public void testInnerClassCaptureLocalFromOuterLambda() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_23)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -423,7 +400,6 @@ public class GwtTest {
   public void testLambdaNestingCaptureField() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_24)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -431,7 +407,6 @@ public class GwtTest {
   public void testLambdaMultipleNestingCaptureFieldAndLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_25)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -439,7 +414,6 @@ public class GwtTest {
   public void testLambdaMultipleNestingCaptureFieldAndLocalInnerClass() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_26)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -447,7 +421,6 @@ public class GwtTest {
   public void testMethodRefWithSameName() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_27)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -455,7 +428,6 @@ public class GwtTest {
   public void testDefaultInterfaceMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_28)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -464,7 +436,6 @@ public class GwtTest {
   public void testDefaultInterfaceMethodVirtualUpRef() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_29)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -472,7 +443,6 @@ public class GwtTest {
   public void DefaultInterfaceImplVirtualUpRefTwoInterfaces() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_30)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -480,7 +450,6 @@ public class GwtTest {
   public void testDefenderMethodByInterfaceInstance() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_31)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -488,7 +457,6 @@ public class GwtTest {
   public void testDefaultMethodReference() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_32)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -496,7 +464,6 @@ public class GwtTest {
   public void testThisRefInDefenderMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_33)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -504,7 +471,6 @@ public class GwtTest {
   public void testClassImplementsTwoInterfacesWithSameDefenderMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_34)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -512,7 +478,6 @@ public class GwtTest {
   public void testAbstractClassImplementsInterface() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_35)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -520,7 +485,6 @@ public class GwtTest {
   public void testSuperRefInDefenderMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_36)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -528,7 +492,6 @@ public class GwtTest {
   public void testSuperThisRefsInDefenderMethod() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_37)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -536,7 +499,6 @@ public class GwtTest {
   public void testNestedInterfaceClass() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_38)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -544,23 +506,20 @@ public class GwtTest {
   public void testBaseIntersectionCast() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_39)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
   @Test
   public void testIntersectionCastWithLambdaExpr() throws Exception {
-      new RuntimeTestHelper(GWT_LAMBDA_TEST_40)
-      .setSourceLevel(SourceLevel.JAVA_8)
-      .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-      .compileAndRunTest();
+    new RuntimeTestHelper(GWT_LAMBDA_TEST_40)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .compileAndRunTest();
   }
 
   @Test
   public void testIntersectionCastPolymorphism() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_41)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -568,7 +527,6 @@ public class GwtTest {
   public void testLambdaNestingInAnonymousCaptureLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_42)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -576,7 +534,6 @@ public class GwtTest {
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_43)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -584,7 +541,6 @@ public class GwtTest {
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal_withInterference() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_44)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -592,7 +548,6 @@ public class GwtTest {
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocalAndField() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_45)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -600,7 +555,6 @@ public class GwtTest {
   public void testLambdaNestingInMultipleAnonymousCaptureLocal() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_46)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -608,7 +562,6 @@ public class GwtTest {
   public void testMultipleDefaults_fromInterfaces_left() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_47)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -616,7 +569,6 @@ public class GwtTest {
   public void testMultipleDefaults_fromInterfaces_right() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_48)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -624,7 +576,6 @@ public class GwtTest {
   public void testMultipleDefaults_superclass_left() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_49)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -632,7 +583,6 @@ public class GwtTest {
   public void testMultipleDefaults_superclass_right() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_50)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -640,7 +590,6 @@ public class GwtTest {
   public void testInterfaceThis() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_51)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 }

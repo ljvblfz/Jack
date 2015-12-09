@@ -94,7 +94,7 @@ import javax.annotation.Nonnull;
         JThisRef.class})
 // Lambda converter must be synchronized, otherwise several schedulables can add member types to the
 // same class in the same time.
-@Support(SourceVersion8.class)
+@Support({SourceVersion8.class, LambdaToAnonymousConverter.class})
 @Synchronized
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 

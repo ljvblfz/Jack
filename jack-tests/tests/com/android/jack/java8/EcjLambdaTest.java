@@ -31,7 +31,6 @@ import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
 
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -137,8 +136,6 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
           AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
-      jackToolchain.addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(),
-          Boolean.TRUE.toString());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
@@ -161,8 +158,6 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
           AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
-      jackToolchain.addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(),
-          Boolean.TRUE.toString());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 

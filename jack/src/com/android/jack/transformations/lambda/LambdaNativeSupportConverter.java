@@ -61,7 +61,7 @@ import javax.annotation.Nonnull;
 @Description("Convert lambda to native support.")
 @Constraint(need = JLambda.class)
 @Transform(add = CapturedVariable.class)
-@Support(SourceVersion8.class)
+@Support({SourceVersion8.class, LambdaUseExperimentalOpcodes.class})
 @Synchronized
 public class LambdaNativeSupportConverter implements RunnableSchedulable<JMethod> {
 

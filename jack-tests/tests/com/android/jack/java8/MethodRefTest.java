@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -70,7 +69,6 @@ public class MethodRefTest {
   public void testMethodRef001() throws Exception {
     new RuntimeTestHelper(METHODREF001)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -78,7 +76,6 @@ public class MethodRefTest {
   public void testMethodRef002() throws Exception {
     new RuntimeTestHelper(METHODREF002)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -86,7 +83,6 @@ public class MethodRefTest {
   public void testMethodRef003() throws Exception {
     new RuntimeTestHelper(METHODREF003)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -94,7 +90,6 @@ public class MethodRefTest {
   public void testMethodRef004() throws Exception {
     new RuntimeTestHelper(METHODREF004)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -102,7 +97,6 @@ public class MethodRefTest {
   public void testMethodRef005() throws Exception {
     new RuntimeTestHelper(METHODREF005)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -110,7 +104,6 @@ public class MethodRefTest {
   public void testMethodRef006() throws Exception {
     new RuntimeTestHelper(METHODREF006)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -118,7 +111,6 @@ public class MethodRefTest {
   public void testMethodRef007() throws Exception {
     new RuntimeTestHelper(METHODREF007)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -126,7 +118,6 @@ public class MethodRefTest {
   public void testMethodRef008() throws Exception {
     new RuntimeTestHelper(METHODREF008)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 
@@ -134,7 +125,6 @@ public class MethodRefTest {
   public void testMethodRef009() throws Exception {
     new RuntimeTestHelper(METHODREF009)
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .compileAndRunTest();
   }
 }

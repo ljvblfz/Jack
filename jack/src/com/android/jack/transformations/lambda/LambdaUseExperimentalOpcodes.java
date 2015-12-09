@@ -20,10 +20,10 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 
 /**
- * A {@link Feature} specifying that an anonymous inner class
+ * A {@link Feature} specifying that experimental opcodes
  * will be generated to support lambda expressions.
  */
-@Description("Lambda to anonymous converter")
-public class LambdaToAnonymousConverter implements Feature {
+@Description("Use experimental opcodes for lambda expressions")
+public class LambdaUseExperimentalOpcodes implements Feature {
 
 }

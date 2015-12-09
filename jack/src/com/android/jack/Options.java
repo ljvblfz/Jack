@@ -23,6 +23,7 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.config.id.Private;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
@@ -148,11 +149,6 @@ public class Options {
   }
 
   @Nonnull
-  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
-      .create("jack.lambda.converter", "Enable lambda to anonymous converter")
-      .addDefaultValue(Boolean.FALSE);
-
-  @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
       .create("jack.incremental", "Enable incremental mode")
       .addDefaultValue(Boolean.FALSE);
@@ -166,6 +162,14 @@ public class Options {
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
       .create("jack.java.source.version", "Java source version").addDefaultValue("1.7")
       .withCategory(Arzon.get());
+
+  @Nonnull
+  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
+      BooleanPropertyId
+          .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
+          .addDefaultValue(Boolean.TRUE)
+          .requiredIf(JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
+              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
