@@ -784,6 +784,7 @@
           <exclude name="com/android/jack/java8/retrolambda/**"/>
           <exclude name="com/android/jack/java8/intersectiontype/**"/>
           <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
+          <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
           <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
           <exclude name="com/android/jack/frontend/test005/jack/**"/>
           <exclude name="com/android/jack/frontend/test006/jack/**"/>
@@ -839,6 +840,7 @@
       <exclude name="com/android/jack/java8/retrolambda/**"/>
       <exclude name="com/android/jack/java8/intersectiontype/**"/>
       <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
+      <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
       <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
       <exclude name="com/android/jack/frontend/test005/jack/**"/>
       <exclude name="com/android/jack/frontend/test006/jack/**"/>
