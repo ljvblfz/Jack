@@ -29,25 +29,31 @@ import com.android.jack.test.runner.RuntimeRunnerFactory;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.Version;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.junit.Assume;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -70,9 +76,9 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static final String PROPERTY_VALUE_SEPARATOR  = ",";
   @Nonnull
-  private static final String TOOLCHAIN_REFERENCE_KEY   = "toolchain.reference";
+  private static final String TOOLCHAIN_REFERENCE_KEY   = "reference.toolchain";
   @Nonnull
-  private static final String TOOLCHAIN_CANDIDATE_KEY   = "toolchain.candidate";
+  private static final String TOOLCHAIN_CANDIDATE_KEY   = "candidate.toolchain";
   @Nonnull
   private static final String RUNTIME_LIST_KEY          = "runtime.list";
   @Nonnull
@@ -83,6 +89,8 @@ public abstract class AbstractTestTools {
   private static final String TOOLCHAIN_PREBUILT_PREFIX = "toolchain.prebuilt.";
   @Nonnull
   private static final String TMP_PREFIX                = "jacktest-";
+  @Nonnull
+  private static final String LEGACY_COMPILER_KEY       = "toolchain.prebuilt.legacy-java-compiler";
 
   @Nonnull
   private static final List<RuntimeRunner> runtimes = new ArrayList<RuntimeRunner>();
@@ -97,6 +105,8 @@ public abstract class AbstractTestTools {
 
   static {
 
+    LoggerFactory.configure(LogLevel.ERROR);
+
     toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
@@ -108,6 +118,9 @@ public abstract class AbstractTestTools {
 
     try {
       runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
+
+      printConfig();
+
     } catch (SecurityException e) {
       throw new TestConfigurationException(e);
     } catch (IllegalArgumentException e) {
@@ -190,11 +203,10 @@ public abstract class AbstractTestTools {
     String prebuiltVarName = TOOLCHAIN_PREBUILT_PREFIX + prebuiltName;
     String prebuiltPath;
 
-    try {
-      prebuiltPath = TestsProperties.getProperty(prebuiltVarName);
-    } catch (TestConfigurationException e) {
-      throw new TestConfigurationException(
-          "Cannot find path for prebuilt '" + prebuiltName + "'", e);
+    prebuiltPath = TestsProperties.getProperty(prebuiltVarName);
+
+    if (prebuiltPath.equals("")) {
+      throw new TestConfigurationException("Property '" + prebuiltVarName + "' is not set");
     }
 
     File result = new File(prebuiltPath);
@@ -634,6 +646,7 @@ public abstract class AbstractTestTools {
         result.add(RuntimeRunnerFactory.create(rtName));
       }
     }
+
     return result;
   }
 
@@ -641,12 +654,13 @@ public abstract class AbstractTestTools {
   public static File getRuntimeEnvironmentRootDir(@Nonnull String rtName) {
     String rtLocationPath;
 
-    try {
-      rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
-    } catch (TestConfigurationException e) {
+    rtLocationPath = TestsProperties.getProperty(RUNTIME_LOCATION_PREFIX + rtName);
+
+    if (rtLocationPath.equals("")) {
       throw new TestConfigurationException("Location for runtime '" + rtName
           + "' is not specified. Set property '" + RUNTIME_LOCATION_PREFIX + rtName + "'");
     }
+
 
     File rtLocation = new File(rtLocationPath);
     if (!rtLocation.exists()) {
@@ -697,4 +711,108 @@ public abstract class AbstractTestTools {
   public static InputJackLibrary getInputJackLibrary(@Nonnull File dirOrZip) {
     return new InputJackLibraryCodec().parseString(new CodecContext(), dirOrZip.getPath());
   }
+
+  private static void printConfig() {
+    System.out.println("Tests configuration:");
+
+    printProperty(TestsProperties.JACK_HOME_KEY);
+
+    printProperty(TOOLCHAIN_CANDIDATE_KEY);
+    printProperty(TOOLCHAIN_REFERENCE_KEY);
+
+    String prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jack");
+    if (!prebuiltPath.equals("")) {
+      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jack.version  = " + getVersion("jack"));
+    }
+    prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jill");
+    if (!prebuiltPath.equals("")) {
+      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jill.version = " + getVersion("jill"));
+    }
+    printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jarjar");
+    printProperty(TOOLCHAIN_PREBUILT_PREFIX + "proguard");
+
+    TestsProperties.getProperty(LEGACY_COMPILER_KEY);
+    String runtimeList = printProperty(RUNTIME_LIST_KEY);
+
+    if (runtimes.size() == 0) {
+      System.err.println(
+          "WARNING: no runtime has been provided");
+    } else {
+      for (String runtimeName : listSplitter.split(runtimeList)) {
+        printProperty(RUNTIME_LOCATION_PREFIX + runtimeName);
+      }
+    }
+
+    String legacyCompiler = printProperty(LEGACY_COMPILER_KEY);
+    if (!legacyCompiler.equals("")) {
+      System.out.println(LEGACY_COMPILER_KEY + ".version = " + getReferenceCompilerVersion());
+    }
+
+  }
+
+  private static String printProperty(@Nonnull String propertyName) {
+    String value = TestsProperties.getProperty(propertyName);
+    System.out.println(propertyName + " = " + value);
+    return value;
+  }
+
+
+  private static String getReferenceCompilerVersion() {
+    File legacyCompilerPrebuilt = getPrebuilt("legacy-java-compiler");
+
+    String[] arguments = new String[2];
+    arguments[0] = legacyCompilerPrebuilt.getAbsolutePath();
+    arguments[1] = "-version";
+
+    ExecuteFile exec = new ExecuteFile(arguments);
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    exec.setErr(bos);
+
+    String path = System.getenv("PATH");
+    if (path != null) {
+      exec.addEnvVar("PATH", path);
+    }
+
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Could not fetch version of legacy compiler");
+      }
+
+      return bos.toString();
+
+    } catch (ExecFileException e) {
+      throw new RuntimeException("Could not fetch version of  legacy compiler", e);
+    } finally {
+      try {
+        bos.close();
+      } catch (IOException e) {
+      }
+    }
+
+  }
+
+  private static String getVersion(@Nonnull String name) {
+    File prebuilt = getPrebuilt(name);
+    JarFile jarFile = null;
+    try {
+      jarFile = new JarFile(prebuilt);
+      ZipEntry entry = jarFile.getEntry(name + "-version.properties");
+      InputStream is = jarFile.getInputStream(entry);
+      Version version = new Version(is);
+
+      return version.getVerboseVersion();
+
+    } catch (IOException e) {
+      throw new TestConfigurationException(e);
+    } finally {
+      if (jarFile != null) {
+        try {
+          jarFile.close();
+        } catch (IOException e) {
+        }
+      }
+    }
+  }
+
 }

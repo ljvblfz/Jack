@@ -26,6 +26,8 @@ import javax.annotation.Nonnull;
 
 public class TestsProperties {
 
+  public static final String JACK_HOME_KEY ="jack.home";
+
   @Nonnull
   private static final File JACK_ROOT_DIR;
 
@@ -73,10 +75,10 @@ public class TestsProperties {
       }
     }
 
-    String jackHome = testsProperties.getProperty("jack.home");
+    String jackHome = testsProperties.getProperty(JACK_HOME_KEY);
 
-    if (jackHome == null) {
-      throw new TestConfigurationException("'jack.home' property is not set");
+    if (jackHome.equals("")) {
+      throw new TestConfigurationException("Property '" + JACK_HOME_KEY + "' is not set");
     }
     JACK_ROOT_DIR = new File(jackHome);
   }
@@ -88,22 +90,16 @@ public class TestsProperties {
 
   @Nonnull
   public static final File getAndroidRootDir() {
-    return new File(getProperty("android.home"));
+    String androidHome = getProperty("android.home");
+    if (androidHome.equals("")) {
+      throw new TestConfigurationException("Property 'android.home' is not set'");
+    }
+    return new File(androidHome);
   }
 
   @Nonnull
   public static String getProperty(@Nonnull String key) {
-    String value = testsProperties.getProperty(key);
-    if (value == null) {
-      throw new TestConfigurationException("Undefined property : '" + key + "'");
-    }
-    return value;
+    return testsProperties.getProperty(key, "");
   }
-
-  @Nonnull
-  public static Properties getGlobalProperties() {
-    return testsProperties;
-  }
-
 
 }
