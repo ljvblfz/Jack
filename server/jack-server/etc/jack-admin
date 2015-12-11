@@ -406,7 +406,7 @@ case $COMMAND in
 
   kill-server)
     echo "Killing background server"
-    SERVERS_PID=$(ps ux -u $(id -u) | grep $LAUNCHER_NAME | grep -v grep | awk '{print $2}')
+    SERVERS_PID=$(ps -A -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
     if [ -z "$SERVERS_PID" ]; then
       echo "No Jack server to kill" >&2
       exit 2
@@ -436,7 +436,7 @@ case $COMMAND in
 
 
   list-server)
-    ps aux | grep $LAUNCHER_NAME | grep -v grep
+    ps -A -o "user pid args" | grep $LAUNCHER_NAME | grep -v grep
     exit $? ;;
 
 
