@@ -30,7 +30,10 @@ import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Files;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.junit.Assume;
@@ -78,6 +81,8 @@ public abstract class AbstractTestTools {
   private static final String TOOL_PREFIX               = "tool.";
   @Nonnull
   private static final String TOOLCHAIN_PREBUILT_PREFIX = "toolchain.prebuilt.";
+  @Nonnull
+  private static final String TMP_PREFIX                = "jacktest-";
 
   @Nonnull
   private static final List<RuntimeRunner> runtimes = new ArrayList<RuntimeRunner>();
@@ -286,16 +291,17 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws IOException {
-    File tmp = File.createTempFile(prefix, suffix);
+      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+    File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;
   }
 
   @Nonnull
-  public static File createTempDir() throws IOException {
+  public static File createTempDir() throws CannotCreateFileException, CannotSetPermissionException,
+      WrongPermissionException, IOException {
     try {
-      final File tmpDir = Files.createTempDir();
+      final File tmpDir = Files.createTempDir(TMP_PREFIX);
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
