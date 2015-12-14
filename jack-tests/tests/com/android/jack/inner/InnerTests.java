@@ -22,6 +22,7 @@ import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -142,6 +143,9 @@ public class InnerTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.inner.test028"),
       "com.android.jack.inner.test028.dx.Tests");
 
+  private RuntimeTestInfo TEST029 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.inner.test029"),
+      "com.android.jack.inner.test029.dx.Tests");
 
   @Test
   @Category(RuntimeRegressionTest.class)
@@ -316,6 +320,13 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Category(RuntimeRegressionTest.class)
+  @KnownIssue
+  public void test029() throws Exception {
+    new RuntimeTestHelper(TEST029).compileAndRunTest();
+  }
+
+  @Test
   public void testCheckStructure20() throws Exception {
     //TODO: find out why debug info check fails
     checkStructure("test020");
@@ -362,5 +373,6 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST026);
     rtTestInfos.add(TEST027);
     rtTestInfos.add(TEST028);
+    rtTestInfos.add(TEST029);
   }
 }
