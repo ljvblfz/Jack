@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JBitAndOperation;
 import com.android.jack.ir.ast.JBitOrOperation;
 import com.android.jack.ir.ast.JBitXorOperation;
@@ -114,6 +115,7 @@ import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.optimizations.NotSimplifier;
+import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
 import com.android.jack.transformations.ast.ImplicitCast;
@@ -136,6 +138,7 @@ import com.android.sched.item.Name;
 @Description("All JNodes, tags or markers that represent the Jack format.")
 @ComposedOf({AnnotationMethodDefaultValue.class,
     BooleanTestOutsideIf.class,
+    EmptyClinit.class,
     ImplicitBoxingAndUnboxing.class,
     ImplicitCast.class,
     InitInNewArray.class,
@@ -149,6 +152,7 @@ import com.android.sched.item.Name;
     JArrayType.class,
     JArrayType.class,
     JAsgOperation.class,
+    JAssertStatement.class,
     JBitAndOperation.class,
     JBitOrOperation.class,
     JBitXorOperation.class,

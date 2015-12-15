@@ -17,7 +17,6 @@
 package com.android.jack.ir;
 
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
-import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JContinueStatement;
 import com.android.jack.ir.ast.JDoStatement;
@@ -30,7 +29,6 @@ import com.android.jack.ir.ast.JPrefixDecOperation;
 import com.android.jack.ir.ast.JPrefixIncOperation;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JWhileStatement;
-import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCall;
 import com.android.jack.transformations.enums.EnumMappingMarker;
@@ -46,11 +44,9 @@ import com.android.sched.item.Name;
 @Name("Non-Jack format IR")
 @Description("All JNodes, tags or markers that are forbidden in the Jack format.")
 @ComposedOf({CompoundAssignment.class,
-    EmptyClinit.class,
     EnumMappingMarker.class,
     FieldInitMethod.class,
     FieldInitMethodCall.class,
-    JAssertStatement.class,
     JConcatOperation.class,
     JContinueStatement.class,
     JDoStatement.class,

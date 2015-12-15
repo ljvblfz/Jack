@@ -1005,23 +1005,17 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan2.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(NotSimplifier.class);
-        methodPlan.append(AssertionTransformer.class);
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(TryWithResourcesTransformer.class);
         }
       }
     }
-    planBuilder.append(AssertionTransformerSchedulingSeparator.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
 
       {
-        {
-          SubPlanBuilder<JField> fieldPlan =
-              typePlan3.appendSubPlan(JFieldAdapter.class);
-          fieldPlan.append(FieldInitializer.class);
-        }
         {
           SubPlanBuilder<JMethod> methodPlan2 =
               typePlan3.appendSubPlan(JMethodAdapter.class);
@@ -1116,7 +1110,6 @@ public abstract class Jack {
           methodPlan.append(SwitchStringSupport.class);
         }
         methodPlan.append(EnumMappingMarkerRemover.class);
-        methodPlan.append(EmptyClinitRemover.class);
       }
 
       typePlan4.append(FlowNormalizerSchedulingSeparator.class);
@@ -1200,11 +1193,26 @@ public abstract class Jack {
     if (features.contains(SourceFileRenaming.class)) {
       planBuilder.append(SourceFileRenamer.class);
     }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(AssertionTransformer.class);
+    }
+
+    planBuilder.append(AssertionTransformerSchedulingSeparator.class);
+
     {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      {
+        SubPlanBuilder<JField> fieldPlan =
+            typePlan4.appendSubPlan(JFieldAdapter.class);
+        fieldPlan.append(FieldInitializer.class);
+      }
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(ConditionalAndOrRemover.class);
@@ -1243,6 +1251,7 @@ public abstract class Jack {
         if (hasSanityChecks) {
           methodPlan.append(NumericConversionChecker.class);
         }
+        methodPlan.append(EmptyClinitRemover.class);
       }
     }
 

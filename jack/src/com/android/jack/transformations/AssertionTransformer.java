@@ -44,7 +44,6 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
-import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.AppendField;
@@ -72,7 +71,7 @@ import javax.annotation.Nonnull;
 @Description("Transforms assert into a throw if assertions are enabled")
 @Name("AssertionTransformer")
 @Synchronized
-@Constraint(need = {JAssertStatement.class, OriginalNames.class})
+@Constraint(need = {JAssertStatement.class})
 @Transform(add = {AssertionTransformerSchedulingSeparator.SeparatorTag.class,
     BooleanTestOutsideIf.class,
     JIfStatement.class,
