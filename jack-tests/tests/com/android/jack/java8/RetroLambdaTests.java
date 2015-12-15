@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -211,7 +210,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest001() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_001)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -219,7 +217,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest002() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_002)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -227,7 +224,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest003() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_003)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -235,7 +231,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest004() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_004)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -243,7 +238,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest005() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_005)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -251,7 +245,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest006() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_006)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -259,7 +252,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest007() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_007)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -267,7 +259,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest008() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_008)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -275,7 +266,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest009() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_009)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -283,7 +273,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest010() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_010)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -291,7 +280,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest011() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_011)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -299,7 +287,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest012() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_012)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -307,7 +294,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest013() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_013)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -315,7 +301,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest014() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_014)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -323,7 +308,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest015() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_015)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -331,7 +315,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest016() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_016)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -339,7 +322,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest017() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_017)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -347,7 +329,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest018() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_018)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -355,7 +336,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest019() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_019)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -363,7 +343,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest020() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_020)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -371,7 +350,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest021() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_021)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -379,7 +357,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest022() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_022)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -387,7 +364,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest023() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_023)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -395,7 +371,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest024() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_024)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -403,7 +378,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest025() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_025)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -411,7 +385,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest026() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_026)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -419,7 +392,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaDefaultMethodsTest027() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_DEFAULTMETHODS_027)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -427,7 +399,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaInterfaceBridgeMethodsTest001() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_INTERFACE_BRIDGE_METHODS_001)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -435,7 +406,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaInterfaceStaticMethodsTest001() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_INTERFACE_STATICMETHODS_001)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -443,7 +413,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaInterfaceStaticMethodsTest002() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_INTERFACE_STATICMETHODS_002)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -451,7 +420,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaInterfaceStaticMethodsTest003() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_INTERFACE_STATICMETHODS_003)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }
@@ -459,7 +427,6 @@ public class RetroLambdaTests {
   @Test
   public void retroLambdaInterfaceStaticMethodsTest004() throws Exception {
     new RuntimeTestHelper(RETROLAMBDA_INTERFACE_STATICMETHODS_004)
-    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .setSourceLevel(SourceLevel.JAVA_8)
     .compileAndRunTest();
   }

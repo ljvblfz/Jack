@@ -249,6 +249,7 @@ import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.lambda.LambdaConverter;
 import com.android.jack.transformations.lambda.LambdaNativeSupportConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
+import com.android.jack.transformations.lambda.LambdaUseExperimentalOpcodes;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
@@ -555,8 +556,14 @@ public abstract class Jack {
           request.addProduction(DexInLibraryProduct.class);
         }
 
-        if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
-          request.addFeature(LambdaToAnonymousConverter.class);
+        if (request.getFeatures().contains(SourceVersion8.class)) {
+          if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+            request.addFeature(LambdaToAnonymousConverter.class);
+          }
+
+          if (config.get(CodeItemBuilder.EXPERIMENTAL_LAMBDA_OPCODES).booleanValue()) {
+            request.addFeature(LambdaUseExperimentalOpcodes.class);
+          }
         }
 
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
@@ -1165,7 +1172,9 @@ public abstract class Jack {
           }
           typePlan.append(InnerAccessorAdder.class);
         }
-      } else {
+      }
+
+      if (features.contains(LambdaUseExperimentalOpcodes.class)) {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);

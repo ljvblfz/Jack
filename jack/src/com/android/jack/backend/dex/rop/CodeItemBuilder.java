@@ -26,6 +26,7 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
+import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.code.DalvCode;
@@ -170,6 +171,13 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
       "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
       .addDefaultValue(Boolean.TRUE);
+
+  @Nonnull
+  public static final BooleanPropertyId EXPERIMENTAL_LAMBDA_OPCODES = BooleanPropertyId.create(
+      "jack.dex.lambda.experimental", "Generates experimental opcodes for lambda support")
+      .addDefaultValue(Boolean.FALSE)
+          .requiredIf(Options.JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
+              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
