@@ -323,6 +323,7 @@ public class InnerTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   @KnownIssue
   public void test029() throws Exception {
+    // Add this test into fillRtTestInfos when @KnownIssue will be removed
     new RuntimeTestHelper(TEST029).compileAndRunTest();
   }
 
@@ -373,6 +374,5 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST026);
     rtTestInfos.add(TEST027);
     rtTestInfos.add(TEST028);
-    rtTestInfos.add(TEST029);
   }
 }
