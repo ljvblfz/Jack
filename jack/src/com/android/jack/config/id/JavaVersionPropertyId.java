@@ -25,6 +25,7 @@ import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
+import com.android.sched.util.config.expression.LongExpression;
 import com.android.sched.util.config.id.PropertyId;
 
 import javax.annotation.Nonnull;
@@ -151,6 +152,55 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
         } catch (MissingPropertyException e) {
           return e.getMessage();
         }
+      }
+    };
+  }
+
+  @Nonnull
+  public LongExpression getValue() {
+    return new LongExpression() {
+      @Override
+      public long eval(@Nonnull ConfigChecker checker)
+          throws PropertyIdException, MissingPropertyException {
+        if (!isRequired(checker)) {
+          throw new MissingPropertyException(JavaVersionPropertyId.this);
+        }
+
+        return checker.parse(JavaVersionPropertyId.this).ordinal();
+      }
+
+      @Override
+      @Nonnull
+      public String getDescription() {
+        return formatPropertyName(JavaVersionPropertyId.this);
+      }
+
+      @Override
+      @Nonnull
+      public String getCause(@Nonnull ConfigChecker checker) {
+        return formatPropertyName(checker, JavaVersionPropertyId.this);
+      }
+    };
+  }
+
+  @Nonnull
+  public static LongExpression getConstant(@Nonnull final JavaVersion version) {
+    return new LongExpression() {
+      @Override
+      public long eval(@Nonnull ConfigChecker checker) {
+        return version.ordinal();
+      }
+
+      @Override
+      @Nonnull
+      public String getDescription() {
+        return parser.formatValue(version);
+      }
+
+      @Override
+      @Nonnull
+      public String getCause(@Nonnull ConfigChecker checker) {
+        return parser.formatValue(version);
       }
     };
   }
