@@ -37,11 +37,15 @@ import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
+import com.android.sched.util.file.Files;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
 
 import junit.framework.Assert;
@@ -77,6 +81,9 @@ public class TestTools {
 
   @Nonnull
   private static final String JACK_PACKAGE = "com/android/jack/";
+
+  @Nonnull
+  private static final String TMP_PREFIX = "jackunittest-";
 
   public static class ReferenceCompilerFiles {
     @Nonnull
@@ -298,7 +305,7 @@ public class TestTools {
     options.classpath = classpathStr;
 
     options.setInputSources(Arrays.asList(filesOrSourceDirs));
-    options.setOutputDir(TestTools.createTempDir("test", "dex"));
+    options.setOutputDir(TestTools.createTempDir("test"));
 
     return options;
   }
@@ -374,7 +381,7 @@ public class TestTools {
     OutputJackLibrary outputLibrary = null;
     try {
       outputLibrary = JackLibraryFactory.getOutputLibrary(new CachedDirectFS(new Directory(
-          TestTools.createTempDir("unused", "").getPath(), hooks, Existence.MUST_EXIST,
+          TestTools.createTempDir("unused").getPath(), hooks, Existence.MUST_EXIST,
           Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE),
           Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
@@ -432,14 +439,9 @@ public class TestTools {
     return foundMethod;
   }
 
-  public static File createTempDir(String prefix, String suffix) throws IOException {
-    final File tmp = File.createTempFile(prefix, suffix);
-    if (!tmp.delete()) {
-      throw new IOException("Failed to delete file " + tmp.getAbsolutePath());
-    }
-    if (!tmp.mkdirs()) {
-      throw new IOException("Failed to create folder " + tmp.getAbsolutePath());
-    }
+  public static File createTempDir(@Nonnull String prefix)
+      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+    final File tmp = Files.createTempDir(TMP_PREFIX + prefix);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -453,8 +455,9 @@ public class TestTools {
     return tmp;
   }
 
-  public static File createTempFile(String prefix, String suffix) throws IOException {
-    File tmp = File.createTempFile(prefix, suffix);
+  public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
+      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+    File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;
   }
