@@ -22,40 +22,25 @@ import com.android.jack.analysis.UsedVariableMarker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.sched.schedulable.Constraint;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
- * Helpers related to optimizations.
+ * Helpers related to use def.
  */
-public class OptimizationTools {
+@Constraint(need = {ReachingDefsMarker.class, UseDefsMarker.class, UsedVariableMarker.class})
+public class UseDefHelper {
 
   @Nonnull
-  public static Collection<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb) {
+  public static List<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb) {
     ReachingDefsMarker rdm = bb.getMarker(ReachingDefsMarker.class);
     assert rdm != null;
     return rdm.getReachingDefs();
-  }
-
-  @Nonnull
-  public static List<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb,
-      @Nonnull JVariable var) {
-    List<DefinitionMarker> reachingDefs = new ArrayList<DefinitionMarker>();
-
-    for (DefinitionMarker reachingDef : getReachingDefs(bb)) {
-      if (reachingDef.getDefinedVariable() == var) {
-        reachingDefs.add(reachingDef);
-      }
-    }
-
-    return reachingDefs;
   }
 
   @Nonnull
