@@ -20,6 +20,7 @@ import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,8 +49,8 @@ public class DebugTests {
 
   @Test
   public void test002() throws Exception {
-    new RuntimeTestHelper(TEST002)
-        .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
+    new RuntimeTestHelper(TEST002).addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .setWithDebugInfos(true).compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
@@ -60,7 +61,7 @@ public class DebugTests {
 
   @Test
   public void test004() throws Exception {
-    new RuntimeTestHelper(TEST004)
+    new RuntimeTestHelper(TEST004).addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
   }
 
