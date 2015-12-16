@@ -62,7 +62,7 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
       FileAlreadyExistsException,
       CannotCreateFileException {
     int permissions = Permission.READ | Permission.WRITE;
-    dir = Files.createTempDir("vfs-");
+    dir = Files.createTempDir();
     VFS workVFS;
     try {
       workVFS = new CaseInsensitiveFS(new CachedDirectFS(new Directory(dir.getPath(),

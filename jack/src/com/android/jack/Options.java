@@ -1152,7 +1152,7 @@ public class Options {
   private static Directory createTempDir(
       @Nonnull RunnableHooks hooks) {
     try {
-      File tmp = Files.createTempDir("jack-");
+      File tmp = Files.createTempDir();
       Directory dir = new Directory(tmp.getPath(), hooks, Existence.MUST_EXIST, Permission.WRITE,
           ChangePermission.NOCHANGE);
       hooks.addHook(new TempDirDeleter(dir));

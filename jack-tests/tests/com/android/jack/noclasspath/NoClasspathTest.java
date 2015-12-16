@@ -178,7 +178,7 @@ public class NoClasspathTest {
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "multidex");
-    File frameworkDexFolder = TestTools.createTempDir("framework");
+    File frameworkDexFolder = TestTools.createTempDir("framework", "dex");
     toolchain.libToExe(frameworkJackZip, frameworkDexFolder, /* zipFile = */ false);
   }
 
