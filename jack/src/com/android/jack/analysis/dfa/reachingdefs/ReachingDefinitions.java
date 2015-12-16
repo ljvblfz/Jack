@@ -41,10 +41,8 @@ import com.android.sched.util.config.id.PropertyId;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -203,9 +201,9 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
   }
 
   @Nonnull
-  private Set<DefinitionMarker> getDefinitions(
+  private List<DefinitionMarker> getDefinitions(
       @Nonnull List<DefinitionMarker> definitions, @Nonnull BitSet in) {
-    Set<DefinitionMarker> reachingDefs = new HashSet<DefinitionMarker>();
+    List<DefinitionMarker> reachingDefs = new ArrayList<DefinitionMarker>();
     for (int i = in.nextSetBit(0); i >= 0; i = in.nextSetBit(i + 1)) {
       reachingDefs.add(definitions.get(i));
     }
