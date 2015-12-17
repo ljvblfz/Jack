@@ -97,17 +97,16 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private class Visitor extends JVisitor {
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
 
-    @Nonnull
-    private final Tracer tracer;
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final JMethod method;
 
     public Visitor(@Nonnull JMethod method) {
       this.method = method;
-      tracer = TracerFactory.getTracer();
     }
 
     @Override
