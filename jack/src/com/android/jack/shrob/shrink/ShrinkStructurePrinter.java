@@ -31,7 +31,6 @@ import com.android.sched.util.file.OutputStreamFile;
 
 import java.io.PrintStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -53,27 +52,6 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
       "jack.internal.structure.print.file", "File containing the list of all types and members",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
-
-  static class WriteException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
-
-    public WriteException() {
-    }
-
-    public WriteException(@CheckForNull String message) {
-      super(message);
-    }
-
-    public WriteException(@CheckForNull Throwable cause) {
-      super(cause);
-    }
-
-    public WriteException(@CheckForNull String message, @CheckForNull Throwable cause) {
-      super(message, cause);
-    }
-
-  }
 
   @Nonnull
   private final PrintStream stream;
