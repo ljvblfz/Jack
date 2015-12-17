@@ -23,6 +23,7 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.config.id.Private;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
@@ -163,6 +164,14 @@ public class Options {
       .withCategory(Arzon.get());
 
   @Nonnull
+  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
+      BooleanPropertyId
+          .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
+          .addDefaultValue(Boolean.TRUE)
+          .requiredIf(JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
+              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
+
+  @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
       "jack.library", "Generate jack library").addDefaultValue(Boolean.FALSE);
 
@@ -178,7 +187,7 @@ public class Options {
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
       EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
           SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
-      .addDefaultValue(SwitchEnumOptStrategy.FEEDBACK).ignoreCase();
+      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase();
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId

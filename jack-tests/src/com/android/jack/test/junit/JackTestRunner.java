@@ -62,7 +62,6 @@ public class JackTestRunner extends Categories {
 
     @Override
     public boolean shouldRun(@Nonnull Description description) {
-
       boolean shouldRun = false;
 
       KnownIssue knownIssueAnnot = description.getAnnotation(KnownIssue.class);

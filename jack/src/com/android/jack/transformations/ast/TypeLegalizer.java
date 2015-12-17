@@ -22,6 +22,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConditionalExpression;
@@ -71,7 +72,8 @@ import javax.annotation.Nonnull;
 @Description("Make implicit casting, boxing and unboxing become explicit.")
 @Name("TypeLegalizer")
 @Constraint(
-    no = {SideEffectOperation.class, InitInNewArray.class, JSwitchStatement.SwitchWithEnum.class})
+no = {SideEffectOperation.class, InitInNewArray.class,
+    JSwitchStatement.SwitchWithEnum.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
     remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {
@@ -151,16 +153,15 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     public void endVisit(@Nonnull JDynamicCastOperation cast) {
       JExpression expr = cast.getExpr();
       if (cast.getExpr().getType().isSameType(javaLangObject)
-          && cast.getCastType() instanceof JPrimitiveType) {
-        assert cast.getCastType() != JPrimitiveTypeEnum.VOID.getType();
+          && cast.getType() instanceof JPrimitiveType) {
+        assert cast.getType() != JPrimitiveTypeEnum.VOID.getType();
 
         JDynamicCastOperation castToWrapperType = new JDynamicCastOperation(expr.getSourceInfo(),
-            ((JPrimitiveType) cast.getCastType()).getWrapperType(),
-            expr);
+            expr, ((JPrimitiveType) cast.getType()).getWrapperType());
         tr.append(new Replace(expr, castToWrapperType));
         expr = castToWrapperType;
       }
-      maybeBoxOrUnbox(expr, cast.getCastType());
+      maybeBoxOrUnbox(expr, cast.getType());
       super.endVisit(cast);
     }
 
@@ -486,7 +487,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       JExpression arg;
       if (exprToBoxType instanceof JNumericType && !paramType.isSameType(exprToBoxType)) {
         assert paramType instanceof JNumericType;
-        arg = new JDynamicCastOperation(exprToBox.getSourceInfo(), paramType, exprToBox);
+        arg = new JDynamicCastOperation(exprToBox.getSourceInfo(), exprToBox, paramType);
       } else {
         arg = exprToBox;
       }
@@ -498,7 +499,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     private void castIfNeeded(@Nonnull JExpression exprToCast, @Nonnull JType expectedType) {
       if (expectedType instanceof JNumericType && !exprToCast.getType().isSameType(expectedType)) {
         tr.append(new Replace(exprToCast, new JDynamicCastOperation(
-            exprToCast.getSourceInfo(), expectedType, exprToCast)));
+            exprToCast.getSourceInfo(), exprToCast, expectedType)));
       }
     }
   }

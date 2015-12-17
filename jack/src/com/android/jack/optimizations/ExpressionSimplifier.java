@@ -65,7 +65,8 @@ import javax.annotation.Nonnull;
  * by the result of evaluation.
  */
 @Description("Expressions simplifier")
-@Constraint(no = {ImplicitCast.class}, need = {ThreeAddressCodeForm.class})
+@Constraint(no = {ImplicitCast.class, JCastOperation.WithIntersectionType.class},
+    need = {ThreeAddressCodeForm.class})
 @Transform(add = {ExpressionSimplifier.ExpressionsSimplified.class,
     JPrefixNotOperation.class,
     JBooleanLiteral.class,
@@ -103,11 +104,11 @@ public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
     public void endVisit(@Nonnull JCastOperation cast) {
       JExpression castedExpr = cast.getExpr();
 
-      if (castedExpr instanceof JNumberLiteral && cast.getCastType() instanceof JPrimitiveType) {
+      if (castedExpr instanceof JNumberLiteral && cast.getType() instanceof JPrimitiveType) {
         SourceInfo si = cast.getSourceInfo();
         Number numberValue = ((JNumberLiteral) castedExpr).getNumber();
         JValueLiteral simplifiedExpr = refineCst(si, numberValue,
-            ((JPrimitiveType) cast.getCastType()).getPrimitiveTypeEnum());
+            ((JPrimitiveType) cast.getType()).getPrimitiveTypeEnum());
         assert currentMethod != null;
         TransformationRequest tr = new TransformationRequest(currentMethod);
         tr.append(new Replace(cast, simplifiedExpr));

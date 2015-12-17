@@ -55,7 +55,6 @@ public class RuntimeTestInfo {
   @Nonnull
   public List<FileChecker> checkers = new ArrayList<FileChecker>(0);
 
-
   public RuntimeTestInfo(@Nonnull File directory, @Nonnull String jUnit) {
     this.directory = directory;
     this.jUnit = jUnit;

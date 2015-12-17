@@ -99,7 +99,7 @@ public final class Rops {
 
   /** {@code r, literal: Object :: r = literal;} */
   public static final Rop CONST_OBJECT =
-      new Rop(RegOps.CONST, Type.OBJECT, StdTypeList.EMPTY, Exceptions.LIST_Error, "const-object");
+      new Rop(RegOps.CONST, Type.OBJECT, StdTypeList.EMPTY, "const-object");
 
   /** {@code r, literal: Object :: r = literal;} */
   public static final Rop CONST_OBJECT_NOTHROW =
@@ -920,6 +920,43 @@ public final class Rops {
       new Rop(RegOps.FILL_ARRAY_DATA, Type.VOID, StdTypeList.EMPTY, "fill-array-data");
 
   /**
+   * {@code r: Closure; x: Object; f: instance field spec of type Closure :: r = x.f}
+   */
+  public static final Rop GET_FIELD_LAMBDA = new Rop(RegOps.GET_FIELD, Type.CLOSURE,
+      StdTypeList.OBJECT, Exceptions.LIST_Error_NullPointerException, "get-field-lambda");
+
+  /**
+   * {@code x: Closure; y: Object; f: instance field spec of type Closure :: y.f = x}
+   */
+  public static final Rop PUT_FIELD_LAMBDA = new Rop(RegOps.PUT_FIELD, Type.VOID,
+      StdTypeList.CLOSURE_OBJECT, Exceptions.LIST_Error_NullPointerException, "put-field-lambda");
+
+  /** {@code f: static field spec of type Closure; x: Object :: f = x} */
+  public static final Rop PUT_STATIC_LAMBDA = new Rop(RegOps.PUT_STATIC, Type.VOID,
+      StdTypeList.CLOSURE, Exceptions.LIST_Error, "put-static-lambda");
+
+  /** {@code r: Closure; f: static field spec of type Closure :: r = f} */
+  public static final Rop GET_STATIC_LAMBDA = new Rop(RegOps.GET_STATIC, Type.CLOSURE,
+      StdTypeList.EMPTY, Exceptions.LIST_Error, "get-static-lambda");
+
+  /** {@code r: Closure; x: Closure[]; y: int :: r = x[y]} */
+  public static final Rop AGET_LAMBDA = new Rop(RegOps.AGET, Type.CLOSURE,
+      StdTypeList.CLOSUREARR_INT, Exceptions.LIST_Error_Null_ArrayIndexOutOfBounds, "aget-lambda");
+
+  /** {@code x: Closure; y: Closure[]; z: int :: y[z] = x} */
+  public static final Rop APUT_LAMBDA =
+      new Rop(RegOps.APUT, Type.VOID, StdTypeList.CLOSURE_CLOSUREARR_INT,
+          Exceptions.LIST_Error_Null_ArrayIndex_ArrayStore, "aput-lambda");
+
+  /** {@code r,x: Closure :: r = x;} */
+  public static final Rop MOVE_LAMBDA =
+      new Rop(RegOps.MOVE, Type.CLOSURE, StdTypeList.CLOSURE, "move-lambda");
+
+  /** {@code r: int; x,y: Closure :: r = cmp(x, y);} */
+  public static final Rop CMP_LAMBDA =
+      new Rop(RegOps.CMPL, Type.INT, StdTypeList.CLOSURE_CLOSURE, "cmp-lambda");
+
+  /**
    * Returns the appropriate rop for the given opcode, destination,
    * and sources. The result is typically, but not necessarily, a
    * shared instance.
@@ -1091,9 +1128,59 @@ public final class Rops {
         meth = meth.withFirstParameter(definer.getClassType());
         return opInvokeInterface(meth);
       }
+      case RegOps.CAPTURE_VARIABLE: {
+        return opCaptureVariable(sources);
+      }
+      case RegOps.LIBERATE_VARIABLE: {
+        return opLiberateVariable(dest, sources);
+      }
+      case RegOps.INVOKE_LAMBDA: {
+        CstBaseMethodRef cstMeth = (CstMethodRef) cst;
+        Prototype meth = cstMeth.getPrototype();
+        CstType definer = cstMeth.getDefiningClass();
+        meth = meth.withFirstParameter(definer.getClassType());
+        return opInvokeLambda(meth);
+      }
+      case RegOps.CREATE_LAMBDA: {
+        return opCreateLambda();
+      }
+      case RegOps.BOX_LAMBDA: {
+        return opBoxLambda(dest, sources);
+      }
+      case RegOps.UNBOX_LAMBDA: {
+        return opUnboxLambda(dest, sources);
+      }
     }
 
     throw new RuntimeException("unknown opcode " + RegOps.opName(opcode));
+  }
+
+  public static Rop opBoxLambda(TypeBearer type, TypeList sources) {
+    return new Rop(RegOps.BOX_LAMBDA, type.getType(), sources, "box-lambda");
+  }
+
+  public static Rop opUnboxLambda(TypeBearer type, TypeList sources) {
+    return new Rop(RegOps.UNBOX_LAMBDA, type.getType(), sources, "unbox-lambda");
+  }
+
+  public static Rop opCaptureVariable(TypeList sources) {
+    return new Rop(RegOps.CAPTURE_VARIABLE, Type.VOID, sources, StdTypeList.EMPTY, Rop.BRANCH_NONE,
+        true, null);
+  }
+
+  public static Rop opLiberateVariable(TypeBearer type, TypeList sources) {
+    return new Rop(RegOps.LIBERATE_VARIABLE, type.getType(), sources, StdTypeList.EMPTY,
+        Rop.BRANCH_THROW, "liberate-lambda");
+  }
+
+  public static Rop opInvokeLambda(Prototype meth) {
+    return new Rop(RegOps.INVOKE_LAMBDA, meth.getParameterFrameTypes(), StdTypeList.THROWABLE);
+  }
+
+  public static Rop opCreateLambda() {
+    // STOPSHIP: replace long by a closure
+    return new Rop(RegOps.CREATE_LAMBDA, Type.LONG, StdTypeList.EMPTY, Exceptions.LIST_Error,
+        "create-lambda");
   }
 
   /**
@@ -1113,6 +1200,8 @@ public final class Rops {
         return MOVE_FLOAT;
       case Type.BT_DOUBLE:
         return MOVE_DOUBLE;
+      case Type.BT_CLOSURE:
+        return MOVE_LAMBDA;
       case Type.BT_OBJECT:
         return MOVE_OBJECT;
       case Type.BT_ADDR:
@@ -1141,6 +1230,9 @@ public final class Rops {
         return MOVE_PARAM_DOUBLE;
       case Type.BT_OBJECT:
         return MOVE_PARAM_OBJECT;
+      case Type.BT_CLOSURE:
+        // STOPHIP: Need to be replace by a MOVE_PARAM_LAMBDA
+        return MOVE_PARAM_LONG;
     }
 
     return throwBadType(type);
@@ -1753,6 +1845,10 @@ public final class Rops {
     switch (type.getBasicFrameType()) {
       case Type.BT_INT:
         return RETURN_INT;
+      case Type.BT_CLOSURE:
+//        // STOPSHIP: Jack must use return-lambda when it will be supported by the runtime
+//        return new Rop(RegOps.RETURN, Type.VOID, StdTypeList.make(type.getType()),
+//            Rop.BRANCH_RETURN, "return-lambda");
       case Type.BT_LONG:
         return RETURN_LONG;
       case Type.BT_FLOAT:
@@ -1785,6 +1881,9 @@ public final class Rops {
         return AGET_FLOAT;
       case Type.BT_DOUBLE:
         return AGET_DOUBLE;
+      // STOPSHIP: read closure from an array must use aget-lambda
+      case Type.BT_CLOSURE:
+//        return AGET_LAMBDA;
       case Type.BT_OBJECT:
         return AGET_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1817,6 +1916,9 @@ public final class Rops {
         return APUT_FLOAT;
       case Type.BT_DOUBLE:
         return APUT_DOUBLE;
+      // STOPSHIP: write closure into an array must use aput-lambda
+      case Type.BT_CLOSURE:
+//        return APUT_LAMBDA;
       case Type.BT_OBJECT:
         return APUT_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1860,6 +1962,7 @@ public final class Rops {
         return NEW_ARRAY_CHAR;
       case Type.BT_SHORT:
         return NEW_ARRAY_SHORT;
+      case Type.BT_CLOSURE:
       case Type.BT_OBJECT: {
         return new Rop(RegOps.NEW_ARRAY, type, StdTypeList.INT,
             Exceptions.LIST_Error_NegativeArraySizeException, "new-array-object");
@@ -1916,6 +2019,9 @@ public final class Rops {
         return GET_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return GET_FIELD_DOUBLE;
+      // STOPSHIP: read closure from a field must use iget-lambda
+      case Type.BT_CLOSURE:
+//        return GET_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return GET_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1948,6 +2054,9 @@ public final class Rops {
         return PUT_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_FIELD_DOUBLE;
+      // STOPSHIP: write closure into a field must use iput-lambda
+      case Type.BT_CLOSURE:
+//        return PUT_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1980,6 +2089,9 @@ public final class Rops {
         return GET_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return GET_STATIC_DOUBLE;
+      // STOPSHIP: read closure from a field must use sget-lambda
+      case Type.BT_CLOSURE:
+//        return GET_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return GET_STATIC_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2012,6 +2124,9 @@ public final class Rops {
         return PUT_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_STATIC_DOUBLE;
+      // STOPSHIP: write closure into a field must use sput-lambda
+      case Type.BT_CLOSURE:
+//        return PUT_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_STATIC_OBJECT;
       case Type.BT_BOOLEAN:

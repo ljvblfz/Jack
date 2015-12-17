@@ -17,6 +17,7 @@
 package com.android.jack.dx.dex.code;
 
 import com.android.jack.dx.rop.code.Insn;
+import com.android.jack.dx.rop.code.PlainCstInsn;
 import com.android.jack.dx.rop.code.RegOps;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.Rop;
@@ -24,6 +25,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.ThrowingCstInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstFieldRef;
+import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
@@ -103,6 +105,8 @@ public final class RopToDop {
   //     Opcodes.IF_GEZ
   //     Opcodes.IF_GTZ
   //     Opcodes.IF_LEZ
+  //     Opcodes.MOVE_RESULT_LAMBDA
+  //     Opcodes.RETURN_LAMBDA
   //     Opcodes.AGET
   //     Opcodes.AGET_WIDE
   //     Opcodes.AGET_OBJECT
@@ -214,6 +218,12 @@ public final class RopToDop {
   //     Opcodes.SHL_INT_LIT8
   //     Opcodes.SHR_INT_LIT8
   //     Opcodes.USHR_INT_LIT8
+  //     Opcodes.CAPTURE_VARIABLE
+  //     Opcodes.LIBERATE_VARIABLE
+  //     Opcodes.INVOKE_LAMBDA
+  //     Opcodes.CREATE_LAMBDA
+  //     Opcodes.BOX_LAMBDA
+  //     Opcodes.UNBOX_LAMBDA
   // END(first-opcodes)
 
   static {
@@ -230,6 +240,7 @@ public final class RopToDop {
     MAP.put(Rops.MOVE_FLOAT, Dops.MOVE);
     MAP.put(Rops.MOVE_DOUBLE, Dops.MOVE_WIDE);
     MAP.put(Rops.MOVE_OBJECT, Dops.MOVE_OBJECT);
+    MAP.put(Rops.MOVE_LAMBDA, Dops.MOVE_LAMBDA);
     MAP.put(Rops.MOVE_PARAM_INT, Dops.MOVE);
     MAP.put(Rops.MOVE_PARAM_LONG, Dops.MOVE_WIDE);
     MAP.put(Rops.MOVE_PARAM_FLOAT, Dops.MOVE);
@@ -242,7 +253,7 @@ public final class RopToDop {
      * add to the map.)
      */
 
-MAP.put(Rops.CONST_INT, Dops.CONST_4);
+    MAP.put(Rops.CONST_INT, Dops.CONST_4);
     MAP.put(Rops.CONST_LONG, Dops.CONST_WIDE_16);
     MAP.put(Rops.CONST_FLOAT, Dops.CONST_4);
     MAP.put(Rops.CONST_DOUBLE, Dops.CONST_WIDE_16);
@@ -251,12 +262,6 @@ MAP.put(Rops.CONST_INT, Dops.CONST_4);
      * Note: No entry for CONST_OBJECT, since it needs to turn
      * into either CONST_STRING or CONST_CLASS.
      */
-
-/*
-       * TODO(dx team): I think the only case of this is for null, and
-       * const/4 should cover that.
-       */
-    MAP.put(Rops.CONST_OBJECT_NOTHROW, Dops.CONST_4);
 
     MAP.put(Rops.GOTO, Dops.GOTO);
     MAP.put(Rops.IF_EQZ_INT, Dops.IF_EQZ);
@@ -324,7 +329,7 @@ MAP.put(Rops.CONST_INT, Dops.CONST_4);
      * there's a *reverse* sub (constant - reg) for ints only.
      */
 
-MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
+    MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     // Note: No dalvik ops for other types of mul_const.
 
     MAP.put(Rops.DIV_CONST_INT, Dops.DIV_INT_LIT8);
@@ -352,6 +357,7 @@ MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     // Note: No dalvik op for shr_const_long.
 
     MAP.put(Rops.CMPL_LONG, Dops.CMP_LONG);
+    MAP.put(Rops.CMP_LAMBDA, Dops.CMP_LAMBDA);
     MAP.put(Rops.CMPL_FLOAT, Dops.CMPL_FLOAT);
     MAP.put(Rops.CMPL_DOUBLE, Dops.CMPL_DOUBLE);
     MAP.put(Rops.CMPG_FLOAT, Dops.CMPG_FLOAT);
@@ -386,6 +392,7 @@ MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     MAP.put(Rops.AGET_FLOAT, Dops.AGET);
     MAP.put(Rops.AGET_DOUBLE, Dops.AGET_WIDE);
     MAP.put(Rops.AGET_OBJECT, Dops.AGET_OBJECT);
+    MAP.put(Rops.AGET_LAMBDA, Dops.AGET_LAMBDA);
     MAP.put(Rops.AGET_BOOLEAN, Dops.AGET_BOOLEAN);
     MAP.put(Rops.AGET_BYTE, Dops.AGET_BYTE);
     MAP.put(Rops.AGET_CHAR, Dops.AGET_CHAR);
@@ -395,6 +402,7 @@ MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     MAP.put(Rops.APUT_FLOAT, Dops.APUT);
     MAP.put(Rops.APUT_DOUBLE, Dops.APUT_WIDE);
     MAP.put(Rops.APUT_OBJECT, Dops.APUT_OBJECT);
+    MAP.put(Rops.APUT_LAMBDA, Dops.APUT_LAMBDA);
     MAP.put(Rops.APUT_BOOLEAN, Dops.APUT_BOOLEAN);
     MAP.put(Rops.APUT_BYTE, Dops.APUT_BYTE);
     MAP.put(Rops.APUT_CHAR, Dops.APUT_CHAR);
@@ -407,33 +415,38 @@ MAP.put(Rops.MUL_CONST_INT, Dops.MUL_INT_LIT8);
     MAP.put(Rops.GET_FIELD_FLOAT, Dops.IGET);
     MAP.put(Rops.GET_FIELD_DOUBLE, Dops.IGET_WIDE);
     MAP.put(Rops.GET_FIELD_OBJECT, Dops.IGET_OBJECT);
+    MAP.put(Rops.GET_FIELD_LAMBDA, Dops.IGET_LAMBDA);
     /*
      * Note: No map entries for get_field_* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
+    MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_FLOAT, Dops.SGET);
     MAP.put(Rops.GET_STATIC_DOUBLE, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_OBJECT, Dops.SGET_OBJECT);
+    MAP.put(Rops.GET_STATIC_LAMBDA, Dops.SGET_LAMBDA);
+
     /*
      * Note: No map entries for get_static* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
+    MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_FLOAT, Dops.IPUT);
     MAP.put(Rops.PUT_FIELD_DOUBLE, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_OBJECT, Dops.IPUT_OBJECT);
+    MAP.put(Rops.PUT_FIELD_LAMBDA, Dops.IPUT_LAMBDA);
     /*
      * Note: No map entries for put_field_* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
+    MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_FLOAT, Dops.SPUT);
     MAP.put(Rops.PUT_STATIC_DOUBLE, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_OBJECT, Dops.SPUT_OBJECT);
+    MAP.put(Rops.PUT_STATIC_LAMBDA, Dops.SPUT_LAMBDA);
     /*
      * Note: No map entries for put_static* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
@@ -516,6 +529,9 @@ switch (rop.getOpcode()) {
             case Type.BT_CHAR:
             case Type.BT_SHORT:
               return Dops.MOVE_RESULT;
+            case Type.BT_CLOSURE:
+//            // STOPSHIP: Jack must use move-result-lambda when it will be supported by the runtime
+//            return Dops.MOVE_RESULT_LAMBDA;
             case Type.BT_LONG:
             case Type.BT_DOUBLE:
               return Dops.MOVE_RESULT_WIDE;
@@ -597,16 +613,35 @@ switch (rop.getOpcode()) {
         break;
       }
       case RegOps.CONST: {
-        Constant cst = ((ThrowingCstInsn) insn).getConstant();
+        Constant cst = ((PlainCstInsn) insn).getConstant();
         if (cst instanceof CstType) {
           return Dops.CONST_CLASS;
         } else if (cst instanceof CstString) {
           return Dops.CONST_STRING;
+        } else if (cst instanceof CstKnownNull) {
+          return Dops.CONST_4;
         }
         break;
       }
+      case RegOps.CAPTURE_VARIABLE:
+        return Dops.CAPTURE_VARIABLE;
+      case RegOps.LIBERATE_VARIABLE:
+        return Dops.LIBERATE_VARIABLE;
+      case RegOps.CREATE_LAMBDA:
+        return Dops.CREATE_LAMBDA;
+      case RegOps.INVOKE_LAMBDA:
+        return Dops.INVOKE_LAMBDA;
+      case RegOps.BOX_LAMBDA:
+        return Dops.BOX_LAMBDA;
+      case RegOps.UNBOX_LAMBDA:
+        return Dops.UNBOX_LAMBDA;
+      case RegOps.RETURN: {
+        assert insn.getSources().size() == 1;
+        assert insn.getSources().get(0).isClosure();
+        // Others types are managed by the map {@code MAP}
+        return Dops.RETURN_LAMBDA;
+      }
     }
-
     throw new RuntimeException("unknown rop: " + rop);
   }
 }

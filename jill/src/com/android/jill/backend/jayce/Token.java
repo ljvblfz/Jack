@@ -105,6 +105,7 @@ public enum Token {
   INT_LITERAL("int"),
   INTERFACE("interface"),
   LABELED_STATEMENT("label"),
+  LAMBDA("lambda"),
   LOCAL("local"),
   LOCAL_REF("local-ref"),
   LOCK("lock"),

@@ -69,7 +69,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Remove and refine constant variables.")
 @Constraint(need = {UseDefsMarker.class, ControlFlowGraph.class},
-    no = {ImplicitCast.class})
+    no = {ImplicitCast.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {JByteLiteral.class,
     JCharLiteral.class,
     JShortLiteral.class,
@@ -117,12 +117,12 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
       boolean deepVisit = super.visit(cast);
 
       JExpression castedExpr = cast.getExpr();
-      if (castedExpr instanceof JNumberLiteral && cast.getCastType() instanceof JPrimitiveType) {
+      if (castedExpr instanceof JNumberLiteral && cast.getType() instanceof JPrimitiveType) {
         TransformationRequest tr = new TransformationRequest(method);
         SourceInfo si = cast.getSourceInfo();
         Number numberValue = ((JNumberLiteral) castedExpr).getNumber();
         tr.append(new Replace(cast, refineCst(si, numberValue,
-            ((JPrimitiveType) cast.getCastType()).getPrimitiveTypeEnum())));
+            ((JPrimitiveType) cast.getType()).getPrimitiveTypeEnum())));
         tracer.getStatistic(REFINED_CONSTANT).incValue();
         tr.commit();
       }
@@ -157,16 +157,16 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
 
           if (varRef.getParent() instanceof JCastOperation) {
             JCastOperation cast = (JCastOperation) varRef.getParent();
-            if (cast.getCastType().isSameType(dm.getValue().getType())) {
+            if (cast.getType().isSameType(dm.getValue().getType())) {
               // Remove useless cast directly since it trigger new opportunities.
               tr.append(new Replace(cast, cloneExpr.cloneExpression(dm.getValue())));
             } else {
               if (dm.getValue() instanceof JNumberLiteral
-                  && cast.getCastType() instanceof JPrimitiveType) {
+                  && cast.getType() instanceof JPrimitiveType) {
                 SourceInfo si = cast.getSourceInfo();
                 Number numberValue = ((JNumberLiteral) dm.getValue()).getNumber();
                 tr.append(new Replace(cast, refineCst(si, numberValue,
-                    ((JPrimitiveType) cast.getCastType()).getPrimitiveTypeEnum())));
+                    ((JPrimitiveType) cast.getType()).getPrimitiveTypeEnum())));
                 tracer.getStatistic(REFINED_CONSTANT).incValue();
               } else {
                 tr.append(new Replace(varRef, cloneExpr.cloneExpression(dm.getValue())));

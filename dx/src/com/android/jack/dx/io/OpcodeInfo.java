@@ -706,6 +706,54 @@ public final class OpcodeInfo {
   public static final Info USHR_INT_LIT8 =
       new Info(Opcodes.USHR_INT_LIT8, "ushr-int/lit8", InstructionCodec.FORMAT_22B, IndexType.NONE);
 
+  public static final Info CAPTURE_VARIABLE = new Info(Opcodes.CAPTURE_VARIABLE, "capture-variable",
+      InstructionCodec.FORMAT_21C, IndexType.STRING_REF);
+
+  public static final Info LIBERATE_VARIABLE = new Info(Opcodes.LIBERATE_VARIABLE,
+      "liberate-variable", InstructionCodec.FORMAT_22C, IndexType.STRING_REF);
+
+  public static final Info CREATE_LAMBDA = new Info(Opcodes.CREATE_LAMBDA, "create-lambda",
+      InstructionCodec.FORMAT_21C, IndexType.METHOD_REF);
+
+  public static final Info INVOKE_LAMBDA =
+      new Info(Opcodes.INVOKE_LAMBDA, "invoke-lambda", InstructionCodec.FORMAT_25X, IndexType.NONE);
+
+  public static final Info BOX_LAMBDA =
+      new Info(Opcodes.BOX_LAMBDA, "box-lambda", InstructionCodec.FORMAT_22X, IndexType.TYPE_REF);
+
+  public static final Info UNBOX_LAMBDA = new Info(Opcodes.UNBOX_LAMBDA, "unbox-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.TYPE_REF);
+
+  public static final Info RETURN_LAMBDA =
+      new Info(Opcodes.RETURN_LAMBDA, "return-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
+
+  public static final Info MOVE_RESULT_LAMBDA = new Info(Opcodes.MOVE_RESULT_LAMBDA,
+      "move-result-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
+
+  public static final Info IGET_LAMBDA = new Info(Opcodes.IGET_LAMBDA, "iget-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.FIELD_REF);
+
+  public static final Info IPUT_LAMBDA = new Info(Opcodes.IPUT_LAMBDA, "iput-lambda",
+      InstructionCodec.FORMAT_22C, IndexType.FIELD_REF);
+
+  public static final Info SGET_LAMBDA = new Info(Opcodes.SGET_LAMBDA, "sget-lambda",
+      InstructionCodec.FORMAT_21C, IndexType.FIELD_REF);
+
+  public static final Info SPUT_LAMBDA = new Info(Opcodes.SPUT_LAMBDA, "sput-lambda",
+      InstructionCodec.FORMAT_21C, IndexType.FIELD_REF);
+
+  public static final Info AGET_LAMBDA =
+      new Info(Opcodes.AGET_LAMBDA, "aget-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
+
+  public static final Info APUT_LAMBDA =
+      new Info(Opcodes.APUT_LAMBDA, "aput-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
+
+  public static final Info MOVE_LAMBDA =
+      new Info(Opcodes.MOVE_LAMBDA, "move-lambda", InstructionCodec.FORMAT_12X, IndexType.NONE);
+
+  public static final Info CMP_LAMBDA =
+      new Info(Opcodes.CMP_LAMBDA, "cmp-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
+
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -939,6 +987,22 @@ public final class OpcodeInfo {
     set(SHL_INT_LIT8);
     set(SHR_INT_LIT8);
     set(USHR_INT_LIT8);
+    set(CAPTURE_VARIABLE);
+    set(LIBERATE_VARIABLE);
+    set(INVOKE_LAMBDA);
+    set(CREATE_LAMBDA);
+    set(BOX_LAMBDA);
+    set(UNBOX_LAMBDA);
+    set(RETURN_LAMBDA);
+    set(MOVE_RESULT_LAMBDA);
+    set(IGET_LAMBDA);
+    set(IPUT_LAMBDA);
+    set(SGET_LAMBDA);
+    set(SPUT_LAMBDA);
+    set(AGET_LAMBDA);
+    set(APUT_LAMBDA);
+    set(MOVE_LAMBDA);
+    set(CMP_LAMBDA);
     // END(opcode-info-init)
   }
 

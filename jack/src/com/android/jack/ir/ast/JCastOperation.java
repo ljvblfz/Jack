@@ -17,7 +17,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
-import com.android.sched.transform.TransformRequest;
+import com.android.sched.item.Tag;
 
 import javax.annotation.Nonnull;
 
@@ -27,33 +27,25 @@ import javax.annotation.Nonnull;
 @Description("Cast expression")
 public abstract class JCastOperation extends JExpression {
 
-  @Nonnull
-  private final JType castType;
+  /**
+   * Jack IR can contains cast with intersection type.
+   */
+  @Description("Jack IR can contains cast with intersection type")
+  public static class WithIntersectionType implements Tag {
+  }
+
 
   @Nonnull
   protected JExpression expr;
 
-  public JCastOperation(@Nonnull SourceInfo info, @Nonnull JType castType,
-      @Nonnull JExpression expr) {
+  public JCastOperation(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
     super(info);
-    this.castType = castType;
     this.expr = expr;
-  }
-
-  @Nonnull
-  public JType getCastType() {
-    return castType;
   }
 
   @Nonnull
   public JExpression getExpr() {
     return expr;
-  }
-
-  @Override
-  @Nonnull
-  public JType getType() {
-    return castType;
   }
 
   @Override
@@ -66,11 +58,5 @@ public abstract class JCastOperation extends JExpression {
     } else {
       super.replaceImpl(existingNode, newNode);
     }
-  }
-
-  @Override
-  public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visitor.visit(this, transformRequest);
   }
 }

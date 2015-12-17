@@ -47,6 +47,7 @@ public abstract class Toolchain implements IToolchain {
   public static enum SourceLevel {
     JAVA_6,
     JAVA_7,
+    JAVA_8
   }
 
   @Nonnull

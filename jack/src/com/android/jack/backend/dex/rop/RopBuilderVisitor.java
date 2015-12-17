@@ -24,6 +24,7 @@ import com.android.jack.dx.rop.code.FillArrayDataInsn;
 import com.android.jack.dx.rop.code.Insn;
 import com.android.jack.dx.rop.code.PlainCstInsn;
 import com.android.jack.dx.rop.code.PlainInsn;
+import com.android.jack.dx.rop.code.RegOps;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.code.Rop;
@@ -40,6 +41,7 @@ import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
@@ -63,6 +65,7 @@ import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
@@ -75,6 +78,8 @@ import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JIntegralConstant32;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
+import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLock;
@@ -105,6 +110,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.transformations.lambda.NeedsLambdaMarker;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -140,11 +146,17 @@ class RopBuilderVisitor extends JVisitor {
     @Nonnull
     private final RegisterSpec destReg;
     @Nonnull
+    private final JType destRegJType;
+    @Nonnull
+    private final JVariableRef destRef;
+    @Nonnull
     SourcePosition sourcePosition;
 
     public AssignBuilderVisitor(@Nonnull JStatement declaration, @Nonnull JVariableRef destRef) {
       this.declaration = declaration;
       this.destReg = ropReg.getRegisterSpec(destRef);
+      this.destRegJType = destRef.getType();
+      this.destRef = destRef;
       this.sourcePosition = RopHelper.getSourcePosition(declaration);
     }
 
@@ -220,6 +232,61 @@ class RopBuilderVisitor extends JVisitor {
     }
 
     @Override
+    public boolean visit(@Nonnull JLiberateVariable liberateVariable) {
+      SourcePosition srcPos = RopHelper.getSourcePosition(liberateVariable);
+
+      RegisterSpecList sources =
+          RegisterSpecList.make(ropReg.getRegisterSpec(liberateVariable.getClosure()));
+
+      Type capturedType =
+          RopHelper.convertTypeToDx(liberateVariable.getCapturedVariable().getType());
+
+      addInstruction(new ThrowingCstInsn(Rops.opLiberateVariable(capturedType, sources), srcPos,
+          sources, getCatchTypes(), new CstString(capturedType.getDescriptor())));
+
+      addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLambda lambda) {
+      SourcePosition lambdaSrcPos = RopHelper.getSourcePosition(lambda);
+
+      CstMethodRef methodRef =
+          RopHelper.createMethodRef(lambda.getMethod().getEnclosingType(), lambda.getMethod());
+
+      if (lambda.needToCaptureInstance()) {
+        RegisterSpecList sources = RegisterSpecList.make(ropReg.getThisReg());
+        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
+            sources, new CstString(ropReg.getThisReg().getType().getDescriptor())));
+      }
+
+      for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
+        RegisterSpecList sources = RegisterSpecList.make(ropReg.getRegisterSpec(capturedVarRef));
+        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
+            sources, new CstString(
+                RopHelper.convertTypeToDx(capturedVarRef.getTarget().getType()).getDescriptor())));
+      }
+
+      Insn callInst = new ThrowingCstInsn(Rops.opCreateLambda(), lambdaSrcPos,
+          RegisterSpecList.EMPTY, getCatchTypes(), methodRef);
+
+      addInstruction(callInst);
+
+      if (!isClosure(lambda.getType())) {
+        RegisterSpec tmp = ropReg.getOrCreateTmpRegister(
+            RopHelper.convertTypeToDx(destRegJType, /* isForcedClosure= */ true));
+        addMoveResultPseudoAsExtraInstruction(tmp, lambdaSrcPos);
+        generateBoxLambda(destRegJType, sourcePosition, /* destReg= */destReg, tmp,
+            /* useTmp= */ false, /* extraInst= */true);
+      } else {
+        addMoveResultPseudoAsExtraInstruction(destReg, lambdaSrcPos);
+      }
+
+      return false;
+    }
+
+    @Override
     public boolean visit(@Nonnull JMethodCall call) {
       buildCall(destReg, call);
       return false;
@@ -254,11 +321,9 @@ class RopBuilderVisitor extends JVisitor {
       JType type = literal.getType();
 
       Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
-      Insn constInst = new ThrowingCstInsn(
-          constOp, RopHelper.getSourcePosition(literal),
-          RegisterSpecList.EMPTY, getCatchTypes(), cst);
+      Insn constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
+          RegisterSpecList.EMPTY, cst);
       addInstruction(constInst);
-      addMoveResultPseudoAsExtraInstruction(destReg, RopHelper.getSourcePosition(literal));
       return false;
     }
 
@@ -275,7 +340,8 @@ class RopBuilderVisitor extends JVisitor {
     @Override
     public boolean visit(@Nonnull JNewArray newArray) {
       JArrayType type = newArray.getType();
-      CstType cstType = RopHelper.getCstType(type);
+      // STOPSHIP: generate closure when they will be supported by the runtime
+      CstType cstType = CstType.intern(RopHelper.convertTypeToDxWithoutClosure(type));
       SourcePosition newArraySourcePosition = RopHelper.getSourcePosition(newArray);
       List<JExpression> valuesSize = newArray.getInitializers();
 
@@ -346,6 +412,86 @@ class RopBuilderVisitor extends JVisitor {
       }
 
       return true;
+    }
+
+    private void buildArrayRead(@Nonnull RegisterSpec destReg, @Nonnull JArrayRef arrayRef,
+        @Nonnull SourcePosition sourcePosition) {
+      assert arrayRef.getInstance() instanceof JVariableRef
+          || arrayRef.getInstance() instanceof JNullLiteral;
+      RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
+      RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
+      RegisterSpecList sources = RegisterSpecList.make(instanceReg, indexReg);
+
+      Rop rop = Rops.opAget(getComponentType(instanceReg));
+      addInstruction(new ThrowingInsn(rop, sourcePosition, sources, getCatchTypes()));
+      addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
+
+      // STOPSHIP: Remove unbox-lambda opcode in some cases when aget-lambda supported. Currently,
+      // due to runtime restrictions (array is always a regular type) we have the following
+      // behavior:
+      // destReg is a closure, array element type is a closure => array element type must be unbox
+      // to a closure
+      // destReg is a closure,array element type is a not closure => array element type must be
+      // unbox to a closure
+      // destReg is not a closure, array element type is a closure => nothing to do
+      // destReg is not a closure, array element type is not a closure => nothing to do
+      if (destReg.isClosure()) {
+        generateUnboxLambda(destRegJType, sourcePosition, destReg, destReg, /* useTmp= */ false,
+            /* extraInst= */ true);
+      }
+    }
+
+    private void buildReadField(@Nonnull RegisterSpec destReg, @Nonnull JFieldRef fieldRef,
+        @Nonnull SourcePosition sourcePosition) {
+      CstFieldRef cstField =
+          RopHelper.createFieldRef(fieldRef.getFieldId(), fieldRef.getReceiverType());
+      Type ropFieldType = RopHelper.convertTypeToDx(fieldRef.getType());
+      if (fieldRef.getFieldId().getKind() == FieldKind.STATIC) {
+        Rop rop = Rops.opGetStatic(ropFieldType);
+        addInstruction(new ThrowingCstInsn(rop, sourcePosition, RegisterSpecList.EMPTY,
+            getCatchTypes(), cstField));
+      } else {
+        JExpression instance = fieldRef.getInstance();
+        assert instance != null;
+        assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
+        RegisterSpec instanceReg = getRegisterSpec(instance);
+        RegisterSpecList sources = RegisterSpecList.make(instanceReg);
+
+        Rop rop = Rops.opGetField(ropFieldType);
+        addInstruction(
+            new ThrowingCstInsn(rop, sourcePosition, sources, getCatchTypes(), cstField));
+      }
+      addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
+
+      // STOPSHIP: Remove unbox-lambda opcode in some cases when iget-lambda and sget-lambda will be
+      // supported. Currently, due to runtime restrictions (field is always a regular type) we have
+      // the following behavior:
+      // destReg is a closure, field is a closure => field must be unbox to a closure
+      // destReg is a closure, field is not a closure => field must be unbox to a closure
+      // destReg is not a closure, field is a closure => nothing to do
+      // destReg is not a closure, field is not a closure => nothing to do
+      if (destReg.isClosure()) {
+        generateUnboxLambda(destRegJType, sourcePosition, destReg, destReg, /* useTmp= */ false,
+            /* extraInst= */ true);
+      }
+    }
+
+    private void buildAssignVariableRef(@Nonnull RegisterSpec destReg, @Nonnull JVariableRef vRef,
+        @Nonnull SourcePosition sourcePosition) {
+      RegisterSpec valueReg = ropReg.getRegisterSpec(vRef);
+      RegisterSpecList sources = RegisterSpecList.make(valueReg);
+      if (valueReg.isClosure() && !destReg.isClosure()) {
+        // Replace move opcode by box-lambda to box the closure into a regular type
+        generateBoxLambda(destRegJType, sourcePosition,
+            /* destReg= */destReg, valueReg, /* useTmp= */ false, /* extraInst= */false);
+      } else if (!valueReg.isClosure() && destReg.isClosure()) {
+        // Replace move opcode by unbox-lambda to unbox a regular type into a closure
+        generateUnboxLambda(destRegJType, sourcePosition, destReg, valueReg, /* useTmp= */ false,
+            /* extraInst= */ false);
+      } else {
+        addInstruction(
+            new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg, sources));
+      }
     }
   }
 
@@ -418,39 +564,54 @@ class RopBuilderVisitor extends JVisitor {
           || (leftType instanceof JIntegralType32 && type instanceof JIntegralType32)
           || (leftType instanceof JReferenceType && type instanceof JReferenceType);
 
-      RegisterSpec leftReg = getRegisterSpec(left);
-      sources = RegisterSpecList.make(leftReg, rightReg);
-
       op = binCondExpr.getOp();
-      if (type instanceof JPrimitiveType) {
-        switch (((JPrimitiveType) type).getPrimitiveTypeEnum()) {
-          case LONG:
-          case FLOAT:
-          case DOUBLE: {
-            RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.BOOLEAN.getType());
-            Rop cmpOp = null;
-            Type dxType = RopHelper.convertTypeToDx(type);
+      RegisterSpec leftReg = getRegisterSpec(left);
+      if (leftReg.isClosure() && !rightReg.isClosure()) {
+        leftReg = generateBoxLambda(left.getType(), ifStmtSrcPos, /* destReg= */null, leftReg,
+            /* useTmp= */ true, /* extraInst= */false);
+        sources = RegisterSpecList.make(leftReg, rightReg);
+      } else if (!leftReg.isClosure() && rightReg.isClosure()) {
+        rightReg = generateBoxLambda(right.getType(), ifStmtSrcPos, /* destReg= */null, rightReg,
+            /* useTmp= */ true, /* extraInst= */false);
+        sources = RegisterSpecList.make(leftReg, rightReg);
+      } else if (leftReg.isClosure() && rightReg.isClosure()) {
+        RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.INT.getType());
+        sources = RegisterSpecList.make(leftReg, rightReg);
+        Insn cmpInst = new PlainInsn(Rops.CMP_LAMBDA, ifStmtSrcPos, dest, sources);
+        addInstruction(cmpInst);
+        sources = RegisterSpecList.make(dest);
+      } else {
+        sources = RegisterSpecList.make(leftReg, rightReg);
+        if (type instanceof JPrimitiveType) {
+          switch (((JPrimitiveType) type).getPrimitiveTypeEnum()) {
+            case LONG:
+            case FLOAT:
+            case DOUBLE: {
+              RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.BOOLEAN.getType());
+              Rop cmpOp = null;
+              Type dxType = RopHelper.convertTypeToDx(type);
 
-            if (type == JPrimitiveTypeEnum.LONG.getType()) {
-              cmpOp = Rops.opCmpl(dxType);
-            } else {
-              cmpOp = getCmpOperatorForFloatDouble(op, dxType);
+              if (type == JPrimitiveTypeEnum.LONG.getType()) {
+                cmpOp = Rops.opCmpl(dxType);
+              } else {
+                cmpOp = getCmpOperatorForFloatDouble(op, dxType);
+              }
+
+              Insn ifInst = new PlainInsn(cmpOp, ifStmtSrcPos, dest, sources);
+              addInstruction(ifInst);
+              sources = RegisterSpecList.make(dest);
+              break;
             }
-
-            Insn ifInst = new PlainInsn(cmpOp, ifStmtSrcPos, dest, sources);
-            addInstruction(ifInst);
-            sources = RegisterSpecList.make(dest);
-            break;
+            case BOOLEAN:
+            case BYTE:
+            case CHAR:
+            case SHORT:
+            case INT:
+              // Nothing to do.
+              break;
+            case VOID:
+              throw new AssertionError("Void type not supported.");
           }
-          case BOOLEAN:
-          case BYTE:
-          case CHAR:
-          case SHORT:
-          case INT:
-            // Nothing to do.
-            break;
-          case VOID:
-           throw new AssertionError("Void type not supported.");
         }
       }
     } else if (condExpr instanceof JPrefixNotOperation) {
@@ -633,9 +794,18 @@ class RopBuilderVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLock lockStmt) {
-    Insn lockInsn = new ThrowingInsn(Rops.MONITOR_ENTER, RopHelper.getSourcePosition(lockStmt),
-        RegisterSpecList.make(getRegisterSpec(lockStmt.getLockExpr())),
-        getCatchTypes());
+    SourcePosition srcPosition = RopHelper.getSourcePosition(lockStmt);
+    RegisterSpec lockReg = getRegisterSpec(lockStmt.getLockExpr());
+
+    if (lockReg.isClosure()) {
+      RegisterSpec regularObjectReg = generateBoxLambda(lockStmt.getLockExpr().getType(),
+          srcPosition, /* destReg= */null, lockReg, /* useTmp= */ true, /* extraInst= */false);
+      ropReg.addMapppingFromClosureToRegularObject(lockReg, regularObjectReg);
+      lockReg = regularObjectReg;
+    }
+
+    Insn lockInsn = new ThrowingInsn(Rops.MONITOR_ENTER, srcPosition,
+        RegisterSpecList.make(lockReg), getCatchTypes());
 
     addInstruction(lockInsn);
 
@@ -644,9 +814,14 @@ class RopBuilderVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JUnlock unlockStmt) {
+    RegisterSpec unlockReg = getRegisterSpec(unlockStmt.getLockExpr());
+
+    if (unlockReg.isClosure()) {
+      unlockReg = ropReg.getRegularObjectFromClosure(unlockReg);
+    }
+
     Insn unlockInsn = new ThrowingInsn(Rops.MONITOR_EXIT, RopHelper.getSourcePosition(unlockStmt),
-        RegisterSpecList.make(getRegisterSpec(unlockStmt.getLockExpr())),
-        getCatchTypes());
+        RegisterSpecList.make(unlockReg), getCatchTypes());
 
     addInstruction(unlockInsn);
 
@@ -688,31 +863,6 @@ class RopBuilderVisitor extends JVisitor {
     }
   }
 
-  private void buildAssignVariableRef(@Nonnull RegisterSpec destReg,
-      @Nonnull JVariableRef vRef,
-      @Nonnull SourcePosition sourcePosition) {
-    RegisterSpec valueReg = ropReg.getRegisterSpec(vRef);
-    RegisterSpecList sources = RegisterSpecList.make(valueReg);
-    addInstruction(new PlainInsn(
-        Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg,
-        sources));
-  }
-
-  private void buildArrayRead(RegisterSpec destReg, JArrayRef arrayRef,
-      SourcePosition sourcePosition) {
-    assert arrayRef.getInstance() instanceof JVariableRef
-        || arrayRef.getInstance() instanceof JNullLiteral;
-    RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
-    RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
-    RegisterSpecList sources = RegisterSpecList.make(instanceReg, indexReg);
-
-    assert instanceReg.getType().equals(Type.KNOWN_NULL)
-        || destReg.getBasicType() == getComponentType(instanceReg).getBasicType();
-    Rop rop = Rops.opAget(getComponentType(instanceReg));
-    addInstruction(new ThrowingInsn(rop, sourcePosition, sources, getCatchTypes()));
-    addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
-  }
-
   private void buildArrayWrite(JArrayRef arrayRef, JExpression value,
       SourcePosition sourcePosition) {
     assert arrayRef.getInstance() instanceof JVariableRef
@@ -720,8 +870,22 @@ class RopBuilderVisitor extends JVisitor {
     RegisterSpec valueReg = getRegisterSpec(value);
     RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
     RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
-    RegisterSpecList sources = RegisterSpecList.make(valueReg, instanceReg, indexReg);
 
+    // STOPSHIP: Remove box-lambda opcode in some cases when aput-lambda supported. Currently, due
+    // to runtime restrictions (array is always a regular type) we have the following behavior:
+    // array element type is a closure, valueReg is a closure => valueReg must be box to a regular
+    // object
+    // array element type is a closure, valueReg is not a closure => nothing to do
+    // array element type is not a closure, valueReg is a closure => valueReg must be box to a
+    // regular object
+    // array element type is not a closure, valueReg is not a closure => nothing to do
+    if (valueReg.isClosure()) {
+      // Closure must be write into an array of regular object, thus box the value
+      valueReg = generateBoxLambda(((JArrayType) arrayRef.getInstance().getType()).getLeafType(),
+          sourcePosition, /* destReg= */null, valueReg, /* useTmp= */ true, /* extraInst= */false);
+    }
+
+    RegisterSpecList sources = RegisterSpecList.make(valueReg, instanceReg, indexReg);
     Rop rop = Rops.opAput(getComponentType(instanceReg));
     addInstruction(new ThrowingInsn(rop, sourcePosition, sources, getCatchTypes()));
   }
@@ -730,6 +894,12 @@ class RopBuilderVisitor extends JVisitor {
     SourcePosition srcPos = RopHelper.getSourcePosition(instanceOf);
     RegisterSpec regExpr = getRegisterSpec(instanceOf.getExpr());
     CstType type = RopHelper.getCstType(instanceOf.getTestType());
+
+    if (regExpr.isClosure()) {
+      regExpr = generateBoxLambda(instanceOf.getExpr().getType(), srcPos, /* destReg= */null,
+          regExpr, /* useTmp= */ true, /* extraInst= */false);
+    }
+
     addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos, RegisterSpecList.make(regExpr),
         getCatchTypes(), type));
     addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
@@ -755,28 +925,6 @@ class RopBuilderVisitor extends JVisitor {
     addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
   }
 
-  private void buildReadField(@Nonnull RegisterSpec destReg, @Nonnull JFieldRef fieldRef,
-      @Nonnull SourcePosition sourcePosition) {
-    CstFieldRef cstField = RopHelper.createFieldRef(fieldRef.getFieldId(),
-        fieldRef.getReceiverType());
-    Type ropFieldType = RopHelper.convertTypeToDx(fieldRef.getType());
-    if (fieldRef.getFieldId().getKind() == FieldKind.STATIC) {
-      Rop rop = Rops.opGetStatic(ropFieldType);
-      addInstruction(new ThrowingCstInsn(rop, sourcePosition, RegisterSpecList.EMPTY,
-          getCatchTypes(), cstField));
-    } else {
-      JExpression instance = fieldRef.getInstance();
-      assert instance != null;
-      assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
-      RegisterSpec instanceReg = getRegisterSpec(instance);
-      RegisterSpecList sources = RegisterSpecList.make(instanceReg);
-
-      Rop rop = Rops.opGetField(ropFieldType);
-      addInstruction(new ThrowingCstInsn(rop, sourcePosition, sources, getCatchTypes(), cstField));
-    }
-    addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
-  }
-
   private void buildWriteField(@Nonnull JFieldRef fieldRef, @Nonnull JExpression value,
       @Nonnull SourcePosition sourcePosition) {
 
@@ -784,6 +932,18 @@ class RopBuilderVisitor extends JVisitor {
 
     CstFieldRef cstField = RopHelper.createFieldRef(fieldRef.getFieldId(),
         fieldRef.getReceiverType());
+
+    // STOPSHIP: Remove box-lambda opcode in some cases when iput-lambda and sput-lambda will be
+    // supported. Currently, due to runtime restrictions (field is always a regular type) we have
+    // the following behavior:
+    // field is a closure, valueReg is a closure => valueReg must be box to a regular object
+    // field is a closure, valueReg is not a closure => nothing to do
+    // field is not a closure, valueReg is a closure => valueReg must be box to a regular object
+    // field is not a closure, valueReg is not a closure => nothing to do
+    if (valueReg.isClosure()) {
+      valueReg = generateBoxLambda(fieldRef.getType(), sourcePosition, /* destReg= */null, valueReg,
+          /* useTmp= */ true, /* extraInst= */false);
+    }
 
     if (fieldRef.getFieldId().getKind() == FieldKind.STATIC) {
       Rop rop = Rops.opPutStatic(RopHelper.convertTypeToDx(fieldRef.getType()));
@@ -801,12 +961,66 @@ class RopBuilderVisitor extends JVisitor {
     }
   }
 
+  @Nonnull
+  private RegisterSpec generateUnboxLambda(@Nonnull JType unboxType,
+      @Nonnull SourcePosition sourcePosition, @CheckForNull RegisterSpec destReg,
+      @Nonnull RegisterSpec regToUnbox, boolean useTmp, boolean extraInst) {
+    assert !useTmp || destReg == null;
+    RegisterSpec tmpUnboxedReg = useTmp ? ropReg.getOrCreateTmpRegister(
+        RopHelper.convertTypeToDx(unboxType, /* isForcedClosure= */ true)) : destReg;
+    assert tmpUnboxedReg != null;
+    RegisterSpecList sourcesUnbox = RegisterSpecList.make(regToUnbox);
+
+    Insn inst = new PlainCstInsn(Rops.opUnboxLambda(regToUnbox, sourcesUnbox),
+        sourcePosition, tmpUnboxedReg, sourcesUnbox,
+        CstType.intern(RopHelper.convertTypeToDx(unboxType)));
+
+    if (extraInst) {
+      addExtraInstruction(inst);
+    } else {
+      addInstruction(inst);
+    }
+
+    return tmpUnboxedReg;
+  }
+
+  @Nonnull
+  private RegisterSpec generateBoxLambda(@Nonnull JType boxType,
+      @Nonnull SourcePosition sourcePosition, @CheckForNull RegisterSpec destReg,
+      @Nonnull RegisterSpec regToBox, boolean useTmp, boolean extraInst) {
+    assert !useTmp || destReg == null;
+    Type dxType = RopHelper.convertTypeToDxWithoutClosure(boxType);
+    RegisterSpec tmpBoxedReg =
+        useTmp ? ropReg.getOrCreateTmpRegister(dxType) : destReg;
+    assert tmpBoxedReg != null;
+    RegisterSpecList sourcesBox = RegisterSpecList.make(regToBox);
+
+    Insn constInst = new PlainCstInsn(Rops.CONST_OBJECT, sourcePosition, tmpBoxedReg,
+        RegisterSpecList.EMPTY, RopHelper.createString(dxType.getDescriptor()));
+    if (extraInst) {
+      addExtraInstruction(constInst);
+    } else {
+      addInstruction(constInst);
+    }
+
+    Insn inst = new PlainCstInsn(Rops.opBoxLambda(regToBox, sourcesBox), sourcePosition,
+        tmpBoxedReg, sourcesBox, CstType.intern(dxType));
+
+    if (extraInst) {
+      addExtraInstruction(inst);
+    } else {
+      addInstruction(inst);
+    }
+
+    return tmpBoxedReg;
+  }
+
   private void buildCast(@Nonnull RegisterSpec destReg, @Nonnull JDynamicCastOperation cast) {
     JExpression from = cast.getExpr();
     SourcePosition sourcePosition = RopHelper.getSourcePosition(cast);
     RegisterSpec fromReg = getRegisterSpec(from);
 
-    JType castTo = cast.getCastType();
+    JType castTo = cast.getType();
     JType castedFrom = from.getType();
 
     if (castTo instanceof JPrimitiveType) {
@@ -852,6 +1066,11 @@ class RopBuilderVisitor extends JVisitor {
 
       }
     } else {
+      if (fromReg.isClosure()) {
+        fromReg = generateBoxLambda(from.getType(), sourcePosition, /* destReg= */null, fromReg,
+            /* useTmp= */ true, /* extraInst= */false);
+      }
+
       RegisterSpecList sources = RegisterSpecList.make(fromReg);
 
       Insn insn =
@@ -960,11 +1179,9 @@ class RopBuilderVisitor extends JVisitor {
           getConstant(literal));
       addInstruction(constInst);
     } else  if (literal instanceof JAbstractStringLiteral){
-      constInst = new ThrowingCstInsn(
-          constOp, RopHelper.getSourcePosition(literal), RegisterSpecList.EMPTY,
-          getCatchTypes(),  getConstant(literal));
+      constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
+          RegisterSpecList.EMPTY, getConstant(literal));
       addInstruction(constInst);
-      addMoveResultPseudoAsExtraInstruction(destReg, RopHelper.getSourcePosition(literal));
     } else if (literal instanceof JNullLiteral) {
       constInst = new PlainCstInsn(
           constOp, RopHelper.getSourcePosition(literal), destReg,
@@ -1156,42 +1373,106 @@ class RopBuilderVisitor extends JVisitor {
     } else {
       // Reserve space for the instance and the method arguments
       sources = new RegisterSpecList(1 + methodCall.getArgs().size());
-      // Add the instance as first parameter
-      JExpression instance = methodCall.getInstance();
-      assert instance != null;
-      sources.set(paramIndex++, getRegisterSpec(instance));
     }
 
     switch(methodKind) {
       case STATIC:
-       callOp = Rops.opInvokeStatic(prototype);
+        callOp = Rops.opInvokeStatic(prototype);
         break;
-      case INSTANCE_NON_VIRTUAL:
+      case INSTANCE_NON_VIRTUAL: {
         callOp = Rops.opInvokeDirect(prototype);
+        // Add the instance as first parameter
+        JExpression instance = methodCall.getInstance();
+        assert instance != null;
+        sources.set(paramIndex++, getRegisterSpec(instance));
         break;
-      case INSTANCE_VIRTUAL:
+      }
+      case INSTANCE_VIRTUAL: {
+        JExpression instance = methodCall.getInstance();
+        assert instance != null;
+        RegisterSpec instanceReg = getRegisterSpec(instance);
         if (methodCall.getDispatchKind() == DispatchKind.DIRECT) {
           callOp = Rops.opInvokeSuper(prototype);
         } else {
           if (methodCall.getReceiverType() instanceof JInterface) {
-            callOp = Rops.opInvokeInterface(prototype);
+            if (methodCall.getReceiverType() instanceof JDefinedInterface
+                && ((JDefinedInterface) methodCall.getReceiverType())
+                    .getMarker(NeedsLambdaMarker.class) != null) {
+
+              if (!instanceReg.isClosure()) {
+                // ReceiverType is mark with @NeedsLambdaMarker but instanceRef is not a closure,
+                // thus it must temporary unbox. It could happen due to optimizations as described
+                // below.
+                // La = () -> {}
+                // \b = La
+                // \b.run()
+                // The code above can be transformed into
+                // La = () -> {}
+                // \b = La
+                // La.run()    !closure but receiver type is mark with @NeedsLambdaMarker
+                instanceReg = generateUnboxLambda(instance.getType(), methodCallSrcPos,
+                    /*destReg=*/null, instanceReg, /* useTmp= */ true, /* extraInst= */ false);
+              }
+              callOp = Rops.opInvokeLambda(prototype);
+            } else {
+              if (instanceReg.isClosure()) {
+                // ReceiverType is not mark with @NeedsLambdaMarker but instanceRef is not a
+                // closure, thus it must temporary unbox. It could happen due to optimizations as
+                // described below.
+                // \a = () -> {}
+                // Lb = \a
+                // Lb.run()
+                // The code above can be transformed into
+                // \a = () -> {}
+                // Lb = \a
+                // \a.run()    closure but receiver type is not mark with @NeedsLambdaMarker
+                instanceReg = generateBoxLambda(instance.getType(), methodCallSrcPos,
+                    /* destReg= */null, instanceReg, /* useTmp= */ true, /* extraInst= */false);
+              }
+              callOp = Rops.opInvokeInterface(prototype);
+            }
           } else {
+            if (instanceReg.isClosure()) {
+              instanceReg = generateBoxLambda(instance.getType(), methodCallSrcPos,
+                  /* destReg= */null, instanceReg, /* useTmp= */ true, /* extraInst= */false);
+            }
             callOp = Rops.opInvokeVirtual(prototype);
           }
         }
+        sources.set(paramIndex++, instanceReg);
         break;
+      }
       default:
         throw new AssertionError(methodCall.toSource() + " not yet supported.");
     }
 
+    assert prototype.getParameterTypes().size() == methodCall.getArgs().size();
+    int pIdx = 0;
     for (JExpression exprArg : methodCall.getArgs()) {
-      sources.set(paramIndex++, getRegisterSpec(exprArg));
+      RegisterSpec regArg = getRegisterSpec(exprArg);
+      Type pDefType = prototype.getParameterTypes().get(pIdx);
+      if (pDefType.isClosure() && !regArg.isClosure()) {
+        // STOPSHIP type of register must be type of parameter of method called
+        regArg = generateUnboxLambda(methodCall.getMethodId().getParamTypes().get(pIdx),
+            methodCallSrcPos, /* destReg= */null, regArg, /* useTmp= */ true,
+            /* extraInst= */ false);
+      } else if (!pDefType.isClosure() && regArg.isClosure()) {
+        // STOPSHIP type of register must be type of parameter of method called
+        regArg =
+            generateBoxLambda(methodCall.getMethodId().getParamTypes().get(pIdx), methodCallSrcPos,
+                /* destReg= */null, regArg, /* useTmp= */ true, /* extraInst= */false);
+      }
+      sources.set(paramIndex++, regArg);
+      pIdx++;
     }
 
-    CstMethodRef methodRef = RopHelper.createMethodRef(methodCall);
-
-    Insn callInst =
-        new ThrowingCstInsn(callOp, methodCallSrcPos, sources, getCatchTypes(), methodRef);
+    Insn callInst = null;
+    if (callOp.getOpcode() == RegOps.INVOKE_LAMBDA) {
+      callInst = new ThrowingInsn(callOp, methodCallSrcPos, sources, getCatchTypes());
+    } else {
+      CstMethodRef methodRef = RopHelper.createMethodRef(methodCall);
+      callInst = new ThrowingCstInsn(callOp, methodCallSrcPos, sources, getCatchTypes(), methodRef);
+    }
     addInstruction(callInst);
 
     if (result != null) {
@@ -1207,7 +1488,8 @@ class RopBuilderVisitor extends JVisitor {
       regSpec = ropReg.getRegisterSpec((JVariableRef) expr);
     } else {
       assert expr instanceof JValueLiteral;
-      regSpec = ropReg.getOrCreateTmpRegister(expr.getType());
+      regSpec =
+          ropReg.getOrCreateTmpRegister(RopHelper.convertTypeToDxWithoutClosure(expr.getType()));
       buildConstant(regSpec, (JValueLiteral) expr);
     }
 
@@ -1267,5 +1549,10 @@ class RopBuilderVisitor extends JVisitor {
   @Override
   public void endVisit(@Nonnull JStatement x) {
     ropReg.resetFreeTmpRegister();
+  }
+
+  private boolean isClosure(@Nonnull JType type) {
+    return type instanceof JDefinedInterface
+        && ((JDefinedInterface) type).getMarker(NeedsLambdaMarker.class) != null;
   }
 }

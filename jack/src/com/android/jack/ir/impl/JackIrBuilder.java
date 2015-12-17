@@ -51,6 +51,7 @@ import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
@@ -69,6 +70,7 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -113,6 +115,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.Number;
@@ -139,6 +142,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
@@ -167,11 +171,13 @@ import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.FloatLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ForStatement;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -189,6 +195,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -215,6 +222,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -564,9 +572,16 @@ public class JackIrBuilder {
     public void endVisit(CastExpression x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JType type = getTypeMap().get(x.resolvedType);
         JExpression expression = pop(x.expression);
-        push(new JDynamicCastOperation(info, type, expression));
+        JDynamicCastOperation castOp = null;
+        if (x.resolvedType instanceof IntersectionTypeBinding18) {
+          castOp = new JDynamicCastOperation(info, expression,
+              getTypeMap().getBounds((IntersectionTypeBinding18) x.resolvedType));
+        } else {
+          castOp =
+              new JDynamicCastOperation(info, expression, getTypeMap().get(x.resolvedType));
+        }
+        push(castOp);
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
@@ -1229,6 +1244,423 @@ public class JackIrBuilder {
       }
     }
 
+    @Nonnull
+    private MethodInfo createMethodInfoForLambda(@Nonnull MethodBinding lambdaMethodBinding,
+        @CheckForNull Argument[] arguments, @Nonnull MethodScope methodScope)
+            throws JTypeLookupException {
+      assert methodScope != null;
+      SourceInfo info = SourceInfo.UNKNOWN;
+
+      // MethodId requires kind that is not needed for lambda
+      JMethodId methodId = new JMethodId(ReferenceMapper.intern(lambdaMethodBinding.selector),
+          MethodKind.INSTANCE_VIRTUAL);
+
+      // JMethod requires an enclosing type that is not required for lambda method,
+      // modifier is also useless. Enclosing type is also use to define type of JThis.
+      JMethod lambdaMethod = new JMethod(info, methodId, curClass.type,
+          getTypeMap().get(lambdaMethodBinding.returnType), JModifier.DEFAULT);
+      int pIndex = 0;
+      for (TypeBinding argType : lambdaMethodBinding.parameters) {
+        JType type = getTypeMap().get(argType);
+        JParameter param = new JParameter(info,
+            arguments == null ? "arg" + (pIndex++) : new String(arguments[pIndex++].name), type,
+            JModifier.SYNTHETIC, lambdaMethod);
+        lambdaMethod.addParam(param);
+        lambdaMethod.getMethodId().addParam(type);
+      }
+
+      JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
+      lambdaMethod.setBody(lambdaMethodBody);
+      MethodInfo newMethodInfo = new MethodInfo(this, lambdaMethod, lambdaMethodBody, methodScope);
+
+      // lambda method does not have his own 'this', it reuse the enclosing 'this' when it exist
+      if (curMethod.method.getThis() != null) {
+        newMethodInfo.method.setThis(curMethod.method.getThis());
+      }
+
+      return newMethodInfo;
+    }
+
+    @Override
+    public void endVisit(ReferenceExpression referenceExpression, BlockScope blockScope) {
+      JExpression  exprRepresentingLambda = null;
+      SourceInfo sourceInfo = makeSourceInfo(referenceExpression);
+
+      // Pop visited items of ReferenceExpression, be careful some items are not pushed thus do not
+      // pop them
+      JExpression lhsExpr = null;
+      if (!(referenceExpression.lhs instanceof TypeReference)) {
+        lhsExpr = pop(referenceExpression.lhs);
+      }
+
+      MethodInfo newMethodInfo =
+          createMethodInfoForLambda(referenceExpression.descriptor, /* arguments = */ null,
+              /* (MethodScope) referenceExpression.enclosingScope */ curMethod.scope);
+      newMethodInfo.method.setThis(null);
+      newMethodInfo.method.setModifier(newMethodInfo.method.getModifier() & ~JModifier.STATIC);
+      JType returnTypeOfLambdaMethod = newMethodInfo.method.getType();
+      JBlock bodyBlock = newMethodInfo.body.getBlock();
+      List<JParameter> args = newMethodInfo.method.getParams();
+
+      if (referenceExpression.isMethodReference()) {
+        boolean isSuperRef = referenceExpression.lhs instanceof SuperReference
+            || referenceExpression.lhs instanceof QualifiedSuperReference;
+        boolean isThisRef = referenceExpression.lhs instanceof ThisReference
+            || referenceExpression.lhs instanceof QualifiedThisReference;
+        boolean shouldCaptureInstance = isSuperRef || isThisRef;
+
+        exprRepresentingLambda =
+            new JLambda(sourceInfo, newMethodInfo.method,
+                (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+                shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
+
+        if (!(referenceExpression.lhs instanceof TypeReference)) {
+          if (lhsExpr != null && !shouldCaptureInstance) {
+
+            if (lhsExpr instanceof JLocalRef || lhsExpr instanceof JParameterRef) {
+              ((JLambda) exprRepresentingLambda).addCapturedVariable(
+                  ((JVariableRef) lhsExpr).getTarget().makeRef(lhsExpr.getSourceInfo()));
+            } else {
+              List<JExpression> exprs = new ArrayList<JExpression>();
+
+              JLocal tmp = new JLocal(sourceInfo, "-lambdaCtx", lhsExpr.getType(),
+                  JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
+              JAsgOperation asg =
+                  new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), lhsExpr);
+              exprs.add(asg);
+              curMethod.body.addLocal(tmp);
+              exprs.add(exprRepresentingLambda);
+              ((JLambda) exprRepresentingLambda)
+                  .addCapturedVariable(tmp.makeRef(sourceInfo));
+
+              exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
+              lhsExpr = tmp.makeRef(sourceInfo);
+            }
+          }
+        }
+
+        JMethod method = getTypeMap().get(referenceExpression.binding);
+
+        JExpression instanceExpr = null;
+
+        int firstParameter = 0;
+        if (!method.isStatic()) {
+          if (lhsExpr != null) {
+            instanceExpr = lhsExpr;
+          } else {
+            // In this case, instance expr is the first argument
+            instanceExpr = args.get(0).makeRef(sourceInfo);
+            firstParameter = 1;
+          }
+        } else {
+          assert lhsExpr == null;
+        }
+
+        boolean isVirtualDispatch = method.getMethodId().canBeVirtual() && !isSuperRef;
+
+        JMethodCall methodCall = new JMethodCall(sourceInfo, instanceExpr,
+            method.getEnclosingType(), method.getMethodId(), method.getType(), isVirtualDispatch);
+
+        addArgToMethodCall(referenceExpression, args, method,
+            methodCall, method.getParams().size(), firstParameter);
+
+        if (returnTypeOfLambdaMethod.isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+          bodyBlock.addStmt(methodCall.makeStatement());
+          bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
+        } else {
+          bodyBlock.addStmt(
+              new JReturnStatement(sourceInfo, maybeCast(returnTypeOfLambdaMethod, methodCall)));
+        }
+      } else if (referenceExpression.isArrayConstructorReference()) {
+        assert args.size() == 1;
+
+        exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
+            (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+            /* captureInstance= */ false, getInterfaceBounds(referenceExpression, blockScope));
+
+        Expression lhs = referenceExpression.lhs;
+        JArrayType arrayType = (JArrayType) getTypeMap().get(lhs.resolvedType);
+        List<JExpression> dims = new ArrayList<JExpression>();
+
+        dims.add(args.get(0).makeRef(sourceInfo));
+        for (int dim = 0; dim < ((ArrayTypeReference) lhs).dimensions - 1; dim++) {
+          dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
+        }
+
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo,
+            JNewArray.createWithDims(sourceInfo, arrayType, dims)));
+      } else {
+        assert referenceExpression.isConstructorReference();
+        exprRepresentingLambda = constructorMethodReference(referenceExpression, blockScope,
+            newMethodInfo, returnTypeOfLambdaMethod, sourceInfo, bodyBlock, args);
+      }
+
+      push(exprRepresentingLambda);
+    }
+
+    // Transform method references to constructor into lambda
+    // A::new
+    // will be transform to:
+    // (parameters) -> return new A(parameters);
+    private JLambda constructorMethodReference(ReferenceExpression referenceExpression,
+        BlockScope blockScope, MethodInfo newMethodInfo, JType returnTypeOfLambdaMethod,
+        SourceInfo sourceInfo, JBlock bodyBlock, List<JParameter> argsOfLambdaMth) {
+      boolean shouldCaptureInstance = false;
+      JType type = getTypeMap().get(referenceExpression.lhs.resolvedType);
+      assert type instanceof JClassOrInterface;
+
+      JMethod constructor = getTypeMap().get(referenceExpression.binding);
+      assert constructor instanceof JConstructor;
+
+      JNewInstance newInstance =
+          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodId());
+
+      int paramCountCons = constructor.getParams().size();
+      boolean isNestedType = referenceExpression.receiverType.isNestedType();
+
+      if (isNestedType) {
+        ReferenceBinding[] syntheticEnclosingInstanceTypes =
+            ((ReferenceBinding) referenceExpression.receiverType).syntheticEnclosingInstanceTypes();
+
+        if (syntheticEnclosingInstanceTypes != null) {
+          assert syntheticEnclosingInstanceTypes.length == 1;
+          JExpression thisRef = makeThisReference(sourceInfo, syntheticEnclosingInstanceTypes[0],
+              false, blockScope, referenceExpression);
+          shouldCaptureInstance = true;
+          newInstance.addArg(thisRef);
+          paramCountCons--;
+        }
+      }
+
+      JLambda lambda = new JLambda(sourceInfo, newMethodInfo.method,
+          (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+          shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
+
+      addArgToMethodCall(referenceExpression, argsOfLambdaMth, constructor,
+          newInstance, paramCountCons, 0);
+
+      // Add outer variables as argument of constructor when they are needed
+      if (isNestedType) {
+        ReferenceBinding nestedType = (ReferenceBinding) referenceExpression.receiverType;
+        if (nestedType.syntheticOuterLocalVariables() != null) {
+          for (SyntheticArgumentBinding arg : nestedType.syntheticOuterLocalVariables()) {
+            VariableBinding[] paths = blockScope.getEmulationPath(arg.actualOuterLocalVariable);
+            JExpression exprPath = generateEmulationPath(sourceInfo, paths);
+            if (exprPath instanceof JLocalRef) {
+              lambda.addCapturedVariable(
+                  ((JLocalRef) exprPath).getTarget().makeRef(exprPath.getSourceInfo()));
+            }
+            newInstance.addArg(exprPath);
+          }
+        }
+      }
+
+      if (returnTypeOfLambdaMethod.isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+        bodyBlock.addStmt(newInstance.makeStatement());
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, null));
+      } else {
+        bodyBlock.addStmt(new JReturnStatement(sourceInfo, newInstance));
+      }
+      return lambda;
+    }
+
+    private void addArgToMethodCall(@Nonnull ReferenceExpression referenceExpression,
+        @Nonnull List<JParameter> argsOfLambdaMth, JMethod calledMethod,
+        JMethodCall mthCall, int paramCountCons, int firstParameter) {
+      SourceInfo sourceInfo = makeSourceInfo(referenceExpression);
+      int argCountLambdaMth = argsOfLambdaMth.size();
+      int lastNormalParamIdx;
+      if (referenceExpression.binding.isVarargs()) {
+        lastNormalParamIdx = paramCountCons - 1; // Var arg is the last parameter
+      } else {
+        // arg of lambda method can be smaller than invoked constructor due to captured variable
+        // that can be passed to the constructor
+        lastNormalParamIdx =
+            argCountLambdaMth < paramCountCons ? argCountLambdaMth : paramCountCons;
+      }
+      lastNormalParamIdx += firstParameter;
+
+      // copy parameters until varArg if it exists or to the end otherwise
+      for (int pIndex = firstParameter; pIndex < lastNormalParamIdx; pIndex++) {
+        mthCall.addArg(argsOfLambdaMth.get(pIndex).makeRef(sourceInfo));
+      }
+
+      if (referenceExpression.binding.isVarargs()) {
+        // Manage additional parameters
+        boolean needArrayForVarArg = true;
+
+        if (argCountLambdaMth == paramCountCons) {
+          JType lastArgType = argsOfLambdaMth.get(argCountLambdaMth - 1).getType();
+          JType lastParameterType = calledMethod.getParams().get(paramCountCons - 1).getType();
+          if (lastParameterType instanceof JArrayType && lastArgType instanceof JArrayType) {
+            JType lastArgElementType = ((JArrayType) lastParameterType).getElementType();
+            JType lastParameterElementType = ((JArrayType) lastArgType).getElementType();
+            if (!((lastArgElementType instanceof JPrimitiveType
+                && !(lastParameterElementType instanceof JPrimitiveType))
+                || (!(lastArgElementType instanceof JPrimitiveType)
+                    && lastParameterElementType instanceof JPrimitiveType))) {
+              needArrayForVarArg = false;
+              mthCall
+                  .addArg(argsOfLambdaMth.get(lastNormalParamIdx).makeRef(sourceInfo));
+            }
+          }
+        }
+
+        if (needArrayForVarArg) {
+          ArrayList<JExpression> initializers = new ArrayList<JExpression>();
+
+          for (int pIndex = lastNormalParamIdx; pIndex < argCountLambdaMth; pIndex++) {
+            initializers.add(argsOfLambdaMth.get(pIndex).makeRef(sourceInfo));
+          }
+          JArrayType arrayType = (JArrayType) calledMethod.getParams()
+              .get(calledMethod.getParams().size() - 1).getType();
+          mthCall.addArg(JNewArray.createWithInits(sourceInfo, arrayType, initializers));
+        }
+      }
+    }
+
+    @Override
+    public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+      MethodInfo lambdaMethodInfo = createMethodInfoForLambda(lambdaExpression.descriptor,
+          lambdaExpression.arguments, lambdaExpression.scope);
+
+      // Matching field of outer local variables of lambda are uninitialized, initialize them
+      // accordingly to the current class. If a synthetic argument of the current class target
+      // the same local than the synthetic argument of the lambda then use the same matching field.
+      SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
+          curClass.typeDecl.binding.syntheticOuterLocalVariables();
+      if (curClassSyntheticOuterLocalVariables != null) {
+        for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
+          for (SyntheticArgumentBinding lambdaSynthArg : lambdaExpression.outerLocalVariables) {
+            if (curClassSynthArg.actualOuterLocalVariable
+                == lambdaSynthArg.actualOuterLocalVariable) {
+              assert curClassSynthArg.matchingField != null;
+              lambdaSynthArg.matchingField = curClassSynthArg.matchingField;
+              break;
+            }
+          }
+        }
+      }
+
+      for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
+        if (synthArg.matchingField == null) {
+          JVariable outerVar = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+          assert outerVar != null;
+          lambdaMethodInfo.addVariableMapping(synthArg.actualOuterLocalVariable, outerVar);
+        }
+      }
+
+      // Map user arguments.
+      Iterator<JParameter> it = lambdaMethodInfo.method.getParams().iterator();
+      if (lambdaExpression.arguments != null) {
+        for (Argument argument : lambdaExpression.arguments) {
+          JParameter jparameter = it.next();
+          jparameter.setName(new String(argument.name));
+          lambdaMethodInfo.addVariableMapping(argument.binding, jparameter);
+        }
+      }
+
+      pushMethodInfo(lambdaMethodInfo);
+
+      return true;
+    }
+
+    @Override
+    public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+      MethodInfo lambdaMethodInfo = curMethod;
+      lambdaMethodInfo.method.setThis(null);
+      lambdaMethodInfo.method
+          .setModifier(lambdaMethodInfo.method.getModifier() & ~JModifier.STATIC);
+
+      JBlock bodyBlock = lambdaMethodInfo.body.getBlock();
+
+      if (lambdaExpression.body instanceof Expression) {
+        JExpression bodyExpression = pop((Expression) lambdaExpression.body);
+        if (!lambdaMethodInfo.method.getType().isSameType(JPrimitiveTypeEnum.VOID.getType())) {
+          bodyBlock.addStmt(new JReturnStatement(bodyExpression.getSourceInfo(), bodyExpression));
+        } else {
+          bodyBlock.addStmt(bodyExpression.makeStatement());
+          generateImplicitReturn();
+        }
+      } else {
+        assert lambdaExpression.body instanceof Block;
+        JStatement block = pop(lambdaExpression.body);
+        bodyBlock.addStmts(((JBlock) block).getStatements());
+
+        if ((lambdaExpression.bits & ASTNode.NeedFreeReturn) != 0) {
+          generateImplicitReturn();
+        }
+      }
+
+      // Do not move before generateImplicitReturn since the method need the method where return
+      // must be added
+      popMethodInfo();
+
+      SourceInfo sourceInfo = makeSourceInfo(lambdaExpression);
+      JLambda lambda = new JLambda(sourceInfo, lambdaMethodInfo.method,
+          (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
+          lambdaExpression.shouldCaptureInstance,
+          getInterfaceBounds(lambdaExpression, blockScope));
+
+      // Capture all local variable that are not already moved into fields
+      for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
+        if (synthArg.matchingField == null) {
+          JVariable var = lambdaMethodInfo.getJVariable(synthArg.actualOuterLocalVariable);
+          assert var != null;
+          lambda.addCapturedVariable(var.makeRef(sourceInfo));
+        } else {
+          // Field is already into a field, thus Jack need to capture instance, it is the case when
+          // lambda are defined into anonymous, outer variable are already put into fields of the
+          // anonymous class.
+          lambda.setCaptureInstance(true);
+        }
+      }
+
+      push(lambda);
+    }
+
+    @Nonnull
+    private List<JInterface> getInterfaceBounds(
+        @Nonnull FunctionalExpression functionalExpression,
+        @Nonnull BlockScope blockScope) {
+      List<JInterface> bounds = new ArrayList<JInterface>();
+
+      TypeBinding expectedType = functionalExpression.expectedType();
+      if (expectedType instanceof IntersectionTypeBinding18) {
+        List<JType> types = getTypeMap().getBounds((IntersectionTypeBinding18) expectedType);
+
+        for (JType type :types) {
+          if (type instanceof JInterface) {
+            bounds.add((JInterface) type);
+          } else {
+            blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(functionalExpression);
+            throw new FrontendCompilationError();
+          }
+        }
+
+        ReferenceBinding[] intersectingTypes =
+            ((IntersectionTypeBinding18) expectedType).intersectingTypes;
+        int samCount = 0;
+        for (int i = 0; i < intersectingTypes.length; i++) {
+          MethodBinding method = intersectingTypes[i].getSingleAbstractMethod(blockScope,
+              /* replaceWildcards= */ true);
+          if (method != null) {
+            if (method.isValidBinding()) {
+              samCount++;
+            } else {
+              if (intersectingTypes[i].methods().length != 0 && samCount > 0) {
+                blockScope.problemReporter()
+                    .targetTypeIsNotAFunctionalInterface(functionalExpression);
+                throw new FrontendCompilationError();
+              }
+            }
+          }
+        }
+      }
+
+      return bounds;
+    }
+
     @Override
     public void endVisit(LocalDeclaration x, BlockScope scope) {
       try {
@@ -1280,16 +1712,27 @@ public class JackIrBuilder {
         }
 
         JDefinedClassOrInterface receiverType;
-
-        JType jType = getTypeMap().get(x.actualReceiverType);
-        if (jType instanceof JClassOrInterface) {
-          if (jType instanceof JInterface && method.getEnclosingType().isSameType(javaLangObject)) {
+        if (x.actualReceiverType instanceof IntersectionTypeBinding18) {
+          if (method.getEnclosingType() instanceof JDefinedInterface) {
             receiverType = method.getEnclosingType();
           } else {
-            receiverType = (JDefinedClassOrInterface) jType;
+            ReferenceBinding firstBound =
+                ((IntersectionTypeBinding18) x.actualReceiverType).intersectingTypes[0];
+            assert firstBound.isClass();
+            receiverType = (JDefinedClass) getTypeMap().get(firstBound);
           }
         } else {
-          receiverType = method.getEnclosingType();
+          JType jType = getTypeMap().get(x.actualReceiverType);
+          if (jType instanceof JClassOrInterface) {
+            if (jType instanceof JInterface && method.getEnclosingType() != null
+                && method.getEnclosingType().isSameType(javaLangObject)) {
+              receiverType = method.getEnclosingType();
+            } else {
+              receiverType = (JDefinedClassOrInterface) jType;
+            }
+          } else {
+            receiverType = method.getEnclosingType();
+          }
         }
 
         JMethodCall call;
@@ -2224,7 +2667,24 @@ public class JackIrBuilder {
 
           // add synthetic fields for outer this and locals
           assert (type instanceof JDefinedClass);
+
+          if (!binding.isMemberType() && binding.isLocalType()
+              && ((LocalTypeBinding) binding).enclosingMethod != null) {
+            ((JDefinedClass) type).setEnclosingMethod(curMethod.method);
+          }
+
           NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
+          if (nestedBinding.outerLocalVariables != null) {
+            for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
+              SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
+              // Force creation of synthetic arg even if normally it is useless since a local should
+              // be used directly. Nevertheless, $init method could requires it because it does not
+              // have access to the local.
+              if (arg.matchingField == null) {
+                nestedBinding.addSyntheticArgumentAndField(arg.actualOuterLocalVariable);
+              }
+            }
+          }
 
           if (!binding.isMemberType() && binding.isLocalType()
               && ((LocalTypeBinding) binding).enclosingMethod != null) {
@@ -2241,17 +2701,6 @@ public class JackIrBuilder {
               type.addField(field);
               getTypeMap().setField(fieldBinding, field);
               field.updateParents(type);
-            }
-          }
-
-          if (nestedBinding.outerLocalVariables != null) {
-            for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
-              SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
-              if (arg.matchingField == null) {
-                // Create a field is not required, need works to remove them due to $init
-                createSyntheticField(arg, type, JModifier.FINAL | JModifier.SYNTHETIC);
-              }
-
             }
           }
         }
@@ -2310,14 +2759,9 @@ public class JackIrBuilder {
       JParameter param = (JParameter) curMethod.getJVariable(arg);
       assert param != null;
 
-      JField field = null;
-      if (arg.matchingField == null) {
-        field = curClass.syntheticArgToFields.get(arg);
-      } else {
-        field = typeMap.get(arg.matchingField);
-      }
-
+      JField field = typeMap.get(arg.matchingField);
       assert field != null;
+
       JFieldRef lhs = makeInstanceFieldRef(info, field);
       JParameterRef rhs = param.makeRef(info);
       JBinaryOperation asg = new JAsgOperation(info, lhs, rhs);
@@ -2436,22 +2880,6 @@ public class JackIrBuilder {
       return newLocal;
     }
 
-    private JField createSyntheticField(SyntheticArgumentBinding arg,
-        JDefinedClassOrInterface enclosingType, int modifier) throws JTypeLookupException {
-      JType type = getTypeMap().get(arg.type);
-      SourceInfo info = enclosingType.getSourceInfo();
-      JField field =
-          new JField(info, ReferenceMapper.intern(arg.name), enclosingType, type,
-              modifier | JModifier.SYNTHETIC);
-      enclosingType.addField(field);
-      curClass.syntheticArgToFields.put(arg, field);
-      if (arg.matchingField != null) {
-        getTypeMap().setField(arg.matchingField, field);
-      }
-      field.updateParents(enclosingType);
-      return field;
-    }
-
     /**
      * Get a new label of a particular name, or create a new one if it doesn't
      * exist already.
@@ -2548,8 +2976,14 @@ public class JackIrBuilder {
       }
       JExpression ref;
       ReferenceBinding type;
-      if (curMethod.scope.isInsideInitializer() && path[0] instanceof SyntheticArgumentBinding) {
+      // Field representing synthetic arg must not be used into constructor because this field could
+      // not be initialized when constructor call another constructor through 'this' (See
+      // InnerTest.test021). In this case (see the condition) use directly the parameter
+      // representing the synthetic arg.
+      if (!(curMethod.method instanceof JConstructor) &&
+          path[0] instanceof SyntheticArgumentBinding) {
         SyntheticArgumentBinding b = (SyntheticArgumentBinding) path[0];
+        assert b.matchingField != null;
         JField field = typeMap.get(b.matchingField);
         assert field != null;
         ref = makeInstanceFieldRef(info, field);
@@ -2585,7 +3019,7 @@ public class JackIrBuilder {
       if (!expected.isSameType(expression.getType())) {
         // Must be a generic; insert a cast operation.
         JReferenceType toType = (JReferenceType) expected;
-        return new JDynamicCastOperation(expression.getSourceInfo(), toType, expression);
+        return new JDynamicCastOperation(expression.getSourceInfo(), expression, toType);
       } else {
         return expression;
       }
@@ -2806,7 +3240,6 @@ public class JackIrBuilder {
       assert b.isConstructor();
       JConstructor ctor = (JConstructor) getTypeMap().get(b);
       JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodId());
-      call.addMarker(new ResolutionTargetMarker(ctor));
       JExpression qualExpr = pop(qualifier);
 
       // Enums: hidden arguments for the name and id.
@@ -2851,11 +3284,12 @@ public class JackIrBuilder {
               JMultiExpression multiExpr = new JMultiExpression(info, exprs);
               call.addArg(multiExpr);
             } else {
-              JExpression thisRef = makeThisReference(info, argType, false, scope, x);
-              call.addArg(thisRef);
-              // just check
+              // check supplementary error
               getEmulationPath(scope, argType, false /* onlyExactMatch */,
                   true /* denyEnclosingArgInConstructorCall */, x);
+
+              JExpression thisRef = makeThisReference(info, argType, false, scope, x);
+              call.addArg(thisRef);
             }
           }
         }
@@ -2871,33 +3305,49 @@ public class JackIrBuilder {
           for (SyntheticArgumentBinding arg : targetBinding.syntheticOuterLocalVariables()) {
             LocalVariableBinding targetVariable = arg.actualOuterLocalVariable;
             VariableBinding[] path = scope.getEmulationPath(targetVariable);
-            assert path.length == 1;
-            if (curMethod.scope.isInsideInitializer()
-                && path[0] instanceof SyntheticArgumentBinding) {
-              SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path[0];
-              JField field;
-              if (sb.matchingField == null) {
-                field = curClass.syntheticArgToFields.get(sb);
-              } else {
-                field = typeMap.get(sb.matchingField);
-              }
-              assert field != null;
-              call.addArg(makeInstanceFieldRef(info, field));
-            } else if (path[0] instanceof LocalVariableBinding) {
-              JExpression localRef = makeLocalRef(info, (LocalVariableBinding) path[0]);
-              call.addArg(localRef);
-            } else if (path[0] instanceof FieldBinding) {
-              JField field = getTypeMap().get((FieldBinding) path[0]);
-              assert field != null;
-              call.addArg(makeInstanceFieldRef(info, field));
-            } else {
-              throw new AssertionError("Unknown emulation path.");
-            }
+            call.addArg(generateEmulationPath(info, path));
           }
         }
       }
 
       push(call);
+    }
+
+    @Nonnull
+    private JExpression generateEmulationPath(@Nonnull SourceInfo info,
+        @Nonnull VariableBinding[] paths) {
+      assert paths.length == 1;
+      VariableBinding path = paths[0];
+      JExpression result;
+
+      // Field representing synthetic arg must not be used into constructor because this field could
+      // not be initialized when constructor call another constructor through 'this' (See
+      // InnerTest.test021). In this case (see the condition) use directly the parameter
+      // representing the synthetic arg.
+      if (!(curMethod.method instanceof JConstructor)
+          && path instanceof SyntheticArgumentBinding) {
+        SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path;
+        if (sb.matchingField == null) {
+          // If matchingField is null, then it is a captured variable that can be retrieve into the
+          // JVariable of the current method
+          result = makeLocalRef(info, sb.actualOuterLocalVariable);
+        } else {
+
+          JField field = typeMap.get(sb.matchingField);
+          assert field != null;
+          result = makeInstanceFieldRef(info, field);
+        }
+      } else if (path instanceof LocalVariableBinding) {
+        result = makeLocalRef(info, (LocalVariableBinding) path);
+      } else if (path instanceof FieldBinding) {
+        JField field = getTypeMap().get((FieldBinding) path);
+        assert field != null;
+        result = makeInstanceFieldRef(info, field);
+      } else {
+        throw new AssertionError("Unknown emulation path.");
+      }
+
+      return result;
     }
 
     /**
@@ -2950,30 +3400,7 @@ public class JackIrBuilder {
         LocalVariableBinding b = (LocalVariableBinding) binding;
         if ((x.bits & ASTNode.DepthMASK) != 0) {
           VariableBinding[] path = getEmulationPath(scope, b, x);
-          assert path.length == 1;
-          if (curMethod.scope.isInsideInitializer()
-              && path[0] instanceof SyntheticArgumentBinding) {
-            SyntheticArgumentBinding sb = (SyntheticArgumentBinding) path[0];
-            JField field = null;
-            if (sb.matchingField == null) {
-              field = curClass.syntheticArgToFields.get(sb);
-            } else {
-              field = typeMap.get(sb.matchingField);
-            }
-            assert field != null;
-            result = makeInstanceFieldRef(info, field);
-          } else if (path[0] instanceof LocalVariableBinding) {
-            result = makeLocalRef(info, (LocalVariableBinding) path[0]);
-          } else if (path[0] instanceof FieldBinding) {
-            FieldBinding fb = (FieldBinding) path[0];
-            assert curClass.typeDecl.binding != null;
-            assert curClass.typeDecl.binding.isCompatibleWith(x.actualReceiverType.erasure());
-            JField field = getTypeMap().get(fb);
-            assert field != null;
-            result = makeInstanceFieldRef(info, field);
-          } else {
-            throw new AssertionError("Unknown emulation path.");
-          }
+          result = generateEmulationPath(info, path);
         } else {
           result = makeLocalRef(info, b);
         }
@@ -3078,7 +3505,7 @@ public class JackIrBuilder {
         JMethodCall call = makeMethodCall(info, null, jValueOfBinding.getEnclosingType(),
             jValueOfBinding);
         call.addArgs(clazz, nameRef);
-        implementMethod(method, new JDynamicCastOperation(info, type, call));
+        implementMethod(method, new JDynamicCastOperation(info, call, type));
       }
     }
 
@@ -3099,10 +3526,6 @@ public class JackIrBuilder {
   static class ClassInfo {
     public final JDefinedClass classType;
     public final ClassScope scope;
-    // This should be remove, since it keeps a mapping between SyntheticArgumentBinding and useless
-    // JField. Nevertheless, until $init exists it must be kept
-    public final Map<SyntheticArgumentBinding, JField> syntheticArgToFields =
-        new IdentityHashMap<SyntheticArgumentBinding, JField>();
     public final JDefinedClassOrInterface type;
     public final TypeDeclaration typeDecl;
 
@@ -3422,7 +3845,6 @@ public class JackIrBuilder {
     return (typeDeclaration.hasErrors()
     || (typeDeclaration.getCompilationUnitDeclaration() != null
         && typeDeclaration.getCompilationUnitDeclaration().hasErrors())
-    || typeDeclaration.compilationResult.hasErrors()
     // This should be redundant with typeDeclaration.getCompilationUnitDeclaration().hasErrors() but
     // since it could be null, lets be safe
     || typeDeclaration.binding == null);
@@ -3475,9 +3897,19 @@ public class JackIrBuilder {
       // Create fields and empty methods.
       createMembers(typeDecl);
     }
+
     boolean hasErrors = false;
+
     for (TypeDeclaration typeDecl : cud.types) {
       try {
+        // hasErrors of CompilationUnitDeclaration indicates if we should continue to investigate
+        // this compilation unit or not
+        if (typeDecl.getCompilationUnitDeclaration() != null
+            && typeDecl.getCompilationUnitDeclaration().hasErrors()) {
+          hasErrors = true;
+          break;
+        }
+
         // Build the code.
         typeDecl.traverse(astVisitor, cud.scope);
       } catch (FrontendCompilationError e) {
@@ -3798,7 +4230,6 @@ public class JackIrBuilder {
     assert methodId.getKind() == MethodKind.STATIC || instance != null;
     JMethodCall call = new JMethodCall(info, instance,
         receiverType, methodId, targetMethod.getType(), methodId.canBeVirtual());
-    call.addMarker(new ResolutionTargetMarker(targetMethod));
     return call;
   }
 
@@ -3811,7 +4242,6 @@ public class JackIrBuilder {
     JMethodCall call = new JMethodCall(info, instance,
         receiverType, targetMethod.getMethodId(), targetMethod.getType(),
         false /* isVirtualDispatch */);
-    call.addMarker(new ResolutionTargetMarker(targetMethod));
     return call;
   }
 

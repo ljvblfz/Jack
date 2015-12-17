@@ -1,0 +1,4 @@
+-dontobfuscate
+-keep public class com.android.jack.java8.lambda.test025.jack.Tests {
+        public void test001();
+}

@@ -30,8 +30,10 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.transformations.lambda.ForceClosureMarker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -44,15 +46,25 @@ class RopRegisterManager {
   private int nextFreeReg = 0;
 
   /**
-   * Keep a list of temporary register for each type.
+   * Keep mapping between closure register spec and regular register spec.
+   * It is needed to realize monitor-enter and monitor-exit on the same register.
    */
-  private final Map<JType, List<RegisterSpec>> typeToTmpRegister =
-      new Hashtable<JType, List<RegisterSpec>>();
+  @Nonnull
+  private final Map<RegisterSpec, RegisterSpec> closureRegToRegularObjectReg =
+      new HashMap<RegisterSpec, RegisterSpec>();
+
+  /**
+   * Keep a list of temporary register for each dex type.
+   */
+  @Nonnull
+  private final Map<Type, List<RegisterSpec>> typeToTmpRegister =
+      new Hashtable<Type, List<RegisterSpec>>();
 
   /**
    * Keep position of the next free register into {@code typeToTmpRegister}.
    */
-  private final Map<JType, Integer> typeToNextPosFreeRegister = new Hashtable<JType, Integer>();
+  @Nonnull
+  private final Map<Type, Integer> typeToNextPosFreeRegister = new Hashtable<Type, Integer>();
 
   /**
    * Keep mapping between variables of IR and dex registers.
@@ -133,7 +145,8 @@ class RopRegisterManager {
     assert !variableToRegister.containsKey(var);
 
     JType type = var.getType();
-    Type dexRegType = RopHelper.convertTypeToDx(type);
+    Type dexRegType = RopHelper.convertTypeToDx(type,
+        /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null);
     RegisterSpec reg;
     if (emitDebugInfo && var.getName() != null && (emitSyntheticDebugInfo || !isSynthetic(var))) {
       CstString cstSignature = null;
@@ -177,7 +190,9 @@ class RopRegisterManager {
     assert variableToRegister.containsKey(var);
 
     RegisterSpec register = variableToRegister.get(var);
-    assert RopHelper.areTypeCompatible(RopHelper.convertTypeToDx(varRef.getType()),
+    assert RopHelper.areTypeCompatible(
+        RopHelper.convertTypeToDx(varRef.getType(),
+            /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null),
         register.getType());
 
     return register;
@@ -215,27 +230,26 @@ class RopRegisterManager {
   }
 
   @Nonnull
-  RegisterSpec getOrCreateTmpRegister(@Nonnull JType type) {
-    Integer nextFreeRegister = typeToNextPosFreeRegister.get(type);
+  RegisterSpec getOrCreateTmpRegister(@Nonnull Type dexRegType) {
+    Integer nextFreeRegister = typeToNextPosFreeRegister.get(dexRegType);
 
     if (nextFreeRegister == null) {
       nextFreeRegister = Integer.valueOf(0);
-      typeToNextPosFreeRegister.put(type, nextFreeRegister);
+      typeToNextPosFreeRegister.put(dexRegType, nextFreeRegister);
     }
 
-    List<RegisterSpec> regSpecs = typeToTmpRegister.get(type);
+    List<RegisterSpec> regSpecs = typeToTmpRegister.get(dexRegType);
     if (regSpecs == null) {
       regSpecs = new ArrayList<RegisterSpec>(2);
-      typeToTmpRegister.put(type, regSpecs);
+      typeToTmpRegister.put(dexRegType, regSpecs);
     }
 
-    typeToNextPosFreeRegister.put(type, Integer.valueOf(nextFreeRegister.intValue() + 1));
+    typeToNextPosFreeRegister.put(dexRegType, Integer.valueOf(nextFreeRegister.intValue() + 1));
 
     if (nextFreeRegister.intValue() < regSpecs.size()) {
       return regSpecs.get(nextFreeRegister.intValue());
     }
 
-    Type dexRegType = RopHelper.convertTypeToDx(type);
     RegisterSpec regSpec = RegisterSpec.make(nextFreeReg, dexRegType);
     regSpecs.add(regSpec);
     nextFreeReg += dexRegType.getCategory();
@@ -244,8 +258,29 @@ class RopRegisterManager {
   }
 
   void resetFreeTmpRegister() {
-    for (JType type : typeToNextPosFreeRegister.keySet()) {
+    for (Type type : typeToNextPosFreeRegister.keySet()) {
       typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
     }
+  }
+
+  @Nonnull
+  RegisterSpec getThisReg() {
+    assert thisReg != null;
+    return thisReg;
+  }
+
+  void addMapppingFromClosureToRegularObject(@Nonnull RegisterSpec closureReg,
+      @Nonnull RegisterSpec regularObjectReg) {
+    assert closureReg.isClosure();
+    assert !regularObjectReg.isClosure();
+    closureRegToRegularObjectReg.put(closureReg, regularObjectReg);
+  }
+
+  @Nonnull
+  RegisterSpec getRegularObjectFromClosure(@Nonnull RegisterSpec closureReg) {
+    assert closureReg.isClosure();
+    RegisterSpec regularObjectReg = closureRegToRegularObjectReg.get(closureReg);
+    assert regularObjectReg != null;
+    return regularObjectReg;
   }
 }

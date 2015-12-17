@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JByteLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDoubleLiteral;
-import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFloatLiteral;
@@ -37,6 +36,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JModifier;
+import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
@@ -135,9 +135,8 @@ public class ExpressionSimplifierTest {
         {new JDoubleLiteral(SourceInfo.UNKNOWN, 7.6), new JDoubleLiteral(SourceInfo.UNKNOWN, 6.2)},
         {new JLongLiteral(SourceInfo.UNKNOWN, 7L), new JLongLiteral(SourceInfo.UNKNOWN, 6L)},
         {new JShortLiteral(SourceInfo.UNKNOWN, (short) 7), new JShortLiteral(SourceInfo.UNKNOWN, (short) 6)},
-        {new JIntLiteral(SourceInfo.UNKNOWN, 7),
-                new JDynamicCastOperation(SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType(),
-                    new JFloatLiteral(SourceInfo.UNKNOWN, 7.1f))},
+        {new JIntLiteral(SourceInfo.UNKNOWN, 7), new JDynamicCastOperation(SourceInfo.UNKNOWN,
+            new JFloatLiteral(SourceInfo.UNKNOWN, 7.1f), JPrimitiveTypeEnum.INT.getType())},
         };
 
     boolean[][] results = new boolean[][] {
@@ -194,10 +193,8 @@ public class ExpressionSimplifierTest {
     JExpression[][] operands = new JExpression[][] {
         {new JIntLiteral(SourceInfo.UNKNOWN, 7), new JIntLiteral(SourceInfo.UNKNOWN, 5)},
         {new JIntLiteral(SourceInfo.UNKNOWN, 100), new JIntLiteral(SourceInfo.UNKNOWN, 5)},
-        {new JIntLiteral(SourceInfo.UNKNOWN, 7),
-                new JDynamicCastOperation(SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType(),
-                    new JDoubleLiteral(SourceInfo.UNKNOWN, 3.2))},
-        };
+        {new JIntLiteral(SourceInfo.UNKNOWN, 7), new JDynamicCastOperation(SourceInfo.UNKNOWN,
+            new JDoubleLiteral(SourceInfo.UNKNOWN, 3.2), JPrimitiveTypeEnum.INT.getType())},};
 
     int[][] results = new int[][] {
         // operator ADD
@@ -252,9 +249,8 @@ public class ExpressionSimplifierTest {
     JExpression[][] operands = new JExpression[][] {
         {new JFloatLiteral(SourceInfo.UNKNOWN, 5.2f), new JFloatLiteral(SourceInfo.UNKNOWN, 3.5f)},
         {new JFloatLiteral(SourceInfo.UNKNOWN, 100.100f), new JFloatLiteral(SourceInfo.UNKNOWN, 5)},
-        {new JFloatLiteral(SourceInfo.UNKNOWN, 7.6f),
-                new JDynamicCastOperation(SourceInfo.UNKNOWN, JPrimitiveTypeEnum.FLOAT.getType(),
-                    new JIntLiteral(SourceInfo.UNKNOWN, 15))},
+        {new JFloatLiteral(SourceInfo.UNKNOWN, 7.6f), new JDynamicCastOperation(SourceInfo.UNKNOWN,
+            new JIntLiteral(SourceInfo.UNKNOWN, 15), JPrimitiveTypeEnum.FLOAT.getType())},
         };
 
     float[][] results = new float[][] {
@@ -291,37 +287,33 @@ public class ExpressionSimplifierTest {
     // (int) 1.5f
     JExpression simplifiedExpr =
         getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
-            JPrimitiveTypeEnum.INT.getType(), new JFloatLiteral(SourceInfo.UNKNOWN, 1.5f)));
+            new JFloatLiteral(SourceInfo.UNKNOWN, 1.5f), JPrimitiveTypeEnum.INT.getType()));
     Assert.assertTrue(simplifiedExpr instanceof JIntLiteral);
     Assert.assertEquals(1, ((JIntLiteral) simplifiedExpr).getIntValue());
 
 
     // (byte) 1.5f
-    simplifiedExpr =
-        getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
-            JPrimitiveTypeEnum.BYTE.getType(), new JFloatLiteral(SourceInfo.UNKNOWN, 1.5f)));
+    simplifiedExpr = getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
+        new JFloatLiteral(SourceInfo.UNKNOWN, 1.5f), JPrimitiveTypeEnum.BYTE.getType()));
     Assert.assertTrue(simplifiedExpr instanceof JByteLiteral);
     Assert.assertEquals(1, ((JByteLiteral) simplifiedExpr).getIntValue());
 
     // (short) 2.9
-    simplifiedExpr =
-        getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
-            JPrimitiveTypeEnum.SHORT.getType(), new JDoubleLiteral(SourceInfo.UNKNOWN, 2.9)));
+    simplifiedExpr = getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
+        new JDoubleLiteral(SourceInfo.UNKNOWN, 2.9), JPrimitiveTypeEnum.SHORT.getType()));
     Assert.assertTrue(simplifiedExpr instanceof JShortLiteral);
     Assert.assertEquals(2, ((JShortLiteral) simplifiedExpr).getIntValue());
 
 
     // (integer) 1
-    simplifiedExpr =
-        getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
-            JPrimitiveTypeEnum.INT.getType(), new JByteLiteral(SourceInfo.UNKNOWN, (byte) 1)));
+    simplifiedExpr = getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
+        new JByteLiteral(SourceInfo.UNKNOWN, (byte) 1), JPrimitiveTypeEnum.INT.getType()));
     Assert.assertTrue(simplifiedExpr instanceof JIntLiteral);
     Assert.assertEquals(1, ((JIntLiteral) simplifiedExpr).getIntValue());
 
     // (long) 4.1
-    simplifiedExpr =
-        getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
-            JPrimitiveTypeEnum.LONG.getType(), new JDoubleLiteral(SourceInfo.UNKNOWN, 4.1)));
+    simplifiedExpr = getSimplifiedExpresssion(new JDynamicCastOperation(SourceInfo.UNKNOWN,
+        new JDoubleLiteral(SourceInfo.UNKNOWN, 4.1), JPrimitiveTypeEnum.LONG.getType()));
     Assert.assertTrue(simplifiedExpr instanceof JLongLiteral);
     Assert.assertEquals(4, ((JLongLiteral) simplifiedExpr).getValue());
   }
@@ -360,15 +352,14 @@ public class ExpressionSimplifierTest {
         new JPrefixBitNotOperation(SourceInfo.UNKNOWN, new JIntLiteral(SourceInfo.UNKNOWN, 7)),
         new JPrefixBitNotOperation(SourceInfo.UNKNOWN, new JIntLiteral(SourceInfo.UNKNOWN, 100)),
         new JPrefixBitNotOperation(SourceInfo.UNKNOWN,new JIntLiteral(SourceInfo.UNKNOWN, -100)),
-        new JPrefixBitNotOperation(SourceInfo.UNKNOWN, new JDynamicCastOperation(
-            SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType(), new JDoubleLiteral(SourceInfo.UNKNOWN,
-                3.2))),
+        new JPrefixBitNotOperation(SourceInfo.UNKNOWN,
+            new JDynamicCastOperation(SourceInfo.UNKNOWN, new JDoubleLiteral(SourceInfo.UNKNOWN, 3.2),
+                JPrimitiveTypeEnum.INT.getType())),
         new JPrefixNegOperation(SourceInfo.UNKNOWN, new JIntLiteral(SourceInfo.UNKNOWN, 7)),
         new JPrefixNegOperation(SourceInfo.UNKNOWN, new JIntLiteral(SourceInfo.UNKNOWN, 100)),
         new JPrefixNegOperation(SourceInfo.UNKNOWN,new JIntLiteral(SourceInfo.UNKNOWN, -100)),
-        new JPrefixNegOperation(SourceInfo.UNKNOWN, new JDynamicCastOperation(
-            SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType(), new JDoubleLiteral(SourceInfo.UNKNOWN,
-                3.2))),
+        new JPrefixNegOperation(SourceInfo.UNKNOWN, new JDynamicCastOperation(SourceInfo.UNKNOWN,
+            new JDoubleLiteral(SourceInfo.UNKNOWN, 3.2), JPrimitiveTypeEnum.INT.getType())),
         };
 
     int[] results = new int[] {
@@ -533,11 +524,10 @@ public class ExpressionSimplifierTest {
 
   @Test
   public void simplifyInstanceof() {
-    JExpression[] expressions =
-        new JExpression[] {
-            new JInstanceOf(SourceInfo.UNKNOWN, classTest, new JNullLiteral(SourceInfo.UNKNOWN)),
-            new JInstanceOf(SourceInfo.UNKNOWN, classTest, new JDynamicCastOperation(
-                SourceInfo.UNKNOWN, classTest, new JNullLiteral(SourceInfo.UNKNOWN)))};
+    JExpression[] expressions = new JExpression[] {
+        new JInstanceOf(SourceInfo.UNKNOWN, classTest, new JNullLiteral(SourceInfo.UNKNOWN)),
+        new JInstanceOf(SourceInfo.UNKNOWN, classTest, new JDynamicCastOperation(SourceInfo.UNKNOWN,
+            new JNullLiteral(SourceInfo.UNKNOWN), classTest))};
 
     boolean[] results = new boolean[] {false, false};
 

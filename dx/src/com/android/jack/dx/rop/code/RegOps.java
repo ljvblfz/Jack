@@ -296,6 +296,28 @@ public final class RegOps {
   /** <code>T: Any primitive type; v0..vx: T :: {v0, ..., vx}</code> */
   public static final int FILL_ARRAY_DATA = 57;
 
+  /** {@code T: any type; v: T; s: string :: capture-variable v, s;} */
+  public static final int CAPTURE_VARIABLE = 60;
+
+  /** {@code T: closure; v0: T; r : Any Type; s: string :: r = liberate-variable v0, s;} */
+  public static final int LIBERATE_VARIABLE = 61;
+
+  /** {@code T: closure; r: T; m: instance or static method :: r = create-lambda m;} */
+  public static final int CREATE_LAMBDA = 58;
+
+  /**
+   * {@code Tr, T0, T1...: any types; r: Tr; x: Closure; m: interface
+   * (instance) method spec; y0: T0; y1: T1 ... :: r = x.m(y0, y1,
+   * ...)} (call lambda method)
+   */
+  public static final int INVOKE_LAMBDA = 59;
+
+  /** {@code Tr: Object; T: Closure; r: Tr; v0: T ::  r = box-lambda v0;} */
+  public static final int BOX_LAMBDA = 62;
+
+  /** {@code Tr: Closure; T: Object; r: Tr; v0: T ::  r = unbox-lambda v0;} */
+  public static final int UNBOX_LAMBDA = 63;
+
   /**
    * This class is uninstantiable.
    */
@@ -423,6 +445,18 @@ public final class RegOps {
         return "move-result-pseudo";
       case FILL_ARRAY_DATA:
         return "fill-array-data";
+      case CAPTURE_VARIABLE:
+        return "capture-variable";
+      case LIBERATE_VARIABLE:
+        return "liberate-variable";
+      case INVOKE_LAMBDA:
+        return "invoke-lambda";
+      case CREATE_LAMBDA:
+        return "create-lambda";
+      case BOX_LAMBDA:
+        return "box-lambda";
+      case UNBOX_LAMBDA:
+        return "unbox-lambda";
     }
 
     return "unknown-" + Hex.u1(opcode);

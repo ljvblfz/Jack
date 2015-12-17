@@ -66,5 +66,4 @@ public class LegacyJillToolchain extends JillBasedToolchain {
       throw new RuntimeException("An error occurred while running Jill", e);
     }
   }
-
 }

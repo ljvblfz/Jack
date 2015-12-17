@@ -35,7 +35,7 @@ public class JThis extends JVariable implements HasEnclosingMethod {
 
   public JThis(@Nonnull JMethod enclosingMethod) {
     super(SourceInfo.UNKNOWN, "this", enclosingMethod.getEnclosingType(), JModifier.DEFAULT);
-    assert enclosingMethod.getEnclosingType() instanceof JDefinedClass;
+    assert JMethod.needThis(enclosingMethod.getModifier());
     this.enclosingMethod = enclosingMethod;
   }
 

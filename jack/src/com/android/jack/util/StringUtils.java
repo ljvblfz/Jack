@@ -16,7 +16,7 @@
 
 package com.android.jack.util;
 
-import com.android.jack.jayce.v0002.io.ParseException;
+import java.text.ParseException;
 
 import javax.annotation.Nonnull;
 
@@ -48,7 +48,7 @@ public class StringUtils {
                   length--;
                   if (v0 == 0) {
                       // A single zero byte is illegal.
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   out = (char) v0;
                   at++;
@@ -58,11 +58,11 @@ public class StringUtils {
                   // 110XXXXX -- two-byte encoding
                   length -= 2;
                   if (length < 0) {
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   int v1 = 0x000000FF & bytes[at + 1];
                   if ((v1 & 0xc0) != 0x80) {
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   int value = ((v0 & 0x1f) << 6) | (v1 & 0x3f);
                   if ((value != 0) && (value < 0x80)) {
@@ -70,7 +70,7 @@ public class StringUtils {
                        * This should have been represented with
                        * one-byte encoding.
                        */
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   out = (char) value;
                   at += 2;
@@ -80,15 +80,15 @@ public class StringUtils {
                   // 1110XXXX -- three-byte encoding
                   length -= 3;
                   if (length < 0) {
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   int v1 = 0x000000FF & bytes[at + 1];
                   if ((v1 & 0xc0) != 0x80) {
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   int v2 = 0x000000FF & bytes[at + 2];
                   if ((v1 & 0xc0) != 0x80) {
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   int value = ((v0 & 0x0f) << 12) | ((v1 & 0x3f) << 6) |
                       (v2 & 0x3f);
@@ -97,7 +97,7 @@ public class StringUtils {
                        * This should have been represented with one- or
                        * two-byte encoding.
                        */
-                      throw new ParseException("Invalid string value");
+                      throw new ParseException("Invalid string value", at);
                   }
                   out = (char) value;
                   at += 3;
@@ -105,7 +105,7 @@ public class StringUtils {
               }
               default: {
                   // 10XXXXXX, 1111XXXX -- illegal
-                  throw new ParseException("Invalid string value");
+                  throw new ParseException("Invalid string value", at);
               }
           }
           chars[outAt] = out;

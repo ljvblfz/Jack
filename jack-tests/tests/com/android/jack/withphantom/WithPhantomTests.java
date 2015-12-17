@@ -23,7 +23,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 

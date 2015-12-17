@@ -206,6 +206,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002a() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -228,6 +229,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002b() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -251,6 +253,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002c() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -276,6 +279,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002d() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -298,6 +302,7 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002e() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();

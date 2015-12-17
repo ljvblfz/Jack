@@ -33,18 +33,18 @@ import java.util.BitSet;
  * Instruction format {@code 35c}. See the instruction format spec
  * for details.
  */
-public final class Form35c extends InsnFormat {
+public class Form35c extends InsnFormat {
   /** {@code non-null;} unique instance of this class */
   public static final InsnFormat THE_ONE = new Form35c();
 
   /** Maximal number of operands */
-  private static final int MAX_NUM_OPS = 5;
+  protected static final int MAX_NUM_OPS = 5;
 
   /**
    * Constructs an instance. This class is not publicly
    * instantiable. Use {@link #THE_ONE}.
    */
-  private Form35c() {
+  protected Form35c() {
     // This space intentionally left blank.
   }
 
@@ -137,6 +137,9 @@ public final class Form35c extends InsnFormat {
    * list requires more than five words or contains registers that need
    * more than a nibble to identify them.
    *
+   * Closure as first register should be managed in a specific way because
+   * the second part of this 64-bit registers is implicit.
+   *
    * @param regs {@code non-null;} the register list in question
    * @return {@code >= -1;} the number of words required, or {@code -1}
    * if the list couldn't possibly fit in this format
@@ -173,6 +176,9 @@ public final class Form35c extends InsnFormat {
    * except that it splits category-2 registers into two explicit
    * entries. This returns the original list if no modification is
    * required
+   *
+   * Closure as first register should be managed in a specific way
+   * because the second part of this 64-bit registers is implicit.
    *
    * @param orig {@code non-null;} the original list
    * @return {@code non-null;} the list with the described transformation

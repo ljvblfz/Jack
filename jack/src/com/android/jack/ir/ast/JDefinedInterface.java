@@ -15,12 +15,18 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.ClassOrInterfaceLoader;
+import com.android.jack.lookup.CommonTypes;
+import com.android.jack.lookup.JMethodWithReturnLookupException;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+
+import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -30,6 +36,10 @@ import javax.annotation.Nonnull;
  */
 @Description("Java interface type definition")
 public class JDefinedInterface extends JDefinedClassOrInterface implements JInterface {
+
+  private static class SamNotFoundException extends Exception {
+    private static final long serialVersionUID = 1L;
+  }
 
   public JDefinedInterface(@Nonnull SourceInfo info, @Nonnull String name, int modifier,
       @Nonnull JPackage enclosingPackage, @Nonnull ClassOrInterfaceLoader loader) {
@@ -91,5 +101,92 @@ public class JDefinedInterface extends JDefinedClassOrInterface implements JInte
     }
 
     return false;
+  }
+
+  @CheckForNull
+  public JMethod getSingleAbstractMethod() {
+    JClass jlo = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
+
+    if (!(jlo instanceof JDefinedClass)) {
+      return null;
+    }
+
+    JMethod samMethod = null;
+
+    try {
+      samMethod = getSamMethod(jlo);
+    } catch (SamNotFoundException e) {
+    }
+
+    return samMethod;
+  }
+
+  @Nonnull
+  private JMethod getSamMethod(@Nonnull JClass jlo) throws SamNotFoundException {
+    JMethod samMethod = null;
+    for (JMethod mth : getMethods()) {
+      if (!mth.isAbstract()) {
+        continue;
+      }
+      try {
+        JMethod jloMth = ((JDefinedClass) jlo).getMethod(mth.getName(), mth.getType(),
+            mth.getMethodId().getParamTypes());
+        if (jloMth.isPublic() && !jloMth.isStatic()) {
+          // Do not take overriding of jlo public non static methods
+          continue;
+        }
+      } catch (JMethodWithReturnLookupException e) {
+        // Ok
+      }
+      if (samMethod == null) {
+        samMethod = mth;
+      } else {
+        throw new SamNotFoundException();
+      }
+    }
+
+    for (JInterface jInterface : getImplements()) {
+
+      if (jInterface instanceof JDefinedInterface) {
+        JMethod newSamMethod = ((JDefinedInterface) jInterface).getSamMethod(jlo);
+        if (samMethod == null) {
+          samMethod = newSamMethod;
+        } else {
+          if (newSamMethod != null && !methodAreEquals(samMethod, newSamMethod)) {
+            throw new SamNotFoundException();
+          }
+        }
+      } else {
+        throw new SamNotFoundException();
+      }
+    }
+
+    return samMethod;
+  }
+
+  private boolean methodAreEquals(@Nonnull JMethod mth1, @Nonnull JMethod mth2) {
+    if (!(mth1.getName().equals(mth2.getName()))) {
+      return false;
+    }
+
+    List<JParameter> mth1Params = mth1.getParams();
+    List<JParameter> mth2Params = mth2.getParams();
+
+    if (mth1Params.size() != mth2Params.size()) {
+      return false;
+    }
+
+    Iterator<JParameter> otherParams = mth1Params.iterator();
+    for (JParameter param : mth2Params) {
+      if (!param.getType().isSameType(otherParams.next().getType())) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public boolean isSingleAbstractMethodType() {
+    return getSingleAbstractMethod() != null;
   }
 }

@@ -44,7 +44,8 @@ public abstract class JAbstractStringLiteral extends JValueLiteral implements Cl
 
   @Override
   public boolean canThrow() {
-    return true;
+    // STOPSHIP: Return true when final version of box-lambda will be supported by the runtime.
+    return false;
   }
 
   @Override

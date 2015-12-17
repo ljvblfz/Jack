@@ -33,6 +33,7 @@ import com.android.jack.dx.dex.code.form.Form22s;
 import com.android.jack.dx.dex.code.form.Form22t;
 import com.android.jack.dx.dex.code.form.Form22x;
 import com.android.jack.dx.dex.code.form.Form23x;
+import com.android.jack.dx.dex.code.form.Form25x;
 import com.android.jack.dx.dex.code.form.Form30t;
 import com.android.jack.dx.dex.code.form.Form31c;
 import com.android.jack.dx.dex.code.form.Form31i;
@@ -716,6 +717,54 @@ public final class Dops {
   public static final Dop USHR_INT_LIT8 =
       new Dop(Opcodes.USHR_INT_LIT8, Opcodes.USHR_INT, Opcodes.NO_NEXT, Form22b.THE_ONE, true);
 
+  public static final Dop CAPTURE_VARIABLE = new Dop(Opcodes.CAPTURE_VARIABLE,
+      Opcodes.CAPTURE_VARIABLE, Opcodes.NO_NEXT, Form21c.THE_ONE, /*hasResult=*/ false);
+
+  public static final Dop LIBERATE_VARIABLE = new Dop(Opcodes.LIBERATE_VARIABLE,
+      Opcodes.LIBERATE_VARIABLE, Opcodes.NO_NEXT, Form22c.THE_ONE, /*hasResult=*/ true);
+
+  public static final Dop CREATE_LAMBDA = new Dop(Opcodes.CREATE_LAMBDA, Opcodes.CREATE_LAMBDA,
+      Opcodes.NO_NEXT, Form21c.THE_ONE, /* hasResult= */ true);
+
+  public static final Dop INVOKE_LAMBDA = new Dop(Opcodes.INVOKE_LAMBDA, Opcodes.INVOKE_LAMBDA,
+      Opcodes.NO_NEXT, Form25x.THE_ONE, /*hasResult=*/ false);
+
+  public static final Dop BOX_LAMBDA = new Dop(Opcodes.BOX_LAMBDA, Opcodes.BOX_LAMBDA,
+      Opcodes.NO_NEXT, Form22x.THE_ONE, /* hasResult= */ true);
+
+  public static final Dop UNBOX_LAMBDA = new Dop(Opcodes.UNBOX_LAMBDA, Opcodes.UNBOX_LAMBDA,
+      Opcodes.NO_NEXT, Form22c.THE_ONE, /* hasResult= */ true);
+
+  public static final Dop RETURN_LAMBDA = new Dop(Opcodes.RETURN_LAMBDA, Opcodes.RETURN_LAMBDA,
+      Opcodes.NO_NEXT, Form11x.THE_ONE, /* hasResult= */ false);
+
+  public static final Dop MOVE_RESULT_LAMBDA = new Dop(Opcodes.MOVE_RESULT_LAMBDA,
+      Opcodes.MOVE_RESULT_LAMBDA, Opcodes.NO_NEXT, Form11x.THE_ONE, /* hasResult= */ true);
+
+  public static final Dop IPUT_LAMBDA =
+      new Dop(Opcodes.IPUT_LAMBDA, Opcodes.IPUT_LAMBDA, Opcodes.NO_NEXT, Form22c.THE_ONE, false);
+
+  public static final Dop IGET_LAMBDA =
+      new Dop(Opcodes.IGET_LAMBDA, Opcodes.IGET_LAMBDA, Opcodes.NO_NEXT, Form22c.THE_ONE, true);
+
+  public static final Dop SPUT_LAMBDA =
+      new Dop(Opcodes.SPUT_LAMBDA, Opcodes.SPUT_LAMBDA, Opcodes.NO_NEXT, Form21c.THE_ONE, false);
+
+  public static final Dop SGET_LAMBDA =
+      new Dop(Opcodes.SGET_LAMBDA, Opcodes.SGET_LAMBDA, Opcodes.NO_NEXT, Form21c.THE_ONE, true);
+
+  public static final Dop AGET_LAMBDA =
+      new Dop(Opcodes.AGET_LAMBDA, Opcodes.AGET_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, true);
+
+  public static final Dop APUT_LAMBDA =
+      new Dop(Opcodes.APUT_LAMBDA, Opcodes.APUT_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, false);
+
+  public static final Dop MOVE_LAMBDA =
+      new Dop(Opcodes.MOVE_LAMBDA, Opcodes.MOVE_LAMBDA, Opcodes.NO_NEXT, Form12x.THE_ONE, true);
+
+  public static final Dop CMP_LAMBDA =
+      new Dop(Opcodes.CMP_LAMBDA, Opcodes.CMP_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, true);
+
   // END(dops)
 
   // Static initialization.
@@ -943,6 +992,22 @@ public final class Dops {
     set(SHL_INT_LIT8);
     set(SHR_INT_LIT8);
     set(USHR_INT_LIT8);
+    set(CAPTURE_VARIABLE);
+    set(LIBERATE_VARIABLE);
+    set(INVOKE_LAMBDA);
+    set(CREATE_LAMBDA);
+    set(BOX_LAMBDA);
+    set(UNBOX_LAMBDA);
+    set(RETURN_LAMBDA);
+    set(MOVE_RESULT_LAMBDA);
+    set(IGET_LAMBDA);
+    set(IPUT_LAMBDA);
+    set(SGET_LAMBDA);
+    set(SPUT_LAMBDA);
+    set(APUT_LAMBDA);
+    set(AGET_LAMBDA);
+    set(MOVE_LAMBDA);
+    set(CMP_LAMBDA);
     // END(dops-init)
   }
 

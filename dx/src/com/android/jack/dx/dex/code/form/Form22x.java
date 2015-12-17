@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.dex.code.form;
 
+import com.android.jack.dx.dex.code.CstInsn;
 import com.android.jack.dx.dex.code.DalvInsn;
 import com.android.jack.dx.dex.code.InsnFormat;
 import com.android.jack.dx.dex.code.SimpleInsn;
@@ -65,7 +66,7 @@ public final class Form22x extends InsnFormat {
   public boolean isCompatible(DalvInsn insn) {
     RegisterSpecList regs = insn.getRegisters();
 
-    return (insn instanceof SimpleInsn) && (regs.size() == 2)
+    return (insn instanceof SimpleInsn || insn instanceof CstInsn) && (regs.size() == 2)
         && unsignedFitsInByte(regs.get(0).getReg()) && unsignedFitsInShort(regs.get(1).getReg());
   }
 

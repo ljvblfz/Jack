@@ -68,6 +68,8 @@ import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
+import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -169,6 +171,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   static final char[] SYNCHRONIZED_BLOCK = "synchronized ".toCharArray();
   static final char[] LOCK = "lock ".toCharArray();
   static final char[] UNLOCK = "unlock ".toCharArray();
+  static final char[] CHARS_LIBERATE_variable = "/*liberate-variable*/".toCharArray();
 
   static final SourceFormatter formatter = SourceFormatter.getFormatter();
 
@@ -410,7 +413,12 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JDynamicCastOperation x) {
     lparen();
-    printType(x);
+    Iterator<JType> typesIt = x.getTypes().iterator();
+    printTypeName(typesIt.next());
+    while (typesIt.hasNext()) {
+      print(" & ");
+      printTypeName(typesIt.next());
+    }
     rparen();
     space();
 
@@ -742,6 +750,26 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     accept(x.getLabel());
     print(" : ");
     accept(x.getBody());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda x) {
+    lparen();
+    visitCollectionWithCommas(x.getParameters().iterator());
+    rparen();
+    print(" -> ");
+    accept(x.getBody());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLiberateVariable x) {
+    print(CHARS_LIBERATE_variable);
+    space();
+    accept(x.getClosure());
+    print(".");
+    accept(x.getCapturedVariable());
     return false;
   }
 

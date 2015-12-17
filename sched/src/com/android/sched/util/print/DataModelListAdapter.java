@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 /**
  * Data model list which lazily converts type T to a {@link DataModel}.
  *
- * @param T The type to convert
  */
 public class DataModelListAdapter<T> implements Iterable<Object>, DataModel {
   @Nonnull

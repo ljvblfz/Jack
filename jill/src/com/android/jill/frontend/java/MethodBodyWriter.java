@@ -2144,7 +2144,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(cast);
     writer.writeOpen();
-    writer.writeId(typeDesc);
+    if (cast == Token.DYNAMIC_CAST_OPERATION) {
+      ArrayList<String> types = new ArrayList<String>(1);
+      types.add(typeDesc);
+      writer.writeIds(types);
+    } else {
+      writer.writeId(typeDesc);
+    }
     writeLocalRef(var);
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
     writer.writeClose();

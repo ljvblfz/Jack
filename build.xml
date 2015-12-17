@@ -715,6 +715,13 @@
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
   <property name="jack-tests.execname" value="jack-tests.jar" />
 
+  <filelist id="ecj-test-libs" dir="${jack-tests.prebuilts.dir}">
+    <file name="org.eclipse.equinox.common_3.8.0.v20150911-2106.jar" />
+    <file name="org.eclipse.jdt.core_3.12.0.v20150913-1717.jar" />
+    <file name="org.eclipse.jdt.core.tests.compiler_3.12.0.v20150913-1717.jar" />
+    <file name="org.eclipse.test.performance_3.11.0.v20150223-0658.jar" />
+  </filelist>
+
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
     <delete dir="${jack-tests.build.outdir}" />
@@ -768,6 +775,14 @@
           <exclude name="com/android/jack/java7/exceptions/**"/>
           <exclude name="com/android/jack/java7/trywithresources/**"/>
           <exclude name="com/android/jack/java7/parser/**"/>
+          <exclude name="com/android/jack/java8/lambda/**"/>
+          <exclude name="com/android/jack/java8/defaultmethod/**"/>
+          <exclude name="com/android/jack/java8/staticmethod/**"/>
+          <exclude name="com/android/jack/java8/methodref/**"/>
+          <exclude name="com/android/jack/java8/inference/**"/>
+          <exclude name="com/android/jack/java8/gwt/**"/>
+          <exclude name="com/android/jack/java8/retrolambda/**"/>
+          <exclude name="com/android/jack/java8/intersectiontype/**"/>
           <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
           <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
           <exclude name="com/android/jack/frontend/test005/jack/**"/>
@@ -780,6 +795,7 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         </filelist>
+        <filelist refid="ecj-test-libs"/>
         <!-- static libs -->
         <filelist refid="jackunittests.static.libs.fileset" />
         <filelist refid="jack.static.libs.fileset" />
@@ -814,6 +830,14 @@
       <exclude name="com/android/jack/java7/exceptions/**"/>
       <exclude name="com/android/jack/java7/trywithresources/**"/>
       <exclude name="com/android/jack/java7/parser/**"/>
+      <exclude name="com/android/jack/java8/lambda/**"/>
+      <exclude name="com/android/jack/java8/defaultmethod/**"/>
+      <exclude name="com/android/jack/java8/staticmethod/**"/>
+      <exclude name="com/android/jack/java8/methodref/**"/>
+      <exclude name="com/android/jack/java8/inference/**"/>
+      <exclude name="com/android/jack/java8/gwt/**"/>
+      <exclude name="com/android/jack/java8/retrolambda/**"/>
+      <exclude name="com/android/jack/java8/intersectiontype/**"/>
       <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
       <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
       <exclude name="com/android/jack/frontend/test005/jack/**"/>
@@ -826,6 +850,7 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         </filelist>
+        <filelist refid="ecj-test-libs"/>
       </classpath>
     </javac>
     <!-- package -->
@@ -1207,7 +1232,7 @@
 
   <target name="ecj">
     <mkdir dir="${ecj.dist.dir}"/>
-    <copy file="${ecj.dir}/ecj-4.5M1.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
+    <copy file="${ecj.dir}/ecj-4.5M7.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
   </target>
 
 
@@ -2235,6 +2260,7 @@
       <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="ecj-test-libs"/>
        </classpath>
       <test name="com.android.jack.PreSubmitTests"
         todir="${jack.tests.output}/test-jack/"
@@ -2260,7 +2286,8 @@
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
-         <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="ecj-test-libs"/>
        </classpath>
        <test name="com.android.jack.LongLastingTests"
          todir="${jack.tests.output}/test-jack-long/"
@@ -2287,6 +2314,7 @@
         <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
+          <filelist refid="ecj-test-libs"/>
         </classpath>
         <test name="com.android.jack.AllWithJackTests"
           todir="${jack.tests.output}/test-jack-all/"

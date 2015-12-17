@@ -24,6 +24,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -40,11 +41,13 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
-import com.android.jack.ir.impl.ResolutionTargetMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.lookup.JMethodWithReturnLookupException;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -102,11 +105,14 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     @Nonnull
     private JDefinedClassOrInterface getAccessorClassForSuperCall(
         @Nonnull JDefinedClassOrInterface declaringType) {
+      JDefinedClassOrInterface enclosing = currentType;
+      assert enclosing != null;
 
-      // if the instance is the super of an enclosing class, we have to retrieve it
-      assert currentType != null;
-      JDefinedClass enclosing = (JDefinedClass) currentType;
-      while (!isSuperClassOf((JDefinedClass) declaringType, enclosing)) {
+      // If declaringType is an interface, the accessor class is the first enclosing
+      // type implementing this interface.
+      // If declaringType is a class, the accessor is the first enclosing type
+      // extending this class.
+      while (!enclosing.canBeSafelyUpcast(declaringType)) {
         enclosing = (JDefinedClass) enclosing.getEnclosingType();
       }
 
@@ -155,8 +161,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
         return false;
       }
 
-      if (JModifier.isProtected(modifier) && type instanceof JDefinedClass
-          && isSuperClassOf((JDefinedClass) declaringType, (JDefinedClass) type)) {
+      if (JModifier.isProtected(modifier) && type.canBeSafelyUpcast(declaringType)) {
         return true;
       }
 
@@ -193,28 +198,65 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
 
     @Override
     public boolean visit(@Nonnull JMethodCall x) {
-      ResolutionTargetMarker resolutionTargetMarker = x.getMarker(ResolutionTargetMarker.class);
-      if (resolutionTargetMarker != null) {
-        JMethod method = resolutionTargetMarker.getTarget();
-        JDefinedClassOrInterface accessorClass;
-        boolean isSuper = x.getDispatchKind() == DispatchKind.DIRECT
-            && method.getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
-        if (isSuper) {
-          accessorClass = getAccessorClassForSuperCall(method.getEnclosingType());
-        } else {
-          accessorClass = getAccessorClass(method.getModifier(),
-              method.getEnclosingType());
-        }
+      JClassOrInterface receiverType = x.getReceiverType();
 
-        assert currentType != null;
-        assert tr != null;
-        if (!accessorClass.isSameType(currentType)) {
-          assert accessorClass.getSourceInfo().getFileSourceInfo()
-            .equals(currentType.getSourceInfo().getFileSourceInfo());
-          handleOuterMethodCall(tr, x, method, accessorClass, isSuper);
+      // No need to generate an accessor if receiver type is an interface since method will be
+      // visible
+      if (receiverType instanceof JDefinedClass) {
+        JType returnType =
+            x instanceof JNewInstance ? JPrimitiveTypeEnum.VOID.getType() : x.getType();
+        JMethod method = getMethod((JDefinedClassOrInterface) receiverType,
+            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodId());
+        // Method can be null when an interface method is implemented by a sub type of the receiver
+        // type, but in this case accessors are not needed
+        if (method != null) {
+          JDefinedClassOrInterface accessorClass;
+          boolean isSuper = x.getDispatchKind() == DispatchKind.DIRECT
+              && method.getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
+          if (isSuper) {
+            accessorClass = getAccessorClassForSuperCall(method.getEnclosingType());
+          } else {
+            accessorClass = getAccessorClass(method.getModifier(), method.getEnclosingType());
+          }
+
+          assert accessorClass != null;
+          assert currentType != null;
+          if (!accessorClass.isSameType(currentType)) {
+            assert accessorClass.getSourceInfo().getFileSourceInfo()
+                .equals(currentType.getSourceInfo().getFileSourceInfo());
+            assert tr != null;
+            handleOuterMethodCall(tr, x, method, accessorClass, isSuper);
+          }
         }
       }
       return super.visit(x);
+    }
+
+    @CheckForNull
+    private JMethod getMethod(@Nonnull JDefinedClassOrInterface receiverType,
+        @Nonnull JDefinedClassOrInterface typeToSearchMth,
+        @Nonnull JType returnType, @Nonnull JMethodId mthId) {
+      try {
+        JMethod methodFound =
+            typeToSearchMth.getMethod(mthId.getName(), returnType, mthId.getParamTypes());
+        if (isDirectlyVisibleFrom(methodFound.getModifier(), methodFound.getEnclosingType(),
+            receiverType)) {
+          return methodFound;
+        }
+      } catch (JMethodWithReturnLookupException e) {
+        // Continue to search into super class
+      }
+
+      JClass superClass = typeToSearchMth.getSuperClass();
+      JMethod methodFound;
+      if (superClass instanceof JDefinedClass) {
+        methodFound = getMethod(receiverType, (JDefinedClass) superClass, returnType, mthId);
+        if (methodFound != null) {
+          return methodFound;
+        }
+      }
+
+      return null;
     }
 
     @Override
@@ -307,7 +349,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     }
 
     JMethod wrapper = marker.getOrCreateWrapper(method, (JDefinedClass) accessorClass,
-        isSuper);
+        isSuper, methodCall.getReceiverType());
 
     JMethodCall wrapperCall = null;
     SourceInfo sourceInfo = methodCall.getSourceInfo();
@@ -381,22 +423,4 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
 
     new Visitor().accept(type);
   }
-
-
-  /**
-   * @param type
-   * @return true if the instance is a superclass of type
-   */
-  static boolean isSuperClassOf(JDefinedClass possibleSuper, JDefinedClass type) {
-    JDefinedClassOrInterface superClass = (JDefinedClassOrInterface) type.getSuperClass();
-    while (superClass != null) {
-      if (possibleSuper.isSameType(superClass)) {
-        return true;
-      }
-      superClass = (JDefinedClassOrInterface) superClass.getSuperClass();
-    }
-    return false;
-  }
-
-
 }

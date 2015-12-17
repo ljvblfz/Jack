@@ -17,6 +17,9 @@
 package com.android.jack;
 
 import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
+import com.android.jack.dx.rop.type.PrototypeTest;
+import com.android.jack.dx.rop.type.TypeTest;
+import com.android.jack.ir.ast.JDefinedInterfaceTest;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.ir.impl.ReferenceMapperTest;
 import com.android.jack.jayce.v0002.io.EscapeStringTest;
@@ -52,18 +55,21 @@ import org.junit.runners.Suite.SuiteClasses;
     FibonacciThreeAddressTest.class,
     FinallyTest.class,
     JarjarTest.class,
+    JDefinedInterfaceTest.class,
     MainTest.class,
     MarkerCollectorTest.class,
     /* MultiDexOverflowTests.class, */
     /* MultiDexTests.class, */
     PreProcessorTest.class,
     ProblemLevelTest.class,
+    PrototypeTest.class,
 //    ReachingDefsTest.class,
     ReferenceMapperTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,
     StringSplittingTest.class,
     Types.class,
+    TypeTest.class,
     UnaryTest.class,
     UselessCastRemoverTest.class,
     TracingTest.class,

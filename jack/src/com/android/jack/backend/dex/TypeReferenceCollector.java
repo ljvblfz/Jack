@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedInterface;
+import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JInterface;
@@ -96,6 +97,14 @@ public abstract class TypeReferenceCollector extends JVisitor {
   public boolean visit(@Nonnull JFieldRef fieldRef) {
     collect(fieldRef.getReceiverType());
     return super.visit(fieldRef);
+  }
+
+  @Override
+  public boolean visit(@Nonnull JDynamicCastOperation multiCast) {
+    for (JType type : multiCast.getTypes()) {
+      collect(type);
+    }
+    return false;
   }
 
   @Override

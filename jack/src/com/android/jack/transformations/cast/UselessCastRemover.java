@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes useless casts.")
 @Name("UselessCastRemover")
-@Constraint(need = JDynamicCastOperation.class)
+@Constraint(need = JDynamicCastOperation.class, no = JCastOperation.WithIntersectionType.class)
 @Transform(remove = SourceCast.class)
 public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
@@ -60,7 +60,7 @@ public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JCastOperation cast) {
-      JType destType = cast.getCastType();
+      JType destType = cast.getType();
       JExpression castedExpr = cast.getExpr();
       JType srcType = castedExpr.getType();
       // Do not remove cast of 'null' expression otherwise type is lost

@@ -47,7 +47,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    */
   @CheckForNull
   private JAbstractMethodBody body = null;
-  @Nonnull
+  @CheckForNull
   private JDefinedClassOrInterface enclosingType;
   private int modifier;
 
@@ -63,14 +63,14 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   private JMethodId methodId;
 
   @CheckForNull
-  private final JThis jThis;
+  private JThis jThis;
 
   @Nonnull
   private MethodLoader loader;
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
-      @Nonnull JDefinedClassOrInterface enclosingType,
+      @CheckForNull JDefinedClassOrInterface enclosingType,
       @Nonnull JType returnType,
       int modifier) {
     this(info, methodId, enclosingType, returnType, modifier, NopMethodLoader.INSTANCE);
@@ -78,7 +78,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public JMethod(@Nonnull SourceInfo info,
         @Nonnull JMethodId methodId,
-        @Nonnull JDefinedClassOrInterface enclosingType,
+        @CheckForNull JDefinedClassOrInterface enclosingType,
         @Nonnull JType returnType,
         int modifier,
         @Nonnull MethodLoader loader) {
@@ -90,8 +90,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     this.modifier = modifier;
     this.methodId = methodId; // FINDBUGS
     this.loader = loader;
-    if ((!JModifier.isStatic(modifier)) && (!JModifier.isAbstract(modifier))
-        && (!JModifier.isNative(modifier)) && enclosingType instanceof JDefinedClass) {
+    if (needThis(modifier)) {
       jThis = new JThis(this);
     } else {
       jThis = null;
@@ -152,6 +151,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   @Override
   public JDefinedClassOrInterface getEnclosingType() {
+    assert enclosingType != null;
     return enclosingType;
   }
 
@@ -242,7 +242,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     }
   }
 
-  public void setEnclosingType(@Nonnull JDefinedClassOrInterface enclosingType) {
+  public void setEnclosingType(@CheckForNull JDefinedClassOrInterface enclosingType) {
     this.enclosingType = enclosingType;
   }
 
@@ -418,6 +418,10 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     return jThis;
   }
 
+  public void setThis(@CheckForNull JThis jThis) {
+    this.jThis = jThis;
+  }
+
   public static boolean isClinit(@Nonnull JMethod method) {
     return method.getName().equals(NamingTools.STATIC_INIT_NAME);
   }
@@ -428,8 +432,17 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JDefinedClassOrInterface)) {
+    if (!(parent instanceof JDefinedClassOrInterface) && !(parent instanceof JLambda)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  public static boolean needThis(int modifier) {
+    if (JModifier.isStatic(modifier) || JModifier.isAbstract(modifier)
+        || JModifier.isNative(modifier)) {
+      return false;
+    }
+
+    return true;
   }
 }

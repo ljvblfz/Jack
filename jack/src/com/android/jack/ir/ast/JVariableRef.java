@@ -39,6 +39,10 @@ public abstract class JVariableRef extends JExpression {
     return target;
   }
 
+  public void setTarget(@Nonnull JVariable target) {
+    this.target = target;
+  }
+
   @Override
   @Nonnull
   public JType getType() {

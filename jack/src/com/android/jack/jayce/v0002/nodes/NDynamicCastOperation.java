@@ -51,10 +51,8 @@ public class NDynamicCastOperation extends NExpression {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    JDynamicCastOperation jDynamicCastOperation = (JDynamicCastOperation) node;
-    castType = ImportHelper.getSignatureName(jDynamicCastOperation.getCastType());
-    expr = (NExpression) loader.load(jDynamicCastOperation.getExpr());
-    sourceInfo = loader.load(jDynamicCastOperation.getSourceInfo());
+    // Jack does not longer allow to generate V2 library
+    throw new AssertionError();
   }
 
   @Override
@@ -67,9 +65,8 @@ public class NDynamicCastOperation extends NExpression {
     JType jType = exportSession.getLookup().getType(castType);
     JExpression jExpr = expr.exportAsJast(exportSession);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JDynamicCastOperation jDynamicCastOperation =
-        new JDynamicCastOperation(jSourceInfo, jType, jExpr);
-    return jDynamicCastOperation;
+    JDynamicCastOperation castOperation = new JDynamicCastOperation(jSourceInfo, jExpr, jType);
+    return castOperation;
   }
 
   @Override

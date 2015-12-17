@@ -28,16 +28,19 @@ import com.android.jack.ir.impl.EcjSourceTypeLoader;
 import com.android.jack.ir.impl.JackIrBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
 import com.android.jack.ir.impl.SourceCompilationException;
+import com.android.jack.transformations.lambda.NeedsLambdaMarker;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -47,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -206,13 +210,31 @@ class JAstBuilder extends JavaParser {
       hasErrors = true;
       return;
     }
-    EcjSourceTypeLoader.createType(refMap, enclosingPackage, typeDeclaration.binding,
-        typeDeclaration,
+
+    JDefinedClassOrInterface jDCoI = EcjSourceTypeLoader.createType(refMap, enclosingPackage,
+        typeDeclaration.binding, typeDeclaration,
         new FileLocation(new File(new String(typeDeclaration.compilationResult.fileName))));
+
     if (typeDeclaration.memberTypes != null) {
       for (TypeDeclaration memberType : typeDeclaration.memberTypes) {
         createTypes(enclosingPackage, refMap, memberType);
       }
+    }
+
+    // STOPSHIP: A better solution must be find to manage @NeedsLambda
+    if (typeDeclaration.annotations != null) {
+      List<Annotation> keptAnnotations = new ArrayList<Annotation>();
+      for (Annotation annotation : typeDeclaration.annotations) {
+        String typeName = CharOperation.toString(annotation.type.getTypeName());
+        if (typeName.equals("NeedsLambda")) {
+          jDCoI.addMarker(NeedsLambdaMarker.INSTANCE);
+          break;
+        } else {
+          keptAnnotations.add(annotation);
+        }
+      }
+      typeDeclaration.annotations =
+          keptAnnotations.toArray(new Annotation[keptAnnotations.size()]);
     }
   }
 

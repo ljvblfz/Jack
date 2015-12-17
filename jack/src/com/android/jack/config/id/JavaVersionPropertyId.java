@@ -43,7 +43,8 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
     JAVA_4("1.4"),
     JAVA_5("1.5"),
     JAVA_6("1.6"),
-    JAVA_7("1.7");
+    JAVA_7("1.7"),
+    JAVA_8("1.8");
 
     @Nonnull
     private final String value;
@@ -80,7 +81,10 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
         new Entry<JavaVersion>("6",    JavaVersion.JAVA_6),
         new Entry<JavaVersion>("1.7",  JavaVersion.JAVA_7),
         new Entry<JavaVersion>("7.0",  JavaVersion.JAVA_7),
-        new Entry<JavaVersion>("7",    JavaVersion.JAVA_7)
+        new Entry<JavaVersion>("7",    JavaVersion.JAVA_7),
+        new Entry<JavaVersion>("1.8",  JavaVersion.JAVA_8),
+        new Entry<JavaVersion>("8.0",  JavaVersion.JAVA_8),
+        new Entry<JavaVersion>("8",    JavaVersion.JAVA_8),
     };
 
     parser = new KeyValueCodec<JavaVersion>("version", elements).ignoreCase();

@@ -1,0 +1,7 @@
+-dontobfuscate
+-keep public class com.android.jack.java8.defaultmethod.test009.jack.Tests {
+        *;
+}
+-keep class com.android.jack.java8.defaultmethod.test009.jack.I {
+        *;
+}

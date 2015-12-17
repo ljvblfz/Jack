@@ -118,11 +118,13 @@ import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
+import com.android.jack.scheduling.adapter.JMethodOnlyAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.jack.scheduling.feature.SourceVersion7;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.feature.VisibilityBridge;
 import com.android.jack.shrob.obfuscation.Mapping;
 import com.android.jack.shrob.obfuscation.MappingPrinter;
@@ -197,6 +199,7 @@ import com.android.jack.transformations.ast.ImplicitBlocks;
 import com.android.jack.transformations.ast.ImplicitBlocksChecker;
 import com.android.jack.transformations.ast.IncDecRemover;
 import com.android.jack.transformations.ast.InitInNewArrayRemover;
+import com.android.jack.transformations.ast.IntersectionTypeRemover;
 import com.android.jack.transformations.ast.MultiDimensionNewArrayRemover;
 import com.android.jack.transformations.ast.NestedAssignRemover;
 import com.android.jack.transformations.ast.NumericConversionChecker;
@@ -245,6 +248,10 @@ import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparat
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
+import com.android.jack.transformations.lambda.LambdaConverter;
+import com.android.jack.transformations.lambda.LambdaNativeSupportConverter;
+import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
+import com.android.jack.transformations.lambda.LambdaUseExperimentalOpcodes;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
@@ -452,6 +459,9 @@ public abstract class Jack {
         if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
           request.addFeature(SourceVersion7.class);
         }
+        if (sourceVersion.compareTo(JavaVersion.JAVA_8) >= 0) {
+          request.addFeature(SourceVersion8.class);
+        }
 
         if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
           request.addFeature(DropMethodBody.class);
@@ -550,6 +560,16 @@ public abstract class Jack {
           request.addProduction(DexInLibraryProduct.class);
         }
 
+        if (request.getFeatures().contains(SourceVersion8.class)) {
+          if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+            request.addFeature(LambdaToAnonymousConverter.class);
+          }
+
+          if (config.get(CodeItemBuilder.EXPERIMENTAL_LAMBDA_OPCODES).booleanValue()) {
+            request.addFeature(LambdaUseExperimentalOpcodes.class);
+          }
+        }
+
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.DEX);
@@ -616,12 +636,13 @@ public abstract class Jack {
           // ... but use a manual one if not supported
           plan = planBuilder.getPlan();
 
-          assert !targetProduction.contains(JayceInLibraryProduct.class)
-              || targetProduction.contains(DexFileProduct.class) || (plan.computeFinalTagsOrMarkers(
-                  request.getInitialTags()).contains(JackFormatIr.class)
-                  && !targetProduction.contains(DexInLibraryProduct.class)) || (
-                  targetProduction.contains(DexInLibraryProduct.class)
-                  && targetProduction.contains(JayceInLibraryProduct.class));
+          assert!targetProduction.contains(JayceInLibraryProduct.class)
+              || targetProduction.contains(DexFileProduct.class)
+              || (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
+                  JackFormatIr.class) && !targetProduction.contains(DexInLibraryProduct.class))
+              || ((targetProduction.contains(DexInLibraryProduct.class)
+                  && targetProduction.contains(JayceInLibraryProduct.class))
+                  || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
         }
 
         PlanPrinterFactory.getPlanPrinter().printPlan(plan);
@@ -920,7 +941,8 @@ public abstract class Jack {
       }
     }
     if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)
-        || features.contains(Shrinking.class)) {
+        || features.contains(Shrinking.class)
+        || features.contains(LambdaToAnonymousConverter.class)) {
       for (InputLibrary il : getSession().getImportedLibraries()) {
         ((InputJackLibrary) il).fileTypes.remove(FileType.DEX);
       }
@@ -1017,7 +1039,7 @@ public abstract class Jack {
       }
     }
 
-    {
+    if (!features.contains(LambdaToAnonymousConverter.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       if (features.contains(AvoidSynthethicAccessors.class)) {
@@ -1057,7 +1079,10 @@ public abstract class Jack {
       planBuilder.append(AstChecker.class);
     }
 
-    planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    if (!features.contains(SourceVersion8.class)
+        || !features.contains(LambdaToAnonymousConverter.class)) {
+      planBuilder.append(InnerAccessorSchedulingSeparator.class);
+    }
     planBuilder.append(TryStatementSchedulingSeparator.class);
     planBuilder.append(EnumMappingSchedulingSeparator.class);
 
@@ -1078,7 +1103,10 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      typePlan4.append(InnerAccessorAdder.class);
+      if (!features.contains(SourceVersion8.class)
+          || !features.contains(LambdaToAnonymousConverter.class)) {
+        typePlan4.append(InnerAccessorAdder.class);
+      }
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
       {
         SubPlanBuilder<JMethod> methodPlan =
@@ -1123,6 +1151,43 @@ public abstract class Jack {
       }
     }
 
+
+    if (features.contains(SourceVersion8.class)) {
+      if (features.contains(LambdaToAnonymousConverter.class)) {
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+          methodPlan.append(LambdaConverter.class);
+        }
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          if (features.contains(AvoidSynthethicAccessors.class)) {
+            typePlan.append(OptimizedInnerAccessorGenerator.class);
+          } else {
+            typePlan.append(InnerAccessorGenerator.class);
+          }
+        }
+        planBuilder.append(InnerAccessorSchedulingSeparator.class);
+        {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          if (features.contains(AvoidSynthethicAccessors.class)) {
+            typePlan.append(ReferencedOuterFieldsExposer.class);
+          }
+          typePlan.append(InnerAccessorAdder.class);
+        }
+      }
+
+      if (features.contains(LambdaUseExperimentalOpcodes.class)) {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+        methodPlan.append(LambdaNativeSupportConverter.class);
+      }
+    }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
@@ -1156,6 +1221,7 @@ public abstract class Jack {
         methodPlan.append(PrimitiveClassTransformer.class);
         methodPlan.append(SynchronizeTransformer.class);
         methodPlan.append(NestedAssignRemover.class);
+        methodPlan.append(IntersectionTypeRemover.class);
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
         if (features.contains(CodeStats.class)) {

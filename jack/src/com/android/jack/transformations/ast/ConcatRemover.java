@@ -224,7 +224,7 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
         case SHORT:
           // append(Z) or append(S) do not exist, apply correction to use append(I)
           toAppend =
-              new JDynamicCastOperation(sourceInfo, JPrimitiveTypeEnum.INT.getType(), toAppend);
+              new JDynamicCastOperation(sourceInfo, toAppend, JPrimitiveTypeEnum.INT.getType());
           appendArgType = JPrimitiveTypeEnum.INT.getType();
           break;
         default:

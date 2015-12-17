@@ -1,0 +1,4 @@
+-dontobfuscate
+-keep public class com.android.jack.java8.intersectiontype.test003.jack.Tests {
+        public void test001();
+}

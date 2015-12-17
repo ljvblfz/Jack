@@ -159,6 +159,10 @@ class JayceInputStream implements DataInput {
     }
     byte[] utf8String = new byte[length];
     in.readFully(utf8String);
-    return StringUtils.utf8BytesToString(utf8String);
+    try {
+      return StringUtils.utf8BytesToString(utf8String);
+    } catch (java.text.ParseException e) {
+      throw new ParseException(e);
+    }
   }
 }

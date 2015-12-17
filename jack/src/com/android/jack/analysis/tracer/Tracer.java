@@ -52,6 +52,7 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
@@ -214,6 +215,12 @@ public class Tracer extends JVisitor {
         }
       }
 
+      // STOPSHIP: Need to adapt tracer to support lambda
+      for (JMethod method : t.getLambdaMethods()) {
+        // Force to keep lambda method
+        trace(method);
+      }
+
       brush.endTrace(t);
     }
   }
@@ -236,8 +243,8 @@ public class Tracer extends JVisitor {
   }
 
   @CheckForNull
-  private JMethod findMethod(@Nonnull JMethodId methodId,
-      @Nonnull JClassOrInterface enclosingType, @Nonnull JType returnType) {
+  private JMethod findMethod(@Nonnull JMethodId methodId, @Nonnull JClassOrInterface enclosingType,
+      @Nonnull JType returnType) {
     for (JMethod m : methodId.getMethods()) {
       if (m.getEnclosingType().isSameType(enclosingType) && m.getType().isSameType(returnType)) {
         return m;
@@ -481,8 +488,15 @@ public class Tracer extends JVisitor {
   }
 
   @Override
-  public void endVisit(@Nonnull JDynamicCastOperation x) {
+  public void endVisit(@Nonnull JReinterpretCastOperation x) {
     trace(x.getType());
+  }
+
+  @Override
+  public void endVisit(@Nonnull JDynamicCastOperation x) {
+    for (JType type : x.getTypes()) {
+      trace(type);
+    }
   }
 
   @Override

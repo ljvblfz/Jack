@@ -26,6 +26,8 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
+import com.android.jack.config.id.JavaVersionPropertyId;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.code.DalvCode;
 import com.android.jack.dx.dex.code.PositionList;
@@ -46,6 +48,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.type.StdTypeList;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.ssa.Optimizer;
 import com.android.jack.dx.util.IntList;
@@ -53,6 +56,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JAssertStatement;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConditionalOperation;
@@ -68,8 +72,8 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
@@ -85,14 +89,19 @@ import com.android.jack.transformations.ast.inner.InnerAccessor;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.cast.SourceCast;
+import com.android.jack.transformations.lambda.CapturedVariable;
+import com.android.jack.transformations.lambda.ForceClosureMarker;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
@@ -139,8 +148,12 @@ import javax.annotation.Nonnull;
     JConditionalOperation.class,
     EmptyClinit.class,
     UselessSwitches.class,
-    SourceCast.class})
+    SourceCast.class,
+    JCastOperation.WithIntersectionType.class})
 @Transform(add = DexCodeMarker.class)
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(need = CapturedVariable.class)))
+@Use(RopHelper.class)
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -148,6 +161,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       "jack.dex.debug.vars.synthetic",
       "Emit synthetic local variable debug info into generated dex").addDefaultValue(Boolean.FALSE);
 
+  // STOPSHIP: Enable dx optimizations when final version of box-lambda will be supported by the
+  // runtime.
   @Nonnull
   public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
       "jack.dex.optimize", "Define if Dex optimizations are activated")
@@ -159,13 +174,22 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
+  public static final BooleanPropertyId EXPERIMENTAL_LAMBDA_OPCODES = BooleanPropertyId.create(
+      "jack.dex.lambda.experimental", "Generates experimental opcodes for lambda support")
+      .addDefaultValue(Boolean.FALSE)
+          .requiredIf(Options.JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
+              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
+
+  @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   private final boolean emitSyntheticLocalDebugInfo =
       ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
-  private final boolean runDxOptimizations =
-      ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
+  // STOPSHIP: Enable dx optimizations for Java 8 when final version of box-lambda will be
+  // available.
+  private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue()
+      && ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) != 0;
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
@@ -363,7 +387,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       try {
         ropMethod =
-            Optimizer.optimize(ropMethod, getParameterSize(method), method.isStatic(),
+            Optimizer.optimize(ropMethod, getParameterWordCount(method), method.isStatic(),
                 true /* inPreserveLocals */, DexTranslationAdvice.THE_ONE);
       } finally {
         optEvent.end();
@@ -403,22 +427,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     }
   }
 
-  private int getParameterSize(@Nonnull JMethod method) {
-    int paramSize = 0;
-    if (!method.isStatic()) {
-      paramSize += 1;
-    }
-    for (JParameter param : method.getParams()) {
-      if (param.getType() == JPrimitiveTypeEnum.LONG.getType()
-          || param.getType() == JPrimitiveTypeEnum.DOUBLE.getType()) {
-        paramSize += 2;
-      } else {
-        paramSize += 1;
-      }
-    }
-    return paramSize;
-  }
-
   private int getMaxLabel(ControlFlowGraph cfg) {
     int maxLabel = -1;
 
@@ -456,7 +464,15 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
     List<JParameter> parameters = method.getParams();
     int indexParam = 0;
-    int sz = parameters.size();
+    int sz = 0;
+    for (JParameter p : parameters) {
+      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
+      // create-lambda opcode
+      if (p.getMarker(CapturedVariable.class) != null) {
+        continue;
+      }
+      sz++;
+    }
     InsnList insns;
 
     if (method.isStatic()) {
@@ -474,13 +490,19 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       insns.set(indexParam++, insn);
     }
 
-    for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext(); indexParam++) {
+    for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext();) {
       JParameter param = paramIt.next();
+      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
+      // create-lambda opcode
+      if (param.getMarker(CapturedVariable.class) != null) {
+        continue;
+      }
       RegisterSpec paramReg = ropReg.createRegisterSpec(param);
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
               RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
       insns.set(indexParam, insn);
+      indexParam++;
     }
 
     insns.set(indexParam, new PlainInsn(Rops.GOTO, pos, null, RegisterSpecList.EMPTY));
@@ -511,20 +533,23 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     return RopTranslator.translate(ropMethod, positionListKind, lvInfo, paramSize, options);
   }
 
+  @Nonnegative
   private int getParameterWordCount(@Nonnull JMethod method) {
-    List<JParameter> parameters = method.getParams();
     // Add size in word (1) to represent 'this' parameter if method is not static.
-    int wordCount = method.isStatic() ? 0 : 1;
-    for (JParameter param : parameters) {
-      JType paramType = param.getType();
-      if (paramType == JPrimitiveTypeEnum.LONG.getType()) {
-        wordCount += 2;
-      } else if (paramType == JPrimitiveTypeEnum.DOUBLE.getType()) {
-        wordCount += 2;
-      } else {
-        wordCount++;
+    int wordCount = method.isStatic() ? 0 : Type.OBJECT.getWordCount();
+
+    for (JParameter param : method.getParams()) {
+      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
+      // create-lambda opcode
+      if (param.getMarker(CapturedVariable.class) != null) {
+        continue;
       }
+      wordCount += RopHelper
+          .convertTypeToDx(param.getType(),
+              /* isForcedClosure= */ param.getMarker(ForceClosureMarker.class) != null)
+          .getWordCount();
     }
+
     return wordCount;
   }
 }

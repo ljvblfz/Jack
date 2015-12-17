@@ -205,6 +205,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToJackDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -232,6 +233,7 @@ public class ResourceTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();

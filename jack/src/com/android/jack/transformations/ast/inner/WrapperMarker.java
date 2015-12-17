@@ -16,8 +16,8 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBlock;
+import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JExpression;
@@ -34,7 +34,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.formatter.SourceFormatter;
+import com.android.jack.ir.formatter.IdentifierFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
@@ -46,7 +46,6 @@ import com.android.sched.marker.ValidOn;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -66,98 +65,68 @@ public class WrapperMarker implements Marker {
   private final HashMap<MethodCallDescriptor, JMethod> wrappers =
     new HashMap<MethodCallDescriptor, JMethod>();
 
-  private static class WrapperFormatter extends SourceFormatter {
-
-    @Nonnull
-    private static final WrapperFormatter formatter = new WrapperFormatter();
-
-    private static final char separator = '_';
-
-    private WrapperFormatter() {
-    }
-
-    @Nonnull
-    public static WrapperFormatter getFormatter() {
-      return formatter;
-    }
-
-    @Override
-    protected char getPackageSeparator() {
-      return separator;
-    }
-
-    @Override
-    @Nonnull
-    public String getName(@Nonnull JType type) {
-      if (type instanceof JArrayType) {
-        return getName(((JArrayType) type).getElementType()) + separator;
-      }
-      return super.getName(type);
-    }
-
-    @Override
-    @Nonnull
-    public String getName(@Nonnull JMethod method) {
-      StringBuilder sb = new StringBuilder(getName(method.getType()));
-      sb.append(separator);
-      sb.append(method.getName());
-      sb.append(separator);
-      Iterator<JParameter> argumentIterator = method.getParams().iterator();
-      while (argumentIterator.hasNext()) {
-        JParameter argument = argumentIterator.next();
-        sb.append(getName(argument.getType()));
-        sb.append(separator);
-        sb.append(argument.getName());
-        if (argumentIterator.hasNext()) {
-          sb.append(separator);
-        }
-      }
-      sb.append(separator);
-      return sb.toString();
-    }
-  }
-
-  private static class MethodCallDescriptor {
+   private static class MethodCallDescriptor {
 
     @Nonnull
     private final JMethod method;
 
-    private final boolean isStaticDispatchOnly;
+    private final boolean isSuper;
 
-    private MethodCallDescriptor(@Nonnull JMethod method, boolean isStaticDispatchOnly) {
+    @Nonnull
+    private final JClassOrInterface mthCallReceiverType;
+
+    private MethodCallDescriptor(@Nonnull JMethod method, boolean isSuper,
+        @Nonnull JClassOrInterface mthCallReceiverType) {
       this.method = method;
-      this.isStaticDispatchOnly = isStaticDispatchOnly;
+      this.isSuper = isSuper;
+      this.mthCallReceiverType = mthCallReceiverType;
     }
 
     @Override
-    public boolean equals(@CheckForNull Object obj) {
+    public final boolean equals(@CheckForNull Object obj) {
       if (obj instanceof MethodCallDescriptor) {
         MethodCallDescriptor toCompare = (MethodCallDescriptor) obj;
         return method.equals(toCompare.method)
-            && isStaticDispatchOnly == toCompare.isStaticDispatchOnly;
+            && isSuper == toCompare.isSuper
+            && mthCallReceiverType.isSameType(toCompare.mthCallReceiverType);
       }
       return false;
     }
 
     @Override
-    public int hashCode() {
-      if (isStaticDispatchOnly) {
-        return method.hashCode();
-      } else {
-        return -method.hashCode();
-      }
+    public final int hashCode() {
+      int hashCode = method.hashCode() ^ mthCallReceiverType.hashCode();
+      return 31 * hashCode + Boolean.valueOf(isSuper).hashCode();
     }
   }
 
   @CheckForNull
-  private JMethod getWrapper(@Nonnull JMethod method, boolean isStaticDispatchOnly) {
-    MethodCallDescriptor descriptor = new MethodCallDescriptor(method, isStaticDispatchOnly);
+  private JMethod getWrapper(@Nonnull JMethod method, boolean isStaticDispatchOnly,
+      @Nonnull JClassOrInterface mthCallReceiverType) {
+    MethodCallDescriptor descriptor =
+        new MethodCallDescriptor(method, isStaticDispatchOnly, mthCallReceiverType);
     return wrappers.get(descriptor);
   }
 
+  private boolean hasSameKeyWithoutReceiverType(@Nonnull MethodCallDescriptor newKey) {
+    for (MethodCallDescriptor mcd : wrappers.keySet()) {
+      if (mcd.method.equals(newKey.method)
+            && mcd.isSuper == newKey.isSuper) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private void addWrapper(@Nonnull JMethod method, @Nonnull JMethod wrapper,
-      boolean isStaticDispatchOnly) {
-    MethodCallDescriptor descriptor = new MethodCallDescriptor(method, isStaticDispatchOnly);
+      boolean isStaticDispatchOnly, @Nonnull JClassOrInterface mthCallReceiverType) {
+    MethodCallDescriptor descriptor =
+        new MethodCallDescriptor(method, isStaticDispatchOnly, mthCallReceiverType);
+    // Check if Jack generates an additional accessor due to receiver type.
+    if (hasSameKeyWithoutReceiverType(descriptor)) {
+      throw new AssertionError();
+    }
     assert !wrappers.containsKey(descriptor);
     wrappers.put(descriptor, wrapper);
   }
@@ -191,12 +160,13 @@ public class WrapperMarker implements Marker {
   // TODO(delphinemartin): Warning: this is not thread-safe
   JMethod getOrCreateWrapper(@Nonnull JMethod method,
       @Nonnull JDefinedClass accessorClass,
-      boolean isSuper) {
+      boolean isSuper,
+      @Nonnull JClassOrInterface mthCallReceiverType) {
     // $wrap<id>($param) {
     //   return method($param);
     // }
 
-    JMethod wrapper = getWrapper(method, isSuper);
+    JMethod wrapper = getWrapper(method, isSuper, mthCallReceiverType);
     if (wrapper == null) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
@@ -207,7 +177,8 @@ public class WrapperMarker implements Marker {
         String wrapperName = WRAPPER_PREFIX;
         // It is a temporary deterministic name that will be replace by an index into
         // InnerAccessorAdder
-        wrapperName += WrapperFormatter.getFormatter().getName(method) + isSuper;
+        wrapperName += IdentifierFormatter.getFormatter().getName(mthCallReceiverType)
+            + IdentifierFormatter.getFormatter().getName(method) + isSuper;
         wrapper =
             new JMethod(sourceInfo, new JMethodId(wrapperName, MethodKind.STATIC), accessorClass,
                 method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);
@@ -229,7 +200,7 @@ public class WrapperMarker implements Marker {
       }
 
       JMethodId calledMethodId = method.getMethodId();
-      JMethodCall methodCall = new JMethodCall(sourceInfo, instance, accessorClass,
+      JMethodCall methodCall = new JMethodCall(sourceInfo, instance, mthCallReceiverType,
           calledMethodId,
           method.getType(), calledMethodId.canBeVirtual() && !isSuper /* isVirtualDispatch */);
       for (JParameter param : method.getParams()) {
@@ -263,7 +234,7 @@ public class WrapperMarker implements Marker {
         bodyBlock.addStmt(new JReturnStatement(sourceInfo, methodCall));
       }
       wrapper.setBody(body);
-      addWrapper(method, wrapper, isSuper);
+      addWrapper(method, wrapper, isSuper, mthCallReceiverType);
     }
 
     return wrapper;

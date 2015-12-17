@@ -21,14 +21,13 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on
- * each {@code JMethod} declared by this type.
+ * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on each
+ * {@code JMethod} that can be called, this includes {@code JMethod} representing lambda bodies.
  */
 @Description("Adapts process on JDefinedClassOrInterface to one or several processes on each of " +
     "its JMethod")
@@ -42,6 +41,6 @@ public class JMethodAdapter
   @Nonnull
   public Iterator<JMethod> adapt(@Nonnull JDefinedClassOrInterface declaredType)
       throws Exception {
-    return new ArrayList<JMethod>(declaredType.getMethods()).iterator();
+    return declaredType.getCallables().iterator();
   }
 }

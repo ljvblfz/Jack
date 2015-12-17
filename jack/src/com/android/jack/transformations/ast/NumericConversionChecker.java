@@ -21,6 +21,7 @@ import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JDynamicCastOperation;
@@ -56,7 +57,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Check that there are no more implicit casts and boxing/unboxing between numeric"
     + " types.")
-@Constraint(no = {SideEffectOperation.class, InitInNewArray.class})
+@Constraint(no = {SideEffectOperation.class, InitInNewArray.class,
+    JCastOperation.WithIntersectionType.class})
 public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -131,7 +133,7 @@ public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JDynamicCastOperation cast) {
-      checkBoxingOrUnboxing(cast.getExpr(), cast.getCastType());
+      checkBoxingOrUnboxing(cast.getExpr(), cast.getType());
       super.endVisit(cast);
     }
 

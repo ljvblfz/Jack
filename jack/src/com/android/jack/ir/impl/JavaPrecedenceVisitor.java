@@ -24,17 +24,19 @@ import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JByteLiteral;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoubleLiteral;
-import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JLambda;
+import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethodCall;
@@ -116,7 +118,7 @@ class JavaPrecedenceVisitor extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JDynamicCastOperation operation) {
+  public boolean visit(@Nonnull JCastOperation operation) {
     answer = 2;
     return false;
   }
@@ -208,6 +210,18 @@ class JavaPrecedenceVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JNewInstance instance) {
     answer = 2;
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda lambdaExpression) {
+    answer = 2;
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLiberateVariable x) {
+    answer = 0;
     return false;
   }
 

@@ -77,6 +77,7 @@ import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
@@ -231,6 +232,7 @@ import com.android.sched.item.Name;
     JIntType.class,
     JLabel.class,
     JLabeledStatement.class,
+    JLambda.class,
     JLocal.class,
     JLocalRef.class,
     JLongLiteral.class,

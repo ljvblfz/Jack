@@ -25,7 +25,6 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
-import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 import com.android.jack.dx.util.ExceptionWithContext;
 
@@ -171,23 +170,6 @@ public final class DexFile {
    */
   public void add(ClassDefItem clazz) {
     classDefs.add(clazz);
-  }
-
-  /**
-   * Gets the class definition with the given name, if any.
-   *
-   * @param name {@code non-null;} the class name to look for
-   * @return {@code null-ok;} the class with the given name, or {@code null}
-   * if there is no such class
-   */
-  public ClassDefItem getClassOrNull(String name) {
-    try {
-      Type type = Type.internClassName(name);
-      return (ClassDefItem) classDefs.get(new CstType(type));
-    } catch (IllegalArgumentException ex) {
-      // Translate exception, per contract.
-      return null;
-    }
   }
 
   /**

@@ -103,6 +103,12 @@ public final class Opcodes {
   public static final int IF_GEZ = 0x3b;
   public static final int IF_GTZ = 0x3c;
   public static final int IF_LEZ = 0x3d;
+  public static final int MOVE_LAMBDA = 0x3e;
+  public static final int MOVE_RESULT_LAMBDA = 0x3f;
+  public static final int RETURN_LAMBDA = 0x40;
+  public static final int CMP_LAMBDA = 0x41;
+  public static final int AGET_LAMBDA = 0x42;
+  public static final int APUT_LAMBDA = 0x43;
   public static final int AGET = 0x44;
   public static final int AGET_WIDE = 0x45;
   public static final int AGET_OBJECT = 0x46;
@@ -155,6 +161,8 @@ public final class Opcodes {
   public static final int INVOKE_DIRECT_RANGE = 0x76;
   public static final int INVOKE_STATIC_RANGE = 0x77;
   public static final int INVOKE_INTERFACE_RANGE = 0x78;
+  public static final int IGET_LAMBDA = 0x79;
+  public static final int IPUT_LAMBDA = 0x7a;
   public static final int NEG_INT = 0x7b;
   public static final int NOT_INT = 0x7c;
   public static final int NEG_LONG = 0x7d;
@@ -259,6 +267,15 @@ public final class Opcodes {
   public static final int SHL_INT_LIT8 = 0xe0;
   public static final int SHR_INT_LIT8 = 0xe1;
   public static final int USHR_INT_LIT8 = 0xe2;
+  public static final int INVOKE_LAMBDA = 0xf3;
+  public static final int CAPTURE_VARIABLE = 0xf5;
+  public static final int CREATE_LAMBDA = 0xf6;
+  public static final int LIBERATE_VARIABLE = 0xf7;
+  public static final int BOX_LAMBDA = 0xf8;
+  public static final int UNBOX_LAMBDA = 0xf9;
+  public static final int SGET_LAMBDA = 0xfa;
+  public static final int SPUT_LAMBDA = 0xfb;
+
   // END(opcodes)
 
   // TODO(dx team): Generate these payload opcodes with opcode-gen.
@@ -340,7 +357,7 @@ public final class Opcodes {
      * ((byteValue << 8) | 0xff).
      */
 
-int lowByte = opcodeUnit & 0xff;
+    int lowByte = opcodeUnit & 0xff;
     return ((lowByte == 0) || (lowByte == 0xff)) ? opcodeUnit : lowByte;
   }
 }

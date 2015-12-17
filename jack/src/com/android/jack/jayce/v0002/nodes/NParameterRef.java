@@ -70,7 +70,6 @@ public class NParameterRef extends NExpression {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     localId = in.readId();
-
   }
 
   @Override
