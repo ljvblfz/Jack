@@ -96,20 +96,19 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final JMethod method;
-
-    @Nonnull
-    private final Tracer tracer;
 
     @Nonnull
     private final CloneExpressionVisitor cloneExpr = new CloneExpressionVisitor();
 
     public Visitor(@Nonnull JMethod method) {
       this.method = method;
-      tracer = TracerFactory.getTracer();
     }
 
     @Override

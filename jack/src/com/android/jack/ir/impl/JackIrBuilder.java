@@ -260,6 +260,9 @@ import javax.annotation.Nonnull;
  */
 public class JackIrBuilder {
 
+  private final boolean generateJackLibrary =
+      ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue();
+
   /**
    * Visit the JDT AST and produce our own AST. By the end of this pass, the
    * produced AST should contain every piece of information we'll ever need
@@ -3378,7 +3381,7 @@ public class JackIrBuilder {
       SourceInfo info = makeSourceInfo(x);
 
       if (x.constant != Constant.NotAConstant) {
-        if (ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
+        if (generateJackLibrary) {
           if (x.binding instanceof FieldBinding) {
             FieldBinding b = ((FieldBinding) x.binding).original();
             JField field = getTypeMap().get(b);

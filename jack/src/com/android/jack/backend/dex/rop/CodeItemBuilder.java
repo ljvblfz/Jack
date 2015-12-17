@@ -198,6 +198,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
+  @Nonnull
+  private final  Tracer tracer = TracerFactory.getTracer();
+
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
     if (method.isNative()
@@ -383,8 +386,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     RopMethod ropMethod =
         new RopMethod(ropBb.getBasicBlockList(),
             ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
-
-    Tracer tracer = TracerFactory.getTracer();
 
     if (runDxOptimizations) {
       Event optEvent = tracer.start(JackEventType.DX_OPTIMIZATION);

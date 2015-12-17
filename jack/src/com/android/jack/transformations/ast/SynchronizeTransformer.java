@@ -94,19 +94,19 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
   private final boolean reuseSyncVariable = ThreadConfig.get(REUSE_SYNC_VARIABLE).booleanValue();
 
+  @Nonnull
+  private final JSession session = Jack.getSession();
+
   private class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
-    @Nonnull
-    private final JSession session;
     @Nonnull
     private final LocalVarCreator lvCreator;
 
     public Visitor(@Nonnull TransformationRequest tr, @Nonnull LocalVarCreator lvCreator) {
       this.tr = tr;
       this.lvCreator = lvCreator;
-      this.session = Jack.getSession();
     }
 
     @Override

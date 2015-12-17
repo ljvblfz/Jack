@@ -128,6 +128,11 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   private final JType noSuchFieldErrorType =
       Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");
 
+  private final boolean sortEnumField = ThreadConfig.get(SORT_ENUM_FIELD).booleanValue();
+
+  @Nonnull
+  private final JLookup lookup = Jack.getSession().getPhantomLookup();
+
   /**
    * Enum fields used into switch.
    */
@@ -157,8 +162,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
   private class Visitor extends JVisitor {
 
-    private final boolean sortEnumField = ThreadConfig.get(SORT_ENUM_FIELD).booleanValue();
-
     private static final String ORDINAL = "ordinal";
 
     @Nonnull
@@ -167,9 +170,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final JDefinedClassOrInterface currentClass;
 
-    @Nonnull
-    private final JLookup lookup;
-
     @CheckForNull
     private Set<JFieldId> usedEnumFields;
 
@@ -177,7 +177,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         @Nonnull JDefinedClassOrInterface currentClass) {
       this.tr = tr;
       this.currentClass = currentClass;
-      this.lookup = Jack.getSession().getPhantomLookup();
     }
 
     @Override
