@@ -125,8 +125,6 @@ public class Directory extends FileOrDirectory {
 
   public static void check(@Nonnull File file, @Nonnull DirectoryLocation location)
       throws NoSuchFileException, NotDirectoryException {
-    assert file != null;
-
     // Check existing
     if (!file.exists()) {
       throw new NoSuchFileException(location);
@@ -140,20 +138,14 @@ public class Directory extends FileOrDirectory {
 
   public static void create(@Nonnull File file, @Nonnull Location location)
       throws FileAlreadyExistsException, CannotCreateFileException {
-    assert file != null;
-
-    // Check Existing
-    if (file.exists()) {
-      throw new FileAlreadyExistsException(location);
-    }
-
-    // Create
     if (file.mkdir()) {
       logger.log(Level.FINE, "Create {0} (''{1}'')",
           new Object[] {location.getDescription(), file.getAbsoluteFile()});
     } else {
       if (!file.exists()) {
         throw new CannotCreateFileException(location);
+      } else {
+        throw new FileAlreadyExistsException(location);
       }
     }
   }

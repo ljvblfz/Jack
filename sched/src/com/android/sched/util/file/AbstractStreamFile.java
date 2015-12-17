@@ -103,30 +103,21 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
 
   public static void create(@Nonnull File file, @Nonnull Location location)
       throws FileAlreadyExistsException, CannotCreateFileException {
-    assert file != null;
-
-    // Check existing
-    if (file.exists()) {
-      throw new FileAlreadyExistsException(location);
-    }
-
-    // Create file
     try {
       if (file.createNewFile()) {
         logger.log(Level.FINE, "Create {0} (''{1}'')",
             new Object[] {location.getDescription(), file.getAbsoluteFile()});
-      } else {
-        throw new CannotCreateFileException(location);
+        return;
       }
     } catch (IOException e) {
       throw new CannotCreateFileException(location);
     }
+
+    throw new FileAlreadyExistsException(location);
   }
 
   public static void check(@Nonnull File file, @Nonnull Location location)
       throws NoSuchFileException, NotFileException {
-    assert file != null;
-
     // Check existing
     if (!file.exists()) {
       throw new NoSuchFileException(location);
