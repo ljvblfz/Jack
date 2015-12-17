@@ -202,8 +202,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       if (receiverType instanceof JDefinedClass) {
         JType returnType =
             x instanceof JNewInstance ? JPrimitiveTypeEnum.VOID.getType() : x.getType();
-        JMethod method =
-            getMethod((JDefinedClassOrInterface) receiverType, returnType, x.getMethodId());
+        JMethod method = getMethod((JDefinedClassOrInterface) receiverType,
+            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodId());
         // Method can be null when an interface method is implemented by a sub type of the receiver
         // type, but in this case accessors are not needed
         if (method != null) {
@@ -226,18 +226,25 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
       return super.visit(x);
     }
 
-  }
+    @CheckForNull
+    private JMethod getMethod(@Nonnull JDefinedClassOrInterface receiverType,
+        @Nonnull JDefinedClassOrInterface typeToSearchMth,
+        @Nonnull JType returnType, @Nonnull JMethodId mthId) {
+      try {
+        JMethod methodFound =
+            typeToSearchMth.getMethod(mthId.getName(), returnType, mthId.getParamTypes());
+        if (isDirectlyVisibleFrom(methodFound.getModifier(), methodFound.getEnclosingType(),
+            receiverType)) {
+          return methodFound;
+        }
+      } catch (JMethodWithReturnLookupException e) {
+        // Continue to search into super class
+      }
 
-  @CheckForNull
-  private JMethod getMethod(@Nonnull JDefinedClassOrInterface receiverType,
-      @Nonnull JType returnType, @Nonnull JMethodId mthId) {
-    try {
-      return receiverType.getMethod(mthId.getName(), returnType, mthId.getParamTypes());
-    } catch (JMethodWithReturnLookupException e) {
-      JClass superClass = receiverType.getSuperClass();
+      JClass superClass = typeToSearchMth.getSuperClass();
       JMethod methodFound;
       if (superClass instanceof JDefinedClass) {
-        methodFound = getMethod((JDefinedClass) superClass, returnType, mthId);
+        methodFound = getMethod(receiverType, (JDefinedClass) superClass, returnType, mthId);
         if (methodFound != null) {
           return methodFound;
         }
@@ -245,8 +252,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JMethod> {
 
       return null;
     }
-  }
 
+  }
 
   protected void handleOuterFieldWrite(@Nonnull TransformationRequest tr,
       @Nonnull JFieldRef fieldRef, @Nonnull JDefinedClassOrInterface accessorClass) {

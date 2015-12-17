@@ -167,6 +167,10 @@ public class InnerTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.inner.test027"),
       "com.android.jack.inner.test027.dx.Tests");
 
+  private RuntimeTestInfo TEST030 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.inner.test030"),
+      "com.android.jack.inner.test030.dx.Tests");
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
@@ -345,6 +349,11 @@ public class InnerTests extends RuntimeTest {
     checkStructure("test021");
   }
 
+  @Test
+  public void test030() throws Exception {
+    new RuntimeTestHelper(TEST030).compileAndRunTest();
+  }
+
   private void checkStructure(@Nonnull String test) throws Exception {
     SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(
         AbstractTestTools.getTestRootDir("com.android.jack.inner." + test + ".jack"));
@@ -379,5 +388,6 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST024);
     rtTestInfos.add(TEST026);
     rtTestInfos.add(TEST027);
+    rtTestInfos.add(TEST030);
   }
 }
