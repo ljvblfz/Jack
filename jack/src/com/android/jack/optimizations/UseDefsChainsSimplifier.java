@@ -32,7 +32,7 @@ import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
-import com.android.jack.util.UseDefHelper;
+import com.android.jack.util.OptimizationTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -71,7 +71,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Simplify use definitions chains.")
 @Constraint(need = {UseDefsMarker.class, ThreeAddressCodeForm.class, ControlFlowGraph.class})
-@Use(UseDefHelper.class)
+@Use(OptimizationTools.class)
 public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
 
@@ -100,11 +100,11 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
     @Override
     public boolean visit(@Nonnull JStatement s1) {
-      List<JVariableRef> varsUsedBys1 = UseDefHelper.getUsedVariables(s1);
+      List<JVariableRef> varsUsedBys1 = OptimizationTools.getUsedVariables(s1);
 
       // Copy variable used by s1 to update the list during the visit
       for (JVariableRef varRefOfa : varsUsedBys1.toArray(new JVariableRef[varsUsedBys1.size()])) {
-        List<DefinitionMarker> defsOfa = UseDefHelper.getUsedDefinitions(varRefOfa);
+        List<DefinitionMarker> defsOfa = OptimizationTools.getUsedDefinitions(varRefOfa);
 
         if (defsOfa.size() == 1) {
           DefinitionMarker defOfa = defsOfa.get(0);
@@ -121,7 +121,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
             JVariableRef newVarRefb = getNewVarRef(varRefb);
 
             UseDefsMarker udmOfNewVarRefb = new UseDefsMarker();
-            udmOfNewVarRefb.addUsedDefinitions(UseDefHelper.getUsedDefinitions(varRefb),
+            udmOfNewVarRefb.addUsedDefinitions(OptimizationTools.getUsedDefinitions(varRefb),
                 newVarRefb);
             newVarRefb.addMarker(udmOfNewVarRefb);
 
@@ -160,7 +160,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         }
       } else {
         // Condition (3)
-        List<DefinitionMarker> defsOfbUseFroms0 = UseDefHelper.getUsedDefinitions(varRefb);
+        List<DefinitionMarker> defsOfbUseFroms0 = OptimizationTools.getUsedDefinitions(varRefb);
         if (bbHasOnlyDefinitions(bbOfs1, b, defsOfbUseFroms0)
             && !hasLocalDef(b, bbOfs1, null, s1)) {
           return true;
@@ -174,7 +174,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         @Nonnull List<DefinitionMarker> defsToFound) {
       int nbDef = 0;
 
-      for (DefinitionMarker def : UseDefHelper.getReachingDefs(bb)) {
+      for (DefinitionMarker def : OptimizationTools.getReachingDefs(bb)) {
         if (def.getDefinedVariable() == var) {
           if (defsToFound.contains(def)) {
             nbDef++;
