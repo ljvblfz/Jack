@@ -982,12 +982,12 @@ public abstract class Jack {
           methodPlan2.append(ConcatRemover.class);
         }
       }
+      typePlan3.append(InnerAccessorGenerator.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      typePlan.append(InnerAccessorGenerator.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
     }
