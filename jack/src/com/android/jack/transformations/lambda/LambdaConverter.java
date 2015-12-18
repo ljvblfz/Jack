@@ -42,7 +42,6 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
@@ -130,7 +129,10 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     }
   }
 
-  private static class LambdaToAnonymousConverter extends JVisitor {
+  @Nonnull
+  private final JLookup lookup = Jack.getSession().getPhantomLookup();
+
+  private class LambdaToAnonymousConverter extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
@@ -165,8 +167,6 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     public LambdaToAnonymousConverter(@Nonnull TransformationRequest tr, @Nonnull JMethod method) {
       this.tr = tr;
       this.currentClass = method.getEnclosingType();
-      JSession session = Jack.getSession();
-      JLookup lookup = session.getLookup();
       jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
       jloInitMethodId = jlo.getMethodId(NamingTools.INIT_NAME, Collections.<JType>emptyList(),
           MethodKind.INSTANCE_NON_VIRTUAL);
