@@ -34,6 +34,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 
@@ -160,121 +161,94 @@ public class DefaultMethodTest {
 
   @Test
   public void testDefaultMethod001() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD001);
   }
 
   @Test
   public void testDefaultMethod002() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD002);
   }
 
   @Test
   public void testDefaultMethod003() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD003)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD003);
   }
 
   @Test
   public void testDefaultMethod004() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD004)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD004);
   }
 
   @Test
   public void testDefaultMethod005() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD005)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD005);
   }
 
   @Test
   @KnownIssue
   public void testDefaultMethod006() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD006)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD006);
   }
 
   @Test
   public void testDefaultMethod007() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD007)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD007);
   }
 
   @Test
   public void testDefaultMethod008() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD008)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD008);
   }
 
   @Test
   public void testDefaultMethod009() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD009)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD009);
   }
 
   @Test
   public void testDefaultMethod010() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD010)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD010);
   }
 
   @Test
   public void testDefaultMethod011() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD011)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD011);
   }
 
   @Test
   public void testDefaultMethod012() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD012)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD012);
   }
 
   @Test
   public void testDefaultMethod013() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD013)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD013);
   }
 
   @Test
   public void testDefaultMethod014() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD014)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD014);
   }
 
   @Test
   public void testDefaultMethod015() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD015)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD015);
   }
 
   @Test
   public void testDefaultMethod016() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD016)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD016);
   }
 
   @Test
   public void testDefaultMethod017() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD017)
+    run(DEFAULTMETHOD017);
+  }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .compileAndRunTest();
   }
 }

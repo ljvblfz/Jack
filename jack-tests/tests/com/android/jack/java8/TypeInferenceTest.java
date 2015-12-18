@@ -19,9 +19,12 @@ package com.android.jack.java8;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 
 public class TypeInferenceTest {
@@ -40,23 +43,24 @@ public class TypeInferenceTest {
 
   @Test
   public void testTypeInference001() throws Exception {
-    new RuntimeTestHelper(INFERENCE001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(INFERENCE001);
   }
 
   @Test
   public void testTypeInference002() throws Exception {
-    new RuntimeTestHelper(INFERENCE002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(INFERENCE002);
   }
 
   @Test
   public void testTypeInference003() throws Exception {
-    new RuntimeTestHelper(INFERENCE003)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(INFERENCE003);
+  }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
   }
 
 }

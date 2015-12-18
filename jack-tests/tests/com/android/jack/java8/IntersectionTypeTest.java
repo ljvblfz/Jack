@@ -24,6 +24,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackCliToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -60,6 +61,7 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_001)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .compileAndRunTest();
   }
 
@@ -68,6 +70,7 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_002)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .compileAndRunTest();
   }
 
@@ -76,6 +79,7 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_003)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .compileAndRunTest();
   }
 
