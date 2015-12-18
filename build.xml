@@ -1232,7 +1232,7 @@
 
   <target name="ecj">
     <mkdir dir="${ecj.dist.dir}"/>
-    <copy file="${ecj.dir}/ecj-4.5M7.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
+    <copy file="${ecj.dir}/ecj-4.6M4.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
   </target>
 
 
