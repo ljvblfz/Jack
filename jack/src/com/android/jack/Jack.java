@@ -230,6 +230,7 @@ import com.android.jack.transformations.ast.TypeLegalizer;
 import com.android.jack.transformations.ast.inner.AvoidSynthethicAccessors;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
+import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.MethodCallDispatchAdjuster;
 import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorGenerator;
@@ -1106,16 +1107,6 @@ public abstract class Jack {
       }
     }
 
-    if (!features.contains(LambdaToAnonymousConverter.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (features.contains(AvoidSynthethicAccessors.class)) {
-        typePlan.append(OptimizedInnerAccessorGenerator.class);
-      } else {
-        typePlan.append(InnerAccessorGenerator.class);
-      }
-    }
-
     if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)) {
       // add one more traversal at compile-time to collect the usage for each enum,
       // figure out how many classes use enum in switch statement.
@@ -1144,6 +1135,19 @@ public abstract class Jack {
       // check the validity of instrumentation if switch enum optimization and
       // hasSanityCheck are both set
       planBuilder.append(AstChecker.class);
+    }
+    planBuilder.append(InnerAccessorGeneratorSchedulingSeparator.class);
+
+    if (!features.contains(LambdaToAnonymousConverter.class)) {
+      // InnerAccessor visits inner types while running on outer
+      // types and therefore should be alone in its plan.
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      if (features.contains(AvoidSynthethicAccessors.class)) {
+        typePlan.append(OptimizedInnerAccessorGenerator.class);
+      } else {
+        typePlan.append(InnerAccessorGenerator.class);
+      }
     }
 
     if (!features.contains(SourceVersion8.class)

@@ -51,6 +51,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
+import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
 import com.android.jack.transformations.enums.EnumMappingMarker;
 import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
@@ -93,7 +94,8 @@ import javax.annotation.Nonnull;
      JIfStatement.class, JReturnStatement.class, JBlock.class, JTryStatement.class,
      JIntLiteral.class, JExpressionStatement.class, JNeqOperation.class,
      TryStatementSchedulingSeparator.SeparatorTag.class,
-     EnumMappingSchedulingSeparator.SeparatorTag.class},
+     EnumMappingSchedulingSeparator.SeparatorTag.class,
+     InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class},
  remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
 
