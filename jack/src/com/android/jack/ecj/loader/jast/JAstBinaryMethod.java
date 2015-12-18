@@ -198,7 +198,7 @@ class JAstBinaryMethod implements IBinaryMethod {
    */
   @CheckForNull
   @Override
-  public IBinaryAnnotation[] getParameterAnnotations(int index) {
+  public IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName) {
     JParameter param = jMethod.getParams().get(index);
     return AnnotationUtils.convertJAstAnnotationToEcj(param, false);
   }
