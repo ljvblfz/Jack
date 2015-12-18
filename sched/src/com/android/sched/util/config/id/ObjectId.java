@@ -49,9 +49,4 @@ public class ObjectId<T> extends KeyId<T, T> {
   public T createObject() {
     return new ReflectDefaultCtorFactory<T>(cls, false).create();
   }
-
-  @Override
-  public boolean isPublic() {
-    return false;
-  }
 }

@@ -54,8 +54,9 @@ public class ImplementationPropertyId<T> extends PropertyId<T> {
 
   @Override
   @Nonnull
-  public ImplementationPropertyId<T> withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public ImplementationPropertyId<T> addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 

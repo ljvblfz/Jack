@@ -18,7 +18,6 @@ package com.android.jack.transformations.enums;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -85,6 +84,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 
 import java.util.ArrayList;
@@ -122,7 +122,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
       "jack.internal.switch-enumfield.sort",
       "Generate determinist code to initialize constant array indexed by ordinal "
       + "value of enum field")
-      .addDefaultValue(Boolean.TRUE).withCategory(Private.get());
+      .addDefaultValue(Boolean.TRUE).addCategory(Private.class);
 
   private final JType noSuchFieldErrorType =
       Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");

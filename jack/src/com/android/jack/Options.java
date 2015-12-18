@@ -24,7 +24,6 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
-import com.android.jack.config.id.Private;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.ClasspathEntryCodec;
@@ -67,6 +66,7 @@ import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
@@ -161,7 +161,7 @@ public class Options {
   @Nonnull
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
       .create("jack.java.source.version", "Java source version").addDefaultValue("1.7")
-      .withCategory(Arzon.get());
+      .addCategory(Arzon.class);
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
@@ -197,13 +197,13 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId GENERATE_JAYCE_IN_LIBRARY = BooleanPropertyId
       .create("jack.library.jayce", "Generate Jayce files in library")
-      .addDefaultValue(Boolean.FALSE).withCategory(Private.get())
+      .addDefaultValue(Boolean.FALSE).addCategory(Private.class)
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEPENDENCIES_IN_LIBRARY = BooleanPropertyId
       .create("jack.library.dependencies", "Generate Dependency files in library")
-      .addDefaultValue(Boolean.FALSE).withCategory(Private.get())
+      .addDefaultValue(Boolean.FALSE).addCategory(Private.class)
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
@@ -211,7 +211,7 @@ public class Options {
       BooleanPropertyId GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER = BooleanPropertyId.create(
           "jack.library.from-incremental-folder",
           "Generate a jack library from the incremental folder").addDefaultValue(Boolean.FALSE)
-          .withCategory(Private.get());
+          .addCategory(Private.class);
 
   @Nonnull
   public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId

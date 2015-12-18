@@ -16,24 +16,10 @@
 
 package com.android.jack.config.id;
 
-import com.android.sched.util.config.category.Category;
-
-import javax.annotation.Nonnull;
+import com.android.sched.util.config.category.Version;
 
 /**
  * Define a category for version Arzon.
  */
-public class Arzon implements Category {
-  @Nonnull
-  private static final Arzon INSTANCE = new Arzon();
-
-  @Override
-  public boolean isPublic() {
-    return true;
-  }
-
-  @Nonnull
-  public static Arzon get() {
-    return INSTANCE;
-  }
+public interface Arzon extends Version {
 }

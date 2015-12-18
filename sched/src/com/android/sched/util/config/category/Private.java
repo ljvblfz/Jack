@@ -16,10 +16,8 @@
 
 package com.android.sched.util.config.category;
 
-import com.android.sched.util.config.id.PropertyId;
-
 /**
- * Describe a {@link PropertyId} category.
+ * Define a category for private properties.
  */
-public interface Category {
+public interface Private extends Visibility {
 }

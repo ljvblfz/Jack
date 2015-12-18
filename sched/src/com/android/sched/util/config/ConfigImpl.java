@@ -17,6 +17,7 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
@@ -138,7 +139,7 @@ class ConfigImpl implements Config, InternalConfig {
         new ArrayList<PropertyId<?>>(instancesById.size() + valuesById.size());
 
     for (KeyId<?, ?> keyId : valuesById.keySet()) {
-      if (keyId.isPublic()) {
+      if (!keyId.hasCategory(Private.class)) {
         if (keyId instanceof PropertyId) {
           result.add((PropertyId<?>) keyId);
         }
@@ -146,7 +147,7 @@ class ConfigImpl implements Config, InternalConfig {
     }
 
     for (KeyId<?, ?> keyId : instancesById.keySet()) {
-      if (keyId.isPublic()) {
+      if (!keyId.hasCategory(Private.class)) {
         if (keyId instanceof PropertyId) {
           result.add((PropertyId<?>) keyId);
         }

@@ -88,8 +88,8 @@ public class InputJackLibraryPropertyId extends PropertyId<InputJackLibrary> imp
 
   @Override
   @Nonnull
-  public InputJackLibraryPropertyId withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public InputJackLibraryPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
     return this;
   }
 

@@ -17,7 +17,6 @@
 package com.android.jack.backend.jayce;
 
 import com.android.jack.JackEventType;
-import com.android.jack.config.id.Brest;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
@@ -40,6 +39,7 @@ import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.Event;
@@ -106,7 +106,7 @@ public class JayceFileImporter {
       "jack.import.type.policy",
       "Defines the policy to follow concerning type collision",
       new EnumCodec<CollisionPolicy>(CollisionPolicy.class, CollisionPolicy.values()).ignoreCase())
-      .addDefaultValue(CollisionPolicy.FAIL).withCategory(Brest.get());
+      .addDefaultValue(CollisionPolicy.FAIL).addCategory(Private.class);
 
   @Nonnull
   private final CollisionPolicy collisionPolicy = ThreadConfig.get(COLLISION_POLICY);

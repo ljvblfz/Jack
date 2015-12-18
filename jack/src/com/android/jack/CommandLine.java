@@ -27,7 +27,7 @@ import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.category.Category;
-import com.android.sched.util.config.category.DefaultCategory;
+import com.android.sched.util.config.category.Version;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.LoggerFactory;
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -172,14 +173,14 @@ public abstract class CommandLine {
     printStream.println();
     printStream.println("Provisional properties (subject to change):");
     printStream.println();
-    printProperties(printStream, builder, DefaultCategory.class);
+    printProperties(printStream, builder, null);
   }
 
   private static void printProperties(@Nonnull PrintStream printStream,
       @Nonnull GatherConfigBuilder builder,
-      @Nonnull Class<? extends Category> category) {
+      @CheckForNull Class<? extends Category> category) {
     // Get and sort properties
-    Collection<PropertyId<?>>  collec = builder.getPropertyIds(category);
+    Collection<PropertyId<?>>  collec = builder.getPropertyIds();
     PropertyId<?>[] properties = collec.toArray(new PropertyId<?>[collec.size()]);
     Arrays.sort(properties, new Comparator<PropertyId<?>>() {
       @Override
@@ -189,49 +190,52 @@ public abstract class CommandLine {
 
     // Print properties
     for (PropertyId<?> property : properties) {
-      StringBuilder sb = new StringBuilder();
+      if ((category != null &&  property.hasCategory(category))
+       || (category == null && !property.hasCategory(Version.class))) {
+        StringBuilder sb = new StringBuilder();
 
-      sb.append(property.getName());
-      sb.append(':');
+        sb.append(property.getName());
+        sb.append(':');
 
-      // Description and default value
-      sb.append(TextUtils.LINE_SEPARATOR);
-      sb.append("     ");
-      sb.append(property.getDescription());
-      String value = builder.getDefaultValue(property);
-      if (value != null) {
-        sb.append(" (default is '");
-        sb.append(value);
-        sb.append("')");
-      }
-
-      // Constraints
-      BooleanExpression constraints = property.getRequiredExpression();
-      if (constraints != null) {
+        // Description and default value
         sb.append(TextUtils.LINE_SEPARATOR);
-        sb.append("     required if ");
-        sb.append(constraints.getDescription());
-      }
-
-      // Usage
-      sb.append(TextUtils.LINE_SEPARATOR);
-      sb.append("     ");
-      sb.append(property.getCodec().getUsage());
-
-      // Value descriptions
-      List<ValueDescription> descriptions = property.getCodec().getValueDescriptions();
-      if (descriptions.size() != 0) {
-        sb.append(" where");
-        for (ValueDescription entry : descriptions) {
-          sb.append(TextUtils.LINE_SEPARATOR);
-          sb.append("          ");
-          sb.append(entry.getValue());
-          sb.append(": ");
-          sb.append(entry.getDescription());
+        sb.append("     ");
+        sb.append(property.getDescription());
+        String value = builder.getDefaultValue(property);
+        if (value != null) {
+          sb.append(" (default is '");
+          sb.append(value);
+          sb.append("')");
         }
-      }
 
-      printStream.println(sb);
+        // Constraints
+        BooleanExpression constraints = property.getRequiredExpression();
+        if (constraints != null) {
+          sb.append(TextUtils.LINE_SEPARATOR);
+          sb.append("     required if ");
+          sb.append(constraints.getDescription());
+        }
+
+        // Usage
+        sb.append(TextUtils.LINE_SEPARATOR);
+        sb.append("     ");
+        sb.append(property.getCodec().getUsage());
+
+        // Value descriptions
+        List<ValueDescription> descriptions = property.getCodec().getValueDescriptions();
+        if (descriptions.size() != 0) {
+          sb.append(" where");
+          for (ValueDescription entry : descriptions) {
+            sb.append(TextUtils.LINE_SEPARATOR);
+            sb.append("          ");
+            sb.append(entry.getValue());
+            sb.append(": ");
+            sb.append(entry.getDescription());
+          }
+        }
+
+        printStream.println(sb);
+      }
     }
   }
 

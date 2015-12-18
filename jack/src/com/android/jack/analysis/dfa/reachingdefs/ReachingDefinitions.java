@@ -21,7 +21,6 @@ import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.cfg.PeiBasicBlock;
-import com.android.jack.config.id.Private;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JStatement;
@@ -36,6 +35,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 
@@ -65,7 +65,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
           .create("jack.tests.reachingdefs.checker",
               "Define a checker that must be called at the end of reaching definitions analysis",
               ReachingDefinitionsChecker.class).addDefaultValue("none")
-          .withCategory(Private.get());
+          .addCategory(Private.class);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);

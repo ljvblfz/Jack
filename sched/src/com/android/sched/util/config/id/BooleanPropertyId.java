@@ -103,8 +103,9 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
 
   @Override
   @Nonnull
-  public BooleanPropertyId withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public BooleanPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 }

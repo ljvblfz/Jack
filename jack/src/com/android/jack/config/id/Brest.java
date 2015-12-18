@@ -16,22 +16,8 @@
 
 package com.android.jack.config.id;
 
-import javax.annotation.Nonnull;
-
 /**
  * Define a category for version Brest.
  */
-public class Brest extends Arzon {
-  @Nonnull
-  private static final Brest INSTANCE = new Brest();
-
-  @Override
-  public boolean isPublic() {
-    return true;
-  }
-
-  @Nonnull
-  public static Brest get() {
-    return INSTANCE;
-  }
+public interface Brest extends Arzon {
 }

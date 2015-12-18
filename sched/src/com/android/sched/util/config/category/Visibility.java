@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.jack.config.id;
-
-import com.android.sched.util.config.category.Category;
-
-import javax.annotation.Nonnull;
+package com.android.sched.util.config.category;
 
 /**
- * Define a category for private properties.
+ * Define a sub-category for visibility.
  */
-public class Private implements Category {
-  @Nonnull
-  private static final Private INSTANCE = new Private();
-
-  @Override
-  public boolean isPublic() {
-    return false;
-  }
-
-  @Nonnull
-  public static Private get() {
-    return INSTANCE;
-  }
+public interface Visibility extends Category {
 }

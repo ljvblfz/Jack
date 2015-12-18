@@ -24,7 +24,6 @@ import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.category.Category;
-import com.android.sched.util.config.category.DefaultCategory;
 import com.android.sched.util.config.expression.BooleanExpression;
 
 import java.util.ArrayList;
@@ -52,9 +51,6 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
   @CheckForNull
   private Value    defaultValue = null;
   private boolean  defaultValueAvailable = false;
-
-  @Nonnull
-  private Category category = DefaultCategory.get();
 
   @Nonnull
   public static <T> PropertyId<T> create(
@@ -134,20 +130,12 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     return description;
   }
 
-  @Nonnull
-  public Category getCategory() {
-    return category;
-  }
-
-  @Nonnull
-  public PropertyId<T> withCategory(@Nonnull Category category) {
-    this.category = category;
-    return this;
-  }
-
   @Override
-  public boolean isPublic() {
-    return category.isPublic();
+  @Nonnull
+  public PropertyId<T> addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
   }
 
   @Nonnull

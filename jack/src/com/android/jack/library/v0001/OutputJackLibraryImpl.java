@@ -177,6 +177,7 @@ public class OutputJackLibraryImpl extends CommonJackLibrary implements OutputJa
   public synchronized void close() throws LibraryIOException {
     if (!closed) {
       GenericOutputVFS goVFS = null;
+
       try {
         goVFS = new GenericOutputVFS(vfs);
         OutputVFile libraryPropertiesOut =

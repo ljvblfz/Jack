@@ -49,7 +49,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
           "jack.import.resource.policy",
           "Defines the policy to follow concerning resource collision",
           new EnumCodec<CollisionPolicy>(CollisionPolicy.class, CollisionPolicy.values())
-              .ignoreCase()).addDefaultValue(CollisionPolicy.FAIL).withCategory(Arzon.get());
+              .ignoreCase()).addDefaultValue(CollisionPolicy.FAIL).addCategory(Arzon.class);
 
   @Nonnull
   public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = new ListPropertyId<InputVFS>(

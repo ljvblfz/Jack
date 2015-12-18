@@ -25,6 +25,7 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
@@ -455,10 +456,10 @@ public class AsapConfigBuilder {
     List<PropertyId<?>> result = new ArrayList<PropertyId<?>>(keyIdsByName.size());
 
     for (KeyId<?, ?> keyId : keyIdsByName.values()) {
-      if (keyId.isPublic() && keyId instanceof PropertyId<?>) {
+      if (keyId instanceof PropertyId<?>) {
         PropertyId<?> propertyId = (PropertyId<?>) keyId;
 
-        if (propertyId.getCategory().getClass().isAssignableFrom(category)) {
+        if (!propertyId.hasCategory(Private.class) && propertyId.hasCategory(category)) {
           result.add(propertyId);
         }
       }

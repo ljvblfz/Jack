@@ -55,14 +55,14 @@ public interface Reporter {
   @Nonnull
   public static final ImplementationPropertyId<Reporter> REPORTER = ImplementationPropertyId
       .create("jack.reporter", "Define which reporter will be used", Reporter.class)
-      .addDefaultValue("default").withCategory(Arzon.get());
+      .addDefaultValue("default").addCategory(Arzon.class);
 
   @Nonnull
   public static final PropertyId<OutputStreamFile> REPORTER_OUTPUT_STREAM = PropertyId.create(
       "jack.reporter.file", "File where the reporter will write",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
       .addDefaultValue("--").requiredIf(REPORTER.getClazz().isImplementedBy(DefaultReporter.class)
-          .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class))).withCategory(Brest.get());
+          .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class))).addCategory(Brest.class);
 
   @Nonnull
   public static final PropertyId<Map<ProblemLevel, OutputStreamFile>>

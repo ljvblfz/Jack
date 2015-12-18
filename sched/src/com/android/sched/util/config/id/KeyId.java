@@ -18,8 +18,14 @@ package com.android.sched.util.config.id;
 
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.PropertyNotRequiredException;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -35,6 +41,10 @@ public abstract class KeyId<T, S> {
   @Nonnull
   private final String name;
 
+  @Nonnull
+  private final Set<Class<? extends Category>> categories =
+      new HashSet<Class<? extends Category>>(2);
+
   public KeyId(@Nonnull String name) {
     this.name = name;
   }
@@ -44,7 +54,39 @@ public abstract class KeyId<T, S> {
     return name;
   }
 
-  public abstract boolean isPublic();
+  @Nonnull
+  public Collection<Class<? extends Category>> getCategories() {
+    return Collections.unmodifiableCollection(categories);
+  }
+
+  @Nonnull
+  public KeyId<T, S> addCategory(@Nonnull Class<? extends Category> category) {
+    this.categories.add(category);
+
+    return this;
+  }
+
+  public boolean hasDirectCategory(@Nonnull Class<? extends Category> target) {
+    if (target == Category.class || categories.contains(target)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  public boolean hasCategory(@Nonnull Class<? extends Category> target) {
+    if (target == Category.class) {
+      return true;
+    }
+
+    for (Class<? extends Category> category : categories) {
+      if (category.isAssignableFrom(target)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   @CheckForNull
   private BooleanExpression requiredIf;

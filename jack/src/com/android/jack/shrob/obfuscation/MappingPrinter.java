@@ -65,13 +65,13 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final BooleanPropertyId MAPPING_OUTPUT_ENABLED = BooleanPropertyId
       .create("jack.obfuscation.mapping.dump", "Print the obfuscation mapping")
-      .addDefaultValue(false).withCategory(Arzon.get());
+      .addDefaultValue(false).addCategory(Arzon.class);
 
   @Nonnull
   public static final PropertyId<OutputStreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
       "jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
-      .addDefaultValue("-").withCategory(Arzon.get());
+      .addDefaultValue("-").addCategory(Arzon.class);
 
   @Nonnull
   private final PrintStream stream;

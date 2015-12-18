@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,8 @@
 
 package com.android.sched.util.config.category;
 
-import javax.annotation.Nonnull;
-
 /**
- * Describe the default {@link Category}.
+ * Define a sub-category for version.
  */
-public class DefaultCategory implements Category {
-  @Nonnull
-  private static final DefaultCategory INSTANCE = new DefaultCategory();
-
-  protected DefaultCategory() {}
-
-  @Override
-  public boolean isPublic() {
-    return true;
-  }
-
-  @Nonnull
-  public static DefaultCategory get() {
-    return INSTANCE;
-  }
+public interface Version extends Category {
 }

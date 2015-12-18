@@ -88,8 +88,9 @@ public class EnumPropertyId<T extends Enum<T>> extends PropertyId<T> {
 
   @Override
   @Nonnull
-  public EnumPropertyId<T> withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public EnumPropertyId<T> addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 

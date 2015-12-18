@@ -62,8 +62,9 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
 
   @Override
   @Nonnull
-  public JavaVersionPropertyId withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public JavaVersionPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 

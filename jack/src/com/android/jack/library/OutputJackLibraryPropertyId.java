@@ -96,8 +96,9 @@ public class OutputJackLibraryPropertyId extends PropertyId<OutputJackLibrary> i
 
   @Override
   @Nonnull
-  public OutputJackLibraryPropertyId withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public OutputJackLibraryPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 }

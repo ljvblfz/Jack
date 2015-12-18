@@ -83,8 +83,9 @@ public class MessageDigestPropertyId extends PropertyId<MessageDigestFactory> {
 
   @Override
   @Nonnull
-  public MessageDigestPropertyId withCategory(@Nonnull Category category) {
-    super.withCategory(category);
+  public MessageDigestPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
     return this;
   }
 }
