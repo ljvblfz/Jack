@@ -2234,6 +2234,7 @@
       <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
+        <filelist refid="ecj-test-libs"/>
        </classpath>
       <test name="${test.name}"
         todir="${jack.tests.output}/test-jack-by-name/"
