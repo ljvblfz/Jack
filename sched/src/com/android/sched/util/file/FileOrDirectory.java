@@ -17,6 +17,7 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.file.CannotSetPermissionException.SetOrClearPermission;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
@@ -99,7 +100,7 @@ public abstract class FileOrDirectory implements HasLocation {
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
           throw new CannotSetPermissionException(location, Permission.READ,
-              change);
+              change, SetOrClearPermission.SET);
         }
       }
 
@@ -109,7 +110,7 @@ public abstract class FileOrDirectory implements HasLocation {
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
           throw new CannotSetPermissionException(location, Permission.WRITE,
-              change);
+              change, SetOrClearPermission.SET);
         }
       }
 
@@ -119,7 +120,7 @@ public abstract class FileOrDirectory implements HasLocation {
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
           throw new CannotSetPermissionException(location, Permission.EXECUTE,
-              change);
+              change, SetOrClearPermission.SET);
         }
       }
     }
@@ -128,7 +129,7 @@ public abstract class FileOrDirectory implements HasLocation {
 
   public static void unsetPermissions(@Nonnull File file, @Nonnull Location location,
       int permissions, @Nonnull FileOrDirectory.ChangePermission change)
-      throws CannotUnsetPermissionException {
+      throws CannotSetPermissionException {
     if (change != ChangePermission.NOCHANGE) {
       // Set access
       if ((permissions & Permission.READ) != 0) {
@@ -136,8 +137,8 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear readable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotUnsetPermissionException(location, Permission.READ,
-              change);
+          throw new CannotSetPermissionException(location, Permission.READ,
+              change, SetOrClearPermission.CLEAR);
         }
       }
 
@@ -146,8 +147,8 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear writable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotUnsetPermissionException(location, Permission.WRITE,
-              change);
+          throw new CannotSetPermissionException(location, Permission.WRITE,
+              change, SetOrClearPermission.CLEAR);
         }
       }
 
@@ -156,8 +157,8 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear executable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotUnsetPermissionException(location, Permission.EXECUTE,
-              change);
+          throw new CannotSetPermissionException(location, Permission.EXECUTE,
+              change, SetOrClearPermission.CLEAR);
         }
       }
     }

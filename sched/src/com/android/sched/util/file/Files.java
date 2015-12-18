@@ -37,8 +37,8 @@ public class Files {
   private Files() {}
 
   @Nonnull
-  public static File createTempDir(@Nonnull String prefix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+  public static File createTempDir(@Nonnull String prefix) throws CannotCreateFileException,
+      CannotSetPermissionException {
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
     String baseName = prefix + System.currentTimeMillis() + "-";
     Location location = null;
@@ -48,9 +48,10 @@ public class Files {
       location = new DirectoryLocation(tempDir);
       try {
         Directory.create(tempDir, location);
-        FileOrDirectory.setPermissions(tempDir, location, Permission.WRITE,
-            ChangePermission.NOCHANGE);
-        FileOrDirectory.checkPermissions(tempDir, location, Permission.WRITE);
+        FileOrDirectory.unsetPermissions(tempDir, location,
+            Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.EVERYBODY);
+        FileOrDirectory.setPermissions(tempDir, location,
+            Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.OWNER);
         return tempDir;
       } catch (FileAlreadyExistsException e) {
         // ignore and try again
@@ -62,14 +63,14 @@ public class Files {
   }
 
   @Nonnull
-  public static File createTempFile(@Nonnull String prefix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+  public static File createTempFile(@Nonnull String prefix) throws CannotCreateFileException,
+      CannotSetPermissionException {
     return createTempFile(prefix, "");
   }
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+      throws CannotCreateFileException, CannotSetPermissionException {
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
     String baseName = prefix + System.currentTimeMillis() + "-";
     Location location = null;
@@ -79,14 +80,14 @@ public class Files {
       location = new FileLocation(tempFile);
       try {
         AbstractStreamFile.create(tempFile, location);
-        FileOrDirectory.setPermissions(tempFile, location, Permission.WRITE,
-            ChangePermission.NOCHANGE);
-        FileOrDirectory.checkPermissions(tempFile, location, Permission.WRITE);
+        FileOrDirectory.unsetPermissions(tempFile, location,
+            Permission.READ | Permission.WRITE, ChangePermission.EVERYBODY);
+        FileOrDirectory.setPermissions(tempFile, location,
+            Permission.READ | Permission.WRITE, ChangePermission.OWNER);
         return tempFile;
       } catch (FileAlreadyExistsException e) {
         // ignore and try again
       }
-
     }
 
     assert location != null;

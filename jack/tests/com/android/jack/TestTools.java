@@ -50,7 +50,6 @@ import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.file.Files;
-import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
 
 import junit.framework.Assert;
@@ -453,8 +452,8 @@ public class TestTools {
     return foundMethod;
   }
 
-  public static File createTempDir(@Nonnull String prefix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+  public static File createTempDir(@Nonnull String prefix) throws CannotCreateFileException,
+      CannotSetPermissionException {
     final File tmp = Files.createTempDir(TMP_PREFIX + prefix);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -470,7 +469,7 @@ public class TestTools {
   }
 
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+      throws CannotCreateFileException, CannotSetPermissionException {
     File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;

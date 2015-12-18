@@ -28,42 +28,58 @@ import javax.annotation.Nonnull;
  * Exception when a file or directory can not be set to the expected permission.
  */
 public class CannotSetPermissionException extends WithLocationIOException {
+
+  /**
+   * Represents whether the permission should be set or cleared.
+   */
+  public static enum SetOrClearPermission {
+    SET, CLEAR;
+  }
+
   private static final long serialVersionUID = 1L;
 
   private final int permission;
   @Nonnull
   private final ChangePermission change;
+  @Nonnull
+  private final SetOrClearPermission setOrClear;
 
   public CannotSetPermissionException(@Nonnull Location location, int permission,
-      @Nonnull ChangePermission change) {
-    this(location, permission, change, null);
+      @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
+    this(location, permission, change, setOrClear, null);
   }
 
   public CannotSetPermissionException(@Nonnull Location location, int permission,
-      @Nonnull ChangePermission change, @CheckForNull Throwable cause) {
+      @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
+      @CheckForNull Throwable cause) {
     super(location, cause);
     this.permission = permission;
     this.change = change;
+    this.setOrClear = setOrClear;
   }
 
   public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
-      @Nonnull ChangePermission change) {
-    this(locationProvider, permission, change, null);
+      @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
+    this(locationProvider, permission, change, setOrClear, null);
   }
 
   public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
-      @Nonnull ChangePermission change, @CheckForNull Throwable cause) {
+      @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
+      @CheckForNull Throwable cause) {
     super(locationProvider, cause);
     this.permission = permission;
     this.change = change;
+    this.setOrClear = setOrClear;
   }
 
   @Override
   protected String createMessage(@Nonnull String description) {
     return description + " cannot have its " +
-      ((permission == Permission.READ)    ? "readable " :
-      ((permission == Permission.WRITE)   ? "writable " :
-      ((permission == Permission.EXECUTE) ? "executable " : "???"))) + "permission set" +
-      ((change == ChangePermission.EVERYBODY) ? "for everybody" : "");
+      ((permission == Permission.READ)    ? "readable" :
+      ((permission == Permission.WRITE)   ? "writable" :
+      ((permission == Permission.EXECUTE) ? "executable" : "???"))) + " permission " +
+      ((setOrClear == SetOrClearPermission.SET)    ? "set" :
+      ((setOrClear == SetOrClearPermission.CLEAR)    ? "cleared" : "???")) +
+      ((change == ChangePermission.EVERYBODY) ? " for everybody" : "");
   }
 }

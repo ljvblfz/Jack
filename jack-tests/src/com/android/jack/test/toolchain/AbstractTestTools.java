@@ -303,7 +303,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException, WrongPermissionException {
+      throws CannotCreateFileException, CannotSetPermissionException {
     File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;
