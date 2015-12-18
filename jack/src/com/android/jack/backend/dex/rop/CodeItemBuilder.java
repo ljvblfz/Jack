@@ -186,10 +186,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
-  // STOPSHIP: Enable dx optimizations for Java 8 when final version of box-lambda will be
-  // available.
   private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue()
-      && ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) != 0;
+      && (ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) < 0
+      || !ThreadConfig.get(EXPERIMENTAL_LAMBDA_OPCODES).booleanValue());
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
