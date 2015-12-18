@@ -201,6 +201,7 @@ import com.android.jack.transformations.ast.TryWithResourcesTransformer;
 import com.android.jack.transformations.ast.TypeLegalizer;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
+import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCallRemover;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodRemover;
@@ -982,7 +983,6 @@ public abstract class Jack {
           methodPlan2.append(ConcatRemover.class);
         }
       }
-      typePlan3.append(InnerAccessorGenerator.class);
     }
 
     {
@@ -990,6 +990,14 @@ public abstract class Jack {
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumSupport.class);
+    }
+    planBuilder.append(InnerAccessorGeneratorSchedulingSeparator.class);
+    {
+      // InnerAccessor visits inner types while running on outer
+      // types and therefore should be alone in its plan.
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      typePlan.append(InnerAccessorGenerator.class);
     }
 
     planBuilder.append(InnerAccessorSchedulingSeparator.class);

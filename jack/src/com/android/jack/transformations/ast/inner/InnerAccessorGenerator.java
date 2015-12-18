@@ -68,16 +68,14 @@ import javax.annotation.Nonnull;
  */
 @Description("Generate accessors for outer fields and methods in an inner class")
 @Synchronized
-@Transform(add = {GetterMarker.class,
-    SetterMarker.class,
-    WrapperMarker.class,
-    JMethodCall.class,
-    JNewInstance.class,
-    JNullLiteral.class,
-    JExpressionStatement.class,
-    InnerAccessorSchedulingSeparator.SeparatorTag.class},
+@Transform(
+    add = {GetterMarker.class, SetterMarker.class, WrapperMarker.class, JMethodCall.class,
+        JNewInstance.class, JNullLiteral.class, JExpressionStatement.class,
+        InnerAccessorSchedulingSeparator.SeparatorTag.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
-@Constraint(no = {SideEffectOperation.class, JAlloc.class})
+@Constraint(no = {SideEffectOperation.class, JAlloc.class,
+    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class,
+    InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class})
 public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
