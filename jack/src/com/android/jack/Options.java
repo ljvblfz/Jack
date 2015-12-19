@@ -27,6 +27,7 @@ import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.ClasspathEntryCodec;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.library.InputLibrary;
@@ -161,7 +162,7 @@ public class Options {
   @Nonnull
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
       .create("jack.java.source.version", "Java source version").addDefaultValue("1.7")
-      .addCategory(Arzon.class);
+      .addCategory(Arzon.class).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
