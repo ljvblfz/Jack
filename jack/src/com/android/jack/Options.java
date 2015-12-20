@@ -152,7 +152,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
       .create("jack.incremental", "Enable incremental mode")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final ReflectFactoryPropertyId<InputFilter> INPUT_FILTER = ReflectFactoryPropertyId
@@ -169,6 +169,7 @@ public class Options {
       BooleanPropertyId
           .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
           .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
           .requiredIf(JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
               JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
 
@@ -177,8 +178,9 @@ public class Options {
       "jack.library", "Generate jack library").addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId GENERATE_DEX_FILE = BooleanPropertyId
-      .create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId GENERATE_DEX_FILE =
+      BooleanPropertyId.create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class);
 
   /**
    * property used to specify the kind of switch enum optimization that is enabled.
@@ -188,7 +190,7 @@ public class Options {
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
       EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
           SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
-      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase();
+      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase().addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -272,7 +274,7 @@ public class Options {
   public static final BooleanPropertyId ANNOTATION_PROCESSOR_ENABLED =
       BooleanPropertyId.create(
         "jack.annotation-processor", "Enable annotation processors")
-        .addDefaultValue(true);
+        .addDefaultValue(true).addCategory(DumpInLibrary.class);;
 
   @Option(name = "--version", usage = "display version")
   private boolean version;
@@ -421,7 +423,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
       "jack.sanitychecks", "enable/disable compiler sanity checks")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   /**
    * Enable tracer and output into this dir (.html).
@@ -439,13 +441,13 @@ public class Options {
   public static final BooleanPropertyId ANNOTATION_PROCESSOR_MANUAL =
       BooleanPropertyId.create(
         "jack.annotation-processor.manual", "run only specified annotation processors")
-        .addDefaultValue(false);
+        .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final ListPropertyId<String> ANNOTATION_PROCESSOR_MANUAL_LIST =
       new ListPropertyId<String>("jack.annotation-processor.manual.list",
-          "Annotation processor class names", new ClassNameCodec())
-          .minElements(0).requiredIf(ANNOTATION_PROCESSOR_MANUAL.getValue().isTrue());
+          "Annotation processor class names", new ClassNameCodec()).minElements(0)
+              .requiredIf(ANNOTATION_PROCESSOR_MANUAL.getValue().isTrue());
 
   @Nonnull
   public static final PropertyId<Directory> ANNOTATION_PROCESSOR_SOURCE_OUTPUT_DIR =
@@ -476,7 +478,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId USE_DEFAULT_LIBRARIES = BooleanPropertyId.create(
       "jack.classpath.default-libraries", "Use default libraries as first classpath entries")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final ListPropertyId<FileOrDirectory> ANNOTATION_PROCESSOR_PATH_LIST =
@@ -523,28 +525,28 @@ public class Options {
   public static final BooleanPropertyId OPTIMIZE_INNER_CLASSES_ACCESSORS = BooleanPropertyId.create(
       "jack.optimization.inner-class.accessors",
       "Avoid creating synthethic accessors for outer class private fields and methods")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION = BooleanPropertyId.create(
       "jack.optimization.tail-recursion",
       "Optimize tail recursive calls")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.lines", "Emit line number debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.source", "Emit source file debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId DROP_METHOD_BODY = BooleanPropertyId.create(
@@ -554,7 +556,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId SHROB_ENABLED =
       BooleanPropertyId.create("jack.shrob", "Enable shrink and obfuscation features")
-      .addDefaultValue(false);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @CheckForNull
   protected Flags flags = null;
@@ -563,9 +565,11 @@ public class Options {
   public static final ObjectId<Flags> FLAGS = new ObjectId<Flags>("jack.shrob.flags", Flags.class);
 
   @Nonnull
-  public static final BooleanPropertyId USE_MIXED_CASE_CLASSNAME = BooleanPropertyId.create(
-      "jack.obfuscation.mixedcaseclassname",
-      "Use mixed case class name when obfuscating").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId USE_MIXED_CASE_CLASSNAME =
+      BooleanPropertyId
+          .create("jack.obfuscation.mixedcaseclassname",
+              "Use mixed case class name when obfuscating")
+          .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @SuppressWarnings("unchecked")
   @Nonnull

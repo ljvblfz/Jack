@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.Jarjar;
@@ -72,7 +73,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   @Nonnull
   public static final BooleanPropertyId JARJAR_ENABLED = BooleanPropertyId.create(
       "jack.repackaging", "Enable repackaging")
-      .addDefaultValue(false);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final ListPropertyId<InputStreamFile> JARJAR_FILES = new ListPropertyId<

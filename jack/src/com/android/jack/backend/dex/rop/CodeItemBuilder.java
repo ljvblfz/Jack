@@ -73,6 +73,7 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -157,28 +158,32 @@ import javax.annotation.Nonnull;
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.vars.synthetic",
-      "Emit synthetic local variable debug info into generated dex").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId
+      .create("jack.dex.debug.vars.synthetic",
+          "Emit synthetic local variable debug info into generated dex")
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   // STOPSHIP: Enable dx optimizations when final version of box-lambda will be supported by the
   // runtime.
   @Nonnull
   public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
       "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
       "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId EXPERIMENTAL_LAMBDA_OPCODES = BooleanPropertyId.create(
-      "jack.dex.lambda.experimental", "Generates experimental opcodes for lambda support")
-      .addDefaultValue(Boolean.FALSE)
-          .requiredIf(Options.JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
-              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
+  public static final BooleanPropertyId EXPERIMENTAL_LAMBDA_OPCODES =
+      BooleanPropertyId
+          .create("jack.dex.lambda.experimental",
+              "Generates experimental opcodes for lambda support")
+          .addDefaultValue(Boolean.FALSE)
+          .requiredIf(Options.JAVA_SOURCE_VERSION.getValue()
+              .isGreaterOrEqual(JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)))
+      .addCategory(DumpInLibrary.class);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);

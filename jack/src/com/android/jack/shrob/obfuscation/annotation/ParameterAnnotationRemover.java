@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -49,16 +50,18 @@ public class ParameterAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JMethod> {
 
   @Nonnull
-  public static final
-      BooleanPropertyId EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION = BooleanPropertyId.create(
-          "jack.annotation.runtimevisible.parameter",
-          "Emit parameters annotations that are runtime visible").addDefaultValue(Boolean.TRUE);
+  public static final BooleanPropertyId EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION =
+      BooleanPropertyId
+          .create("jack.annotation.runtimevisible.parameter",
+              "Emit parameters annotations that are runtime visible")
+          .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final
-      BooleanPropertyId EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION = BooleanPropertyId.create(
-          "jack.annotation.runtimeinvisible.parameter",
-          "Emit parameters annotations that are runtime invisible").addDefaultValue(Boolean.TRUE);
+  public static final BooleanPropertyId EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION =
+      BooleanPropertyId
+          .create("jack.annotation.runtimeinvisible.parameter",
+              "Emit parameters annotations that are runtime invisible")
+          .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();

@@ -16,6 +16,7 @@
 
 package com.android.jack.backend.dex;
 
+import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.config.HasKeyId;
@@ -34,5 +35,5 @@ public class MultiDexLegacy implements Feature {
   public static final BooleanPropertyId MULTIDEX_LEGACY = BooleanPropertyId.create(
       "jack.dex.output.multidex.legacy",
       "Enable multidex compatibility support for devices that do not have native runtime support")
-      .addDefaultValue(false);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
 }

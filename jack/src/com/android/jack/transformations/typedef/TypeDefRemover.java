@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.TypeRemover;
@@ -49,7 +50,7 @@ public class TypeDefRemover extends TypeRemover {
   public static final BooleanPropertyId REMOVE_TYPEDEF = BooleanPropertyId.create(
       "jack.android.remove-typedef",
       "Removes @StringDef, @IntDef and all annotations annotated with them")
-      .addDefaultValue(false);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   /**
    * A {@link Feature} allowing to remove @StringDef, @IntDef and all annotations annotated with

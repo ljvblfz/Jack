@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.ChangeEnclosingPackage;
@@ -71,10 +72,9 @@ import javax.annotation.Nonnull;
 public class Renamer implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  public static final
-      BooleanPropertyId USE_PACKAGE_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
-          "jack.obfuscation.packagedictionary",
-          "Use obfuscation dictionary for packages").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId USE_PACKAGE_OBFUSCATION_DICTIONARY = BooleanPropertyId
+      .create("jack.obfuscation.packagedictionary", "Use obfuscation dictionary for packages")
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<File> PACKAGE_OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -84,7 +84,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final BooleanPropertyId USE_CLASS_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
       "jack.obfuscation.classdictionary", "Use obfuscation dictionary for classes")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<File> CLASS_OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -94,7 +94,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final BooleanPropertyId USE_OBFUSCATION_DICTIONARY = BooleanPropertyId.create(
       "jack.obfuscation.dictionary", "Use obfuscation dictionary for members")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<File> OBFUSCATION_DICTIONARY = PropertyId.create(
@@ -104,7 +104,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final BooleanPropertyId USE_MAPPING = BooleanPropertyId.create(
       "jack.obfuscation.mapping", "Use mapping for types and members")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<File> MAPPING_FILE = PropertyId.create(
@@ -116,31 +116,31 @@ public class Renamer implements RunnableSchedulable<JSession> {
   public static final BooleanPropertyId REPACKAGE_CLASSES = BooleanPropertyId.create(
       "jack.obfuscation.repackageclasses",
       "Change package for all renamed classes")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<String> PACKAGE_FOR_RENAMED_CLASSES = PropertyId.create(
       "jack.obfuscation.repackageclasses.package",
       "Enclosing package for all renamed classes", new PackageCodec())
-      .requiredIf(REPACKAGE_CLASSES.getValue().isTrue());
+      .requiredIf(REPACKAGE_CLASSES.getValue().isTrue()).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId FLATTEN_PACKAGE = BooleanPropertyId.create(
       "jack.obfuscation.flattenpackage",
       "Change package for all renamed packages")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<String> PACKAGE_FOR_RENAMED_PACKAGES = PropertyId.create(
       "jack.obfuscation.flattenpackage.package",
       "Enclosing package for all renamed packages", new PackageCodec())
-      .requiredIf(FLATTEN_PACKAGE.getValue().isTrue());
+      .requiredIf(FLATTEN_PACKAGE.getValue().isTrue()).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId USE_UNIQUE_CLASSMEMBERNAMES = BooleanPropertyId.create(
       "jack.obfuscation.uniqueclassmembernames",
       "All members with the same name must have the same obfuscated name")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   public static boolean mustBeRenamed(@Nonnull MarkerManager node) {
     return !node.containsMarker(KeepNameMarker.class)

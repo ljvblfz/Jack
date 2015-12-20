@@ -61,6 +61,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -122,7 +123,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
       "jack.internal.switch-enumfield.sort",
       "Generate determinist code to initialize constant array indexed by ordinal "
       + "value of enum field")
-      .addDefaultValue(Boolean.TRUE).addCategory(Private.class);
+      .addDefaultValue(Boolean.TRUE).addCategory(Private.class).addCategory(DumpInLibrary.class);
 
   private final JType noSuchFieldErrorType =
       Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");

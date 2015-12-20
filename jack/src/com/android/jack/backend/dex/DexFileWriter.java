@@ -19,6 +19,7 @@ package com.android.jack.backend.dex;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.FileType;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
@@ -57,7 +58,7 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   public static final ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY =
       ImplementationPropertyId.create("jack.dex.output.policy",
           "Define which policy will be used to emit dex files", DexWritingTool.class)
-          .addDefaultValue("single-dex");
+          .addDefaultValue("single-dex").addCategory(DumpInLibrary.class);
 
   @Nonnull
   private final OutputVFS outputVDir;

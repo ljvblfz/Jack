@@ -16,6 +16,7 @@
 
 package com.android.jack.preprocessor;
 
+import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.codec.InputStreamCodec;
@@ -36,7 +37,7 @@ public class PreProcessor implements Feature {
   @Nonnull
   public static final BooleanPropertyId ENABLE = BooleanPropertyId.create(
       "jack.preprocessor", "Enable the Jack preprocessor")
-      .addDefaultValue(false);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<InputStreamFile> FILE = PropertyId.create(

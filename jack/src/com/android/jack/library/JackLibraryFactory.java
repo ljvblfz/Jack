@@ -44,11 +44,13 @@ public abstract class JackLibraryFactory {
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACKLIB_DIGEST = BooleanPropertyId.create(
       "jack.library.digest", "Generate message digest in Jack library").addDefaultValue(
-      Boolean.TRUE);
+      Boolean.TRUE).addCategory(DumpInLibrary.class);
+
   @Nonnull
   public static final MessageDigestPropertyId MESSAGE_DIGEST_ALGO = MessageDigestPropertyId
       .create("jack.library.digest.algo", "Message digest algorithm use in Jack library")
-      .requiredIf(GENERATE_JACKLIB_DIGEST.getValue().isTrue()).addDefaultValue("SHA");
+      .requiredIf(GENERATE_JACKLIB_DIGEST.getValue().isTrue()).addDefaultValue("SHA")
+      .addCategory(DumpInLibrary.class);
 
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();

@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPhantomClass;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JPhantomInterface;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -53,9 +54,11 @@ import javax.annotation.Nonnull;
 public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
 
   @Nonnull
-  public static final BooleanPropertyId KEEP_ENCLOSING_METHOD = BooleanPropertyId.create(
-  "jack.shrink.keep.enclosing.method",
-  "Keep the enclosing method of anonymous classes").addDefaultValue(Boolean.FALSE);
+  public static final BooleanPropertyId KEEP_ENCLOSING_METHOD =
+      BooleanPropertyId
+          .create("jack.shrink.keep.enclosing.method",
+              "Keep the enclosing method of anonymous classes")
+          .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   public KeeperBrush() {
     super(ThreadConfig.get(KeeperBrush.KEEP_ENCLOSING_METHOD).booleanValue(), KeepMarker.class,

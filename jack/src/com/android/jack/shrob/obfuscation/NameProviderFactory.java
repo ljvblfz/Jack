@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.nameprovider.DictionaryNameProvider;
 import com.android.jack.shrob.obfuscation.nameprovider.MappingNameProvider;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
@@ -52,7 +53,7 @@ public class NameProviderFactory {
   public static final PropertyId<DefaultFactory<NameProvider>> NAMEPROVIDER = PropertyId.create(
       "jack.obfuscation.nameprovider", "Define which nameprovider to use",
       new DefaultFactorySelector<NameProvider>(NameProvider.class)).addDefaultValue(
-      "lower-case");
+      "lower-case").addCategory(DumpInLibrary.class);
 
   @CheckForNull
   private final File obfuscationDictionary;

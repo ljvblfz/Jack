@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.shrink.NodeFinder;
 import com.android.jack.shrob.spec.ClassSpecification;
@@ -53,9 +54,9 @@ import javax.annotation.Nonnull;
 @Transform(add = SeedMarker.class)
 public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  public static final BooleanPropertyId SEARCH_SEEDS_IN_HIERARCHY = BooleanPropertyId.create(
-      "jack.shrob.seed.searchinhierarchy",
-      "Search for shrob seeds in hierarchy").addDefaultValue(Boolean.TRUE);
+  public static final BooleanPropertyId SEARCH_SEEDS_IN_HIERARCHY = BooleanPropertyId
+      .create("jack.shrob.seed.searchinhierarchy", "Search for shrob seeds in hierarchy")
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   private final Flags flags = ThreadConfig.get(Options.FLAGS);

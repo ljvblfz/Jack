@@ -18,6 +18,7 @@ package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.sourceinfo.FileSourceInfo;
+import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.codec.PathCodec;
@@ -41,13 +42,13 @@ public class SourceFileRenamer implements RunnableSchedulable<JSession> {
   @Nonnull
   public static final BooleanPropertyId RENAME_SOURCEFILE = BooleanPropertyId.create(
       "jack.obfuscation.renamesourcefile",
-      "Rename source file").addDefaultValue("false");
+      "Rename source file").addDefaultValue("false").addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final PropertyId<File> NEW_SOURCEFILE_NAME = PropertyId.create(
       "jack.obfuscation.renamesourcefile.newname",
       "New source file name", new PathCodec()).addDefaultValue("")
-      .requiredIf(RENAME_SOURCEFILE.getValue().isTrue());
+      .requiredIf(RENAME_SOURCEFILE.getValue().isTrue()).addCategory(DumpInLibrary.class);
 
   @Nonnull
   private final File newSourceFileName = ThreadConfig.get(NEW_SOURCEFILE_NAME);
