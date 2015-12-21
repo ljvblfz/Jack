@@ -43,10 +43,15 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -251,6 +256,17 @@ class JAstBuilder extends JavaParser {
       throw (Error) internalException;
     } else {
       throw new JNodeInternalError(internalException);
+    }
+  }
+
+  @Override
+  public void accept(IBinaryType binaryType, PackageBinding packageBinding,
+      AccessRestriction accessRestriction) {
+    BinaryTypeBinding btb =
+        lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
+    if (btb.id == TypeIds.T_JunitFrameworkAssert || btb.id == TypeIds.T_OrgJunitAssert) {
+      // Call to assert methods of JUnit framework must not manage as assertions of language level
+      btb.id = TypeIds.NoId;
     }
   }
 }

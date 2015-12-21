@@ -21,20 +21,34 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.File;
+
 public class AssignTests extends RuntimeTest {
 
-  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
-    AbstractTestTools.getTestRootDir("com.android.jack.assign.test001"),
-    "com.android.jack.assign.test001.dx.Tests");
+  private RuntimeTestInfo TEST001 =
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.assign.test001"),
+          "com.android.jack.assign.test001.dx.Tests");
 
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
+  }
+
+  @Test
+  public void test002() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.assign.test002");
+    File outFolder = AbstractTestTools.createTempDir();
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToExe(outFolder,
+        /* zipFile = */false, testFolder);
   }
 
   @Override
