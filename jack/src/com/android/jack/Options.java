@@ -537,11 +537,6 @@ public class Options {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_JACK_FLAG = BooleanPropertyId.create(
-      "jack.internal.jackflag", "Emit jack flag into generated dex")
-      .addDefaultValue(Boolean.FALSE);
-
-  @Nonnull
   public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.lines", "Emit line number debug info into generated dex")
       .addDefaultValue(Boolean.TRUE);

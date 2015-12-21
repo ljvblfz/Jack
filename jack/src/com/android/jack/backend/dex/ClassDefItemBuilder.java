@@ -68,7 +68,6 @@ import javax.annotation.Nonnull;
     remove = JDefinedClassOrInterface.class)
 public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private final boolean emitJackFlag = ThreadConfig.get(Options.EMIT_JACK_FLAG).booleanValue();
   private final boolean emitSourceFileInfo =
       ThreadConfig.get(Options.EMIT_SOURCE_FILE_DEBUG_INFO).booleanValue();
 
@@ -171,11 +170,6 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
     // If it is an inner class, this will remove its static, private or protected flags.
     // Those should only be found in InnerClass annotations.
     accessFlags &= AccessFlags.CLASS_FLAGS;
-
-    // Add temporary flag to be able to spot classes compiled with Jack
-    if (emitJackFlag) {
-      accessFlags |= JModifier.CLASS_COMPILED_WITH_JACK;
-    }
 
     return accessFlags;
   }

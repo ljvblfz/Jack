@@ -42,7 +42,6 @@ public class JModifier {
   public static final int ANNOTATION   = 0x2000;
   public static final int ENUM         = 0x4000;
   public static final int STATIC_INIT  = 0x10000;
-  public static final int CLASS_COMPILED_WITH_JACK = 0x80000;
   public static final int DEPRECATED   = 0x100000;
 
   // Extra Jack modifiers
@@ -51,7 +50,7 @@ public class JModifier {
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
       | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | ANONYMOUS_TYPE
-      | CLASS_COMPILED_WITH_JACK | DEPRECATED;
+      | DEPRECATED;
 
   private static final int FIELD_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC
       | FINAL | TRANSIENT | VOLATILE | ENUM | SYNTHETIC | COMPILE_TIME_CONSTANT | DEPRECATED;

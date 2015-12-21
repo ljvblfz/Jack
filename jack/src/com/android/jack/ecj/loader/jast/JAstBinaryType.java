@@ -89,7 +89,6 @@ class JAstBinaryType implements IBinaryType {
       modifiers = jDeclaredType.getModifier();
     }
     modifiers = LoaderUtils.convertJAstModifiersToEcj(modifiers, jDeclaredType);
-    modifiers &= ~JModifier.CLASS_COMPILED_WITH_JACK;
     modifiers &= ~JModifier.ANONYMOUS_TYPE;
 
     JClassOrInterface enclosingType = jDeclaredType.getEnclosingType();
