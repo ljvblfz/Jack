@@ -2658,14 +2658,9 @@ public class JackIrBuilder {
         classStack.push(curClass);
         curClass = new ClassInfo(type, x);
 
-        /*
-         * It's okay to defer creation of synthetic fields, they can't be referenced until we
-         * analyze the code.
-         */
         SourceTypeBinding binding = x.binding;
         if (isNested(binding)) {
 
-          // add synthetic fields for outer this and locals
           assert (type instanceof JDefinedClass);
 
           if (!binding.isMemberType() && binding.isLocalType()
@@ -2673,6 +2668,7 @@ public class JackIrBuilder {
             ((JDefinedClass) type).setEnclosingMethod(curMethod.method);
           }
 
+          // add synthetic fields for outer this and locals
           NestedTypeBinding nestedBinding = (NestedTypeBinding) binding;
           if (nestedBinding.outerLocalVariables != null) {
             for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
@@ -2977,7 +2973,7 @@ public class JackIrBuilder {
       JExpression ref;
       ReferenceBinding type;
       // Field representing synthetic arg must not be used into constructor because this field could
-      // not be initialized when constructor call another constructor through 'this' (See
+      // be not initialized yet when constructor call another constructor through 'this' (See
       // InnerTest.test021). In this case (see the condition) use directly the parameter
       // representing the synthetic arg.
       if (!(curMethod.method instanceof JConstructor) &&
