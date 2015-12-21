@@ -16,15 +16,20 @@
 
 package com.android.jack.jarjar;
 
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -39,6 +44,11 @@ public class JarjarTests {
   private RuntimeTestInfo JARJAR003 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test003"),
       "com.android.jack.jarjar.test003.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo JARJAR004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test004"),
+      "com.android.jack.jarjar.test004.dx.Tests");
 
   @Test
   public void jarjar001() throws Exception {
@@ -71,5 +81,88 @@ public class JarjarTests {
         /* zipFiles = */ true,
         new File(JARJAR003.directory, "dontcompile/TestWithRelocatedReference.java"));
   }
+
+  @Test
+  public void jarjar004() throws Exception {
+
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    File libToBeRenamed =
+        AbstractTestTools.createTempFile("jarjarTest004Lib", toolchain.getLibraryExtension());
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .srcToLib(libToBeRenamed,
+            /* zipFiles = */ true, new File(JARJAR004.directory, "lib"));
+
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.setJarjarRules(
+        Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
+    File libReferencingLibToBeRenamed =
+        AbstractTestTools.createTempFile("jarjarTest004Jack", toolchain.getLibraryExtension());
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .addToClasspath(libToBeRenamed)
+        .srcToLib(libReferencingLibToBeRenamed,
+            /* zipFiles = */ true, new File(JARJAR004.directory, "jack"));
+
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    File renamedLib =
+        AbstractTestTools.createTempFile("jarjarTest004Lib", toolchain.getLibraryExtension());
+    toolchain.setJarjarRules(
+        Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .srcToLib(renamedLib,
+            /* zipFiles = */ true, new File(JARJAR004.directory, "lib"));
+
+
+    // Build dex files for runtime
+    File dex1 = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.setJarjarRules(
+        Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(libToBeRenamed)
+    .srcToExe(
+        dex1,
+        /* zipFiles = */ true,
+        new File(JARJAR004.directory, "jack"));
+
+    File dex2 = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(renamedLib)
+    .addToClasspath(libReferencingLibToBeRenamed)
+    .srcToExe(dex2,
+        /* zipFiles = */ true,
+        new File(JARJAR004.directory, "dontcompile/TestWithRelocatedReference.java"));
+
+    File dex3 = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.setJarjarRules(
+        Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
+        dex3,
+        /* zipFiles = */ true,
+        new File(JARJAR004.directory, "lib"));
+
+    File dex4 = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
+        dex4,
+        /* zipFiles = */ true,
+        new File(JARJAR004.directory, "lib"));
+
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    String[] names = {"com.android.jack.jarjar.test004.dontcompile.TestWithRelocatedReference"};
+    for (RuntimeRunner runner : runnerList) {
+      Assert.assertEquals(
+          0,
+          runner.runJUnit(new String[] {}, AbstractTestTools.JUNIT_RUNNER_NAME, names, new File[] {
+              new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+              new File(dex1, "classes.dex"), new File(dex2, "classes.dex"),
+              new File(dex3, "classes.dex"), new File(dex4, "classes.dex")}));
+    }
+
+  }
+
 
 }

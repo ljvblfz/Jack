@@ -1,0 +1,1 @@
+rule com.android.jack.jarjar.test004.lib.A com.android.jack.jarjar.test004.lib.relocated.A

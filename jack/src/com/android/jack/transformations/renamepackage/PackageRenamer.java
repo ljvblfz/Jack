@@ -33,6 +33,7 @@ import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.Jarjar;
+import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -88,6 +89,8 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     @Nonnull
     private final PackageRemapper remapper;
     @Nonnull
+    private final TransformationRequest request;
+    @Nonnull
     private final Stack<JNode> transformationRequestRoot = new Stack<JNode>();
 
     @Nonnull
@@ -95,9 +98,11 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     @Nonnull
     private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
-    public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper) {
+    public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper,
+        @Nonnull TransformationRequest request) {
       this.lookup = lookup;
       this.remapper = remapper;
+      this.request = request;
     }
 
     @Override
@@ -105,12 +110,10 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       String binaryName = remapper.mapValue(formatter.getName(type));
       String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
       type.setName(simpleName);
-      lookup.removeType(type);
-      type.getEnclosingPackage().remove(type);
       String packageName = NamingTools.getPackageNameFromBinaryName(binaryName);
       JPackage newPackage = lookup.getOrCreatePackage(packageName);
-      type.setEnclosingPackage(newPackage);
-      newPackage.addType(type);
+      lookup.removeType(type);
+      request.append(new ChangeEnclosingPackage(type, newPackage));
     }
 
     @Override
@@ -168,7 +171,11 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
     PackageRemapper remapper = new PackageRemapper(wildcards);
 
-    new Visitor(session.getLookup(), remapper).accept(session.getTypesToEmit());
+    TransformationRequest tr = new TransformationRequest(session);
+
+    new Visitor(session.getLookup(), remapper, tr).accept(session.getTopLevelPackage());
+
+    tr.commit();
 
     for (Resource res : session.getResources()) {
       String pathToTransform = res.getPath().getPathAsString('/');
