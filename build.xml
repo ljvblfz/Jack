@@ -2228,25 +2228,28 @@
 
   <target name="test-jack-by-name-nodep">
     <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
-    <junit fork="yes" failureproperty="test-jack.failure">
-      <formatter type="xml"/>
+    <java fork="true" resultproperty="test-jack.failure"
+      classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
-       <classpath>
-        <filelist refid="jack.junit.tests.classpath" />
-        <filelist refid="ecj-test-libs"/>
-       </classpath>
-      <test name="${test.name}"
-        todir="${jack.tests.output}/test-jack-by-name/"
-        outfile="test-jack-by-name" />
-    </junit>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+       <filelist refid="ecj-test-libs"/>
+      </classpath>
+      <arg value="${jack.tests.output}/test-jack-by-name/test-jack-by-name.xml" />
+      <arg value="${test.name}" />
+    </java>
     <junitreport todir="${jack.tests.output}/test-jack-by-name">
       <fileset dir="${jack.tests.output}/test-jack-by-name">
         <include name="test-jack-by-name.xml"/>
       </fileset>
       <report format="frames" todir="${jack.tests.output}/test-jack-by-name/html"/>
     </junitreport>
-    <fail message="TESTS FAILED" if="test-jack.failure" />
+    <fail message="TESTS FAILED">
+      <condition>
+        <isfailure code="${test-jack.failure}"/>
+      </condition>
+    </fail>
   </target>
 
   <target name="test-jack" description="run Jack tests that must pass before submitting a change"
@@ -2255,25 +2258,28 @@
 
   <target name="test-jack-nodep">
     <mkdir dir="${jack.tests.output}/test-jack/html"/>
-    <junit fork="yes" failureproperty="test-jack.failure">
-      <formatter type="xml"/>
+    <java fork="true" resultproperty="test-jack.failure"
+      classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
-       <classpath>
-        <filelist refid="jack.junit.tests.classpath" />
-        <filelist refid="ecj-test-libs"/>
-       </classpath>
-      <test name="com.android.jack.PreSubmitTests"
-        todir="${jack.tests.output}/test-jack/"
-        outfile="test-jack" />
-    </junit>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+       <filelist refid="ecj-test-libs"/>
+      </classpath>
+      <arg value="${jack.tests.output}/test-jack/test-jack.xml" />
+      <arg value="com.android.jack.PreSubmitTests" />
+    </java>
     <junitreport todir="${jack.tests.output}/test-jack">
       <fileset dir="${jack.tests.output}/test-jack">
         <include name="test-jack.xml"/>
       </fileset>
       <report format="frames" todir="${jack.tests.output}/test-jack/html"/>
     </junitreport>
-    <fail message="TESTS FAILED" if="test-jack.failure" />
+    <fail message="TESTS FAILED">
+      <condition>
+        <isfailure code="${test-jack.failure}"/>
+      </condition>
+    </fail>
   </target>
 
    <target name="test-jack-long" description="run long lasting Jack tests"
@@ -2282,25 +2288,28 @@
 
   <target name="test-jack-long-nodep">
      <mkdir dir="${jack.tests.output}/test-jack-long/html"/>
-     <junit fork="yes" failureproperty="test-jack.failure">
-       <formatter type="xml"/>
+     <java fork="true" resultproperty="test-jack.failure"
+       classname="com.android.jack.test.junit.JackJunitLauncherXml">
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
         <filelist refid="ecj-test-libs"/>
        </classpath>
-       <test name="com.android.jack.LongLastingTests"
-         todir="${jack.tests.output}/test-jack-long/"
-         outfile="test-jack-long" />
-     </junit>
+       <arg value="${jack.tests.output}/test-jack-long/test-jack-long.xml" />
+       <arg value="com.android.jack.LongLastingTests" />
+     </java>
      <junitreport todir="${jack.tests.output}/test-jack-long">
        <fileset dir="${jack.tests.output}/test-jack-long">
          <include name="test-jack-long.xml"/>
        </fileset>
        <report format="frames" todir="${jack.tests.output}/test-jack-long/html"/>
      </junitreport>
-     <fail message="TESTS FAILED" if="test-jack.failure" />
+     <fail message="TESTS FAILED">
+       <condition>
+         <isfailure code="${test-jack.failure}"/>
+       </condition>
+     </fail>
   </target>
 
   <target name="test-jack-all" description="runs all Jack tests"
@@ -2309,26 +2318,29 @@
 
   <target name="test-jack-all-nodep">
       <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
-      <junit fork="yes" failureproperty="test-jack.failure">
-        <formatter type="xml"/>
+      <java fork="true" resultproperty="test-jack.failure"
+        classname="com.android.jack.test.junit.JackJunitLauncherXml">
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
           <filelist refid="ecj-test-libs"/>
         </classpath>
-        <test name="com.android.jack.AllWithJackTests"
-          todir="${jack.tests.output}/test-jack-all/"
-          outfile="test-jack-all" />
-      </junit>
+        <arg value="${jack.tests.output}/test-jack-all/test-jack-all.xml" />
+        <arg value="com.android.jack.AllWithJackTests" />
+      </java>
       <junitreport todir="${jack.tests.output}/test-jack-all">
         <fileset dir="${jack.tests.output}/test-jack-all">
           <include name="test-jack-all.xml"/>
         </fileset>
         <report format="frames" todir="${jack.tests.output}/test-jack-all/html"/>
       </junitreport>
-      <fail message="TESTS FAILED" if="test-jack.failure" />
-    </target>
+      <fail message="TESTS FAILED">
+        <condition>
+          <isfailure code="${test-jack.failure}"/>
+        </condition>
+      </fail>
+  </target>
 
   <target name="test-sched" description="run schedlib tests"
     depends="junit4,schedtests-lib,sched-lib,guava-lib,
@@ -2373,70 +2385,79 @@
   <target name="test-jill" description="run Jill tests that must pass before submitting a change"
     depends="tests-check-config, jillunittests">
     <mkdir dir="${jack.tests.output}/test-jill/html"/>
-    <junit fork="yes" failureproperty="test-jill.failure">
-      <formatter type="xml"/>
+    <java fork="true" resultproperty="test-jill.failure"
+      classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
       <classpath>
         <filelist refid="jill.junit.tests.classpath" />
       </classpath>
-      <test name="com.android.jill.PreSubmitTests"
-        todir="${jack.tests.output}/test-jill/"
-        outfile="test-jill" />
-    </junit>
+      <arg value="${jack.tests.output}/test-jill/test.jill.xml" />
+      <arg value="com.android.jill.PreSubmitTests" />
+    </java>
     <junitreport todir="${jack.tests.output}/test-jill">
       <fileset dir="${jack.tests.output}/test-jill">
         <include name="test-jill.xml"/>
       </fileset>
       <report format="frames" todir="${jack.tests.output}/test-jill/html"/>
     </junitreport>
-    <fail message="TESTS FAILED" if="test-jill.failure" />
+    <fail message="TESTS FAILED" >
+      <condition>
+        <isfailure code="${test-jill.failure}"/>
+      </condition>
+    </fail>
   </target>
 
   <target name="test-jill-long" description="run long lasting Jill tests"
     depends="tests-check-config, jillunittests">
     <mkdir dir="${jack.tests.output}/test-jill-long/html"/>
-    <junit fork="yes" failureproperty="test-jill.failure">
-      <formatter type="xml"/>
+    <java fork="true" resultproperty="test-jill.failure"
+       classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
       <classpath>
         <filelist refid="jill.junit.tests.classpath" />
       </classpath>
-      <test name="com.android.jill.LongLastingTests"
-        todir="${jack.tests.output}/test-jill-long/"
-        outfile="test-jill-long" />
-    </junit>
+      <arg value="${jack.tests.output}/test-jill-long/test-jill-long.xml" />
+      <arg value="com.android.jill.LongLastingTests" />
+    </java>
     <junitreport todir="${jack.tests.output}/test-jill-long">
       <fileset dir="${jack.tests.output}/test-jill-long">
         <include name="test-jill-long.xml"/>
       </fileset>
       <report format="frames" todir="${jack.tests.output}/test-jill-long/html"/>
     </junitreport>
-    <fail message="TESTS FAILED" if="test-jill.failure" />
+    <fail message="TESTS FAILED">
+      <condition>
+        <isfailure code="${test-jill.failure}"/>
+      </condition>
+    </fail>
   </target>
 
   <target name="test-jill-all" description="runs all Jill tests"
   depends="tests-check-config, jillunittests">
     <mkdir dir="${jack.tests.output}/test-jill-all/html"/>
-    <junit fork="yes" failureproperty="test-jill.failure">
-      <formatter type="xml"/>
+    <java fork="true" resultproperty="test-jill.failure"
+      classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dtests.config=${tests.config}"/>
-      <jvmarg value="-ea"/>
+      <jvmarg value="${jack.tests.assertions}"/>
       <classpath>
         <filelist refid="jill.junit.tests.classpath" />
       </classpath>
-      <test name="com.android.jill.AllTests"
-        todir="${jack.tests.output}/test-jill-all/"
-        outfile="test-jill-all" />
-    </junit>
+      <arg value="${jack.tests.output}/test-jill-all/test-jill-all.xml" />
+      <arg value="com.android.jill.AllTests" />
+    </java>
     <junitreport todir="${jack.tests.output}/test-jill-all">
       <fileset dir="${jack.tests.output}/test-jill-all">
         <include name="test-jill-all.xml"/>
       </fileset>
       <report format="frames" todir="${jack.tests.output}/test-jill-all/html"/>
     </junitreport>
-    <fail message="TESTS FAILED" if="test-jill.failure" />
+    <fail message="TESTS FAILED">
+      <condition>
+        <isfailure code="${test-jill.failure}"/>
+      </condition>
+    </fail>
   </target>
 
 
