@@ -19,5 +19,5 @@ package com.android.jack.config.id;
 /**
  * Define a category for version Brest.
  */
-public interface Brest extends Arzon {
+public interface Brest extends Carnac {
 }

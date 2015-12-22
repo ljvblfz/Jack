@@ -80,7 +80,7 @@ public abstract class KeyId<T, S> {
     }
 
     for (Class<? extends Category> category : categories) {
-      if (category.isAssignableFrom(target)) {
+      if (target.isAssignableFrom(category)) {
         return true;
       }
     }
