@@ -48,6 +48,7 @@ import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.filter.Filter;
+import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
@@ -148,6 +149,35 @@ public class Options {
     }
 
   }
+
+  /**
+   * Assertion policies
+   */
+  @VariableName("policy")
+  public enum AssertionPolicy implements HasDescription {
+    ENABLE("always check assert statements"),
+    DISABLE("remove assert statements"),
+    DYNAMIC("dynamically check assert statements");
+
+    @Nonnull
+    private final String description;
+
+    private AssertionPolicy(@Nonnull String description) {
+      this.description = description;
+    }
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  @Nonnull
+  public static final EnumPropertyId<AssertionPolicy> ASSERTION_POLICY =
+      EnumPropertyId.create("jack.assert.policy", "Assert statement policy",
+          AssertionPolicy.class, AssertionPolicy.values())
+      .addDefaultValue(AssertionPolicy.DYNAMIC).ignoreCase().addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
@@ -274,7 +304,7 @@ public class Options {
   public static final BooleanPropertyId ANNOTATION_PROCESSOR_ENABLED =
       BooleanPropertyId.create(
         "jack.annotation-processor", "Enable annotation processors")
-        .addDefaultValue(true).addCategory(DumpInLibrary.class);;
+        .addDefaultValue(true).addCategory(DumpInLibrary.class);
 
   @Option(name = "--version", usage = "display version")
   private boolean version;

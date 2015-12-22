@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -31,11 +32,15 @@ import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestsProperties;
+import com.android.jack.transformations.assertion.DisabledAssertionFeature;
+import com.android.jack.transformations.assertion.DynamicAssertionFeature;
+import com.android.jack.transformations.assertion.EnabledAssertionFeature;
 import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotSetPermissionException;
@@ -359,7 +364,8 @@ public class TestTools {
     }
 
     options.checkValidity(hooks);
-    ThreadConfig.setConfig(options.getConfig());
+    Config config = options.getConfig();
+    ThreadConfig.setConfig(config);
 
     JSession session = Jack.buildSession(options, hooks);
 
@@ -370,12 +376,20 @@ public class TestTools {
       request.addProduction(JayceInLibraryProduct.class);
     }
 
-    if (options.getConfig().get(Options.DROP_METHOD_BODY).booleanValue()) {
+    if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
       request.addFeature(DropMethodBody.class);
     }
 
-    if (options.getConfig().get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+    if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
       request.addFeature(TailRecursionOptimization.class);
+    }
+
+    if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
+      request.addFeature(EnabledAssertionFeature.class);
+    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
+      request.addFeature(DynamicAssertionFeature.class);
+    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
+      request.addFeature(DisabledAssertionFeature.class);
     }
 
     OutputJackLibrary outputLibrary = null;

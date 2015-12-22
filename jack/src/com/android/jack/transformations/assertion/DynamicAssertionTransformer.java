@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.transformations;
+package com.android.jack.transformations.assertion;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
@@ -44,6 +44,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
+import com.android.jack.transformations.InitializationExpression;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.AppendField;
@@ -57,6 +58,7 @@ import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -69,7 +71,7 @@ import javax.annotation.Nonnull;
  * This {@link RunnableSchedulable} transforms "assert" into a "throw" if assertions are enabled.
  */
 @Description("Transforms assert into a throw if assertions are enabled")
-@Name("AssertionTransformer")
+@Name("DynamicAssertionTransformer")
 @Synchronized
 @Constraint(need = {JAssertStatement.class})
 @Transform(add = {AssertionTransformerSchedulingSeparator.SeparatorTag.class,
@@ -87,7 +89,8 @@ import javax.annotation.Nonnull;
     InitializationExpression.class,
     JExpressionStatement.class},
     remove = {JAssertStatement.class, ThreeAddressCodeForm.class, NewInstanceRemoved.class})
-public class AssertionTransformer implements RunnableSchedulable<JMethod> {
+@Support(DynamicAssertionFeature.class)
+public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
