@@ -16,10 +16,8 @@
 
 package com.android.jack.config.id;
 
-import com.android.sched.util.config.category.Version;
-
 /**
  * Define a category for version Arzon.
  */
-public interface Arzon extends Version {
+public interface Arzon extends Brest {
 }

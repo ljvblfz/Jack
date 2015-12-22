@@ -16,8 +16,10 @@
 
 package com.android.jack.config.id;
 
+import com.android.sched.util.config.category.Version;
+
 /**
  * Define a category for version Carnac.
  */
-public interface Carnac extends Brest {
+public interface Carnac extends Version {
 }
