@@ -39,8 +39,6 @@ import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -146,12 +144,6 @@ public class Stat extends SynchronousAdministrativeTask {
           } catch (UnsupportedOperationException e) {
             // Best effort
           }
-        }
-
-        try {
-          println(printer, "host.name: " + InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e1) {
-          // Best effort
         }
 
         Method method;
