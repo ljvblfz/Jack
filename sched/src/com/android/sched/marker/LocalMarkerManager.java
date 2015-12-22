@@ -19,7 +19,7 @@ package com.android.sched.marker;
 import com.android.sched.item.Items;
 
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -39,21 +39,27 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @CheckForNull
   private Map<Class<? extends Marker>, Marker> markers;
 
+  @Nonnull
+  private final Object lock = new Object();
+
   @Override
   public void addMarker(@Nonnull Marker marker) {
-    assert isValidMarker(marker.getClass()) : "Marker '" + Items.getName(marker.getClass())
-        + "' is not supported for class '" + this.getClass().getName() + "'";
+    synchronized (lock) {
+      assert isValidMarker(marker.getClass()) : "Marker '" + Items.getName(marker.getClass())
+                                                + "' is not supported for class '"
+                                                + this.getClass().getName() + "'";
 
-    //assert checkAddAccess(marker.getClass());
+      // assert checkAddAccess(marker.getClass());
 
-    if (markers == null) {
-      markers = new Hashtable<Class<? extends Marker>, Marker>();
+      if (markers == null) {
+        markers = new HashMap<Class<? extends Marker>, Marker>();
+      }
+
+      assert markers.get(marker.getClass())
+             == null : "Marker '" + Items.getName(marker.getClass()) + "' already exists";
+
+      markers.put(marker.getClass(), marker);
     }
-
-    assert markers.get(marker.getClass()) == null : "Marker '" + Items.getName(marker.getClass())
-        + "' already exists";
-
-    markers.put(marker.getClass(), marker);
   }
 
   public void addAllMarker(@Nonnull Collection<Marker> collection) {
@@ -68,53 +74,61 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @Override
   @Nonnull
   public Collection<Marker> getAllMarkers() {
-    if (markers == null) {
-      return EMPTY_MARKER;
-    }
+    synchronized (lock) {
+      if (markers == null) {
+        return EMPTY_MARKER;
+      }
 
-    for (Marker marker : markers.values()) {
-      assert checkGetAccess(marker.getClass());
-    }
+      for (Marker marker : markers.values()) {
+        assert checkGetAccess(marker.getClass());
+      }
 
-    // FINDBUGS
-    assert markers != null;
-    return markers.values();
+      // FINDBUGS
+      assert markers != null;
+      return markers.values();
+    }
   }
 
   @Override
   @CheckForNull
   @SuppressWarnings(value = "unchecked")
   public <T extends Marker> T getMarker(@Nonnull Class<T> cls) {
-    //assert checkGetAccess(cls);
+    synchronized (lock) {
+      // assert checkGetAccess(cls);
 
-    if (markers == null) {
-      return null;
+      if (markers == null) {
+        return null;
+      }
+
+      return (T) markers.get(cls);
     }
-
-    return (T) markers.get(cls);
   }
 
   @Override
   public <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls) {
-    assert isValidMarker(cls) : "Marker '" + Items.getName(cls) + "' is not supported for class '"
-        + this.getClass().getName() + "'";
+    synchronized (lock) {
+      assert isValidMarker(cls) : "Marker '" + Items.getName(cls) + "' is not supported for class '"
+                                  + this.getClass().getName() + "'";
 
-    if (markers == null) {
-      return false;
+      if (markers == null) {
+        return false;
+      }
+
+      return markers.containsKey(cls);
     }
-
-    return markers.containsKey(cls);
   }
 
   @Override
   @SuppressWarnings(value = "unchecked")
   public <T extends Marker> T removeMarker(@Nonnull Class<T> cls) {
-    //assert checkRemoveAccess(cls);
+    synchronized (lock) {
+      // assert checkRemoveAccess(cls);
 
-    if (markers == null) {
-      return null;
+      if (markers == null) {
+        return null;
+      }
+
+      return (T) markers.remove(cls);
     }
-
-    return (T) markers.remove(cls);
   }
 }
