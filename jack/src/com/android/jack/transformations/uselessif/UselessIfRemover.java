@@ -53,17 +53,16 @@ public class UselessIfRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class UselessIfRemoverVisitor extends JVisitor {
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  private class UselessIfRemoverVisitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest request;
 
-    @Nonnull
-    private final Tracer tracer;
-
     private UselessIfRemoverVisitor(@Nonnull TransformationRequest request) {
       this.request = request;
-      tracer = TracerFactory.getTracer();
     }
 
     @Override

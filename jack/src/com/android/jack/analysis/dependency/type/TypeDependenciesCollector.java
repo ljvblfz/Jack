@@ -42,10 +42,10 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private static class Visitor extends TypeReferenceCollector {
+  @Nonnull
+  private final TypeDependencies typeDependencies = Jack.getSession().getTypeDependencies();
 
-    @Nonnull
-    private final TypeDependencies typeDependencies = Jack.getSession().getTypeDependencies();
+  private class Visitor extends TypeReferenceCollector {
 
     @Nonnull
     private final JType currentType;

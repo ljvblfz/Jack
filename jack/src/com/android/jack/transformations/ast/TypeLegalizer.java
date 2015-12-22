@@ -85,6 +85,9 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
+  @Nonnull
+  private final JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
+
   class TypeLegalizerVisitor extends JVisitor {
 
     @Nonnull
@@ -365,8 +368,6 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
       String methodName;
       JType returnType;
-
-      JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
 
       if (typeToUnbox.isSameType(lookup.getType(CommonTypes.JAVA_LANG_BOOLEAN))) {
         methodName = "booleanValue";

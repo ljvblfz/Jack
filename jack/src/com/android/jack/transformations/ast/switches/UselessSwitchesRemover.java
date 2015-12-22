@@ -79,7 +79,10 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
@@ -87,12 +90,8 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final Stack<Boolean> removeBreakOrCase = new Stack<Boolean>();
 
-    @Nonnull
-    private final Tracer tracer;
-
     public Visitor(@Nonnull TransformationRequest tr) {
       this.tr = tr;
-      tracer = TracerFactory.getTracer();
     }
 
     @Override

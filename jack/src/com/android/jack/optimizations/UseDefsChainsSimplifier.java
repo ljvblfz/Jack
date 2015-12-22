@@ -88,15 +88,10 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
 
   private class Visitor extends JVisitor {
-
-    @Nonnull
-    private final Tracer tracer;
-
-    private Visitor() {
-      tracer = TracerFactory.getTracer();
-    }
 
     @Override
     public boolean visit(@Nonnull JStatement s1) {

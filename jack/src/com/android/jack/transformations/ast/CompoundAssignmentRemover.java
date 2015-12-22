@@ -42,6 +42,7 @@ import com.android.jack.ir.ast.JSubOperation;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.Replace;
@@ -75,6 +76,9 @@ public class CompoundAssignmentRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+
+  @Nonnull
+  private final JPhantomLookup phantomLookup = Jack.getSession().getPhantomLookup();
 
   private static class RemoveComplexAssignVisitor extends JVisitor {
 
@@ -183,8 +187,7 @@ public class CompoundAssignmentRemover implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    JClass javaLangString =
-        Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+    JClass javaLangString = phantomLookup.getClass(CommonTypes.JAVA_LANG_STRING);
     TransformationRequest tr = new TransformationRequest(method);
     RemoveComplexAssignVisitor rca = new RemoveComplexAssignVisitor(tr, javaLangString);
     rca.accept(method);

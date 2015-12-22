@@ -40,6 +40,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
 import com.android.jack.ir.ast.JSwitchStatement;
@@ -65,6 +66,7 @@ import com.android.sched.schedulable.Use;
 import com.android.sched.schedulable.With;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Event;
+import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
 import java.io.Serializable;
@@ -99,7 +101,31 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
-  static class BuilderVisitor extends JVisitor {
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  private final JSession session = Jack.getSession();
+
+  private static class JCaseStatementComparator
+      implements Comparator<JCaseStatement>, Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public int compare(JCaseStatement case1, JCaseStatement case2) {
+      JLiteral lit1 = case1.getExpr();
+      JLiteral lit2 = case2.getExpr();
+
+      assert lit1 instanceof JValueLiteral;
+      assert lit2 instanceof JValueLiteral;
+
+      int lit1Value = ((JIntegralConstant32) lit1).getIntValue();
+      int lit2Value = ((JIntegralConstant32) lit2).getIntValue();
+
+      return (lit1Value < lit2Value ? -1 : lit1Value == lit2Value ? 0 : 1);
+    }
+  }
+
+  class BuilderVisitor extends JVisitor {
 
     @Nonnegative
     private int basicBlockId;
@@ -132,26 +158,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     private List<JCatchBlock> previousCatchBlock = new ArrayList<JCatchBlock>();
 
     @Nonnull
-    private final SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
-
-    private static class JCaseStatementComparator
-        implements Comparator<JCaseStatement>, Serializable {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public int compare(JCaseStatement case1, JCaseStatement case2) {
-        JLiteral lit1 = case1.getExpr();
-        JLiteral lit2 = case2.getExpr();
-
-        assert lit1 instanceof JValueLiteral;
-        assert lit2 instanceof JValueLiteral;
-
-        int lit1Value = ((JIntegralConstant32) lit1).getIntValue();
-        int lit2Value = ((JIntegralConstant32) lit2).getIntValue();
-
-        return (lit1Value < lit2Value ? -1 : lit1Value == lit2Value ? 0 : 1);
-      }
-    }
+    private final SourceInfoFactory sourceInfoFactory = session.getSourceInfoFactory();
 
     public BuilderVisitor(@Nonnull JMethod method) {
       assert method != null;
@@ -393,7 +400,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     public ControlFlowGraph getCfg() {
-      Event optEvent = TracerFactory.getTracer().start(JackEventType.REMOVE_DEAD_CODE);
+      Event optEvent = tracer.start(JackEventType.REMOVE_DEAD_CODE);
 
       try {
         removeUnaccessibleNode(blocks, entryBlock, exitBlock, basicBlockId);
