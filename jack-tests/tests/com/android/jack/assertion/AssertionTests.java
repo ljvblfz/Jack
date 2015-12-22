@@ -16,6 +16,8 @@
 
 package com.android.jack.assertion;
 
+import com.android.jack.Options;
+import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
@@ -40,6 +42,14 @@ public class AssertionTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.assertion.test003"),
     "com.android.jack.assertion.test003.dx.Tests");
 
+  private RuntimeTestInfo TEST004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.assertion.test004"),
+      "com.android.jack.assertion.test004.dx.Tests");
+
+  private RuntimeTestInfo TEST005 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.assertion.test005"),
+      "com.android.jack.assertion.test005.dx.Tests");
+
   @Test
   // this test must be run with assertions enabled (for now, use dalvik)
   @Category(RuntimeRegressionTest.class)
@@ -59,6 +69,21 @@ public class AssertionTests extends RuntimeTest {
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest();
   }
+
+  @Test
+  public void test004() throws Exception {
+    new RuntimeTestHelper(TEST004)
+        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.ENABLE.toString())
+        .compileAndRunTest();
+  }
+
+  @Test
+  public void test005() throws Exception {
+    new RuntimeTestHelper(TEST005)
+        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.DISABLE.toString())
+        .compileAndRunTest();
+  }
+
 
   @Override
   protected void fillRtTestInfos() {

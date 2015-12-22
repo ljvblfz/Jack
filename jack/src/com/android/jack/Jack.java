@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
@@ -181,8 +182,6 @@ import com.android.jack.statistics.BinaryOperationWithCst;
 import com.android.jack.statistics.CodeStats;
 import com.android.jack.statistics.FieldStats;
 import com.android.jack.statistics.MethodStats;
-import com.android.jack.transformations.AssertionTransformer;
-import com.android.jack.transformations.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
@@ -191,6 +190,13 @@ import com.android.jack.transformations.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
+import com.android.jack.transformations.assertion.AssertionRemover;
+import com.android.jack.transformations.assertion.AssertionTransformerSchedulingSeparator;
+import com.android.jack.transformations.assertion.DisabledAssertionFeature;
+import com.android.jack.transformations.assertion.DynamicAssertionFeature;
+import com.android.jack.transformations.assertion.DynamicAssertionTransformer;
+import com.android.jack.transformations.assertion.EnabledAssertionFeature;
+import com.android.jack.transformations.assertion.EnabledAssertionTransformer;
 import com.android.jack.transformations.ast.BooleanTestTransformer;
 import com.android.jack.transformations.ast.CompoundAssignmentRemover;
 import com.android.jack.transformations.ast.ConcatRemover;
@@ -579,6 +585,14 @@ public abstract class Jack {
           request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
         } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
           request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
+        }
+
+        if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
+          request.addFeature(EnabledAssertionFeature.class);
+        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
+          request.addFeature(DynamicAssertionFeature.class);
+        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
+          request.addFeature(DisabledAssertionFeature.class);
         }
 
         if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
@@ -1198,17 +1212,25 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(AssertionTransformer.class);
+      if (features.contains(DynamicAssertionFeature.class)) {
+        methodPlan.append(DynamicAssertionTransformer.class);
+      } else if (features.contains(EnabledAssertionFeature.class)) {
+        methodPlan.append(EnabledAssertionTransformer.class);
+      } else if (features.contains(DisabledAssertionFeature.class)) {
+        methodPlan.append(AssertionRemover.class);
+      }
     }
 
-    planBuilder.append(AssertionTransformerSchedulingSeparator.class);
+    if (features.contains(DynamicAssertionFeature.class)) {
+      planBuilder.append(AssertionTransformerSchedulingSeparator.class);
+    }
 
     {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-      {
+      if (features.contains(DynamicAssertionFeature.class)) {
         SubPlanBuilder<JField> fieldPlan =
             typePlan4.appendSubPlan(JFieldAdapter.class);
         fieldPlan.append(FieldInitializer.class);

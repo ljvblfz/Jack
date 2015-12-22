@@ -255,7 +255,7 @@ public class JackBatchCompiler extends Main {
         new JAstClasspath("<jack-logical-entry>", session.getLookup(), null)};
   }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit,
       Map customDefaultOptions, CompilationProgress compilationProgress) {
