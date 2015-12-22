@@ -22,9 +22,11 @@ import com.android.jack.analysis.UseDefsMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JIfStatement;
+import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
@@ -180,6 +182,22 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       }
 
       return defsToFound.size() == nbDef;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLock x) {
+      // Do not optimize lock expression, otherwise Jack can add variable aliasing that result
+      // with lock/unlock expressions which do not use the same register, and it is not supported
+      // by the runtime
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JUnlock x) {
+      // Do not optimize unlock expression, otherwise Jack can add variable aliasing that result
+      // with lock/unlock expressions which do not use the same register, and it is not supported
+      // by the runtime
+      return false;
     }
 
     @Override
