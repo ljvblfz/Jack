@@ -17,6 +17,7 @@
 package com.android.jack.transformations.renamepackage;
 
 import com.android.jack.JackAbortException;
+import com.android.jack.backend.dex.TypeReferenceCollector;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -25,6 +26,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
@@ -32,7 +34,6 @@ import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.Jarjar;
-import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -55,6 +56,8 @@ import com.tonicsystems.jarjar.RulesFileParser;
 import com.tonicsystems.jarjar.Wildcard;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -88,8 +91,6 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     @Nonnull
     private final PackageRemapper remapper;
     @Nonnull
-    private final TransformationRequest request;
-    @Nonnull
     private final Stack<JNode> transformationRequestRoot = new Stack<JNode>();
 
     @Nonnull
@@ -97,11 +98,9 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     @Nonnull
     private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
-    public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper,
-        @Nonnull TransformationRequest request) {
+    public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper) {
       this.lookup = lookup;
       this.remapper = remapper;
-      this.request = request;
     }
 
     @Override
@@ -109,10 +108,11 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       String binaryName = remapper.mapValue(formatter.getName(type));
       String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
       type.setName(simpleName);
+      type.getEnclosingPackage().remove(type);
       String packageName = NamingTools.getPackageNameFromBinaryName(binaryName);
       JPackage newPackage = lookup.getOrCreatePackage(packageName);
-      lookup.clear();
-      request.append(new ChangeEnclosingPackage(type, newPackage));
+      type.setEnclosingPackage(newPackage);
+      newPackage.addType(type);
     }
 
     @Override
@@ -170,11 +170,21 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     List<Wildcard> wildcards = PatternElement.createWildcards(result);
     PackageRemapper remapper = new PackageRemapper(wildcards);
 
-    TransformationRequest tr = new TransformationRequest(session);
+    Collection<JDefinedClassOrInterface> typesToEmit = session.getTypesToEmit();
 
-    new Visitor(session.getLookup(), remapper, tr).accept(session.getTopLevelPackage());
+    final Collection<JDefinedClassOrInterface> typesToVisit =
+        new HashSet<JDefinedClassOrInterface>();
 
-    tr.commit();
+    new TypeReferenceCollector() {
+      @Override
+      protected void collect(@Nonnull JType type) {
+        if (type instanceof JDefinedClassOrInterface) {
+          typesToVisit.add((JDefinedClassOrInterface) type);
+        }
+      }
+    }.accept(typesToEmit);
+
+    new Visitor(session.getLookup(), remapper).accept(typesToVisit);
 
     for (Resource res : session.getResources()) {
       String pathToTransform = res.getPath().getPathAsString('/');
