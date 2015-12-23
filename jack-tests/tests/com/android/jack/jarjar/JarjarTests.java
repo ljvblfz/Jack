@@ -113,7 +113,7 @@ public class JarjarTests {
 
 
     // Build dex files for runtime
-    File dex1 = AbstractTestTools.createTempDir();
+    File dex1 = AbstractTestTools.createTempFile("dex1", toolchain.getExeExtension());
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
@@ -124,7 +124,7 @@ public class JarjarTests {
         /* zipFiles = */ true,
         new File(JARJAR004.directory, "jack"));
 
-    File dex2 = AbstractTestTools.createTempDir();
+    File dex2 = AbstractTestTools.createTempFile("dex2", toolchain.getExeExtension());
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(renamedLib)
@@ -133,7 +133,7 @@ public class JarjarTests {
         /* zipFiles = */ true,
         new File(JARJAR004.directory, "dontcompile/TestWithRelocatedReference.java"));
 
-    File dex3 = AbstractTestTools.createTempDir();
+    File dex3 =  AbstractTestTools.createTempFile("dex3", toolchain.getExeExtension());
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
@@ -143,7 +143,7 @@ public class JarjarTests {
         /* zipFiles = */ true,
         new File(JARJAR004.directory, "lib"));
 
-    File dex4 = AbstractTestTools.createTempDir();
+    File dex4 =  AbstractTestTools.createTempFile("dex4", toolchain.getExeExtension());
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
@@ -158,8 +158,8 @@ public class JarjarTests {
           0,
           runner.runJUnit(new String[] {}, AbstractTestTools.JUNIT_RUNNER_NAME, names, new File[] {
               new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
-              new File(dex1, "classes.dex"), new File(dex2, "classes.dex"),
-              new File(dex3, "classes.dex"), new File(dex4, "classes.dex")}));
+              dex1, dex2,
+              dex3, dex4}));
     }
 
   }
