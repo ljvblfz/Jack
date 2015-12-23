@@ -16,8 +16,8 @@
 
 package com.android.jack.dx.dex.code;
 
+import com.android.jack.dx.rop.code.CstInsn;
 import com.android.jack.dx.rop.code.Insn;
-import com.android.jack.dx.rop.code.PlainCstInsn;
 import com.android.jack.dx.rop.code.RegOps;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.Rop;
@@ -613,7 +613,7 @@ switch (rop.getOpcode()) {
         break;
       }
       case RegOps.CONST: {
-        Constant cst = ((PlainCstInsn) insn).getConstant();
+        Constant cst = ((CstInsn) insn).getConstant();
         if (cst instanceof CstType) {
           return Dops.CONST_CLASS;
         } else if (cst instanceof CstString) {

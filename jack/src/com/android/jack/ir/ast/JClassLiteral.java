@@ -62,8 +62,7 @@ public class JClassLiteral extends JLiteral {
 
   @Override
   public boolean canThrow() {
-    // STOPSHIP: Return true when final version of box-lambda will be supported by the runtime.
-    return false;
+    return true;
   }
 
   @Override
