@@ -99,7 +99,7 @@ public final class Rops {
 
   /** {@code r, literal: Object :: r = literal;} */
   public static final Rop CONST_OBJECT =
-      new Rop(RegOps.CONST, Type.OBJECT, StdTypeList.EMPTY, "const-object");
+      new Rop(RegOps.CONST, Type.OBJECT, StdTypeList.EMPTY, Exceptions.LIST_Error, "const-object");
 
   /** {@code r, literal: Object :: r = literal;} */
   public static final Rop CONST_OBJECT_NOTHROW =

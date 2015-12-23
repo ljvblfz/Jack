@@ -321,9 +321,11 @@ class RopBuilderVisitor extends JVisitor {
       JType type = literal.getType();
 
       Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
-      Insn constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
-          RegisterSpecList.EMPTY, cst);
+      SourcePosition literalSrcPos = RopHelper.getSourcePosition(literal);
+      Insn constInst = new ThrowingCstInsn(constOp, literalSrcPos,
+          RegisterSpecList.EMPTY, getCatchTypes(), cst);
       addInstruction(constInst);
+      addMoveResultPseudoAsExtraInstruction(destReg, literalSrcPos);
       return false;
     }
 
@@ -995,7 +997,7 @@ class RopBuilderVisitor extends JVisitor {
     assert tmpBoxedReg != null;
     RegisterSpecList sourcesBox = RegisterSpecList.make(regToBox);
 
-    Insn constInst = new PlainCstInsn(Rops.CONST_OBJECT, sourcePosition, tmpBoxedReg,
+    Insn constInst = new PlainCstInsn(Rops.CONST_OBJECT_NOTHROW, sourcePosition, tmpBoxedReg,
         RegisterSpecList.EMPTY, RopHelper.createString(dxType.getDescriptor()));
     if (extraInst) {
       addExtraInstruction(constInst);
@@ -1173,18 +1175,20 @@ class RopBuilderVisitor extends JVisitor {
     JType type = literal.getType();
     Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
     Insn constInst;
+    SourcePosition sourcePosition = RopHelper.getSourcePosition(literal);
     if (type instanceof JPrimitiveType) {
       constInst = new PlainCstInsn(
-          constOp, RopHelper.getSourcePosition(literal), destReg, RegisterSpecList.EMPTY,
+          constOp, sourcePosition, destReg, RegisterSpecList.EMPTY,
           getConstant(literal));
       addInstruction(constInst);
     } else  if (literal instanceof JAbstractStringLiteral){
-      constInst = new PlainCstInsn(constOp, RopHelper.getSourcePosition(literal), destReg,
-          RegisterSpecList.EMPTY, getConstant(literal));
+      constInst = new ThrowingCstInsn(constOp, sourcePosition,
+          RegisterSpecList.EMPTY, getCatchTypes(), getConstant(literal));
       addInstruction(constInst);
+      addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
     } else if (literal instanceof JNullLiteral) {
       constInst = new PlainCstInsn(
-          constOp, RopHelper.getSourcePosition(literal), destReg,
+          constOp, sourcePosition, destReg,
           RegisterSpecList.EMPTY, getConstant(literal));
       addInstruction(constInst);
     } else {
