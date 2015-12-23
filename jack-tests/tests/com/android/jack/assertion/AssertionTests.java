@@ -24,6 +24,7 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -73,6 +74,7 @@ public class AssertionTests extends RuntimeTest {
   @Test
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.ENABLE.toString())
         .compileAndRunTest();
   }
@@ -80,6 +82,7 @@ public class AssertionTests extends RuntimeTest {
   @Test
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.DISABLE.toString())
         .compileAndRunTest();
   }
