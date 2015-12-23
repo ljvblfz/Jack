@@ -79,6 +79,7 @@
     jillunittests-clean,
     jack-jar-tools-clean,
     asm4-clean,
+    gson-clean,
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
@@ -112,6 +113,7 @@
   <property name="jill.dir" value="${jack-project.dir}/jill" />
   <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
   <property name="asm4.dir" value="${jack-project.dir}/asm4" />
+  <property name="gson.dir" value="${jack-project.dir}/gson"/>
 
   <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
@@ -2073,6 +2075,41 @@
           includes="**"/>
   </target>
 
+  <!-- ******************* -->
+  <!-- gson                -->
+  <!-- ******************* -->
+  <property name="gson.build.dir" value="${gson.dir}/build" />
+  <property name="gson.build.outdir" value="${gson.build.dir}/classes" />
+  <property name="gson.dist.dir" value="${gson.dir}/dist" />
+  <property name="gson.libname" value="gson.jar"/>
+
+  <target name="gson-clean">
+    <delete dir="${gson.build.dir}" />
+    <delete dir="${gson.dist.dir}" />
+  </target>
+
+  <target name="gson-lib">
+    <!-- project layout -->
+    <mkdir dir="${gson.build.outdir}"/>
+    <mkdir dir="${gson.dist.dir}"/>
+    <!-- compile -->
+    <dependset>
+      <sources>
+        <fileset dir="${gson.dir}/gson/src/main" />
+      </sources>
+      <targets>
+        <fileset file="${gson.dist.dir}/${gson.libname}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main"
+          destdir="${gson.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${gson.dist.dir}/${gson.libname}"
+          basedir="${gson.build.outdir}"
+          includes="**"/>
+  </target>
 
   <!-- ******************* -->
   <!-- jack-default-lib    -->
