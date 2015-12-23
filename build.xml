@@ -78,6 +78,7 @@
     jill-api-src-clean,
     jillunittests-clean,
     jack-jar-tools-clean,
+    jacoco-clean,
     asm4-clean,
     gson-clean,
     dist-clean" />
@@ -109,6 +110,7 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
   <property name="jack-jar-tools.dir" value="${jack-project.dir}/jack-jar-tools"/>
+  <property name="jacoco.dir" value="${jack-project.dir}/jacoco"/>
 
   <property name="jill.dir" value="${jack-project.dir}/jill" />
   <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
@@ -2109,6 +2111,23 @@
     <jar destfile="${gson.dist.dir}/${gson.libname}"
           basedir="${gson.build.outdir}"
           includes="**"/>
+  </target>
+
+  <!-- ******************* -->
+  <!-- jacoco              -->
+  <!-- ******************* -->
+  <property name="jacoco.dist.dir" value="${jacoco.dir}/dist" />
+  <property name="jacoco.core.libname" value="org.jacoco.core.jar"/>
+  <property name="jacoco.report.libname" value="org.jacoco.report.jar"/>
+
+  <target name="jacoco-clean">
+    <delete dir="${jacoco.dist.dir}"/>
+  </target>
+
+  <target name="jacoco-libs">
+    <mkdir dir="${jacoco.dist.dir}"/>
+    <copy file="${jacoco.dir}/org.jacoco.core-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.core.libname}"/>
+    <copy file="${jacoco.dir}/org.jacoco.report-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.report.libname}"/>
   </target>
 
   <!-- ******************* -->

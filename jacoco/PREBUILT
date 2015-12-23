@@ -1,0 +1,6 @@
+We prebuild two jar files with Maven:
+
+mvn clean install
+cp org.jacoco.core/target/org.jacoco.core-0.7.5.201505241946.jar org.jacoco.core-0.7.5.201505241946.jar
+cp org.jacoco.report/target/org.jacoco.report-0.7.5.201505241946.jar org.jacoco.report-0.7.5.201505241946.jar
+mvn clean
