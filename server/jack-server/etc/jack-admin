@@ -441,6 +441,11 @@ case $COMMAND in
 
 
   start-server)
+    if [ ! -d "$JACK_HOME" ]; then
+      echo "Jack server installation not found" >&2
+      abort
+    fi
+
     isServerRunning
     RUNNING=$?
     if [ "$RUNNING" = 0 ]; then
