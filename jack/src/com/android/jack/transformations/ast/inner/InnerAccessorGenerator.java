@@ -174,23 +174,24 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     public boolean visit(@Nonnull JFieldRef x) {
       JNode parent = x.getParent();
       JField field = x.getFieldId().getField();
-      assert field != null;
-      JDefinedClassOrInterface accessorClass = getAccessorClass(field.getModifier(),
-          field.getEnclosingType());
-      assert currentType != null;
-      assert tr != null;
-      if (!accessorClass.isSameType(currentType)) {
-        assert accessorClass.getSourceInfo().getFileSourceInfo()
-            .equals(currentType.getSourceInfo().getFileSourceInfo());
-        if (parent instanceof JAsgOperation
-            && ((JAsgOperation) parent).getLhs() == x) {
-          // writing access
-          //
-          handleOuterFieldWrite(tr, x, accessorClass);
-        } else {
-          // reading access
-          //
-          handleOuterFieldRead(tr, x, accessorClass);
+
+      if (field != null) {
+        JDefinedClassOrInterface accessorClass =
+            getAccessorClass(field.getModifier(), field.getEnclosingType());
+        assert currentType != null;
+        assert tr != null;
+        if (!accessorClass.isSameType(currentType)) {
+          assert accessorClass.getSourceInfo().getFileSourceInfo()
+              .equals(currentType.getSourceInfo().getFileSourceInfo());
+          if (parent instanceof JAsgOperation && ((JAsgOperation) parent).getLhs() == x) {
+            // writing access
+            //
+            handleOuterFieldWrite(tr, x, accessorClass);
+          } else {
+            // reading access
+            //
+            handleOuterFieldRead(tr, x, accessorClass);
+          }
         }
       }
       return super.visit(x);
