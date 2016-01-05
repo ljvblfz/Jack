@@ -22,8 +22,9 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -36,14 +37,14 @@ import javax.annotation.Nonnull;
 public final class ReachingDefsMarker implements Marker {
 
   @Nonnull
-  private final List<DefinitionMarker> reachingDefs;
+  private final Set<DefinitionMarker> reachingDefs;
 
-  public ReachingDefsMarker(@Nonnull List<DefinitionMarker> reachingDefs) {
-    this.reachingDefs = Collections.unmodifiableList(reachingDefs);
+  public ReachingDefsMarker(@Nonnull Set<DefinitionMarker> reachingDefs) {
+    this.reachingDefs = Collections.unmodifiableSet(reachingDefs);
   }
 
   @Nonnull
-  public List<DefinitionMarker> getReachingDefs() {
+  public Collection<DefinitionMarker> getReachingDefs() {
     return reachingDefs;
   }
 

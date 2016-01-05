@@ -28,12 +28,15 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.ControlFlowHelper;
+import com.android.jack.util.OptimizationTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -41,17 +44,55 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
+
+import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
- * Simplify definition uses chains.
+ * Optimization will transform
+ * Path 1
+ * a = true   // s1
+ * ...
+ * Path 2
+ * a = false  // s2
+ * ...
+ * Path 3 target of path 1 & 2
+ * b = a      // s0
+ *
+ * To:
+ *
+ * Path 1
+ * b = true
+ * ...
+ * Path2
+ * b = false
+ * ...
+ * Path 3 target of path 1 & 2
+ *
+ * Optimization can be apply if the following conditions are respected:
+ * - Condition (0) s0 and s1 are into the same block then b must not defined between s1 and s0
+ * - Condition (1) s0 and s1 are not into the same block then b must not be defined into the
+ * block of s0 and before s0
+ * - Condition (2) s0 and s1 are not into the same block then b must not be defined into one of
+ *  the block of s1 to sn and after one statement from s1 to sn
+ *  - Condition (3) s0 and s1 are not into the same block then all definitions of b reaching
+ *  the block of s0 must be know before statement s1 from sn
  */
 @Description("Simplify definition uses chains.")
 @Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
     ControlFlowGraph.class})
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
+
+  @Nonnull
+  public static final StatisticId<Counter> SIMPLIFIED_DEF_USE = new StatisticId<Counter>(
+      "jack.optimization.defuse", "Def use chain simplified",
+      CounterImpl.class, Counter.class);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
@@ -70,31 +111,31 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
     @Override
     public boolean visit(@Nonnull JBinaryOperation binary) {
-      JExpression rhs = binary.getRhs();
-
       if (binary instanceof JAsgOperation) {
-        DefinitionMarker def = binary.getMarker(DefinitionMarker.class);
+        DefinitionMarker defOfb = binary.getMarker(DefinitionMarker.class);
 
-        if (def != null && def.hasValue()) {
-          JExpression valueExpr = def.getValue();
-          assert valueExpr == rhs;
+        if (defOfb != null && defOfb.hasValue()) {
+          JExpression valueExpr = defOfb.getValue();
+          assert valueExpr == binary.getRhs();
 
           if (valueExpr instanceof JVariableRef) {
-            UseDefsMarker udm = valueExpr.getMarker(UseDefsMarker.class);
-            assert udm != null;
+            JStatement s0 = defOfb.getStatement();
+            assert s0 != null;
+            List<DefinitionMarker> defsOfa =
+                OptimizationTools.getUsedDefinitions((JVariableRef) valueExpr);
 
-            if (allUsedDefsUseOnTimeAndNotRedefine(def, udm)) {
+            if (canApplyOptimisation(s0, defsOfa, defOfb)) {
+              tracer.getStatistic(SIMPLIFIED_DEF_USE).incValue();
+
               TransformationRequest tr = new TransformationRequest(method);
 
-              for (DefinitionMarker defMarker : udm.getDefs()) {
-                assert defMarker.getDefinedExpr() instanceof JVariableRef;
-
+              for (DefinitionMarker defOfa : defsOfa) {
                 tr.append(
-                    new Replace(defMarker.getDefinedExpr(), getNewVarRef(def.getDefinedExpr())));
-                updateDefUsesAndUseDefsChains(defMarker, def);
+                    new Replace(defOfa.getDefinedExpr(), getNewVarRef(defOfb.getDefinedExpr())));
+                updateUsagesOfDefinitions(defOfa, defOfb);
               }
 
-              def.removeAllUses();
+              defOfb.removeAllUses();
 
               tr.append(new Remove(binary.getParent()));
               tr.commit();
@@ -119,76 +160,71 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       return false;
     }
 
-    /**
-     * Check that used definitions (in the following sample: a=true and a=false) are used only one
-     * time and that there is no redefinition of the defined variable (in the following sample:
-     * b=a, thus check that b is not redefine) between used definitions and the binary operation
-     * that is a definition (in the following sample: definition of b)
-     *
-     * Check if the following code could be optimize from:
-     *
-     * Path 1
-     * a = true
-     * ...
-     * Path 2
-     * a = false
-     * ...
-     * Path 3 target of path 1 & 2
-     * b = a
-     *
-     * To:
-     *
-     * Path 1
-     * b = true
-     * ...
-     * Path2
-     * b = false
-     * ...
-     * Path 3 target of path 1 & 2
-     *
-     * @param def Definition that will be remove if optimization will be apply.
-     * @param usedDefs Used definitions.
-     * @return True if optimization could be done, false otherwise.
-     */
-    private boolean allUsedDefsUseOnTimeAndNotRedefine(@Nonnull DefinitionMarker def,
-        @Nonnull UseDefsMarker usedDefs) {
-      boolean allDefsUsesInASameDefNotModify = true;
+    private boolean canApplyOptimisation(@Nonnull JStatement s0,
+        @Nonnull List<DefinitionMarker> defaUsedBys0,
+        @Nonnull DefinitionMarker defOfb) {
+      BasicBlock bbOfs0 = ControlFlowHelper.getBasicBlock(s0);
+      JVariable b = defOfb.getDefinedVariable();
 
-      for (DefinitionMarker defMarker : usedDefs.getDefs()) {
-        if (defMarker.hasValue()
-              && defMarker.isUsedOnlyOnce()
-              && defMarker.getDefinedVariable().isSynthetic()
-              && !hasDefBetweenStatement(def.getDefinedVariable(),
-                  (JStatement) defMarker.getDefinition().getParent(),
-                  (JStatement) def.getDefinition().getParent())) {
-            continue;
+      if (defaUsedBys0.size() == 1) {
+        DefinitionMarker defOfa = defaUsedBys0.get(0);
+        if (isOptimizableDefinition(defOfa)) {
+          JStatement s1 = defOfa.getStatement();
+          assert s1 != null;
+          BasicBlock bbOfs1 = ControlFlowHelper.getBasicBlock(s1);
+          if (bbOfs1 == bbOfs0) {
+            // Condition (0)
+            return hasLocalDef(b, bbOfs1, s1, s0);
           }
-
-        allDefsUsesInASameDefNotModify = false;
-        break;
+        }
       }
 
-      return allDefsUsesInASameDefNotModify;
+      // Condition (1)
+      if (hasLocalDef(b, bbOfs0, null, s0)) {
+        return false;
+      }
+
+      Collection<DefinitionMarker> defsOfbReachingBbOfs0 =
+          OptimizationTools.getReachingDefs(bbOfs0, b);
+
+      for (DefinitionMarker defOfa : defaUsedBys0) {
+        if (!isOptimizableDefinition(defOfa)) {
+          return false;
+        }
+
+        JStatement stmtOfa = defOfa.getStatement();
+        assert stmtOfa != null;
+        BasicBlock bbOfa = ControlFlowHelper.getBasicBlock(stmtOfa);
+
+        // Condition (2)
+        if (hasLocalDef(b, bbOfa, stmtOfa, null)) {
+          return false;
+        } else {
+          DefinitionMarker previousDefOfB = getLastLocalDef(b, bbOfa, null, stmtOfa);
+          if (previousDefOfB != null) {
+            defsOfbReachingBbOfs0.remove(previousDefOfB);
+          } else {
+            defsOfbReachingBbOfs0.removeAll(OptimizationTools.getReachingDefs(bbOfa, b));
+          }
+        }
+      }
+
+      // Condition (3)
+      return defsOfbReachingBbOfs0.isEmpty();
     }
 
-    /**
-     * Update definition uses and use definitions chains to reflect that the following code:
-     * a = b (def1)
-     * c = a (def2)
-     * is transformed into
-     * c = b (def1)
-     * It is required to update the definition uses chains of the def1 and it is required to
-     * update the use definitions chains of c to target def1 rather than def2.
-     *
-     * @param defToUpdate definition to update.
-     * @param defUseByUpdate definition use to update {@code defToUpdate}.
-     */
-    private void updateDefUsesAndUseDefsChains(
-        @Nonnull DefinitionMarker defToUpdate, @Nonnull DefinitionMarker defUseByUpdate) {
-      defToUpdate.removeAllUses();
+    private boolean isOptimizableDefinition(@Nonnull DefinitionMarker definition) {
+      return (definition.hasValue()
+          && definition.getUses().size() == 1
+          && definition.getDefinedVariable().isSynthetic());
+    }
 
-      for (JVariableRef useOfRemoveDef : defUseByUpdate.getUses()) {
-        defToUpdate.addUse(useOfRemoveDef);
+    private void updateUsagesOfDefinitions(
+        @Nonnull DefinitionMarker oldDefOfaAndNewDefOfb, @Nonnull DefinitionMarker oldDefOfb) {
+      oldDefOfaAndNewDefOfb.removeAllUses();
+
+      for (JVariableRef useOfOldDefOfb : oldDefOfb.getUses()) {
+        oldDefOfaAndNewDefOfb.addUse(useOfOldDefOfb);
       }
     }
   }
@@ -202,9 +238,10 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
     assert cfg != null;
 
+    Visitor visitor = new Visitor(method);
+
     for (BasicBlock bb : cfg.getNodes()) {
       for (JStatement stmt : bb.getStatements()) {
-        Visitor visitor = new Visitor(method);
         visitor.accept(stmt);
       }
     }
