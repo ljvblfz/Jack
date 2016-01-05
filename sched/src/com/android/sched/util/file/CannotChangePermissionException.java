@@ -25,9 +25,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file or directory can not be set to the expected permission.
+ * Exception when the permissions of a file or directory cannot be changed.
  */
-public class CannotSetPermissionException extends WithLocationIOException {
+public class CannotChangePermissionException extends WithLocationIOException {
 
   /**
    * Represents whether the permission should be set or cleared.
@@ -44,12 +44,12 @@ public class CannotSetPermissionException extends WithLocationIOException {
   @Nonnull
   private final SetOrClearPermission setOrClear;
 
-  public CannotSetPermissionException(@Nonnull Location location, int permission,
+  public CannotChangePermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
     this(location, permission, change, setOrClear, null);
   }
 
-  public CannotSetPermissionException(@Nonnull Location location, int permission,
+  public CannotChangePermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
       @CheckForNull Throwable cause) {
     super(location, cause);
@@ -58,12 +58,12 @@ public class CannotSetPermissionException extends WithLocationIOException {
     this.setOrClear = setOrClear;
   }
 
-  public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
+  public CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
     this(locationProvider, permission, change, setOrClear, null);
   }
 
-  public CannotSetPermissionException(@Nonnull HasLocation locationProvider, int permission,
+  public CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
       @CheckForNull Throwable cause) {
     super(locationProvider, cause);

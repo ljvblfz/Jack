@@ -17,9 +17,9 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.config.MessageDigestFactory;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -57,7 +57,7 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
       @Nonnull MessageDigestFactory mdf, boolean debug)
       throws NotDirectoryException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       CannotCreateFileException {

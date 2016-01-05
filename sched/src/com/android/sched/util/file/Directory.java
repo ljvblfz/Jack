@@ -40,7 +40,7 @@ public class Directory extends FileOrDirectory {
   public Directory(@Nonnull String name, @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence, int permissions, @Nonnull ChangePermission change)
       throws WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       NotDirectoryException,
       FileAlreadyExistsException,
@@ -57,7 +57,7 @@ public class Directory extends FileOrDirectory {
       @Nonnull ChangePermission change)
       throws NotDirectoryException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       CannotCreateFileException {
@@ -76,7 +76,7 @@ public class Directory extends FileOrDirectory {
       int permissions,
       @Nonnull ChangePermission change)
       throws WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       NotDirectoryException,
       FileAlreadyExistsException,

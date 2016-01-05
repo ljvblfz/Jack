@@ -21,8 +21,8 @@ import com.android.sched.util.codec.FileOrDirCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
@@ -76,7 +76,7 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
     } catch (CannotCreateFileException e) {
       // file must exist
       throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       throw new ParsingException(e.getMessage(), e);
     } catch (ZipException e) {
       throw new ParsingException(e.getMessage(), e);

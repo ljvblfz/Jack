@@ -31,8 +31,8 @@ import com.android.jack.test.util.ExecuteFile;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
@@ -303,15 +303,15 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException {
+      throws CannotCreateFileException, CannotChangePermissionException {
     File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;
   }
 
   @Nonnull
-  public static File createTempDir() throws CannotCreateFileException, CannotSetPermissionException,
-      WrongPermissionException, IOException {
+  public static File createTempDir() throws CannotCreateFileException,
+      CannotChangePermissionException, WrongPermissionException, IOException {
     try {
       final File tmpDir = Files.createTempDir(TMP_PREFIX);
       Runtime.getRuntime().addShutdownHook(new Thread() {

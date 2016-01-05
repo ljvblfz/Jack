@@ -45,7 +45,7 @@ public class OutputZipFile extends OutputStreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -59,7 +59,7 @@ public class OutputZipFile extends OutputStreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -74,7 +74,7 @@ public class OutputZipFile extends OutputStreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {

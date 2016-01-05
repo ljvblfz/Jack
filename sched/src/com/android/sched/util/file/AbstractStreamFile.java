@@ -64,7 +64,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
       WrongPermissionException,
       FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException {
+      CannotChangePermissionException {
     assert file != null;
 
     if (existence == Existence.MAY_EXIST) {

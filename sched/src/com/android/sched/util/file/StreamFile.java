@@ -34,7 +34,7 @@ public class StreamFile extends AbstractStreamFile {
       @Nonnull Existence existence, int permissions, @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -49,7 +49,7 @@ public class StreamFile extends AbstractStreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {

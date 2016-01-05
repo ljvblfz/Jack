@@ -32,7 +32,7 @@ public class OutputFile extends InputOutputFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {

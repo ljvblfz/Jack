@@ -40,7 +40,7 @@ public class InputZipFile extends StreamFile {
       @Nonnull Existence existence, @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException,
@@ -54,7 +54,7 @@ public class InputZipFile extends StreamFile {
       throws NotFileException,
       FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       ZipException {
@@ -67,7 +67,7 @@ public class InputZipFile extends StreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException,

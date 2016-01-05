@@ -43,7 +43,7 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -453,7 +453,7 @@ public class TestTools {
   }
 
   public static File createTempDir(@Nonnull String prefix) throws CannotCreateFileException,
-      CannotSetPermissionException {
+      CannotChangePermissionException {
     final File tmp = Files.createTempDir(TMP_PREFIX + prefix);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -469,7 +469,7 @@ public class TestTools {
   }
 
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException {
+      throws CannotCreateFileException, CannotChangePermissionException {
     File tmp = Files.createTempFile(TMP_PREFIX + prefix, suffix);
     tmp.deleteOnExit();
     return tmp;

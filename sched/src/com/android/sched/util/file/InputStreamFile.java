@@ -68,7 +68,7 @@ public class InputStreamFile extends AbstractStreamFile implements InputStreamPr
       throw new AssertionError(e);
     } catch (CannotCreateFileException e) {
       throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       throw new AssertionError(e);
     }
   }

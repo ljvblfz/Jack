@@ -17,8 +17,8 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -116,7 +116,7 @@ public class CodecContext {
     try {
       this.workingDirectory = new Directory(workingDirectory.getPath(), null, Existence.MUST_EXIST,
           Permission.EXECUTE, ChangePermission.NOCHANGE);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       // we're not changing the permissions
       throw new AssertionError(e);
     } catch (FileAlreadyExistsException e) {

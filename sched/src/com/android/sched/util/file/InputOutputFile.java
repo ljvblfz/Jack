@@ -34,7 +34,7 @@ public class InputOutputFile extends StreamFile {
       @Nonnull ChangePermission change)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {

@@ -52,7 +52,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
       boolean append)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -67,7 +67,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
       boolean append)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -87,7 +87,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
       boolean append)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
@@ -115,7 +115,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
       throw new AssertionError(e);
     } catch (FileAlreadyExistsException e) {
       throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       throw new AssertionError(e);
     }
 
@@ -136,7 +136,7 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
       throw new AssertionError(e);
     } catch (FileAlreadyExistsException e) {
       throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       throw new AssertionError(e);
     } catch (CannotCreateFileException e) {
       throw new AssertionError(e);

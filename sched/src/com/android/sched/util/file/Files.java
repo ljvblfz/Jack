@@ -38,7 +38,7 @@ public class Files {
 
   @Nonnull
   public static File createTempDir(@Nonnull String prefix) throws CannotCreateFileException,
-      CannotSetPermissionException {
+      CannotChangePermissionException {
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
     String baseName = prefix + System.currentTimeMillis() + "-";
     Location location = null;
@@ -64,13 +64,13 @@ public class Files {
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix) throws CannotCreateFileException,
-      CannotSetPermissionException {
+      CannotChangePermissionException {
     return createTempFile(prefix, "");
   }
 
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
-      throws CannotCreateFileException, CannotSetPermissionException {
+      throws CannotCreateFileException, CannotChangePermissionException {
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
     String baseName = prefix + System.currentTimeMillis() + "-";
     Location location = null;

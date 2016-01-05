@@ -16,9 +16,9 @@
 
 package com.android.sched.util.config.cli;
 
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -172,7 +172,7 @@ public class TokenIterator {
     try {
       this.baseDirectory = new Directory(directory.getPath(), null, Existence.MUST_EXIST,
           Permission.EXECUTE, ChangePermission.NOCHANGE);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       // we're not changing the permissions
       throw new AssertionError(e);
     } catch (FileAlreadyExistsException e) {

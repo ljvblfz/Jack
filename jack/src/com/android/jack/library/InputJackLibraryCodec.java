@@ -24,8 +24,8 @@ import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.MessageDigestFactory;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory;
@@ -110,7 +110,7 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
     } catch (CannotCreateFileException e) {
       // the file or dir already exists
       throw new AssertionError(e);
-    } catch (CannotSetPermissionException e) {
+    } catch (CannotChangePermissionException e) {
       // we're not changing the permissions
       throw new AssertionError(e);
     } catch (WrongPermissionException e) {

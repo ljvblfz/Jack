@@ -35,8 +35,8 @@ import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.AbstractStreamFile;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory;
@@ -285,7 +285,7 @@ public abstract class CommonFilter {
         throw new AssertionError();
       } catch (CannotCreateFileException e) {
         throw new AssertionError();
-      } catch (CannotSetPermissionException e) {
+      } catch (CannotChangePermissionException e) {
         throw new AssertionError();
       } catch (WrongPermissionException e) {
         EmbeddedLibraryLoadingException reportable = new EmbeddedLibraryLoadingException(e);

@@ -20,9 +20,9 @@ import com.android.sched.util.config.AsapConfigBuilder;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
-import com.android.sched.util.file.CannotSetPermissionException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -69,7 +69,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -113,7 +113,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -162,7 +162,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -210,7 +210,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -256,7 +256,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -317,7 +317,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -385,7 +385,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -457,7 +457,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -505,7 +505,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -553,7 +553,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -602,7 +602,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -663,7 +663,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
@@ -768,7 +768,7 @@ public class VFSTest {
       throws NotDirectoryException,
       CannotCreateFileException,
       WrongPermissionException,
-      CannotSetPermissionException,
+      CannotChangePermissionException,
       NoSuchFileException,
       FileAlreadyExistsException,
       IOException {
