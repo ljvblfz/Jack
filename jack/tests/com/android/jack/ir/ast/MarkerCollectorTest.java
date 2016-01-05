@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.IllegalOptionsException;
 import com.android.jack.Options;
 import com.android.jack.frontend.ParentSetter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -23,10 +24,12 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,6 +39,9 @@ public class MarkerCollectorTest {
 
   @Nonnull
   private final JParameter param;
+
+  @Nonnull
+  private static RunnableHooks hooks;
 
   public MarkerCollectorTest() {
     JPackage p = new JPackage("test", null);
@@ -49,14 +55,18 @@ public class MarkerCollectorTest {
   }
 
   @BeforeClass
-  public static void setUp() throws Exception {
+  public static void setUp() throws ConfigurationException, IllegalOptionsException {
     Options options = new Options();
-    RunnableHooks hooks = new RunnableHooks();
+    hooks = new RunnableHooks();
     options.checkValidity(hooks);
     options.getConfigBuilder(hooks).setDebug();
     ThreadConfig.setConfig(options.getConfig());
   }
 
+  @AfterClass
+  public static void tearDown() throws Exception {
+    hooks.runHooks();
+  }
 
   @Test
   public void markerCollector001() {

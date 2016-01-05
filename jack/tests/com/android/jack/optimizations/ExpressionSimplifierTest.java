@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JByteLiteral;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDoubleLiteral;
+import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFloatLiteral;
@@ -36,7 +37,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JModifier;
-import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
@@ -56,6 +56,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,6 +74,8 @@ public class ExpressionSimplifierTest {
   @Nonnull
   private final JParameter param;
 
+  private static RunnableHooks hooks;
+
   public ExpressionSimplifierTest() {
     JPackage p = new JPackage("test", null);
     classTest = new JDefinedClass(SourceInfo.UNKNOWN, "Test", JModifier.PUBLIC, p,
@@ -86,13 +89,19 @@ public class ExpressionSimplifierTest {
     method.setBody(new JMethodBody(SourceInfo.UNKNOWN, bodyBlock));
 
   }
+
   @BeforeClass
   public static void setUp() throws Exception {
     Options options = new Options();
-    RunnableHooks hooks = new RunnableHooks();
+    hooks = new RunnableHooks();
     options.checkValidity(hooks);
     options.getConfigBuilder(hooks).setDebug();
     ThreadConfig.setConfig(options.getConfig());
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    hooks.runHooks();
   }
 
   @Nonnull
