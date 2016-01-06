@@ -126,6 +126,7 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.transformations.ast.TypeLegalizer;
 import com.android.jack.util.CloneExpressionVisitor;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.config.ThreadConfig;
@@ -671,14 +672,80 @@ public class JackIrBuilder {
     public void endVisit(ConditionalExpression x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JExpression valueIfFalse = pop(x.valueIfFalse);
-        JExpression valueIfTrue = pop(x.valueIfTrue);
-        JExpression condition = pop(x.condition);
-        push(new JConditionalExpression(info, condition, valueIfTrue,
-            valueIfFalse));
+
+        if (isOptimizedTrue(x.condition)) {
+          JExpression valueIfTrue = pop(x.valueIfTrue);
+          pop(x.condition); // condition is unused but need to be pop
+          push(generateImplicitConversion(x.implicitConversion, valueIfTrue));
+        } else if (isOptimizedFalse(x.condition)) {
+          JExpression valueIfFalse = pop(x.valueIfFalse);
+          pop(x.condition); // condition is unused but need to be pop
+          push(generateImplicitConversion(x.implicitConversion, valueIfFalse));
+        } else {
+          JExpression valueIfFalse = pop(x.valueIfFalse);
+          JExpression valueIfTrue = pop(x.valueIfTrue);
+          JExpression condition = pop(x.condition);
+          push(new JConditionalExpression(info, condition, valueIfTrue, valueIfFalse));
+        }
+
       } catch (RuntimeException e) {
         throw translateException(x, e);
       }
+    }
+
+    @Nonnull
+    private JExpression generateImplicitConversion(int implicitConversionCode,
+        @Nonnull JExpression expr) {
+      JExpression convertedExpression = expr;
+
+      if ((implicitConversionCode & TypeIds.UNBOXING) != 0) {
+        final int typeId = implicitConversionCode & TypeIds.COMPILE_TYPE_MASK;
+        convertedExpression = TypeLegalizer.unbox(convertedExpression, getJType(typeId));
+      }
+
+      if ((implicitConversionCode & TypeIds.BOXING) != 0) {
+        final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
+        convertedExpression = TypeLegalizer.box(convertedExpression, getJType(typeId));
+      }
+
+      return convertedExpression;
+    }
+
+    @Nonnull
+    private JClass getJType(final int typeId) throws AssertionError {
+      JClass boxedType = null;
+
+      switch (typeId) {
+        case TypeIds.T_byte:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
+          break;
+        case TypeIds.T_short:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_SHORT);
+          break;
+        case TypeIds.T_char:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_CHAR);
+          break;
+        case TypeIds.T_int:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
+          break;
+        case TypeIds.T_long:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_LONG);
+          break;
+        case TypeIds.T_float:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_FLOAT);
+          break;
+        case TypeIds.T_double:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
+          break;
+        case TypeIds.T_boolean:
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
+          break;
+        default: {
+          throw new AssertionError();
+        }
+      }
+
+      return boxedType;
     }
 
     @Override
@@ -2343,6 +2410,22 @@ public class JackIrBuilder {
         x.action = null;
       }
       return true;
+    }
+
+    @Override
+    public boolean visit(ConditionalExpression conditionalExpression, BlockScope scope) {
+      conditionalExpression.condition.traverse(this, scope);
+
+      if (isOptimizedTrue(conditionalExpression.condition)) {
+        conditionalExpression.valueIfTrue.traverse(this, scope);
+      } else if (isOptimizedFalse(conditionalExpression.condition)) {
+        conditionalExpression.valueIfFalse.traverse(this, scope);
+      } else {
+        conditionalExpression.valueIfTrue.traverse(this, scope);
+        conditionalExpression.valueIfFalse.traverse(this, scope);
+      }
+
+      return false;
     }
 
     @Override
@@ -4243,5 +4326,4 @@ public class JackIrBuilder {
         false /* isVirtualDispatch */);
     return call;
   }
-
 }
