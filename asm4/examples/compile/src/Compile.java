@@ -82,7 +82,8 @@ abstract class Exp implements Opcodes {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -120,7 +121,7 @@ class Cst extends Exp {
     @Override
     void compile(final MethodVisitor mv) {
         // pushes the constant's value onto the stack
-        mv.visitLdcInsn(new Integer(value));
+        mv.visitLdcInsn(value);
     }
 }
 
@@ -211,11 +212,11 @@ class GT extends BinaryExp {
         Label end = new Label();
         mv.visitJumpInsn(IF_ICMPGT, iftrue);
         // case where e1 <= e2 : pushes false and jump to "end"
-        mv.visitLdcInsn(new Integer(0));
+        mv.visitLdcInsn(0);
         mv.visitJumpInsn(GOTO, end);
         // case where e1 > e2 : pushes true
         mv.visitLabel(iftrue);
-        mv.visitLdcInsn(new Integer(1));
+        mv.visitLdcInsn(1);
         mv.visitLabel(end);
     }
 }
@@ -286,7 +287,7 @@ class Not extends Exp {
     @Override
     void compile(final MethodVisitor mv) {
         // computes !e1 by evaluating 1 - e1
-        mv.visitLdcInsn(new Integer(1));
+        mv.visitLdcInsn(1);
         e.compile(mv);
         mv.visitInsn(ISUB);
     }

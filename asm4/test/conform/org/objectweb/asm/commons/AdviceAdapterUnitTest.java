@@ -117,7 +117,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
         String cname;
 
         public AdviceClassAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -140,14 +140,14 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                 return mv;
             }
 
-            return new AdviceAdapter(Opcodes.ASM4, mv, access, name, desc) {
+            return new AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
 
                 @Override
                 protected void onMethodEnter() {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
                             "org/objectweb/asm/commons/AdviceAdapterUnitTest",
-                            "enter", "(Ljava/lang/String;)V");
+                            "enter", "(Ljava/lang/String;)V", false);
                 }
 
                 @Override
@@ -155,7 +155,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
                             "org/objectweb/asm/commons/AdviceAdapterUnitTest",
-                            "exit", "(Ljava/lang/String;)V");
+                            "exit", "(Ljava/lang/String;)V", false);
                 }
 
             };

@@ -96,7 +96,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>",
-                "()V");
+                "()V", false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -189,13 +189,13 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         cw.visitEnd();
         byte[] b = cw.toByteArray();
         ClassReader cr = new ClassReader(b);
-        cr.accept(new ClassVisitor(Opcodes.ASM4) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,
                     final String signature, final String[] exceptions) {
                 if (name.equals("m")) {
-                    return new MethodVisitor(Opcodes.ASM4) {
+                    return new MethodVisitor(Opcodes.ASM5) {
                         @Override
                         public void visitMaxs(final int realMaxStack,
                                 final int realMaxLocals) {

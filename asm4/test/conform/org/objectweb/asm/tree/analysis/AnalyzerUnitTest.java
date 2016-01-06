@@ -55,14 +55,14 @@ public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
         cw.visitEnd();
         byte[] b = cw.toByteArray();
         ClassReader cr = new ClassReader(b);
-        cr.accept(new ClassVisitor(Opcodes.ASM4) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,
                     final String signature, final String[] exceptions) {
                 if (name.equals("m")) {
-                    return new MethodNode(access, name, desc, signature,
-                            exceptions) {
+                    return new MethodNode(Opcodes.ASM5, access, name, desc,
+                            signature, exceptions) {
                         @Override
                         public void visitEnd() {
                             Analyzer<BasicValue> a = new Analyzer<BasicValue>(

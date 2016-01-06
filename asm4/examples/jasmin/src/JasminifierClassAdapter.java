@@ -171,7 +171,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
      *            calls. May be <tt>null</tt>.
      */
     public JasminifierClassAdapter(final PrintWriter pw, final ClassVisitor cv) {
-        super(Opcodes.ASM4, new ClassNode() {
+        super(Opcodes.ASM5, new ClassNode() {
             @Override
             public void visitEnd() {
                 if (cv != null) {
@@ -343,7 +343,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
                 }
                 for (int j = 0; j < mn.instructions.size(); ++j) {
                     AbstractInsnNode in = mn.instructions.get(j);
-                    in.accept(new MethodVisitor(Opcodes.ASM4) {
+                    in.accept(new MethodVisitor(Opcodes.ASM5) {
 
                         @Override
                         public void visitFrame(int type, int local,
@@ -437,7 +437,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
 
                         @Override
                         public void visitMethodInsn(int opcode, String owner,
-                                String name, String desc) {
+                                String name, String desc, boolean itf) {
                             print(opcode);
                             pw.print(' ');
                             pw.print(owner);
@@ -617,6 +617,9 @@ public class JasminifierClassAdapter extends ClassVisitor {
         if ((access & Opcodes.ACC_ENUM) != 0) {
             b.append(" enum");
         }
+        if ((access & Opcodes.ACC_MANDATED) != 0) {
+            b.append(" mandated");
+        }
         return b.toString();
     }
 
@@ -734,7 +737,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
             pw.print("[C = ");
             char[] v = (char[]) value;
             for (int i = 0; i < v.length; i++) {
-                pw.print(new Integer(v[i]));
+                pw.print((int)v[i]);
                 pw.print(' ');
             }
             pw.println();
