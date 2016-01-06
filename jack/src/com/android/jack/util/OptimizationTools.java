@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +37,7 @@ import javax.annotation.Nonnull;
 public class OptimizationTools {
 
   @Nonnull
-  public static Collection<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb) {
+  public static List<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb) {
     ReachingDefsMarker rdm = bb.getMarker(ReachingDefsMarker.class);
     assert rdm != null;
     return rdm.getReachingDefs();
