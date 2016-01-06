@@ -320,11 +320,16 @@ public class JavaTransformer {
 
   @Nonnull
   private ClassNode getClassNode(@Nonnull InputStream is) throws IOException {
-    ClassReader cr = new ClassReader(is);
-    ClassNode cn = new ClassNode();
-    cr.accept(cn, ClassReader.SKIP_FRAMES
-        | (options.isEmitDebugInfo() ? 0 : ClassReader.SKIP_DEBUG));
-    return cn;
+    try {
+      ClassReader cr = new ClassReader(is);
+      ClassNode cn = new ClassNode();
+      cr.accept(cn,
+          ClassReader.SKIP_FRAMES | (options.isEmitDebugInfo() ? 0 : ClassReader.SKIP_DEBUG));
+      return cn;
+    } catch (IllegalArgumentException e) {
+      // It means that class files come from an unsupported Java version
+      throw new JillException("class files coming from an unsupported Java version", e);
+    }
   }
 
   private void setJayceProperties() {
