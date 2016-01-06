@@ -68,7 +68,7 @@ public class Annotations {
                 final Type[] args = Type.getArgumentTypes(desc);
                 MethodVisitor v = cv.visitMethod(access, name, desc, signature,
                         exceptions);
-                return new MethodVisitor(Opcodes.ASM4, v) {
+                return new MethodVisitor(Opcodes.ASM5, v) {
 
                     private final List<Integer> params = new ArrayList<Integer>();
 
@@ -80,7 +80,7 @@ public class Annotations {
                         av = mv.visitParameterAnnotation(parameter, desc,
                                 visible);
                         if (desc.equals("LNotNull;")) {
-                            params.add(new Integer(parameter));
+                            params.add(parameter);
                         }
                         return av;
                     }
@@ -103,7 +103,7 @@ public class Annotations {
                             mv.visitLdcInsn("Argument " + param
                                     + " must not be null");
                             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, c,
-                                    "<init>", d);
+                                    "<init>", d, false);
                             mv.visitInsn(Opcodes.ATHROW);
                             mv.visitLabel(end);
                         }

@@ -38,6 +38,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.util.Printer;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -57,6 +58,8 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     SAXAdapter sa;
 
+    int access;
+
     private final Map<Label, String> labelNames;
 
     /**
@@ -66,17 +69,29 @@ public final class SAXCodeAdapter extends MethodVisitor {
      *            content handler that will be used to send SAX 2.0 events.
      */
     public SAXCodeAdapter(final SAXAdapter sa, final int access) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         this.sa = sa;
+        this.access = access;
         this.labelNames = new HashMap<Label, String>();
+    }
 
-        if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE)) == 0) {
-            sa.addStart("code", new AttributesImpl());
+    @Override
+    public void visitParameter(String name, int access) {
+        AttributesImpl attrs = new AttributesImpl();
+        if (name != null) {
+            attrs.addAttribute("", "name", "name", "", name);
         }
+        StringBuffer sb = new StringBuffer();
+        SAXClassAdapter.appendAccess(access, sb);
+        attrs.addAttribute("", "access", "access", "", sb.toString());
+        sa.addElement("parameter", attrs);
     }
 
     @Override
     public final void visitCode() {
+        if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE)) == 0) {
+            sa.addStart("code", new AttributesImpl());
+        }
     }
 
     @Override
@@ -176,11 +191,12 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     @Override
     public final void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc) {
+            final String name, final String desc, final boolean itf) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "owner", "owner", "", owner);
         attrs.addAttribute("", "name", "name", "", name);
         attrs.addAttribute("", "desc", "desc", "", desc);
+        attrs.addAttribute("", "itf", "itf", "", itf ? "true" : "false");
         sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
@@ -339,10 +355,47 @@ public final class SAXCodeAdapter extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
+                null, desc, typeRef, typePath);
+    }
+
+    @Override
     public AnnotationVisitor visitParameterAnnotation(final int parameter,
             final String desc, final boolean visible) {
         return new SAXAnnotationAdapter(sa, "parameterAnnotation", visible ? 1
                 : -1, parameter, desc);
+    }
+
+    @Override
+    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "insnAnnotation", visible ? 1 : -1,
+                null, desc, typeRef, typePath);
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "tryCatchAnnotation", visible ? 1
+                : -1, null, desc, typeRef, typePath);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
+        String[] s = new String[start.length];
+        String[] e = new String[end.length];
+        for (int i = 0; i < s.length; ++i) {
+            s[i] = getLabel(start[i]);
+        }
+        for (int i = 0; i < e.length; ++i) {
+            e[i] = getLabel(end[i]);
+        }
+        return new SAXAnnotationAdapter(sa, "localVariableAnnotation",
+                visible ? 1 : -1, null, desc, typeRef, typePath, s, e, index);
     }
 
     @Override

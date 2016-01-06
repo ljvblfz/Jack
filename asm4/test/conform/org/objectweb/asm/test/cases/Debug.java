@@ -71,12 +71,14 @@ public class Debug extends Generator {
         mv.visitLabel(l0);
         mv.visitLineNumber(3, l0);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(ICONST_0);
         mv.visitJumpInsn(IFEQ, l1);
         mv.visitJumpInsn(GOTO, l1);
         mv.visitLabel(l1);
         mv.visitLineNumber(3, l1);
+        mv.visitLineNumber(42, l1);
         mv.visitInsn(RETURN);
         mv.visitLabel(l2);
         mv.visitLocalVariable("this", "Lpkg/Debug;", "Lpkg/Debug;", l0, l2, 0);
