@@ -2278,6 +2278,7 @@
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
+       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="com.android.jack.PreSubmitTests"/>
     </java>
@@ -2289,6 +2290,7 @@
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath"/>
+        <filelist refid="ecj-test-libs"/>
        </classpath>
        <arg value="com.android.jack.LongLastingTests"/>
      </java>
