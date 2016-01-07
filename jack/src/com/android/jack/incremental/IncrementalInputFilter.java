@@ -196,9 +196,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillDeletedFileNames(deletedFileNames);
     }
 
-    importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
+    importedLibrariesFromCommandLine = getImportedLibraries(config.get(Options.IMPORTED_LIBRARIES));
     List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
-    librariesOnClasspathFromCommandLine = getInputLibrariesFromFiles(
+    librariesOnClasspathFromCommandLine = getClasspathLibraries(
         classpathContent,
         config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
