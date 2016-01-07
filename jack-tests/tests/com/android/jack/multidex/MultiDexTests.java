@@ -39,7 +39,6 @@ import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;
@@ -268,7 +267,7 @@ public class MultiDexTests {
       throws Exception {
     File outDir = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -301,7 +300,7 @@ public class MultiDexTests {
     File jppDir = AbstractTestTools.getTestRootDir("com.android.jack.multidex.jpp");
     File autoLibrary = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyJillToolchain.class);
+    exclude.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addMetaDir(jppDir)

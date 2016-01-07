@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
  * This class defines a toolchain that uses Jill via jill-api, and rely on
  * Jack and legacy compiler CLIs for complementary steps.
  */
-public abstract class JillApiToolchainBase extends JillBasedToolchain {
+public abstract class JillApiToolchainBase extends ExternalJillBasedToolchain {
 
   @Nonnull
   protected JillConfig config;

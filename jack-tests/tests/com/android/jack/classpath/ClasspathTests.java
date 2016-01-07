@@ -29,7 +29,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;

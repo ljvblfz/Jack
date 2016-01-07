@@ -34,7 +34,6 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -488,7 +487,7 @@ public class FileConflictTests {
   @Nonnull
   private JackBasedToolchain getToolchain(boolean isApiTest) {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(LegacyJillToolchain.class);
+    excludeList.add(JillBasedToolchain.class);
     if (isApiTest) {
       excludeList.add(JackCliToolchain.class);
     }
