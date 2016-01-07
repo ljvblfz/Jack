@@ -248,18 +248,66 @@ public class ClasspathTests {
     File zip = new File(srcDir, "notjack.zip");
     Assert.assertTrue(zip.isFile());
 
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    // check that using a zip that is neither a Jack lib or a Jar generates a warning
+    {
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(zip)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("WARNING: Bad classpath entry ignored"));
+      Assert.assertTrue(errString.contains("is not a jack library"));
+    }
 
-    File testOut = AbstractTestTools.createTempFile("ClasspathTest", "invalid");
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .addToClasspath(zip)
-    .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+    // check that using a zip in strict mode generates an error
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    try {
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      toolchain.setErrorStream(errOut);
+      toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(zip)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+    } catch (JackAbortException e) {
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("ERROR: Library reading phase"));
+      Assert.assertTrue(errString.contains("is not a jack library"));
+    }
+  }
 
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+  @Test
+  public void testWithInvalidJarInClasspath() throws Exception {
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
+    File jar = new File(srcDir, "invalid.jar");
+    Assert.assertTrue(jar.isFile());
 
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(zip)
-        .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+    // check that using an invalid jar does nothing
+    {
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(jar)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+      Assert.assertTrue(errOut.toString().isEmpty());
+    }
+
+    // check that using an invalid jar in strict mode still does nothing
+    {
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      toolchain.setErrorStream(errOut);
+      toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(jar)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+      Assert.assertTrue(errOut.toString().isEmpty());
+    }
   }
 }

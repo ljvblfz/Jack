@@ -18,20 +18,29 @@ package com.android.jack.incremental;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
+import com.android.jack.JackIOException;
 import com.android.jack.JackUserException;
+import com.android.jack.JarTransformationException;
 import com.android.jack.LibraryException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InvalidLibrary;
 import com.android.jack.library.JackLibraryFactory;
+import com.android.jack.library.JarLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jill.Jill;
+import com.android.jill.JillException;
+import com.android.jill.utils.FileUtils;
+import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.AbstractStreamFile;
@@ -43,6 +52,7 @@ import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.Files;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
@@ -213,7 +223,7 @@ public abstract class CommonFilter {
   }
 
   @Nonnull
-  protected List<InputLibrary> getInputLibrariesFromFiles(
+  protected List<InputLibrary> getClasspathLibraries(
       @Nonnull List<InputLibrary> files,
       boolean strictMode) {
     List<InputLibrary> libraries;
@@ -226,38 +236,84 @@ public abstract class CommonFilter {
     for (InputLibrary library : files) {
       if (library instanceof InputJackLibrary) {
         libraries.add(library);
-      } else if (library instanceof InvalidLibrary) {
-        // let's find why this library is invalid
-        Exception exception = null;
-        try {
-          File file = new File(library.getPath());
-          AbstractStreamFile.check(file, library.getLocation());
-          FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
-          // the file exists, permissions are OK, so let's consider this is not a Jack library
-          throw new NotJackLibraryException(library.getLocation());
-        } catch (WrongPermissionException e) {
-          exception = e;
-        } catch (NoSuchFileException e) {
-          exception = e;
-        } catch (NotFileException e) {
-          exception = e;
-        } catch (NotJackLibraryException e) {
-          exception = e;
-        }
-
-        if (strictMode) {
-          ReportableException reportable = new LibraryReadingException(exception);
-          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
-          throw new JackAbortException(reportable);
+      } else if (library instanceof JarLibrary) {
+        File libraryFile = new File(library.getPath());
+        if (FileUtils.isJarFile(libraryFile)) {
+          try {
+            libraries.add(convertJarWithJill(libraryFile));
+          } catch (JarTransformationException e) {
+            Jack.getSession().getReporter().report(Severity.FATAL, e);
+            throw new JackAbortException(e);
+          }
         } else {
-          // Ignore bad entry
-          Jack.getSession().getReporter().report(Severity.NON_FATAL,
-              new ClasspathEntryIgnoredReportable(exception));
+          reportInvalidLibrary(library, strictMode);
         }
+      } else if (library instanceof InvalidLibrary) {
+        reportInvalidLibrary(library, strictMode);
+      } else {
+        throw new AssertionError();
       }
     }
 
     return libraries;
+  }
+
+  protected List<? extends InputLibrary> getImportedLibraries(@Nonnull List<InputLibrary> files) {
+    List<InputLibrary> libraries = new ArrayList<InputLibrary>();
+    for (InputLibrary library : files) {
+      if (library instanceof InputJackLibrary) {
+        libraries.add(library);
+      } else if (library instanceof JarLibrary) {
+        File libraryFile = new File(library.getPath());
+        if (FileUtils.isJarFile(libraryFile)) {
+          try {
+            libraries.add(convertJarWithJill(libraryFile));
+          } catch (JarTransformationException e) {
+            Jack.getSession().getReporter().report(Severity.FATAL, e);
+            throw new JackAbortException(e);
+          }
+        } else {
+          // We know this is a valid zip that does not have the .jar extension
+          ReportableException reportable =
+              new LibraryReadingException(new NotJackLibraryException(library.getLocation()));
+          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+          throw new JackAbortException(reportable);
+        }
+      } else {
+        throw new AssertionError();
+      }
+    }
+    return libraries;
+  }
+
+  private void reportInvalidLibrary(@Nonnull InputLibrary library, boolean strictMode) {
+    // let's find why this library is invalid
+    Exception exception = null;
+    try {
+      File file = new File(library.getPath());
+      AbstractStreamFile.check(file, library.getLocation());
+      FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
+      // the file exists, permissions are OK, so let's consider this is not a Jack library
+      throw new NotJackLibraryException(library.getLocation());
+    } catch (WrongPermissionException e) {
+      exception = e;
+    } catch (NoSuchFileException e) {
+      exception = e;
+    } catch (NotFileException e) {
+      exception = e;
+    } catch (NotJackLibraryException e) {
+      exception = e;
+    }
+
+    if (strictMode) {
+      ReportableException reportable = new LibraryReadingException(exception);
+      Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+      throw new JackAbortException(reportable);
+    } else {
+      // Ignore bad entry
+      Jack.getSession().getReporter().report(Severity.NON_FATAL,
+          new ClasspathEntryIgnoredReportable(exception));
+    }
   }
 
   private List<InputLibrary> getDefaultLibraries() {
@@ -315,5 +371,45 @@ public abstract class CommonFilter {
   @Nonnull
   public OutputJackLibrary getOutputJackLibrary() {
     return outputJackLibrary;
+  }
+
+  @Nonnull
+  private InputJackLibrary convertJarWithJill(@Nonnull File libraryFile)
+      throws JarTransformationException {
+    try {
+      com.android.jill.Options jillOptions = new com.android.jill.Options();
+
+      final File tempFile = Files.createTempFile("jill-", ".jack");
+      Runnable tempFileDeleter = new Runnable() {
+        @Override
+        public void run() {
+          boolean deleted = tempFile.delete();
+          if (!deleted) {
+            throw new JackIOException("Failed to delete temporary file " + tempFile);
+          }
+        }
+      };
+      Jack.getSession().getHooks().addHook(tempFileDeleter);
+
+      jillOptions.setBinaryFile(libraryFile);
+      jillOptions.setOutput(tempFile);
+      Jill.process(jillOptions);
+      InputJackLibraryCodec codec = new InputJackLibraryCodec();
+      CodecContext context = new CodecContext();
+      InputJackLibrary inputLib = codec.checkString(context, tempFile.getPath());
+      if (inputLib == null) {
+        inputLib = codec.parseString(context, tempFile.getPath());
+      }
+      return inputLib;
+
+    } catch (ParsingException e) {
+      throw new JarTransformationException(e.getCause());
+    } catch (CannotCreateFileException e) {
+      throw new JarTransformationException(e);
+    } catch (CannotChangePermissionException e) {
+      throw new JarTransformationException(e);
+    } catch (JillException e) {
+      throw new JarTransformationException(e);
+    }
   }
 }

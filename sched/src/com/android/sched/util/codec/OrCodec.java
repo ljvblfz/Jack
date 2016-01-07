@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 public class OrCodec<T> implements StringCodec<T> {
   @Nonnull
-  private final List<StringCodec<? extends T>> codecList;
+  protected final List<StringCodec<? extends T>> codecList;
 
   public OrCodec(@Nonnull List<StringCodec<? extends T>> codecList) {
     assert codecList.size() >= 2;
