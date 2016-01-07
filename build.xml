@@ -2303,6 +2303,10 @@
     <istrue value="${tests.console-output}"/>
   </condition>
 
+  <condition property="jack.runtime.version" value="-Druntime.version=${runtime.version}" else="">
+    <isset property="runtime.version"/>
+  </condition>
+
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
@@ -2328,6 +2332,7 @@
       classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
        <filelist refid="ecj-test-libs"/>
@@ -2343,12 +2348,47 @@
       classname="com.android.jack.test.junit.JackJUnitLauncher">
        <jvmarg value="-Dtests.dump=true" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
+       <jvmarg line="${jack.runtime.version}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath"/>
         <filelist refid="ecj-test-libs"/>
        </classpath>
        <arg value="com.android.jack.LongLastingTests"/>
      </java>
+
+  </target>
+
+  <target name="test-jack-java8-pre-n-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true" failonerror="true"
+      output="${jack-tests.dir}/dump/Java8AllTestPreN.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+       <filelist refid="ecj-test-libs"/>
+      </classpath>
+      <arg value="com.android.jack.java8.Java8AllTestPreN"/>
+    </java>
+
+  </target>
+
+  <target name="test-jack-java8-post-m-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true" failonerror="true"
+      output="${jack-tests.dir}/dump/Java8AllTestPostM.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+       <filelist refid="ecj-test-libs"/>
+      </classpath>
+      <arg value="com.android.jack.java8.Java8AllTestPostM"/>
+    </java>
 
   </target>
 
@@ -2380,6 +2420,7 @@
       <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
+      <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
        <filelist refid="ecj-test-libs"/>
@@ -2412,6 +2453,7 @@
       <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
+      <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
        <filelist refid="ecj-test-libs"/>
@@ -2444,6 +2486,7 @@
        <jvmarg value="-Dfile.encoding=utf-8" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <jvmarg value="${jack.tests.assertions}"/>
+       <jvmarg line="${jack.runtime.version}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
         <filelist refid="ecj-test-libs"/>
@@ -2476,6 +2519,7 @@
         <jvmarg value="-Dfile.encoding=utf-8" />
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="${jack.tests.assertions}"/>
+        <jvmarg line="${jack.runtime.version}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
           <filelist refid="ecj-test-libs"/>

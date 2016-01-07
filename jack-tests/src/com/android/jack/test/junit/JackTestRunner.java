@@ -37,6 +37,9 @@ public class JackTestRunner extends Categories {
 
   private boolean dumpTests = false;
 
+  @Nonnull
+  private RuntimeVersion runtimeVersion;
+
   private static class ToolchainFilter extends Filter {
 
     @Nonnull
@@ -47,11 +50,15 @@ public class JackTestRunner extends Categories {
 
     private boolean dumpTests = false;
 
-    public ToolchainFilter(
-        @Nonnull IToolchain candidate, @Nonnull IToolchain reference, boolean dumpTest) {
+    @Nonnull
+    private RuntimeVersion runtimeVersion;
+
+    public ToolchainFilter(@Nonnull IToolchain candidate, @Nonnull IToolchain reference,
+        boolean dumpTest, @Nonnull RuntimeVersion runtimeVersion) {
       this.candidate = candidate;
       this.reference = reference;
       this.dumpTests = dumpTest;
+      this.runtimeVersion = runtimeVersion;
     }
 
     @Override
@@ -66,13 +73,17 @@ public class JackTestRunner extends Categories {
 
       KnownIssue knownIssueAnnot = description.getAnnotation(KnownIssue.class);
 
-      if (knownIssueAnnot == null) {
-        shouldRun = true;
-      } else {
-        shouldRun = (knownIssueAnnot.candidate().length > 0
-                     || knownIssueAnnot.reference().length > 0)
-                   && (isValidToolchain(candidate, knownIssueAnnot.candidate())
-                       && isValidToolchain(reference, knownIssueAnnot.reference()));
+      MinRuntimeVersion minRuntimeVersion = description.getAnnotation(MinRuntimeVersion.class);
+
+      if (minRuntimeVersion == null || minRuntimeVersion.value().compareTo(runtimeVersion) <= 0) {
+        if (knownIssueAnnot == null) {
+          shouldRun = true;
+        } else {
+          shouldRun = (knownIssueAnnot.candidate().length > 0
+                       || knownIssueAnnot.reference().length > 0)
+                     && (isValidToolchain(candidate, knownIssueAnnot.candidate())
+                         && isValidToolchain(reference, knownIssueAnnot.reference()));
+        }
       }
 
       if (dumpTests && description.getMethodName() != null) {
@@ -104,8 +115,11 @@ public class JackTestRunner extends Categories {
 
     dumpTests = Boolean.parseBoolean(System.getProperty("tests.dump", "false"));
 
+    runtimeVersion =
+        RuntimeVersion.valueOf(System.getProperty("runtime.version", "M").toUpperCase());
+
     ToolchainFilter filter = new ToolchainFilter(AbstractTestTools.getCandidateToolchain(),
-        AbstractTestTools.getReferenceToolchain(), dumpTests);
+        AbstractTestTools.getReferenceToolchain(), dumpTests, runtimeVersion);
 
     try {
       filter(filter);

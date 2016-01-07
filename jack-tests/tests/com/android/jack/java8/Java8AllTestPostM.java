@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,25 @@ package com.android.jack.java8;
 
 
 import com.android.jack.test.junit.JackTestRunner;
+import com.android.jack.test.junit.MinRuntimeVersion;
+import com.android.jack.test.junit.RuntimeVersion;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * JUnit test for compilation of Java 8 features
+ * JUnit tests for compilation of Java 8 features which require a post M runtime.
  */
 @RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
-    Java8AllTestPreN.class,
-    Java8AllTestPostM.class
+    DefaultMethodTest.class,
+    EcjInterfaceMethodsTest.class,
+    EcjLambdaTestPostM.class,
+    GwtTestPostM.class,
+    RetroLambdaTests.class,
+    StaticMethodTest.class,
     })
-public class Java8AllTest {
+@MinRuntimeVersion(RuntimeVersion.N)
+public class Java8AllTestPostM {
+
 }

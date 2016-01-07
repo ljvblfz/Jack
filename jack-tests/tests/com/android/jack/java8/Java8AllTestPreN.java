@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,14 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
-    Java8AllTestPreN.class,
-    Java8AllTestPostM.class
+    AnnotationTest.class,
+    BridgeTest.class,
+    EcjLambdaTest.class,
+    GwtTest.class,
+    IntersectionTypeTest.class,
+    LambdaTest.class,
+    MethodRefTest.class,
+    TypeInferenceTest.class
     })
-public class Java8AllTest {
+public class Java8AllTestPreN {
 }

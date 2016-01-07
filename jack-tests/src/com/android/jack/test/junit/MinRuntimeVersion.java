@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.jack.java8;
+package com.android.jack.test.junit;
 
-
-import com.android.jack.test.junit.JackTestRunner;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * JUnit test for compilation of Java 8 features
+ * Tests that required a post M runtime.
  */
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    Java8AllTestPreN.class,
-    Java8AllTestPostM.class
-    })
-public class Java8AllTest {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface MinRuntimeVersion {
+  RuntimeVersion value();
 }
+

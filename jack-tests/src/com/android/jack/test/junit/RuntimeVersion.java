@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.android.jack.java8;
-
-
-import com.android.jack.test.junit.JackTestRunner;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+package com.android.jack.test.junit;
 
 /**
- * JUnit test for compilation of Java 8 features
+ * Runtime version.
  */
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    Java8AllTestPreN.class,
-    Java8AllTestPostM.class
-    })
-public class Java8AllTest {
+public enum RuntimeVersion {
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O
 }
+

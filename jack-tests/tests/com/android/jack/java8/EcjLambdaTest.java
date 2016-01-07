@@ -60,7 +60,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
           @Override
           public boolean shouldRun(Description description) {
             if (testWithApiUsage.contains(description.getMethodName())
-                || testWithOtherErrorMsg.contains(description.getMethodName())) {
+                || testWithOtherErrorMsg.contains(description.getMethodName())
+                || EcjLambdaTestPostM.testForNewRuntime.contains(description.getMethodName())) {
               return false;
             }
             return true;
