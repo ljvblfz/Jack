@@ -32,6 +32,7 @@ import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -395,6 +396,10 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   private void writeJavaMethodBody() throws IOException {
+    if (AsmHelper.isInterface(currentClass)) {
+      throw new JillException((AsmHelper.isStatic(currentMethod) ? "static" : "default")
+          + " method into interface is not supported");
+    }
     sourceInfoWriter.writeDebugBegin(currentClass, startLine);
     writer.writeKeyword(Token.METHOD_BODY);
     writer.writeOpen();
@@ -506,6 +511,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         } else if (insn instanceof MultiANewArrayInsnNode) {
           assert nextFrame != null;
           writeInsn(currentFrame, nextFrame, (MultiANewArrayInsnNode) insn);
+        } else if (insn instanceof InvokeDynamicInsnNode) {
+          throw new JillException("invoke-dynamic is not supported");
         } else {
           throw new JillException("Unsupported instruction.");
         }
