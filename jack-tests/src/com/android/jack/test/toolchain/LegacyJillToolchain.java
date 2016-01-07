@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link JillBasedToolchain} uses legacy java compiler as a frontend.
  */
-public class LegacyJillToolchain extends JillBasedToolchain {
+public class LegacyJillToolchain extends ExternalJillBasedToolchain {
 
   @Nonnull
   private File jillPrebuilt;
