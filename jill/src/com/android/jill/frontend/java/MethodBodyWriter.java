@@ -396,10 +396,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   private void writeJavaMethodBody() throws IOException {
-    if (AsmHelper.isInterface(currentClass)) {
-      throw new JillException((AsmHelper.isStatic(currentMethod) ? "static" : "default")
-          + " method into interface is not supported");
-    }
     sourceInfoWriter.writeDebugBegin(currentClass, startLine);
     writer.writeKeyword(Token.METHOD_BODY);
     writer.writeOpen();
