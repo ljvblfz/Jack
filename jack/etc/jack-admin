@@ -25,6 +25,7 @@ umask 077
 LOCAL_SETTING="$HOME/.jack"
 TMPDIR=${TMPDIR:=/tmp}
 SERVER_DIR=$TMPDIR/jack-$USER
+JACK_CLIENT_LOG=${JACK_CLIENT_LOG:="$SERVER_DIR/client.log"}
 
 #
 # Load local settings
@@ -97,7 +98,14 @@ case $1 in
       JACK_SERVER_COMMAND="java -Djava.io.tmpdir=$TMPDIR -cp $JACK_JAR com.android.jack.server.JackSimpleServer"
     fi
     echo "Launching Jack server" $JACK_SERVER_COMMAND
-    $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT &
+    (
+      trap "" SIGHUP
+      for i in $(seq 3 255); do
+        eval exec "$i"'>&-'
+      done
+      exec $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT
+      exit 255
+    ) >>$JACK_CLIENT_LOG 2>>$JACK_CLIENT_LOG &
     exit 0 ;;
   *)
     echo "Usage : $0 [ start-server | stop-server | kill-server | list-server | server-stat ]"

@@ -147,7 +147,14 @@ while true; do
       else
         let RETRY_LAUNCH=RETRY_LAUNCH-1
         echo "Launching background server" $JACK_SERVER_COMMAND
-        $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT &
+        (
+          trap "" SIGHUP
+          for i in $(seq 3 255); do
+            eval exec "$i"'>&-'
+          done
+          exec $JACK_SERVER_COMMAND $SERVER_PORT_SERVICE $SERVER_PORT_ADMIN $SERVER_COUNT $SERVER_NB_COMPILE $SERVER_TIMEOUT
+          exit 255
+        ) >>$JACK_CLIENT_LOG 2>>$JACK_CLIENT_LOG &
         # New server, let's try a bit to connect
         let DATE_CONNECT=$(date +%s)+$DELAY_CONNECT;
       fi
