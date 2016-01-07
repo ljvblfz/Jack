@@ -79,7 +79,7 @@ public class Main {
       Jill.process(options);
 
     } catch (JillException e) {
-        err.println("Binary transformation of " + options.getBinaryFile().getName()
+        err.println("Binary transformation of " + options.getBinaryFile().getPath()
             + " failed: " + e.getMessage());
         if (options.isVerbose()) {
           e.printStackTrace(err);

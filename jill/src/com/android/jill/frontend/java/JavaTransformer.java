@@ -160,8 +160,10 @@ public class JavaTransformer {
       }
       transformJavaFiles(jarFile, zos);
       dumpJackLibraryProperties(zos);
+    } catch (JillException e) {
+      throw e;
     } catch (Exception e) {
-      throw new JillException("Failed to transform " + jarFile.getName(), e);
+      throw new JillException(e.getMessage(), e);
     } finally {
       if (zos != null) {
         try {
