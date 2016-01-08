@@ -102,6 +102,8 @@ public abstract class AbstractTestTools {
   private static final Splitter listSplitter =
       Splitter.on(PROPERTY_VALUE_SEPARATOR).trimResults().omitEmptyStrings();
 
+  private static boolean hasRuntimeWarningBeenEmitted = false;
+
 
   static {
 
@@ -644,6 +646,12 @@ public abstract class AbstractTestTools {
         return parseRuntimeList(rtAsString);
       }
     }
+
+    if (!hasRuntimeWarningBeenEmitted && runtimes.size() == 0) {
+      System.err.println("WARNING: no runtime has been provided");
+      hasRuntimeWarningBeenEmitted = true;
+    }
+
     return runtimes;
   }
 
@@ -744,10 +752,7 @@ public abstract class AbstractTestTools {
     TestsProperties.getProperty(LEGACY_COMPILER_KEY);
     String runtimeList = printProperty(RUNTIME_LIST_KEY);
 
-    if (runtimes.size() == 0) {
-      System.err.println(
-          "WARNING: no runtime has been provided");
-    } else {
+    if (runtimes.size() != 0) {
       for (String runtimeName : listSplitter.split(runtimeList)) {
         printProperty(RUNTIME_LOCATION_PREFIX + runtimeName);
       }
