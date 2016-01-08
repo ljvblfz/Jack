@@ -36,7 +36,6 @@ import com.android.sched.util.config.id.LongPropertyId;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
@@ -124,34 +123,39 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
     @Override
     public void run() {
-      while (true) {
-        try {
-          synchronized (this) {
-            currentTask = null;
-            currentTaskStartOn = System.currentTimeMillis();
-          }
-
-          Task task = queue.take();
-
-          synchronized (this) {
-            currentTask = task;
-            currentTaskStartOn = System.currentTimeMillis();
-          }
-
-          assert currentTask != null;
-          assert currentTask.assertProcessable();
-
-          if (currentTask.process()) {
+      try {
+        while (true) {
+          try {
             synchronized (this) {
               currentTask = null;
               currentTaskStartOn = System.currentTimeMillis();
             }
 
-            return;
+            Task task = queue.take();
+
+            synchronized (this) {
+              currentTask = task;
+              currentTaskStartOn = System.currentTimeMillis();
+            }
+
+            assert currentTask != null;
+            assert currentTask.assertProcessable();
+
+            if (currentTask.process()) {
+              synchronized (this) {
+                currentTask = null;
+                currentTaskStartOn = System.currentTimeMillis();
+              }
+
+              return;
+            }
+          } catch (InterruptedException e) {
+            // Nothing to do
           }
-        } catch (InterruptedException e) {
-          // Nothing to do
         }
+      } catch (Throwable e) {
+        new AssertionErrorTask(queue,
+            new AssertionError("Uncaught exception in thread '" + getName() + "'", e)).commit();
       }
     }
 
@@ -456,14 +460,6 @@ public class MultiWorkersScheduleInstance<T extends Component>
     for (int i = 0; i < threadPoolSize; i++) {
       Worker worker = new Worker(queue);
 
-      worker.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-        @Override
-        public void uncaughtException(Thread thread, Throwable e) {
-          new AssertionErrorTask(queue,
-              new AssertionError("Uncaught exception in thread '" + thread.getName() + "'", e))
-                  .commit();
-        }
-      });
       worker.setName(name + i);
       worker.setDaemon(true);
       worker.start();
