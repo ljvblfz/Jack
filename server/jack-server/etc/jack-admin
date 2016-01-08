@@ -546,13 +546,13 @@ case $COMMAND in
 
     trap 'rm -f "$REPORT_INFO" 2>/dev/null;' EXIT
 
+    echo "Collecting info to '$REPORT_INFO'"
+    date >>"$REPORT_INFO" 2>&1
+
     echo "Dumping Jack server stacks"
     echo >>"$REPORT_INFO"
     echo "\$ ps -A -o \"pid args\" | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3" >>"$REPORT_INFO"
             (ps -A -o  "pid args"  | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3) >>"$REPORT_INFO" 2>&1
-
-    echo "Collecting info to '$REPORT_INFO'"
-    date >>"$REPORT_INFO" 2>&1
 
     echo "Getting current user id"
     echo >>"$REPORT_INFO"
