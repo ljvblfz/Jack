@@ -534,7 +534,7 @@ case $COMMAND in
       abort
     fi
 
-    echo "Creating report"
+    echo "Creating report..."
     REPORT="jack-report.$$.zip"
     REPORT_PATH="$(pwd)/$REPORT"
     REPORT_INFO="$JACK_HOME/report.$$.txt"
@@ -546,57 +546,56 @@ case $COMMAND in
 
     trap 'rm -f "$REPORT_INFO" 2>/dev/null;' EXIT
 
-    echo "Collecting info to '$REPORT_INFO'"
     date >>"$REPORT_INFO" 2>&1
 
-    echo "Dumping Jack server stacks"
+    echo "Dumping Jack server stacks..."
     echo >>"$REPORT_INFO"
     echo "\$ ps -A -o \"pid args\" | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3" >>"$REPORT_INFO"
             (ps -A -o  "pid args"  | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3) >>"$REPORT_INFO" 2>&1
 
-    echo "Getting current user id"
+    echo "Getting current user id..."
     echo >>"$REPORT_INFO"
     echo "\$ id -u" >>"$REPORT_INFO"
              id -u  >>"$REPORT_INFO"
 
-    echo "Listing Jack server process"
+    echo "Listing Jack server process..."
     echo >>"$REPORT_INFO"
     echo "\$ ps -A -o \"uid pid args\" | grep $LAUNCHER_NAME | grep -v grep" >>"$REPORT_INFO"
             (ps -A -o  "uid pid args"  | grep $LAUNCHER_NAME | grep -v grep) >>"$REPORT_INFO" 2>&1
 
-    echo "Listing process using Jack server service port $SERVER_PORT_SERVICE"
+    echo "Listing process using Jack server service port $SERVER_PORT_SERVICE..."
     echo >>"$REPORT_INFO"
     echo "\$ lsof -i TCP:$SERVER_PORT_SERVICE -l" >>"$REPORT_INFO"
              lsof -i TCP:$SERVER_PORT_SERVICE -l  >>"$REPORT_INFO" 2>&1
 
-    echo "Listing process using Jack server admin port $SERVER_PORT_ADMIN"
+    echo "Listing process using Jack server admin port $SERVER_PORT_ADMIN..."
     echo >>"$REPORT_INFO"
     echo "\$ lsof -i TCP:$SERVER_PORT_ADMIN -l" >>"$REPORT_INFO"
              lsof -i TCP:$SERVER_PORT_ADMIN -l  >>"$REPORT_INFO" 2>&1
 
-    echo "Collecting Jack client configuration '$CLIENT_SETTING'"
+    echo "Collecting Jack client configuration..."
     echo >>"$REPORT_INFO"
     echo "\$ cat \"\$CLIENT_SETTING\"" >>"$REPORT_INFO"
              cat   "$CLIENT_SETTING"   >>"$REPORT_INFO" 2>&1
 
-    echo "Listing Jack server installation dir '$JACK_HOME'"
+    echo "Listing Jack server installation dir..."
     echo >>"$REPORT_INFO"
     echo "\$ cd \"\$JACK_HOME\"; ls -l -R -n ." >>"$REPORT_INFO"
             (cd   "$JACK_HOME" ; ls -l -R -n .  >>"$REPORT_INFO" 2>&1)
 
-    echo "Collecting curl version"
+    echo "Collecting curl version..."
     echo >>"$REPORT_INFO"
     echo "\$ curl --version" >>"$REPORT_INFO"
              curl --version  >>"$REPORT_INFO" 2>&1
 
-    echo "Collecting Jack server stats"
+    echo "Collecting Jack server stats..."
     echo >>"$REPORT_INFO"
     echo "\$ jack-admin server-stat" >>"$REPORT_INFO"
              "$0"       server-stat  >>"$REPORT_INFO" 2>&1
 
-    echo "Zipping Jack server installation dir '$JACK_HOME' except keys and certificates"
+    echo "Zipping Jack server installation dir except keys and certificates..."
     (cd "$JACK_HOME"; zip --exclude \*.pem \*.jks --recurse-paths "$REPORT_PATH" .) >/dev/null
-    echo "Jack server report saved in '$REPORT'. Consider reviewing content before publication"
+    echo "Jack server report saved in '$REPORT'. Consider reviewing content before publishing."
     exit 0 ;;
 
 
