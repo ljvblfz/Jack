@@ -36,6 +36,7 @@ import com.android.sched.util.config.id.LongPropertyId;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.LoggerFactory;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
@@ -439,8 +440,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
   @Override
   public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T data)
-      throws ProcessException       {
-    BlockingDeque<Task> queue = new LinkedBlockingDeque<Task>();
+      throws ProcessException {
+    final BlockingDeque<Task> queue = new LinkedBlockingDeque<Task>();
 
     // Initialize queue with the initial plan, and block a shutdown Task on it
     Task shutdown = new ShutdownTask(queue);
@@ -455,6 +456,13 @@ public class MultiWorkersScheduleInstance<T extends Component>
     for (int i = 0; i < threadPoolSize; i++) {
       Worker worker = new Worker(queue);
 
+      worker.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread thread, Throwable e) {
+          new AssertionErrorTask(queue,
+              new AssertionError("Uncaught exception in thread '" + thread.getName() + "'", e));
+        }
+      });
       worker.setName(name + i);
       worker.setDaemon(true);
       worker.start();
