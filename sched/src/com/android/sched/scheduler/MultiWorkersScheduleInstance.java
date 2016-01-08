@@ -460,7 +460,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
         @Override
         public void uncaughtException(Thread thread, Throwable e) {
           new AssertionErrorTask(queue,
-              new AssertionError("Uncaught exception in thread '" + thread.getName() + "'", e));
+              new AssertionError("Uncaught exception in thread '" + thread.getName() + "'", e))
+                  .commit();
         }
       });
       worker.setName(name + i);
