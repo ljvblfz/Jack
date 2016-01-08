@@ -27,6 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
+    AnnotationTest.class,
     DefaultMethodTest.class,
     EcjInterfaceMethodsTest.class,
     EcjLambdaTest.class,

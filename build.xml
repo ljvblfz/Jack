@@ -793,6 +793,7 @@
           <exclude name="com/android/jack/java8/gwt/**"/>
           <exclude name="com/android/jack/java8/retrolambda/**"/>
           <exclude name="com/android/jack/java8/intersectiontype/**"/>
+          <exclude name="com/android/jack/java8/annotation/**"/>
           <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
           <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
           <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
@@ -849,6 +850,7 @@
       <exclude name="com/android/jack/java8/gwt/**"/>
       <exclude name="com/android/jack/java8/retrolambda/**"/>
       <exclude name="com/android/jack/java8/intersectiontype/**"/>
+      <exclude name="com/android/jack/java8/annotation/**"/>
       <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
       <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
       <exclude name="com/android/jack/lookup/test001/liboverride/**"/>

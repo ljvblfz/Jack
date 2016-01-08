@@ -20,7 +20,9 @@ import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
+import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
+import com.android.sched.item.Tag;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
@@ -38,6 +40,36 @@ import javax.annotation.Nonnull;
  */
 @Description("Annotation instance.")
 public class JAnnotation extends JLiteral {
+
+  /**
+   * Jack IR can contains repeated annotations on types, fields and methods
+   */
+  @ComposedOf({RepeatedAnnotationOnType.class, RepeatedAnnotationOnField.class,
+      RepeatedAnnotationOnMethod.class})
+  @Description("Jack IR can contains repeated annotations on types, fields and methods")
+  public static class RepeatedAnnotation implements Tag {
+  }
+
+  /**
+   * Jack IR can contains repeated annotations on types
+   */
+  @Description("Jack IR can contains repeated annotations on types")
+  public static class RepeatedAnnotationOnType implements Tag {
+  }
+
+  /**
+   * Jack IR can contains repeated annotations on fields
+   */
+  @Description("Jack IR can contains repeated annotations on fields")
+  public static class RepeatedAnnotationOnField implements Tag {
+  }
+
+  /**
+   * Jack IR can contains repeated annotations on methods
+   */
+  @Description("Jack IR can contains repeated annotations on methods")
+  public static class RepeatedAnnotationOnMethod implements Tag {
+  }
 
   @Nonnull
   private final List<JNameValuePair> elements = new ArrayList<JNameValuePair>();

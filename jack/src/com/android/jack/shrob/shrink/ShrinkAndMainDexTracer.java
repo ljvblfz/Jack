@@ -21,10 +21,14 @@ import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.analysis.tracer.TracerBrush;
 import com.android.jack.backend.dex.MultiDexLegacyTracerBrush;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Use;
 
 import javax.annotation.Nonnull;
@@ -35,6 +39,8 @@ import javax.annotation.Nonnull;
 @Description("Trace for shrink and main dex.")
 @Constraint(need = ExtendingOrImplementingClassMarker.class)
 @Use({KeeperBrush.class, MultiDexLegacyTracerBrush.class})
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class ShrinkAndMainDexTracer implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

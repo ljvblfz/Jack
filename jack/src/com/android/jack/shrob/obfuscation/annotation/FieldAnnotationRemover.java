@@ -19,11 +19,14 @@ package com.android.jack.shrob.obfuscation.annotation;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.LoggerFactory;
@@ -39,6 +42,8 @@ import javax.annotation.Nonnull;
 @Description("RunnableSchedulable that removes annotations from fields.")
 @Constraint(need = JAnnotation.class)
 @Transform(modify = JAnnotation.class)
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class FieldAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JField> {
 

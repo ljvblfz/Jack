@@ -192,6 +192,7 @@ import com.android.jack.transformations.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
+import com.android.jack.transformations.annotation.ContainerAnnotationAdder;
 import com.android.jack.transformations.assertion.AssertionRemover;
 import com.android.jack.transformations.assertion.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.assertion.DisabledAssertionFeature;
@@ -1316,6 +1317,9 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(ClassDefItemBuilder.class);
+      if (features.contains(SourceVersion8.class)) {
+        typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
+      }
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
@@ -1357,6 +1361,9 @@ public abstract class Jack {
         methodPlan4.append(CodeItemBuilder.class);
         methodPlan4.append(CfgMarkerRemover.class);
         methodPlan4.append(EncodedMethodBuilder.class);
+        if (features.contains(SourceVersion8.class)) {
+          methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
+        }
         methodPlan4.append(MethodAnnotationBuilder.class);
         if (features.contains(DropMethodBody.class)) {
           methodPlan4.append(MethodBodyRemover.class);
@@ -1364,6 +1371,9 @@ public abstract class Jack {
         {
           SubPlanBuilder<JField> fieldPlan2 =
               typePlan5.appendSubPlan(JFieldAdapter.class);
+          if (features.contains(SourceVersion8.class)) {
+            fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+          }
           fieldPlan2.append(EncodedFieldBuilder.class);
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }

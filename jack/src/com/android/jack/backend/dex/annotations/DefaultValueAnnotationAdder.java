@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.AddNameValuePair;
 import com.android.jack.transformations.request.Remove;
@@ -39,7 +40,10 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -77,6 +81,8 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(remove = AnnotationMethodDefaultValue.class,
     add = {JAnnotation.class, JNameValuePair.class})
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
 public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod> {
 
   @Nonnull

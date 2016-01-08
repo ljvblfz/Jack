@@ -17,6 +17,7 @@
 package com.android.jack.transformations.typedef;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
@@ -24,13 +25,17 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.TypeRemover;
 import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 
@@ -44,6 +49,8 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Support(RemoveTypeDef.class)
 @HasKeyId
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class TypeDefRemover extends TypeRemover {
 
   @Nonnull

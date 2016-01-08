@@ -22,11 +22,14 @@ import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
@@ -42,6 +45,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = {ClassDefItemMarker.class, ClassDefItemMarker.Field.class})
 @Transform(add = ClassDefItemMarker.FieldAnnotation.class, modify = ClassDefItemMarker.class)
 @Use(AnnotationBuilder.class)
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
 public class FieldAnnotationBuilder implements RunnableSchedulable<JField> {
 
   @Override

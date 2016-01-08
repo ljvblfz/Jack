@@ -148,6 +148,7 @@ import com.android.sched.item.Name;
     JAddOperation.class,
     JAndOperation.class,
     JAnnotation.class,
+    JAnnotation.RepeatedAnnotation.class,
     JArrayLength.class,
     JArrayRef.class,
     JArrayType.class,

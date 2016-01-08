@@ -49,6 +49,7 @@ import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.shrob.obfuscation.FinalNames;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.PutNameValuePair;
@@ -56,8 +57,10 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.With;
 
@@ -79,6 +82,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = {GenericSignature.class, SimpleName.class, FinalNames.class})
 @Protect(add = {GenericSignature.class, SimpleName.class},
     unprotect = @With(remove = ReflectAnnotations.class))
+@Optional(@ToSupport(feature = SourceVersion8.class,
+    add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Visitor extends JVisitor {
