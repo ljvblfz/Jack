@@ -5,7 +5,7 @@ reference.toolchain=
 candidate.toolchain=
 
 toolchain.prebuilt.jack=jack/dist/jack.jar
-toolchain.prebuilt.jill=../jill/jill/dist/jill.jar
+toolchain.prebuilt.jill=jill/dist/jill.jar
 toolchain.prebuilt.jarjar=jack-tests/prebuilts/jarjar.jar
 toolchain.prebuilt.proguard=jack-tests/prebuilts/proguard.jar
 
@@ -17,3 +17,5 @@ runtime.location.art-host=
 
 toolchain.prebuilt.legacy-java-compiler=
 
+# Internal - do not use
+# toolchain.prebuilt.jack-script=server/jack-server/etc/jack

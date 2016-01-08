@@ -88,18 +88,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(errRedirectStream);
-    exec.setOut(outRedirectStream);
-    exec.setVerbose(isVerbose);
+    run(args);
 
-    try {
-      if (exec.run() != 0) {
-        throw new RuntimeException("Jack compiler exited with an error");
-      }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running Jack", e);
-    }
   }
 
   @Override
@@ -119,28 +109,13 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(errRedirectStream);
-    exec.setOut(outRedirectStream);
-    exec.setVerbose(isVerbose);
+    run(args);
 
-    try {
-      if (exec.run() != 0) {
-        throw new RuntimeException("Jack compiler exited with an error");
-      }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running Jack", e);
-    }
   }
 
   private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
-    boolean assertEnable = false;
-    assert true == (assertEnable = true);
 
-    args.add("java");
-    args.add(assertEnable ? "-ea" : "-da");
-    args.add("-jar");
-    args.add(jackPrebuilt.getAbsolutePath());
+    buildJackCall(args);
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
@@ -208,18 +183,8 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     args.add(out.getAbsolutePath());
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(errRedirectStream);
-    exec.setOut(outRedirectStream);
-    exec.setVerbose(isVerbose);
+    run(args);
 
-    try {
-      if (exec.run() != 0) {
-        throw new RuntimeException("Jack compiler exited with an error");
-      }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running Jack", e);
-    }
   }
 
   @Override
@@ -235,29 +200,14 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
     args.add(out.getAbsolutePath());
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
-    exec.setErr(errRedirectStream);
-    exec.setOut(outRedirectStream);
-    exec.setVerbose(isVerbose);
+    run(args);
 
-    try {
-      if (exec.run() != 0) {
-        throw new RuntimeException("Jack compiler exited with an error");
-      }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running Jack", e);
-    }
   }
 
   protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,
       @Nonnull File[] in) throws Exception {
-    boolean assertEnable = false;
-    assert true == (assertEnable = true);
 
-    args.add("java");
-    args.add(assertEnable ? "-ea" : "-da");
-    args.add("-jar");
-    args.add(jackPrebuilt.getAbsolutePath());
+    buildJackCall(args);
 
     args.add("--verbose");
     args.add(verbosityLevel.name());
@@ -303,6 +253,16 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     libToImportStaticLibs(args, in);
 
+  }
+
+  protected void buildJackCall(@Nonnull List<String> commandLine) {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
+    commandLine.add("java");
+    commandLine.add(assertEnable ? "-ea" : "-da");
+    commandLine.add("-jar");
+    commandLine.add(jackPrebuilt.getAbsolutePath());
   }
 
   protected void libToImportStaticLibs(@Nonnull List<String> args, @Nonnull File[] in)
@@ -368,6 +328,21 @@ public class JackCliToolchain extends JackBasedToolchain {
     if (processorPath != null) {
         args.add("--processorpath");
         args.add(processorPath);
+    }
+  }
+
+  protected void run(@Nonnull List<String> cmdLine) {
+    ExecuteFile exec = new ExecuteFile(cmdLine.toArray(new String[cmdLine.size()]));
+    exec.setErr(errRedirectStream);
+    exec.setOut(outRedirectStream);
+    exec.setVerbose(isVerbose);
+
+    try {
+      if (exec.run() != 0) {
+        throw new RuntimeException("Jack compiler exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Jack", e);
     }
   }
 

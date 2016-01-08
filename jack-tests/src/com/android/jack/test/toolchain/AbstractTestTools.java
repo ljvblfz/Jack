@@ -109,6 +109,7 @@ public abstract class AbstractTestTools {
 
     toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
+    toolchainBuilders.put("internal-jack-script", new JackScriptToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
     toolchainBuilders.put("jack-api-inc-v01", new JackApiV01IncrementalToolchainBuilder());
     toolchainBuilders.put("jack-api-2steps-v01", new JackApiV01TwoStepsToolchainBuilder());
@@ -151,6 +152,15 @@ public abstract class AbstractTestTools {
     @Nonnull
     public JackCliToolchain build() {
       return new JackCliToolchain(getPrebuilt("jack"));
+    }
+  }
+
+  private static class JackScriptToolchainBuilder implements ToolchainBuilder {
+
+    @Override
+    @Nonnull
+    public JackScriptToolchain build() {
+      return new JackScriptToolchain(getPrebuilt("jack"));
     }
   }
 
