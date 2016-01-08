@@ -588,6 +588,11 @@ case $COMMAND in
     echo "\$ curl --version" >>"$REPORT_INFO"
              curl --version  >>"$REPORT_INFO" 2>&1
 
+    echo "Collecting curl connection info..."
+    echo >>"$REPORT_INFO"
+    echo "\$ JACK_EXTRA_CURL_OPTIONS=-v jack-admin list server" >>"$REPORT_INFO"
+             JACK_EXTRA_CURL_OPTIONS=-v "$0"       list server  >>"$REPORT_INFO" 2>&1
+
     echo "Collecting Jack server stats..."
     echo >>"$REPORT_INFO"
     echo "\$ jack-admin server-stat" >>"$REPORT_INFO"
