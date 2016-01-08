@@ -128,9 +128,13 @@ public class ExtendedSampleImpl extends ExtendedSample {
       int newLength;
 
       if (increment <= 0) {
-        newLength = samples.length * 2 + 1;
+        newLength = samples.length;
+        while (index >= newLength) {
+          newLength = newLength * 2 + 1;
+        }
       } else {
-        newLength = samples.length + increment;
+        // newLnegth is index aligned on INCREMENT
+        newLength = ((index + INCREMENT) / INCREMENT) * INCREMENT;
       }
 
       double[] newArray = new double[newLength];
