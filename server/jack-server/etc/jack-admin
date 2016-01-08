@@ -584,6 +584,11 @@ case $COMMAND in
     echo "\$ cd \"\$JACK_HOME\"; ls -l -R -n ." >>"$REPORT_INFO"
             (cd   "$JACK_HOME" ; ls -l -R -n .  >>"$REPORT_INFO" 2>&1)
 
+    echo "Collecting curl version"
+    echo >>"$REPORT_INFO"
+    echo "\$ curl --version" >>"$REPORT_INFO"
+             curl --version  >>"$REPORT_INFO" 2>&1
+
     echo "Collecting Jack server stats"
     echo >>"$REPORT_INFO"
     echo "\$ jack-admin server-stat" >>"$REPORT_INFO"
