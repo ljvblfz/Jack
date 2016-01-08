@@ -303,6 +303,9 @@ public class LegacyToolchain extends AndroidToolchain {
 
     addSourceLevel(sourceLevel, arguments);
 
+    arguments.add("-target");
+    arguments.add("1.7");
+
     arguments.add("-encoding");
     arguments.add("utf8");
 
