@@ -120,8 +120,6 @@ public class JavaTransformer {
           InputStream is = new BufferedInputStream(new FileInputStream(fileToTransform));
           try {
             transformToZip(is, zos, null);
-          } catch (DuplicateJackFileException e) {
-            System.err.println(e.getMessage());
           } finally {
             is.close();
           }
@@ -131,8 +129,6 @@ public class JavaTransformer {
           FileInputStream fis = new FileInputStream(fileToTransform);
           try {
             transformToDir(fis, options.getOutput());
-          } catch (DuplicateJackFileException e) {
-            System.err.println(e.getMessage());
           } finally {
             fis.close();
           }
@@ -227,16 +223,12 @@ public class JavaTransformer {
         JarEntry fileEntry = jarFile.getJarEntry(name);
         if (!fileEntry.isDirectory()) {
           InputStream is = jarFile.getInputStream(fileEntry);
-          try {
-            if (zos != null) {
-              assert options.getOutputContainer() == ContainerType.ZIP;
-              transformToZip(is, zos, jarFile);
-            } else {
-              assert options.getOutputContainer() == ContainerType.DIR;
-              transformToDir(is, options.getOutput());
-            }
-          } catch (DuplicateJackFileException e) {
-            System.err.println(e.getMessage());
+          if (zos != null) {
+            assert options.getOutputContainer() == ContainerType.ZIP;
+            transformToZip(is, zos, jarFile);
+          } else {
+            assert options.getOutputContainer() == ContainerType.DIR;
+            transformToDir(is, options.getOutput());
           }
         }
       }
@@ -244,14 +236,10 @@ public class JavaTransformer {
   }
 
   private void transformToZip(@Nonnull InputStream is, @Nonnull ZipOutputStream zipOutputStream,
-      @CheckForNull JarFile jarFile) throws IOException, DuplicateJackFileException {
+      @CheckForNull JarFile jarFile) throws IOException {
     ClassNode cn = getClassNode(is);
     String filePath = getFilePath(cn.name);
-    if (jarFile != null && jarFile.getEntry(filePath) != null) {
-      throw new DuplicateJackFileException("Jack file '" + filePath
-          + "' was already copied as a resource to archive '" + options.getOutput()
-          + "' and thus won't be retransformed from class file.");
-    }
+    assert (jarFile == null || jarFile.getEntry(filePath) == null);
     try {
       ZipEntry entry = new ZipEntry(filePath);
       zipOutputStream.putNextEntry(entry);
@@ -262,15 +250,12 @@ public class JavaTransformer {
   }
 
   private void transformToDir(@Nonnull InputStream is, @Nonnull File outputDir)
-      throws IOException, DuplicateJackFileException {
+      throws IOException {
     ClassNode cn = getClassNode(is);
     String filePath = getFilePath(cn.name);
 
     File outputFile = new File(outputDir, filePath);
-    if (outputFile.exists()) {
-      throw new DuplicateJackFileException("Jack file '" + outputFile.getAbsolutePath()
-          + "' was already copied as a resource and thus won't be retransformed from class file.");
-    }
+    assert !outputFile.exists();
     FileOutputStream fos = null;
     try {
       createParentDirectories(outputFile);
