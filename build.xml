@@ -35,7 +35,6 @@
     schedtests-lib,
     jill,
     jill-api,
-    jillunittests,
     jack-jar-tools"/>
 
   <target name="clean" depends="jack-clean,
@@ -76,7 +75,6 @@
     jill-clean,
     jill-api-lib-clean,
     jill-api-src-clean,
-    jillunittests-clean,
     jack-jar-tools-clean,
     jacoco-clean,
     asm4-clean,
@@ -1055,64 +1053,6 @@
   <target name="jill-api-src">
     <zip destfile="${jill-api.dist.dir}/${jill-api-src.name}"
         basedir="${jill-api.dir}/src" />
-  </target>
-
-
-  <!-- ******************* -->
-  <!-- jillunittests       -->
-  <!-- ******************* -->
-  <property name="jillunittests.build.dir" value="${jill.dir}/build/jillunittests" />
-  <property name="jillunittests.build.outdir" value="${jillunittests.build.dir}/classes" />
-  <property name="jillunittests.execname" value="jillunittests.jar" />
-
-  <target name="jillunittests-clean">
-    <delete dir="${jillunittests.build.dir}" />
-    <delete dir="${jill.dist.dir}/${jillunittests.execname}" />
-  </target>
-
-  <target name="jillunittests-check">
-    <uptodate property="jillunittests.uptodate" targetfile="${jill.dist.dir}/${jillunittests.execname}">
-      <srcfiles dir="${jill.dir}/tests" />
-      <srcresources>
-        <dirset dir="${jill.dir}/tests" />
-      </srcresources>
-      <srcfiles file="${jill.dist.dir}/${jill.execname}" />
-      <srcfiles file="${jill-api.dist.dir}/${jill-api.name}" />
-      <srcfiles file="${jackunittests.dist.dir}/${jackunittests.execname}" />
-      <srcfiles file="${jack-tests.dist.dir}/${jack-tests.execname}" />
-    </uptodate>
-  </target>
-
-  <target name="jillunittests" depends="jill, jill-api, jackunittests, jack-tests, jillunittests-check" unless="jillunittests.uptodate">
-    <!-- project layout -->
-    <delete dir="${jillunittests.build.outdir}"/>
-    <mkdir dir="${jillunittests.build.outdir}"/>
-    <!-- compile -->
-    <javac  encoding="UTF-8" srcdir="${jill.dir}/tests"
-          destdir="${jillunittests.build.outdir}"
-          source="1.5" target="1.5"
-          debug="true" includeantruntime="false">
-      <classpath>
-        <filelist dir="/">
-          <file name="${jill.dist.dir}/${jill.execname}" />
-          <file name="${jill-api.dist.dir}/${jill-api.name}" />
-          <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
-          <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
-        </filelist>
-      </classpath>
-    </javac>
-    <!-- package -->
-    <copy todir="${jillunittests.build.outdir}">
-      <fileset dir="${jill.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${jackunittests.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-    </copy>
-    <jar destfile="${jill.dist.dir}/${jillunittests.execname}"
-            basedir="${jillunittests.build.outdir}"
-            includes="**"/>
   </target>
 
 
