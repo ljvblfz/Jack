@@ -34,13 +34,13 @@ public class JackScriptToolchain extends JackCliToolchain {
   }
 
   @Override
-  protected void buildJackCall(@Nonnull List<String> args) {
-    args.add(AbstractTestTools.getPrebuilt("jack-script").getAbsolutePath());
+  protected void buildJackCall(@Nonnull List<String> commandLine) {
+    commandLine.add(AbstractTestTools.getPrebuilt("jack-script").getAbsolutePath());
   }
 
   @Override
-  protected void run(@Nonnull List<String> cmdLine) {
-    ExecuteFile exec = new ExecuteFile(cmdLine.toArray(new String[cmdLine.size()]));
+  protected void run(@Nonnull List<String> commandLine) {
+    ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
 
     setUpEnvironment(exec);
 

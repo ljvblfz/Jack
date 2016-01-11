@@ -60,49 +60,49 @@ public class ArtRunnerHost extends HostRunner {
   @Nonnull
   private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String mainClass,
       @Nonnull File... classpathFiles) {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    addStartOfCommandLine(options, classpathFiles, args);
-    args.add(mainClass);
+    addStartOfCommandLine(options, classpathFiles, commandLine);
+    commandLine.add(mainClass);
 
-    return args;
+    return commandLine;
   }
 
   @Nonnull
   private List<String> buildCommandLineJunit(@Nonnull String[] options,
       @CheckForNull String jUnitRunnerName, @Nonnull String[] jUnitTestClasses,
       @Nonnull File... classpathFiles) {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    addStartOfCommandLine(options, classpathFiles, args);
+    addStartOfCommandLine(options, classpathFiles, commandLine);
 
-    args.add(jUnitRunnerName);
+    commandLine.add(jUnitRunnerName);
 
     for (String className : jUnitTestClasses) {
-      args.add(className);
+      commandLine.add(className);
     }
-    return args;
+    return commandLine;
   }
 
   protected void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
-      @Nonnull List<String> result) {
-    result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
+      @Nonnull List<String> commandLine) {
+    commandLine.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/art");
 
     if (isDebugMode) {
-      result.add("-d");
+      commandLine.add("-d");
     }
 
     for (String option : options) {
-      result.add(option);
+      commandLine.add(option);
     }
 
     File frameworkDir = new File(rtEnvironmentRootDir, "framework");
     File coreImage = new File(frameworkDir, "core.art");
-    result.add("-Ximage:" + coreImage.getAbsolutePath());
+    commandLine.add("-Ximage:" + coreImage.getAbsolutePath());
 
-    result.add("-classpath");
+    commandLine.add("-classpath");
 
-    result.add(Joiner.on(File.pathSeparatorChar).join(classpathFiles));
+    commandLine.add(Joiner.on(File.pathSeparatorChar).join(classpathFiles));
   }
 
 }

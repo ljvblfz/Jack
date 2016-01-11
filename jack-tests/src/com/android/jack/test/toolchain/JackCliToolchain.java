@@ -69,26 +69,26 @@ public class JackCliToolchain extends JackBasedToolchain {
   public void srcToExe(@Nonnull File out, boolean zipFile, @Nonnull File... sources)
       throws Exception {
 
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    srcToCommon(args, sources);
+    srcToCommon(commandLine, sources);
 
     if (zipFile) {
-      args.add("--output-dex-zip");
+      commandLine.add("--output-dex-zip");
     } else {
-      args.add("--output-dex");
+      commandLine.add("--output-dex");
     }
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    args.addAll(extraJackArgs);
+    commandLine.addAll(extraJackArgs);
 
     if (withDebugInfos) {
-      args.add("-g");
+      commandLine.add("-g");
     }
 
-    AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
+    AbstractTestTools.addFile(commandLine, /* mustExist = */ false, sources);
 
-    run(args);
+    run(commandLine);
 
   }
 
@@ -96,162 +96,162 @@ public class JackCliToolchain extends JackBasedToolchain {
   public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
       throws Exception {
 
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    srcToCommon(args, sources);
+    srcToCommon(commandLine, sources);
 
     if (zipFiles) {
-      args.add("--output-jack");
+      commandLine.add("--output-jack");
     } else {
-      args.add("--output-jack-dir");
+      commandLine.add("--output-jack-dir");
     }
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    AbstractTestTools.addFile(args, /* mustExist = */ false, sources);
+    AbstractTestTools.addFile(commandLine, /* mustExist = */ false, sources);
 
-    run(args);
+    run(commandLine);
 
   }
 
-  private void srcToCommon(@Nonnull List<String> args, @Nonnull File... sources) {
+  private void srcToCommon(@Nonnull List<String> commandLine, @Nonnull File... sources) {
 
-    buildJackCall(args);
+    buildJackCall(commandLine);
 
-    args.add("--verbose");
-    args.add(verbosityLevel.name());
+    commandLine.add("--verbose");
+    commandLine.add(verbosityLevel.name());
 
-    args.add("--sanity-checks");
-    args.add(Boolean.toString(sanityChecks));
+    commandLine.add("--sanity-checks");
+    commandLine.add(Boolean.toString(sanityChecks));
 
     if (incrementalFolder != null) {
-      args.add("--incremental-folder");
-      args.add(incrementalFolder.getAbsolutePath());
+      commandLine.add("--incremental-folder");
+      commandLine.add(incrementalFolder.getAbsolutePath());
     }
 
-    addProperties(properties, args);
+    addProperties(properties, commandLine);
 
     if (classpath.size() > 0) {
-      args.add("--classpath");
-      args.add(getClasspathAsString());
+      commandLine.add("--classpath");
+      commandLine.add(getClasspathAsString());
     }
 
     for (File res : resImport) {
-      args.add("--import-resource");
-      args.add(res.getPath());
+      commandLine.add("--import-resource");
+      commandLine.add(res.getPath());
     }
 
     for (File meta : metaImport) {
-      args.add("--import-meta");
-      args.add(meta.getPath());
+      commandLine.add("--import-meta");
+      commandLine.add(meta.getPath());
     }
 
-    args.addAll(extraJackArgs);
+    commandLine.addAll(extraJackArgs);
 
     for (File jarjarFile : jarjarRules) {
-      args.add("--config-jarjar");
-      args.add(jarjarFile.getAbsolutePath());
+      commandLine.add("--config-jarjar");
+      commandLine.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
-      args.add("--config-proguard");
-      args.add(flags.getAbsolutePath());
+      commandLine.add("--config-proguard");
+      commandLine.add(flags.getAbsolutePath());
     }
 
     if (withDebugInfos) {
-      args.add("-g");
+      commandLine.add("-g");
     }
 
-    addAnnotationProcessorArgs(args);
+    addAnnotationProcessorArgs(commandLine);
 
     for (File staticLib : staticLibs) {
-      args.add("--import");
-      args.add(staticLib.getAbsolutePath());
+      commandLine.add("--import");
+      commandLine.add(staticLib.getAbsolutePath());
     }
   }
 
   @Override
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    libToCommon(args, getClasspathAsString(), in);
+    libToCommon(commandLine, getClasspathAsString(), in);
 
     if (zipFile) {
-      args.add("--output-dex-zip");
+      commandLine.add("--output-dex-zip");
     } else {
-      args.add("--output-dex");
+      commandLine.add("--output-dex");
     }
 
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    run(args);
+    run(commandLine);
 
   }
 
   @Override
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    libToCommon(args, getClasspathAsString(), in);
+    libToCommon(commandLine, getClasspathAsString(), in);
 
     if (zipFiles) {
-      args.add("--output-jack");
+      commandLine.add("--output-jack");
     } else {
-      args.add("--output-jack-dir");
+      commandLine.add("--output-jack-dir");
     }
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    run(args);
+    run(commandLine);
 
   }
 
-  protected void libToCommon(@Nonnull List<String> args, @Nonnull String classpath,
+  protected void libToCommon(@Nonnull List<String> commandLine, @Nonnull String classpath,
       @Nonnull File[] in) throws Exception {
 
-    buildJackCall(args);
+    buildJackCall(commandLine);
 
-    args.add("--verbose");
-    args.add(verbosityLevel.name());
+    commandLine.add("--verbose");
+    commandLine.add(verbosityLevel.name());
 
-    args.add("--sanity-checks");
-    args.add(Boolean.toString(sanityChecks));
+    commandLine.add("--sanity-checks");
+    commandLine.add(Boolean.toString(sanityChecks));
 
     if (incrementalFolder != null) {
-      args.add("--incremental-folder");
-      args.add(incrementalFolder.getAbsolutePath());
+      commandLine.add("--incremental-folder");
+      commandLine.add(incrementalFolder.getAbsolutePath());
     }
 
     for (File res : resImport) {
-      args.add("--import-resource");
-      args.add(res.getPath());
+      commandLine.add("--import-resource");
+      commandLine.add(res.getPath());
     }
 
     for (File meta : metaImport) {
-      args.add("--import-meta");
-      args.add(meta.getPath());
+      commandLine.add("--import-meta");
+      commandLine.add(meta.getPath());
     }
 
-    addProperties(properties, args);
+    addProperties(properties, commandLine);
 
     if (!classpath.equals("")) {
-      args.add("--classpath");
-      args.add(classpath);
+      commandLine.add("--classpath");
+      commandLine.add(classpath);
     }
 
     for (File jarjarFile : jarjarRules) {
-      args.add("--config-jarjar");
-      args.add(jarjarFile.getAbsolutePath());
+      commandLine.add("--config-jarjar");
+      commandLine.add(jarjarFile.getAbsolutePath());
     }
 
     for (File flags : proguardFlags) {
-      args.add("--config-proguard");
-      args.add(flags.getAbsolutePath());
+      commandLine.add("--config-proguard");
+      commandLine.add(flags.getAbsolutePath());
     }
 
     if (withDebugInfos) {
-      args.add("-g");
+      commandLine.add("-g");
     }
 
-    libToImportStaticLibs(args, in);
+    libToImportStaticLibs(commandLine, in);
 
   }
 
@@ -265,16 +265,16 @@ public class JackCliToolchain extends JackBasedToolchain {
     commandLine.add(jackPrebuilt.getAbsolutePath());
   }
 
-  protected void libToImportStaticLibs(@Nonnull List<String> args, @Nonnull File[] in)
+  protected void libToImportStaticLibs(@Nonnull List<String> commandLine, @Nonnull File[] in)
       throws Exception {
     for (File staticlib : in) {
-      args.add("--import");
-      args.add(staticlib.getAbsolutePath());
+      commandLine.add("--import");
+      commandLine.add(staticlib.getAbsolutePath());
     }
 
     for (File staticLib : staticLibs) {
-      args.add("--import");
-      args.add(staticLib.getAbsolutePath());
+      commandLine.add("--import");
+      commandLine.add(staticLib.getAbsolutePath());
     }
   }
 
@@ -300,10 +300,10 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   protected static void addProperties(@Nonnull Map<String, String> properties,
-      @Nonnull List<String> args) {
+      @Nonnull List<String> commandLine) {
     for (Entry<String, String> entry : properties.entrySet()) {
-      args.add("-D");
-      args.add(entry.getKey() + "=" + entry.getValue());
+      commandLine.add("-D");
+      commandLine.add(entry.getKey() + "=" + entry.getValue());
     }
   }
 
@@ -314,25 +314,25 @@ public class JackCliToolchain extends JackBasedToolchain {
     return this;
   }
 
-  private void addAnnotationProcessorArgs(@Nonnull List<String> args) {
+  private void addAnnotationProcessorArgs(@Nonnull List<String> commandLine) {
     for (Entry<String, String> entry : annotationProcessorOptions.entrySet()) {
-        args.add("-A");
-        args.add(entry.getKey() + "=" + entry.getValue());
+        commandLine.add("-A");
+        commandLine.add(entry.getKey() + "=" + entry.getValue());
       }
 
     if (annotationProcessorClasses != null) {
-      args.add("--processor");
-      args.add(Joiner.on(',').join(annotationProcessorClasses));
+      commandLine.add("--processor");
+      commandLine.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
     if (processorPath != null) {
-        args.add("--processorpath");
-        args.add(processorPath);
+        commandLine.add("--processorpath");
+        commandLine.add(processorPath);
     }
   }
 
-  protected void run(@Nonnull List<String> cmdLine) {
-    ExecuteFile exec = new ExecuteFile(cmdLine.toArray(new String[cmdLine.size()]));
+  protected void run(@Nonnull List<String> commandLine) {
+    ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);

@@ -517,17 +517,17 @@ public abstract class AbstractTestTools {
     }
   }
 
-  public static void addFile(@Nonnull List<String> args,
+  public static void addFile(@Nonnull List<String> commandLine,
       boolean mustExist, @Nonnull File... filesOrSourceLists) {
     for (File file : filesOrSourceLists) {
-      addFile(file, args, mustExist);
+      addFile(file, commandLine, mustExist);
     }
   }
 
-  private static void addFile(@Nonnull File fileOrSourceList, @Nonnull List<String> args,
+  private static void addFile(@Nonnull File fileOrSourceList, @Nonnull List<String> commandLine,
       boolean mustExist) {
     if (fileOrSourceList instanceof Sourcelist) {
-      args.add("@" + fileOrSourceList.getAbsolutePath());
+      commandLine.add("@" + fileOrSourceList.getAbsolutePath());
     } else {
       List<File> sourceFiles = new ArrayList<File>();
       try {
@@ -535,7 +535,7 @@ public abstract class AbstractTestTools {
       } catch (IOException e) {
       }
       for (File sourceFile : sourceFiles) {
-        args.add(sourceFile.getAbsolutePath());
+        commandLine.add(sourceFile.getAbsolutePath());
       }
     }
   }
@@ -576,10 +576,10 @@ public abstract class AbstractTestTools {
   }
 
   public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
-    String[] args = new String[] {"unzip", "-qo", jarfile.getAbsolutePath(), "-d",
+    String[] commandLine = new String[] {"unzip", "-qo", jarfile.getAbsolutePath(), "-d",
         outputFolder.getAbsolutePath()};
 
-    ExecuteFile execFile = new ExecuteFile(args);
+    ExecuteFile execFile = new ExecuteFile(commandLine);
 
     try {
       if (execFile.run() != 0) {
@@ -591,9 +591,9 @@ public abstract class AbstractTestTools {
   }
 
   public static void zip(@Nonnull File directory, @Nonnull File outputFile) throws IOException {
-    String[] args = new String[] {"zip", "-r", outputFile.getAbsolutePath(), "."};
+    String[] commandLine = new String[] {"zip", "-r", outputFile.getAbsolutePath(), "."};
 
-    ExecuteFile execFile = new ExecuteFile(args);
+    ExecuteFile execFile = new ExecuteFile(commandLine);
     execFile.setWorkingDir(directory, /* create = */ false);
     execFile.setErr(System.err);
     execFile.setOut(System.out);
@@ -608,14 +608,14 @@ public abstract class AbstractTestTools {
   }
 
   public static void createjar(@Nonnull File jarfile, @Nonnull File inputFiles) {
-    String[] args = new String[] {"jar",
+    String[] commandLine = new String[] {"jar",
         "cf",
         jarfile.getAbsolutePath(),
         "-C",
         inputFiles.getAbsolutePath(),
         "."};
 
-    ExecuteFile execFile = new ExecuteFile(args);
+    ExecuteFile execFile = new ExecuteFile(commandLine);
 
     try {
       if (execFile.run() != 0) {

@@ -33,10 +33,10 @@ public abstract class HostRunner extends AbstractRuntimeRunner {
     super(rtEnvironmentRootDir);
   }
 
-  protected int runOnHost(@Nonnull List<String> args, @Nonnull String rtEnvRootDirVarName)
+  protected int runOnHost(@Nonnull List<String> commandLine, @Nonnull String rtEnvRootDirVarName)
       throws RuntimeRunnerException {
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.addEnvVar(rtEnvRootDirVarName, rtEnvironmentRootDir.getAbsolutePath());
     exec.setOut(outRedirectStream);
     exec.setErr(errRedirectStream);
