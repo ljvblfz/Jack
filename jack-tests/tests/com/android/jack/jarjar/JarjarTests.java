@@ -127,7 +127,7 @@ public class JarjarTests {
     .addToClasspath(libToBeRenamed)
     .srcToExe(
         dex1,
-        /* zipFiles = */ true,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "jack"));
 
     File dex2 = AbstractTestTools.createTempDir();
@@ -136,7 +136,7 @@ public class JarjarTests {
     .addToClasspath(renamedLib)
     .addToClasspath(libReferencingLibToBeRenamed)
     .srcToExe(dex2,
-        /* zipFiles = */ true,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "dontcompile/TestWithRelocatedReference.java"));
 
     File dex3 = AbstractTestTools.createTempDir();
@@ -146,7 +146,7 @@ public class JarjarTests {
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
         dex3,
-        /* zipFiles = */ true,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "lib"));
 
     File dex4 = AbstractTestTools.createTempDir();
@@ -154,7 +154,7 @@ public class JarjarTests {
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
         dex4,
-        /* zipFiles = */ true,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "lib"));
 
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
