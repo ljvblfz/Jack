@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="tests"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
 	<classpathentry kind="lib" path="libs/args4j-lib.jar"/>
 	<classpathentry kind="lib" path="libs/asm4-lib.jar"/>
 	<classpathentry kind="lib" path="libs/dexcomparator-lib.jar"/>
@@ -11,7 +8,6 @@
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jack-tests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jill-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Scheduler"/>
 	<classpathentry kind="output" path="bin"/>
