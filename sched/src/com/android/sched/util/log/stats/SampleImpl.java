@@ -29,7 +29,9 @@ import javax.annotation.Nonnull;
 @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
 public class SampleImpl extends Sample {
   @Nonnegative
-  private int    count;
+  private int validCount;
+  @Nonnegative
+  private int nanCount;
 
   private double min = Double.POSITIVE_INFINITY;
   @CheckForNull
@@ -50,6 +52,11 @@ public class SampleImpl extends Sample {
   }
 
   @Override
+  public synchronized void add(double value) {
+    add(value, null);
+  }
+
+  @Override
   public synchronized void add(double value, @CheckForNull Object obj) {
     if (!Double.isNaN(value)) {
       if (value < min) {
@@ -62,16 +69,22 @@ public class SampleImpl extends Sample {
       }
 
       total += value;
+      validCount++;
+    } else {
+      nanCount++;
     }
-
-    count++;
   }
-
 
   @Override
   @Nonnegative
   public int getCount() {
-    return count;
+    return validCount;
+  }
+
+  @Override
+  @Nonnegative
+  public int getNaNCount() {
+    return nanCount;
   }
 
   @Override
@@ -86,7 +99,7 @@ public class SampleImpl extends Sample {
 
   @Override
   public synchronized double getAverage() {
-    return total / count;
+    return total / validCount;
   }
 
   @Override
@@ -111,15 +124,19 @@ public class SampleImpl extends Sample {
   public synchronized void merge(@Nonnull Statistic statistic) {
     SampleImpl samples = (SampleImpl) statistic;
 
-    this.count += samples.count;
-    this.total += samples.total;
-    if (samples.min < this.min) {
-      this.min = samples.min;
-      this.minObject = samples.minObject;
-    }
-    if (samples.max > this.max) {
-      this.max = samples.max;
-      this.maxObject = samples.maxObject;
+    synchronized (samples) {
+      this.validCount += samples.validCount;
+      this.nanCount += samples.nanCount;
+      this.total += samples.total;
+
+      if (samples.min < this.min) {
+        this.min = samples.min;
+        this.minObject = samples.minObject;
+      }
+      if (samples.max > this.max) {
+        this.max = samples.max;
+        this.maxObject = samples.maxObject;
+      }
     }
   }
 }

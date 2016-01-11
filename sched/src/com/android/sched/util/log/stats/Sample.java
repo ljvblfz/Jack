@@ -36,6 +36,9 @@ public class Sample extends Statistic {
     super(id);
   }
 
+  public void add(double value) {
+  }
+
   public void add(double value, @CheckForNull Object obj) {
   }
 
@@ -46,6 +49,11 @@ public class Sample extends Statistic {
 
   @Nonnegative
   public int getCount() {
+    return 0;
+  }
+
+  @Nonnegative
+  public int getNaNCount() {
     return 0;
   }
 
@@ -88,6 +96,7 @@ public class Sample extends Statistic {
   public synchronized Iterator<Object> iterator() {
     return Iterators.forArray(
         Integer.valueOf(getCount()),
+        Integer.valueOf(getNaNCount()),
         Double.valueOf(getTotal()),
         Double.valueOf(getMin()),
         Double.valueOf(getAverage()),
@@ -99,6 +108,7 @@ public class Sample extends Statistic {
   @Nonnull
   private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
       .addField("sampleCount", DataType.NUMBER)
+      .addField("sampleNaNCount", DataType.NUMBER)
       .addField("sampleTotal", DataType.NUMBER)
       .addField("sampleMin", DataType.NUMBER)
       .addField("sampleAverage", DataType.NUMBER)

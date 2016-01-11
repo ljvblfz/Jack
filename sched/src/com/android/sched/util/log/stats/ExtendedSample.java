@@ -24,6 +24,7 @@ import com.android.sched.util.print.DataViewBuilder;
 
 import java.util.Iterator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -39,8 +40,16 @@ public class ExtendedSample extends Statistic {
   public void add(double value) {
   }
 
+  public void add(double value, @CheckForNull Object obj) {
+  }
+
   @Nonnegative
   public int getCount() {
+    return 0;
+  }
+
+  @Nonnegative
+  public int getNaNCount() {
     return 0;
   }
 
@@ -58,6 +67,17 @@ public class ExtendedSample extends Statistic {
 
   public double getMax() {
     return Double.NaN;
+  }
+
+  @CheckForNull
+  public Object getMinObject() {
+    return null;
+
+  }
+
+  @CheckForNull
+  public Object getMaxObject() {
+    return null;
   }
 
   public double getFirstQuartile() {
@@ -93,18 +113,22 @@ public class ExtendedSample extends Statistic {
 
     return Iterators.<Object>forArray(
            Long.valueOf(getCount()),
+           Long.valueOf(getNaNCount()),
            Double.valueOf(getTotal()),
            Double.valueOf(getMin()),
            Double.valueOf(getAverage()),
            Double.valueOf(getFirstQuartile()),
            Double.valueOf(getMedian()),
            Double.valueOf(getThirdQuartile()),
-           Double.valueOf(getMax()));
+           Double.valueOf(getMax()),
+           getMinObject(),
+           getMaxObject());
   }
 
   @Nonnull
   private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
       .addField("sampleCount", DataType.NUMBER)
+      .addField("sampleNaNCount", DataType.NUMBER)
       .addField("sampleTotal", DataType.NUMBER)
       .addField("sampleMin", DataType.NUMBER)
       .addField("sampleAverage", DataType.NUMBER)
@@ -112,6 +136,8 @@ public class ExtendedSample extends Statistic {
       .addField("sampleMedian", DataType.NUMBER)
       .addField("sampleThirdQuartile", DataType.NUMBER)
       .addField("sampleMax", DataType.NUMBER)
+      .addField("sampleMinMarker", DataType.STRING)
+      .addField("sampleMaxMarker", DataType.STRING)
       .build();
 
   @Override

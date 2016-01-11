@@ -18,6 +18,7 @@ package com.android.sched.util.log.stats;
 
 import java.util.Arrays;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -31,9 +32,20 @@ public class ExtendedSampleImpl extends ExtendedSample {
   @Nonnull
   protected double[] samples  = new double[INITIAL_CAPACITY];
   @Nonnegative
-  protected int      count    = 0;
-  private   double   total;
-  private   boolean  isSorted = true;
+  private   int      validCount;
+
+  @Nonnegative
+  private int     nanCount;
+  private double  total;
+  private boolean isSorted = true;
+
+  private double min = Double.POSITIVE_INFINITY;
+  @CheckForNull
+  private Object minObject;
+
+  private double max = Double.NEGATIVE_INFINITY;
+  @CheckForNull
+  private Object maxObject;
 
   @Nonnegative
   private final int increment;
@@ -51,17 +63,42 @@ public class ExtendedSampleImpl extends ExtendedSample {
 
   @Override
   public synchronized void add(double value) {
-    ensureCapacity(count);
+    add(value, null);
+  }
 
-    samples[count++] = value;
-    total += value;
-    isSorted = false;
+  @Override
+  public synchronized void add(double value, @CheckForNull Object obj) {
+    if (!Double.isNaN(value)) {
+      ensureCapacity(validCount);
+
+      samples[validCount++] = value;
+      isSorted = false;
+
+      if (value < min) {
+        min = value;
+        minObject = obj;
+      }
+      if (value > max) {
+        max = value;
+        maxObject = obj;
+      }
+
+      total += value;
+    } else {
+      nanCount++;
+    }
   }
 
   @Override
   @Nonnegative
   public int getCount() {
-    return count;
+    return validCount;
+  }
+
+  @Override
+  @Nonnegative
+  public int getNaNCount() {
+    return nanCount;
   }
 
   @Override
@@ -71,19 +108,30 @@ public class ExtendedSampleImpl extends ExtendedSample {
 
   @Override
   public synchronized double getMin() {
-    ensureSorted();
-    return samples[0];
+    return min;
   }
 
   @Override
   public synchronized double getAverage() {
-    return total / count;
+    return total / validCount;
   }
 
   @Override
   public synchronized double getMax() {
-    ensureSorted();
-    return samples[count - 1];
+    return max;
+  }
+
+  @Override
+  @CheckForNull
+  public Object getMinObject() {
+    return minObject;
+
+  }
+
+  @Override
+  @CheckForNull
+  public Object getMaxObject() {
+    return maxObject;
   }
 
   @Override
@@ -106,39 +154,49 @@ public class ExtendedSampleImpl extends ExtendedSample {
     ExtendedSampleImpl samples = (ExtendedSampleImpl) statistic;
 
     synchronized (samples) {
-      ensureCapacity(count + samples.count);
+      ensureCapacity(validCount + samples.validCount);
 
-      System.arraycopy(samples.samples, 0, this.samples, count, samples.count);
-      count += samples.count;
+      System.arraycopy(samples.samples, 0, this.samples, validCount, samples.validCount);
       total += samples.total;
+      validCount += samples.validCount;
+      nanCount += samples.nanCount;
       isSorted = false;
+
+      if (samples.min < this.min) {
+        this.min = samples.min;
+        this.minObject = samples.minObject;
+      }
+      if (samples.max > this.max) {
+        this.max = samples.max;
+        this.maxObject = samples.maxObject;
+      }
     }
   }
 
   @Override
   protected void ensureSorted() {
     if (!isSorted) {
-      Arrays.sort(samples, 0, count);
+      Arrays.sort(samples, 0, validCount);
       isSorted = true;
     }
   }
 
-  private void ensureCapacity (@Nonnegative int index) {
-    if (index >= samples.length) {
+  private void ensureCapacity (@Nonnegative int goal) {
+    if (goal >= samples.length) {
       int newLength;
 
       if (increment <= 0) {
         newLength = samples.length;
-        while (index >= newLength) {
+        while (goal >= newLength) {
           newLength = newLength * 2 + 1;
         }
       } else {
         // newLnegth is index aligned on INCREMENT
-        newLength = ((index + INCREMENT) / INCREMENT) * INCREMENT;
+        newLength = ((goal + INCREMENT) / INCREMENT) * INCREMENT;
       }
 
       double[] newArray = new double[newLength];
-      System.arraycopy(samples, 0, newArray, 0, count);
+      System.arraycopy(samples, 0, newArray, 0, validCount);
 
       samples = newArray;
     }
@@ -147,15 +205,15 @@ public class ExtendedSampleImpl extends ExtendedSample {
   private double getNth(int n, int d) {
     ensureSorted();
 
-    if (count == 0) {
+    if (validCount == 0) {
       return Double.NaN;
     }
 
-    if (count == 1) {
+    if (validCount == 1) {
       return samples[0];
     }
 
-    double pos   = (double) (n * (count + 1)) / (double) d;
+    double pos   = (double) (n * (validCount + 1)) / (double) d;
 
     if (pos < 1.0) {
       return samples[0];
