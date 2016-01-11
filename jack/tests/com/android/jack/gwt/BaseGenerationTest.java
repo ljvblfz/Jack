@@ -16,6 +16,7 @@
 
 package com.android.jack.gwt;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JExpression;
@@ -25,15 +26,39 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.impl.BaseGenerationVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.DefaultTextOutput;
+import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 public class BaseGenerationTest {
+
+  @Nonnull
+  private static RunnableHooks hooks;
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    Options options = new Options();
+    hooks = new RunnableHooks();
+    options.checkValidity(hooks);
+    options.getConfigBuilder(hooks).setDebug();
+    ThreadConfig.setConfig(options.getConfig());
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    hooks.runHooks();
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void toStringNewArray001() {

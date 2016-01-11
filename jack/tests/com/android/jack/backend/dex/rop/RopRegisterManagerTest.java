@@ -16,17 +16,42 @@
 
 package com.android.jack.backend.dex.rop;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+
 public class RopRegisterManagerTest {
+
+  @Nonnull
+  private static RunnableHooks hooks;
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    Options options = new Options();
+    hooks = new RunnableHooks();
+    options.checkValidity(hooks);
+    options.getConfigBuilder(hooks).setDebug();
+    ThreadConfig.setConfig(options.getConfig());
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    hooks.runHooks();
+    ThreadConfig.unsetConfig();
+  }
 
   /**
    * Return reg must be created before getting it.
