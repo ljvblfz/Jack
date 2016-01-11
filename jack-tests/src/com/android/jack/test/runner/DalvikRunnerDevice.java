@@ -49,17 +49,17 @@ public class DalvikRunnerDevice extends DeviceRunner  implements DalvikRunner {
   @Nonnull
   protected List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String[] classes,
       @Nonnull File... classpathFiles) {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    args.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvikvm");
+    commandLine.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvikvm");
 
-    args.add(mode.getArg());
+    commandLine.add(mode.getArg());
 
     for (String option : options) {
-      args.add(option);
+      commandLine.add(option);
     }
 
-    args.add("-classpath");
+    commandLine.add("-classpath");
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < classpathFiles.length; i++) {
       if (i > 0) {
@@ -67,12 +67,12 @@ public class DalvikRunnerDevice extends DeviceRunner  implements DalvikRunner {
       }
       sb.append(classpathFiles[i].getAbsolutePath());
     }
-    args.add(sb.toString());
+    commandLine.add(sb.toString());
 
     for (String className : classes) {
-      args.add(className);
+      commandLine.add(className);
     }
-    return args;
+    return commandLine;
   }
 
   @Override

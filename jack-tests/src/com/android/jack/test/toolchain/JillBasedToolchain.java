@@ -160,17 +160,17 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
 
   @Override
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
-    List<String> args = new ArrayList<String>();
-    libToCommon(args, convertClasspahtWithJillAsString(), in);
+    List<String> commandLine = new ArrayList<String>();
+    libToCommon(commandLine, convertClasspahtWithJillAsString(), in);
 
     if (zipFiles) {
-      args.add("--output-jack");
+      commandLine.add("--output-jack");
     } else {
-      args.add("--output-jack-dir");
+      commandLine.add("--output-jack-dir");
     }
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
@@ -234,38 +234,38 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
   protected void compileWithExternalRefCompiler(@Nonnull File[] sources,
       @Nonnull String classpath, @Nonnull File out) {
 
-    List<String> arguments = new ArrayList<String>();
-    arguments.add(refCompilerPrebuilt.getPath());
+    List<String> commandLine = new ArrayList<String>();
+    commandLine.add(refCompilerPrebuilt.getPath());
 
     if (isVerbose) {
-      arguments.add("-verbose");
+      commandLine.add("-verbose");
     }
 
-    addSourceLevel(sourceLevel, arguments);
+    addSourceLevel(sourceLevel, commandLine);
 
     if (annotationProcessorClasses != null) {
-      arguments.add("-processor");
-      arguments.add(Joiner.on(',').join(annotationProcessorClasses));
+      commandLine.add("-processor");
+      commandLine.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
-    arguments.add("-bootclasspath");
-    arguments.add("no-bootclasspath.jar");
+    commandLine.add("-bootclasspath");
+    commandLine.add("no-bootclasspath.jar");
 
     if (classpath != null) {
-      arguments.add("-classpath");
-      arguments.add(classpath);
+      commandLine.add("-classpath");
+      commandLine.add(classpath);
     }
 
-    AbstractTestTools.addFile(arguments, false, sources);
+    AbstractTestTools.addFile(commandLine, false, sources);
 
     if (withDebugInfos) {
-      arguments.add("-g");
+      commandLine.add("-g");
     }
 
-    arguments.add("-d");
-    arguments.add(out.getAbsolutePath());
+    commandLine.add("-d");
+    commandLine.add(out.getAbsolutePath());
 
-    ExecuteFile execFile = new ExecuteFile(arguments.toArray(new String[arguments.size()]));
+    ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     execFile.setErr(errRedirectStream);
     execFile.setOut(outRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -283,12 +283,12 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     boolean assertEnable = false;
     assert true == (assertEnable = true);
 
-    String[] args = new String[] {"java", (assertEnable ? "-ea" : "-da"),
+    String[] commandLine = new String[] {"java", (assertEnable ? "-ea" : "-da"),
         "-Dverbose=" + String.valueOf(isVerbose), "-jar", jarjarPrebuilt.getAbsolutePath(),
         "process", jarjarRules.getAbsolutePath(), inJar.getAbsolutePath(),
         outJar.getAbsolutePath()};
 
-    ExecuteFile execFile = new ExecuteFile(args);
+    ExecuteFile execFile = new ExecuteFile(commandLine);
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -307,26 +307,26 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     boolean assertEnable = false;
     assert true == (assertEnable = true);
 
-    List<String> args = new ArrayList<String>();
-    args.add("java");
-    args.add(assertEnable ? "-ea" : "-da");
-    args.add("-jar");
-    args.add(proguardPrebuilt.getAbsolutePath());
-    args.add("-injar");
-    args.add(inJar.getAbsolutePath());
-    args.add("-outjars");
-    args.add(outJar.getAbsolutePath());
-    args.add("-libraryjars");
-    args.add(bootclasspathStr);
+    List<String> commandLine = new ArrayList<String>();
+    commandLine.add("java");
+    commandLine.add(assertEnable ? "-ea" : "-da");
+    commandLine.add("-jar");
+    commandLine.add(proguardPrebuilt.getAbsolutePath());
+    commandLine.add("-injar");
+    commandLine.add(inJar.getAbsolutePath());
+    commandLine.add("-outjars");
+    commandLine.add(outJar.getAbsolutePath());
+    commandLine.add("-libraryjars");
+    commandLine.add(bootclasspathStr);
     if (isVerbose) {
-      args.add("-verbose");
+      commandLine.add("-verbose");
     }
     for (File flags : proguardFlags) {
-      args.add("-include");
-      args.add(flags.getAbsolutePath());
+      commandLine.add("-include");
+      commandLine.add(flags.getAbsolutePath());
     }
 
-    ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));
+    ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -340,17 +340,18 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     }
   }
 
-  protected static void addSourceLevel(@Nonnull SourceLevel level, @Nonnull List<String> args) {
-    args.add("-source");
+  protected static void addSourceLevel(
+      @Nonnull SourceLevel level, @Nonnull List<String> commandLine) {
+    commandLine.add("-source");
     switch (level) {
       case JAVA_6:
-        args.add("1.6");
+        commandLine.add("1.6");
         break;
       case JAVA_7:
-        args.add("1.7");
+        commandLine.add("1.7");
         break;
       case JAVA_8:
-        args.add("1.8");
+        commandLine.add("1.8");
         break;
       default:
         throw new AssertionError("Unkown level: '" + level.toString() + "'");
@@ -358,22 +359,22 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
   }
 
   @Override
-  protected void libToImportStaticLibs(@Nonnull List<String> args, @Nonnull File[] in)
+  protected void libToImportStaticLibs(@Nonnull List<String> commandLine, @Nonnull File[] in)
       throws Exception {
 
     for (int i = 0; i < in.length; i++) {
       File tmpDir = AbstractTestTools.createTempDir();
       File jilledLib = new File(tmpDir, "jilledLib_" + i + ".jack");
       executeJillWithResources(in[i], jilledLib, /* zipFiles = */ true);
-      args.add("--import");
-      args.add(jilledLib.getAbsolutePath());
+      commandLine.add("--import");
+      commandLine.add(jilledLib.getAbsolutePath());
     }
 
     for (int i = 0; i < staticLibs.size(); i++) {
       File jilledLib = AbstractTestTools.createTempFile("jilledLib", ".jack");
       executeJillWithResources(staticLibs.get(i), jilledLib, /* zipFiles = */ true);
-      args.add("--import");
-      args.add(jilledLib.getAbsolutePath());
+      commandLine.add("--import");
+      commandLine.add(jilledLib.getAbsolutePath());
     }
   }
 
@@ -433,17 +434,17 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
 
   @Override
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
-    List<String> args = new ArrayList<String>();
-    libToCommon(args, convertClasspahtWithJillAsString(), in);
+    List<String> commandLine = new ArrayList<String>();
+    libToCommon(commandLine, convertClasspahtWithJillAsString(), in);
 
     if (zipFile) {
-      args.add("--output-dex-zip");
+      commandLine.add("--output-dex-zip");
     } else {
-      args.add("--output-dex");
+      commandLine.add("--output-dex");
     }
-    args.add(out.getAbsolutePath());
+    commandLine.add(out.getAbsolutePath());
 
-    ExecuteFile exec = new ExecuteFile(args.toArray(new String[args.size()]));
+    ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);

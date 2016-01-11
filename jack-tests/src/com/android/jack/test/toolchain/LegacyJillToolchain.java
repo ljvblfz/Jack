@@ -40,20 +40,20 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     boolean assertEnable = false;
     assert true == (assertEnable = true);
 
-    List<String> args = new ArrayList<String>();
-    args.add("java");
-    args.add(assertEnable ? "-ea" : "-da");
-    args.add("-jar");
-    args.add(jillPrebuilt.getAbsolutePath());
+    List<String> commandLine = new ArrayList<String>();
+    commandLine.add("java");
+    commandLine.add(assertEnable ? "-ea" : "-da");
+    commandLine.add("-jar");
+    commandLine.add(jillPrebuilt.getAbsolutePath());
     if (isVerbose) {
-      args.add("--verbose");
+      commandLine.add("--verbose");
     }
 
-    args.add(in.getAbsolutePath());
-    args.add("--output");
-    args.add(out.getAbsolutePath());
+    commandLine.add(in.getAbsolutePath());
+    commandLine.add("--output");
+    commandLine.add(out.getAbsolutePath());
 
-    ExecuteFile execFile = new ExecuteFile(args.toArray(new String[args.size()]));
+    ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);

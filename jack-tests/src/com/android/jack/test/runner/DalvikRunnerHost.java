@@ -62,27 +62,27 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
   private List<String> buildCommandLineJUnit(@Nonnull String[] options,
       @Nonnull String jUnitRunnerName, @Nonnull String[] jUnitTestClasses,
       @Nonnull File... classpathFiles) {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    addStartOfCommandLine(options, classpathFiles, args);
+    addStartOfCommandLine(options, classpathFiles, commandLine);
 
-    args.add(jUnitRunnerName);
+    commandLine.add(jUnitRunnerName);
 
     for (String className : jUnitTestClasses) {
-      args.add(className);
+      commandLine.add(className);
     }
-    return args;
+    return commandLine;
   }
 
   @Nonnull
   private List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String mainClass,
       @Nonnull File... classpathFiles) {
-    List<String> args = new ArrayList<String>();
+    List<String> commandLine = new ArrayList<String>();
 
-    addStartOfCommandLine(options, classpathFiles, args);
-    args.add(mainClass);
+    addStartOfCommandLine(options, classpathFiles, commandLine);
+    commandLine.add(mainClass);
 
-    return args;
+    return commandLine;
   }
 
   @Override
@@ -93,20 +93,20 @@ public class DalvikRunnerHost extends HostRunner implements DalvikRunner {
   }
 
   private void addStartOfCommandLine(@Nonnull String[] options, @Nonnull File[] classpathFiles,
-      @Nonnull List<String> result) {
-    result.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvik");
+      @Nonnull List<String> commandLine) {
+    commandLine.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvik");
 
-    result.add(mode.getArg());
+    commandLine.add(mode.getArg());
 
     for (String option : options) {
-      result.add(option);
+      commandLine.add(option);
     }
 
-    result.add("-classpath");
+    commandLine.add("-classpath");
 
     List<File> files =
         AbstractTestTools.getFiles(new File(rtEnvironmentRootDir, "framework"), ".jar");
     files.addAll(Lists.create(classpathFiles));
-    result.add(Joiner.on(File.pathSeparatorChar).join(files));
+    commandLine.add(Joiner.on(File.pathSeparatorChar).join(files));
   }
 }
