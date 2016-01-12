@@ -122,7 +122,9 @@ public abstract class AbstractTestTools {
     try {
       runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
 
-      printConfig();
+      if (!Boolean.parseBoolean(System.getProperty("tests.dump", "false"))) {
+        printConfig();
+      }
 
     } catch (SecurityException e) {
       throw new TestConfigurationException(e);
