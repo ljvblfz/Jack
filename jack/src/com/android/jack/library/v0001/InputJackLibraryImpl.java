@@ -299,4 +299,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         throw new AssertionError();
     }
   }
+
+  @Override
+  public boolean hasCompliantPrebuilts() {
+    return true;
+  }
 }

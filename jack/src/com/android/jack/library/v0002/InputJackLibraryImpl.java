@@ -28,7 +28,10 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.jack.library.PrebuiltCompatibility;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -46,6 +49,7 @@ import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -300,6 +304,29 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         return RSC_PREFIX;
       default:
         throw new AssertionError();
+    }
+  }
+
+  @Override
+  public boolean hasCompliantPrebuilts() {
+    {
+      Config config = ThreadConfig.getConfig();
+      Collection<PropertyId<?>> properties = config.getPropertyIds();
+
+      for (PropertyId<?> property : properties) {
+        if (property.hasCategory(PrebuiltCompatibility.class)) {
+          try {
+            if (!getProperty("config." + property.getName()).equals(config.getAsString(property))) {
+              return false;
+            }
+          } catch (LibraryFormatException e) {
+            // Properties does not exists
+            return false;
+          }
+        }
+      }
+
+      return true;
     }
   }
 }

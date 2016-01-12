@@ -659,9 +659,9 @@ public abstract class Jack {
         }
         logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
 
-        if (!config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue()
-            || request.getFeatures().contains(LambdaToAnonymousConverter.class)) {
-          for (InputLibrary il : getSession().getImportedLibraries()) {
+        for (InputLibrary il : getSession().getImportedLibraries()) {
+          if (!config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue()
+              || !((InputJackLibrary) il).hasCompliantPrebuilts()) {
             ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
           }
         }

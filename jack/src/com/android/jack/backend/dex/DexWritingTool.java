@@ -17,6 +17,7 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
+import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
@@ -27,6 +28,7 @@ import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
@@ -50,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -67,8 +70,10 @@ public abstract class DexWritingTool {
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
-  @Nonnull
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
+
+  private final boolean usePrebuilts =
+      ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
   @Nonnull
   protected DexFile createDexFile() {
@@ -174,5 +179,39 @@ public abstract class DexWritingTool {
     }
 
     return inputVFile;
+  }
+
+  /**
+   * Orphan dex file is a dex file without an associated Jayce file.
+   * @return a list of orphan dex files.
+   */
+  @Nonnull
+  protected List<InputVFile> getOrphanDexFiles() {
+    List<InputVFile> orphanDexFiles = new ArrayList<InputVFile>();
+    if (usePrebuilts) {
+      for (InputLibrary inputLibrary : Jack.getSession().getImportedLibraries()) {
+        if (inputLibrary instanceof InputJackLibrary) {
+          InputJackLibrary inputJackLibrary = (InputJackLibrary) inputLibrary;
+          Iterator<InputVFile> dexFileIt = inputJackLibrary.iterator(FileType.PREBUILT);
+          while (dexFileIt.hasNext()) {
+            InputVFile dexFile = dexFileIt.next();
+            String dexFilePath = dexFile.getPathFromRoot().getPathAsString('/');
+            int indexOfDexExtension = dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION);
+            // Prebuilt section of library does not contains only dex files
+            if (indexOfDexExtension != -1) {
+              String type =
+                  dexFilePath.substring(0, dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION));
+              try {
+                inputJackLibrary.getFile(FileType.JAYCE, new VPath(type, '/'));
+              } catch (FileTypeDoesNotExistException e) {
+                orphanDexFiles.add(dexFile);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return orphanDexFiles;
   }
 }

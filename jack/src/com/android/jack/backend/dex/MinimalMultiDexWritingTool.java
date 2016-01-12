@@ -44,6 +44,7 @@ public class MinimalMultiDexWritingTool extends DexWritingTool implements MultiD
     List<InputVFile> mainDexList = new ArrayList<InputVFile>();
     List<InputVFile> anyDexList = new ArrayList<InputVFile>();
     fillDexLists(mainDexList, anyDexList);
+    mainDexList.addAll(getOrphanDexFiles());
 
     for (InputVFile currentDex : mainDexList) {
       try {

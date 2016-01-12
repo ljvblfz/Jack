@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryCodec;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reportable.ProblemLevel;
@@ -194,9 +195,10 @@ public class Options {
       .addDefaultValue("no-filter").addArgType(Options.class);
 
   @Nonnull
-  public static final JavaVersionPropertyId JAVA_SOURCE_VERSION = JavaVersionPropertyId
-      .create("jack.java.source.version", "Java source version").addDefaultValue("1.7")
-      .addCategory(Arzon.class).addCategory(DumpInLibrary.class);
+  public static final JavaVersionPropertyId JAVA_SOURCE_VERSION =
+      JavaVersionPropertyId.create("jack.java.source.version", "Java source version")
+          .addDefaultValue("1.7").addCategory(Arzon.class).addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
@@ -204,6 +206,7 @@ public class Options {
           .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
           .addDefaultValue(Boolean.TRUE)
           .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class)
           .requiredIf(JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
               JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
 

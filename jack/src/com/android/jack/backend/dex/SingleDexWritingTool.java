@@ -65,6 +65,14 @@ public class SingleDexWritingTool extends DexWritingTool {
       }
     }
 
+    for (InputVFile vFile : getOrphanDexFiles()) {
+      try {
+        mergeDex(merger, vFile);
+      } catch (MergingOverflowException e) {
+        throw new DexWritingException(new SingleDexOverflowException(e));
+      }
+    }
+
     finishMerge(merger, outputDex);
   }
 

@@ -44,6 +44,7 @@ public class StandardMultiDexWritingTool extends DexWritingTool implements Multi
     List<InputVFile> mainDexList = new ArrayList<InputVFile>();
     List<InputVFile> anyDexList = new ArrayList<InputVFile>();
     fillDexLists(mainDexList, anyDexList);
+    mainDexList.addAll(getOrphanDexFiles());
 
     for (InputVFile currentDex : mainDexList) {
       try {

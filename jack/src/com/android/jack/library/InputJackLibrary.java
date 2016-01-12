@@ -202,4 +202,6 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
   @Nonnegative
   public abstract int getSupportedMinorMin();
+
+  public abstract boolean hasCompliantPrebuilts();
 }

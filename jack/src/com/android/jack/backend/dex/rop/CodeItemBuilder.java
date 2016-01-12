@@ -74,6 +74,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -183,7 +184,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
           .addDefaultValue(Boolean.FALSE)
           .requiredIf(Options.JAVA_SOURCE_VERSION.getValue()
               .isGreaterOrEqual(JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)))
-      .addCategory(DumpInLibrary.class);
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
