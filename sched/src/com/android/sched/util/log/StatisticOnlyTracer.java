@@ -194,7 +194,7 @@ public final class StatisticOnlyTracer implements Tracer {
     @Override
     @Nonnull
     public EventType getType() {
-      return TracerEventType.NOTYPE;
+      return TracerEventType.SINGLETON;
     }
 
     @Override
@@ -258,6 +258,28 @@ public final class StatisticOnlyTracer implements Tracer {
     return event;
   }
 
+  private static class ThreadTracerStateImpl implements ThreadTracerState {
+    @Nonnull
+    public static final ThreadTracerStateImpl INSTANCE = new ThreadTracerStateImpl();
+
+    private ThreadTracerStateImpl() {
+    }
+  }
+
+  @Override
+  @Nonnull
+  public ThreadTracerState getThreadState() {
+    return ThreadTracerStateImpl.INSTANCE;
+  }
+
+  @Override
+  public void pushThreadState(@Nonnull ThreadTracerState state) {
+  }
+
+  @Override
+  public void popThreadState(@Nonnull ThreadTracerState state) {
+  }
+
   @Nonnull
   public static final ThreadLocal<Boolean> enable = new ThreadLocal<Boolean>() {
     @Override
@@ -286,7 +308,7 @@ public final class StatisticOnlyTracer implements Tracer {
   @Override
   @Nonnull
   public EventType getDynamicEventType(@Nonnull String name) {
-    return TracerEventType.NOTYPE;
+    return TracerEventType.SINGLETON;
   }
 
   //

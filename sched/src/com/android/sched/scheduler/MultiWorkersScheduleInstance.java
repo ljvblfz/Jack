@@ -34,7 +34,12 @@ import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.LongPropertyId;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.log.SchedEventType;
+import com.android.sched.util.log.ThreadTracerState;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
 
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
@@ -110,9 +115,14 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
     @Nonnegative
     private long currentTaskStartOn;
+    @CheckForNull
+    private ThreadTracerState state;
+    @Nonnull
+    private final Tracer tracer;
 
     public Worker(@Nonnull BlockingDeque<Task> queue) {
       this.queue = queue;
+      this.tracer = TracerFactory.getTracer();
     }
 
     /*
@@ -123,6 +133,11 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
     @Override
     public void run() {
+      assert state != null;
+      tracer.pushThreadState(state);
+      Event workersEvent = tracer.start(SchedEventType.WORKERS);
+      Event workerEvent = tracer.start("Worker " + getName());
+
       try {
         while (true) {
           try {
@@ -156,7 +171,18 @@ public class MultiWorkersScheduleInstance<T extends Component>
       } catch (Throwable e) {
         new AssertionErrorTask(queue,
             new AssertionError("Uncaught exception in thread '" + getName() + "'", e)).commit();
+      } finally {
+        workerEvent.end();
+        workersEvent.end();
+        assert state != null;
+        tracer.popThreadState(state);
       }
+    }
+
+    @Override
+    public void start() {
+      state = tracer.getThreadState();
+      super.start();
     }
 
     @Nonnull
