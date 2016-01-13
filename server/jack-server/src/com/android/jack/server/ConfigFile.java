@@ -108,19 +108,29 @@ class ConfigFile extends Properties {
 
     new OutputStreamFile(configFile.getPath(), null, Existence.MAY_EXIST,
         ChangePermission.NOCHANGE, /* append = */ false);
-    File tmpOut = File.createTempFile(configFile.getName(), ".tmp", configFile.getParentFile());
-    if (!(tmpOut.setExecutable(false, false)
-        && tmpOut.setWritable(false, false)
-        && tmpOut.setReadable(false, false)
-        && tmpOut.setWritable(true, true)
-        && tmpOut.setReadable(true, true))) {
-       throw new IOException("Failed to set permissions of '" + tmpOut.getPath() + "'");
-     }
-    try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
-      store(writer, "");
-    }
-    if (!tmpOut.renameTo(configFile)) {
-      throw new IOException("failed to rename temp config file '" + tmpOut);
+    File tmpOut = File.createTempFile("jackserver-" + configFile.getName(), ".tmp",
+        configFile.getParentFile());
+    try {
+      if (!(tmpOut.setExecutable(false, false)
+          && tmpOut.setWritable(false, false)
+          && tmpOut.setReadable(false, false)
+          && tmpOut.setWritable(true, true)
+          && tmpOut.setReadable(true, true))) {
+        throw new IOException("Failed to set permissions of '" + tmpOut.getPath() + "'");
+      }
+      try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
+        store(writer, "");
+      }
+      if (!tmpOut.renameTo(configFile)) {
+        throw new IOException("failed to rename temp config file '" + tmpOut);
+      }
+      tmpOut = null;
+    } finally {
+      if (tmpOut != null) {
+        if (!tmpOut.delete()) {
+          logger.log(Level.SEVERE, "Failed to delete temp file '" + tmpOut.getPath() + "'");
+        }
+      }
     }
   }
 
