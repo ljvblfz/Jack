@@ -65,14 +65,14 @@ public abstract class JayceReaderFactory {
     int currentMinor = jayceReader.getCurrentMinor();
     if (minorVersion < minorMin) {
       logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
-          + " is invalid: the version of the jayce file is not supported anymore."
+          + " is invalid: the version of the jayce file is not supported anymore. "
           + "File version: " + majorVersionStr + "." + minorVersion + " - Current version: "
           + majorVersionStr + "." + currentMinor + " - Minimum compatible version: "
           + majorVersionStr + "." + minorMin);
       throw new LibraryFormatException(inputJackLibrary.getLocation());
     } else if (minorVersion > currentMinor) {
       logger.log(Level.SEVERE, "Library " + inputJackLibrary.getLocation().getDescription()
-          + " is invalid: the version of the jayce file is too recent."
+          + " is invalid: the version of the jayce file is too recent. "
           + "File version: " + majorVersionStr + "." + minorVersion + " - Current version: "
           + majorVersionStr + "." + currentMinor);
       throw new LibraryFormatException(inputJackLibrary.getLocation());
