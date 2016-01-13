@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,8 @@
 
 package com.android.sched.util.log;
 
-import javax.annotation.Nonnull;
-
-
 /**
- * Represents a type of event whose performance is tracked
+ * Opaque tracer state for a thread
  */
-public enum SchedEventType implements EventType {
-  WORKERS("Workers"),
-  REFLECTIONS("Reflections"),
-  INSTANCIER("Schedulable instancier"),
-  PLANBUILDER("Plan builder");
-
-  @Nonnull
-  private final String name;
-
-  SchedEventType(@Nonnull String name) {
-    this.name = name;
-  }
-
-  @Override
-  @Nonnull
-  public String getName() {
-    return name;
-  }
+public interface ThreadTracerState {
 }

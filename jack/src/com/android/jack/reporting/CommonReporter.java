@@ -24,6 +24,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.log.ThreadWithTracer;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
@@ -69,7 +70,7 @@ abstract class CommonReporter implements Reporter {
         Reporter.REPORTER_OUTPUT_STREAM_BY_LEVEL).entrySet()) {
       streamByLevel.put(entry.getKey(), entry.getValue().getPrintStream());
     }
-    final Thread reporterThread = new Thread(new RunReporter(), "Jack reporter");
+    final Thread reporterThread = new ThreadWithTracer(new RunReporter(), "Jack reporter");
     reporterThread.start();
     Jack.getSession().getHooks().addHook(new Runnable() {
       @Override

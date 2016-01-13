@@ -21,10 +21,12 @@ import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.collect.Lists;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.EventType;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.log.ThreadTracerState;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
@@ -66,7 +68,13 @@ public abstract class AbstractTracer implements Tracer {
           WatcherInstaller.class)).setMin(0)).addDefaultValue("");
 
   @Nonnull
+  public static final BooleanPropertyId PARENT_THREAD_SUPORT = BooleanPropertyId.create(
+      "sched.tracer.thread",
+      "If tracer follows parent thread creation").addDefaultValue(true);
+
+  @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
+  private final boolean parentThreadSupport = ThreadConfig.get(PARENT_THREAD_SUPORT).booleanValue();
 
   /**
    * Construct a Tracer
@@ -254,25 +262,34 @@ public abstract class AbstractTracer implements Tracer {
   @Override
   @Nonnull
   public TracerEvent start(@Nonnull String name) {
-    DynamicEventType event = dynalicEventByName.get(name);
-
-    if (event == null) {
-      event = new DynamicEventType(name);
-      dynalicEventByName.put(name, event);
-    }
-
-    return start(event);
+    return start(getOrCreateDynamicEventType(name));
   }
 
   @Override
   @Nonnull
   public EventType getDynamicEventType(@Nonnull String name) {
-    EventType type = dynalicEventByName.get(name);
+    synchronized (dynalicEventByName) {
+      EventType type = dynalicEventByName.get(name);
 
-    if (type != null) {
+      if (type != null) {
+        return type;
+      } else {
+        return TracerEventType.NOTYPE;
+      }
+    }
+  }
+
+  @Nonnull
+  private EventType getOrCreateDynamicEventType(@Nonnull String name) {
+    synchronized (dynalicEventByName) {
+      DynamicEventType type = dynalicEventByName.get(name);
+
+      if (type == null) {
+        type = new DynamicEventType(name);
+        dynalicEventByName.put(name, type);
+      }
+
       return type;
-    } else {
-      return TracerEventType.NOTYPE;
     }
   }
 
@@ -295,6 +312,61 @@ public abstract class AbstractTracer implements Tracer {
 
     return newEvent;
   }
+
+  private class ThreadTracerStateImpl implements ThreadTracerState {
+    @Nonnull
+    private final EventType[] types;
+
+    private ThreadTracerStateImpl() {
+      Stack<TracerEvent> stack = pendingEvents.get();
+
+      types = new EventType[stack.size()];
+      int idx = 0;
+      for (TracerEvent event : stack) {
+        types[idx++] = event.getType();
+      }
+    }
+  }
+
+  private static class ThreadTracerStateDummy implements ThreadTracerState {
+    @Nonnull
+    public static final ThreadTracerStateDummy INSTANCE = new ThreadTracerStateDummy();
+
+    private ThreadTracerStateDummy() {
+    }
+  }
+
+  @Override
+  @Nonnull
+  public ThreadTracerState getThreadState() {
+    return (parentThreadSupport) ? new ThreadTracerStateImpl() : ThreadTracerStateDummy.INSTANCE;
+  }
+
+  @Override
+  public void pushThreadState(@Nonnull ThreadTracerState state) {
+    if (parentThreadSupport) {
+      EventType[] types = ((ThreadTracerStateImpl) state).types;
+
+      for (int idx = 0; idx < types.length; idx++) {
+        start(types[idx]);
+      }
+    }
+  }
+
+  @Override
+  public void popThreadState(@Nonnull ThreadTracerState state) {
+    if (parentThreadSupport) {
+      Stack<TracerEvent> stack = pendingEvents.get();
+      assert ((ThreadTracerStateImpl) state).types.length == stack.size();
+
+      for (int idx = stack.size() - 1; idx >= 0; idx--) {
+        assert ((ThreadTracerStateImpl) state).types[idx] == stack.peek().getType();
+
+        stack.peek().end();
+      }
+    }
+  }
+
 
   @Override
   public boolean isTracing() {

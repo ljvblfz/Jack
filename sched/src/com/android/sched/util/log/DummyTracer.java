@@ -121,6 +121,32 @@ public final class DummyTracer implements Tracer {
     return dummyEvent;
   }
 
+  private static class ThreadTracerStateImpl implements ThreadTracerState {
+    @Nonnull
+    public static final ThreadTracerStateImpl INSTANCE = new ThreadTracerStateImpl();
+
+    private ThreadTracerStateImpl() {
+    }
+  }
+
+  @Override
+  @Nonnull
+  public ThreadTracerState getThreadState() {
+    assert config == ThreadConfig.getConfig();
+
+    return ThreadTracerStateImpl.INSTANCE;
+  }
+
+  @Override
+  public void pushThreadState(@Nonnull ThreadTracerState state) {
+    assert config == ThreadConfig.getConfig();
+  }
+
+  @Override
+  public void popThreadState(@Nonnull ThreadTracerState state) {
+    assert config == ThreadConfig.getConfig();
+  }
+
   @Override
   public boolean isTracing() {
     assert config == ThreadConfig.getConfig();

@@ -30,8 +30,9 @@ import javax.annotation.Nonnull;
 @VariableName("tracer")
 public interface Tracer {
   /**
-   * Signals that a new event has started. You must end each event for each
-   * corresponding call to {@code start}. Nesting calls are allowed.
+   * Signals that a new event has started. You must end each event for each corresponding call to
+   * {@code start}. Nesting calls are allowed. Parent events are handled automatically for the same
+   * thread.
    *
    * @param type the type of event.
    * @return an Event object to be ended by the caller.
@@ -40,14 +41,20 @@ public interface Tracer {
   public Event start(@Nonnull EventType type);
 
   /**
-   * Signals that a new event has started. You must end each event for each
-   * corresponding call to {@code start}. Nesting calls is allowed.
+   * Signals that a new event has started. You must end each event for each corresponding call to
+   * {@code start}. Nesting calls is allowed. Parent events are handled automatically for the same
+   * thread.
    *
    * @param name the name of the event.
    * @return an Event object to be ended by the caller.
    */
   @Nonnull
   public Event start(@Nonnull String name);
+
+  @Nonnull
+  public ThreadTracerState getThreadState();
+  public void pushThreadState(@Nonnull ThreadTracerState state);
+  public void popThreadState(@Nonnull ThreadTracerState state);
 
   /**
    * Get if the tracer is enabled. The method can be invoked to know if a resource consuming
