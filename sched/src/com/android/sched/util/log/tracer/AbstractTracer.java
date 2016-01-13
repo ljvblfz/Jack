@@ -256,7 +256,7 @@ public abstract class AbstractTracer implements Tracer {
 
   // Map associates name with a DynamicEventType
   @Nonnull
-  private final Map<String, DynamicEventType> dynalicEventByName =
+  private final Map<String, DynamicEventType> dynamicEventByName =
       new HashMap<String, DynamicEventType>();
 
   @Override
@@ -268,8 +268,8 @@ public abstract class AbstractTracer implements Tracer {
   @Override
   @Nonnull
   public EventType getDynamicEventType(@Nonnull String name) {
-    synchronized (dynalicEventByName) {
-      EventType type = dynalicEventByName.get(name);
+    synchronized (dynamicEventByName) {
+      EventType type = dynamicEventByName.get(name);
 
       if (type != null) {
         return type;
@@ -281,12 +281,12 @@ public abstract class AbstractTracer implements Tracer {
 
   @Nonnull
   private EventType getOrCreateDynamicEventType(@Nonnull String name) {
-    synchronized (dynalicEventByName) {
-      DynamicEventType type = dynalicEventByName.get(name);
+    synchronized (dynamicEventByName) {
+      DynamicEventType type = dynamicEventByName.get(name);
 
       if (type == null) {
         type = new DynamicEventType(name);
-        dynalicEventByName.put(name, type);
+        dynamicEventByName.put(name, type);
       }
 
       return type;
