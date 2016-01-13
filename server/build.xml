@@ -86,6 +86,7 @@
       <filelist dir="/" >
         <file name="${jack-server.dir}/etc/jack" />
         <file name="${jack-server.dir}/etc/jack-admin" />
+        <file name="${jack-server.dir}/etc/jack-diagnose" />
       </filelist>
     </copy>
     <replace file="${jack-top-dist.dir}/jack"
@@ -94,6 +95,11 @@
                    encoding="UTF-8"/>
 
     <replace file="${jack-top-dist.dir}/jack-admin"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <replace file="${jack-top-dist.dir}/jack-diagnose"
                    token="%%VERSION%%"
                    value="${version}"
                    encoding="UTF-8"/>
