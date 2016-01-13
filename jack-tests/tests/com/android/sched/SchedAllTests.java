@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.sched.input;
+package com.android.sched;
 
-public class Test {
-  public int f01;
-  public final int f02;
 
-  final int f12;
+import com.android.jack.test.category.NonPreSubmitTests;
+import com.android.jack.test.junit.JackTestRunner;
 
-  protected final int f22;
+import org.junit.experimental.categories.Categories.ExcludeCategory;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite.SuiteClasses;
 
-  @SuppressWarnings("unused")
-  private final int f32;
-
-  {
-    f02=2;
-    f12=12;
-    f22=22;
-    f01++;
-    f32=32;
- }
+/**
+ * All schedlib tests
+ */
+@RunWith(JackTestRunner.class)
+@ExcludeCategory(NonPreSubmitTests.class)
+@SuiteClasses(value = {AllTests.class})
+public class SchedAllTests {
 }

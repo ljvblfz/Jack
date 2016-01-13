@@ -753,7 +753,7 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api">
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api, schedtests-lib">
     <!-- project layout -->
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
@@ -806,6 +806,7 @@
           <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
+          <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
         </filelist>
         <filelist refid="ecj-test-libs"/>
         <!-- static libs -->
@@ -863,6 +864,7 @@
           <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
+          <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
         </filelist>
         <filelist refid="ecj-test-libs"/>
       </classpath>
@@ -2263,6 +2265,23 @@
 
   </target>
 
+  <target name="test-sched-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true" failonerror="true"
+      output="${jack-tests.dir}/dump/SchedAllTests.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+       <filelist dir="/" files="${schedtests.dist.dir}/${schedtests.libname}"/>
+      </classpath>
+      <arg value="com.android.sched.SchedAllTests"/>
+    </java>
+
+  </target>
+
   <target name="test-jack-by-name" description="run Jack tests with name passed via -Dtest.name"
   depends="tests-check-config, tests-check-name, jack, jack-tests, test-jack-by-name-nodep">
   </target>
@@ -2384,7 +2403,7 @@
   </target>
 
   <target name="test-sched" description="run schedlib tests"
-    depends="junit4,schedtests-lib,sched-lib,guava-lib,
+    depends="tests-check-config,junit4,jack-tests,schedtests-lib,sched-lib,guava-lib,
     freemarker-lib,maths-lib, test-sched-nodep">
   </target>
 
