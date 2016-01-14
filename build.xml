@@ -1848,7 +1848,7 @@
   <!-- ************************ -->
   <property name="hamcrest-core-jack.build.dir" value="${hamcrest-core.dir}/build" />
   <property name="hamcrest-core-jack.build.outdir" value="${hamcrest-core-jack.build.dir}/classes" />
-  <property name="hamcrest-core-jack.dist.dir" value="${hamcrest-core-jack.dir}/dist" />
+  <property name="hamcrest-core-jack.dist.dir" value="${hamcrest-core.dir}/dist" />
   <property name="hamcrest-core-jack.libname" value="hamcrest-core-jack-lib.zip" />
 
   <target name="hamcrest-core-jack-lib-clean">
