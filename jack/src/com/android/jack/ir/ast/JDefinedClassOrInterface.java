@@ -382,9 +382,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Override
   @Nonnull
-  public Collection<JAnnotationType> getAnnotationTypes() {
+  public Set<JAnnotationType> getAnnotationTypes() {
     loader.ensureAnnotations(this);
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+    return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
 

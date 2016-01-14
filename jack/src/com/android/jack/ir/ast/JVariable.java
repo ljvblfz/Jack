@@ -26,6 +26,7 @@ import com.android.sched.item.Description;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -120,8 +121,8 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   @Override
   @Nonnull
-  public Collection<JAnnotationType> getAnnotationTypes() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+  public Set<JAnnotationType> getAnnotationTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
 
