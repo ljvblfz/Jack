@@ -226,6 +226,14 @@ public class Options {
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
+  public static final BooleanPropertyId USE_PREBUILT_FROM_LIBRARY =
+      BooleanPropertyId.create("jack.library.prebuilt.use", "Use prebuilt files from library")
+          .addDefaultValue(Boolean.TRUE)
+          .requiredIf(
+              GENERATE_DEX_FILE.getValue().isTrue().or(GENERATE_JACK_LIBRARY.getValue().isTrue()))
+      .addCategory(DumpInLibrary.class);
+
+  @Nonnull
   public static final BooleanPropertyId GENERATE_JAYCE_IN_LIBRARY = BooleanPropertyId
       .create("jack.library.jayce", "Generate Jayce files in library")
       .addDefaultValue(Boolean.FALSE).addCategory(Private.class)
@@ -754,6 +762,9 @@ public class Options {
       configBuilder.set(PackageRenamer.JARJAR_ENABLED, true);
       String sep = PackageRenamer.JARJAR_FILES.getCodec().getSeparator();
       configBuilder.setString(PackageRenamer.JARJAR_FILES, Joiner.on(sep).join(jarjarRulesFiles));
+      configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
+      LoggerFactory.getLogger().log(Level.WARNING,
+          "Prebuilts from libraries are not use due to usage of jarjar");
     }
 
     if (processor != null) {
@@ -795,6 +806,9 @@ public class Options {
 
     if (flags != null) {
       configBuilder.set(SHROB_ENABLED, true);
+      configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
+      LoggerFactory.getLogger().log(Level.WARNING,
+          "Prebuilts from libraries are not use due to usage of shrinking or obfuscation");
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
         configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,

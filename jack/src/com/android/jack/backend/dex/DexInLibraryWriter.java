@@ -18,6 +18,7 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
 import com.android.jack.JackIOException;
+import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.DexFile;
@@ -61,37 +62,42 @@ public class DexInLibraryWriter extends DexWriter implements
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
+  private final boolean usePrebuilts =
+      ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVFile vFile;
 
-    Location loc = type.getLocation();
-    if (loc instanceof TypeInInputLibraryLocation) {
-      InputVFile in;
-      InputLibrary inputLibrary =
-          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-      if (inputLibrary.containsFileType(FileType.PREBUILT)) {
-        if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
-          try {
-            in = inputLibrary.getFile(FileType.PREBUILT,
+    if (usePrebuilts) {
+      Location loc = type.getLocation();
+      if (loc instanceof TypeInInputLibraryLocation) {
+        InputVFile in;
+        InputLibrary inputLibrary =
+            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+        if (inputLibrary.containsFileType(FileType.PREBUILT)) {
+          if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
+            try {
+              in = inputLibrary.getFile(FileType.PREBUILT,
+                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+            } catch (FileTypeDoesNotExistException e) {
+              // this was created by Jack, so this should not happen
+              throw new AssertionError(e);
+            }
+
+            vFile = outputLibrary.createFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-          } catch (FileTypeDoesNotExistException e) {
-            // this was created by Jack, so this should not happen
-            throw new AssertionError(e);
-          }
 
-          vFile = outputLibrary.createFile(FileType.PREBUILT,
-              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-
-          InputStream is = in.getInputStream();
-          OutputStream os = vFile.getOutputStream();
-          try {
-            new ByteStreamSucker(is, os, true).suck();
-          } finally {
-            is.close(); // is != null or check before
+            InputStream is = in.getInputStream();
+            OutputStream os = vFile.getOutputStream();
+            try {
+              new ByteStreamSucker(is, os, true).suck();
+            } finally {
+              is.close(); // is != null or check before
+            }
           }
+          return;
         }
-        return;
       }
     }
 

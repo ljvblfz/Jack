@@ -614,6 +614,22 @@ public abstract class Jack {
           request.addFeature(TypeDefRemover.RemoveTypeDef.class);
         }
 
+        // TODO(jack-team): Remove this hack
+        boolean preDexing = !getSession().getImportedLibraries().isEmpty();
+        for (InputLibrary il : getSession().getImportedLibraries()) {
+          if (!il.containsFileType(FileType.PREBUILT)) {
+            preDexing = false;
+          }
+        }
+        logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
+
+        if (!config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue()
+            || request.getFeatures().contains(LambdaToAnonymousConverter.class)) {
+          for (InputLibrary il : getSession().getImportedLibraries()) {
+            ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
+          }
+        }
+
         ProductionSet targetProduction = request.getTargetProductions();
         FeatureSet features = request.getFeatures();
         PlanBuilder<JSession> planBuilder;
@@ -959,22 +975,6 @@ public abstract class Jack {
     FeatureSet features = planBuilder.getRequest().getFeatures();
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     boolean hasSanityChecks = features.contains(SanityChecks.class);
-
-    // TODO(jack-team): Remove this hack
-    boolean preDexing = !getSession().getImportedLibraries().isEmpty();
-    for (InputLibrary il : getSession().getImportedLibraries()) {
-      if (!il.containsFileType(FileType.PREBUILT)) {
-        preDexing = false;
-      }
-    }
-    if (features.contains(Jarjar.class) || features.contains(Obfuscation.class)
-        || features.contains(Shrinking.class)
-        || features.contains(LambdaToAnonymousConverter.class)) {
-      for (InputLibrary il : getSession().getImportedLibraries()) {
-        ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
-      }
-    }
-    logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
 
     // Build the plan
     if (hasSanityChecks) {
