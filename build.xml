@@ -927,7 +927,13 @@
     </uptodate>
   </target>
 
-  <target name="jill-compile" depends="jill-copy-libs, jill-check" unless="jill.uptodate">
+  <target name="jill-create-version-file">
+    <!-- create symlink to ensure consistency between version.properties and jill-version.properties -->
+    <symlink link="${jill.dir}/rsc/jill-version.properties"
+      resource="${jack-project.dir}/version.properties" overwrite="true"/>
+  </target>
+
+  <target name="jill-compile" depends="jill-copy-libs, jill-check, jill-create-version-file" unless="jill.uptodate">
     <!-- project layout -->
     <delete dir="${jill.build.outdir}"/>
     <mkdir dir="${jill.build.outdir}"/>

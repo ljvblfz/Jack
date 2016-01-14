@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="rsc"/>
 	<classpathentry kind="lib" path="libs/args4j-lib.jar"/>
 	<classpathentry kind="lib" path="libs/asm4-lib.jar"/>
 	<classpathentry kind="lib" path="libs/dexcomparator-lib.jar"/>
