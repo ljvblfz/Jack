@@ -138,6 +138,15 @@ class JayceOutputStream implements DataOutput {
     }
   }
 
+  public void writeBuffer(byte[] b) throws IOException {
+    if (b == null) {
+      writeInt(-1);
+    } else {
+      writeInt(b.length);
+      write(b);
+    }
+  }
+
   public void close() throws IOException {
     out.close();
   }

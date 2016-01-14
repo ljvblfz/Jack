@@ -165,4 +165,16 @@ class JayceInputStream implements DataInput {
       throw new ParseException(e);
     }
   }
+
+  public byte[] readBuffer() throws IOException {
+    int length = readInt();
+
+    if (length == -1) {
+      return null;
+    }
+    byte[] b = new byte[length];
+    in.readFully(b);
+
+    return b;
+  }
 }

@@ -148,6 +148,11 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return tokenizer.readString();
   }
 
+  @CheckForNull
+  public byte[] readBuffer() throws IOException {
+    return tokenizer.readBuffer();
+  }
+
   @Nonnull
   public List<String> readIds() throws IOException {
     tokenizer.readOpen();
