@@ -75,16 +75,10 @@ public class DexInLibraryWriter extends DexWriter implements
         InputVFile in;
         InputLibrary inputLibrary =
             ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-        if (inputLibrary.containsFileType(FileType.PREBUILT)) {
-          if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
-            try {
-              in = inputLibrary.getFile(FileType.PREBUILT,
-                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            } catch (FileTypeDoesNotExistException e) {
-              // this was created by Jack, so this should not happen
-              throw new AssertionError(e);
-            }
-
+        if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
+          try {
+            in = inputLibrary.getFile(FileType.PREBUILT,
+                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
             vFile = outputLibrary.createFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
@@ -95,8 +89,10 @@ public class DexInLibraryWriter extends DexWriter implements
             } finally {
               is.close(); // is != null or check before
             }
+            return;
+          } catch (FileTypeDoesNotExistException e) {
+            // Pre-dex is not accessible, thus write dex file from type
           }
-          return;
         }
       }
     }
