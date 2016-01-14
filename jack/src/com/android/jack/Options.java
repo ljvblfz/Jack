@@ -28,8 +28,7 @@ import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.ClasspathEntryCodec;
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.InputJackLibraryCodec;
+import com.android.jack.library.ImportedLibraryCodec;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.reporting.Reportable;
@@ -283,10 +282,10 @@ public class Options {
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
-  public static final ListPropertyId<InputJackLibrary> IMPORTED_LIBRARIES =
-      new ListPropertyId<InputJackLibrary>("jack.library.import", "Libraries to import",
-          new InputJackLibraryCodec()).minElements(0).addDefaultValue(
-          Collections.<InputJackLibrary>emptyList());
+  public static final ListPropertyId<InputLibrary> IMPORTED_LIBRARIES =
+      new ListPropertyId<InputLibrary>("jack.library.import", "Libraries to import",
+          new ImportedLibraryCodec()).minElements(0).addDefaultValue(
+          Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final PropertyId<List<InputLibrary>> CLASSPATH = PropertyId.create(
