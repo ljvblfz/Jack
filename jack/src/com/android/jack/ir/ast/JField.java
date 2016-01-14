@@ -27,6 +27,7 @@ import com.android.sched.transform.TransformRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -264,8 +265,8 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
 
   @Override
   @Nonnull
-  public Collection<JAnnotationType> getAnnotationTypes() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+  public Set<JAnnotationType> getAnnotationTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
 

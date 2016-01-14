@@ -31,6 +31,7 @@ import com.android.sched.transform.TransformRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -291,8 +292,8 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   @Nonnull
-  public Collection<JAnnotationType> getAnnotationTypes() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(
+  public Set<JAnnotationType> getAnnotationTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
 

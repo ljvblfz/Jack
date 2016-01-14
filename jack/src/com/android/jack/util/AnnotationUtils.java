@@ -16,15 +16,14 @@
 
 package com.android.jack.util;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -34,14 +33,13 @@ import javax.annotation.Nonnull;
 public class AnnotationUtils {
 
   @Nonnull
-  public static Collection<JAnnotationType> getAnnotationTypes(
+  public static Set<JAnnotationType> getAnnotationTypes(
       @Nonnull Collection<JAnnotation> annotations) {
-    return Collections2.transform(annotations, new Function<JAnnotation, JAnnotationType>() {
-     @Override
-      public JAnnotationType apply(JAnnotation annotation) {
-        return annotation.getType();
-      }
-    });
+    Set<JAnnotationType> annotationTypes = new HashSet<JAnnotationType>();
+    for (JAnnotation annotation : annotations) {
+      annotationTypes.add(annotation.getType());
+    }
+    return annotationTypes;
   }
 
   @Nonnull

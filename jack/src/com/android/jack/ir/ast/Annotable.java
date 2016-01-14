@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -34,5 +35,5 @@ public interface Annotable {
   Collection<JAnnotation> getAnnotations();
 
   @Nonnull
-  Collection<JAnnotationType> getAnnotationTypes();
+  Set<JAnnotationType> getAnnotationTypes();
 }
