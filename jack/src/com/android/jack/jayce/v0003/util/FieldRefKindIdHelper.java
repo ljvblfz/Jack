@@ -33,6 +33,8 @@ public class FieldRefKindIdHelper {
   private static byte[] ids;
 
   static {
+    assert FieldKind.values().length == 2;
+
     values = new FieldKind[2];
     values[0] = FieldKind.INSTANCE;
     values[1] = FieldKind.STATIC;

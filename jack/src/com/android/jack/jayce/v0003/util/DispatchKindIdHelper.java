@@ -33,6 +33,8 @@ public class DispatchKindIdHelper {
   private static byte[] ids;
 
   static {
+    assert DispatchKind.values().length == 2;
+
     values = new DispatchKind[2];
     values[0] = DispatchKind.VIRTUAL;
     values[1] = DispatchKind.DIRECT;

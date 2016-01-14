@@ -33,6 +33,8 @@ public class MethodKindIdHelper {
   private static byte[] ids;
 
   static {
+    assert MethodKind.values().length == 3;
+
     values = new MethodKind[3];
     values[0] = MethodKind.STATIC;
     values[1] = MethodKind.INSTANCE_NON_VIRTUAL;

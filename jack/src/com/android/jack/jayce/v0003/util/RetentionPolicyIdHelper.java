@@ -33,6 +33,8 @@ public class RetentionPolicyIdHelper {
   private static byte[] ids;
 
   static {
+    assert JRetentionPolicy.values().length == 5;
+
     values = new JRetentionPolicy[5];
     values[0] = JRetentionPolicy.SOURCE;
     values[1] = JRetentionPolicy.CLASS;

@@ -33,6 +33,8 @@ public class ReceiverKindIdHelper {
   private static byte[] ids;
 
   static {
+    assert ReceiverKind.values().length == 2;
+
     values = new ReceiverKind[2];
     values[0] = ReceiverKind.CLASS;
     values[1] = ReceiverKind.INTERFACE;
