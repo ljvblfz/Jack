@@ -111,6 +111,11 @@ class Tokenizer {
     return in.readUTF();
   }
 
+  @CheckForNull
+  public byte[] readBuffer() throws IOException {
+    return in.readBuffer();
+  }
+
   private void readToken(@Nonnull Token expected) throws IOException {
     next();
     if (currentTokenId != expected) {
