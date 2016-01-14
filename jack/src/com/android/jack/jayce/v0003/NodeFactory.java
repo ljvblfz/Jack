@@ -16,6 +16,7 @@
 
 package com.android.jack.jayce.v0003;
 
+import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
@@ -219,6 +220,7 @@ import com.android.jack.jayce.v0003.nodes.NNewArray;
 import com.android.jack.jayce.v0003.nodes.NNewInstance;
 import com.android.jack.jayce.v0003.nodes.NNullLiteral;
 import com.android.jack.jayce.v0003.nodes.NOrOperation;
+import com.android.jack.jayce.v0003.nodes.NOriginDigest;
 import com.android.jack.jayce.v0003.nodes.NParameter;
 import com.android.jack.jayce.v0003.nodes.NParameterRef;
 import com.android.jack.jayce.v0003.nodes.NPostfixDecOperation;
@@ -790,6 +792,8 @@ public class NodeFactory {
       nMarker = new NThisRefTypeInfo();
     } else if (from instanceof ThrownExceptionMarker) {
       nMarker = new NThrownExceptionMarker();
+    } else if (from instanceof OriginDigestMarker) {
+      nMarker = new NOriginDigest();
     }
     // no NMarker if and only if the given Marker was not Jayce capable.
     assert (nMarker == null) == (!(from instanceof SerializableMarker)) : from.getClass();

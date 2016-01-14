@@ -58,7 +58,7 @@ public class JavaTransformer {
   private static final String JAYCE_MAJOR_VERSION = "3";
 
   @Nonnull
-  private static final String JAYCE_MINOR_VERSION = "1";
+  private static final String JAYCE_MINOR_VERSION = "2";
 
   @Nonnull
   private static final String KEY_LIB_MAJOR_VERSION = "lib.version.major";

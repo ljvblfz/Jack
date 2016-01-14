@@ -126,6 +126,7 @@ public enum Token {
   NEW_INSTANCE("new"),
   NULL_LITERAL("null-literal"),
   OR_OPERATION("||"),
+  ORIGIN_DIGEST("origin-digest"),
   PARAMETER("parameter"),
   PARAMETER_REF("parameter-ref"),
   POSTFIX_DEC_OPERATION("postfix-dec"),

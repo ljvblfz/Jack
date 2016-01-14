@@ -63,6 +63,8 @@ import com.android.jack.backend.jayce.JayceInLibraryWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
+import com.android.jack.digest.OriginDigestAdder;
+import com.android.jack.digest.OriginDigestFeature;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.frontend.MethodIdDuplicateRemover;
 import com.android.jack.frontend.MethodIdMerger;
@@ -481,6 +483,11 @@ public abstract class Jack {
         if (config.get(Options.SANITY_CHECKS).booleanValue()) {
           request.addFeature(SanityChecks.class);
         }
+
+        if (config.get(OriginDigestFeature.ORIGIN_DIGEST).booleanValue()) {
+          request.addFeature(OriginDigestFeature.class);
+        }
+
         if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
           request.addFeature(Jarjar.class);
         }
@@ -614,6 +621,12 @@ public abstract class Jack {
           planBuilder = request.getPlanBuilder(JSession.class);
         } catch (IllegalRequestException e) {
           throw new AssertionError(e);
+        }
+
+        if (features.contains(OriginDigestFeature.class)) {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          typePlan.append(OriginDigestAdder.class);
         }
 
         planBuilder.append(PreProcessorApplier.class);
