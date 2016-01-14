@@ -311,7 +311,7 @@
 
   <target name="jack-lib-compile-step1"
     depends="jack-copy-libs,jack-create-version-file,sched-build,antlr,sched-build-lib,allocation-lib,
-    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
+    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib,jill-lib,jill-api-lib,asm4-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
     <mkdir dir="${jack.build.outdir}"/>
@@ -335,6 +335,9 @@
       <file name="${freemarker.dist.dir}/${freemarker.libname}" />
       <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
       <file name="${maths.dist.dir}/${maths.libname}" />
+      <file name="${jill.dist.dir}/${jill.libname}" />
+      <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
+      <file name="${asm4.dist.dir}/${asm4.libname}" />
     </filelist>
     <copy todir="${jack.tools.dir}" flatten="true">
       <filelist dir="/" >
@@ -888,6 +891,7 @@
   <property name="jill.build.outdir" value="${jill.build.dir}/classes" />
   <property name="jill.dist.dir" value="${jill.dir}/dist" />
   <property name="jill.execname" value="jill.jar" />
+  <property name="jill.libname" value="jill-lib.jar" />
 
   <target name="jill-clean">
     <delete dir="${jill.build.dir}" />
@@ -923,7 +927,7 @@
     </uptodate>
   </target>
 
-  <target name="jill" depends="jill-copy-libs, jill-check" unless="jill.uptodate">
+  <target name="jill-compile" depends="jill-copy-libs, jill-check" unless="jill.uptodate">
     <!-- project layout -->
     <delete dir="${jill.build.outdir}"/>
     <mkdir dir="${jill.build.outdir}"/>
@@ -937,38 +941,48 @@
         <filelist refid="jill.libs.filelist" />
       </classpath>
     </javac>
-    <!-- package -->
-    <copy todir="${jill.build.outdir}">
-      <fileset dir="${jill.dir}/rsc">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${jill-api.lib.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${schedlib.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${args4j.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${jsr305.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${asm4.build.outdir}">
-        <include name="**/*" />
-      </fileset>
-    </copy>
-    <unzip dest="${jill.build.outdir}" src="${guava.dist.dir}/${guava.libname}">
-      <patternset excludes="META-INF/**"/>
-    </unzip>
+  </target>
 
+  <target name="jill-lib" depends="jill-compile">
     <copy file="${jack-project.dir}/version.properties"
           tofile="${jill.build.outdir}/jill-version.properties"/>
-
-    <jar destfile="${jill.dist.dir}/${jill.execname}"
-          manifest="${jill.dir}/etc/manifest.txt"
+    <jar destfile="${jill.dist.dir}/${jill.libname}"
           basedir="${jill.build.outdir}"
           includes="**"/>
+  </target>
+
+  <target name="jill" depends="jill-compile">
+      <copy todir="${jill.build.outdir}">
+        <fileset dir="${jill.dir}/rsc">
+          <include name="**/*" />
+        </fileset>
+        <fileset dir="${jill-api.lib.build.outdir}">
+          <include name="**/*" />
+        </fileset>
+        <fileset dir="${schedlib.build.outdir}">
+          <include name="**/*" />
+        </fileset>
+        <fileset dir="${args4j.build.outdir}">
+          <include name="**/*" />
+        </fileset>
+        <fileset dir="${jsr305.build.outdir}">
+          <include name="**/*" />
+        </fileset>
+        <fileset dir="${asm4.build.outdir}">
+          <include name="**/*" />
+        </fileset>
+      </copy>
+      <unzip dest="${jill.build.outdir}" src="${guava.dist.dir}/${guava.libname}">
+        <patternset excludes="META-INF/**"/>
+      </unzip>
+
+      <copy file="${jack-project.dir}/version.properties"
+            tofile="${jill.build.outdir}/jill-version.properties"/>
+
+      <jar destfile="${jill.dist.dir}/${jill.execname}"
+            manifest="${jill.dir}/etc/manifest.txt"
+            basedir="${jill.build.outdir}"
+            includes="**"/>
   </target>
 
 
