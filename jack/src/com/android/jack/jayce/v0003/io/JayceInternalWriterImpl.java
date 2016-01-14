@@ -247,6 +247,10 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
     out.writeUTF(string);
   }
 
+  public void writeBuffer(@CheckForNull byte[] b)  throws IOException {
+    out.writeBuffer(b);
+  }
+
   public void writeFileNameIfDifferentFromCurrent(@CheckForNull String fileName)
       throws IOException {
    if (fileName != null && !fileName.equals(currentFileName)) {
