@@ -24,6 +24,7 @@ import com.android.jack.JarTransformationException;
 import com.android.jack.LibraryException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
 import com.android.jack.library.InputLibrary;
@@ -42,7 +43,9 @@ import com.android.jill.utils.FileUtils;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.Config;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -85,13 +88,32 @@ import javax.annotation.Nonnull;
 /**
  * Common part of {@link InputFilter}
  */
+@HasKeyId
 public abstract class CommonFilter {
+
+  @Nonnull
+  public static final BooleanPropertyId IMPORTED_JAR_DEBUG_INFO = BooleanPropertyId.create(
+      "jack.import.jar.debug-info", "Keep debug info when importing Jars")
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+
+  @Nonnull
+  public static final BooleanPropertyId CLASSPATH_JAR_DEBUG_INFO = BooleanPropertyId.create(
+      "jack.classpath.jar.debug-info", "Keep debug info when using Jars on classpath")
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   /**
    * List of folders inside Jack jar file that can be used as embedded default jack libraries.
    */
   @Nonnull
   private static final String[] JACK_DEFAULT_LIB_PATH = new String[]{"jack-default-lib"};
+
+  @Nonnull
+  private final boolean importedJarDebugInfo =
+      ThreadConfig.get(IMPORTED_JAR_DEBUG_INFO).booleanValue();
+
+  @Nonnull
+  private final boolean classpathJarDebugInfo =
+      ThreadConfig.get(CLASSPATH_JAR_DEBUG_INFO).booleanValue();
 
   private static final class FailedToLocateJackJarException extends Exception {
 
@@ -240,7 +262,10 @@ public abstract class CommonFilter {
         File libraryFile = new File(library.getPath());
         if (FileUtils.isJarFile(libraryFile)) {
           try {
-            libraries.add(convertJarWithJill(libraryFile));
+            com.android.jill.Options jillOptions = new com.android.jill.Options();
+            jillOptions.setBinaryFile(libraryFile);
+            jillOptions.setEmitDebugInfo(classpathJarDebugInfo);
+            libraries.add(convertJarWithJill(jillOptions));
           } catch (JarTransformationException e) {
             Jack.getSession().getReporter().report(Severity.FATAL, e);
             throw new JackAbortException(e);
@@ -267,7 +292,10 @@ public abstract class CommonFilter {
         File libraryFile = new File(library.getPath());
         if (FileUtils.isJarFile(libraryFile)) {
           try {
-            libraries.add(convertJarWithJill(libraryFile));
+            com.android.jill.Options jillOptions = new com.android.jill.Options();
+            jillOptions.setBinaryFile(libraryFile);
+            jillOptions.setEmitDebugInfo(importedJarDebugInfo);
+            libraries.add(convertJarWithJill(jillOptions));
           } catch (JarTransformationException e) {
             Jack.getSession().getReporter().report(Severity.FATAL, e);
             throw new JackAbortException(e);
@@ -374,11 +402,9 @@ public abstract class CommonFilter {
   }
 
   @Nonnull
-  private InputJackLibrary convertJarWithJill(@Nonnull File libraryFile)
+  private InputJackLibrary convertJarWithJill(@Nonnull com.android.jill.Options jillOptions)
       throws JarTransformationException {
     try {
-      com.android.jill.Options jillOptions = new com.android.jill.Options();
-
       final File tempFile = Files.createTempFile("jill-", ".jack");
       Runnable tempFileDeleter = new Runnable() {
         @Override
@@ -391,7 +417,6 @@ public abstract class CommonFilter {
       };
       Jack.getSession().getHooks().addHook(tempFileDeleter);
 
-      jillOptions.setBinaryFile(libraryFile);
       jillOptions.setOutput(tempFile);
       Jill.process(jillOptions);
       InputJackLibraryCodec codec = new InputJackLibraryCodec();
