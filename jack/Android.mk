@@ -81,7 +81,8 @@ JACK_STATIC_JAVA_LIBRARIES := \
   maths-jack \
   args4j-jack \
   antlr-runtime-jack \
-  jack-api
+  jack-api \
+  jill
 
 LOCAL_JAVA_LIBRARIES := \
   sched-build \
