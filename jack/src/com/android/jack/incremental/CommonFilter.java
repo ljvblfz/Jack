@@ -101,6 +101,11 @@ public abstract class CommonFilter {
       "jack.classpath.jar.debug-info", "Keep debug info when using Jars on classpath")
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
+  @Nonnull
+  public static final BooleanPropertyId CLASSPATH_JAR_TOLERANT = BooleanPropertyId.create(
+      "jack.classpath.jar.tolerant", "Tolerate malformed Jars on classpath")
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+
   /**
    * List of folders inside Jack jar file that can be used as embedded default jack libraries.
    */
@@ -114,6 +119,10 @@ public abstract class CommonFilter {
   @Nonnull
   private final boolean classpathJarDebugInfo =
       ThreadConfig.get(CLASSPATH_JAR_DEBUG_INFO).booleanValue();
+
+  @Nonnull
+  private final boolean classpathJarTolerant =
+      ThreadConfig.get(CLASSPATH_JAR_TOLERANT).booleanValue();
 
   private static final class FailedToLocateJackJarException extends Exception {
 
@@ -265,6 +274,7 @@ public abstract class CommonFilter {
             com.android.jill.Options jillOptions = new com.android.jill.Options();
             jillOptions.setBinaryFile(libraryFile);
             jillOptions.setEmitDebugInfo(classpathJarDebugInfo);
+            jillOptions.setTolerant(classpathJarTolerant);
             libraries.add(convertJarWithJill(jillOptions));
           } catch (JarTransformationException e) {
             Jack.getSession().getReporter().report(Severity.FATAL, e);
