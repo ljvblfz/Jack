@@ -175,7 +175,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
     Collection<JDefinedClassOrInterface> typesToEmit = session.getTypesToEmit();
 
     final Collection<JDefinedClassOrInterface> typesToVisit =
-        new HashSet<JDefinedClassOrInterface>();
+        new HashSet<JDefinedClassOrInterface>(typesToEmit);
 
     new TypeReferenceCollector() {
       @Override
