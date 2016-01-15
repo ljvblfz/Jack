@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,41 +21,22 @@ import com.android.sched.util.codec.OrCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * A {@link StringCodec} is used to create an instance of an {@link InputLibrary} representing a
- * library that needs to be imported.
+ * Jack library, a Jar or an invalid library.
  */
-public class ImportedLibraryCodec extends OrCodec<InputLibrary> {
+public class InputLibraryCodec extends OrCodec<InputLibrary> {
 
   @SuppressWarnings("unchecked")
-  public ImportedLibraryCodec() {
+  public InputLibraryCodec() {
     super(new InputJackLibraryCodec(), new JarLibraryCodec());
-  }
-
-  @Override
-  @CheckForNull
-  public InputLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
-      throws ParsingException  {
-    StringCodec<? extends InputLibrary> jackLibCodec = codecList.get(0);
-    StringCodec<? extends InputLibrary> jarCodec = codecList.get(1);
-    try {
-      return jackLibCodec.checkString(context, string);
-    } catch (ParsingException e) {
-      Throwable cause = e.getCause();
-      if (cause instanceof LibraryVersionException || cause instanceof LibraryFormatException) {
-        // do not try other codec, just fail
-        throw e;
-      }
-      try {
-        return jarCodec.checkString(context, string);
-      } catch (ParsingException e2) {
-        // neither codec succeeded, return the error of the first one
-        return jackLibCodec.checkString(context, string);
-      }
-    }
   }
 
   @Override
@@ -76,4 +57,28 @@ public class ImportedLibraryCodec extends OrCodec<InputLibrary> {
     return data.getPath();
   }
 
+  @Override
+  @CheckForNull
+  public InputLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
+      throws ParsingException  {
+    StringCodec<? extends InputLibrary> jackLibCodec = codecList.get(0);
+    StringCodec<? extends InputLibrary> jarCodec = codecList.get(1);
+    List<Throwable> causes = new ArrayList<Throwable>(codecList.size());
+    try {
+      return jackLibCodec.checkString(context, string);
+    } catch (ParsingException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof LibraryVersionException || cause instanceof LibraryFormatException) {
+        // do not try other codec, just fail
+        throw e;
+      }
+      causes.add(cause);
+      try {
+        return jarCodec.checkString(context, string);
+      } catch (ParsingException e2) {
+        causes.add(e2.getCause());
+        return new InvalidLibrary(new File(string), causes);
+      }
+    }
+  }
 }
