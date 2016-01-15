@@ -26,10 +26,9 @@ import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.library.ClasspathEntryCodec;
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.library.ImportedLibraryCodec;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.InputLibraryCodec;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reportable.ProblemLevel;
@@ -284,15 +283,14 @@ public class Options {
   @Nonnull
   public static final ListPropertyId<InputLibrary> IMPORTED_LIBRARIES =
       new ListPropertyId<InputLibrary>("jack.library.import", "Libraries to import",
-          new ImportedLibraryCodec()).minElements(0).addDefaultValue(
+          new InputLibraryCodec()).minElements(0).addDefaultValue(
           Collections.<InputLibrary>emptyList());
 
   @Nonnull
-  public static final PropertyId<List<InputLibrary>> CLASSPATH = PropertyId.create(
-      "jack.classpath",
-      "Classpath",
-      new ListCodec<InputLibrary>(new ClasspathEntryCodec()).setSeparator(File.pathSeparator)
-          .setMin(0)).addDefaultValue(Collections.<InputLibrary>emptyList());
+  public static final ListPropertyId<InputLibrary> CLASSPATH =
+      new ListPropertyId<InputLibrary>("jack.classpath", "Classpath", new InputLibraryCodec())
+          .minElements(0).on(File.pathSeparator)
+          .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(

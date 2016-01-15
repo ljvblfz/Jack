@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -38,8 +39,17 @@ public class InvalidLibrary implements InputLibrary {
   @Nonnull
   private final File file;
 
-  public InvalidLibrary(@Nonnull File file) {
+  @Nonnull
+  private final List<Throwable> causes;
+
+  public InvalidLibrary(@Nonnull File file, @Nonnull List<Throwable> causes) {
     this.file = file;
+    this.causes = causes;
+  }
+
+  @Nonnull
+  public List<Throwable> getInvalidCauses() {
+    return causes;
   }
 
   @Override
