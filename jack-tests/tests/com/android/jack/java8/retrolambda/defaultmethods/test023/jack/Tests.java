@@ -32,8 +32,8 @@ public class Tests {
       };
       Assert.assertEquals(obj.stateless().call(), "foo");
       Assert.assertEquals(obj.captureThis().call(), "foo");
-      Assert.assertEquals("should contain only delegates to the two default methods",
-              obj.getClass().getDeclaredMethods().length, 2);
+      Assert.assertEquals("must not have declared methods",
+              obj.getClass().getDeclaredMethods().length, 0);
   }
 
 }
