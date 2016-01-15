@@ -23,6 +23,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
@@ -58,12 +59,28 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
         while (metaIter.hasNext()) {
           InputVFile metaFile = metaIter.next();
           if (!metaFile.getName().endsWith(Dependency.DEPENDENCY_FILE_EXTENSION)) {
-            Meta meta = new Meta(metaFile.getPathFromRoot(), metaFile);
+            VPath path = getNameFromInputVFile(importedLibrary, metaFile);
+            Meta meta = new Meta(path, metaFile);
             addMetaToOutputJackLib(meta, ojl);
           }
         }
       }
     }
+  }
+
+  //TODO(jack-team): remove this hack
+  @Nonnull
+  private VPath getNameFromInputVFile(@Nonnull InputLibrary jackLibrary,
+      @Nonnull InputVFile metaFile) {
+    VPath path;
+    if (jackLibrary.getMajorVersion() == 0) {
+      String name = ((ZipLocation) metaFile.getLocation()).getEntryName();
+      name = name.substring("JACK-INF/".length());
+      path = new VPath(name, '/');
+    } else {
+      path = metaFile.getPathFromRoot();
+    }
+    return path;
   }
 
   private void addMetaToOutputJackLib(Meta meta, OutputJackLibrary ojl) throws IOException {

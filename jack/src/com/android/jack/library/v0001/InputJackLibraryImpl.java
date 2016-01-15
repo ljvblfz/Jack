@@ -238,6 +238,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
     }
   }
+
   @Override
   @Nonnull
   protected String getPropertyPrefix(@Nonnull FileType type) {
