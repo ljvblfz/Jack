@@ -117,13 +117,14 @@ public class FileAccessErrorTest {
       .srcToExe(
           helper.getOutputDexFolder(), /* zipFile = */ false, helper.getSourceFolder());
       Assert.fail();
-    } catch (PropertyIdException e) {
+    } catch (JackAbortException e) {
       // Failure is ok since Jack file could not be imported since folder is not readable
-      Assert.assertTrue(e.getCause() instanceof ListParsingException);
-      Assert.assertTrue(e.getCause().getCause() instanceof ParsingException);
-      Assert.assertTrue(e.getCause().getCause().getCause() instanceof WrongPermissionException);
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof WrongPermissionException);
     } finally {
-      Assert.assertTrue(errOut.toString().isEmpty());
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("ERROR: Library reading phase: directory"));
+      Assert.assertTrue(errString.contains("is not readable"));
       if (!helper.getJackFolder().setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
       }

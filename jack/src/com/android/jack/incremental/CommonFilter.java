@@ -146,9 +146,9 @@ public abstract class CommonFilter {
 
   private static final class ClasspathEntryIgnoredReportable implements Reportable {
     @Nonnull
-    private final Exception cause;
+    private final Throwable cause;
 
-    private ClasspathEntryIgnoredReportable(@Nonnull Exception cause) {
+    private ClasspathEntryIgnoredReportable(@Nonnull Throwable cause) {
       this.cause = cause;
     }
 
@@ -264,10 +264,13 @@ public abstract class CommonFilter {
             throw new JackAbortException(e);
           }
         } else {
-          reportInvalidLibrary(library, strictMode);
+          // We know this is a valid zip that does not have the .jar extension
+          reportInvalidClasspathLibrary(new NotJackLibraryException(library.getLocation()),
+              strictMode);
         }
       } else if (library instanceof InvalidLibrary) {
-        reportInvalidLibrary(library, strictMode);
+        reportInvalidClasspathLibrary(((InvalidLibrary) library).getInvalidCauses().get(0),
+            strictMode);
       } else {
         throw new AssertionError();
       }
@@ -300,6 +303,11 @@ public abstract class CommonFilter {
           Jack.getSession().getReporter().report(Severity.FATAL, reportable);
           throw new JackAbortException(reportable);
         }
+      } else if (library instanceof InvalidLibrary) {
+        ReportableException reportable =
+            new LibraryReadingException(((InvalidLibrary) library).getInvalidCauses().get(0));
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
       } else {
         throw new AssertionError();
       }
@@ -307,33 +315,16 @@ public abstract class CommonFilter {
     return libraries;
   }
 
-  private void reportInvalidLibrary(@Nonnull InputLibrary library, boolean strictMode) {
-    // let's find why this library is invalid
-    Exception exception = null;
-    try {
-      File file = new File(library.getPath());
-      AbstractStreamFile.check(file, library.getLocation());
-      FileOrDirectory.checkPermissions(file, library.getLocation(), Permission.READ);
-      // the file exists, permissions are OK, so let's consider this is not a Jack library
-      throw new NotJackLibraryException(library.getLocation());
-    } catch (WrongPermissionException e) {
-      exception = e;
-    } catch (NoSuchFileException e) {
-      exception = e;
-    } catch (NotFileException e) {
-      exception = e;
-    } catch (NotJackLibraryException e) {
-      exception = e;
-    }
+  private void reportInvalidClasspathLibrary(@Nonnull Throwable cause, boolean strictMode) {
 
     if (strictMode) {
-      ReportableException reportable = new LibraryReadingException(exception);
+      ReportableException reportable = new LibraryReadingException(cause);
       Jack.getSession().getReporter().report(Severity.FATAL, reportable);
       throw new JackAbortException(reportable);
     } else {
       // Ignore bad entry
       Jack.getSession().getReporter().report(Severity.NON_FATAL,
-          new ClasspathEntryIgnoredReportable(exception));
+          new ClasspathEntryIgnoredReportable(cause));
     }
   }
 
