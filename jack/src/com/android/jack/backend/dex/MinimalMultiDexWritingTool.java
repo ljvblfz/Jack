@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = DexWritingTool.class, name = "minimal-multidex", description =
     "allow emitting several dex files, keeping the first dex (main dex) as small as possible")
-public class MinimalMultiDexWritingTool extends DexWritingTool {
+public class MinimalMultiDexWritingTool extends DexWritingTool implements MultiDexWritingTool {
 
   @Override
   public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {

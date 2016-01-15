@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = DexWritingTool.class, name = "multidex",
     description = "allow emitting several dex files")
-public class StandardMultiDexWritingTool extends DexWritingTool {
+public class StandardMultiDexWritingTool extends DexWritingTool implements MultiDexWritingTool {
 
   @Override
   public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {

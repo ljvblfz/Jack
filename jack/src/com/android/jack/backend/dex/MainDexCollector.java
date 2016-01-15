@@ -25,6 +25,7 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -36,8 +37,13 @@ import javax.annotation.Nonnull;
  */
 @Description("Marks all classes that must be be kept in the main dex.")
 @Transform(add = MainDexMarker.class)
-@Constraint(need = {MultiDexLegacyTracerBrush.TracerMarker.class, ForceInMainDexMarker.class})
-@Optional(@ToSupport(feature = Shrinking.class, add = @Constraint(need = KeepMarker.class)))
+@Constraint(need = ForceInMainDexMarker.class)
+@Support(MultiDex.class)
+@Optional(value = {
+    @ToSupport(feature = Shrinking.class, add = @Constraint(need = KeepMarker.class)),
+    @ToSupport(
+        feature = MultiDexLegacy.class,
+        add = @Constraint(need = MultiDexLegacyTracerBrush.TracerMarker.class))})
 public class MainDexCollector extends TypeReferenceCollector
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 

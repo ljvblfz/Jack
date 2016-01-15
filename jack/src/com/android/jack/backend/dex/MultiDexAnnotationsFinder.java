@@ -31,6 +31,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 
 import java.lang.annotation.Annotation;
@@ -42,6 +43,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Add markers corresponding to annotation configuring multidex.")
 @Constraint(need = OriginalNames.class)
+@Support(MultiDex.class)
 @Transform(add = {MultiDexLegacyTracerBrush.MultiDexInstallerMarker.class,
     ForceInMainDexMarker.class})
 public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
