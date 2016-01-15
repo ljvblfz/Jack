@@ -17,6 +17,7 @@
 package com.android.jack.ir;
 
 import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
+import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAddOperation;
 import com.android.jack.ir.ast.JAndOperation;
@@ -240,6 +241,7 @@ import com.android.sched.item.Name;
     JTryStatement.class,
     JTryStatement.FinallyBlock.class,
     JVoidType.class,
+    OriginDigestMarker.class,
     MultiDimensionNewArray.class,
     NoImplicitBlock.class,
     NotSimplifier.NotExpressionsSimplified.class,

@@ -104,6 +104,7 @@ import com.android.jack.jayce.v0003.nodes.NNewArray;
 import com.android.jack.jayce.v0003.nodes.NNewInstance;
 import com.android.jack.jayce.v0003.nodes.NNullLiteral;
 import com.android.jack.jayce.v0003.nodes.NOrOperation;
+import com.android.jack.jayce.v0003.nodes.NOriginDigest;
 import com.android.jack.jayce.v0003.nodes.NParameter;
 import com.android.jack.jayce.v0003.nodes.NParameterRef;
 import com.android.jack.jayce.v0003.nodes.NPostfixDecOperation;
@@ -750,6 +751,13 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NOrOperation();
+    }
+  },
+  ORIGIN_DIGEST("origin-digest", NodeLevel.STRUCTURE) {
+    @Override
+    @Nonnull
+    public NNode newNode() {
+      return new NOriginDigest();
     }
   },
   PARAMETER("parameter", NodeLevel.STRUCTURE) {

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce.v0003;
+package com.android.jack.digest;
 
 /**
- * Version.
+ * Element which was taken into account to compute the origin digest
  */
-public class Version {
-
-  public static final int MINOR_MIN = 2;
-
-  public static final int CURRENT_MINOR = 2;
+public enum OriginDigestElement {
+  SOURCE,
+  BINARY,
+  LOCAL_NAME,
+  PRIVATE_NAME,
+  PACKAGE_NAME,
+  PROTECTED_NAME,
+  PUBLIC_NAME,
+  COMMENT,
+  FORMAT
 }
